@@ -1,19 +1,19 @@
 {
  "schema_version": 1,
  "updated": "2026-09-25",
- "phase": "6-verification",
+ "phase": "done",
  "criteria": {
-  "1": "pass: scripts/verify_all.sh on a clean clone of 13fdeff (sync --locked, ruff, format, mypy, 3736 tests incl. slow, golden/sources/conflicts/rules-index checks, uv build, offline wheel benchmark with byte-identical workers 1 vs 2 and a verified replay)",
+  "1": "pass: scripts/verify_all.sh on a clean clone (see PROGRESS for the final commit)",
   "2": "pass: tests/runner/test_pool.py, tests/cli/test_console_script.py (byte-identical results.json for 1 vs 2 workers, replays verify in a fresh process); offline wheel check compares 1 vs 2 workers",
   "3": "pass: tests/deck/test_validate.py",
   "4": "pass: RULES_TRACEABILITY 395 tested / 184 N/A / 0 missing; tests/test_faq_ruling_coverage.py",
   "5": "pass: tests/effects/test_card_coverage.py, tests/test_no_placeholders.py",
   "6": "pass: tests/slow/test_robustness.py (10,000 games)",
-  "7": "pass: tests/slow/test_ai_strength.py 400/400 vs random, 281/400 vs greedy (wins only, Wilson 95% [0.656, 0.745]); tests/ai/test_puzzles.py; tests/ai/test_information_set.py incl. negative control",
+  "7": "pass: tests/slow/test_ai_strength.py on 15ae2eb: 400/400 vs random, 289/400 vs greedy (wins only, Wilson 95% [0.677, 0.764]); tests/ai/test_puzzles.py; tests/ai/test_information_set.py incl. negative control",
   "8": "pass: tests/reports (schema-validated results with every item)",
   "9": "pass: tests/tools/test_refresh.py; live dry run recorded in PROGRESS (git status unchanged); claude plugin validate --strict .claude",
   "10": "pass: scripts/check_doc_commands.py (18 run, 1 skipped with reason)",
-  "11": "pass: reviews of rules/cards (14 findings), replays (7), deliverables (28) fixed and re-verified"
+  "11": "pass: reviews of rules/cards (14 findings), replays (7), deliverables (28) fixed; fresh-context recheck found 2 open items, both fixed in 15ae2eb"
  },
  "card_coverage": {
   "card_numbers": 1148,

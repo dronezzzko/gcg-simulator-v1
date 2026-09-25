@@ -42,8 +42,8 @@ records what was done, evidence, and what remains.
 - Integration: the mulligan puzzles now use a legal deck (the engine validates decks); a
   coverage test checks that every modal effect offers every printed mode; dominated-move
   pruning (free add-to-hand Bursts, pointless 0-AP attacks) from the replay review.
-- Measured on the integrated engine: AI vs random 400/400, vs greedy 281/400 (Wilson 95%
-  [0.656, 0.745], draws counted as non-wins, 0 draws); 100 BO3 matches of the example decks take about 6–11 minutes on 8 cores.
+- Measured on the integrated engine (15ae2eb): AI vs random 400/400, vs greedy 289/400
+  (Wilson 95% [0.677, 0.764], draws counted as non-wins, 0 draws); 100 BO3 matches of the example decks take about 6–11 minutes on 8 cores.
 
 ## Phase 5 — Skills and docs (done)
 - `gcg-refresh-data` and `gcg-benchmark` skills (`claude plugin validate --strict .claude`
@@ -52,7 +52,7 @@ records what was done, evidence, and what remains.
   `scripts/verify_wheel_offline.sh`, `scripts/check_doc_commands.py` (18 blocks pass, 1 skipped
   with a reason: it needs a network clone).
 
-## Phase 6 — Verification and adversarial review (in progress)
+## Phase 6 — Verification and adversarial review (done)
 - Review 1 (63 agents): stratified rules sample (54 rules), 23 N/A reasons, 64 cards; 14
   findings confirmed by at least 2 of 3 skeptics and fixed with regression tests (e911333,
   aa0dd30), 2 refuted.
@@ -62,8 +62,10 @@ records what was done, evidence, and what remains.
   cost for an effect that does nothing) are now pruned with tests; choosing the weaker of
   two targets is documented in docs/AI.md as a remaining AI weakness.
 - Review 3 (105 agents): deliverables vs the request through three lenses; 28 findings
-  confirmed (all minor or info), 6 refuted; all 28 fixed (commits ef05730 and the following
-  documentation commit).
+  confirmed (all minor or info), 6 refuted; all 28 fixed (ef05730, 32e9f84).
+- Recheck (25 fresh agents, one per finding): 23 resolved, 2 open (cost-only activations
+  still played while other Units could attack; one docstring) — both fixed in 15ae2eb, along
+  with the small follow-ups the recheck listed.
 - Seat-symmetry checks: 4000 random-agent mirror games (first-player win rate 0.551 seat 0,
   0.539 seat 1); AI mirror 96 BO1 games, seat 0 won 50.
 - Refresh-skill dry run (criterion 9), 2026-09-25 on commit ef05730, network reads only:

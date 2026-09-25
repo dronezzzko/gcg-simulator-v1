@@ -231,15 +231,16 @@ Acceptance test `tests/slow/test_ai_strength.py` (default `standard` preset, tes
 Federation blue/white and SEED red/white from `tests/ai/decks.py`, 400 games per opponent in
 mirrored blocks of four so each deal is played with the MCTS agent on both decks and in both
 seats). Wins are counted; draws count as non-wins, as in the benchmark reports. Run on the
-integrated engine with dominated-move and no-effect pruning (12 worker processes, 8.9 min for
-all 800 games):
+integrated engine with dominated-move and no-effect pruning (commit 15ae2eb, 12 worker
+processes):
 
 | Opponent | MCTS wins | Draws | Win rate | Wilson 95% interval | Mean turns |
 | --- | ---: | ---: | ---: | --- | ---: |
-| random | 400 / 400 | 0 | 1.000 | [0.990, 1.000] | 11.4 |
-| greedy | 281 / 400 | 0 | 0.703 | [0.656, 0.745] | 17.7 |
+| random | 400 / 400 | 0 | 1.000 | [0.990, 1.000] | 11.5 |
+| greedy | 289 / 400 | 0 | 0.723 | [0.677, 0.764] | 17.4 |
 
-(Earlier runs of the same test against greedy: 287/400 before cost-only plays were pruned,
+(Earlier runs of the same test against greedy: 281/400 and 287/400 with earlier versions of
+the no-effect check,
 275/400 with dominated-move pruning only, 276/400 before any pruning on commit 013ea8f, and
 272/400 on the AI branch's older engine; the differences are within sampling noise.)
 
