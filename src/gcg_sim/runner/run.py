@@ -76,10 +76,15 @@ def _collect(
     return results
 
 
+def processes_used(config: BenchmarkConfig) -> int:
+    """Worker processes that actually play (the pool never exceeds the number of matches)."""
+    return 1 if config.workers <= 1 or config.matches == 1 else min(config.workers, config.matches)
+
+
 def _run_parallel(
     config: BenchmarkConfig, factory: AgentFactory, progress: Progress | None
 ) -> list[tuple[MatchRecord, float]]:
-    workers = min(config.workers, config.matches)
+    workers = processes_used(config)
     executor = ProcessPoolExecutor(
         max_workers=workers,
         mp_context=multiprocessing.get_context("spawn"),
@@ -112,7 +117,7 @@ def run_benchmark(
     factory = agent_factory or default_agent_factory
     started_at = _utc_now()
     start = time.perf_counter()
-    if config.workers <= 1 or config.matches == 1:
+    if processes_used(config) == 1:
         results = _run_serial(config, factory, progress)
     else:
         results = _run_parallel(config, factory, progress)
@@ -121,7 +126,7 @@ def run_benchmark(
         finished_at=_utc_now(),
         wall_seconds=time.perf_counter() - start,
         match_seconds=tuple(seconds for _, seconds in results),
-        workers=config.workers,
+        workers=processes_used(config),
     )
     return BenchmarkRun(
         config=config,

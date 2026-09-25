@@ -14,6 +14,7 @@ import jsonschema
 import pytest
 
 from gcg_sim.reports import ReportPaths, build_results, load_schema, validate_results, write_reports
+from gcg_sim.reports.versions import conflict_resolutions
 from gcg_sim.reports.writer import to_json_text
 from gcg_sim.runner import BenchmarkRun, GameRecord, MatchRecord
 from gcg_sim.runner.records import RunTiming
@@ -298,3 +299,10 @@ def test_draws_and_turn_limits_are_counted_and_reported(
     assert results["results"]["games"]["draws"] == 2
     assert results["game_length"]["by_result"]["draw"]["max"] == 200
     assert [e["result"] for e in results["replays"]] == ["win", "loss", "draw"]
+
+
+def test_resolutions_named_by_a_curated_conflict_are_listed_for_every_card_it_names() -> None:
+    entries = conflict_resolutions({"deck_under_test": ["GD01-030"]})
+    assert ("GD01-030", "ambiguous:breach-reminder") in {
+        (e["card_number"], e["conflict_id"]) for e in entries
+    }

@@ -19,7 +19,7 @@ from gcg_sim.cards.db import get_card_db
 from gcg_sim.deck.model import Deck
 from gcg_sim.deck.parse import deck_digest
 from gcg_sim.reports import aggregate as agg
-from gcg_sim.reports.hypotheses import MIN_GAMES, hypotheses
+from gcg_sim.reports.hypotheses import ALPHA, MIN_GAMES, hypotheses
 from gcg_sim.reports.versions import SCHEMA_ID, SCHEMA_VERSION, conflict_resolutions, versions
 from gcg_sim.runner.records import DRAW, BenchmarkRun, GameRecord
 
@@ -173,7 +173,11 @@ def build_results(run: BenchmarkRun) -> dict[str, Any]:
         "cards": cards,
         "benchmark_cards": bench_cards,
         "hypotheses": hypotheses(cards, bench_cards, split, mull),
-        "hypothesis_thresholds": {"min_games": MIN_GAMES},
+        "hypothesis_thresholds": {
+            "min_games": MIN_GAMES,
+            "alpha": ALPHA,
+            "multiple_comparisons": "holm",
+        },
         "conflict_resolutions": conflict_resolutions(
             {
                 "deck_under_test": config.deck_under_test.main + config.deck_under_test.resources,

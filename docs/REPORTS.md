@@ -66,7 +66,7 @@ is either complete or absent.
 
 | Key | Content |
 | --- | --- |
-| `versions` | Package version, results schema, gcg-api `dataset_version`, source commit and build time, Comprehensive Rules version and date, B&R effective date, deck-rules and BO3-rules dates. |
+| `versions` | Package version, `code_digest` (SHA-256 over every file of the installed package, so reports from different builds are distinguishable), results schema, gcg-api `dataset_version`, the dataset manifest's `data_source_commit` (the upstream card-data source; the gcg-api repository commit is pinned in `data/SOURCES.lock.json`) and build time, Comprehensive Rules version and date, B&R effective date, deck-rules and BO3-rules dates. |
 | `config`, `seeds`, `ai` | Match count, format, turn and decision caps, replays per result; the master seed and derivation formulas; the agent factory, preset, agent names and decision-log flag. |
 | `decks` | For each deck: name, sha256 digest of the card counts, colors, and the main and resource listings. |
 | `results` | Match and game outcomes: `n`, `dut_wins`, `bench_wins`, `draws`, and `dut_win_rate`. |

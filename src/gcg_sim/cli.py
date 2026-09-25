@@ -106,6 +106,8 @@ def _read_deck(path: Path) -> Deck:
         raise CliError(f"cannot read deck file {path}: {exc.strerror or exc}") from exc
     except DeckError as exc:
         raise CliError(f"{path}: {exc}") from exc
+    except UnicodeDecodeError as exc:
+        raise CliError(f"{path}: not UTF-8 text ({exc.reason} at byte {exc.start})") from exc
 
 
 def _deck_colors(deck: Deck) -> str:
@@ -171,9 +173,22 @@ def _rate_line(label: str, block: dict[str, Any]) -> str:
     )
 
 
+def _writable_dir(path: Path) -> None:
+    """Fail before simulating when the report directory cannot be created or written; nothing
+    is created here."""
+    existing = path
+    while not existing.exists() and existing != existing.parent:
+        existing = existing.parent
+    if not existing.is_dir():
+        raise CliError(f"cannot write reports to {path}: {existing} is not a directory")
+    if not os.access(existing, os.W_OK | os.X_OK):
+        raise CliError(f"cannot write reports to {path}: permission denied on {existing}")
+
+
 def cmd_benchmark(args: argparse.Namespace, out: TextIO, err: TextIO) -> int:
     dut = _legal_deck(args.deck_under_test)
     bench = _legal_deck(args.benchmark_deck)
+    _writable_dir(args.out)
     config = BenchmarkConfig(
         deck_under_test=dut,
         benchmark_deck=bench,
@@ -192,7 +207,10 @@ def cmd_benchmark(args: argparse.Namespace, out: TextIO, err: TextIO) -> int:
         raise CliError(f"{exc}; the benchmark needs the search AI") from exc
     except GameFailure as exc:
         raise CliError(f"simulation failed: {exc}") from exc
-    paths = write_reports(run, config.out_dir)
+    try:
+        paths = write_reports(run, config.out_dir)
+    except OSError as exc:
+        raise CliError(f"cannot write reports to {config.out_dir}: {exc.strerror or exc}") from exc
     print(f"{dut.name} (deck under test) vs {bench.name} (benchmark)", file=out)
     print(_rate_line("matches", match_outcomes(run.matches)), file=out)
     print(_rate_line("games", game_outcomes(run.games)), file=out)

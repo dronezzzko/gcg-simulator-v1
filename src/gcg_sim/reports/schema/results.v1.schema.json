@@ -35,6 +35,7 @@
       "additionalProperties": false,
       "required": [
         "package",
+        "code_digest",
         "results_schema",
         "dataset_version",
         "data_source_commit",
@@ -47,9 +48,18 @@
       ],
       "properties": {
         "package": {"type": "string"},
+        "code_digest": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$",
+          "description": "SHA-256 over every file of the installed gcg_sim package (code, bindings, packaged data, overrides)"
+        },
         "results_schema": {"const": "1.0.0"},
         "dataset_version": {"type": "string", "minLength": 1},
-        "data_source_commit": {"type": "string", "minLength": 1},
+        "data_source_commit": {
+          "type": "string",
+          "minLength": 1,
+          "description": "source_commit of the gcg-api dataset manifest (the upstream card-data source), not the gcg-api repository commit pinned in data/SOURCES.lock.json"
+        },
         "data_built_at": {"type": "string", "minLength": 1},
         "rules_version": {"type": "string", "minLength": 1},
         "rules_effective_date": {"type": "string", "format": "date"},
@@ -230,8 +240,12 @@
     "hypothesis_thresholds": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["min_games"],
-      "properties": {"min_games": {"type": "integer", "minimum": 1}}
+      "required": ["min_games", "alpha", "multiple_comparisons"],
+      "properties": {
+        "min_games": {"type": "integer", "minimum": 1},
+        "alpha": {"type": "number", "exclusiveMinimum": 0, "exclusiveMaximum": 1},
+        "multiple_comparisons": {"const": "holm"}
+      }
     },
     "conflict_resolutions": {
       "type": "array",

@@ -50,6 +50,17 @@ def test_validate_reports_parse_errors(tmp_path: Path, capsys: pytest.CaptureFix
     assert "line 2: unknown card id 'GD01-9999' (not in the card data)" in err
 
 
+def test_validate_rejects_a_deck_file_that_is_not_utf8(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    deck = tmp_path / "utf16.txt"
+    deck.write_text(FEDERATION.read_text(encoding="utf-8"), encoding="utf-16")
+    assert main(["validate", str(deck)]) == 1
+    err = capsys.readouterr().err
+    assert err.startswith(f"error: {deck}: not UTF-8 text")
+    assert "Traceback" not in err
+
+
 def test_validate_missing_file(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
     missing = tmp_path / "nope.txt"
     assert main(["validate", str(missing)]) == 1
@@ -154,6 +165,18 @@ def test_benchmark_rejects_an_illegal_deck(
     assert main([*argv, "--out", str(out_dir)]) == 1
     assert "[MAIN_SIZE]" in capsys.readouterr().err
     assert not out_dir.exists()
+
+
+def test_benchmark_checks_the_report_directory_before_playing(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    not_a_dir = tmp_path / "afile"
+    not_a_dir.write_text("", encoding="utf-8")
+    argv = ["benchmark", str(ZEON), str(FEDERATION), "--matches", "2", "--out", str(not_a_dir)]
+    assert main(argv) == 1
+    err = capsys.readouterr().err
+    assert err.startswith(f"error: cannot write reports to {not_a_dir}")
+    assert "matches 1/2" not in err
 
 
 def test_benchmark_without_the_ai_package_fails_clearly(

@@ -80,3 +80,27 @@ def test_decision_invariant_under_hidden_permutation(kind: str, index: int) -> N
     expected = _decision(kind, seed, st)
     for s in PERMUTATION_SEEDS:
         assert _decision(kind, seed, permute_hidden(st, p, s)) == expected
+
+
+def test_negative_control_a_search_on_the_true_state_is_not_invariant(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """The invariance test can fail: if the search looks at the true state instead of a
+    determinization, its statistics change with the hidden cards on most states."""
+    import gcg_sim.ai.mcts as mcts
+    import gcg_sim.ai.noop as noop
+
+    def true_state(st: GameState, player: int, seed: int) -> GameState:
+        return st.clone()
+
+    monkeypatch.setattr(mcts, "determinize", true_state)
+    monkeypatch.setattr(noop, "determinize", true_state)
+    states = midgame_states()
+    differs = 0
+    for index, st in enumerate(states):
+        assert st.pending is not None
+        seed = AGENT_SEEDS[index % len(AGENT_SEEDS)]
+        variant = permute_hidden(st, st.pending.player, PERMUTATION_SEEDS[0])
+        differs += _decision("mcts", seed, variant) != _decision("mcts", seed, st)
+    print(f"\ntrue-state search changed on {differs} of {len(states)} states")
+    assert differs >= len(states) // 2

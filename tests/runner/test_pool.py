@@ -57,3 +57,12 @@ def test_interrupt_terminates_workers_and_returns_nothing(
     with pytest.raises(KeyboardInterrupt):
         run_benchmark(long_run, interrupt, agent_factory=random_factory)
     assert multiprocessing.active_children() == []
+
+
+def test_timing_records_the_processes_that_actually_played(
+    config: BenchmarkConfig, random_factory: FactoryRef
+) -> None:
+    one_match = dataclasses.replace(config, matches=1, workers=4)
+    assert run_benchmark(one_match, agent_factory=random_factory).timing.workers == 1
+    two_matches = dataclasses.replace(config, matches=2, workers=4)
+    assert run_benchmark(two_matches, agent_factory=random_factory).timing.workers == 2

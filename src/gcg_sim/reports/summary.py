@@ -171,11 +171,26 @@ def _hypotheses(res: dict[str, Any]) -> list[str]:
         "## Tuning hypotheses (to test, not conclusions)",
         "",
     ]
+    t = res["hypothesis_thresholds"]
+    gate = (
+        f"at least {t['min_games']} games per side and a two-proportion z-test significant at "
+        f"{t['alpha']} after a {t['multiple_comparisons'].capitalize()} correction"
+    )
     if not res["hypotheses"]:
-        need = res["hypothesis_thresholds"]["min_games"]
-        return [*lines, f"No signal reached the minimum sample ({need} games per side).", ""]
-    lines += [f"- {h['statement']} (sample: {h['sample_size']})" for h in res["hypotheses"]]
+        return [*lines, f"No difference cleared the noise gate ({gate}). Run more games.", ""]
+    lines += [f"Signals shown cleared the noise gate ({gate}).", ""]
+    lines += [f"- {h['statement']} {_evidence_note(h)}" for h in res["hypotheses"]]
     return [*lines, ""]
+
+
+def _evidence_note(h: dict[str, Any]) -> str:
+    ev = h["evidence"]
+    if "p_value" not in ev:
+        return f"(sample: {h['sample_size']})"
+    return (
+        f"(sample: {h['sample_size']}; p = {ev['p_value']}, "
+        f"{ev.get('comparisons', 1)} comparison(s) of this kind)"
+    )
 
 
 def _provenance(res: dict[str, Any]) -> list[str]:

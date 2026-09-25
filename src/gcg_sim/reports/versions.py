@@ -2,10 +2,12 @@
 
 from __future__ import annotations
 
+import hashlib
 import json
-from collections.abc import Iterable, Mapping
+from collections.abc import Iterable, Iterator, Mapping
 from functools import cache
-from importlib import metadata
+from importlib import metadata, resources
+from importlib.resources.abc import Traversable
 from typing import Any
 
 from gcg_sim.cards.db import get_card_db, load_overrides, read_data_text
@@ -27,12 +29,36 @@ def package_version() -> str:
         return "unknown"
 
 
+def _package_files(node: Traversable, prefix: str = "") -> Iterator[tuple[str, Traversable]]:
+    for child in node.iterdir():
+        if child.name == "__pycache__" or child.name.endswith(".pyc"):
+            continue
+        path = f"{prefix}{child.name}"
+        if child.is_dir():
+            yield from _package_files(child, path + "/")
+        else:
+            yield path, child
+
+
+@cache
+def code_digest() -> str:
+    """SHA-256 over every file of the installed package (code, bindings, packaged data and
+    overrides), so reports from different builds are distinguishable."""
+    h = hashlib.sha256()
+    for path, file in sorted(_package_files(resources.files("gcg_sim"))):
+        h.update(path.encode())
+        h.update(b"\0")
+        h.update(file.read_bytes())
+    return h.hexdigest()
+
+
 @cache
 def versions() -> dict[str, Any]:
     manifest = _data_json("gcgapi", "manifest.json")
     rules = _data_json("official", "rules_version.json")
     return {
         "package": package_version(),
+        "code_digest": code_digest(),
         "results_schema": SCHEMA_VERSION,
         "dataset_version": manifest["dataset_version"],
         "data_source_commit": manifest["source_commit"],
@@ -53,11 +79,23 @@ def manifest() -> dict[str, Any]:
     return _data_json("gcgapi", "manifest.json")
 
 
+@cache
+def _curated_cards() -> dict[str, frozenset[str]]:
+    """Card numbers each curated conflict names (a resolution may cover several cards)."""
+    curated = json.loads(read_data_text("curated_conflicts.json")).get("conflicts", [])
+    return {
+        str(c["id"]): frozenset(str(n) for n in c.get("card_numbers") or ())
+        for c in curated
+        if isinstance(c, Mapping) and c.get("id")
+    }
+
+
 def _resolution_cards(cid: str, res: Mapping[str, Any]) -> set[str]:
     numbers = set(res.get("card_numbers") or ())
     if res.get("card_number"):
         numbers.add(str(res["card_number"]))
     numbers.update(cid.split(":")[1:])
+    numbers.update(_curated_cards().get(cid, ()))
     return numbers
 
 

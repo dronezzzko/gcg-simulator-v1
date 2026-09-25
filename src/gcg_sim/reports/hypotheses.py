@@ -1,7 +1,9 @@
 """Tuning signals, stated as hypotheses with their sample sizes (never as conclusions).
 
 Every signal is a correlation between a card event and the game result in AI-vs-AI games;
-it suggests what to test next, not what caused a result.
+it suggests what to test next, not what caused a result. A comparison becomes a hypothesis
+only when a two-proportion z-test rejects "no difference" at family level ``ALPHA`` after a
+Holm correction over every comparison of its kind, so pure noise produces no signals.
 """
 
 from __future__ import annotations
@@ -9,7 +11,7 @@ from __future__ import annotations
 from collections.abc import Callable
 from typing import Any
 
-from gcg_sim.reports.stats import intervals_overlap, rnd
+from gcg_sim.reports.stats import holm, intervals_overlap, rnd, two_proportion_p
 
 MIN_GAMES = 20
 MIN_REDRAWS = 10
@@ -17,6 +19,7 @@ MIN_DELTA = 0.05
 MIN_SPLIT_DELTA = 0.10
 DEAD_CARD_RATE = 0.5
 PER_DIRECTION = 3
+ALPHA = 0.05
 
 
 def _pct(x: float | None) -> str:
@@ -42,7 +45,31 @@ def _compare(a: dict[str, Any], b: dict[str, Any]) -> dict[str, Any]:
         "b": b,
         "delta": rnd(a["rate"] - b["rate"]),
         "ci95_separated": not intervals_overlap(a, b),
+        "p_value": rnd(two_proportion_p(a, b)),
     }
+
+
+def _significant(found: list[dict[str, Any]], comparisons: int) -> list[dict[str, Any]]:
+    """Keep the hypotheses whose tests survive a Holm correction over ``comparisons`` tests
+    (the candidates that met the sample minimum, whatever their difference)."""
+    family = max(comparisons, len(found))
+    p_values = [h["evidence"]["p_value"] for h in found] + [1.0] * (family - len(found))
+    keep = holm(p_values, ALPHA)
+    out = []
+    for h, ok in zip(found, keep, strict=False):
+        h["evidence"]["comparisons"] = family
+        if ok:
+            out.append(h)
+    return out
+
+
+def _sampled_cards(cards: list[dict[str, Any]]) -> int:
+    return sum(
+        1
+        for c in cards
+        if c["win_rate_when_drawn"]["n"] >= MIN_GAMES
+        and c["win_rate_when_not_drawn"]["n"] >= MIN_GAMES
+    )
 
 
 def _card_delta(card: dict[str, Any]) -> dict[str, Any] | None:
@@ -167,8 +194,11 @@ def hypotheses(
     split: dict[str, Any],
     mull: dict[str, Any],
 ) -> list[dict[str, Any]]:
-    out = _top_by_delta(_collect(cards, _card_delta))
+    out = _top_by_delta(_significant(_collect(cards, _card_delta), _sampled_cards(cards)))
     out += _collect(cards, _dead_card)
-    out += [h for h in (_play_draw(split), _redraw(mull["dut"])) if h is not None]
-    out += _collect(bench_cards, _bench_threat)[:PER_DIRECTION]
+    for h in (_play_draw(split), _redraw(mull["dut"])):
+        if h is not None:
+            out += _significant([h], 1)
+    eligible = sum(1 for b in bench_cards if b["rank_eligible"])
+    out += _significant(_collect(bench_cards, _bench_threat), eligible)[:PER_DIRECTION]
     return out

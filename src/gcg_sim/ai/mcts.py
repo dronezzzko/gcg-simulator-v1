@@ -22,6 +22,7 @@ from gcg_sim.ai.actions import Key, canonical, prune_dominated
 from gcg_sim.ai.base import Alternative
 from gcg_sim.ai.config import SearchConfig
 from gcg_sim.ai.evaluation import Weights, burst_density, logistic, score
+from gcg_sim.ai.noop import SPENDING, without_effect
 from gcg_sim.ai.playout import play_until_turn
 from gcg_sim.engine.game import apply
 from gcg_sim.engine.observe import determinize
@@ -76,6 +77,9 @@ def search(
     assert dec is not None
     assert dec.player == player
     root_moves = prune_dominated(st, dec, canonical(st, dec))
+    if any(a.kind in SPENDING for _, a in root_moves):
+        idle = without_effect(st, player, dec, root_moves, rng.next_u64())
+        root_moves = [m for m in root_moves if m[0] not in idle] or root_moves
     if len(root_moves) == 1:
         return SearchResult(root_moves[0][1], [], 0)
     ctx = _Search(

@@ -14,6 +14,7 @@ from tests.ai.situations import EXTRA_SELECTS, SITUATIONS
 from gcg_sim.ai import AGENT_KINDS, PRESETS, SearchConfig, make_agent
 from gcg_sim.ai.actions import canonical, ex_used, prune_dominated
 from gcg_sim.ai.agents import MctsAgent
+from gcg_sim.ai.noop import without_effect
 from gcg_sim.ai.selfplay import run_game
 from gcg_sim.engine.game import apply, new_game
 from gcg_sim.engine.state import Action, GameState
@@ -219,3 +220,33 @@ def test_a_free_add_to_hand_burst_is_always_accepted() -> None:
     assert [a.kind for _, a in moves] == [ActionKind.YES]
     for seed in range(3):
         assert make_agent("mcts", seed=seed).choose(st, 0) == Action(ActionKind.YES)
+
+
+def _after_attacks_with(command: str) -> tuple[GameState, int]:
+    sc = Scenario()
+    sc.resources(0, 4)
+    sc.add(0, "GD01-060", rested=True)  # already attacked
+    sc.add(1, "GD01-060")  # active enemy Unit without <Blocker>: nothing can battle it now
+    sc.shields(1, "GD01-060", "GD01-060")
+    card = sc.add(0, command, Zone.HAND)
+    st = sc.start()
+    return st, card
+
+
+def test_a_command_that_changes_nothing_this_turn_is_recognised() -> None:
+    st, card = _after_attacks_with("ST01-014")  # 【Main】/【Action】 AP-3 during this turn
+    dec = st.pending
+    assert dec is not None
+    moves = canonical(st, dec)
+    idle = without_effect(st, 0, dec, moves, seed=3)
+    assert [a for key, a in moves if key in idle] == [
+        a for _, a in moves if a.kind is ActionKind.PLAY_COMMAND and a.a == card
+    ]
+    assert make_agent("mcts", seed=1).choose(st, 0).kind is ActionKind.END_MAIN
+
+
+def test_a_command_with_a_lasting_result_is_not_pruned() -> None:
+    st, _ = _after_attacks_with("GD01-100")  # draws cards
+    dec = st.pending
+    assert dec is not None
+    assert without_effect(st, 0, dec, canonical(st, dec), seed=3) == set()

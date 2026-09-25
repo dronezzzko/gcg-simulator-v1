@@ -13,7 +13,8 @@ import os
 import pytest
 from tests.ai.decks import DECKS
 
-from gcg_sim.ai.selfplay import AgentSpec, GameOutcome, mirrored_specs, play_all, wilson
+from gcg_sim.ai.selfplay import AgentSpec, GameOutcome, mirrored_specs, play_all
+from gcg_sim.reports.stats import wilson
 
 GAMES = 400
 MCTS = AgentSpec("mcts", "standard")
@@ -25,14 +26,16 @@ def _workers() -> int:
 
 
 def _match(opponent: AgentSpec, seed: int) -> tuple[float, tuple[float, float], list[GameOutcome]]:
+    """Win rate of the MCTS agent; draws count as non-wins, as in the benchmark reports."""
     outcomes = play_all(mirrored_specs(GAMES, seed, MCTS, opponent, DECKS), _workers())
-    score = sum(o.challenger_score for o in outcomes)
-    lo, hi = wilson(score, len(outcomes))
-    rate = score / len(outcomes)
+    wins = sum(o.winner == o.challenger for o in outcomes)
+    draws = sum(o.winner == -1 for o in outcomes)
+    lo, hi = wilson(wins, len(outcomes))
+    rate = wins / len(outcomes)
     turns = sum(o.turns for o in outcomes) / len(outcomes)
     print(
-        f"\nmcts-standard vs {opponent.kind}: {score}/{len(outcomes)} = {rate:.3f} "
-        f"(Wilson 95% [{lo:.3f}, {hi:.3f}]), mean turns {turns:.1f}"
+        f"\nmcts-standard vs {opponent.kind}: {wins} wins, {draws} draws in {len(outcomes)} "
+        f"games = {rate:.3f} (Wilson 95% [{lo:.3f}, {hi:.3f}]), mean turns {turns:.1f}"
     )
     return rate, (lo, hi), outcomes
 

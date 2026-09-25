@@ -7,7 +7,14 @@ from hypothesis import given
 from hypothesis import strategies as st
 
 from gcg_sim.reports import wilson
-from gcg_sim.reports.stats import distribution, intervals_overlap, percentile, rate
+from gcg_sim.reports.stats import (
+    distribution,
+    holm,
+    intervals_overlap,
+    percentile,
+    rate,
+    two_proportion_p,
+)
 
 
 def test_wilson_known_values() -> None:
@@ -59,3 +66,11 @@ def test_distribution_and_percentiles() -> None:
     d = distribution([5, 1, 3])
     assert d == {"n": 3, "mean": 3.0, "median": 3, "min": 1, "max": 5, "p10": 1, "p90": 5}
     assert distribution([])["mean"] is None
+
+
+def test_two_proportion_test_and_holm_correction() -> None:
+    same = two_proportion_p(rate(15, 30), rate(15, 30))
+    assert same == 1.0
+    assert 0.001 < two_proportion_p(rate(21, 30), rate(9, 30)) < 0.003
+    assert holm([0.01, 0.04, 0.03], 0.05) == [True, False, False]
+    assert holm([0.001, 0.01, 0.02], 0.05) == [True, True, True]

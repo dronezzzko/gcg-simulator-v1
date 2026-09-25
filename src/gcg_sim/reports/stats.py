@@ -47,6 +47,31 @@ def intervals_overlap(a: dict[str, Any], b: dict[str, Any]) -> bool:
     return bool(a["ci95"][0] <= b["ci95"][1] and b["ci95"][0] <= a["ci95"][1])
 
 
+def two_proportion_p(a: dict[str, Any], b: dict[str, Any]) -> float:
+    """Two-sided p-value of the pooled two-proportion z-test between two ``rate`` blocks."""
+    n1, n2 = a["n"], b["n"]
+    if not n1 or not n2:
+        return 1.0
+    pooled = (a["successes"] + b["successes"]) / (n1 + n2)
+    se = math.sqrt(pooled * (1 - pooled) * (1 / n1 + 1 / n2))
+    if se == 0:
+        return 1.0
+    z = abs(a["successes"] / n1 - b["successes"] / n2) / se
+    return math.erfc(z / math.sqrt(2))
+
+
+def holm(p_values: Sequence[float], alpha: float) -> list[bool]:
+    """Holm-Bonferroni step-down: which of ``p_values`` are significant at family level
+    ``alpha``."""
+    order = sorted(range(len(p_values)), key=lambda i: (p_values[i], i))
+    passed = [False] * len(p_values)
+    for rank, i in enumerate(order):
+        if p_values[i] > alpha / (len(p_values) - rank):
+            break
+        passed[i] = True
+    return passed
+
+
 def percentile(sorted_values: Sequence[int], q: float) -> int:
     """Nearest-rank percentile of already sorted values."""
     rank = max(1, math.ceil(q * len(sorted_values)))

@@ -91,3 +91,23 @@ def test_small_samples_produce_no_hypotheses(run: BenchmarkRun, make_record: Rec
     games = games_with(make_record, 8, 8, 0, drawn=(GOOD, DEAD), bench_seen=(THREAT,))
     games += games_with(make_record, 8, 0, 8)
     assert results_for(run, games)["hypotheses"] == []
+
+
+def test_a_difference_within_sampling_noise_is_not_a_hypothesis(
+    run: BenchmarkRun, make_record: RecordFactory
+) -> None:
+    drawn = games_with(make_record, 30, 17, 0, drawn=(GOOD,), played=(GOOD,))
+    not_drawn = games_with(make_record, 30, 14, 30)
+    results = results_for(run, drawn + not_drawn)
+    assert "card_drawn_win_rate" not in by_kind(results)
+    assert results["hypothesis_thresholds"]["multiple_comparisons"] == "holm"
+
+
+def test_signals_carry_their_test_and_family_size(
+    run: BenchmarkRun, make_record: RecordFactory
+) -> None:
+    drawn = games_with(make_record, 30, 21, 0, drawn=(GOOD,), played=(GOOD,))
+    not_drawn = games_with(make_record, 30, 9, 30)
+    (h,) = by_kind(results_for(run, drawn + not_drawn))["card_drawn_win_rate"]
+    assert h["evidence"]["p_value"] < 0.05
+    assert h["evidence"]["comparisons"] == 1
