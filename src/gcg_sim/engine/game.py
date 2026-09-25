@@ -678,14 +678,12 @@ def _start_next_trigger(st: GameState) -> None:
 
 
 def _resolve_trigger(st: GameState, t: TriggerInst) -> None:
-    if t.once_key:
-        if t.once_key in st.once_used:
-            return
-        st.once_used.add(t.once_key)
+    if t.once_key and t.once_key in st.once_used:
+        return
     kind = "burst" if t.burst else "trigger"
     if t.burst:
         core.record(st, "burst_revealed", t.controller, t.controller, t.card_uid)
-    I.push_frame(
+    f = I.push_frame(
         st,
         t.program_id,
         controller=t.controller,
@@ -694,6 +692,7 @@ def _resolve_trigger(st: GameState, t: TriggerInst) -> None:
         kind=kind,
         event=t.event,
     )
+    f.once_key = t.once_key
 
 
 # ---------------------------------------------------------------------------------------------

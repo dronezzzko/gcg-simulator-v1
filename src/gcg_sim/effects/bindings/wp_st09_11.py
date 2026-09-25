@@ -155,7 +155,12 @@ def st10_006(c: CardDef) -> d.CardScript:
     return _script(
         c,
         d.Triggered(
-            d.Trigger(d.Ev.DESTROYS_BY_BATTLE, whose_turn=d.P.YOU, target_filters=(UNIT,)),
+            d.Trigger(
+                d.Ev.DESTROYS_BY_BATTLE,
+                battle_only=True,
+                whose_turn=d.P.YOU,
+                target_filters=(UNIT,),
+            ),
             (
                 d.Choose("t1", _enemy_units(_current_hp_at_most(3))),
                 d.ReturnToHand(d.Var("t1")),

@@ -191,6 +191,7 @@ def gd04_002(c: CardDef) -> d.CardScript:
                 d.DelayedTrigger(
                     d.Trigger(
                         d.Ev.DESTROYS_BY_BATTLE,
+                        battle_only=True,
                         self_only=False,
                         subject=_units(F, ef),
                         target_filters=(UNIT,),

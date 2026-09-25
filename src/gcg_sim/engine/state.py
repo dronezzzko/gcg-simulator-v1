@@ -336,6 +336,8 @@ class Frame:
     waiting: bool = False
     buf: list[int] = field(default_factory=list)
     ints: dict[str, int] = field(default_factory=dict)
+    once_key: tuple[int, ...] = ()
+    acted: bool = False
 
     def copy(self) -> Frame:
         return Frame(
@@ -353,6 +355,8 @@ class Frame:
             self.waiting,
             list(self.buf),
             dict(self.ints),
+            self.once_key,
+            self.acted,
         )
 
     def ev(self, key: str, default: int = NO_ARG) -> int:
@@ -377,6 +381,8 @@ class Frame:
             "waiting": self.waiting,
             "buf": list(self.buf),
             "ints": dict(sorted(self.ints.items())),
+            "once_key": list(self.once_key),
+            "acted": self.acted,
         }
 
     @staticmethod
@@ -396,6 +402,8 @@ class Frame:
             waiting=bool(d["waiting"]),
             buf=[int(x) for x in d["buf"]],
             ints={str(k): int(v) for k, v in d["ints"].items()},
+            once_key=tuple(int(x) for x in d["once_key"]),
+            acted=bool(d["acted"]),
         )
 
 
@@ -429,6 +437,7 @@ class GameState:
         "cards",
         "decklists",
         "delayed",
+        "effect_hits",
         "end_reason",
         "event_group",
         "first_player",
@@ -486,6 +495,7 @@ class GameState:
         self.redraws = [False, False]
         self.action_count = 0
         self.event_group = 0
+        self.effect_hits: dict[int, int] = {}
         self.turn_limit = 200
         self.max_actions = 20000
         self.version = 0
@@ -543,6 +553,7 @@ class GameState:
         s.redraws = list(self.redraws)
         s.action_count = self.action_count
         s.event_group = self.event_group
+        s.effect_hits = dict(self.effect_hits)
         s.turn_limit = self.turn_limit
         s.max_actions = self.max_actions
         s.version = self.version
@@ -581,6 +592,7 @@ class GameState:
             "redraws": list(self.redraws),
             "action_count": self.action_count,
             "event_group": self.event_group,
+            "effect_hits": [[k, v] for k, v in sorted(self.effect_hits.items())],
             "turn_limit": self.turn_limit,
             "max_actions": self.max_actions,
             "version": self.version,
@@ -619,6 +631,7 @@ class GameState:
         s.redraws = [bool(x) for x in d["redraws"]]
         s.action_count = int(d["action_count"])
         s.event_group = int(d["event_group"])
+        s.effect_hits = {int(k): int(v) for k, v in d["effect_hits"]}
         s.turn_limit = int(d["turn_limit"])
         s.max_actions = int(d["max_actions"])
         s.version = int(d["version"])

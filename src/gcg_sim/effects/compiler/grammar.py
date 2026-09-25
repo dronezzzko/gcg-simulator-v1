@@ -693,11 +693,17 @@ def _tr_destroys_unit(m: re.Match[str], g: G) -> d.Trigger:
     if extra:
         spec = parse_selector("1 enemy " + extra + " Unit")
         tf = spec.sel.filters
+    battle = True if m.group(3) else None
     if subj.lower() == "this unit":
-        return d.Trigger(d.Ev.DESTROYS_BY_BATTLE, target_filters=tf)
+        return d.Trigger(d.Ev.DESTROYS_BY_BATTLE, target_filters=tf, battle_only=battle)
     sel, inc = _subject_sel(subj)
     return d.Trigger(
-        d.Ev.DESTROYS_BY_BATTLE, self_only=False, subject=sel, target_filters=tf, include_self=inc
+        d.Ev.DESTROYS_BY_BATTLE,
+        self_only=False,
+        subject=sel,
+        target_filters=tf,
+        include_self=inc,
+        battle_only=battle,
     )
 
 
@@ -886,7 +892,7 @@ def _tr_command(m: re.Match[str], g: G) -> d.Trigger:
 _TRIGGERS: list[tuple[re.Pattern[str], Callable[[re.Match[str], G], d.Trigger]]] = [
     (
         re.compile(
-            r"^when (this Unit|one of your .+?|a friendly .+?|another friendly .+?) destroys an enemy (.*?)Unit with (?:battle )?damage$",
+            r"^when (this Unit|one of your .+?|a friendly .+?|another friendly .+?) destroys an enemy (.*?)Unit with (battle )?damage$",
             re.I,
         ),
         _tr_destroys_unit,

@@ -134,6 +134,7 @@ def _destroy_battle(st: GameState, victims: dict[int, int]) -> list[int]:
             player=st.cards[src].owner,
             lki=lki,
             target=u,
+            battle=1,
             breach=breach.get(src, 0),
             group=group,
         )

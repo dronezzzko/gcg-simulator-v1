@@ -738,10 +738,6 @@ def test_gd05_089_deployed_as_unit_can_be_paired() -> None:
 
 @pytest.mark.card("GD05-089")
 @pytest.mark.ruling("GD05-089:Q391")
-@pytest.mark.xfail(
-    strict=True,
-    reason="ENGINE: interp._h_activate_main does not record a Command activation in the turn history",
-)
 def test_gd05_089_counts_main_activated_on_a_paired_special_move_command() -> None:
     sc, haow, enemy = _master_asia_scenario()
     dragon = sc.add(0, "GD05-035", pilot="GD05-112")  # activates paired [Sai Saici] 【Main】
@@ -1007,10 +1003,6 @@ def test_gd05_097_discarding_another_card_offers_nothing() -> None:
 
 @pytest.mark.card("GD05-097")
 @pytest.mark.ruling("GD05-097:Q397")
-@pytest.mark.xfail(
-    strict=True,
-    reason="ENGINE: interp._h_activate_main does not record/emit a Command activation",
-)
 def test_gd05_097_activation_counts_as_activating_a_special_move_main() -> None:
     sc = Scenario()
     sc.resources(0, 4)

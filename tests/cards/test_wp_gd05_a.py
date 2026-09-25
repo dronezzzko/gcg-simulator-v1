@@ -1483,10 +1483,6 @@ def test_gd05_035_breach_destroying_a_shield_triggers() -> None:
 
 @pytest.mark.card("GD05-035")
 @pytest.mark.ruling("GD05-035:Q361")
-@pytest.mark.xfail(
-    strict=True,
-    reason="ENGINE: a Base destroyed by effect damage emits no 'destroys shield area card' event",
-)
 def test_gd05_035_breach_destroying_the_base_triggers() -> None:
     sc = Scenario()
     sc.resources(0, 4)
@@ -2414,10 +2410,6 @@ def test_gd05_068_special_move_command_grants_suppression_this_turn() -> None:
 
 @pytest.mark.card("GD05-068")
 @pytest.mark.ruling("GD05-068:Q376")
-@pytest.mark.xfail(
-    strict=True,
-    reason="ENGINE: activating a Command's 【Main】 through an effect emits no command event",
-)
 def test_gd05_068_main_activated_by_an_effect_also_grants_suppression() -> None:
     sc = Scenario(active=1)
     super_mode = sc.add(0, "GD05-068")

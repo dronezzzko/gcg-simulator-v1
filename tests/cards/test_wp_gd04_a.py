@@ -202,10 +202,6 @@ def test_gd04_002_no_rest_without_the_deploy_effect_this_turn() -> None:
 
 @pytest.mark.card("GD04-002")
 @pytest.mark.rule("10-1-6-1-1")
-@pytest.mark.xfail(
-    strict=True,
-    reason="ENGINE: DelayedTrigger fires once; 'during this turn, when ...' must fire every time",
-)
 def test_gd04_002_delayed_effect_fires_for_every_destruction_this_turn() -> None:
     sc = Scenario()
     sc.resources(0, 6)
@@ -223,6 +219,7 @@ def test_gd04_002_delayed_effect_fires_for_every_destruction_this_turn() -> None
     select(st, big1)
     attack(st, gm2, victim2)
     pass_all(st)
+    select(st, big2)
     assert st.cards[big1].rested
     assert st.cards[big2].rested
 
@@ -1185,10 +1182,6 @@ def test_gd04_035_no_draw_with_four_cards_in_hand() -> None:
 @pytest.mark.card("GD04-035")
 @pytest.mark.ruling("GD04-035:Q270")
 @pytest.mark.rule("8-5-3-2-3", "10-1-6-4")
-@pytest.mark.xfail(
-    strict=True,
-    reason="ENGINE: delayed self-bound trigger ignores a destroyer that left play in the same step",
-)
 def test_gd04_035_draws_when_both_units_are_destroyed() -> None:
     st, messer, target = _xi_gundam(Scenario(), BIGRO, 3)
     attack(st, messer, target)
@@ -1416,10 +1409,6 @@ def test_gd04_042_unlinked_does_not_trigger() -> None:
 
 @pytest.mark.card("GD04-042", "GD04-018")
 @pytest.mark.rule("13-1-2-1")
-@pytest.mark.xfail(
-    strict=True,
-    reason="ENGINE: a Base destroyed by effect damage (e.g. <Breach>) emits no DESTROYS_SHIELD_CARD",
-)
 def test_gd04_042_breach_destroying_the_base_triggers() -> None:
     sc = Scenario()
     sc.add(0, "GD04-042", pilot=DEUX)
@@ -2052,10 +2041,6 @@ def test_gd04_066_opponent_commands_do_not_trigger() -> None:
 
 @pytest.mark.card("GD04-066")
 @pytest.mark.rule("13-2-5-1")
-@pytest.mark.xfail(
-    strict=True,
-    reason="ENGINE: ActivateMain (【Burst】Activate this card's 【Main】) emits no command-activation event",
-)
 def test_gd04_066_burst_activating_a_command_main_triggers() -> None:
     sc = Scenario(active=1)
     sc.add(0, "GD04-066")

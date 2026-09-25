@@ -7,20 +7,19 @@ from typing import cast
 from gcg_sim.cards.model import CardDef
 from gcg_sim.cards.tokens import parse_token_specs
 from gcg_sim.effects import dsl as d
-from gcg_sim.effects.bindings import card, custom_filter, custom_step, custom_value
+from gcg_sim.effects.bindings import card, custom_filter, custom_value
 from gcg_sim.effects.compiler import compile_parts
 from gcg_sim.effects.compiler.abilities import CompileError
 from gcg_sim.effects.registry import UnimplementedCardError
 from gcg_sim.engine import core
 from gcg_sim.engine import view as V
-from gcg_sim.engine.state import Frame, GameState, Lasting
-from gcg_sim.engine.types import NO_ARG, Duration, Zone
+from gcg_sim.engine.state import GameState
+from gcg_sim.engine.types import Duration, Zone
 
 MODULE = "wp_gd03_b"
 COND_HOLDS = f"{MODULE}_cond_holds"
 BATTLING_ENEMY_UNIT = f"{MODULE}_battling_enemy_unit"
 UNIQUE_NAMES = f"{MODULE}_unique_names"
-REARM_DELAYED = f"{MODULE}_rearm_delayed"
 
 UNIT = d.IsKind((d.CardKind.UNIT,))
 ENEMY_UNITS = d.Sel(d.Side.ENEMY, d.Loc.BATTLE, (UNIT,))
@@ -102,28 +101,6 @@ def unique_names(st: GameState, dv: V.Derived, ctx: V.Ctx, params: dict[str, obj
     return len({V.cdef(st, u).name for u in V.select(st, dv, ctx, sel)})
 
 
-@custom_step(REARM_DELAYED)
-def rearm_delayed(st: GameState, f: Frame, ctx: V.Ctx, params: dict[str, object]) -> bool:
-    """Keep a "During this turn, if/when ..." delayed trigger armed after it fires: without a
-    【Once per Turn】 restriction it activates every time its condition is met (10-1-6-1-1)."""
-    card_number = params["card"]
-    index = params["index"]
-    assert isinstance(card_number, str)
-    assert isinstance(index, int)
-    st.delayed.append(
-        Lasting(
-            effect_key=V.reg().cont_key(d.AbilityGrant(card_number, index)),
-            controller=f.controller,
-            source_uid=f.host,
-            targets=(),
-            duration=Duration.THIS_TURN.value,
-            created_turn=st.turn,
-            battle_id=NO_ARG,
-        )
-    )
-    return True
-
-
 # ---------------------------------------------------------------------------------------------
 # Pilots
 
@@ -203,7 +180,7 @@ def gd03_097(c: CardDef) -> d.CardScript:
     Unit is destroyed in the same battle, Q241)."""
     looked = d.IsRef(d.Var("looked"))
     scry = d.Triggered(
-        d.Trigger(d.Ev.DESTROYS_BY_BATTLE, whose_turn=d.P.YOU),
+        d.Trigger(d.Ev.DESTROYS_BY_BATTLE, battle_only=True, whose_turn=d.P.YOU),
         (
             d.LookTop(2),
             d.Choose("top", d.Sel(d.Side.FRIENDLY, d.Loc.DECK, (looked,)), targeting=False),
@@ -481,11 +458,11 @@ def gd03_120(c: CardDef) -> d.CardScript:
     delayed = d.DelayedTrigger(
         d.Trigger(
             d.Ev.DESTROYS_BY_BATTLE,
+            battle_only=True,
             self_only=False,
             subject=d.Sel(d.Side.FRIENDLY, d.Loc.BATTLE, sb_un),
         ),
         (
-            d.CustomStep(REARM_DELAYED, (("card", c.card_number), ("index", 0))),
             d.Choose("t1", d.Sel(d.Side.FRIENDLY, d.Loc.BATTLE, (*sb_un, d.IsRested()))),
             d.SetActive(d.Var("t1")),
             d.Apply(d.Var("t1"), d.RuleGrant(d.RuleMod(d.RuleKind.CANT_ATTACK))),
@@ -551,7 +528,13 @@ def gd03_125(c: CardDef) -> d.CardScript:
         ),
     )
     on_kill = d.Triggered(
-        d.Trigger(d.Ev.DESTROYS_BY_BATTLE, self_only=False, subject=killer, whose_turn=d.P.YOU),
+        d.Trigger(
+            d.Ev.DESTROYS_BY_BATTLE,
+            battle_only=True,
+            self_only=False,
+            subject=killer,
+            whose_turn=d.P.YOU,
+        ),
         (d.May((d.Recover(d.EventCard("subject"), 2),)),),
         once_per_turn=True,
     )

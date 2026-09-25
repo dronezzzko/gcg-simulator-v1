@@ -224,7 +224,7 @@ def gd05_002(c: CardDef) -> d.CardScript:
         ),
         gate=d.Gate.PAIRED,
     )
-    draw_on_unit = d.Triggered(d.Trigger(d.Ev.DESTROYS_BY_BATTLE), (d.Draw(),))
+    draw_on_unit = d.Triggered(d.Trigger(d.Ev.DESTROYS_BY_BATTLE, battle_only=True), (d.Draw(),))
     draw_on_shield_card = d.Triggered(
         d.Trigger(d.Ev.DESTROYS_SHIELD_CARD, battle_only=True), (d.Draw(),)
     )
@@ -271,7 +271,11 @@ def gd05_006(c: CardDef) -> d.CardScript:
     )
     return _script(
         c,
-        d.Triggered(d.Trigger(d.Ev.DESTROYS_BY_BATTLE, whose_turn=d.P.YOU), body, cond=once),
+        d.Triggered(
+            d.Trigger(d.Ev.DESTROYS_BY_BATTLE, battle_only=True, whose_turn=d.P.YOU),
+            body,
+            cond=once,
+        ),
         d.Triggered(
             d.Trigger(d.Ev.DESTROYS_SHIELD_CARD, whose_turn=d.P.YOU, battle_only=True),
             body,

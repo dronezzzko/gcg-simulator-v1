@@ -179,7 +179,7 @@ def st12_013(c: CardDef) -> d.CardScript:
 @card("ST12-014")
 def st12_014(c: CardDef) -> d.CardScript:
     granted = d.Triggered(
-        d.Trigger(d.Ev.DESTROYS_BY_BATTLE, target_filters=(UNIT,)),
+        d.Trigger(d.Ev.DESTROYS_BY_BATTLE, battle_only=True, target_filters=(UNIT,)),
         (
             d.Choose("t1", _units(ENEMY, d.StatCmp(d.Stat.AP, d.Op.LE, 2))),
             d.Destroy(d.Var("t1")),

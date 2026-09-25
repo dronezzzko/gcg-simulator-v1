@@ -39,6 +39,7 @@ class ModeSelect:
     labels: tuple[str, ...]
     targets: tuple[int, ...]
     chooser: d.P
+    end: int
 
 
 @dataclass(frozen=True, slots=True)
@@ -126,7 +127,8 @@ class _Builder:
             for e in ends:
                 self.patch(e, Jump(end))
             self.patch(
-                sel, ModeSelect(tuple(lbl for lbl, _ in s.options), tuple(starts), s.chooser)
+                sel,
+                ModeSelect(tuple(lbl for lbl, _ in s.options), tuple(starts), s.chooser, end),
             )
         elif isinstance(s, d.ForEach):
             key = f"__loop{self.loop_n}"

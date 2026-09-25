@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from dataclasses import dataclass
+
 from gcg_sim.cards.model import CardType
 from gcg_sim.effects import dsl as d
 from gcg_sim.effects.registry import AbilityEntry
@@ -236,10 +238,12 @@ def queue_trigger(
     controller: int,
     event: tuple[tuple[str, int], ...],
     card_uid: int = NO_ARG,
+    host_seq: int = NO_ARG,
 ) -> None:
     ab = a.ability
     assert isinstance(ab, d.Triggered)
-    host_seq = st.cards[host].zone_seq
+    if host_seq == NO_ARG:
+        host_seq = st.cards[host].zone_seq
     group = _payload(event, "group")
     for t in st.pending_triggers:
         if (
@@ -296,7 +300,7 @@ def emit(
     subject: int = NO_ARG,
     *,
     player: int = NO_ARG,
-    lki: dict[int, list[AbilityEntry]] | None = None,
+    lki: dict[int, Snapshot] | None = None,
     **extra: int,
 ) -> None:
     """Emit an event and queue every triggered effect it fulfils (rule 10-1-6)."""
@@ -316,7 +320,7 @@ def emit(
         (host, a) for host, a in V.trigger_index(st, dv).get(ev, ()) if host not in lki
     ]
     for uid in sorted(lki, key=lambda u: (st.cards[u].owner != st.active, u)):
-        candidates.extend((uid, a) for a in lki[uid] if a.trigger_event is ev)
+        candidates.extend((uid, a) for a in lki[uid].abilities if a.trigger_event is ev)
     for host, a in candidates:
         ab = a.ability
         assert isinstance(ab, d.Triggered)
@@ -327,54 +331,62 @@ def emit(
             ctx = V.Ctx(owner, host, _card_uid_for(st, a, host), event=event)
             if not V.cond(st, dv, ctx, ab.cond):
                 continue
-        queue_trigger(st, a, host, owner, event)
-    _delayed_triggers(st, dv, ev, event)
+        snap = lki.get(host)
+        queue_trigger(st, a, host, owner, event, host_seq=snap.seq if snap else NO_ARG)
+    _delayed_triggers(st, dv, ev, event, lki)
     _keyword_triggers(st, dv, ev, event, subject)
 
 
 def _delayed_triggers(
-    st: GameState, dv: V.Derived, ev: d.Ev, event: tuple[tuple[str, int], ...]
+    st: GameState,
+    dv: V.Derived,
+    ev: d.Ev,
+    event: tuple[tuple[str, int], ...],
+    lki: dict[int, Snapshot],
 ) -> None:
+    """Delayed triggers stay armed for their whole duration and trigger every time their
+    condition is met (rule 10-1-6-1-1)."""
     if not st.delayed:
         return
     R = V.reg()
-    keep = []
     for le in st.delayed:
         spec = R.continuous[le.effect_key]
         assert isinstance(spec, d.AbilityGrant)
         entry = R.db.get(spec.card_number)
-        fired = False
-        if entry is not None:
-            dt = _find_delayed(
-                R.cards[entry.def_id].own + R.cards[entry.def_id].unit, spec.ability_index
+        if entry is None:
+            continue
+        dt = _find_delayed(
+            R.cards[entry.def_id].own + R.cards[entry.def_id].unit, spec.ability_index
+        )
+        if dt is None or dt.trigger.event is not ev:
+            continue
+        host = le.source_uid
+        bound = [u for u, seq in le.targets if _seq_of(st, lki, u) == seq]
+        subject = _payload(event, "subject")
+        if dt.trigger.self_only and le.targets:
+            ok = subject in bound and _trigger_ok(
+                st, dv, dt.trigger, subject, st.cards[subject].owner, event
             )
-            if dt is not None and dt.trigger.event is ev:
-                host = le.source_uid
-                bound = [u for u, seq in le.targets if st.cards[u].zone_seq == seq]
-                subject = _payload(event, "subject")
-                if dt.trigger.self_only and le.targets:
-                    ok = subject in bound and _trigger_ok(
-                        st, dv, dt.trigger, subject, st.cards[subject].owner, event
-                    )
-                else:
-                    ok = _trigger_ok(st, dv, dt.trigger, host, le.controller, event)
-                if ok:
-                    pid = R.program(dt.steps, f"{spec.card_number}#delayed")
-                    st.pending_triggers.append(
-                        TriggerInst(
-                            program_id=pid,
-                            controller=le.controller,
-                            host=host,
-                            host_seq=st.cards[host].zone_seq,
-                            card_uid=host,
-                            ability_key=(-1, -1, 0),
-                            event=event,
-                        )
-                    )
-                    fired = True
-        if not fired:
-            keep.append(le)
-    st.delayed = keep
+        else:
+            ok = _trigger_ok(st, dv, dt.trigger, host, le.controller, event)
+        if ok:
+            pid = R.program(dt.steps, f"{spec.card_number}#delayed")
+            st.pending_triggers.append(
+                TriggerInst(
+                    program_id=pid,
+                    controller=le.controller,
+                    host=host,
+                    host_seq=st.cards[host].zone_seq,
+                    card_uid=host,
+                    ability_key=(-1, -1, 0),
+                    event=event,
+                )
+            )
+
+
+def _seq_of(st: GameState, lki: dict[int, Snapshot], uid: int) -> int:
+    snap = lki.get(uid)
+    return snap.seq if snap else st.cards[uid].zone_seq
 
 
 def _find_delayed(aids: tuple[int, ...], index: int) -> d.DelayedTrigger | None:
@@ -451,10 +463,18 @@ def _keyword_triggers(
         )
 
 
-def ability_snapshot(st: GameState, uids: list[int]) -> dict[int, list[AbilityEntry]]:
-    """Last-known abilities of cards about to leave play (rules 13-2-8-2, 13-2-8-2-1)."""
+@dataclass(frozen=True, slots=True)
+class Snapshot:
+    """Last-known information of a card about to leave play: its abilities and the
+    ``zone_seq`` of the object that left (rules 13-2-8-2, 13-2-8-2-1)."""
+
+    abilities: tuple[AbilityEntry, ...]
+    seq: int
+
+
+def ability_snapshot(st: GameState, uids: list[int]) -> dict[int, Snapshot]:
     dv = V.derived(st)
-    return {u: list(dv.abilities.get(u, ())) for u in uids}
+    return {u: Snapshot(tuple(dv.abilities.get(u, ())), st.cards[u].zone_seq) for u in uids}
 
 
 # ---------------------------------------------------------------------------------------------
@@ -545,6 +565,8 @@ def apply_damage(
     if amount <= 0 or c.zone not in (Zone.BATTLE, Zone.BASE):
         return 0  # rule 5-5-5 / 5-21-2-1
     c.damage += amount
+    if not battle and source >= 0:
+        st.effect_hits[uid] = source
     st.touch()
     emit(
         st,
@@ -773,10 +795,37 @@ def rules_management(st: GameState) -> None:
                 for uid in st.zones[p][z]:
                     if st.cards[uid].damage >= V.hp_of(st, dv, uid):
                         doomed.append(uid)
+        hits = {u: st.effect_hits[u] for u in doomed if u in st.effect_hits}
+        st.effect_hits.clear()
         if not doomed:
             return
-        if not destroy(st, doomed, battle=False, by=NO_ARG):
+        sources_lki = ability_snapshot(st, sorted(set(hits.values())))
+        destroyed = destroy(st, doomed, battle=False, by=NO_ARG)
+        if not destroyed:
             return
+        _emit_destroys_with_effect_damage(st, destroyed, hits, sources_lki)
+
+
+def _emit_destroys_with_effect_damage(
+    st: GameState, destroyed: list[int], hits: dict[int, int], lki: dict[int, Snapshot]
+) -> None:
+    """A card destroyed by rules management after effect damage (including <Breach>) was
+    destroyed with damage by the card that dealt it (rulings ST12-001:Q437, GD05-035:Q361)."""
+    group = next_group(st)
+    db = V.reg().db
+    for u in destroyed:
+        src = hits.get(u, NO_ARG)
+        if src < 0 or st.cards[src].owner == st.cards[u].owner:
+            continue
+        if not db.by_id(st.cards[src].def_id).card_type.is_unit:
+            continue
+        src_lki = {src: lki[src]} if st.cards[src].zone is not Zone.BATTLE else None
+        ev = (
+            d.Ev.DESTROYS_SHIELD_CARD
+            if db.by_id(st.cards[u].def_id).card_type.is_base
+            else d.Ev.DESTROYS_BY_BATTLE
+        )
+        emit(st, ev, src, player=st.cards[src].owner, lki=src_lki, target=u, battle=0, group=group)
 
 
 def _any_damaged_or_zero_hp(st: GameState) -> bool:

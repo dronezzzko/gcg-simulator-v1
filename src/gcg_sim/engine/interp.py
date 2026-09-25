@@ -36,6 +36,21 @@ CustomStepFn = Callable[[GameState, Frame, V.Ctx, dict[str, object]], bool]
 CUSTOM_STEPS: dict[str, CustomStepFn] = {}
 
 
+NON_ACTIONS = (
+    pr.Jump,
+    pr.JumpIfNot,
+    pr.AskMay,
+    pr.JumpIfNotDid,
+    pr.ModeSelect,
+    pr.LoopInit,
+    pr.LoopNext,
+    pr.SetDid,
+    d.Choose,
+    d.ChooseMode,
+    d.BindVar,
+)
+
+
 def ctx_of(f: Frame) -> V.Ctx:
     return V.Ctx(f.controller, f.host, f.card_uid, f.vars, f.event)
 
@@ -94,7 +109,12 @@ def run_top_frame(st: GameState) -> None:
     f = st.frames[-1]
     prog = R.programs[f.program_id]
     while f.pc < len(prog.instrs):
-        status = execute(st, f, prog.instrs[f.pc])
+        ins = prog.instrs[f.pc]
+        status = execute(st, f, ins)
+        if status is Status.PUSHED or (
+            status is Status.NEXT and f.did and not isinstance(ins, NON_ACTIONS)
+        ):
+            f.acted = True
         if status is Status.NEXT:
             f.pc += 1
         if core.over(st):
@@ -109,6 +129,8 @@ def run_top_frame(st: GameState) -> None:
 
 
 def finish_frame(st: GameState, f: Frame) -> None:
+    if f.once_key and f.acted:
+        st.once_used.add(f.once_key)
     if f.kind in ("command", "burst"):
         card = st.cards[f.card_uid]
         if card.zone is Zone.RESOLVING:
@@ -139,6 +161,10 @@ def resume(st: GameState, action: Action) -> None:
     if r is None:
         raise core.EngineError(f"no resumer for {type(ins).__name__}")
     status = r(st, f, ins, action)
+    if status is Status.PUSHED or (
+        status is Status.NEXT and f.did and not isinstance(ins, NON_ACTIONS)
+    ):
+        f.acted = True
     if status is Status.NEXT:
         f.pc += 1
     core.rules_management(st)
@@ -209,7 +235,9 @@ def targets_available(instrs: tuple[pr.Instr, ...], start: int, st: GameState, c
         if isinstance(ins, pr.JumpIfNot):
             pc = pc + 1 if V.cond(st, dv, ctx, ins.cond) else ins.target
             continue
-        if isinstance(ins, (pr.AskMay, pr.JumpIfNotDid, pr.ModeSelect, pr.LoopInit)):
+        if isinstance(ins, pr.ModeSelect):
+            return any(targets_available(instrs, t, st, ctx) for t in ins.targets)
+        if isinstance(ins, (pr.AskMay, pr.JumpIfNotDid, pr.LoopInit)):
             return True
         if isinstance(ins, d.Choose):
             if ins.after_then:
@@ -228,7 +256,9 @@ def _h_mode(st: GameState, f: Frame, ins: pr.ModeSelect) -> Status:
         if _mode_available(st, f, ins.targets[i])
     ]
     if not opts:
-        opts = [Action(A.SELECT, i) for i in range(len(ins.labels))]
+        f.did = False
+        f.pc = ins.end
+        return Status.JUMPED
     return _decide(st, f, player, DecisionKind.SELECT, opts, "choose mode", (("mode", 1),))
 
 
@@ -1345,7 +1375,8 @@ def _h_play_card(st: GameState, f: Frame, ins: d.PlayCard) -> Status:
             f.did = False
             return Status.NEXT
         core.move(st, uid, Zone.RESOLVING, reveal=True)
-        core.emit(st, d.Ev.COMMAND_PLAYED, uid, player=f.controller)
+        core.record(st, "command_activated", f.controller, f.controller, uid)
+        core.emit(st, d.Ev.COMMAND_PLAYED, uid, player=f.controller, ex_used=0)
         push_frame(
             st,
             V.reg().abilities[entry.command_aid].program_id,
@@ -1401,6 +1432,8 @@ def _h_activate_main(st: GameState, f: Frame, ins: d.ActivateMain) -> Status:
     if entry.command_aid < 0:
         f.did = False
         return Status.NEXT
+    core.record(st, "command_activated", f.controller, f.controller, uid)
+    core.emit(st, d.Ev.COMMAND_PLAYED, uid, player=f.controller, ex_used=0)
     push_frame(
         st,
         V.reg().abilities[entry.command_aid].program_id,

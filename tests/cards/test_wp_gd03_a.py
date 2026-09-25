@@ -2166,11 +2166,6 @@ def test_gd03_076_unit_destroyed_by_the_battle_damage_is_not_returned() -> None:
 
 
 @pytest.mark.card("GD03-076")
-@pytest.mark.xfail(
-    strict=True,
-    reason="ENGINE: 【Once per Turn】 is consumed when a triggered effect resolves without "
-    "performing its action (resolution ruling:GD02-002:Q197)",
-)
 def test_gd03_076_once_per_turn_not_used_up_when_nothing_was_returned() -> None:
     sc = Scenario()
     sc.add(0, "GD03-076")

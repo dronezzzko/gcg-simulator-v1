@@ -314,11 +314,6 @@ def test_eb01_004_triggers_on_any_recovery_once_per_turn() -> None:
 
 @pytest.mark.card("EB01-004", "EB01-009", "EB01-018")
 @pytest.mark.rule("10-2-2", "10-3-3-1", "13-2-13-1")
-@pytest.mark.xfail(
-    strict=True,
-    reason="ENGINE: a 【Once per Turn】 trigger that could not choose its target is still used "
-    "up (rules 10-2-2/10-3-3-1, GD02-002:Q197 resolution)",
-)
 def test_eb01_004_once_per_turn_is_not_used_when_no_target_could_be_chosen() -> None:
     sc = Scenario()
     sc.resources(0, 5)

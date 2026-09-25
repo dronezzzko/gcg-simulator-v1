@@ -201,10 +201,6 @@ def test_st12_001_q436_triggers_when_both_units_are_destroyed() -> None:
 
 @pytest.mark.card("ST12-001")
 @pytest.mark.ruling("ST12-001:Q437")
-@pytest.mark.xfail(
-    strict=True,
-    reason="ENGINE: destruction by a Unit's own effect damage never counts as that Unit destroying it",
-)
 def test_st12_001_q437_triggers_when_destroying_with_effect_damage() -> None:
     sc = Scenario()
     epyon = sc.add(0, EPYON, pilot=MILLIARDO)
@@ -241,10 +237,6 @@ def test_st12_001_once_per_turn() -> None:
 
 @pytest.mark.card("ST12-001", "ST12-013")
 @pytest.mark.rule("10-1-6-1-1", "10-1-6-4")
-@pytest.mark.xfail(
-    strict=True,
-    reason="ENGINE: Once per Turn key of a last-known-information trigger uses the moved card's new zone_seq",
-)
 def test_st12_001_once_per_turn_when_destroyed_in_the_second_battle() -> None:
     sc = Scenario()
     sc.resources(0, 6)
@@ -348,10 +340,6 @@ def test_st12_003_q438_triggers_when_both_units_are_destroyed() -> None:
 
 @pytest.mark.card("ST12-003")
 @pytest.mark.ruling("ST12-003:Q439")
-@pytest.mark.xfail(
-    strict=True,
-    reason="ENGINE: destruction by a Unit's own effect damage never counts as that Unit destroying it",
-)
 def test_st12_003_q439_triggers_when_destroying_with_effect_damage() -> None:
     sc = Scenario()
     tall = sc.add(0, TALLGEESE, pilot=MILLIARDO)
@@ -992,18 +980,19 @@ def test_st12_015_q451_mode_2_needs_friendly_and_enemy_lv5_or_higher(friendly: b
 
 @pytest.mark.card("ST12-015")
 @pytest.mark.rule("10-1-8-1-1")
-@pytest.mark.xfail(
-    strict=True, reason="ENGINE: a modal Command is playable even when no mode has a legal target"
-)
 def test_st12_015_not_playable_without_a_legal_mode() -> None:
     sc = Scenario()
     sc.resources(0, 4)
     sc.add(0, VANILLA_3_4)
     sc.add(1, VANILLA_3_4)
     card = sc.add(0, TWO_UNICORNS, Zone.HAND)
+    turn = sc.st.turn
     st = sc.start(Step.END_ACTION)
-    _to_action_step(st)
-    assert not has_action(st, A.PLAY_COMMAND, card)
+    while st.turn == turn and st.pending is not None:
+        assert st.pending.kind is DecisionKind.ACTION_STEP
+        assert not has_action(st, A.PLAY_COMMAND, card)
+        pass_(st)
+    assert zone_of(st, card) is Zone.HAND
 
 
 # ---------------------------------------------------------------------------------------------
@@ -2117,9 +2106,6 @@ def test_st14_013_q468_mode_1_needs_an_enemy_with_3_or_less_hp() -> None:
 @pytest.mark.card("ST14-013")
 @pytest.mark.ruling("ST14-013:Q469")
 @pytest.mark.rule("10-1-8-1-1")
-@pytest.mark.xfail(
-    strict=True, reason="ENGINE: a modal Command is playable even when no mode has a legal target"
-)
 def test_st14_013_q469_not_playable_without_enemy_units() -> None:
     sc = Scenario()
     sc.resources(0, 4)

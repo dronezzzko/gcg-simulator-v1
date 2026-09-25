@@ -694,7 +694,7 @@ class Ev(StrEnum):
     PAIRED = "paired"  # pilot paired (subject = unit, pilot)
     LINKED = "linked"  # pilot meeting link condition paired (subject = unit, pilot)
     DAMAGED = "damaged"  # subject received damage (amount, battle flag, source)
-    DESTROYS_BY_BATTLE = "destroys_by_battle"  # subject destroyed an enemy Unit with battle damage
+    DESTROYS_BY_BATTLE = "destroys_by_battle"  # subject destroyed an enemy Unit with damage
     DESTROYS_SHIELD_CARD = "destroys_shield_card"  # subject destroyed an enemy shield area card
     DEALS_DAMAGE = "deals_damage"  # subject dealt damage to target (amount, battle flag)
     COST_PAID = "cost_paid"  # resources paid for an effect of subject (amount)
@@ -1153,7 +1153,8 @@ class BindVar:
 
 @dataclass(frozen=True, slots=True)
 class DelayedTrigger:
-    """Create a one-shot delayed trigger (e.g. "at the end of this turn, ...")."""
+    """Create a delayed trigger that stays armed for ``duration`` (e.g. "during this turn, when
+    ...", "at the end of this turn, ...")."""
 
     trigger: Trigger
     steps: tuple[Step, ...]

@@ -168,11 +168,6 @@ def test_gd02_001_breach_destroying_a_shield_is_destruction_with_damage() -> Non
 
 @pytest.mark.card("GD02-001")
 @pytest.mark.ruling("GD02-001:Q171")
-@pytest.mark.xfail(
-    strict=True,
-    reason="ENGINE: a Base destroyed by effect damage (rules management) emits no "
-    "destroys_shield_card event for the damage source",
-)
 def test_gd02_001_breach_destroying_the_base_recovers() -> None:
     sc = Scenario()
     psycho = sc.add(0, "GD02-001", damage=1, pilot=CYBER_NEWTYPE)
