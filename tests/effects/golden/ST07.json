@@ -1,0 +1,495 @@
+{
+ "ST07-001": {
+  "error": "'【When Paired】Place the top 2 cards of your deck into your trash. If you place a (CB) card with this effect, draw 1.': no selector head in 'the top 2 cards of your deck'",
+  "name": "Gundam Exia",
+  "text_hash": "283df1920cfcc506"
+ },
+ "ST07-002": {
+  "abilities": [],
+  "name": "Gundam Exia",
+  "source": "vanilla",
+  "text_hash": "3973e022e93220f9"
+ },
+ "ST07-003": {
+  "abilities": [],
+  "name": "Gundam Virtue",
+  "source": "vanilla",
+  "text_hash": "3973e022e93220f9"
+ },
+ "ST07-004": {
+  "abilities": [
+   {
+    "_": "Constant",
+    "cond": {
+     "_": "Exists",
+     "sel": {
+      "_": "Sel",
+      "filters": [
+       {
+        "_": "IsKind",
+        "kinds": [
+         "pilot"
+        ]
+       },
+       {
+        "_": "HasTrait",
+        "traits": [
+         "CB"
+        ]
+       }
+      ],
+      "loc": "paired",
+      "side": "friendly"
+     }
+    },
+    "effects": [
+     {
+      "_": "KeywordGrant",
+      "keyword": "Blocker"
+     }
+    ]
+   }
+  ],
+  "name": "Gundam Virtue",
+  "source": "compiled",
+  "text_hash": "ec43f2c0c431079c"
+ },
+ "ST07-005": {
+  "abilities": [
+   {
+    "_": "Triggered",
+    "steps": [
+     {
+      "_": "Recover",
+      "amount": 2,
+      "ref": {
+       "_": "This"
+      }
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "event": "destroys_by_battle",
+     "target_filters": [
+      {
+       "_": "IsKind",
+       "kinds": [
+        "unit"
+       ]
+      }
+     ],
+     "whose_turn": "you"
+    }
+   },
+   {
+    "_": "Constant",
+    "effects": [
+     {
+      "_": "StatMod",
+      "ap": 2
+     }
+    ],
+    "gate": "linked"
+   }
+  ],
+  "name": "Gundam Dynames",
+  "source": "compiled",
+  "text_hash": "d1f27d4c5505f887"
+ },
+ "ST07-006": {
+  "abilities": [],
+  "name": "Gundam Dynames",
+  "source": "vanilla",
+  "text_hash": "3973e022e93220f9"
+ },
+ "ST07-007": {
+  "error": "'During your turn, while you have a (CB) Pilot in play, this Unit gets AP+2.': unknown constant 'while you have a (CB) Pilot in play, this Unit gets AP+2'",
+  "name": "Gundam Kyrios",
+  "text_hash": "91118b8df72b657f"
+ },
+ "ST07-008": {
+  "abilities": [],
+  "name": "Gundam Kyrios (Flight Mode)",
+  "source": "vanilla",
+  "text_hash": "3973e022e93220f9"
+ },
+ "ST07-009": {
+  "abilities": [
+   {
+    "_": "Burst",
+    "steps": [
+     {
+      "_": "AddToHand",
+      "ref": {
+       "_": "ThisCard"
+      }
+     }
+    ]
+   }
+  ],
+  "name": "Setsuna F. Seiei",
+  "source": "compiled",
+  "text_hash": "e9389ae3cd81bb81",
+  "unit_abilities": [
+   {
+    "_": "Triggered",
+    "steps": [
+     {
+      "_": "If",
+      "cond": {
+       "_": "Cmp",
+       "left": {
+        "_": "Count",
+        "sel": {
+         "_": "Sel",
+         "filters": [
+          {
+           "_": "HasTrait",
+           "traits": [
+            "CB"
+           ]
+          }
+         ],
+         "loc": "trash",
+         "side": "friendly"
+        }
+       },
+       "op": ">=",
+       "right": 7
+      },
+      "otherwise": [
+       {
+        "_": "Apply",
+        "effect": {
+         "_": "StatMod",
+         "ap": 1
+        },
+        "ref": {
+         "_": "This"
+        }
+       }
+      ],
+      "then": [
+       {
+        "_": "Apply",
+        "duration": "while_on_field",
+        "effect": {
+         "_": "StatMod",
+         "ap": 1
+        },
+        "ref": {
+         "_": "All",
+         "sel": {
+          "_": "Sel",
+          "filters": [
+           {
+            "_": "IsKind",
+            "kinds": [
+             "unit"
+            ]
+           },
+           {
+            "_": "HasTrait",
+            "traits": [
+             "CB"
+            ]
+           }
+          ],
+          "loc": "battle",
+          "side": "friendly"
+         }
+        }
+       }
+      ]
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "event": "attacks"
+    }
+   }
+  ]
+ },
+ "ST07-010": {
+  "abilities": [
+   {
+    "_": "Burst",
+    "steps": [
+     {
+      "_": "AddToHand",
+      "ref": {
+       "_": "ThisCard"
+      }
+     }
+    ]
+   }
+  ],
+  "name": "Tieria Erde",
+  "source": "compiled",
+  "text_hash": "b8c711ce23faa70e",
+  "unit_abilities": [
+   {
+    "_": "Triggered",
+    "steps": [
+     {
+      "_": "If",
+      "cond": {
+       "_": "And",
+       "conds": [
+        {
+         "_": "IsTurn",
+         "player": "opponent"
+        },
+        {
+         "_": "RefMatches",
+         "filters": [
+          {
+           "_": "IsKind",
+           "kinds": [
+            "unit"
+           ]
+          },
+          {
+           "_": "HasTrait",
+           "traits": [
+            "CB"
+           ]
+          }
+         ],
+         "ref": {
+          "_": "This"
+         }
+        }
+       ]
+      },
+      "then": [
+       {
+        "_": "Draw"
+       }
+      ]
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "event": "destroyed"
+    }
+   }
+  ]
+ },
+ "ST07-011": {
+  "error": "'【When Paired】If this is a (CB) Unit, it may choose an active enemy Unit whose Lv. is equal to or lower than this Unit as its attack target during this turn.': pronoun 'It' without antecedent",
+  "name": "Lockon Stratos (Neil)",
+  "text_hash": "7acc07ecc85ce273"
+ },
+ "ST07-012": {
+  "error": "\"During your turn, while you have a (CB) Link Unit in play, this Unit can't receive battle damage from enemy Units with 3 or less AP.\": unknown constant \"while you have a (CB) Link Unit in play, this Unit can't receive battle damage from enemy Units with 3 or less AP\"",
+  "name": "Allelujah Haptism",
+  "text_hash": "768b4bf1e4e3a84c"
+ },
+ "ST07-013": {
+  "abilities": [
+   {
+    "_": "Burst",
+    "steps": [
+     {
+      "_": "Draw"
+     }
+    ]
+   },
+   {
+    "_": "Command",
+    "steps": [
+     {
+      "_": "Choose",
+      "sel": {
+       "_": "Sel",
+       "filters": [
+        {
+         "_": "IsKind",
+         "kinds": [
+          "unit"
+         ]
+        },
+        {
+         "_": "IsRested"
+        },
+        {
+         "_": "HasTrait",
+         "traits": [
+          "CB"
+         ]
+        }
+       ],
+       "loc": "battle",
+       "side": "friendly"
+      },
+      "var": "t1"
+     },
+     {
+      "_": "ChangeAttackTarget",
+      "target": {
+       "_": "Var",
+       "name": "t1"
+      }
+     }
+    ],
+    "timing": "action"
+   }
+  ],
+  "name": "Armed Intervention",
+  "source": "compiled",
+  "text_hash": "26cac844cc59952e"
+ },
+ "ST07-014": {
+  "abilities": [
+   {
+    "_": "Command",
+    "steps": [
+     {
+      "_": "LookTop",
+      "count": 3
+     },
+     {
+      "_": "May",
+      "steps": [
+       {
+        "_": "Choose",
+        "sel": {
+         "_": "Sel",
+         "filters": [
+          {
+           "_": "IsKind",
+           "kinds": [
+            "unit",
+            "pilot"
+           ]
+          },
+          {
+           "_": "HasTrait",
+           "traits": [
+            "CB"
+           ]
+          },
+          {
+           "_": "IsRef",
+           "ref": {
+            "_": "Var",
+            "name": "looked"
+           }
+          }
+         ],
+         "loc": "deck",
+         "side": "friendly"
+        },
+        "targeting": false,
+        "var": "t1"
+       },
+       {
+        "_": "AddToHand",
+        "ref": {
+         "_": "Var",
+         "name": "t1"
+        },
+        "reveal": true
+       }
+      ]
+     },
+     {
+      "_": "CustomStep",
+      "name": "return_looked_bottom"
+     }
+    ],
+    "timing": "main"
+   }
+  ],
+  "name": "Tactical Visionary",
+  "source": "compiled",
+  "text_hash": "0db60bfc2692d163"
+ },
+ "ST07-015": {
+  "abilities": [
+   {
+    "_": "Burst",
+    "steps": [
+     {
+      "_": "DeployCard",
+      "ref": {
+       "_": "ThisCard"
+      }
+     }
+    ]
+   },
+   {
+    "_": "Triggered",
+    "steps": [
+     {
+      "_": "ShieldToHand"
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "event": "deployed"
+    }
+   },
+   {
+    "_": "Constant",
+    "cond": {
+     "_": "Exists",
+     "sel": {
+      "_": "Sel",
+      "filters": [
+       {
+        "_": "IsKind",
+        "kinds": [
+         "unit"
+        ]
+       },
+       {
+        "_": "IsRested"
+       },
+       {
+        "_": "HasTrait",
+        "traits": [
+         "CB"
+        ]
+       }
+      ],
+      "loc": "battle",
+      "side": "friendly"
+     }
+    },
+    "effects": [
+     {
+      "_": "RuleGrant",
+      "rule": {
+       "_": "RuleMod",
+       "kind": "cant_receive_damage",
+       "source_filters": [
+        {
+         "_": "IsKind",
+         "kinds": [
+          "unit"
+         ]
+        },
+        {
+         "_": "StatCmp",
+         "op": "<=",
+         "stat": "lv",
+         "value": 3
+        },
+        {
+         "_": "IsToken",
+         "token": false
+        }
+       ],
+       "source_side": "enemy"
+      }
+     }
+    ]
+   }
+  ],
+  "name": "Ptolemaios",
+  "source": "compiled",
+  "text_hash": "8013bf7520171f76"
+ }
+}

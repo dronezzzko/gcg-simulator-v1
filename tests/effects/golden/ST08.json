@@ -1,0 +1,503 @@
+{
+ "ST08-001": {
+  "error": "'While you have no Units that are Lv.6 or higher in play, this card in your hand gets Lv. -1 and cost -1 for each enemy Unit in play.': unknown constant 'This card in your hand gets Lv. -1 and cost -1 for each enemy Unit in play'; '【When Paired】Choose 1 enemy Unit with the highest Lv. Deal 3 damage to it.': unparsed selector suffix 'with the highest Lv. Deal 3 damage to it' in '1 enemy Unit with the highest Lv. Deal 3 damage to it'",
+  "name": "Ξ Gundam",
+  "text_hash": "4543bf2cdf9b113f"
+ },
+ "ST08-002": {
+  "abilities": [
+   {
+    "_": "Triggered",
+    "steps": [
+     {
+      "_": "Choose",
+      "sel": {
+       "_": "Sel",
+       "filters": [
+        {
+         "_": "IsKind",
+         "kinds": [
+          "unit"
+         ]
+        }
+       ],
+       "loc": "battle",
+       "side": "enemy"
+      },
+      "var": "t1"
+     },
+     {
+      "_": "Damage",
+      "amount": 1,
+      "ref": {
+       "_": "Var",
+       "name": "t1"
+      }
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "event": "deployed"
+    }
+   }
+  ],
+  "name": "Ξ Gundam",
+  "source": "compiled",
+  "text_hash": "8136cf2bcaa306f6"
+ },
+ "ST08-003": {
+  "abilities": [],
+  "name": "Messer (Type-F Naked) (Commander Type)",
+  "source": "vanilla",
+  "text_hash": "3973e022e93220f9"
+ },
+ "ST08-004": {
+  "abilities": [
+   {
+    "_": "Triggered",
+    "steps": [
+     {
+      "_": "If",
+      "cond": {
+       "_": "AttackTargetIs",
+       "kind": "unit"
+      },
+      "then": [
+       {
+        "_": "Choose",
+        "sel": {
+         "_": "Sel",
+         "filters": [
+          {
+           "_": "IsKind",
+           "kinds": [
+            "unit"
+           ]
+          }
+         ],
+         "loc": "battle",
+         "side": "enemy"
+        },
+        "var": "t1"
+       }
+      ]
+     },
+     {
+      "_": "Damage",
+      "amount": 1,
+      "ref": {
+       "_": "Var",
+       "name": "t1"
+      }
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "event": "attacks"
+    }
+   }
+  ],
+  "name": "Messer Type-F01",
+  "source": "compiled",
+  "text_hash": "862f2c37d6e73c4a"
+ },
+ "ST08-005": {
+  "abilities": [],
+  "name": "Messer Type-F02 Minelayer",
+  "source": "vanilla",
+  "text_hash": "3973e022e93220f9"
+ },
+ "ST08-006": {
+  "error": "'【During Pair】【Attack】【Once per Turn】If this Unit is attacking the enemy player, reveal 1 (Earth Federation) Unit card from your hand. Return it to the bottom of your deck. If you do, draw 2.': no step template for 'Reveal 1 (Earth Federation) Unit card from your hand'",
+  "name": "Penelope",
+  "text_hash": "241af047694a7276"
+ },
+ "ST08-007": {
+  "abilities": [],
+  "name": "Penelope",
+  "source": "vanilla",
+  "text_hash": "3973e022e93220f9"
+ },
+ "ST08-008": {
+  "abilities": [
+   {
+    "_": "Constant",
+    "cond": {
+     "_": "Cmp",
+     "left": {
+      "_": "Count",
+      "sel": {
+       "_": "Sel",
+       "filters": [
+        {
+         "_": "IsKind",
+         "kinds": [
+          "unit"
+         ]
+        }
+       ],
+       "loc": "battle",
+       "side": "enemy"
+      }
+     },
+     "op": ">=",
+     "right": 3
+    },
+    "effects": [
+     {
+      "_": "KeywordGrant",
+      "keyword": "Blocker"
+     }
+    ]
+   }
+  ],
+  "name": "Gustav Karl Type-00",
+  "source": "compiled",
+  "text_hash": "ad149e374c6d9c0e"
+ },
+ "ST08-009": {
+  "abilities": [
+   {
+    "_": "Triggered",
+    "steps": [
+     {
+      "_": "Choose",
+      "sel": {
+       "_": "Sel",
+       "filters": [
+        {
+         "_": "IsKind",
+         "kinds": [
+          "unit"
+         ]
+        },
+        {
+         "_": "IsRested"
+        },
+        {
+         "_": "StatCmp",
+         "op": "<=",
+         "stat": "lv",
+         "value": 2
+        }
+       ],
+       "loc": "battle",
+       "side": "enemy"
+      },
+      "var": "t1"
+     },
+     {
+      "_": "Apply",
+      "duration": "opponent_next_turn",
+      "effect": {
+       "_": "RuleGrant",
+       "rule": {
+        "_": "RuleMod",
+        "kind": "cant_be_set_active"
+       }
+      },
+      "ref": {
+       "_": "Var",
+       "name": "t1"
+      }
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "event": "deployed"
+    }
+   }
+  ],
+  "name": "Jegan Ground Type-A (Man Hunter)",
+  "source": "compiled",
+  "text_hash": "877edff2a40fc93f"
+ },
+ "ST08-010": {
+  "abilities": [
+   {
+    "_": "Burst",
+    "steps": [
+     {
+      "_": "AddToHand",
+      "ref": {
+       "_": "ThisCard"
+      }
+     }
+    ]
+   }
+  ],
+  "name": "Hathaway Noa",
+  "source": "compiled",
+  "text_hash": "2d51c9c5607e56fc",
+  "unit_abilities": [
+   {
+    "_": "Triggered",
+    "steps": [
+     {
+      "_": "If",
+      "cond": {
+       "_": "RefMatches",
+       "filters": [
+        {
+         "_": "IsKind",
+         "kinds": [
+          "unit"
+         ]
+        },
+        {
+         "_": "HasTrait",
+         "traits": [
+          "Mafty"
+         ]
+        }
+       ],
+       "ref": {
+        "_": "This"
+       }
+      },
+      "then": [
+       {
+        "_": "Choose",
+        "sel": {
+         "_": "Sel",
+         "filters": [
+          {
+           "_": "IsKind",
+           "kinds": [
+            "unit"
+           ]
+          },
+          {
+           "_": "HasTrait",
+           "traits": [
+            "Mafty"
+           ]
+          }
+         ],
+         "loc": "battle",
+         "side": "friendly"
+        },
+        "var": "t1"
+       }
+      ]
+     },
+     {
+      "_": "Apply",
+      "effect": {
+       "_": "RuleGrant",
+       "rule": {
+        "_": "RuleMod",
+        "kind": "may_attack_active",
+        "source_filters": [
+         {
+          "_": "IsKind",
+          "kinds": [
+           "unit"
+          ]
+         },
+         {
+          "_": "IsDamaged"
+         },
+         {
+          "_": "IsRested",
+          "rested": false
+         }
+        ]
+       }
+      },
+      "ref": {
+       "_": "Var",
+       "name": "t1"
+      }
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "event": "paired"
+    }
+   }
+  ]
+ },
+ "ST08-011": {
+  "error": "'When you draw with an effect, if this is a blue Unit, it gains <High-Maneuver> during this turn.': unknown trigger 'When you draw with an effect'",
+  "name": "Lane Aim",
+  "text_hash": "f592192cd5511dd1"
+ },
+ "ST08-012": {
+  "abilities": [
+   {
+    "_": "Command",
+    "steps": [
+     {
+      "_": "Choose",
+      "sel": {
+       "_": "Sel",
+       "filters": [
+        {
+         "_": "IsKind",
+         "kinds": [
+          "unit"
+         ]
+        },
+        {
+         "_": "IsLinked"
+        }
+       ],
+       "loc": "battle",
+       "side": "friendly"
+      },
+      "var": "t1"
+     },
+     {
+      "_": "Apply",
+      "effect": {
+       "_": "KeywordGrant",
+       "amount": 1,
+       "keyword": "Breach"
+      },
+      "ref": {
+       "_": "Var",
+       "name": "t1"
+      }
+     }
+    ],
+    "timing": "main"
+   }
+  ],
+  "name": "Words for Hathaway",
+  "source": "compiled",
+  "text_hash": "e4d018d32eaf8d8b"
+ },
+ "ST08-013": {
+  "error": "'【Main】/【Action】Choose 1 enemy Unit. Deal 1 damage to it. If a friendly (Mafty) Link Unit is in play, deal 2 damage instead.': no step template for 'Deal 2 damage'",
+  "name": "Lady Luck",
+  "text_hash": "840512c51242f62b"
+ },
+ "ST08-014": {
+  "abilities": [
+   {
+    "_": "Burst",
+    "steps": [
+     {
+      "_": "DeployCard",
+      "ref": {
+       "_": "ThisCard"
+      }
+     }
+    ]
+   },
+   {
+    "_": "Triggered",
+    "steps": [
+     {
+      "_": "ShieldToHand"
+     },
+     {
+      "_": "Choose",
+      "after_then": true,
+      "sel": {
+       "_": "Sel",
+       "filters": [
+        {
+         "_": "IsKind",
+         "kinds": [
+          "unit"
+         ]
+        }
+       ],
+       "loc": "battle",
+       "side": "friendly"
+      },
+      "var": "t1"
+     },
+     {
+      "_": "Apply",
+      "effect": {
+       "_": "StatMod",
+       "ap": 2
+      },
+      "ref": {
+       "_": "Var",
+       "name": "t1"
+      }
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "event": "deployed"
+    }
+   }
+  ],
+  "name": "Valiant",
+  "source": "compiled",
+  "text_hash": "c9ada751a2d0a6cf"
+ },
+ "ST08-015": {
+  "abilities": [
+   {
+    "_": "Burst",
+    "steps": [
+     {
+      "_": "DeployCard",
+      "ref": {
+       "_": "ThisCard"
+      }
+     }
+    ]
+   },
+   {
+    "_": "Triggered",
+    "steps": [
+     {
+      "_": "ShieldToHand"
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "event": "deployed"
+    }
+   },
+   {
+    "_": "Activated",
+    "costs": [
+     {
+      "_": "PayResources",
+      "amount": 2
+     }
+    ],
+    "once_per_turn": true,
+    "steps": [
+     {
+      "_": "Choose",
+      "sel": {
+       "_": "Sel",
+       "filters": [
+        {
+         "_": "IsKind",
+         "kinds": [
+          "unit"
+         ]
+        }
+       ],
+       "loc": "battle",
+       "side": "friendly"
+      },
+      "var": "t1"
+     },
+     {
+      "_": "Recover",
+      "amount": 2,
+      "ref": {
+       "_": "Var",
+       "name": "t1"
+      }
+     }
+    ],
+    "timing": "main"
+   }
+  ],
+  "name": "Davao",
+  "source": "compiled",
+  "text_hash": "730ba81fe0a19eb6"
+ }
+}

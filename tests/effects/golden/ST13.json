@@ -1,0 +1,618 @@
+{
+ "ST13-001": {
+  "error": "\"【Once per Turn】During your turn, when you pair a Pilot with one of your Units, deploy 1 to 2 [Bit / Funnel]((Long-Range Weapon)･AP2･HP2･This Unit can't be paired with a Pilot or attack) Unit tokens.\": no step template for \"Deploy 1 to 2 [Bit / Funnel]((Long-Range Weapon)･AP2･HP2･This Unit can't be paired with a Pilot or attack) Unit tokens\"",
+  "name": "Qubeley",
+  "text_hash": "090c6eee9f3ca9a1"
+ },
+ "ST13-002": {
+  "error": "\"【Deploy】Deploy 1 [Bit / Funnel]((Long-Range Weapon)･AP2･HP2･This Unit can't be paired with a Pilot or attack) Unit token.\": no step template for \"Deploy 1 [Bit / Funnel]((Long-Range Weapon)･AP2･HP2･This Unit can't be paired with a Pilot or attack) Unit token\"",
+  "name": "Elmeth",
+  "text_hash": "ad8f83eb89409f6b"
+ },
+ "ST13-003": {
+  "abilities": [],
+  "name": "Bertigo",
+  "source": "vanilla",
+  "text_hash": "3973e022e93220f9"
+ },
+ "ST13-004": {
+  "abilities": [
+   {
+    "_": "Triggered",
+    "steps": [
+     {
+      "_": "LookTop",
+      "count": 1
+     },
+     {
+      "_": "Arrange",
+      "mode": "top_or_bottom",
+      "ref": {
+       "_": "Var",
+       "name": "looked"
+      }
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "event": "deployed"
+    }
+   }
+  ],
+  "name": "GX-Bit",
+  "source": "compiled",
+  "text_hash": "6f27211000a49355"
+ },
+ "ST13-005": {
+  "abilities": [
+   {
+    "_": "Triggered",
+    "steps": [
+     {
+      "_": "If",
+      "cond": {
+       "_": "Cmp",
+       "left": {
+        "_": "Count",
+        "sel": {
+         "_": "Sel",
+         "filters": [
+          {
+           "_": "IsKind",
+           "kinds": [
+            "unit"
+           ]
+          }
+         ],
+         "loc": "battle",
+         "side": "enemy"
+        }
+       },
+       "op": ">=",
+       "right": 4
+      },
+      "then": [
+       {
+        "_": "LookTop",
+        "count": 5
+       }
+      ]
+     },
+     {
+      "_": "May",
+      "steps": [
+       {
+        "_": "Choose",
+        "sel": {
+         "_": "Sel",
+         "filters": [
+          {
+           "_": "IsKind",
+           "kinds": [
+            "pilot"
+           ]
+          },
+          {
+           "_": "IsRef",
+           "ref": {
+            "_": "Var",
+            "name": "looked"
+           }
+          }
+         ],
+         "loc": "deck",
+         "side": "friendly"
+        },
+        "targeting": false,
+        "var": "t1"
+       },
+       {
+        "_": "AddToHand",
+        "ref": {
+         "_": "Var",
+         "name": "t1"
+        },
+        "reveal": true
+       }
+      ]
+     },
+     {
+      "_": "CustomStep",
+      "name": "return_looked_bottom"
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "event": "deployed"
+    }
+   }
+  ],
+  "name": "GFreD",
+  "source": "compiled",
+  "text_hash": "2c2ebb3855708600"
+ },
+ "ST13-006": {
+  "abilities": [
+   {
+    "_": "Triggered",
+    "gate": "paired",
+    "steps": [
+     {
+      "_": "If",
+      "cond": {
+       "_": "AttackTargetIs",
+       "kind": "player"
+      },
+      "then": [
+       {
+        "_": "Choose",
+        "sel": {
+         "_": "Sel",
+         "filters": [
+          {
+           "_": "IsKind",
+           "kinds": [
+            "unit"
+           ]
+          }
+         ],
+         "loc": "battle",
+         "side": "enemy"
+        },
+        "var": "t1"
+       }
+      ]
+     },
+     {
+      "_": "Damage",
+      "amount": 2,
+      "ref": {
+       "_": "Var",
+       "name": "t1"
+      }
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "event": "attacks"
+    }
+   },
+   {
+    "_": "Activated",
+    "costs": [
+     {
+      "_": "RestCards",
+      "count": 1,
+      "sel": {
+       "_": "Sel",
+       "filters": [
+        {
+         "_": "IsKind",
+         "kinds": [
+          "unit"
+         ]
+        }
+       ],
+       "loc": "battle",
+       "side": "friendly"
+      }
+     }
+    ],
+    "once_per_turn": true,
+    "steps": [
+     {
+      "_": "Choose",
+      "sel": {
+       "_": "Sel",
+       "filters": [
+        {
+         "_": "IsKind",
+         "kinds": [
+          "unit"
+         ]
+        },
+        {
+         "_": "StatCmp",
+         "op": "<=",
+         "stat": "lv",
+         "value": 4
+        }
+       ],
+       "loc": "battle",
+       "side": "enemy"
+      },
+      "var": "t1"
+     },
+     {
+      "_": "Damage",
+      "amount": 1,
+      "ref": {
+       "_": "Var",
+       "name": "t1"
+      }
+     }
+    ],
+    "timing": "action"
+   }
+  ],
+  "name": "Gundam Aerial",
+  "source": "compiled",
+  "text_hash": "97e220c04d4b9bd0"
+ },
+ "ST13-007": {
+  "abilities": [
+   {
+    "_": "Keyword",
+    "amount": 1,
+    "keyword": "Support"
+   }
+  ],
+  "name": "Gyunei's Jagd Doga",
+  "source": "compiled",
+  "text_hash": "4d9ea6362fb6720e"
+ },
+ "ST13-008": {
+  "abilities": [],
+  "name": "Gundam Throne Zwei",
+  "source": "vanilla",
+  "text_hash": "3973e022e93220f9"
+ },
+ "ST13-009": {
+  "abilities": [
+   {
+    "_": "Triggered",
+    "steps": [
+     {
+      "_": "Choose",
+      "chooser": "opponent",
+      "count": 2,
+      "sel": {
+       "_": "Sel",
+       "filters": [
+        {
+         "_": "IsKind",
+         "kinds": [
+          "unit"
+         ]
+        }
+       ],
+       "loc": "trash",
+       "side": "enemy"
+      },
+      "targeting": false,
+      "var": "t1"
+     },
+     {
+      "_": "Exile",
+      "ref": {
+       "_": "Var",
+       "name": "t1"
+      }
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "event": "attacks"
+    }
+   }
+  ],
+  "name": "Gundam Pharact",
+  "source": "compiled",
+  "text_hash": "0fa6b6dcd2829fa3"
+ },
+ "ST13-010": {
+  "abilities": [
+   {
+    "_": "Activated",
+    "costs": [
+     {
+      "_": "DestroyCards",
+      "count": 1,
+      "sel": {
+       "_": "Sel",
+       "filters": [
+        {
+         "_": "IsKind",
+         "kinds": [
+          "unit_token"
+         ]
+        }
+       ],
+       "loc": "battle",
+       "side": "friendly"
+      }
+     }
+    ],
+    "once_per_turn": true,
+    "steps": [
+     {
+      "_": "Apply",
+      "effect": {
+       "_": "KeywordGrant",
+       "amount": 3,
+       "keyword": "Breach"
+      },
+      "ref": {
+       "_": "This"
+      }
+     }
+    ],
+    "timing": "main"
+   }
+  ],
+  "name": "Red Gundam (0079)",
+  "source": "compiled",
+  "text_hash": "6a7863cdeda01f65"
+ },
+ "ST13-011": {
+  "abilities": [
+   {
+    "_": "Burst",
+    "steps": [
+     {
+      "_": "AddToHand",
+      "ref": {
+       "_": "ThisCard"
+      }
+     }
+    ]
+   }
+  ],
+  "name": "Haman Karn",
+  "source": "compiled",
+  "text_hash": "04b172d0630a42f9",
+  "unit_abilities": [
+   {
+    "_": "Triggered",
+    "steps": [
+     {
+      "_": "LookTop",
+      "count": 5
+     },
+     {
+      "_": "May",
+      "steps": [
+       {
+        "_": "Choose",
+        "sel": {
+         "_": "Sel",
+         "filters": [
+          {
+           "_": "IsKind",
+           "kinds": [
+            "pilot"
+           ]
+          },
+          {
+           "_": "LevelCmpRef",
+           "op": "<=",
+           "ref": {
+            "_": "This"
+           },
+           "ref_stat": "lv",
+           "stat": "lv"
+          },
+          {
+           "_": "IsRef",
+           "ref": {
+            "_": "Var",
+            "name": "looked"
+           }
+          }
+         ],
+         "loc": "deck",
+         "side": "friendly"
+        },
+        "targeting": false,
+        "var": "t1"
+       },
+       {
+        "_": "AddToHand",
+        "ref": {
+         "_": "Var",
+         "name": "t1"
+        },
+        "reveal": true
+       }
+      ]
+     },
+     {
+      "_": "CustomStep",
+      "name": "return_looked_bottom"
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "event": "paired"
+    }
+   }
+  ]
+ },
+ "ST13-012": {
+  "error": "'【Once per Turn】When an enemy Unit is destroyed with effect damage while this Unit is attacking, draw 1.': unknown trigger 'When an enemy Unit is destroyed with effect damage while this Unit is attacking'",
+  "name": "Suletta Mercury",
+  "text_hash": "eb3c6e3ca4cdd9dd"
+ },
+ "ST13-013": {
+  "error": "\"【Main】Deploy 1 to 2 [Bit / Funnel]((Long-Range Weapon)･AP2･HP2･This Unit can't be paired with a Pilot or attack) Unit tokens.\": no step template for \"Deploy 1 to 2 [Bit / Funnel]((Long-Range Weapon)･AP2･HP2･This Unit can't be paired with a Pilot or attack) Unit tokens\"",
+  "name": "I'm a Newtype",
+  "text_hash": "2396a05c744e1c71"
+ },
+ "ST13-014": {
+  "abilities": [
+   {
+    "_": "Command",
+    "steps": [
+     {
+      "_": "Choose",
+      "sel": {
+       "_": "Sel",
+       "filters": [
+        {
+         "_": "IsKind",
+         "kinds": [
+          "unit"
+         ]
+        }
+       ],
+       "loc": "battle",
+       "side": "friendly"
+      },
+      "var": "t1"
+     },
+     {
+      "_": "Destroy",
+      "ref": {
+       "_": "Var",
+       "name": "t1"
+      }
+     },
+     {
+      "_": "IfYouDo",
+      "steps": [
+       {
+        "_": "LookTop",
+        "count": 4
+       }
+      ]
+     },
+     {
+      "_": "May",
+      "steps": [
+       {
+        "_": "Choose",
+        "sel": {
+         "_": "Sel",
+         "filters": [
+          {
+           "_": "IsKind",
+           "kinds": [
+            "unit"
+           ]
+          },
+          {
+           "_": "StatCmp",
+           "op": "<=",
+           "stat": "lv",
+           "value": 4
+          },
+          {
+           "_": "IsRef",
+           "ref": {
+            "_": "Var",
+            "name": "looked"
+           }
+          }
+         ],
+         "loc": "deck",
+         "side": "friendly"
+        },
+        "targeting": false,
+        "var": "t2"
+       },
+       {
+        "_": "DeployCard",
+        "ref": {
+         "_": "Var",
+         "name": "t2"
+        }
+       }
+      ]
+     },
+     {
+      "_": "CustomStep",
+      "name": "return_looked_bottom"
+     }
+    ],
+    "timing": "main"
+   }
+  ],
+  "name": "Final Duty",
+  "source": "compiled",
+  "text_hash": "3e6f679786623cb2"
+ },
+ "ST13-015": {
+  "abilities": [
+   {
+    "_": "Burst",
+    "steps": [
+     {
+      "_": "AddToHand",
+      "ref": {
+       "_": "ThisCard"
+      }
+     }
+    ]
+   },
+   {
+    "_": "Command",
+    "steps": [
+     {
+      "_": "Choose",
+      "count": 3,
+      "sel": {
+       "_": "Sel",
+       "filters": [
+        {
+         "_": "IsKind",
+         "kinds": [
+          "unit"
+         ]
+        }
+       ],
+       "loc": "trash",
+       "side": "friendly"
+      },
+      "var": "t1"
+     },
+     {
+      "_": "Exile",
+      "ref": {
+       "_": "Var",
+       "name": "t1"
+      }
+     },
+     {
+      "_": "IfYouDo",
+      "steps": [
+       {
+        "_": "Choose",
+        "sel": {
+         "_": "Sel",
+         "filters": [
+          {
+           "_": "IsKind",
+           "kinds": [
+            "unit"
+           ]
+          }
+         ],
+         "loc": "battle",
+         "side": "enemy"
+        },
+        "var": "t2"
+       }
+      ]
+     },
+     {
+      "_": "Damage",
+      "amount": 3,
+      "ref": {
+       "_": "Var",
+       "name": "t2"
+      }
+     }
+    ],
+    "timing": "main_or_action"
+   }
+  ],
+  "name": "Operation to Intercept Solomon",
+  "source": "compiled",
+  "text_hash": "446f925a4255849a"
+ },
+ "ST13-016": {
+  "error": "\"【Deploy】Add 1 of your Shields to your hand. Then, deploy 1 [Bit / Funnel]((Long-Range Weapon)･AP2･HP2･This Unit can't be paired with a Pilot or attack) Unit token.\": no step template for \"Deploy 1 [Bit / Funnel]((Long-Range Weapon)･AP2･HP2･This Unit can't be paired with a Pilot or attack) Unit token\"",
+  "name": "Sodon",
+  "text_hash": "7c15c912a0187382"
+ }
+}

@@ -1,0 +1,496 @@
+{
+ "ST11-001": {
+  "error": "\"【During Pair】While 2 or more other friendly (Marine) Units are in play, enemy Units can't choose this Unit as their attack target.\": unknown predicate \"can't choose this Unit as their attack target\"",
+  "name": "Char's Z'Gok",
+  "text_hash": "764d173bc49f43f4"
+ },
+ "ST11-002": {
+  "error": "\"During your opponent's turn, while this Unit is rested, friendly (Marine) Units with 2 or less HP can't receive enemy effect damage.\": unknown constant \"while this Unit is rested, friendly (Marine) Units with 2 or less HP can't receive enemy effect damage\"",
+  "name": "Acguy",
+  "text_hash": "00617fc77b0175f1"
+ },
+ "ST11-003": {
+  "abilities": [
+   {
+    "_": "Constant",
+    "cond": {
+     "_": "Exists",
+     "sel": {
+      "_": "Sel",
+      "filters": [
+       {
+        "_": "IsKind",
+        "kinds": [
+         "unit"
+        ]
+       },
+       {
+        "_": "NotRef",
+        "ref": {
+         "_": "This"
+        }
+       },
+       {
+        "_": "HasTrait",
+        "traits": [
+         "Marine"
+        ]
+       }
+      ],
+      "loc": "battle",
+      "side": "friendly"
+     }
+    },
+    "effects": [
+     {
+      "_": "KeywordGrant",
+      "keyword": "Blocker"
+     }
+    ]
+   }
+  ],
+  "name": "Zock",
+  "source": "compiled",
+  "text_hash": "21418045ecb489a4"
+ },
+ "ST11-004": {
+  "error": "'【Deploy】Deploy 1 rested [GOOhN]((ZAFT) (Marine)･AP1･HP1) Unit token.': no step template for 'Deploy 1 rested [GOOhN]((ZAFT) (Marine)･AP1･HP1) Unit token'",
+  "name": "ZnO",
+  "text_hash": "73da3745e110d3ec"
+ },
+ "ST11-005": {
+  "abilities": [
+   {
+    "_": "Keyword",
+    "amount": 2,
+    "keyword": "Repair"
+   }
+  ],
+  "name": "Ash",
+  "source": "compiled",
+  "text_hash": "08ca5d3ff66accf2"
+ },
+ "ST11-006": {
+  "error": "\"If another friendly (Marine) Unit is in play at the start of your opponent's turn, during this turn, when a friendly shield area card receives enemy effect damage, reduce it by 5.\": unknown condition \"another friendly (Marine) Unit is in play at the start of your opponent's turn\"",
+  "name": "Shamblo",
+  "text_hash": "fab91491d3264e6f"
+ },
+ "ST11-007": {
+  "abilities": [],
+  "name": "Gundam Leopard",
+  "source": "vanilla",
+  "text_hash": "3973e022e93220f9"
+ },
+ "ST11-008": {
+  "abilities": [],
+  "name": "Daughseat",
+  "source": "vanilla",
+  "text_hash": "3973e022e93220f9"
+ },
+ "ST11-009": {
+  "abilities": [
+   {
+    "_": "Triggered",
+    "steps": [
+     {
+      "_": "If",
+      "cond": {
+       "_": "And",
+       "conds": [
+        {
+         "_": "IsTurn",
+         "player": "opponent"
+        },
+        {
+         "_": "Exists",
+         "sel": {
+          "_": "Sel",
+          "filters": [
+           {
+            "_": "IsKind",
+            "kinds": [
+             "unit"
+            ]
+           },
+           {
+            "_": "HasTrait",
+            "traits": [
+             "Marine"
+            ]
+           }
+          ],
+          "loc": "battle",
+          "side": "friendly"
+         }
+        }
+       ]
+      },
+      "then": [
+       {
+        "_": "Draw"
+       }
+      ]
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "event": "destroyed"
+    }
+   }
+  ],
+  "name": "Kapool",
+  "source": "compiled",
+  "text_hash": "73ceaeca4f850793"
+ },
+ "ST11-010": {
+  "abilities": [
+   {
+    "_": "Keyword",
+    "keyword": "Blocker"
+   }
+  ],
+  "name": "Abyss Gundam",
+  "source": "compiled",
+  "text_hash": "e90d3c6fa84291d7"
+ },
+ "ST11-011": {
+  "abilities": [
+   {
+    "_": "Burst",
+    "steps": [
+     {
+      "_": "AddToHand",
+      "ref": {
+       "_": "ThisCard"
+      }
+     }
+    ]
+   }
+  ],
+  "name": "Char Aznable",
+  "source": "compiled",
+  "text_hash": "7657e09b3364ab20",
+  "unit_abilities": [
+   {
+    "_": "Triggered",
+    "steps": [
+     {
+      "_": "Apply",
+      "effect": {
+       "_": "StatMod",
+       "ap": 1
+      },
+      "ref": {
+       "_": "All",
+       "sel": {
+        "_": "Sel",
+        "filters": [
+         {
+          "_": "IsKind",
+          "kinds": [
+           "unit"
+          ]
+         },
+         {
+          "_": "HasTrait",
+          "traits": [
+           "Marine"
+          ]
+         }
+        ],
+        "loc": "battle",
+        "side": "friendly"
+       }
+      }
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "event": "paired"
+    }
+   }
+  ]
+ },
+ "ST11-012": {
+  "error": "'【When Paired】Choose 1 friendly (Marine) Unit. During this turn, when it receives battle damage from an enemy Unit, reduce it by 2.': no step template for 'When it receives battle damage from an enemy Unit, reduce it by 2'",
+  "name": "Loni Garvey",
+  "text_hash": "f796d1fe5eead2f3"
+ },
+ "ST11-013": {
+  "abilities": [
+   {
+    "_": "Burst",
+    "steps": [
+     {
+      "_": "Choose",
+      "sel": {
+       "_": "Sel",
+       "filters": [
+        {
+         "_": "IsKind",
+         "kinds": [
+          "unit"
+         ]
+        },
+        {
+         "_": "IsRested"
+        },
+        {
+         "_": "StatCmp",
+         "op": "<=",
+         "stat": "hp",
+         "value": 3
+        }
+       ],
+       "loc": "battle",
+       "side": "enemy"
+      },
+      "var": "t1"
+     },
+     {
+      "_": "ReturnToHand",
+      "ref": {
+       "_": "Var",
+       "name": "t1"
+      }
+     }
+    ]
+   },
+   {
+    "_": "Command",
+    "steps": [
+     {
+      "_": "Choose",
+      "sel": {
+       "_": "Sel",
+       "filters": [
+        {
+         "_": "IsKind",
+         "kinds": [
+          "unit"
+         ]
+        },
+        {
+         "_": "IsRested"
+        },
+        {
+         "_": "StatCmp",
+         "op": "<=",
+         "stat": "hp",
+         "value": 3
+        }
+       ],
+       "loc": "battle",
+       "side": "enemy"
+      },
+      "var": "t1"
+     },
+     {
+      "_": "ReturnToHand",
+      "ref": {
+       "_": "Var",
+       "name": "t1"
+      }
+     },
+     {
+      "_": "IfYouDo",
+      "steps": [
+       {
+        "_": "Draw"
+       }
+      ]
+     }
+    ],
+    "timing": "main_or_action"
+   }
+  ],
+  "name": "Poorly Planned Offensive",
+  "source": "compiled",
+  "text_hash": "cc1baa4282ba78f8"
+ },
+ "ST11-014": {
+  "abilities": [
+   {
+    "_": "Command",
+    "steps": [
+     {
+      "_": "Choose",
+      "sel": {
+       "_": "Sel",
+       "filters": [
+        {
+         "_": "IsKind",
+         "kinds": [
+          "unit"
+         ]
+        },
+        {
+         "_": "HasTrait",
+         "traits": [
+          "Marine"
+         ]
+        }
+       ],
+       "loc": "battle",
+       "side": "friendly"
+      },
+      "var": "t1"
+     },
+     {
+      "_": "Apply",
+      "effect": {
+       "_": "RuleGrant",
+       "rule": {
+        "_": "RuleMod",
+        "kind": "cant_be_attacked"
+       }
+      },
+      "ref": {
+       "_": "Var",
+       "name": "t1"
+      }
+     }
+    ],
+    "timing": "action"
+   }
+  ],
+  "name": "The Orca of Red Sea",
+  "source": "compiled",
+  "text_hash": "562547270ea80083"
+ },
+ "ST11-015": {
+  "abilities": [
+   {
+    "_": "Command",
+    "steps": [
+     {
+      "_": "Choose",
+      "sel": {
+       "_": "Sel",
+       "filters": [
+        {
+         "_": "IsKind",
+         "kinds": [
+          "unit"
+         ]
+        },
+        {
+         "_": "HasTrait",
+         "traits": [
+          "Marine"
+         ]
+        },
+        {
+         "_": "StatCmp",
+         "op": "<=",
+         "stat": "lv",
+         "value": 4
+        }
+       ],
+       "loc": "trash",
+       "side": "friendly"
+      },
+      "var": "t1"
+     },
+     {
+      "_": "DeployCard",
+      "ref": {
+       "_": "Var",
+       "name": "t1"
+      },
+      "rested": true
+     }
+    ],
+    "timing": "main"
+   }
+  ],
+  "name": "A Twinkle from the Abyss",
+  "source": "compiled",
+  "text_hash": "a9653a4b743ebf5f"
+ },
+ "ST11-016": {
+  "abilities": [
+   {
+    "_": "Burst",
+    "steps": [
+     {
+      "_": "DeployCard",
+      "ref": {
+       "_": "ThisCard"
+      }
+     }
+    ]
+   },
+   {
+    "_": "Triggered",
+    "steps": [
+     {
+      "_": "ShieldToHand"
+     },
+     {
+      "_": "If",
+      "cond": {
+       "_": "Cmp",
+       "left": {
+        "_": "Count",
+        "sel": {
+         "_": "Sel",
+         "filters": [
+          {
+           "_": "IsKind",
+           "kinds": [
+            "unit"
+           ]
+          }
+         ],
+         "loc": "battle",
+         "side": "enemy"
+        }
+       },
+       "op": ">=",
+       "right": 4
+      },
+      "then": [
+       {
+        "_": "Choose",
+        "after_then": true,
+        "sel": {
+         "_": "Sel",
+         "filters": [
+          {
+           "_": "IsKind",
+           "kinds": [
+            "unit"
+           ]
+          },
+          {
+           "_": "IsRested"
+          }
+         ],
+         "loc": "battle",
+         "side": "enemy"
+        },
+        "var": "t1"
+       }
+      ]
+     },
+     {
+      "_": "Damage",
+      "amount": 2,
+      "ref": {
+       "_": "Var",
+       "name": "t1"
+      }
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "event": "deployed"
+    }
+   }
+  ],
+  "name": "Mad Angler",
+  "source": "compiled",
+  "text_hash": "be972cc6ae5e31f4"
+ }
+}

@@ -1,0 +1,487 @@
+{
+ "ST12-001": {
+  "abilities": [
+   {
+    "_": "Triggered",
+    "gate": "paired",
+    "gate_filters": [
+     {
+      "_": "StatCmp",
+      "op": ">=",
+      "stat": "lv",
+      "value": 5
+     }
+    ],
+    "steps": [
+     {
+      "_": "Damage",
+      "amount": 2,
+      "ref": {
+       "_": "All",
+       "sel": {
+        "_": "Sel",
+        "filters": [
+         {
+          "_": "IsKind",
+          "kinds": [
+           "unit"
+          ]
+         },
+         {
+          "_": "StatCmp",
+          "op": "<=",
+          "stat": "ap",
+          "value": 5
+         }
+        ],
+        "loc": "battle",
+        "side": "enemy"
+       }
+      }
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "event": "destroys_by_battle",
+     "target_filters": [
+      {
+       "_": "IsKind",
+       "kinds": [
+        "unit"
+       ]
+      }
+     ],
+     "whose_turn": "you"
+    }
+   },
+   {
+    "_": "Triggered",
+    "steps": [
+     {
+      "_": "Choose",
+      "sel": {
+       "_": "Sel",
+       "filters": [
+        {
+         "_": "IsKind",
+         "kinds": [
+          "base"
+         ]
+        }
+       ],
+       "loc": "base",
+       "side": "enemy"
+      },
+      "var": "t1"
+     },
+     {
+      "_": "Damage",
+      "amount": 5,
+      "ref": {
+       "_": "Var",
+       "name": "t1"
+      }
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "event": "deployed"
+    }
+   }
+  ],
+  "name": "Gundam Epyon",
+  "source": "compiled",
+  "text_hash": "ead63e201eab8b76"
+ },
+ "ST12-002": {
+  "abilities": [
+   {
+    "_": "Triggered",
+    "steps": [
+     {
+      "_": "Choose",
+      "sel": {
+       "_": "Sel",
+       "filters": [
+        {
+         "_": "IsKind",
+         "kinds": [
+          "unit"
+         ]
+        },
+        {
+         "_": "StatCmp",
+         "op": ">=",
+         "stat": "ap",
+         "value": 5
+        }
+       ],
+       "loc": "battle",
+       "side": "friendly"
+      },
+      "var": "t1"
+     },
+     {
+      "_": "Apply",
+      "effect": {
+       "_": "KeywordGrant",
+       "amount": 3,
+       "keyword": "Breach"
+      },
+      "ref": {
+       "_": "Var",
+       "name": "t1"
+      }
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "event": "deployed"
+    }
+   }
+  ],
+  "name": "Shining Gundam",
+  "source": "compiled",
+  "text_hash": "de2e9948fe7d1b07"
+ },
+ "ST12-003": {
+  "abilities": [
+   {
+    "_": "Triggered",
+    "once_per_turn": true,
+    "steps": [
+     {
+      "_": "Damage",
+      "amount": 1,
+      "ref": {
+       "_": "All",
+       "sel": {
+        "_": "Sel",
+        "filters": [
+         {
+          "_": "IsKind",
+          "kinds": [
+           "unit"
+          ]
+         },
+         {
+          "_": "StatCmp",
+          "op": "<=",
+          "stat": "ap",
+          "value": 3
+         }
+        ],
+        "loc": "battle",
+        "side": "enemy"
+       }
+      }
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "event": "destroys_by_battle",
+     "target_filters": [
+      {
+       "_": "IsKind",
+       "kinds": [
+        "unit"
+       ]
+      }
+     ],
+     "whose_turn": "you"
+    }
+   }
+  ],
+  "name": "Tallgeese Ⅲ",
+  "source": "compiled",
+  "text_hash": "f423f298e7eb0eb4"
+ },
+ "ST12-004": {
+  "abilities": [
+   {
+    "_": "Keyword",
+    "amount": 3,
+    "keyword": "Breach"
+   }
+  ],
+  "name": "Gundam Exia",
+  "source": "compiled",
+  "text_hash": "6fb66bcde1116dac"
+ },
+ "ST12-005": {
+  "abilities": [
+   {
+    "_": "Triggered",
+    "steps": [
+     {
+      "_": "May",
+      "steps": [
+       {
+        "_": "Discard"
+       }
+      ]
+     },
+     {
+      "_": "IfYouDo",
+      "steps": [
+       {
+        "_": "Draw"
+       }
+      ]
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "event": "attacks"
+    }
+   }
+  ],
+  "name": "GQuuuuuuX (Omega Psycommu)",
+  "source": "compiled",
+  "text_hash": "342cc4af7876cd3b"
+ },
+ "ST12-006": {
+  "abilities": [
+   {
+    "_": "Activated",
+    "costs": [
+     {
+      "_": "ExileCards",
+      "count": 4,
+      "sel": {
+       "_": "Sel",
+       "loc": "trash",
+       "side": "friendly"
+      }
+     }
+    ],
+    "gate": "paired",
+    "steps": [
+     {
+      "_": "Apply",
+      "effect": {
+       "_": "KeywordGrant",
+       "keyword": "First Strike"
+      },
+      "ref": {
+       "_": "This"
+      }
+     }
+    ],
+    "timing": "main"
+   },
+   {
+    "_": "Activated",
+    "costs": [
+     {
+      "_": "ExileCards",
+      "count": 4,
+      "sel": {
+       "_": "Sel",
+       "loc": "trash",
+       "side": "friendly"
+      }
+     }
+    ],
+    "steps": [
+     {
+      "_": "Apply",
+      "duration": "this_battle",
+      "effect": {
+       "_": "KeywordGrant",
+       "keyword": "Suppression"
+      },
+      "ref": {
+       "_": "This"
+      }
+     }
+    ],
+    "timing": "action"
+   }
+  ],
+  "name": "Unicorn Gundam 02 Banshee (Destroy Mode)",
+  "source": "compiled",
+  "text_hash": "c1f18e97a2ed802b"
+ },
+ "ST12-007": {
+  "abilities": [
+   {
+    "_": "Triggered",
+    "steps": [
+     {
+      "_": "Apply",
+      "effect": {
+       "_": "KeywordGrant",
+       "keyword": "First Strike"
+      },
+      "ref": {
+       "_": "This"
+      }
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "event": "linked"
+    }
+   }
+  ],
+  "name": "Gyan",
+  "source": "compiled",
+  "text_hash": "2b29c5db876f069f"
+ },
+ "ST12-008": {
+  "abilities": [],
+  "name": "Efreet Schneid",
+  "source": "vanilla",
+  "text_hash": "3973e022e93220f9"
+ },
+ "ST12-009": {
+  "error": "'【Destroyed】If there is a player with 3 or less Shields, choose 1 Unit card that is Lv.6 or higher from your trash. Add it to your hand. If you do, discard 1.': no step template for 'If there is a player with 3 or less Shields, choose 1 Unit card that is Lv.6 or higher from your trash'",
+  "name": "Unicorn Gundam 02 Banshee (Unicorn Mode)",
+  "text_hash": "c3cd14a67e2069bf"
+ },
+ "ST12-010": {
+  "abilities": [],
+  "name": "Slash Zaku Phantom",
+  "source": "vanilla",
+  "text_hash": "3973e022e93220f9"
+ },
+ "ST12-011": {
+  "error": "\"This card's name is also treated as [Zechs Merquise].\": name alias requires a binding",
+  "name": "Milliardo Peacecraft",
+  "text_hash": "17cf5ea9987b9eae"
+ },
+ "ST12-012": {
+  "error": "\"This card's name is also treated as [Marida Cruz].\": name alias requires a binding; '【When Linked】Look at the top 2 cards of your deck and return 1 to the top. Place the remaining card into your trash. If there is a player with 3 or less Shields, add the card to your hand instead of returning it to your deck.': no step template for 'Look at the top 2 cards of your deck and return 1 to the top'",
+  "name": "Ple-Twelve",
+  "text_hash": "f80d7f78fbd47004"
+ },
+ "ST12-013": {
+  "error": "'【Main】Choose 1 enemy player. You and that player each choose 1 of your own Units. Begin a battle between them and only perform the damage step.': no step template for 'You and your opponent each choose 1 of your own Units'",
+  "name": "The Final Victor",
+  "text_hash": "80fa8c5dfe99733d"
+ },
+ "ST12-014": {
+  "error": "'【Action】Choose 1 friendly Unit. It gains the following effect during this battle:\\n■When this Unit destroys an enemy Unit with battle damage, choose 1 enemy Unit with 2 or less AP. Destroy it.': unknown predicate 'gains the following effect during this battle:'",
+  "name": "Wise Leader's Pride",
+  "text_hash": "d08473292c52d75f"
+ },
+ "ST12-015": {
+  "abilities": [
+   {
+    "_": "Command",
+    "steps": [
+     {
+      "_": "ChooseMode",
+      "options": [
+       [
+        "option1",
+        [
+         {
+          "_": "Choose",
+          "sel": {
+           "_": "Sel",
+           "filters": [
+            {
+             "_": "IsKind",
+             "kinds": [
+              "unit"
+             ]
+            },
+            {
+             "_": "StatCmp",
+             "op": "<=",
+             "stat": "lv",
+             "value": 2
+            }
+           ],
+           "loc": "battle",
+           "side": "enemy"
+          },
+          "var": "t21"
+         },
+         {
+          "_": "Destroy",
+          "ref": {
+           "_": "Var",
+           "name": "t21"
+          }
+         }
+        ]
+       ]
+      ]
+     },
+     {
+      "_": "Choose",
+      "sel": {
+       "_": "Sel",
+       "filters": [
+        {
+         "_": "IsKind",
+         "kinds": [
+          "unit"
+         ]
+        }
+       ],
+       "loc": "battle",
+       "side": "friendly"
+      },
+      "var": "t1"
+     },
+     {
+      "_": "Choose",
+      "distinct_from": [
+       "t1"
+      ],
+      "sel": {
+       "_": "Sel",
+       "filters": [
+        {
+         "_": "IsKind",
+         "kinds": [
+          "unit"
+         ]
+        },
+        {
+         "_": "StatCmp",
+         "op": ">=",
+         "stat": "lv",
+         "value": 5
+        }
+       ],
+       "loc": "battle",
+       "side": "enemy"
+      },
+      "var": "t2"
+     },
+     {
+      "_": "Damage",
+      "amount": 2,
+      "ref": {
+       "_": "Union",
+       "refs": [
+        {
+         "_": "Var",
+         "name": "t1"
+        },
+        {
+         "_": "Var",
+         "name": "t2"
+        }
+       ]
+      }
+     }
+    ],
+    "timing": "action"
+   }
+  ],
+  "name": "Two Unicorns",
+  "source": "compiled",
+  "text_hash": "433cfc72d2b2edd6"
+ },
+ "ST12-016": {
+  "error": "'【Activate･Main】Rest this Base:If a friendly Unit paired with a Pilot has destroyed an enemy Unit with battle damage this turn, choose 1 enemy Unit that is Lv.4 or lower. Deal 1 damage to it.': no step template for 'If a friendly Unit paired with a Pilot has destroyed an enemy Unit with battle damage this turn, choose 1 enemy Unit that is Lv.4 or lower'",
+  "name": "Libra",
+  "text_hash": "9b38acfbfccf410b"
+ }
+}

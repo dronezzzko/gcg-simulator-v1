@@ -90,6 +90,8 @@ def ref_phrase(phrase: str, g: G, *, allow_choose: bool = True) -> tuple[list[d.
             raise CompileError(f"pronoun {p!r} without antecedent")
         return [], g.it
     if pl in ("this unit", "this base", "this pilot", "this", "this link unit", "this rested unit"):
+        if g.it is None:
+            g.it = d.This()
         return [], d.This()
     if pl in ("this card",):
         return [], d.ThisCard()

@@ -188,9 +188,40 @@ def _r_ask_may(st: GameState, f: Frame, ins: pr.AskMay, action: Action) -> Statu
     return Status.JUMPED
 
 
+def _mode_available(st: GameState, f: Frame, start: int) -> bool:
+    """A mode is selectable only if its mandatory targeted choices have a target (rulings on
+    modal Commands; rule 10-2-2)."""
+    prog = V.reg().programs[f.program_id].instrs
+    dv = V.derived(st)
+    ctx = ctx_of(f)
+    for ins in prog[start:]:
+        if isinstance(ins, pr.Jump):
+            return True
+        if not isinstance(ins, d.Choose):
+            if isinstance(ins, (pr.JumpIfNot, pr.AskMay, pr.JumpIfNotDid, pr.ModeSelect)):
+                return True
+            continue
+        if ins.optional or not ins.targeting or ins.after_then:
+            continue
+        cands = [
+            u
+            for u in V.select(st, dv, ctx, ins.sel)
+            if not _cant_be_chosen(st, dv, u, f.controller)
+        ]
+        if not cands:
+            return False
+    return True
+
+
 def _h_mode(st: GameState, f: Frame, ins: pr.ModeSelect) -> Status:
     player = V.player_of(st, ctx_of(f), ins.chooser)
-    opts = [Action(A.SELECT, i) for i in range(len(ins.labels))]
+    opts = [
+        Action(A.SELECT, i)
+        for i in range(len(ins.labels))
+        if _mode_available(st, f, ins.targets[i])
+    ]
+    if not opts:
+        opts = [Action(A.SELECT, i) for i in range(len(ins.labels))]
     return _decide(st, f, player, DecisionKind.SELECT, opts, "choose mode", (("mode", 1),))
 
 

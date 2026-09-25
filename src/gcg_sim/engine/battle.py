@@ -106,10 +106,13 @@ def _destroy_battle(st: GameState, victims: dict[int, int]) -> list[int]:
     if not doomed:
         return []
     breach = {src: V.kw_amount(dv, src, d.Kw.BREACH) for src in set(victims.values())}
+    sources_lki = core.ability_snapshot(st, sorted(set(victims.values())))
     destroyed = core.destroy(st, doomed, battle=True, by=NO_ARG)
     group = core.next_group(st)
     for u in destroyed:
         src = victims[u]
+        # Q436: a Unit destroyed simultaneously still "destroys an enemy Unit with battle damage"
+        lki = {src: sources_lki[src]} if st.cards[src].zone is not Zone.BATTLE else None
         if st.cards[src].owner == st.cards[u].owner:
             continue
         if V.reg().db.by_id(st.cards[u].def_id).card_type.is_base:
@@ -118,6 +121,7 @@ def _destroy_battle(st: GameState, victims: dict[int, int]) -> list[int]:
                 d.Ev.DESTROYS_SHIELD_CARD,
                 src,
                 player=st.cards[src].owner,
+                lki=lki,
                 target=u,
                 battle=1,
                 group=group,
@@ -128,11 +132,27 @@ def _destroy_battle(st: GameState, victims: dict[int, int]) -> list[int]:
             d.Ev.DESTROYS_BY_BATTLE,
             src,
             player=st.cards[src].owner,
+            lki=lki,
             target=u,
             breach=breach.get(src, 0),
             group=group,
         )
     return destroyed
+
+
+def _attack_base(st: GameState, attacker: int, base: int) -> None:
+    """Rule 8-5-2-4: the attacking Unit deals battle damage to the Base. Bases have 0 AP and
+    deal no battle damage back (resolution of rules-internal:base-ap in docs/CONFLICTS.md)."""
+    dv = V.derived(st)
+    core.damage_card(
+        st,
+        base,
+        V.ap_of(st, dv, attacker),
+        source=attacker,
+        battle=True,
+        by=st.cards[attacker].owner,
+    )
+    _destroy_battle(st, {base: attacker})
 
 
 def _exchange(st: GameState, attacker: int, target: int, first_strike: bool) -> None:
@@ -176,7 +196,7 @@ def damage_step(st: GameState) -> None:
         ):
             return
         if base:
-            _exchange(st, attacker, base[0], first_strike)  # rules 8-5-2-4, 8-5-2-4-2
+            _attack_base(st, attacker, base[0])  # rules 8-5-2-4, 8-5-2-4-2
         elif st.zones[defender][Zone.SHIELD]:
             ap = V.ap_of(st, dv, attacker)
             if ap >= 1:  # Q35: each Shield has 1 HP; 0 damage is not dealt (5-5-5)
@@ -193,7 +213,7 @@ def damage_step(st: GameState) -> None:
         return
     target = b.target
     if st.cards[target].zone is Zone.BASE:
-        _exchange(st, attacker, target, first_strike)
+        _attack_base(st, attacker, target)
         return
     _exchange(st, attacker, target, first_strike)
 
