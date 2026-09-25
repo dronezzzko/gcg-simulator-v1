@@ -5,8 +5,101 @@
   "text_hash": "51ee8c20b181be3f"
  },
  "ST10-002": {
-  "error": "'【Deploy･Development 2】You may exile the specified number of (G Generation) cards in your trash from the game. If you do, activate the following effect:\\n■Choose 1 enemy Unit with 4 or less HP. Rest it.': no selector head in 'the specified number of (G Generation) cards in your trash'",
+  "abilities": [
+   {
+    "_": "Triggered",
+    "steps": [
+     {
+      "_": "If",
+      "cond": {
+       "_": "Exists",
+       "at_least": 2,
+       "sel": {
+        "_": "Sel",
+        "filters": [
+         {
+          "_": "HasTrait",
+          "traits": [
+           "G Generation"
+          ]
+         }
+        ],
+        "loc": "trash",
+        "side": "friendly"
+       }
+      },
+      "then": [
+       {
+        "_": "May",
+        "steps": [
+         {
+          "_": "Choose",
+          "count": 2,
+          "sel": {
+           "_": "Sel",
+           "filters": [
+            {
+             "_": "HasTrait",
+             "traits": [
+              "G Generation"
+             ]
+            }
+           ],
+           "loc": "trash",
+           "side": "friendly"
+          },
+          "var": "t1"
+         },
+         {
+          "_": "Exile",
+          "ref": {
+           "_": "Var",
+           "name": "t1"
+          }
+         },
+         {
+          "_": "Choose",
+          "sel": {
+           "_": "Sel",
+           "filters": [
+            {
+             "_": "IsKind",
+             "kinds": [
+              "unit"
+             ]
+            },
+            {
+             "_": "StatCmp",
+             "op": "<=",
+             "stat": "hp",
+             "value": 4
+            }
+           ],
+           "loc": "battle",
+           "side": "enemy"
+          },
+          "var": "t2"
+         },
+         {
+          "_": "Rest",
+          "ref": {
+           "_": "Var",
+           "name": "t2"
+          }
+         }
+        ]
+       }
+      ]
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "event": "deployed"
+    }
+   }
+  ],
   "name": "Zeta Gundam",
+  "source": "compiled",
   "text_hash": "187bc67128ccc194"
  },
  "ST10-003": {
@@ -90,12 +183,105 @@
   "text_hash": "1966211b1cbb71fa"
  },
  "ST10-007": {
-  "error": "'【When Linked･Development 2】You may exile the specified number of (G Generation) cards in your trash from the game. If you do, activate the following effect:\\n■Choose 1 Command card that is Lv.4 or lower from your trash. Add it to your hand.': no selector head in 'the specified number of (G Generation) cards in your trash'",
+  "abilities": [
+   {
+    "_": "Triggered",
+    "steps": [
+     {
+      "_": "If",
+      "cond": {
+       "_": "Exists",
+       "at_least": 2,
+       "sel": {
+        "_": "Sel",
+        "filters": [
+         {
+          "_": "HasTrait",
+          "traits": [
+           "G Generation"
+          ]
+         }
+        ],
+        "loc": "trash",
+        "side": "friendly"
+       }
+      },
+      "then": [
+       {
+        "_": "May",
+        "steps": [
+         {
+          "_": "Choose",
+          "count": 2,
+          "sel": {
+           "_": "Sel",
+           "filters": [
+            {
+             "_": "HasTrait",
+             "traits": [
+              "G Generation"
+             ]
+            }
+           ],
+           "loc": "trash",
+           "side": "friendly"
+          },
+          "var": "t1"
+         },
+         {
+          "_": "Exile",
+          "ref": {
+           "_": "Var",
+           "name": "t1"
+          }
+         },
+         {
+          "_": "Choose",
+          "sel": {
+           "_": "Sel",
+           "filters": [
+            {
+             "_": "IsKind",
+             "kinds": [
+              "command"
+             ]
+            },
+            {
+             "_": "StatCmp",
+             "op": "<=",
+             "stat": "lv",
+             "value": 4
+            }
+           ],
+           "loc": "trash",
+           "side": "friendly"
+          },
+          "var": "t2"
+         },
+         {
+          "_": "AddToHand",
+          "ref": {
+           "_": "Var",
+           "name": "t2"
+          }
+         }
+        ]
+       }
+      ]
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "event": "linked"
+    }
+   }
+  ],
   "name": "Gundam Barbatos 4th Form",
+  "source": "compiled",
   "text_hash": "ffa8cf64bedee23e"
  },
  "ST10-008": {
-  "error": "'【Deploy･Development 2】You may exile the specified number of (G Generation) cards in your trash from the game. If you do, activate the following effect:\\n■Draw a number of cards equal to the number of enemy players. Then, discard the same number of cards you drew with this effect.': no selector head in 'the specified number of (G Generation) cards in your trash'",
+  "error": "'【Deploy･Development 2】You may exile the specified number of (G Generation) cards in your trash from the game. If you do, activate the following effect:\\n■Draw a number of cards equal to the number of enemy players. Then, discard the same number of cards you drew with this effect.': no step template for 'Draw a number of cards equal to the number of enemy players'",
   "name": "Gundam Barbatos 1st Form",
   "text_hash": "8f83d7e69ec2c0bf"
  },
@@ -194,15 +380,15 @@
          "side": "enemy"
         },
         "var": "t1"
+       },
+       {
+        "_": "Rest",
+        "ref": {
+         "_": "Var",
+         "name": "t1"
+        }
        }
       ]
-     },
-     {
-      "_": "Rest",
-      "ref": {
-       "_": "Var",
-       "name": "t1"
-      }
      }
     ],
     "trigger": {
@@ -348,8 +534,50 @@
   "text_hash": "c55a070aa9a718bb"
  },
  "ST10-014": {
-  "error": "'When playing this card from your hand, you may discard 1 (G Generation) Unit card. If you do, play this card as if it has 2 Lv. and cost.': unknown trigger 'When playing this card from your hand'",
+  "abilities": [
+   {
+    "_": "PlayModifier",
+    "cost": 2,
+    "costs": [
+     {
+      "_": "DiscardCards",
+      "count": 1,
+      "sel": {
+       "_": "Sel",
+       "filters": [
+        {
+         "_": "IsKind",
+         "kinds": [
+          "unit"
+         ]
+        },
+        {
+         "_": "HasTrait",
+         "traits": [
+          "G Generation"
+         ]
+        }
+       ],
+       "loc": "hand",
+       "side": "friendly"
+      }
+     }
+    ],
+    "level": 2
+   },
+   {
+    "_": "Command",
+    "steps": [
+     {
+      "_": "Draw",
+      "count": 2
+     }
+    ],
+    "timing": "main"
+   }
+  ],
   "name": "Unlocking the Development Diagram",
+  "source": "compiled",
   "text_hash": "87f947078d82749d"
  },
  "ST10-015": {
@@ -398,20 +626,20 @@
          "side": "enemy"
         },
         "var": "t1"
+       },
+       {
+        "_": "Apply",
+        "duration": "this_battle",
+        "effect": {
+         "_": "StatMod",
+         "ap": -3
+        },
+        "ref": {
+         "_": "Var",
+         "name": "t1"
+        }
        }
       ]
-     },
-     {
-      "_": "Apply",
-      "duration": "this_battle",
-      "effect": {
-       "_": "StatMod",
-       "ap": -3
-      },
-      "ref": {
-       "_": "Var",
-       "name": "t1"
-      }
      }
     ],
     "timing": "action"

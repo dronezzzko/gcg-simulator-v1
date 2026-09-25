@@ -229,10 +229,6 @@ def test_then_part_resolves_even_if_the_preceding_part_cannot() -> None:
 
 @pytest.mark.rule("5-20-2")
 @pytest.mark.ruling("GD03-072:Q233")
-@pytest.mark.xfail(
-    strict=True,
-    reason="ENGINE: 'Then' part compiled outside the leading 'If' (GD03-072 discards without the condition)",
-)
 def test_leading_condition_also_governs_the_then_part() -> None:
     sc = Scenario()
     sc.resources(0, 4)
@@ -245,10 +241,6 @@ def test_leading_condition_also_governs_the_then_part() -> None:
 
 @pytest.mark.rule("5-20-1", "5-20-2")
 @pytest.mark.ruling("GD02-021:Q175")
-@pytest.mark.xfail(
-    strict=True,
-    reason="ENGINE: 'Then' part compiled outside 'If you do' (GD02-021 draws after the discard is declined)",
-)
 def test_if_you_do_also_governs_the_following_then_part() -> None:
     sc = Scenario()
     sc.resources(0, 7)
@@ -866,10 +858,6 @@ def test_only_targets_before_then_or_if_you_do_are_required_to_play() -> None:
 
 @pytest.mark.rule("10-2-2", "10-1-8-1-1")
 @pytest.mark.ruling("GD01-003:Q121")
-@pytest.mark.xfail(
-    strict=True,
-    reason="ENGINE: 'Choose 2' Command is playable with only 1 choosable target (_required_targets_ok)",
-)
 def test_choose_two_needs_two_choosable_targets() -> None:
     sc = Scenario()
     sc.resources(0, 6)
@@ -913,10 +901,6 @@ def test_substitution_replaces_the_event() -> None:
 
 
 @pytest.mark.rule("10-1-9-1")
-@pytest.mark.xfail(
-    strict=True,
-    reason="ENGINE: 'instead' branch loses 'during this turn' (ST07-009 AP+1 lasts while on field)",
-)
 def test_substituted_event_keeps_the_replaced_duration() -> None:
     sc = Scenario()
     sc.trash(0, *[ZERO_GUNDAM] * 7)
@@ -956,10 +940,6 @@ def test_replaced_portion_applies_when_the_substitution_does_not() -> None:
 
 @pytest.mark.rule("10-1-9-1-1")
 @pytest.mark.ruling("GD03-109:Q247")
-@pytest.mark.xfail(
-    strict=True,
-    reason="ENGINE: 'choose ... instead' replaces the damage step, not the target choice (GD03-109)",
-)
 def test_instead_portion_replaces_only_what_it_names() -> None:
     sc = Scenario()
     sc.resources(0, 3)
@@ -1138,10 +1118,6 @@ def test_triggered_effect_without_a_choosable_target_does_not_activate() -> None
 
 @pytest.mark.rule("10-3-3-1", "10-2-2")
 @pytest.mark.ruling("GD03-056:Q230")
-@pytest.mark.xfail(
-    strict=True,
-    reason="ENGINE: triggered multi-target choice activates with a missing target (no pre-check)",
-)
 def test_triggered_effect_needs_every_target_of_its_choice() -> None:
     sc = Scenario()
     sc.resources(0, 4)

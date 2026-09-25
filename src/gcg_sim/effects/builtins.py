@@ -22,6 +22,9 @@ def return_looked_bottom(st: GameState, f: Frame, ctx: V.Ctx, params: dict[str, 
         deck.remove(u)
     st.rng.shuffle(looked)
     deck.extend(looked)
+    if len(looked) > 1:
+        for u in looked:  # rule 4-2-2: nobody knows the random order
+            st.cards[u].known = 0
     st.touch()
     return True
 

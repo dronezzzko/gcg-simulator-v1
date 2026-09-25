@@ -67,9 +67,12 @@ class Step(IntEnum):
     # start phase (7-2)
     ACTIVE_STEP = 10
     START_STEP = 11
+    START_STEP_DONE = 12
     # draw / resource
     DRAW_STEP = 20
+    DRAW_STEP_DONE = 21
     RESOURCE_STEP = 30
+    RESOURCE_STEP_DONE = 31
     # main phase (7-5)
     MAIN = 40
     # battle (8)
@@ -89,6 +92,9 @@ class Step(IntEnum):
     HAND_STEP = 62
     CLEANUP_STEP = 63
     TURN_END = 64
+    END_STEP_DONE = 65
+    HAND_STEP_DONE = 66
+    CLEANUP_STEP_DONE = 67
     GAME_OVER = 99
 
 

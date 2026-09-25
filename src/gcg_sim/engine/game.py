@@ -45,6 +45,60 @@ class DeckList:
     resources: tuple[str, ...]
 
 
+class DeckConstructionError(ValueError):
+    """A deck or resource deck breaks the construction rules (rule 6-1)."""
+
+
+MAIN_DECK_SIZE = 50
+RESOURCE_DECK_SIZE = 10
+MAX_COPIES = 4
+MAX_COLORS = 2
+
+
+def deck_construction_problems(deck: DeckList) -> list[str]:
+    """Rules 6-1-1..6-1-1-5 (engine-level check; B&R lists are enforced by gcg_sim.deck)."""
+    from collections import Counter
+
+    from gcg_sim.cards.model import MAIN_DECK_TYPES
+
+    db = V.reg().db
+    problems: list[str] = []
+    if len(deck.main) != MAIN_DECK_SIZE:
+        problems.append(
+            f"deck has {len(deck.main)} cards; exactly {MAIN_DECK_SIZE} required (6-1-1)"
+        )
+    if len(deck.resources) != RESOURCE_DECK_SIZE:
+        problems.append(
+            f"resource deck has {len(deck.resources)} cards; exactly {RESOURCE_DECK_SIZE} required (6-1-1)"
+        )
+    colors = set()
+    for number, n in sorted(Counter(deck.main).items()):
+        cd = db.get(number)
+        if cd is None:
+            problems.append(f"unknown card {number}")
+            continue
+        if cd.card_type not in MAIN_DECK_TYPES:
+            problems.append(
+                f"{number} is a {cd.card_type.value} card and cannot be in the deck (6-1-1-1)"
+            )
+        if n > MAX_COPIES:
+            problems.append(f"{n} copies of {number}; at most {MAX_COPIES} allowed (6-1-1-3)")
+        if cd.color is not None:
+            colors.add(cd.color)
+    if len(colors) > MAX_COLORS:
+        names = ", ".join(sorted(c.value for c in colors))
+        problems.append(
+            f"deck uses {len(colors)} colours ({names}); at most {MAX_COLORS} (6-1-1-2)"
+        )
+    for number in sorted(set(deck.resources)):
+        cd = db.get(number)
+        if cd is None or cd.card_type is not CardType.RESOURCE:
+            problems.append(
+                f"{number} is not a Resource card and cannot be in the resource deck (6-1-1-4)"
+            )
+    return problems
+
+
 # ---------------------------------------------------------------------------------------------
 # setup
 
@@ -56,6 +110,7 @@ def new_game(
     chooser: int | None = None,
     turn_limit: int = 200,
     max_actions: int = MAX_ACTIONS_DEFAULT,
+    validate: bool = True,
 ) -> GameState:
     """Create a game. Each deck is shuffled with the seeded RNG and then cut at a random point
     (Floor Rules); card uids are assigned after shuffling so they carry no identity information.
@@ -64,6 +119,11 @@ def new_game(
     ``None`` means a seeded die roll decides (rule 6-2-1-4).
     """
     R = V.reg()
+    if validate:
+        for p, deck in enumerate(decks):
+            problems = deck_construction_problems(deck)
+            if problems:
+                raise DeckConstructionError(f"player {p}: " + "; ".join(problems))
     st = GameState(seed)
     st.turn_limit = turn_limit
     rng: SplitMix64 = st.rng
@@ -146,7 +206,7 @@ def _redraw(st: GameState, p: int) -> None:
 
 def _expire(st: GameState, *, battle_id: int = NO_ARG) -> None:
     def keep(le_duration: str, created: int, controller: int) -> bool:
-        if le_duration == "this_turn":
+        if le_duration in ("this_turn", "this_battle"):
             return False
         if le_duration == "opponent_next_turn":
             return not (st.turn > created and st.active != controller)
@@ -174,14 +234,20 @@ def _turn_step(st: GameState) -> None:
     elif s is Step.START_STEP:
         core.next_group(st)
         core.emit(st, d.Ev.TURN_START, NO_ARG, player=p)  # rule 7-2-4-1
-        st.phase = Phase.DRAW
+        st.step = Step.START_STEP_DONE  # rule 7-2-2: its effects resolve before moving on
+    elif s is Step.START_STEP_DONE:
+        st.phase = Phase.DRAW  # rule 7-2-5
         st.step = Step.DRAW_STEP
     elif s is Step.DRAW_STEP:
         I.draw(st, p, 1)  # rule 7-3-1
+        st.step = Step.DRAW_STEP_DONE
+    elif s is Step.DRAW_STEP_DONE:
         st.phase = Phase.RESOURCE
         st.step = Step.RESOURCE_STEP
     elif s is Step.RESOURCE_STEP:
         I.place_resource(st, p, rested=False, by=p)  # rule 7-4-1
+        st.step = Step.RESOURCE_STEP_DONE
+    elif s is Step.RESOURCE_STEP_DONE:
         st.phase = Phase.MAIN
         st.step = Step.MAIN
     elif s is Step.MAIN:
@@ -227,18 +293,24 @@ def _turn_step(st: GameState) -> None:
         st.touch()
         st.step = Step.MAIN  # rule 8-6-2
     elif s is Step.END_STEP:
-        st.step = Step.HAND_STEP
         core.next_group(st)
         core.emit(st, d.Ev.TURN_END, NO_ARG, player=p)  # rules 7-6-4-1, 13-1-1-1
+        st.step = Step.END_STEP_DONE  # rule 7-6-2
+    elif s is Step.END_STEP_DONE:
+        st.step = Step.HAND_STEP
     elif s is Step.HAND_STEP:
-        st.step = Step.CLEANUP_STEP
         if len(st.zones[p][Zone.HAND]) > core.HAND_LIMIT:  # rule 7-6-5-1
             I.push_frame(
                 st, I.system_program("hand_limit"), controller=p, host=NO_ARG, kind="system"
             )
+        st.step = Step.HAND_STEP_DONE
+    elif s is Step.HAND_STEP_DONE:
+        st.step = Step.CLEANUP_STEP
     elif s is Step.CLEANUP_STEP:
-        st.step = Step.TURN_END
         _expire(st)  # rule 7-6-6-1
+        st.step = Step.CLEANUP_STEP_DONE
+    elif s is Step.CLEANUP_STEP_DONE:
+        st.step = Step.TURN_END
     elif s is Step.TURN_END:
         _next_turn(st)
     else:
@@ -307,41 +379,9 @@ def _level_ok(st: GameState, dv: V.Derived, p: int, uid: int) -> bool:
 
 
 def _required_targets_ok(st: GameState, program_id: int, ctx: V.Ctx) -> bool:
-    """Rules 10-1-8-1-1, 10-1-8-1-2, 10-2-2, Q100: every mandatory targeted choice before
-    "Then"/"If you do" and outside conditional branches must have a legal target."""
-    from gcg_sim.effects import program as pr
-
-    prog = V.reg().programs[program_id]
-    dv = V.derived(st)
-    for ins in prog.instrs:
-        if isinstance(
-            ins, (pr.JumpIfNot, pr.AskMay, pr.JumpIfNotDid, pr.ModeSelect, pr.LoopInit, d.If)
-        ):
-            return True
-        if isinstance(ins, d.Choose):
-            if ins.after_then:
-                return True
-            if not ins.targeting or ins.optional:
-                continue
-            if ins.min_count is not None and V.value(st, dv, ctx, ins.min_count) == 0:
-                continue
-            if ins.sel.loc not in (
-                d.Loc.BATTLE,
-                d.Loc.BASE,
-                d.Loc.RESOURCE_AREA,
-                d.Loc.TRASH,
-                d.Loc.PAIRED,
-                d.Loc.FIELD_UNITS_AND_BASES,
-            ):
-                continue
-            cands = V.select(st, dv, ctx, ins.sel)
-            if ins.distinct_from:
-                excl = {u for v in ins.distinct_from for u in ctx.vars.get(v, ())}
-                cands = [u for u in cands if u not in excl]
-            cands = [u for u in cands if not I._cant_be_chosen(st, dv, u, ctx.controller)]
-            if not cands:
-                return False
-    return True
+    """Rules 10-1-8-1-1, 10-1-8-1-2, 10-2-2, Q100: mandatory targeted choices before "Then" must
+    be possible in full."""
+    return I.targets_available(V.reg().programs[program_id].instrs, 0, st, ctx)
 
 
 def _command_playable(st: GameState, p: int, uid: int, timing: d.Timing) -> bool:
@@ -484,6 +524,7 @@ def main_options(st: GameState) -> list[Action]:
     my_units = [u for u in st.zones[p][Zone.BATTLE] if I.can_pair(st, dv, u)]
     for uid in st.zones[p][Zone.HAND]:
         cd = R.db.by_id(st.cards[uid].def_id)
+        out.extend(_alt_play_options(st, dv, p, uid, my_units))
         if not _level_ok(st, dv, p, uid):
             continue
         pays = payment_choices(st, p, V.play_cost(st, dv, uid))
@@ -503,7 +544,6 @@ def main_options(st: GameState) -> list[Action]:
             if cd.pilot_name is not None:  # rule 3-4-6-2
                 for u in my_units:
                     out.extend(Action(A.PAIR, uid, u, c) for c in pays)
-        out.extend(_alt_play_options(st, dv, p, uid, my_units))
     for host, aid, cost in _activated_list(st, p, d.Timing.MAIN):
         out.extend(Action(A.ACTIVATE, host, aid, c) for c in payment_choices(st, p, cost))
     out.extend(_attack_options(st, p))
@@ -687,6 +727,17 @@ def advance(st: GameState) -> None:
             if st.frames or st.pending_triggers:
                 continue
             _turn_step(st)
+
+
+def concede(st: GameState, player: int) -> None:
+    """Rule 1-2-4: a player may concede at any time and loses immediately (1-2-5: never a
+    substitution)."""
+    if st.winner is not None:
+        return
+    st.frames = []
+    st.batches = []
+    st.pending_triggers = []
+    core.set_winner(st, {player}, EndReason.CONCEDE)
 
 
 def legal_actions(st: GameState) -> tuple[Action, ...]:

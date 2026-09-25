@@ -635,7 +635,8 @@ def stat(st: GameState, dv: Derived, uid: int, s: d.Stat) -> int:
     if s is d.Stat.AP:
         return ap_of(st, dv, uid)
     if s is d.Stat.HP:
-        return hp_of(st, dv, uid)
+        # FAQ Q96: HP referred to by card text is the current HP (printed/modified HP minus damage)
+        return max(0, hp_of(st, dv, uid) - st.cards[uid].damage)
     if s is d.Stat.LV:
         return level_of(st, uid)
     if s is d.Stat.COST:
@@ -755,6 +756,11 @@ def resolve(st: GameState, dv: Derived, ctx: Ctx, ref: d.Ref) -> tuple[int, ...]
             c = st.cards[u]
             if c.zone is Zone.BATTLE and c.pair >= 0:
                 out.append(c.pair)
+            elif ctx.ev("subject") == u and ctx.ev("pilot") >= 0:
+                # rule 13-2-8-2-1: a 【Destroyed】 effect refers to the card's last-known state
+                pilot = ctx.ev("pilot")
+                if st.cards[pilot].zone is c.zone:
+                    out.append(pilot)
         return tuple(out)
     if isinstance(ref, d.PairedUnitOf):
         out = []

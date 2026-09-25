@@ -132,15 +132,15 @@
          "side": "any"
         },
         "var": "t1"
+       },
+       {
+        "_": "Rest",
+        "ref": {
+         "_": "Var",
+         "name": "t1"
+        }
        }
       ]
-     },
-     {
-      "_": "Rest",
-      "ref": {
-       "_": "Var",
-       "name": "t1"
-      }
      }
     ],
     "trigger": {
@@ -359,8 +359,94 @@
   "text_hash": "3973e022e93220f9"
  },
  "EB01-008": {
-  "error": "'【Deploy･Development 1】You may exile the specified number of (G Generation) cards in your trash from the game. If you do, activate the following effect:\\n■Choose 1 friendly Unit. It recovers 2 HP.': no selector head in 'the specified number of (G Generation) cards in your trash'",
+  "abilities": [
+   {
+    "_": "Triggered",
+    "steps": [
+     {
+      "_": "If",
+      "cond": {
+       "_": "Exists",
+       "sel": {
+        "_": "Sel",
+        "filters": [
+         {
+          "_": "HasTrait",
+          "traits": [
+           "G Generation"
+          ]
+         }
+        ],
+        "loc": "trash",
+        "side": "friendly"
+       }
+      },
+      "then": [
+       {
+        "_": "May",
+        "steps": [
+         {
+          "_": "Choose",
+          "sel": {
+           "_": "Sel",
+           "filters": [
+            {
+             "_": "HasTrait",
+             "traits": [
+              "G Generation"
+             ]
+            }
+           ],
+           "loc": "trash",
+           "side": "friendly"
+          },
+          "var": "t1"
+         },
+         {
+          "_": "Exile",
+          "ref": {
+           "_": "Var",
+           "name": "t1"
+          }
+         },
+         {
+          "_": "Choose",
+          "sel": {
+           "_": "Sel",
+           "filters": [
+            {
+             "_": "IsKind",
+             "kinds": [
+              "unit"
+             ]
+            }
+           ],
+           "loc": "battle",
+           "side": "friendly"
+          },
+          "var": "t2"
+         },
+         {
+          "_": "Recover",
+          "amount": 2,
+          "ref": {
+           "_": "Var",
+           "name": "t2"
+          }
+         }
+        ]
+       }
+      ]
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "event": "deployed"
+    }
+   }
+  ],
   "name": "Gundam Delta Kai",
+  "source": "compiled",
   "text_hash": "4ef90288835a25ec"
  },
  "EB01-009": {
@@ -369,8 +455,99 @@
   "text_hash": "52355402f3abce7b"
  },
  "EB01-010": {
-  "error": "'【Deploy･Development 3】You may exile the specified number of (G Generation) cards in your trash from the game. If you do, activate the following effect:\\n■Choose 1 rested enemy Unit. Deal 2 damage to it.': no selector head in 'the specified number of (G Generation) cards in your trash'",
+  "abilities": [
+   {
+    "_": "Triggered",
+    "steps": [
+     {
+      "_": "If",
+      "cond": {
+       "_": "Exists",
+       "at_least": 3,
+       "sel": {
+        "_": "Sel",
+        "filters": [
+         {
+          "_": "HasTrait",
+          "traits": [
+           "G Generation"
+          ]
+         }
+        ],
+        "loc": "trash",
+        "side": "friendly"
+       }
+      },
+      "then": [
+       {
+        "_": "May",
+        "steps": [
+         {
+          "_": "Choose",
+          "count": 3,
+          "sel": {
+           "_": "Sel",
+           "filters": [
+            {
+             "_": "HasTrait",
+             "traits": [
+              "G Generation"
+             ]
+            }
+           ],
+           "loc": "trash",
+           "side": "friendly"
+          },
+          "var": "t1"
+         },
+         {
+          "_": "Exile",
+          "ref": {
+           "_": "Var",
+           "name": "t1"
+          }
+         },
+         {
+          "_": "Choose",
+          "sel": {
+           "_": "Sel",
+           "filters": [
+            {
+             "_": "IsKind",
+             "kinds": [
+              "unit"
+             ]
+            },
+            {
+             "_": "IsRested"
+            }
+           ],
+           "loc": "battle",
+           "side": "enemy"
+          },
+          "var": "t2"
+         },
+         {
+          "_": "Damage",
+          "amount": 2,
+          "ref": {
+           "_": "Var",
+           "name": "t2"
+          }
+         }
+        ]
+       }
+      ]
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "event": "deployed"
+    }
+   }
+  ],
   "name": "Gundam Barbatos 6th Form",
+  "source": "compiled",
   "text_hash": "5704b7dee9941e2e"
  },
  "EB01-011": {
@@ -526,16 +703,16 @@
          "side": "enemy"
         },
         "var": "t1"
+       },
+       {
+        "_": "Damage",
+        "amount": 1,
+        "ref": {
+         "_": "Var",
+         "name": "t1"
+        }
        }
       ]
-     },
-     {
-      "_": "Damage",
-      "amount": 1,
-      "ref": {
-       "_": "Var",
-       "name": "t1"
-      }
      }
     ],
     "trigger": {
@@ -835,7 +1012,7 @@
   "text_hash": "ab7df7f216a206bd"
  },
  "EB01-025": {
-  "error": "'【Deploy･Development 2】You may exile the specified number of (G Generation) cards in your trash from the game. If you do, activate the following effect:\\n■All players place 1 EX Resource.': no selector head in 'the specified number of (G Generation) cards in your trash'",
+  "error": "'【Deploy･Development 2】You may exile the specified number of (G Generation) cards in your trash from the game. If you do, activate the following effect:\\n■All players place 1 EX Resource.': no step template for 'All players place 1 EX Resource'",
   "name": "Tallgeese Ⅱ",
   "text_hash": "d19e4fe1b044da6d"
  },
@@ -846,8 +1023,106 @@
   "text_hash": "3973e022e93220f9"
  },
  "EB01-027": {
-  "error": "'【Deploy･Development 2】You may exile the specified number of (G Generation) cards in your trash from the game. If you do, activate the following effect:\\n■Choose 1 friendly (G Generation) Unit. It gains <Breach 1> during this turn.': no selector head in 'the specified number of (G Generation) cards in your trash'",
+  "abilities": [
+   {
+    "_": "Triggered",
+    "steps": [
+     {
+      "_": "If",
+      "cond": {
+       "_": "Exists",
+       "at_least": 2,
+       "sel": {
+        "_": "Sel",
+        "filters": [
+         {
+          "_": "HasTrait",
+          "traits": [
+           "G Generation"
+          ]
+         }
+        ],
+        "loc": "trash",
+        "side": "friendly"
+       }
+      },
+      "then": [
+       {
+        "_": "May",
+        "steps": [
+         {
+          "_": "Choose",
+          "count": 2,
+          "sel": {
+           "_": "Sel",
+           "filters": [
+            {
+             "_": "HasTrait",
+             "traits": [
+              "G Generation"
+             ]
+            }
+           ],
+           "loc": "trash",
+           "side": "friendly"
+          },
+          "var": "t1"
+         },
+         {
+          "_": "Exile",
+          "ref": {
+           "_": "Var",
+           "name": "t1"
+          }
+         },
+         {
+          "_": "Choose",
+          "sel": {
+           "_": "Sel",
+           "filters": [
+            {
+             "_": "IsKind",
+             "kinds": [
+              "unit"
+             ]
+            },
+            {
+             "_": "HasTrait",
+             "traits": [
+              "G Generation"
+             ]
+            }
+           ],
+           "loc": "battle",
+           "side": "friendly"
+          },
+          "var": "t2"
+         },
+         {
+          "_": "Apply",
+          "effect": {
+           "_": "KeywordGrant",
+           "amount": 1,
+           "keyword": "Breach"
+          },
+          "ref": {
+           "_": "Var",
+           "name": "t2"
+          }
+         }
+        ]
+       }
+      ]
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "event": "deployed"
+    }
+   }
+  ],
   "name": "Tallgeese",
+  "source": "compiled",
   "text_hash": "ad4c910f43c1911d"
  },
  "EB01-028": {
@@ -1309,8 +1584,36 @@
   "text_hash": "9c59dbb844dc79bd"
  },
  "EB01-039": {
-  "error": "'When playing this card from your hand, if 3 or more enemy Units are in play, play it as if it has 3 Lv. and cost.': unknown trigger 'When playing this card from your hand'",
+  "abilities": [
+   {
+    "_": "PlayModifier",
+    "cond": {
+     "_": "Cmp",
+     "left": {
+      "_": "Count",
+      "sel": {
+       "_": "Sel",
+       "filters": [
+        {
+         "_": "IsKind",
+         "kinds": [
+          "unit"
+         ]
+        }
+       ],
+       "loc": "battle",
+       "side": "enemy"
+      }
+     },
+     "op": ">=",
+     "right": 3
+    },
+    "cost": 3,
+    "level": 3
+   }
+  ],
   "name": "Rising Freedom Gundam",
+  "source": "compiled",
   "text_hash": "6bd32d4d56c95b0a"
  },
  "EB01-040": {
@@ -1343,20 +1646,20 @@
          "side": "friendly"
         },
         "var": "t1"
+       },
+       {
+        "_": "Apply",
+        "effect": {
+         "_": "KeywordGrant",
+         "amount": 3,
+         "keyword": "Breach"
+        },
+        "ref": {
+         "_": "Var",
+         "name": "t1"
+        }
        }
       ]
-     },
-     {
-      "_": "Apply",
-      "effect": {
-       "_": "KeywordGrant",
-       "amount": 3,
-       "keyword": "Breach"
-      },
-      "ref": {
-       "_": "Var",
-       "name": "t1"
-      }
      }
     ],
     "trigger": {
@@ -1554,20 +1857,20 @@
          "side": "enemy"
         },
         "var": "t1"
+       },
+       {
+        "_": "Apply",
+        "duration": "this_battle",
+        "effect": {
+         "_": "StatMod",
+         "ap": -2
+        },
+        "ref": {
+         "_": "Var",
+         "name": "t1"
+        }
        }
       ]
-     },
-     {
-      "_": "Apply",
-      "duration": "this_battle",
-      "effect": {
-       "_": "StatMod",
-       "ap": -2
-      },
-      "ref": {
-       "_": "Var",
-       "name": "t1"
-      }
      }
     ],
     "trigger": {
@@ -1686,8 +1989,79 @@
   "text_hash": "abb1b69e706b9f57"
  },
  "EB01-047": {
-  "error": "'【When Paired･Development 1】You may exile the specified number of (G Generation) cards in your trash from the game. If you do, activate the following effect:\\n■This Unit gains <High-Maneuver> during this turn.': no selector head in 'the specified number of (G Generation) cards in your trash'",
+  "abilities": [
+   {
+    "_": "Triggered",
+    "steps": [
+     {
+      "_": "If",
+      "cond": {
+       "_": "Exists",
+       "sel": {
+        "_": "Sel",
+        "filters": [
+         {
+          "_": "HasTrait",
+          "traits": [
+           "G Generation"
+          ]
+         }
+        ],
+        "loc": "trash",
+        "side": "friendly"
+       }
+      },
+      "then": [
+       {
+        "_": "May",
+        "steps": [
+         {
+          "_": "Choose",
+          "sel": {
+           "_": "Sel",
+           "filters": [
+            {
+             "_": "HasTrait",
+             "traits": [
+              "G Generation"
+             ]
+            }
+           ],
+           "loc": "trash",
+           "side": "friendly"
+          },
+          "var": "t1"
+         },
+         {
+          "_": "Exile",
+          "ref": {
+           "_": "Var",
+           "name": "t1"
+          }
+         },
+         {
+          "_": "Apply",
+          "effect": {
+           "_": "KeywordGrant",
+           "keyword": "High-Maneuver"
+          },
+          "ref": {
+           "_": "This"
+          }
+         }
+        ]
+       }
+      ]
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "event": "paired"
+    }
+   }
+  ],
   "name": "Casval's Gundam",
+  "source": "compiled",
   "text_hash": "9e2494d04862a812"
  },
  "EB01-048": {
@@ -1805,15 +2179,15 @@
          "side": "enemy"
         },
         "var": "t1"
+       },
+       {
+        "_": "ReturnToHand",
+        "ref": {
+         "_": "Var",
+         "name": "t1"
+        }
        }
       ]
-     },
-     {
-      "_": "ReturnToHand",
-      "ref": {
-       "_": "Var",
-       "name": "t1"
-      }
      }
     ],
     "trigger": {
@@ -1971,15 +2345,15 @@
          "side": "enemy"
         },
         "var": "t2"
+       },
+       {
+        "_": "ReturnToHand",
+        "ref": {
+         "_": "Var",
+         "name": "t2"
+        }
        }
       ]
-     },
-     {
-      "_": "ReturnToHand",
-      "ref": {
-       "_": "Var",
-       "name": "t2"
-      }
      }
     ],
     "trigger": {
@@ -2018,8 +2392,101 @@
   "text_hash": "a74190081fdc8f18"
  },
  "EB01-060": {
-  "error": "\"【When Paired･Development 3】You may exile the specified number of (G Generation) cards in your trash from the game. If you do, activate the following effect:\\n■Choose 1 enemy Unit that is Lv.4 or lower. Return it to its owner's hand.\": no selector head in 'the specified number of (G Generation) cards in your trash'",
+  "abilities": [
+   {
+    "_": "Triggered",
+    "steps": [
+     {
+      "_": "If",
+      "cond": {
+       "_": "Exists",
+       "at_least": 3,
+       "sel": {
+        "_": "Sel",
+        "filters": [
+         {
+          "_": "HasTrait",
+          "traits": [
+           "G Generation"
+          ]
+         }
+        ],
+        "loc": "trash",
+        "side": "friendly"
+       }
+      },
+      "then": [
+       {
+        "_": "May",
+        "steps": [
+         {
+          "_": "Choose",
+          "count": 3,
+          "sel": {
+           "_": "Sel",
+           "filters": [
+            {
+             "_": "HasTrait",
+             "traits": [
+              "G Generation"
+             ]
+            }
+           ],
+           "loc": "trash",
+           "side": "friendly"
+          },
+          "var": "t1"
+         },
+         {
+          "_": "Exile",
+          "ref": {
+           "_": "Var",
+           "name": "t1"
+          }
+         },
+         {
+          "_": "Choose",
+          "sel": {
+           "_": "Sel",
+           "filters": [
+            {
+             "_": "IsKind",
+             "kinds": [
+              "unit"
+             ]
+            },
+            {
+             "_": "StatCmp",
+             "op": "<=",
+             "stat": "lv",
+             "value": 4
+            }
+           ],
+           "loc": "battle",
+           "side": "enemy"
+          },
+          "var": "t2"
+         },
+         {
+          "_": "ReturnToHand",
+          "ref": {
+           "_": "Var",
+           "name": "t2"
+          }
+         }
+        ]
+       }
+      ]
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "event": "paired"
+    }
+   }
+  ],
   "name": "Gundam Aquarius",
+  "source": "compiled",
   "text_hash": "2d7ddb78ba7cdbfc"
  },
  "EB01-061": {
@@ -2090,15 +2557,15 @@
          "side": "enemy"
         },
         "var": "t1"
+       },
+       {
+        "_": "Rest",
+        "ref": {
+         "_": "Var",
+         "name": "t1"
+        }
        }
       ]
-     },
-     {
-      "_": "Rest",
-      "ref": {
-       "_": "Var",
-       "name": "t1"
-      }
      }
     ],
     "trigger": {
@@ -2524,20 +2991,20 @@
          "side": "any"
         },
         "var": "t1"
+       },
+       {
+        "_": "Apply",
+        "duration": "this_battle",
+        "effect": {
+         "_": "StatMod",
+         "ap": 1
+        },
+        "ref": {
+         "_": "Var",
+         "name": "t1"
+        }
        }
       ]
-     },
-     {
-      "_": "Apply",
-      "duration": "this_battle",
-      "effect": {
-       "_": "StatMod",
-       "ap": 1
-      },
-      "ref": {
-       "_": "Var",
-       "name": "t1"
-      }
      }
     ],
     "timing": "action"
@@ -3143,19 +3610,19 @@
          "side": "any"
         },
         "var": "t1"
+       },
+       {
+        "_": "Apply",
+        "effect": {
+         "_": "StatMod",
+         "ap": 3
+        },
+        "ref": {
+         "_": "Var",
+         "name": "t1"
+        }
        }
       ]
-     },
-     {
-      "_": "Apply",
-      "effect": {
-       "_": "StatMod",
-       "ap": 3
-      },
-      "ref": {
-       "_": "Var",
-       "name": "t1"
-      }
      }
     ],
     "timing": "action"

@@ -490,29 +490,6 @@
     "_": "Command",
     "steps": [
      {
-      "_": "Choose",
-      "sel": {
-       "_": "Sel",
-       "filters": [
-        {
-         "_": "IsKind",
-         "kinds": [
-          "unit"
-         ]
-        },
-        {
-         "_": "StatCmp",
-         "op": "<=",
-         "stat": "lv",
-         "value": 5
-        }
-       ],
-       "loc": "battle",
-       "side": "enemy"
-      },
-      "var": "t1"
-     },
-     {
       "_": "If",
       "cond": {
        "_": "Cmp",
@@ -537,15 +514,27 @@
       },
       "otherwise": [
        {
-        "_": "Apply",
-        "effect": {
-         "_": "StatMod",
-         "ap": -3
+        "_": "Choose",
+        "sel": {
+         "_": "Sel",
+         "filters": [
+          {
+           "_": "IsKind",
+           "kinds": [
+            "unit"
+           ]
+          },
+          {
+           "_": "StatCmp",
+           "op": "<=",
+           "stat": "lv",
+           "value": 5
+          }
+         ],
+         "loc": "battle",
+         "side": "enemy"
         },
-        "ref": {
-         "_": "Var",
-         "name": "t1"
-        }
+        "var": "t1"
        }
       ],
       "then": [
@@ -564,9 +553,20 @@
          "loc": "battle",
          "side": "enemy"
         },
-        "var": "t2"
+        "var": "t1"
        }
       ]
+     },
+     {
+      "_": "Apply",
+      "effect": {
+       "_": "StatMod",
+       "ap": -3
+      },
+      "ref": {
+       "_": "Var",
+       "name": "t1"
+      }
      }
     ],
     "timing": "main_or_action"

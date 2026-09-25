@@ -23,7 +23,7 @@ from gcg_sim.cards.model import CardType
 from gcg_sim.effects.registry import get_registry, override_script, restore_entry
 from gcg_sim.engine import core
 from gcg_sim.engine import view as V
-from gcg_sim.engine.game import IllegalActionError, advance, apply
+from gcg_sim.engine.game import DeckList, IllegalActionError, advance, apply
 from gcg_sim.engine.state import Action, GameState
 from gcg_sim.engine.types import NO_ARG, PLAYER_TARGET, ActionKind, DecisionKind, Phase, Step, Zone
 
@@ -161,6 +161,23 @@ class Scenario:
         st.touch()
         advance(st)
         return st
+
+
+def vanilla_deck(color: str = "Red", resource: str = FILLER_RESOURCE) -> DeckList:
+    """A legal 50-card deck (rule 6-1) of vanilla Units of one colour, at most 4 copies each."""
+    reg = get_registry()
+    units = sorted(
+        c.card_number
+        for c in reg.db.real_cards()
+        if c.card_type is CardType.UNIT
+        and c.is_vanilla
+        and c.color is not None
+        and c.color.value == color
+    )
+    main = tuple(n for n in units for _ in range(4))[:50]
+    if len(main) < 50:
+        raise ValueError(f"not enough vanilla {color} Units for a legal deck")
+    return DeckList(main, (resource,) * 10)
 
 
 @contextmanager

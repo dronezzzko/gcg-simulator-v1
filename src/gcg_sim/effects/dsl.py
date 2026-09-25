@@ -843,8 +843,12 @@ class ChooseMode:
 
 @dataclass(frozen=True, slots=True)
 class Draw:
+    """Draw ``count``. ``each_player`` draws for both players (active first) in one simultaneous
+    step, so rules management sees both results together (rule 11-2-1)."""
+
     count: Value = 1
     player: P = P.YOU
+    each_player: bool = False
 
 
 @dataclass(frozen=True, slots=True)
@@ -916,7 +920,7 @@ class Exile:
 
 @dataclass(frozen=True, slots=True)
 class ToTrash:
-    """Place into the trash without destroying."""
+    """Place into the trash; for a Unit/Base on the field this is a destroy (rule 5-10-1)."""
 
     ref: Ref
 

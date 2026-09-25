@@ -35,6 +35,7 @@ from gcg_sim.testkit import (
     play,
     select,
     to_next_turn,
+    vanilla_deck,
     yes,
     zone_of,
 )
@@ -672,23 +673,7 @@ def test_keyword_effects_blocker_and_support() -> None:
 
 
 def _vanilla_deck() -> DeckList:
-    units = [
-        ZAKU_MARINER,
-        GOOHN,
-        DREISSEN,
-        DRA_C,
-        LOTO,
-        CORE_BOOSTER,
-        GUNDAM_VANILLA,
-        KSHATRIYA,
-        XAVIER_GYAN,
-        GUNDAM_EXIA_GD04,
-        MOEBIUS_ZERO,
-        PISCES,
-        GUNDAM_EXIA_ST07,
-    ]
-    main = tuple(n for n in units for _ in range(4))[:50]
-    return DeckList(main=main, resources=("R-001",) * 10)
+    return vanilla_deck()
 
 
 def _keep_both(st: GameState) -> None:
@@ -937,10 +922,6 @@ def test_battle_damage_destruction_puts_unit_into_its_owners_trash() -> None:
 
 
 @pytest.mark.rule("5-10-1")
-@pytest.mark.xfail(
-    strict=True,
-    reason="ENGINE: interp._h_to_trash moves a field Unit to the trash without destroying it",
-)
 def test_effect_placing_a_field_unit_into_the_trash_destroys_it() -> None:
     sc = Scenario()
     aries = sc.add(1, NOINS_ARIES)

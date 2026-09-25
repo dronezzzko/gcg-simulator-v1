@@ -669,22 +669,22 @@
       "steps": [
        {
         "_": "PlaceExResource"
-       }
-      ]
-     },
-     {
-      "_": "If",
-      "cond": {
-       "_": "Cmp",
-       "left": {
-        "_": "PlayerLevel"
        },
-       "op": ">=",
-       "right": 7
-      },
-      "then": [
        {
-        "_": "Draw"
+        "_": "If",
+        "cond": {
+         "_": "Cmp",
+         "left": {
+          "_": "PlayerLevel"
+         },
+         "op": ">=",
+         "right": 7
+        },
+        "then": [
+         {
+          "_": "Draw"
+         }
+        ]
        }
       ]
      }
@@ -865,19 +865,19 @@
          "side": "friendly"
         },
         "var": "t1"
+       },
+       {
+        "_": "Apply",
+        "effect": {
+         "_": "StatMod",
+         "ap": 2
+        },
+        "ref": {
+         "_": "Var",
+         "name": "t1"
+        }
        }
       ]
-     },
-     {
-      "_": "Apply",
-      "effect": {
-       "_": "StatMod",
-       "ap": 2
-      },
-      "ref": {
-       "_": "Var",
-       "name": "t1"
-      }
      }
     ],
     "trigger": {
@@ -1158,16 +1158,16 @@
          "side": "enemy"
         },
         "var": "t1"
+       },
+       {
+        "_": "Damage",
+        "amount": 2,
+        "ref": {
+         "_": "Var",
+         "name": "t1"
+        }
        }
       ]
-     },
-     {
-      "_": "Damage",
-      "amount": 2,
-      "ref": {
-       "_": "Var",
-       "name": "t1"
-      }
      }
     ],
     "trigger": {
@@ -1853,16 +1853,16 @@
          "side": "enemy"
         },
         "var": "t2"
+       },
+       {
+        "_": "Damage",
+        "amount": 2,
+        "ref": {
+         "_": "Var",
+         "name": "t2"
+        }
        }
       ]
-     },
-     {
-      "_": "Damage",
-      "amount": 2,
-      "ref": {
-       "_": "Var",
-       "name": "t2"
-      }
      }
     ],
     "trigger": {
@@ -1910,11 +1910,11 @@
       "steps": [
        {
         "_": "Draw"
+       },
+       {
+        "_": "Discard"
        }
       ]
-     },
-     {
-      "_": "Discard"
      }
     ],
     "trigger": {
@@ -1981,15 +1981,15 @@
          "side": "enemy"
         },
         "var": "t1"
+       },
+       {
+        "_": "Rest",
+        "ref": {
+         "_": "Var",
+         "name": "t1"
+        }
        }
       ]
-     },
-     {
-      "_": "Rest",
-      "ref": {
-       "_": "Var",
-       "name": "t1"
-      }
      }
     ],
     "trigger": {
@@ -2054,15 +2054,15 @@
          "side": "enemy"
         },
         "var": "t1"
+       },
+       {
+        "_": "Rest",
+        "ref": {
+         "_": "Var",
+         "name": "t1"
+        }
        }
       ]
-     },
-     {
-      "_": "Rest",
-      "ref": {
-       "_": "Var",
-       "name": "t1"
-      }
      }
     ],
     "trigger": {
@@ -2198,22 +2198,22 @@
         "ref": {
          "_": "This"
         }
+       },
+       {
+        "_": "Apply",
+        "effect": {
+         "_": "RuleGrant",
+         "rule": {
+          "_": "RuleMod",
+          "kind": "cant_attack_player"
+         }
+        },
+        "ref": {
+         "_": "Var",
+         "name": "t1"
+        }
        }
       ]
-     },
-     {
-      "_": "Apply",
-      "effect": {
-       "_": "RuleGrant",
-       "rule": {
-        "_": "RuleMod",
-        "kind": "cant_attack_player"
-       }
-      },
-      "ref": {
-       "_": "Var",
-       "name": "t1"
-      }
      }
     ],
     "timing": "main"
@@ -2255,15 +2255,15 @@
        {
         "_": "Draw",
         "count": 2
-       }
-      ]
-     },
-     {
-      "_": "IfYouDo",
-      "steps": [
+       },
        {
-        "_": "Discard",
-        "count": 2
+        "_": "IfYouDo",
+        "steps": [
+         {
+          "_": "Discard",
+          "count": 2
+         }
+        ]
        }
       ]
      }
@@ -2508,20 +2508,20 @@
          "side": "enemy"
         },
         "var": "t2"
+       },
+       {
+        "_": "Apply",
+        "duration": "this_battle",
+        "effect": {
+         "_": "StatMod",
+         "ap": -2
+        },
+        "ref": {
+         "_": "Var",
+         "name": "t2"
+        }
        }
       ]
-     },
-     {
-      "_": "Apply",
-      "duration": "this_battle",
-      "effect": {
-       "_": "StatMod",
-       "ap": -2
-      },
-      "ref": {
-       "_": "Var",
-       "name": "t2"
-      }
      }
     ],
     "trigger": {
@@ -2639,19 +2639,19 @@
          "side": "enemy"
         },
         "var": "t1"
+       },
+       {
+        "_": "Apply",
+        "effect": {
+         "_": "StatMod",
+         "ap": -2
+        },
+        "ref": {
+         "_": "Var",
+         "name": "t1"
+        }
        }
       ]
-     },
-     {
-      "_": "Apply",
-      "effect": {
-       "_": "StatMod",
-       "ap": -2
-      },
-      "ref": {
-       "_": "Var",
-       "name": "t1"
-      }
      }
     ],
     "trigger": {
@@ -2742,15 +2742,15 @@
          "side": "friendly"
         },
         "var": "t1"
+       },
+       {
+        "_": "SetActive",
+        "ref": {
+         "_": "Var",
+         "name": "t1"
+        }
        }
       ]
-     },
-     {
-      "_": "SetActive",
-      "ref": {
-       "_": "Var",
-       "name": "t1"
-      }
      }
     ],
     "trigger": {
@@ -2943,15 +2943,15 @@
          "side": "enemy"
         },
         "var": "t1"
+       },
+       {
+        "_": "Rest",
+        "ref": {
+         "_": "Var",
+         "name": "t1"
+        }
        }
       ]
-     },
-     {
-      "_": "Rest",
-      "ref": {
-       "_": "Var",
-       "name": "t1"
-      }
      }
     ],
     "trigger": {
@@ -3157,16 +3157,16 @@
          "side": "enemy"
         },
         "var": "t1"
+       },
+       {
+        "_": "Damage",
+        "amount": 1,
+        "ref": {
+         "_": "Var",
+         "name": "t1"
+        }
        }
       ]
-     },
-     {
-      "_": "Damage",
-      "amount": 1,
-      "ref": {
-       "_": "Var",
-       "name": "t1"
-      }
      }
     ],
     "trigger": {
@@ -3280,50 +3280,50 @@
        {
         "_": "LookTop",
         "count": 3
-       }
-      ]
-     },
-     {
-      "_": "May",
-      "steps": [
-       {
-        "_": "Choose",
-        "sel": {
-         "_": "Sel",
-         "filters": [
-          {
-           "_": "IsKind",
-           "kinds": [
-            "unit"
-           ]
-          },
-          {
-           "_": "HasTrait",
-           "traits": [
-            "Vulture"
-           ]
-          },
-          {
-           "_": "IsRef",
-           "ref": {
-            "_": "Var",
-            "name": "looked"
-           }
-          }
-         ],
-         "loc": "deck",
-         "side": "friendly"
-        },
-        "targeting": false,
-        "var": "t1"
        },
        {
-        "_": "AddToHand",
-        "ref": {
-         "_": "Var",
-         "name": "t1"
-        },
-        "reveal": true
+        "_": "May",
+        "steps": [
+         {
+          "_": "Choose",
+          "sel": {
+           "_": "Sel",
+           "filters": [
+            {
+             "_": "IsKind",
+             "kinds": [
+              "unit"
+             ]
+            },
+            {
+             "_": "HasTrait",
+             "traits": [
+              "Vulture"
+             ]
+            },
+            {
+             "_": "IsRef",
+             "ref": {
+              "_": "Var",
+              "name": "looked"
+             }
+            }
+           ],
+           "loc": "deck",
+           "side": "friendly"
+          },
+          "targeting": false,
+          "var": "t1"
+         },
+         {
+          "_": "AddToHand",
+          "ref": {
+           "_": "Var",
+           "name": "t1"
+          },
+          "reveal": true
+         }
+        ]
        }
       ]
      },
@@ -3462,9 +3462,75 @@
   ]
  },
  "GD02-098": {
-  "error": "\"This card's name is also treated as [Char Aznable].\": name alias requires a binding",
+  "abilities": [
+   {
+    "_": "NameAlias",
+    "names": [
+     "Char Aznable"
+    ]
+   },
+   {
+    "_": "Burst",
+    "steps": [
+     {
+      "_": "AddToHand",
+      "ref": {
+       "_": "ThisCard"
+      }
+     }
+    ]
+   }
+  ],
   "name": "Quattro Bajeena",
-  "text_hash": "a7f8f01c6b7b94c9"
+  "source": "compiled",
+  "text_hash": "a7f8f01c6b7b94c9",
+  "unit_abilities": [
+   {
+    "_": "Triggered",
+    "steps": [
+     {
+      "_": "If",
+      "cond": {
+       "_": "RefMatches",
+       "filters": [
+        {
+         "_": "IsKind",
+         "kinds": [
+          "unit"
+         ]
+        },
+        {
+         "_": "HasTrait",
+         "traits": [
+          "AEUG"
+         ]
+        }
+       ],
+       "ref": {
+        "_": "This"
+       }
+      },
+      "then": [
+       {
+        "_": "Draw"
+       },
+       {
+        "_": "IfYouDo",
+        "steps": [
+         {
+          "_": "Discard"
+         }
+        ]
+       }
+      ]
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "event": "linked"
+    }
+   }
+  ]
  },
  "GD02-099": {
   "abilities": [
@@ -3527,19 +3593,19 @@
          "side": "enemy"
         },
         "var": "t1"
+       },
+       {
+        "_": "Apply",
+        "effect": {
+         "_": "StatMod",
+         "ap": -2
+        },
+        "ref": {
+         "_": "Var",
+         "name": "t1"
+        }
        }
       ]
-     },
-     {
-      "_": "Apply",
-      "effect": {
-       "_": "StatMod",
-       "ap": -2
-      },
-      "ref": {
-       "_": "Var",
-       "name": "t1"
-      }
      }
     ],
     "trigger": {
@@ -4178,15 +4244,15 @@
          "side": "enemy"
         },
         "var": "t2"
+       },
+       {
+        "_": "Destroy",
+        "ref": {
+         "_": "Var",
+         "name": "t2"
+        }
        }
       ]
-     },
-     {
-      "_": "Destroy",
-      "ref": {
-       "_": "Var",
-       "name": "t2"
-      }
      }
     ],
     "timing": "main"
@@ -4302,15 +4368,15 @@
          "side": "enemy"
         },
         "var": "t1"
+       },
+       {
+        "_": "Destroy",
+        "ref": {
+         "_": "Var",
+         "name": "t1"
+        }
        }
       ]
-     },
-     {
-      "_": "Destroy",
-      "ref": {
-       "_": "Var",
-       "name": "t1"
-      }
      }
     ],
     "timing": "main_or_action"
@@ -4454,40 +4520,40 @@
          "side": "friendly"
         },
         "var": "t1"
+       },
+       {
+        "_": "Apply",
+        "effect": {
+         "_": "RuleGrant",
+         "rule": {
+          "_": "RuleMod",
+          "kind": "may_attack_active",
+          "source_filters": [
+           {
+            "_": "IsKind",
+            "kinds": [
+             "unit"
+            ]
+           },
+           {
+            "_": "IsRested",
+            "rested": false
+           },
+           {
+            "_": "StatCmp",
+            "op": "<=",
+            "stat": "lv",
+            "value": 4
+           }
+          ]
+         }
+        },
+        "ref": {
+         "_": "Var",
+         "name": "t1"
+        }
        }
       ]
-     },
-     {
-      "_": "Apply",
-      "effect": {
-       "_": "RuleGrant",
-       "rule": {
-        "_": "RuleMod",
-        "kind": "may_attack_active",
-        "source_filters": [
-         {
-          "_": "IsKind",
-          "kinds": [
-           "unit"
-          ]
-         },
-         {
-          "_": "IsRested",
-          "rested": false
-         },
-         {
-          "_": "StatCmp",
-          "op": "<=",
-          "stat": "lv",
-          "value": 4
-         }
-        ]
-       }
-      },
-      "ref": {
-       "_": "Var",
-       "name": "t1"
-      }
      }
     ],
     "timing": "main"
@@ -4607,20 +4673,20 @@
          "side": "enemy"
         },
         "var": "t1"
+       },
+       {
+        "_": "Apply",
+        "duration": "this_battle",
+        "effect": {
+         "_": "StatMod",
+         "ap": -3
+        },
+        "ref": {
+         "_": "Var",
+         "name": "t1"
+        }
        }
       ]
-     },
-     {
-      "_": "Apply",
-      "duration": "this_battle",
-      "effect": {
-       "_": "StatMod",
-       "ap": -3
-      },
-      "ref": {
-       "_": "Var",
-       "name": "t1"
-      }
      }
     ],
     "timing": "action"

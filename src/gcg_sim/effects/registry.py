@@ -56,7 +56,7 @@ class CardEntry:
 
 # Engine-provided keyword programs (rule 13-1).
 REPAIR_STEPS: tuple[d.Step, ...] = (d.Recover(d.This(), d.KwAmount(d.Kw.REPAIR)),)
-BREACH_STEPS: tuple[d.Step, ...] = (d.DamageShieldArea(d.P.OPP, d.KwAmount(d.Kw.BREACH)),)
+BREACH_STEPS: tuple[d.Step, ...] = (d.DamageShieldArea(d.P.OPP, d.EventAmount("breach")),)
 SUPPORT_STEPS: tuple[d.Step, ...] = (
     d.Rest(d.This()),
     d.Choose("t", d.Sel(d.Side.FRIENDLY, d.Loc.BATTLE, (d.NotRef(d.This()),))),

@@ -265,16 +265,16 @@
          "side": "enemy"
         },
         "var": "t2"
+       },
+       {
+        "_": "Damage",
+        "amount": 2,
+        "ref": {
+         "_": "Var",
+         "name": "t2"
+        }
        }
       ]
-     },
-     {
-      "_": "Damage",
-      "amount": 2,
-      "ref": {
-       "_": "Var",
-       "name": "t2"
-      }
      }
     ],
     "trigger": {
@@ -498,18 +498,18 @@
          "side": "enemy"
         },
         "var": "t2"
+       },
+       {
+        "_": "StartBattle",
+        "attacker": {
+         "_": "This"
+        },
+        "target": {
+         "_": "Var",
+         "name": "t2"
+        }
        }
       ]
-     },
-     {
-      "_": "StartBattle",
-      "attacker": {
-       "_": "This"
-      },
-      "target": {
-       "_": "Var",
-       "name": "t2"
-      }
      }
     ],
     "trigger": {
@@ -1585,22 +1585,22 @@
         "ref": {
          "_": "This"
         }
+       },
+       {
+        "_": "Apply",
+        "effect": {
+         "_": "RuleGrant",
+         "rule": {
+          "_": "RuleMod",
+          "kind": "cant_attack_player"
+         }
+        },
+        "ref": {
+         "_": "Var",
+         "name": "t1"
+        }
        }
       ]
-     },
-     {
-      "_": "Apply",
-      "effect": {
-       "_": "RuleGrant",
-       "rule": {
-        "_": "RuleMod",
-        "kind": "cant_attack_player"
-       }
-      },
-      "ref": {
-       "_": "Var",
-       "name": "t1"
-      }
      }
     ],
     "timing": "main"
@@ -1665,18 +1665,18 @@
       "steps": [
        {
         "_": "Draw"
+       },
+       {
+        "_": "Apply",
+        "effect": {
+         "_": "KeywordGrant",
+         "keyword": "High-Maneuver"
+        },
+        "ref": {
+         "_": "This"
+        }
        }
       ]
-     },
-     {
-      "_": "Apply",
-      "effect": {
-       "_": "KeywordGrant",
-       "keyword": "High-Maneuver"
-      },
-      "ref": {
-       "_": "This"
-      }
      }
     ],
     "trigger": {
@@ -1864,15 +1864,15 @@
          "side": "friendly"
         },
         "var": "t1"
+       },
+       {
+        "_": "AddToHand",
+        "ref": {
+         "_": "Var",
+         "name": "t1"
+        }
        }
       ]
-     },
-     {
-      "_": "AddToHand",
-      "ref": {
-       "_": "Var",
-       "name": "t1"
-      }
      }
     ],
     "trigger": {
@@ -1967,15 +1967,15 @@
          "side": "friendly"
         },
         "var": "t2"
+       },
+       {
+        "_": "AddToHand",
+        "ref": {
+         "_": "Var",
+         "name": "t2"
+        }
        }
       ]
-     },
-     {
-      "_": "AddToHand",
-      "ref": {
-       "_": "Var",
-       "name": "t2"
-      }
      }
     ],
     "trigger": {
@@ -2324,19 +2324,19 @@
          "side": "enemy"
         },
         "var": "t1"
+       },
+       {
+        "_": "Apply",
+        "effect": {
+         "_": "StatMod",
+         "ap": -2
+        },
+        "ref": {
+         "_": "Var",
+         "name": "t1"
+        }
        }
       ]
-     },
-     {
-      "_": "Apply",
-      "effect": {
-       "_": "StatMod",
-       "ap": -2
-      },
-      "ref": {
-       "_": "Var",
-       "name": "t1"
-      }
      }
     ],
     "trigger": {
@@ -2609,19 +2609,19 @@
          "side": "enemy"
         },
         "var": "t1"
+       },
+       {
+        "_": "Apply",
+        "effect": {
+         "_": "StatMod",
+         "ap": -1
+        },
+        "ref": {
+         "_": "Var",
+         "name": "t1"
+        }
        }
       ]
-     },
-     {
-      "_": "Apply",
-      "effect": {
-       "_": "StatMod",
-       "ap": -1
-      },
-      "ref": {
-       "_": "Var",
-       "name": "t1"
-      }
      }
     ],
     "timing": "main"
@@ -3281,16 +3281,16 @@
          "side": "friendly"
         },
         "var": "t1"
+       },
+       {
+        "_": "Recover",
+        "amount": 1,
+        "ref": {
+         "_": "Var",
+         "name": "t1"
+        }
        }
       ]
-     },
-     {
-      "_": "Recover",
-      "amount": 1,
-      "ref": {
-       "_": "Var",
-       "name": "t1"
-      }
      }
     ],
     "trigger": {
@@ -3940,13 +3940,217 @@
   "text_hash": "14a32d8f48ac7e27"
  },
  "GD05-112": {
-  "error": "\"【Main】Choose 1 of your (MF) Units without <Breach>. It gains <Breach 3> during this turn. After activating this card's 【Main】, you may pair this card from your trash with one of your (MF) Units.\": no step template for \"After activating this card's 【Main】, you may pair this card from your trash with one of your (MF) Units\"",
+  "abilities": [
+   {
+    "_": "Command",
+    "steps": [
+     {
+      "_": "Choose",
+      "sel": {
+       "_": "Sel",
+       "filters": [
+        {
+         "_": "IsKind",
+         "kinds": [
+          "unit"
+         ]
+        },
+        {
+         "_": "HasTrait",
+         "traits": [
+          "MF"
+         ]
+        },
+        {
+         "_": "Not",
+         "filter": {
+          "_": "HasKeyword",
+          "keyword": "Breach"
+         }
+        }
+       ],
+       "loc": "battle",
+       "side": "friendly"
+      },
+      "var": "t1"
+     },
+     {
+      "_": "Apply",
+      "effect": {
+       "_": "KeywordGrant",
+       "amount": 3,
+       "keyword": "Breach"
+      },
+      "ref": {
+       "_": "Var",
+       "name": "t1"
+      }
+     }
+    ],
+    "timing": "main"
+   },
+   {
+    "_": "Triggered",
+    "steps": [
+     {
+      "_": "May",
+      "steps": [
+       {
+        "_": "May",
+        "steps": [
+         {
+          "_": "Choose",
+          "sel": {
+           "_": "Sel",
+           "filters": [
+            {
+             "_": "IsKind",
+             "kinds": [
+              "unit"
+             ]
+            },
+            {
+             "_": "HasTrait",
+             "traits": [
+              "MF"
+             ]
+            }
+           ],
+           "loc": "battle",
+           "side": "friendly"
+          },
+          "var": "t1"
+         },
+         {
+          "_": "Pair",
+          "pilot": {
+           "_": "ThisCard"
+          },
+          "unit": {
+           "_": "Var",
+           "name": "t1"
+          }
+         }
+        ]
+       }
+      ]
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "event": "command_resolved"
+    },
+    "where": "trash"
+   }
+  ],
   "name": "Hoka Kyoten Juzetsujin",
+  "source": "compiled",
   "text_hash": "7b517bf91e0d15a1"
  },
  "GD05-113": {
-  "error": "\"【Main】Choose 1 of your (MF) Units with 4 or less AP. It gets AP+2 during this turn. After activating this card's 【Main】, you may pair this card from your trash with one of your (MF) Units.\": no step template for \"After activating this card's 【Main】, you may pair this card from your trash with one of your (MF) Units\"",
+  "abilities": [
+   {
+    "_": "Command",
+    "steps": [
+     {
+      "_": "Choose",
+      "sel": {
+       "_": "Sel",
+       "filters": [
+        {
+         "_": "IsKind",
+         "kinds": [
+          "unit"
+         ]
+        },
+        {
+         "_": "HasTrait",
+         "traits": [
+          "MF"
+         ]
+        },
+        {
+         "_": "StatCmp",
+         "op": "<=",
+         "stat": "ap",
+         "value": 4
+        }
+       ],
+       "loc": "battle",
+       "side": "friendly"
+      },
+      "var": "t1"
+     },
+     {
+      "_": "Apply",
+      "effect": {
+       "_": "StatMod",
+       "ap": 2
+      },
+      "ref": {
+       "_": "Var",
+       "name": "t1"
+      }
+     }
+    ],
+    "timing": "main"
+   },
+   {
+    "_": "Triggered",
+    "steps": [
+     {
+      "_": "May",
+      "steps": [
+       {
+        "_": "May",
+        "steps": [
+         {
+          "_": "Choose",
+          "sel": {
+           "_": "Sel",
+           "filters": [
+            {
+             "_": "IsKind",
+             "kinds": [
+              "unit"
+             ]
+            },
+            {
+             "_": "HasTrait",
+             "traits": [
+              "MF"
+             ]
+            }
+           ],
+           "loc": "battle",
+           "side": "friendly"
+          },
+          "var": "t1"
+         },
+         {
+          "_": "Pair",
+          "pilot": {
+           "_": "ThisCard"
+          },
+          "unit": {
+           "_": "Var",
+           "name": "t1"
+          }
+         }
+        ]
+       }
+      ]
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "event": "command_resolved"
+    },
+    "where": "trash"
+   }
+  ],
   "name": "Rose Screamer",
+  "source": "compiled",
   "text_hash": "7e34c7e681832c10"
  },
  "GD05-114": {
@@ -4220,13 +4424,193 @@
   "text_hash": "d7a05ea497475d7d"
  },
  "GD05-121": {
-  "error": "\"【Main】Choose 1 enemy Unit. It gets AP-2 during this turn. After activating this card's 【Main】, you may pair this card from your trash with one of your (MF) Units.\": no step template for \"After activating this card's 【Main】, you may pair this card from your trash with one of your (MF) Units\"",
+  "abilities": [
+   {
+    "_": "Command",
+    "steps": [
+     {
+      "_": "Choose",
+      "sel": {
+       "_": "Sel",
+       "filters": [
+        {
+         "_": "IsKind",
+         "kinds": [
+          "unit"
+         ]
+        }
+       ],
+       "loc": "battle",
+       "side": "enemy"
+      },
+      "var": "t1"
+     },
+     {
+      "_": "Apply",
+      "effect": {
+       "_": "StatMod",
+       "ap": -2
+      },
+      "ref": {
+       "_": "Var",
+       "name": "t1"
+      }
+     }
+    ],
+    "timing": "main"
+   },
+   {
+    "_": "Triggered",
+    "steps": [
+     {
+      "_": "May",
+      "steps": [
+       {
+        "_": "May",
+        "steps": [
+         {
+          "_": "Choose",
+          "sel": {
+           "_": "Sel",
+           "filters": [
+            {
+             "_": "IsKind",
+             "kinds": [
+              "unit"
+             ]
+            },
+            {
+             "_": "HasTrait",
+             "traits": [
+              "MF"
+             ]
+            }
+           ],
+           "loc": "battle",
+           "side": "friendly"
+          },
+          "var": "t1"
+         },
+         {
+          "_": "Pair",
+          "pilot": {
+           "_": "ThisCard"
+          },
+          "unit": {
+           "_": "Var",
+           "name": "t1"
+          }
+         }
+        ]
+       }
+      ]
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "event": "command_resolved"
+    },
+    "where": "trash"
+   }
+  ],
   "name": "Cyclone Punch",
+  "source": "compiled",
   "text_hash": "bdb5fea671563249"
  },
  "GD05-122": {
-  "error": "\"【Main】Choose 1 enemy Unit that is Lv.4 or lower. Rest it. After activating this card's 【Main】, you may pair this card from your trash with one of your (MF) Units.\": no step template for \"After activating this card's 【Main】, you may pair this card from your trash with one of your (MF) Units\"",
+  "abilities": [
+   {
+    "_": "Command",
+    "steps": [
+     {
+      "_": "Choose",
+      "sel": {
+       "_": "Sel",
+       "filters": [
+        {
+         "_": "IsKind",
+         "kinds": [
+          "unit"
+         ]
+        },
+        {
+         "_": "StatCmp",
+         "op": "<=",
+         "stat": "lv",
+         "value": 4
+        }
+       ],
+       "loc": "battle",
+       "side": "enemy"
+      },
+      "var": "t1"
+     },
+     {
+      "_": "Rest",
+      "ref": {
+       "_": "Var",
+       "name": "t1"
+      }
+     }
+    ],
+    "timing": "main"
+   },
+   {
+    "_": "Triggered",
+    "steps": [
+     {
+      "_": "May",
+      "steps": [
+       {
+        "_": "May",
+        "steps": [
+         {
+          "_": "Choose",
+          "sel": {
+           "_": "Sel",
+           "filters": [
+            {
+             "_": "IsKind",
+             "kinds": [
+              "unit"
+             ]
+            },
+            {
+             "_": "HasTrait",
+             "traits": [
+              "MF"
+             ]
+            }
+           ],
+           "loc": "battle",
+           "side": "friendly"
+          },
+          "var": "t1"
+         },
+         {
+          "_": "Pair",
+          "pilot": {
+           "_": "ThisCard"
+          },
+          "unit": {
+           "_": "Var",
+           "name": "t1"
+          }
+         }
+        ]
+       }
+      ]
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "event": "command_resolved"
+    },
+    "where": "trash"
+   }
+  ],
   "name": "Graviton Hammer",
+  "source": "compiled",
   "text_hash": "1fced65f33a0e366"
  },
  "GD05-123": {
@@ -4331,19 +4715,19 @@
          "side": "friendly"
         },
         "var": "t1"
+       },
+       {
+        "_": "Apply",
+        "effect": {
+         "_": "StatMod",
+         "ap": 2
+        },
+        "ref": {
+         "_": "Var",
+         "name": "t1"
+        }
        }
       ]
-     },
-     {
-      "_": "Apply",
-      "effect": {
-       "_": "StatMod",
-       "ap": 2
-      },
-      "ref": {
-       "_": "Var",
-       "name": "t1"
-      }
      }
     ],
     "timing": "main"

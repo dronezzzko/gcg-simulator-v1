@@ -973,10 +973,6 @@ def test_activated_during_this_battle_bonus_ends_with_the_battle() -> None:
 
 @pytest.mark.rule("8-6-1")
 @pytest.mark.card("GD01-058")
-@pytest.mark.xfail(
-    strict=True,
-    reason="ENGINE: a 'during this battle' effect created outside a battle never expires",
-)
 def test_during_this_battle_effect_outside_a_battle_does_not_outlast_the_turn() -> None:
     sc = Scenario()
     galluss = sc.add(1, GALLUSS)

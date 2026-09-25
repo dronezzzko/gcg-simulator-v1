@@ -83,8 +83,82 @@
   "text_hash": "147909a76464556c"
  },
  "GD01-002": {
-  "error": "'When playing this card from your hand, you may destroy 1 of your Link Units with \"Unicorn Mode\" in its card name that is Lv.5. If you do, play this card as if it has 0 Lv. and cost.': unknown trigger 'When playing this card from your hand'",
+  "abilities": [
+   {
+    "_": "PlayModifier",
+    "cost": 0,
+    "costs": [
+     {
+      "_": "DestroyCards",
+      "count": 1,
+      "sel": {
+       "_": "Sel",
+       "filters": [
+        {
+         "_": "IsKind",
+         "kinds": [
+          "unit"
+         ]
+        },
+        {
+         "_": "IsLinked"
+        },
+        {
+         "_": "NameContains",
+         "parts": [
+          "Unicorn Mode"
+         ]
+        },
+        {
+         "_": "StatCmp",
+         "op": "==",
+         "stat": "lv",
+         "value": 5
+        }
+       ],
+       "loc": "battle",
+       "side": "friendly"
+      }
+     }
+    ],
+    "level": 0
+   },
+   {
+    "_": "Triggered",
+    "steps": [
+     {
+      "_": "Choose",
+      "sel": {
+       "_": "Sel",
+       "filters": [
+        {
+         "_": "IsKind",
+         "kinds": [
+          "unit"
+         ]
+        }
+       ],
+       "loc": "battle",
+       "side": "enemy"
+      },
+      "var": "t1"
+     },
+     {
+      "_": "Rest",
+      "ref": {
+       "_": "Var",
+       "name": "t1"
+      }
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "event": "attacks"
+    }
+   }
+  ],
   "name": "Unicorn Gundam (Destroy Mode)",
+  "source": "compiled",
   "text_hash": "f124a6c4ef85b1ab"
  },
  "GD01-003": {
@@ -119,19 +193,19 @@
         "ref": {
          "_": "This"
         }
+       },
+       {
+        "_": "Apply",
+        "effect": {
+         "_": "KeywordGrant",
+         "keyword": "First Strike"
+        },
+        "ref": {
+         "_": "Var",
+         "name": "t1"
+        }
        }
       ]
-     },
-     {
-      "_": "Apply",
-      "effect": {
-       "_": "KeywordGrant",
-       "keyword": "First Strike"
-      },
-      "ref": {
-       "_": "Var",
-       "name": "t1"
-      }
      }
     ],
     "trigger": {
@@ -807,18 +881,18 @@
          "side": "friendly"
         },
         "var": "t1"
+       },
+       {
+        "_": "Pair",
+        "pilot": {
+         "_": "Var",
+         "name": "t1"
+        },
+        "unit": {
+         "_": "This"
+        }
        }
       ]
-     },
-     {
-      "_": "Pair",
-      "pilot": {
-       "_": "Var",
-       "name": "t1"
-      },
-      "unit": {
-       "_": "This"
-      }
      }
     ],
     "timing": "main"
@@ -1626,16 +1700,16 @@
          "side": "enemy"
         },
         "var": "t1"
+       },
+       {
+        "_": "Damage",
+        "amount": 3,
+        "ref": {
+         "_": "Var",
+         "name": "t1"
+        }
        }
       ]
-     },
-     {
-      "_": "Damage",
-      "amount": 3,
-      "ref": {
-       "_": "Var",
-       "name": "t1"
-      }
      }
     ],
     "trigger": {
@@ -1821,16 +1895,16 @@
          "side": "enemy"
         },
         "var": "t1"
+       },
+       {
+        "_": "Damage",
+        "amount": 2,
+        "ref": {
+         "_": "Var",
+         "name": "t1"
+        }
        }
       ]
-     },
-     {
-      "_": "Damage",
-      "amount": 2,
-      "ref": {
-       "_": "Var",
-       "name": "t1"
-      }
      }
     ],
     "trigger": {
@@ -3245,21 +3319,21 @@
         "ref": {
          "_": "This"
         }
+       },
+       {
+        "_": "Apply",
+        "effect": {
+         "_": "RuleGrant",
+         "rule": {
+          "_": "RuleMod",
+          "kind": "cant_attack"
+         }
+        },
+        "ref": {
+         "_": "This"
+        }
        }
       ]
-     },
-     {
-      "_": "Apply",
-      "effect": {
-       "_": "RuleGrant",
-       "rule": {
-        "_": "RuleMod",
-        "kind": "cant_attack"
-       }
-      },
-      "ref": {
-       "_": "This"
-      }
      }
     ],
     "timing": "main"
@@ -4007,16 +4081,16 @@
          "side": "enemy"
         },
         "var": "t2"
+       },
+       {
+        "_": "Damage",
+        "amount": 3,
+        "ref": {
+         "_": "Var",
+         "name": "t2"
+        }
        }
       ]
-     },
-     {
-      "_": "Damage",
-      "amount": 3,
-      "ref": {
-       "_": "Var",
-       "name": "t2"
-      }
      }
     ],
     "timing": "main"
@@ -4465,29 +4539,6 @@
     "_": "Command",
     "steps": [
      {
-      "_": "Choose",
-      "sel": {
-       "_": "Sel",
-       "filters": [
-        {
-         "_": "IsKind",
-         "kinds": [
-          "unit"
-         ]
-        },
-        {
-         "_": "StatCmp",
-         "op": "<=",
-         "stat": "hp",
-         "value": 2
-        }
-       ],
-       "loc": "battle",
-       "side": "enemy"
-      },
-      "var": "t1"
-     },
-     {
       "_": "If",
       "cond": {
        "_": "Exists",
@@ -4510,11 +4561,27 @@
       },
       "otherwise": [
        {
-        "_": "ReturnToHand",
-        "ref": {
-         "_": "Var",
-         "name": "t1"
-        }
+        "_": "Choose",
+        "sel": {
+         "_": "Sel",
+         "filters": [
+          {
+           "_": "IsKind",
+           "kinds": [
+            "unit"
+           ]
+          },
+          {
+           "_": "StatCmp",
+           "op": "<=",
+           "stat": "hp",
+           "value": 2
+          }
+         ],
+         "loc": "battle",
+         "side": "enemy"
+        },
+        "var": "t1"
        }
       ],
       "then": [
@@ -4539,9 +4606,16 @@
          "loc": "battle",
          "side": "enemy"
         },
-        "var": "t2"
+        "var": "t1"
        }
       ]
+     },
+     {
+      "_": "ReturnToHand",
+      "ref": {
+       "_": "Var",
+       "name": "t1"
+      }
      }
     ],
     "timing": "main"
@@ -5036,19 +5110,19 @@
          "side": "enemy"
         },
         "var": "t1"
+       },
+       {
+        "_": "Apply",
+        "effect": {
+         "_": "StatMod",
+         "ap": -1
+        },
+        "ref": {
+         "_": "Var",
+         "name": "t1"
+        }
        }
       ]
-     },
-     {
-      "_": "Apply",
-      "effect": {
-       "_": "StatMod",
-       "ap": -1
-      },
-      "ref": {
-       "_": "Var",
-       "name": "t1"
-      }
      }
     ],
     "timing": "main"

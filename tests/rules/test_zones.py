@@ -363,11 +363,6 @@ def test_card_that_changes_location_is_a_new_card() -> None:
 
 
 @pytest.mark.rule("4-1-6")
-@pytest.mark.xfail(
-    strict=True,
-    raises=AssertionError,
-    reason="ENGINE: owner is not asked to order cards placed into a deck together",
-)
 def test_owner_orders_cards_placed_into_a_location_together() -> None:
     """Ruling ST11-001 Q427: the owner of the returned Unit and Pilot orders them."""
     st, unit, pilot = _paired_enemy_returned_to_deck_bottom()
@@ -400,11 +395,6 @@ def test_randomly_placed_cards_are_not_ordered_by_anyone() -> None:
 
 
 @pytest.mark.rule("4-1-7")
-@pytest.mark.xfail(
-    strict=True,
-    raises=AssertionError,
-    reason="ENGINE: order of public cards placed into a deck together stays visible to the opponent",
-)
 def test_order_of_public_cards_placed_into_a_private_location_is_hidden() -> None:
     st, unit, pilot = _paired_enemy_returned_to_deck_bottom()
     while st.pending is not None and st.pending.player == 1:
@@ -511,11 +501,6 @@ def test_looking_at_the_top_card_shows_it_only_to_the_looker() -> None:
 
 
 @pytest.mark.rule("4-2-2")
-@pytest.mark.xfail(
-    strict=True,
-    raises=AssertionError,
-    reason="ENGINE: cards returned randomly to the deck bottom keep their positions known",
-)
 def test_cards_returned_randomly_to_the_deck_do_not_reveal_their_order() -> None:
     sc = Scenario()
     sc.resources(0, 1)

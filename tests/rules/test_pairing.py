@@ -781,11 +781,6 @@ def test_during_link_unit_text_applies_to_the_paired_unit() -> None:
 
 
 @pytest.mark.rule("3-3-9-2-1", "2-11-3")
-@pytest.mark.xfail(
-    strict=True,
-    reason="ENGINE: GD03-085 play modifier does not compile; main_options also drops play "
-    "modifiers when the printed cost cannot be paid",
-)
 def test_pilot_text_with_a_location_is_activated_by_the_pilot_card() -> None:
     """GD03-085: "When playing this card from your hand and pairing it with a Unit with
     "Gundam NT-1" in its card name, play this card as if it has 0 cost." The text names the
@@ -1035,8 +1030,9 @@ def test_command_with_pilot_effect_in_the_trash_is_not_a_pilot_card() -> None:
     sc.add(0, ZAKU_MARINER, Zone.HAND)  # cost: discard 1 (Zeon) Unit card
     (command,) = sc.trash(0, VALEDICTORIAN)
     st = sc.start()
-    act(st, A.ACTIVATE, unit)
-    assert st.pending is not None and st.pending.kind is DecisionKind.MAIN
+    # the only (Newtype) card in the trash is a Command card, so there is no Pilot-card target
+    # and the ability cannot be activated (rule 10-2-2, FAQ Q100)
+    assert not has_action(st, A.ACTIVATE, unit)
     assert st.cards[unit].pair < 0
     assert zone_of(st, command) is Zone.TRASH
 
@@ -1053,10 +1049,6 @@ def test_command_with_pilot_effect_in_the_trash_is_not_a_pilot_card() -> None:
 
 
 @pytest.mark.rule("3-4-6-3-1")
-@pytest.mark.xfail(
-    strict=True,
-    reason="ENGINE: GD05-113 (Special Move Command with 【Pilot】) does not compile",
-)
 def test_paired_command_effect_activated_by_an_effect_resolves_as_a_command_effect() -> None:
     """GD05-044: "【During Link】【Attack】Activate 【Main】 on the card paired with this Unit."
     GD05-113's 【Main】 ("Choose 1 of your (MF) Units with 4 or less AP. It gets AP+2 during this

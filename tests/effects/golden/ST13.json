@@ -75,44 +75,44 @@
        {
         "_": "LookTop",
         "count": 5
-       }
-      ]
-     },
-     {
-      "_": "May",
-      "steps": [
-       {
-        "_": "Choose",
-        "sel": {
-         "_": "Sel",
-         "filters": [
-          {
-           "_": "IsKind",
-           "kinds": [
-            "pilot"
-           ]
-          },
-          {
-           "_": "IsRef",
-           "ref": {
-            "_": "Var",
-            "name": "looked"
-           }
-          }
-         ],
-         "loc": "deck",
-         "side": "friendly"
-        },
-        "targeting": false,
-        "var": "t1"
        },
        {
-        "_": "AddToHand",
-        "ref": {
-         "_": "Var",
-         "name": "t1"
-        },
-        "reveal": true
+        "_": "May",
+        "steps": [
+         {
+          "_": "Choose",
+          "sel": {
+           "_": "Sel",
+           "filters": [
+            {
+             "_": "IsKind",
+             "kinds": [
+              "pilot"
+             ]
+            },
+            {
+             "_": "IsRef",
+             "ref": {
+              "_": "Var",
+              "name": "looked"
+             }
+            }
+           ],
+           "loc": "deck",
+           "side": "friendly"
+          },
+          "targeting": false,
+          "var": "t1"
+         },
+         {
+          "_": "AddToHand",
+          "ref": {
+           "_": "Var",
+           "name": "t1"
+          },
+          "reveal": true
+         }
+        ]
        }
       ]
      },
@@ -160,16 +160,16 @@
          "side": "enemy"
         },
         "var": "t1"
+       },
+       {
+        "_": "Damage",
+        "amount": 2,
+        "ref": {
+         "_": "Var",
+         "name": "t1"
+        }
        }
       ]
-     },
-     {
-      "_": "Damage",
-      "amount": 2,
-      "ref": {
-       "_": "Var",
-       "name": "t1"
-      }
      }
     ],
     "trigger": {
@@ -473,49 +473,49 @@
        {
         "_": "LookTop",
         "count": 4
-       }
-      ]
-     },
-     {
-      "_": "May",
-      "steps": [
-       {
-        "_": "Choose",
-        "sel": {
-         "_": "Sel",
-         "filters": [
-          {
-           "_": "IsKind",
-           "kinds": [
-            "unit"
-           ]
-          },
-          {
-           "_": "StatCmp",
-           "op": "<=",
-           "stat": "lv",
-           "value": 4
-          },
-          {
-           "_": "IsRef",
-           "ref": {
-            "_": "Var",
-            "name": "looked"
-           }
-          }
-         ],
-         "loc": "deck",
-         "side": "friendly"
-        },
-        "targeting": false,
-        "var": "t2"
        },
        {
-        "_": "DeployCard",
-        "ref": {
-         "_": "Var",
-         "name": "t2"
-        }
+        "_": "May",
+        "steps": [
+         {
+          "_": "Choose",
+          "sel": {
+           "_": "Sel",
+           "filters": [
+            {
+             "_": "IsKind",
+             "kinds": [
+              "unit"
+             ]
+            },
+            {
+             "_": "StatCmp",
+             "op": "<=",
+             "stat": "lv",
+             "value": 4
+            },
+            {
+             "_": "IsRef",
+             "ref": {
+              "_": "Var",
+              "name": "looked"
+             }
+            }
+           ],
+           "loc": "deck",
+           "side": "friendly"
+          },
+          "targeting": false,
+          "var": "t2"
+         },
+         {
+          "_": "DeployCard",
+          "ref": {
+           "_": "Var",
+           "name": "t2"
+          }
+         }
+        ]
        }
       ]
      },
@@ -591,16 +591,16 @@
          "side": "enemy"
         },
         "var": "t2"
+       },
+       {
+        "_": "Damage",
+        "amount": 3,
+        "ref": {
+         "_": "Var",
+         "name": "t2"
+        }
        }
       ]
-     },
-     {
-      "_": "Damage",
-      "amount": 3,
-      "ref": {
-       "_": "Var",
-       "name": "t2"
-      }
      }
     ],
     "timing": "main_or_action"

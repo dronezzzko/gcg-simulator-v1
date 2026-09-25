@@ -40,7 +40,10 @@ def route_abilities(
     unit: list[d.Ability] = []
     for a in abilities:
         where = getattr(a, "where", d.Where.FIELD)
-        if isinstance(a, d.Burst) or where in (d.Where.HAND, d.Where.TRASH):
+        if isinstance(a, (d.Burst, d.NameAlias, d.PlayModifier)) or where in (
+            d.Where.HAND,
+            d.Where.TRASH,
+        ):
             own.append(a)
         else:
             unit.append(a)

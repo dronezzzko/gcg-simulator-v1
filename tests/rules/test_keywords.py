@@ -6,7 +6,6 @@ import pytest
 
 from gcg_sim.cards.model import CardType
 from gcg_sim.effects import dsl as d
-from gcg_sim.effects.registry import UnimplementedCardError
 from gcg_sim.engine import interp
 from gcg_sim.engine import view as V
 from gcg_sim.engine.state import GameState
@@ -235,10 +234,6 @@ def test_breach_does_not_activate_when_destroying_a_base() -> None:
     assert all(zone_of(st, s) is Zone.SHIELD for s in shields)
 
 
-@pytest.mark.xfail(
-    strict=True,
-    reason="ENGINE: <Breach> reads its amount from the destroyed host (0) instead of LKI",
-)
 @pytest.mark.rule("13-1-2-3")
 def test_breach_activates_when_both_units_are_destroyed() -> None:
     sc = Scenario()
@@ -674,12 +669,6 @@ def test_suppression_reveals_both_shields_and_their_owner_orders_the_bursts() ->
 # ---------------------------------------------------------------------------------------------
 # 13-1-8 <Development>
 
-_DEVELOPMENT_XFAIL = pytest.mark.xfail(
-    strict=True,
-    raises=UnimplementedCardError,
-    reason="ENGINE: 【Deploy･Development N】 cards fail to compile (split lead sentence)",
-)
-
 
 def _development_scenario() -> tuple[GameState, int, int, int]:
     sc = Scenario()
@@ -692,7 +681,6 @@ def _development_scenario() -> tuple[GameState, int, int, int]:
     return st, damaged, fuel, delta
 
 
-@_DEVELOPMENT_XFAIL
 @pytest.mark.rule("13-1-8-1", "13-1-8-2")
 def test_development_exiles_cards_then_performs_the_following_effect() -> None:
     st, damaged, fuel, delta = _development_scenario()
@@ -705,7 +693,6 @@ def test_development_exiles_cards_then_performs_the_following_effect() -> None:
     assert zone_of(st, delta) is Zone.BATTLE
 
 
-@_DEVELOPMENT_XFAIL
 @pytest.mark.rule("13-1-8-1", "13-1-8-2")
 def test_declining_development_skips_the_following_effect() -> None:
     st, damaged, fuel, _ = _development_scenario()
@@ -1140,10 +1127,6 @@ def test_destroyed_effect_activates_from_the_trash_with_last_known_link_state() 
     assert zone_of(st, unicorn) is Zone.TRASH
 
 
-@pytest.mark.xfail(
-    strict=True,
-    reason="ENGINE: 【Destroyed】 'this Unit's paired Pilot' does not use last-known pairing",
-)
 @pytest.mark.rule("13-2-8-2", "13-2-8-2-1")
 def test_destroyed_effect_returns_the_last_known_paired_pilot() -> None:
     st, _, pilot, spares = _unicorn_destroyed(BANAGHER)

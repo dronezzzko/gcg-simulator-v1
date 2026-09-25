@@ -189,27 +189,34 @@ def _r_ask_may(st: GameState, f: Frame, ins: pr.AskMay, action: Action) -> Statu
 
 
 def _mode_available(st: GameState, f: Frame, start: int) -> bool:
-    """A mode is selectable only if its mandatory targeted choices have a target (rulings on
+    """A mode is selectable only if its mandatory targeted choices can be made (rulings on
     modal Commands; rule 10-2-2)."""
-    prog = V.reg().programs[f.program_id].instrs
+    return targets_available(V.reg().programs[f.program_id].instrs, start, st, ctx_of(f))
+
+
+def targets_available(instrs: tuple[pr.Instr, ...], start: int, st: GameState, ctx: V.Ctx) -> bool:
+    """Walk a program from ``start`` along the branches the current state would take and check
+    every mandatory targeted choice before "Then" (rules 10-1-8-1-1, 10-1-8-1-2, 10-2-2, Q100)."""
     dv = V.derived(st)
-    ctx = ctx_of(f)
-    for ins in prog[start:]:
-        if isinstance(ins, pr.Jump):
+    pc = start
+    for _ in range(len(instrs) + 1):
+        if pc >= len(instrs):
             return True
-        if not isinstance(ins, d.Choose):
-            if isinstance(ins, (pr.JumpIfNot, pr.AskMay, pr.JumpIfNotDid, pr.ModeSelect)):
+        ins = instrs[pc]
+        if isinstance(ins, pr.Jump):
+            pc = ins.target
+            continue
+        if isinstance(ins, pr.JumpIfNot):
+            pc = pc + 1 if V.cond(st, dv, ctx, ins.cond) else ins.target
+            continue
+        if isinstance(ins, (pr.AskMay, pr.JumpIfNotDid, pr.ModeSelect, pr.LoopInit)):
+            return True
+        if isinstance(ins, d.Choose):
+            if ins.after_then:
                 return True
-            continue
-        if ins.optional or not ins.targeting or ins.after_then:
-            continue
-        cands = [
-            u
-            for u in V.select(st, dv, ctx, ins.sel)
-            if not _cant_be_chosen(st, dv, u, f.controller)
-        ]
-        if not cands:
-            return False
+            if choice_short(st, ctx, ins):
+                return False
+        pc += 1
     return True
 
 
@@ -302,7 +309,69 @@ def _choose_options(st: GameState, f: Frame, cands: list[int], n: int, mn: int) 
     return opts
 
 
+PUBLIC_TARGET_LOCS = frozenset(
+    {
+        d.Loc.BATTLE,
+        d.Loc.BASE,
+        d.Loc.RESOURCE_AREA,
+        d.Loc.TRASH,
+        d.Loc.PAIRED,
+        d.Loc.FIELD_UNITS_AND_BASES,
+    }
+)
+
+
+def is_target_choice(ins: d.Choose) -> bool:
+    """Rule 10-2-2-1: choosing a card in a public location for "choose"/"you may choose"."""
+    return ins.targeting and ins.sel.loc in PUBLIC_TARGET_LOCS
+
+
+def choice_short(
+    st: GameState, ctx: V.Ctx, ins: d.Choose, exclude: frozenset[int] = frozenset()
+) -> bool:
+    """A mandatory targeted choice of N needs N choosable cards (rule 10-2-2; resolution of
+    ruling GD01-003:Q121 — no partial resolution)."""
+    if not is_target_choice(ins) or ins.optional:
+        return False
+    dv = V.derived(st)
+    n = V.value(st, dv, ctx, ins.count)
+    need = n if ins.min_count is None else V.value(st, dv, ctx, ins.min_count)
+    if need <= 0:
+        return False
+    cands = [
+        u
+        for u in V.select(st, dv, ctx, ins.sel)
+        if u not in exclude and not _cant_be_chosen(st, dv, u, ctx.controller)
+    ]
+    return len(cands) < need
+
+
+def choice_group(instrs: tuple[pr.Instr, ...], pc: int) -> list[d.Choose]:
+    """ "Choose 1 X and 1 Y": the Choose at ``pc`` plus the following Chooses tied to it by
+    ``distinct_from``; they activate only together (ruling GD03-056:Q230)."""
+    first = instrs[pc]
+    assert isinstance(first, d.Choose)
+    group = [first]
+    names = {first.var}
+    for ins in instrs[pc + 1 :]:
+        if isinstance(ins, d.Choose) and names & set(ins.distinct_from):
+            group.append(ins)
+            names.add(ins.var)
+        else:
+            break
+    return group
+
+
 def _h_choose(st: GameState, f: Frame, ins: d.Choose) -> Status:
+    group = choice_group(V.reg().programs[f.program_id].instrs, f.pc)
+    ctx = ctx_of(f)
+    if any(choice_short(st, ctx, g) for g in group):
+        for g in group:
+            f.vars[g.var] = ()
+        f.did = False
+        f.buf = []
+        f.pc += len(group)
+        return Status.JUMPED
     cands = _choose_candidates(st, f, ins)
     n, mn = choose_bounds(st, f, ins)
     f.buf = []
@@ -376,8 +445,12 @@ def _val(st: GameState, f: Frame, v: d.Value) -> int:
 
 
 def _h_draw(st: GameState, f: Frame, ins: d.Draw) -> Status:
-    p = V.player_of(st, ctx_of(f), ins.player)
     n = _val(st, f, ins.count)
+    if ins.each_player:
+        drawn = draw(st, st.active, n, by_effect=True) + draw(st, 1 - st.active, n, by_effect=True)
+        f.did = drawn > 0
+        return Status.NEXT
+    p = V.player_of(st, ctx_of(f), ins.player)
     f.did = draw(st, p, n, by_effect=True) > 0
     return Status.NEXT
 
@@ -652,16 +725,60 @@ def return_to_hand(st: GameState, targets: list[int], by: int) -> bool:
 
 
 def _h_to_deck(st: GameState, f: Frame, ins: d.ToDeck) -> Status:
-    targets = [u for u in _refs(st, f, ins.ref) if st.cards[u].zone is not Zone.OUTSIDE]
-    owners: set[int] = set()
-    for u in targets:
-        owners.add(st.cards[u].owner)
-        core.move(st, u, Zone.DECK, bottom=ins.bottom)
-    if ins.shuffle:
-        for p in sorted(owners):
-            core.shuffle_deck(st, p)
-    f.did = bool(targets)
+    """Return cards to their owners' decks. Cards placed into one deck together are ordered by
+    their owner (rule 4-1-6) and that order is hidden from the other player (rule 4-1-7)."""
+    if "__todeck" not in f.vars:
+        targets = [u for u in _refs(st, f, ins.ref) if st.cards[u].zone is not Zone.OUTSIDE]
+        pilots = [
+            st.cards[u].pair
+            for u in targets
+            if st.cards[u].zone is Zone.BATTLE and st.cards[u].pair >= 0
+        ]
+        owners: set[int] = set()
+        for u in targets:
+            owners.add(st.cards[u].owner)
+            core.move(st, u, Zone.DECK, bottom=ins.bottom)
+        f.did = bool(targets)
+        if ins.shuffle:
+            for p in sorted(owners):
+                core.shuffle_deck(st, p)
+            return Status.NEXT
+        moved = [u for u in (*targets, *pilots) if st.cards[u].zone is Zone.DECK]
+        together = [
+            u for u in moved if sum(1 for v in moved if st.cards[v].owner == st.cards[u].owner) > 1
+        ]
+        if not together:
+            return Status.NEXT
+        for u in together:
+            st.cards[u].known &= 1 << st.cards[u].owner
+        f.vars["__todeck"] = tuple(sorted(together, key=lambda u: (st.cards[u].owner, u)))
+        f.buf = []
+    return _todeck_next(st, f, ins)
+
+
+def _todeck_next(st: GameState, f: Frame, ins: d.ToDeck) -> Status:
+    group = f.vars["__todeck"]
+    pending_owners = sorted({st.cards[u].owner for u in group if u not in f.buf})
+    while pending_owners:
+        owner = pending_owners[0]
+        remaining = [u for u in group if st.cards[u].owner == owner and u not in f.buf]
+        if len(remaining) > 1:
+            opts = [Action(A.SELECT, u) for u in remaining]
+            return _decide(
+                st, f, owner, DecisionKind.ARRANGE, opts, "order (top first)", (("owner", owner),)
+            )
+        chosen = [u for u in f.buf if st.cards[u].owner == owner] + remaining
+        _place_ordered(st, owner, chosen, bottom=ins.bottom)
+        f.buf.extend(remaining)
+        pending_owners = pending_owners[1:]
+    del f.vars["__todeck"]
+    f.buf = []
     return Status.NEXT
+
+
+def _r_to_deck(st: GameState, f: Frame, ins: d.ToDeck, action: Action) -> Status:
+    f.buf.append(action.a)
+    return _todeck_next(st, f, ins)
 
 
 def _h_exile(st: GameState, f: Frame, ins: d.Exile) -> Status:
@@ -676,10 +793,16 @@ def _h_exile(st: GameState, f: Frame, ins: d.Exile) -> Status:
 
 
 def _h_to_trash(st: GameState, f: Frame, ins: d.ToTrash) -> Status:
+    """Rule 5-10-1: an effect placing a Unit/Base from the field into the trash destroys it."""
     targets = [u for u in _refs(st, f, ins.ref) if st.cards[u].zone is not Zone.OUTSIDE]
-    for u in targets:
+    field = [u for u in targets if st.cards[u].zone in (Zone.BATTLE, Zone.BASE)]
+    rest = [u for u in targets if u not in field]
+    destroyed = (
+        core.destroy(st, field, battle=False, by=f.controller, source=f.host) if field else []
+    )
+    for u in rest:
         core.move(st, u, Zone.TRASH)
-    f.did = bool(targets)
+    f.did = bool(destroyed or rest)
     return Status.NEXT
 
 
@@ -1061,7 +1184,7 @@ def _h_apply(st: GameState, f: Frame, ins: d.Apply) -> Status:
             return Status.NEXT
         aux = aux_cards[0]
     before = {u: V.ap_of(st, V.derived(st), u) for u, _ in live}
-    add_lasting(st, ins.effect, f.controller, f.host, live, ins.duration, aux=aux)
+    add_lasting(st, _frozen(st, f, ins.effect), f.controller, f.host, live, ins.duration, aux=aux)
     f.did = True
     eff = ins.effect
     if isinstance(eff, d.StatMod) and eff.ap != 0:
@@ -1072,6 +1195,16 @@ def _h_apply(st: GameState, f: Frame, ins: d.Apply) -> Status:
             if c.zone is Zone.BATTLE and V.ap_of(st, dv, u) < before[u]:
                 core.emit(st, d.Ev.AP_REDUCED, u, player=c.owner, by=f.controller, group=group)
     return Status.NEXT
+
+
+def _frozen(st: GameState, f: Frame, eff: d.Continuous) -> d.Continuous:
+    """Amounts of a lasting effect are fixed when it resolves (FAQ Q106: a Support bonus
+    outlives the Supporting Unit)."""
+    if isinstance(eff, d.StatMod) and not (isinstance(eff.ap, int) and isinstance(eff.hp, int)):
+        return d.StatMod(ap=_val(st, f, eff.ap), hp=_val(st, f, eff.hp))
+    if isinstance(eff, d.KeywordGrant) and not isinstance(eff.amount, int):
+        return d.KeywordGrant(eff.keyword, _val(st, f, eff.amount))
+    return eff
 
 
 def add_lasting(
@@ -1089,6 +1222,8 @@ def add_lasting(
 ) -> None:
     R = V.reg()
     b = st.battle
+    if duration is Duration.THIS_BATTLE and (b is None or b.ended):
+        return  # rules 8-2-3, 8-6-1: "during this battle" has no effect outside a battle
     st.lasting.append(
         Lasting(
             effect_key=R.cont_key(effect),
@@ -1322,6 +1457,9 @@ def _h_delayed(st: GameState, f: Frame, ins: d.DelayedTrigger) -> Status:
                 n += 1
     if index < 0:
         raise core.EngineError("delayed trigger not registered on its card")
+    if ins.duration is Duration.THIS_BATTLE and (st.battle is None or st.battle.ended):
+        f.did = False
+        return Status.NEXT
     bound: list[tuple[int, int]] = []
     for v in ins.bind_vars:
         for u in f.vars.get(v, ()):
@@ -1434,6 +1572,7 @@ _RESUMERS: dict[type, Callable[..., Status]] = {
     d.DeployToken: _r_excess,
     d.Arrange: _r_arrange,
     d.Rest: _r_rest,
+    d.ToDeck: _r_to_deck,
 }
 
 __all__ = ["CUSTOM_STEPS", "PLAYER_TARGET", "Battle", "run_top_frame"]

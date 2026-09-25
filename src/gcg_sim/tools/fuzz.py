@@ -59,8 +59,12 @@ def deck_for(index: int, seed: int) -> DeckList:
         if len(main) >= 50:
             break
         main += [n] * min(1 + rng.randrange(4), 50 - len(main))
+    i = 0
     while len(main) < 50:
-        main.append(rotated[rng.randrange(len(rotated))])
+        n = rotated[i % len(rotated)]
+        if main.count(n) < 4:
+            main.append(n)
+        i += 1
     res = resource_pool()
     r0 = (index * 10) % len(res)
     resources = tuple((res[r0:] + res[:r0])[:10])

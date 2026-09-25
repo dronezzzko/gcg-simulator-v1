@@ -42,6 +42,7 @@ from gcg_sim.testkit import (
     pass_all,
     play,
     to_next_turn,
+    vanilla_deck,
     yes,
     zone_of,
 )
@@ -88,7 +89,7 @@ AWAKENED = "GD03-118"  # 【Action】return 1 rested enemy Unit Lv.4 or lower to
 
 
 def _decks() -> tuple[DeckList, DeckList]:
-    deck = DeckList(tuple([VANILLA] * 50), tuple([RESOURCE] * 10))
+    deck = vanilla_deck()
     return deck, deck
 
 
@@ -1036,10 +1037,6 @@ def test_q54_breach_does_not_activate_with_an_empty_shield_area() -> None:
 
 @pytest.mark.faq("Q55")
 @pytest.mark.rule("13-1-2-3", "8-5-3-2-3")
-@pytest.mark.xfail(
-    strict=True,
-    reason="ENGINE: <Breach> amount is read from the trashed attacker (KwAmount(This) = 0)",
-)
 def test_q55_breach_activates_when_both_units_are_destroyed() -> None:
     sc = Scenario()
     rick = sc.add(0, RICK_DOM)
@@ -1353,10 +1350,6 @@ def test_q69_destroyed_effect_activates_from_the_trash_with_its_last_state() -> 
 
 @pytest.mark.faq("Q69")
 @pytest.mark.rule("13-2-8-2-1", "3-3-6")
-@pytest.mark.xfail(
-    strict=True,
-    reason="ENGINE: 'this Unit's paired Pilot' in a 【Destroyed】 effect ignores last-known state",
-)
 def test_q69_destroyed_effect_finds_the_pilot_paired_before_destruction() -> None:
     sc = Scenario()
     unicorn = sc.add(0, UNICORN, pilot=BANAGHER)
@@ -1856,10 +1849,6 @@ def test_q96_control_hp_filter_matches_an_undamaged_unit() -> None:
 
 @pytest.mark.faq("Q96")
 @pytest.mark.rule("2-8-2", "5-5-1-1")
-@pytest.mark.xfail(
-    strict=True,
-    reason="ENGINE: 'with N or less HP' filters compare printed/modified HP, not current HP",
-)
 def test_q96_hp_in_card_text_is_current_hp() -> None:
     sc = Scenario()
     sc.resources(0, 3)
@@ -2044,9 +2033,6 @@ def test_q106_during_this_turn_effect_outlives_its_source() -> None:
 
 @pytest.mark.faq("Q106")
 @pytest.mark.rule("7-6-6-1", "13-1-3-1")
-@pytest.mark.xfail(
-    strict=True, reason="ENGINE: <Support> AP bonus is re-read from its source and drops to 0"
-)
 def test_q106_support_bonus_outlives_the_support_unit() -> None:
     sc = Scenario()
     gaza = sc.add(0, "ST03-004")  # 2/1 <Support 2>

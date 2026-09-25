@@ -11,7 +11,7 @@ from gcg_sim.effects import dsl as d
 from gcg_sim.effects.registry import get_registry
 from gcg_sim.engine import interp as I
 from gcg_sim.engine import view as V
-from gcg_sim.engine.game import DeckList, new_game
+from gcg_sim.engine.game import new_game
 from gcg_sim.engine.observe import information_set_key
 from gcg_sim.engine.state import GameState
 from gcg_sim.engine.types import (
@@ -38,6 +38,7 @@ from gcg_sim.testkit import (
     select,
     to_next_turn,
     uids_in,
+    vanilla_deck,
     zone_of,
 )
 
@@ -617,7 +618,7 @@ def test_ex_base_is_a_base_token_with_zero_ap_and_three_hp() -> None:
 
 
 def _setup_game(first: int) -> GameState:
-    deck = DeckList(tuple([VANILLA_2_2] * 50), tuple(["R-001"] * 10))
+    deck = vanilla_deck()
     st = new_game((deck, deck), seed=7, chooser=0)
     act(st, A.GO_FIRST, first)
     act(st, A.KEEP)
@@ -718,11 +719,6 @@ def test_rules_management_defeats_every_player_that_meets_a_defeat_condition() -
 
 
 @pytest.mark.rule("11-2-1", "11-2-1-2")
-@pytest.mark.xfail(
-    strict=True,
-    reason="ENGINE: 'All players draw 1' runs rules management between the two draws, "
-    "so only the active player is defeated",
-)
 def test_a_symmetric_draw_that_empties_both_decks_defeats_both_players() -> None:
     sc = Scenario(deck_size=1)
     attacker = sc.add(0, VANILLA_2_2)

@@ -348,12 +348,78 @@
   "text_hash": "3973e022e93220f9"
  },
  "ST12-011": {
-  "error": "\"This card's name is also treated as [Zechs Merquise].\": name alias requires a binding",
+  "abilities": [
+   {
+    "_": "NameAlias",
+    "names": [
+     "Zechs Merquise"
+    ]
+   },
+   {
+    "_": "Burst",
+    "steps": [
+     {
+      "_": "AddToHand",
+      "ref": {
+       "_": "ThisCard"
+      }
+     }
+    ]
+   }
+  ],
   "name": "Milliardo Peacecraft",
-  "text_hash": "17cf5ea9987b9eae"
+  "source": "compiled",
+  "text_hash": "17cf5ea9987b9eae",
+  "unit_abilities": [
+   {
+    "_": "Activated",
+    "costs": [],
+    "once_per_turn": true,
+    "steps": [
+     {
+      "_": "Choose",
+      "sel": {
+       "_": "Sel",
+       "filters": [
+        {
+         "_": "IsKind",
+         "kinds": [
+          "unit"
+         ]
+        },
+        {
+         "_": "IsDamaged"
+        },
+        {
+         "_": "IsRef",
+         "ref": {
+          "_": "BattlingWith",
+          "ref": {
+           "_": "This"
+          }
+         }
+        }
+       ],
+       "loc": "battle",
+       "side": "enemy"
+      },
+      "var": "t1"
+     },
+     {
+      "_": "Damage",
+      "amount": 2,
+      "ref": {
+       "_": "Var",
+       "name": "t1"
+      }
+     }
+    ],
+    "timing": "action"
+   }
+  ]
  },
  "ST12-012": {
-  "error": "\"This card's name is also treated as [Marida Cruz].\": name alias requires a binding; '【When Linked】Look at the top 2 cards of your deck and return 1 to the top. Place the remaining card into your trash. If there is a player with 3 or less Shields, add the card to your hand instead of returning it to your deck.': no step template for 'Look at the top 2 cards of your deck and return 1 to the top'",
+  "error": "'【When Linked】Look at the top 2 cards of your deck and return 1 to the top. Place the remaining card into your trash. If there is a player with 3 or less Shields, add the card to your hand instead of returning it to your deck.': no step template for 'Look at the top 2 cards of your deck and return 1 to the top'",
   "name": "Ple-Twelve",
   "text_hash": "f80d7f78fbd47004"
  },

@@ -224,15 +224,15 @@
          "side": "enemy"
         },
         "var": "t1"
+       },
+       {
+        "_": "Rest",
+        "ref": {
+         "_": "Var",
+         "name": "t1"
+        }
        }
       ]
-     },
-     {
-      "_": "Rest",
-      "ref": {
-       "_": "Var",
-       "name": "t1"
-      }
      }
     ],
     "trigger": {
@@ -437,15 +437,15 @@
          "side": "enemy"
         },
         "var": "t2"
+       },
+       {
+        "_": "Rest",
+        "ref": {
+         "_": "Var",
+         "name": "t2"
+        }
        }
       ]
-     },
-     {
-      "_": "Rest",
-      "ref": {
-       "_": "Var",
-       "name": "t2"
-      }
      }
     ],
     "trigger": {
@@ -1485,16 +1485,16 @@
          "side": "enemy"
         },
         "var": "t2"
+       },
+       {
+        "_": "Damage",
+        "amount": 2,
+        "ref": {
+         "_": "Var",
+         "name": "t2"
+        }
        }
       ]
-     },
-     {
-      "_": "Damage",
-      "amount": 2,
-      "ref": {
-       "_": "Var",
-       "name": "t2"
-      }
      }
     ],
     "trigger": {
@@ -1768,16 +1768,16 @@
          "side": "enemy"
         },
         "var": "t2"
+       },
+       {
+        "_": "Damage",
+        "amount": 2,
+        "ref": {
+         "_": "Var",
+         "name": "t2"
+        }
        }
       ]
-     },
-     {
-      "_": "Damage",
-      "amount": 2,
-      "ref": {
-       "_": "Var",
-       "name": "t2"
-      }
      }
     ],
     "timing": "main"
@@ -1974,15 +1974,15 @@
          "side": "enemy"
         },
         "var": "t2"
+       },
+       {
+        "_": "Destroy",
+        "ref": {
+         "_": "Var",
+         "name": "t2"
+        }
        }
       ]
-     },
-     {
-      "_": "Destroy",
-      "ref": {
-       "_": "Var",
-       "name": "t2"
-      }
      }
     ],
     "trigger": {
@@ -2210,19 +2210,19 @@
          "side": "friendly"
         },
         "var": "t2"
+       },
+       {
+        "_": "Apply",
+        "effect": {
+         "_": "StatMod",
+         "ap": 2
+        },
+        "ref": {
+         "_": "Var",
+         "name": "t2"
+        }
        }
       ]
-     },
-     {
-      "_": "Apply",
-      "effect": {
-       "_": "StatMod",
-       "ap": 2
-      },
-      "ref": {
-       "_": "Var",
-       "name": "t2"
-      }
      }
     ],
     "trigger": {
@@ -2305,16 +2305,16 @@
          "side": "enemy"
         },
         "var": "t1"
+       },
+       {
+        "_": "Damage",
+        "amount": 2,
+        "ref": {
+         "_": "Var",
+         "name": "t1"
+        }
        }
       ]
-     },
-     {
-      "_": "Damage",
-      "amount": 2,
-      "ref": {
-       "_": "Var",
-       "name": "t1"
-      }
      }
     ],
     "trigger": {
@@ -2636,11 +2636,11 @@
       "then": [
        {
         "_": "Draw"
+       },
+       {
+        "_": "Discard"
        }
       ]
-     },
-     {
-      "_": "Discard"
      }
     ],
     "trigger": {
@@ -2714,20 +2714,20 @@
          "side": "enemy"
         },
         "var": "t1"
+       },
+       {
+        "_": "Apply",
+        "duration": "this_battle",
+        "effect": {
+         "_": "StatMod",
+         "ap": -3
+        },
+        "ref": {
+         "_": "Var",
+         "name": "t1"
+        }
        }
       ]
-     },
-     {
-      "_": "Apply",
-      "duration": "this_battle",
-      "effect": {
-       "_": "StatMod",
-       "ap": -3
-      },
-      "ref": {
-       "_": "Var",
-       "name": "t1"
-      }
      }
     ],
     "timing": "action"
@@ -3119,8 +3119,33 @@
   ]
  },
  "GD03-085": {
-  "error": "'When playing this card from your hand and pairing it with a Unit with \"Gundam NT-1\" in its card name, play this card as if it has 0 cost.': unknown trigger 'When playing this card from your hand and pairing it with a Unit with \"Gundam NT-1\" in its card name'",
+  "abilities": [
+   {
+    "_": "Burst",
+    "steps": [
+     {
+      "_": "AddToHand",
+      "ref": {
+       "_": "ThisCard"
+      }
+     }
+    ]
+   },
+   {
+    "_": "PlayModifier",
+    "cost": 0,
+    "pair_filters": [
+     {
+      "_": "NameContains",
+      "parts": [
+       "Gundam NT-1"
+      ]
+     }
+    ]
+   }
+  ],
   "name": "Christina Mackenzie",
+  "source": "compiled",
   "text_hash": "dd2b7b7e12249d3f"
  },
  "GD03-086": {
@@ -3694,15 +3719,15 @@
          "side": "enemy"
         },
         "var": "t1"
+       },
+       {
+        "_": "ReturnToHand",
+        "ref": {
+         "_": "Var",
+         "name": "t1"
+        }
        }
       ]
-     },
-     {
-      "_": "ReturnToHand",
-      "ref": {
-       "_": "Var",
-       "name": "t1"
-      }
      }
     ],
     "trigger": {
@@ -3930,16 +3955,16 @@
          "side": "enemy"
         },
         "var": "t1"
+       },
+       {
+        "_": "Damage",
+        "amount": 2,
+        "ref": {
+         "_": "Var",
+         "name": "t1"
+        }
        }
       ]
-     },
-     {
-      "_": "Damage",
-      "amount": 2,
-      "ref": {
-       "_": "Var",
-       "name": "t1"
-      }
      }
     ],
     "timing": "main"
@@ -3954,29 +3979,6 @@
    {
     "_": "Command",
     "steps": [
-     {
-      "_": "Choose",
-      "sel": {
-       "_": "Sel",
-       "filters": [
-        {
-         "_": "IsKind",
-         "kinds": [
-          "unit"
-         ]
-        },
-        {
-         "_": "StatCmp",
-         "op": "<=",
-         "stat": "hp",
-         "value": 3
-        }
-       ],
-       "loc": "battle",
-       "side": "enemy"
-      },
-      "var": "t1"
-     },
      {
       "_": "If",
       "cond": {
@@ -4006,11 +4008,27 @@
       },
       "otherwise": [
        {
-        "_": "Rest",
-        "ref": {
-         "_": "Var",
-         "name": "t1"
-        }
+        "_": "Choose",
+        "sel": {
+         "_": "Sel",
+         "filters": [
+          {
+           "_": "IsKind",
+           "kinds": [
+            "unit"
+           ]
+          },
+          {
+           "_": "StatCmp",
+           "op": "<=",
+           "stat": "hp",
+           "value": 3
+          }
+         ],
+         "loc": "battle",
+         "side": "enemy"
+        },
+        "var": "t1"
        }
       ],
       "then": [
@@ -4037,9 +4055,16 @@
          "loc": "battle",
          "side": "enemy"
         },
-        "var": "t2"
+        "var": "t1"
        }
       ]
+     },
+     {
+      "_": "Rest",
+      "ref": {
+       "_": "Var",
+       "name": "t1"
+      }
      }
     ],
     "timing": "main_or_action"
@@ -4203,29 +4228,6 @@
     "_": "Command",
     "steps": [
      {
-      "_": "Choose",
-      "sel": {
-       "_": "Sel",
-       "filters": [
-        {
-         "_": "IsKind",
-         "kinds": [
-          "unit"
-         ]
-        },
-        {
-         "_": "StatCmp",
-         "op": "<=",
-         "stat": "lv",
-         "value": 4
-        }
-       ],
-       "loc": "battle",
-       "side": "enemy"
-      },
-      "var": "t1"
-     },
-     {
       "_": "If",
       "cond": {
        "_": "Cmp",
@@ -4250,12 +4252,27 @@
       },
       "otherwise": [
        {
-        "_": "Damage",
-        "amount": 3,
-        "ref": {
-         "_": "Var",
-         "name": "t1"
-        }
+        "_": "Choose",
+        "sel": {
+         "_": "Sel",
+         "filters": [
+          {
+           "_": "IsKind",
+           "kinds": [
+            "unit"
+           ]
+          },
+          {
+           "_": "StatCmp",
+           "op": "<=",
+           "stat": "lv",
+           "value": 4
+          }
+         ],
+         "loc": "battle",
+         "side": "enemy"
+        },
+        "var": "t1"
        }
       ],
       "then": [
@@ -4274,9 +4291,17 @@
          "loc": "battle",
          "side": "enemy"
         },
-        "var": "t2"
+        "var": "t1"
        }
       ]
+     },
+     {
+      "_": "Damage",
+      "amount": 3,
+      "ref": {
+       "_": "Var",
+       "name": "t1"
+      }
      }
     ],
     "timing": "main_or_action"
@@ -4407,33 +4432,6 @@
     "_": "Command",
     "steps": [
      {
-      "_": "Choose",
-      "sel": {
-       "_": "Sel",
-       "filters": [
-        {
-         "_": "IsKind",
-         "kinds": [
-          "unit"
-         ]
-        },
-        {
-         "_": "IsRested",
-         "rested": false
-        },
-        {
-         "_": "StatCmp",
-         "op": "<=",
-         "stat": "lv",
-         "value": 2
-        }
-       ],
-       "loc": "battle",
-       "side": "enemy"
-      },
-      "var": "t1"
-     },
-     {
       "_": "If",
       "cond": {
        "_": "Cmp",
@@ -4450,11 +4448,31 @@
       },
       "otherwise": [
        {
-        "_": "Destroy",
-        "ref": {
-         "_": "Var",
-         "name": "t1"
-        }
+        "_": "Choose",
+        "sel": {
+         "_": "Sel",
+         "filters": [
+          {
+           "_": "IsKind",
+           "kinds": [
+            "unit"
+           ]
+          },
+          {
+           "_": "IsRested",
+           "rested": false
+          },
+          {
+           "_": "StatCmp",
+           "op": "<=",
+           "stat": "lv",
+           "value": 2
+          }
+         ],
+         "loc": "battle",
+         "side": "enemy"
+        },
+        "var": "t1"
        }
       ],
       "then": [
@@ -4483,9 +4501,16 @@
          "loc": "battle",
          "side": "enemy"
         },
-        "var": "t2"
+        "var": "t1"
        }
       ]
+     },
+     {
+      "_": "Destroy",
+      "ref": {
+       "_": "Var",
+       "name": "t1"
+      }
      }
     ],
     "timing": "action"
@@ -4574,7 +4599,7 @@
       "then": [
        {
         "_": "Apply",
-        "duration": "while_on_field",
+        "duration": "this_battle",
         "effect": {
          "_": "RuleGrant",
          "rule": {
@@ -5471,15 +5496,15 @@
          "side": "enemy"
         },
         "var": "t1"
+       },
+       {
+        "_": "Rest",
+        "ref": {
+         "_": "Var",
+         "name": "t1"
+        }
        }
       ]
-     },
-     {
-      "_": "Rest",
-      "ref": {
-       "_": "Var",
-       "name": "t1"
-      }
      }
     ],
     "trigger": {

@@ -161,6 +161,10 @@
       "status": "na",
       "reason": "grouping heading; covered by children 4-3-1..4-3-3"
     },
+    "4-3-3": {
+      "status": "na",
+      "reason": "Nothing in the pinned card pool moves more than one card out of the resource deck at a time, so this rule never changes what the engine does. Every placement from the resource deck is 'Place 1 (rested) Resource' (the resource step 7-4-1, GD01-107, GD01-025, GD05-106). Setup never moves resource-deck cards (6-2-1-3). No card text contains 'resource deck'. The only multi-resource effect is GD05-018 'Place 3 EX Resources', and it creates tokens instead of taking cards from the resource deck. So the 'simultaneous but physically one at a time' handling can never be triggered. Checked with a regex search over cards.ndjson ('place ([2-9]|two|three) ... Resource' / 'resource deck'): 1 hit, GD05-018. Re-test if a card that places several Resources from the resource deck is ever added."
+    },
     "4-4": {
       "status": "na",
       "reason": "grouping heading; covered by children 4-4-1..4-4-3"
@@ -276,6 +280,18 @@
     "5-17-3-2": {
       "status": "na",
       "reason": "grouping heading; covered by children 5-17-3-2-1..5-17-3-2-3"
+    },
+    "5-17-4-1": {
+      "status": "na",
+      "reason": "This is a limit on the physical token supply checked while preparing to play (six or fewer copies per token card number). The simulator creates token instances from card data when they are needed (the same reason 6-1-2-1 is N/A), and decklists never contain tokens, so there is no supply to validate. How many copies can be in play at once is already capped by 11-4-1 (six Units), 4-4-2-1 (five EX Resources) and 11-5-1 (one Base), and those rules are tested separately."
+    },
+    "5-17-4-3": {
+      "status": "na",
+      "reason": "The simulator has no face-down token supply prepared before the game. The only token instances outside the game are ones that left a public location (battle area, base section or resource area), so both players already saw them. There are no unrevealed token contents for the information model (engine/observe.py) to hide. The public count of tokens outside the game (5-17-4-2) is tested."
+    },
+    "5-17-4-4": {
+      "status": "na",
+      "reason": "This only permits a player to set aside tokens they will not use while preparing to play. Tokens are created when needed, so unused tokens never exist and no game state depends on them."
     },
     "5-18": {
       "status": "na",

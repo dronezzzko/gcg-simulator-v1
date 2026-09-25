@@ -68,7 +68,10 @@ ACTIVATE_MAIN = "GD01-053"  # 【Activate･Main】【Once per Turn】①: deal 
 BASE = "GD01-126"  # Underground Desert Base: Lv.2 cost 1
 PILOT = "GD01-089"  # Riddhe Marcenas: Lv.3 cost 1
 DRAW_2_DISCARD_1 = "GD01-118"  # 【Main】Draw 2. Then, discard 1.
-ACTION_ONLY = "GD01-114"  # 【Action】Choose 2 friendly Units. They get AP+1 during this turn.
+ACTION_ONLY = (
+    "GD01-114"  # 【Action】Choose 2 friendly Units (needs 2, Q121). They get AP+1 during this turn.
+)
+DRAW_TWO = "GD01-100"  # A Show of Resolve: 【Main】Draw 2.
 ALL_AP_PLUS_2 = "GD01-105"  # 【Main】All your Units get AP+2 during this turn.
 AP_MINUS_3 = "ST01-014"  # 【Main】/【Action】Choose 1 enemy Unit. It gets AP-3 during this turn.
 AP_PLUS_3 = "EB01-083"  # 【Action】If it is your opponent's turn, choose 1 Unit. It gets AP+3.
@@ -331,11 +334,6 @@ def test_all_players_meeting_a_defeat_condition_are_defeated_together() -> None:
 
 
 @pytest.mark.rule("1-2-3", "1-2-2-2")
-@pytest.mark.xfail(
-    strict=True,
-    reason="ENGINE: rules management runs between the two draws of 'All players draw 1', "
-    "so the active player loses before the standby player draws",
-)
 def test_all_players_draw_empties_both_decks_and_defeats_both() -> None:
     """Armory One's "All players draw 1" is performed active player first but treated as
     simultaneous (ruling EB01-023 Q319), so both players meet the deck-out condition before the
@@ -355,7 +353,6 @@ def test_all_players_draw_empties_both_decks_and_defeats_both() -> None:
 
 
 @pytest.mark.rule("1-2-4", "1-2-5")
-@pytest.mark.xfail(strict=True, reason="ENGINE: no entry point for a player to concede (1-2-4)")
 def test_either_player_may_concede_at_any_time() -> None:
     sc = Scenario()
     attacker = sc.add(0, VANILLA)
@@ -427,15 +424,18 @@ def test_impossible_instruction_is_not_performed() -> None:
 
 @pytest.mark.rule("1-3-2")
 def test_partly_possible_instruction_is_performed_as_far_as_possible() -> None:
-    sc = Scenario()
-    sc.resources(0, 2)
-    only = sc.add(0, VANILLA)
-    first, _second = sc.hand(0, ACTION_ONLY, ACTION_ONLY)
+    """ "Draw 2" with one card left draws that card (as much as possible); the empty deck then
+    defeats the player at rules management. Targeted choices are the exception: ruling
+    GD01-003:Q121 requires every target of a choice (see tests/rules/test_effects.py)."""
+    sc = Scenario(deck_size=1)
+    sc.resources(0, 4)
+    draw_two = sc.add(0, DRAW_TWO, Zone.HAND)
     st = sc.start()
-    end_main(st)
-    act(st, A.PLAY_COMMAND, first)
-    assert st.pending is not None and st.pending.kind is DecisionKind.ACTION_STEP
-    assert ap(st, only) == 3
+    hand_before = len(_hand(st, 0))
+    play(st, draw_two)
+    assert len(_hand(st, 0)) == hand_before - 1 + 1
+    assert st.zones[0][Zone.DECK] == []
+    assert st.winner == 1 and st.end_reason is EndReason.DECK_OUT
 
 
 @pytest.mark.rule("1-3-2-1")
@@ -447,6 +447,7 @@ def test_resting_an_already_rested_unit_is_not_performed(
     is already rested does nothing, so nothing triggers."""
     sc = Scenario()
     guaiz = sc.add(0, GUAIZ, rested=already_rested)
+    sc.add(0, VANILLA_3_AP)  # a second friendly Unit so the held Action card stays playable
     sc.resources(0, 1)
     sc.hand(0, ACTION_ONLY)
     sc.resources(1, 3)
@@ -547,6 +548,7 @@ def test_negative_ap_counts_as_zero_until_modified_again() -> None:
     sc.resources(0, 4)
     minus3 = sc.add(0, AP_MINUS_3, Zone.HAND)
     sc.add(0, VANILLA)
+    sc.add(0, VANILLA)
     sc.hand(0, ACTION_ONLY)
     enemy = sc.add(1, VANILLA)
     sc.resources(1, 3)
@@ -601,10 +603,6 @@ def test_the_presented_deck_and_resource_deck_are_used() -> None:
 
 
 @pytest.mark.rule("6-2-1-1")
-@pytest.mark.xfail(
-    strict=True,
-    reason="ENGINE: new_game accepts decks that break the deck construction rules (6-1)",
-)
 @pytest.mark.parametrize(
     "deck",
     [
@@ -822,11 +820,6 @@ def test_end_phase_does_not_advance_while_triggered_effects_are_waiting() -> Non
 
 
 @pytest.mark.rule("7-6-2")
-@pytest.mark.xfail(
-    strict=True,
-    reason="ENGINE: st.step already names the next end-phase step while the current step's "
-    "effects are still resolving",
-)
 def test_end_phase_step_is_reported_until_its_effects_have_resolved() -> None:
     sc = Scenario()
     sc.add(0, REPAIR_TRIGGER, damage=3)
@@ -870,10 +863,6 @@ def test_start_step_effects_resolve_before_the_draw_phase(
 
 
 @pytest.mark.rule("7-2-2", "7-2-5")
-@pytest.mark.xfail(
-    strict=True,
-    reason="ENGINE: st.phase is set to DRAW before the start step's triggered effects resolve",
-)
 def test_start_phase_is_reported_until_start_step_effects_have_resolved(
     card_text: Callable[[str, str], None],
 ) -> None:
@@ -1136,6 +1125,7 @@ def test_declaring_the_end_of_the_main_phase_enters_the_end_phase() -> None:
     sc.resources(0, 2)
     (unplayed,) = sc.hand(0, VANILLA)
     sc.add(1, VANILLA)
+    sc.add(1, VANILLA)
     sc.resources(1, 1)
     sc.hand(1, ACTION_ONLY)
     st = sc.start()
@@ -1161,6 +1151,7 @@ def test_end_phase_steps_run_action_end_hand_cleanup_in_order() -> None:
     sc.resources(0, 4)
     rally = sc.add(0, ALL_AP_PLUS_2, Zone.HAND)
     sc.hand(0, *[VANILLA] * 11)
+    sc.add(1, VANILLA)
     sc.add(1, VANILLA)
     sc.resources(1, 1)
     sc.hand(1, ACTION_ONLY)

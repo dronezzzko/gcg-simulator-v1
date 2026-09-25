@@ -12,6 +12,7 @@ means both players; "2 or more enemy players" is never true.
 
 from __future__ import annotations
 
+import dataclasses
 import re
 from collections.abc import Callable
 from dataclasses import dataclass
@@ -1247,7 +1248,7 @@ def _draw(m: re.Match[str], g: G) -> list[d.Step]:
 @core(r"all players (?:each )?draw (\d+)|you and your opponent each draw (\d+)")
 def _all_draw(m: re.Match[str], g: G) -> list[d.Step]:
     n = int(m.group(1) or m.group(2))
-    return [d.Draw(n, d.P.ACTIVE), d.Draw(n, d.P.STANDBY)]
+    return [d.Draw(n, each_player=True)]
 
 
 @core(r"discard (\d+)")
@@ -1622,12 +1623,50 @@ def _apply_pred(m: re.Match[str], g: G) -> list[d.Step]:
 # sentence compiler
 
 
+_SCOPE_BREAK = re.compile(r"^(?:They |Then, )?(?:return|place) (?:the |any )?remaining", re.I)
+_NEW_CONDITION = re.compile(r"^If (?!you do,)", re.I)
+
+
+def _extend_scope(node: d.Step, inner: list[d.Step]) -> d.Step:
+    if isinstance(node, d.If):
+        return d.If(node.cond, (*node.then, *inner), node.otherwise)
+    assert isinstance(node, d.IfYouDo)
+    return d.IfYouDo((*node.steps, *inner))
+
+
+def _opens_scope(sentence: str, node: d.Step) -> bool:
+    s = sentence.strip()
+    if re.match(r"^If you do, ", s, re.I):
+        return isinstance(node, d.IfYouDo)
+    return (
+        bool(re.match(r"^If .+?, ", s))
+        and isinstance(node, d.If)
+        and not node.otherwise
+        and not s.rstrip(".").endswith("instead")
+    )
+
+
 def compile_steps(body: str, g: G) -> tuple[d.Step, ...]:
+    """Compile an ability body. A leading "If <condition>," or "If you do," governs the
+    sentences that follow it in the same effect, "Then" parts included (rulings Q175/Q233),
+    until a new condition starts or leftover looked-at cards are put away."""
     steps: list[d.Step] = []
-    sentences = split_sentences(body)
+    sentences = _merge_development_lead(split_sentences(body))
+    scope: int | None = None
     i = 0
     while i < len(sentences):
         s = sentences[i]
+        if (
+            scope is not None
+            and not _NEW_CONDITION.match(s)
+            and not _SCOPE_BREAK.match(s)
+            and not s.startswith("■")
+        ):
+            inner: list[d.Step] = []
+            compile_sentence(s, g, inner)
+            steps[scope] = _extend_scope(steps[scope], inner)
+            i += 1
+            continue
         if re.search(r"choose 1 of the following effects|activate the following effect", s, re.I):
             options = []
             j = i + 1
@@ -1644,11 +1683,26 @@ def compile_steps(body: str, g: G) -> tuple[d.Step, ...]:
                 opt_bodies[-1] += " " + sentences[k]
                 k += 1
             _compile_option_block(s, opt_bodies, g, steps)
+            scope = None
             i = k
             continue
+        before = len(steps)
         compile_sentence(s, g, steps)
+        opened = len(steps) == before + 1 and _opens_scope(s, steps[-1])
+        scope = len(steps) - 1 if opened else None
         i += 1
     return tuple(steps)
+
+
+def _merge_development_lead(sentences: list[str]) -> list[str]:
+    """Rule 13-1-8: "You may exile ... . If you do, activate the following effect:" is one lead."""
+    out: list[str] = []
+    for s in sentences:
+        if out and re.match(r"^If you do, activate the following effect", s):
+            out[-1] = out[-1] + " " + s
+        else:
+            out.append(s)
+    return out
 
 
 def _compile_option_block(lead: str, options: list[str], g: G, steps: list[d.Step]) -> None:
@@ -1695,6 +1749,31 @@ def _try_condition(text: str, g: G) -> d.Cond | None:
         return None
 
 
+def _substitute(
+    steps: list[d.Step], cond: d.Cond, alt: list[d.Step], saved_it: d.Ref | None, g: G
+) -> None:
+    """ "If <cond>, <X> instead": X replaces only what it names (FAQ/ruling Q247). A replaced choice
+    keeps its variable so later steps still act on "it"; a replaced lasting effect keeps the
+    original duration unless X states one."""
+    if len(alt) == 1 and isinstance(alt[0], d.Choose):
+        idx = max((i for i, st in enumerate(steps) if isinstance(st, d.Choose)), default=-1)
+        if idx >= 0:
+            orig = steps[idx]
+            assert isinstance(orig, d.Choose)
+            steps[idx] = d.If(cond, (dataclasses.replace(alt[0], var=orig.var),), (orig,))
+            g.it = saved_it
+            return
+    prev = steps.pop()
+    if isinstance(prev, d.Apply):
+        alt = [
+            dataclasses.replace(a, duration=prev.duration)
+            if isinstance(a, d.Apply) and a.duration is Duration.WHILE_ON_FIELD
+            else a
+            for a in alt
+        ]
+    steps.append(d.If(cond, tuple(alt), (prev,)))
+
+
 def compile_sentence(sentence: str, g: G, steps: list[d.Step]) -> None:
     s = _multiplayer(_strip_period(sentence))
     if s.startswith("■"):
@@ -1713,10 +1792,10 @@ def compile_sentence(sentence: str, g: G, steps: list[d.Step]) -> None:
     m = re.match(r"^If (.+?), (.+?) instead$", s, re.I)
     if m and steps:
         cond = parse_condition(m.group(1), g)
+        saved_it = g.it
         alt: list[d.Step] = []
         compile_sentence(_cap(m.group(2)), g, alt)
-        prev = steps.pop()
-        steps.append(d.If(cond, tuple(alt), (prev,)))
+        _substitute(steps, cond, alt, saved_it, g)
         return
     m = re.match(r"^During (this turn|this battle), (.+)$", s, re.I)
     if m:
@@ -1912,12 +1991,65 @@ def compile_constant_sentence(
     raise CompileError(f"unknown constant {s!r}")
 
 
+def _play_modifier(body: str, g: G) -> list[d.Ability] | None:
+    """ "When playing this card from your hand, ... play this card as if it has N Lv. and cost"
+    and "This card's name is also treated as [X]" (rule 2-2-4)."""
+    b = _strip_period(body)
+    tail = r"play (?:this card|it) as if it has (?:(\d+) Lv\. and cost|(\d+) cost)"
+    m = re.match(
+        r"^When playing this card from your hand, you may (destroy|discard) (\d+) (.+?)\. If you do, "
+        + tail
+        + r"$",
+        b,
+    )
+    if m:
+        spec = parse_selector(m.group(2) + " " + m.group(3))
+        cost: d.Cost = (
+            d.DestroyCards(_friendly(spec.sel), int(m.group(2)))
+            if m.group(1) == "destroy"
+            else d.DiscardCards(
+                d.Sel(d.Side.FRIENDLY, d.Loc.HAND, spec.sel.filters), int(m.group(2))
+            )
+        )
+        lv = int(m.group(4)) if m.group(4) else None
+        return [d.PlayModifier(costs=(cost,), level=lv, cost=int(m.group(4) or m.group(5)))]
+    m = re.match(r"^When playing this card from your hand, if (.+?), " + tail + r"$", b)
+    if m:
+        lv = int(m.group(2)) if m.group(2) else None
+        return [
+            d.PlayModifier(
+                cond=parse_condition(m.group(1), g), level=lv, cost=int(m.group(2) or m.group(3))
+            )
+        ]
+    m = re.match(
+        r'^When playing this card from your hand and pairing it with a Unit with "([^"]+)" in its '
+        r"card name, " + tail + r"$",
+        b,
+    )
+    if m:
+        lv = int(m.group(2)) if m.group(2) else None
+        return [
+            d.PlayModifier(
+                level=lv,
+                cost=int(m.group(2) or m.group(3)),
+                pair_filters=(d.NameContains((m.group(1),)),),
+            )
+        ]
+    m = re.match(r"^This card's name is also treated as \[(.+)\]$", b)
+    if m:
+        return [d.NameAlias((m.group(1).strip(),))]
+    return None
+
+
 def compile_untagged(
     body: str, g: G, gate: d.Gate, gf: tuple[d.Filter, ...], once: bool
 ) -> list[d.Ability]:
     kws = parse_keyword_line(body)
     if kws is not None:
         return [d.Keyword(k.keyword, k.amount, gate=gate, gate_filters=gf) for k in kws]
+    special = _play_modifier(body, g)
+    if special is not None:
+        return special
     sentences = split_sentences(body)
     first = _multiplayer(_strip_period(sentences[0]))
     whose: d.P | None = None
@@ -2121,16 +2253,37 @@ def _compile_timed(
             )
         ]
     if t in ("Main", "Action"):
-        return [
+        body, after = _split_after_main(body)
+        out: list[d.Ability] = [
             d.Command(d.Timing.MAIN if t == "Main" else d.Timing.ACTION, compile_steps(body, g))
         ]
+        if after:
+            ag = G(cdef, event=d.Ev.COMMAND_RESOLVED)
+            out.append(
+                d.Triggered(
+                    d.Trigger(d.Ev.COMMAND_RESOLVED), compile_steps(after, ag), where=d.Where.TRASH
+                )
+            )
+        return out
     raise CompileError(f"unknown marker {t!r}")
+
+
+def _split_after_main(body: str) -> tuple[str, str]:
+    """ "After activating this card's 【Main】, ..." inside a Command resolves once the card is in
+    the trash (rulings Q267/Q410), so it becomes a trash-zone trigger on the Command resolving."""
+    m = re.search(r"\s*After activating this card's 【(?:Main|Action)】, (.+)$", body)
+    if not m:
+        return body, ""
+    return body[: m.start()].strip(), _cap(m.group(1))
 
 
 def merge_command_timings(abilities: list[d.Ability]) -> list[d.Ability]:
     """【Main】/【Action】 on one line is a single command effect usable at either time (13-2-3-2)."""
     cmds = [a for a in abilities if isinstance(a, d.Command)]
     if len(cmds) == 2 and cmds[0].steps == cmds[1].steps:
-        rest = [a for a in abilities if not isinstance(a, d.Command)]
+        rest: list[d.Ability] = []
+        for a in abilities:
+            if not isinstance(a, d.Command) and a not in rest:
+                rest.append(a)
         return [d.Command(d.Timing.MAIN_OR_ACTION, cmds[0].steps), *rest]
     return abilities
