@@ -261,10 +261,22 @@ def test_chooses_to_play_first_with_proactive_decks(seed: int) -> None:
     assert choice(st, agents(seed)[chooser]) == Action(A.GO_FIRST, chooser)
 
 
-CHEAP = ["ST01-005", "ST01-008", "ST02-009", "ST03-005", "GD01-008"]
-HEAVY = ["GD01-024", "GD01-027", "GD01-047", "GD01-065", "ST03-001"]
+# A legal Blue/White deck: 40 Units of Lv.1-2 and 10 Units of Lv.6 or higher.
+CHEAP = [
+    "ST01-005",
+    "ST01-008",
+    "ST02-009",
+    "GD01-008",
+    "GD01-011",
+    "GD01-021",
+    "GD01-022",
+    "EB01-051",
+    "GD01-079",
+    "GD01-085",
+]
+HEAVY = ["GD01-065", "EB01-001", "EB01-002", "EB01-004", "EB01-005"]
 MULLIGAN_DECK = DeckList(
-    tuple(n for n in CHEAP for _ in range(8)) + tuple(n for n in HEAVY for _ in range(2)),
+    tuple(n for n in CHEAP for _ in range(4)) + tuple(n for n in HEAVY for _ in range(2)),
     ("R-001",) * 10,
 )
 

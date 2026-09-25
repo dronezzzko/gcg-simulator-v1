@@ -2,10 +2,12 @@
 
 from __future__ import annotations
 
+import re
 from pathlib import Path
 
 import pytest
 
+from gcg_sim.effects import dsl as d
 from gcg_sim.effects.registry import get_registry
 from gcg_sim.tools.marks import scan, values
 
@@ -57,3 +59,37 @@ def test_vanilla_cards_have_no_abilities(number: str) -> None:
     entry = reg.cards[cdef.def_id]
     assert entry.script is not None
     assert entry.script.abilities == () and entry.script.unit_abilities == ()
+
+
+def _mode_counts(steps: tuple[d.Step, ...]) -> list[int]:
+    out: list[int] = []
+    for s in steps:
+        if isinstance(s, d.ChooseMode):
+            out.append(len(s.options))
+            for _, body in s.options:
+                out += _mode_counts(body)
+        for name in ("steps", "then", "otherwise"):
+            nested = getattr(s, name, None)
+            if isinstance(nested, tuple):
+                out += _mode_counts(nested)
+    return out
+
+
+def test_every_modal_effect_offers_every_printed_mode() -> None:
+    """A mode choice has at least two options, and a card whose text says 'choose 1 of the
+    following' offers one option per printed ■ mode."""
+    reg = get_registry()
+    broken = []
+    for c in reg.db.real_cards():
+        entry = reg.cards[c.def_id]
+        if entry.script is None:
+            continue
+        counts = [
+            n
+            for ab in (*entry.script.abilities, *entry.script.unit_abilities)
+            for n in _mode_counts(getattr(ab, "steps", ()))
+        ]
+        modal_text = re.search(r"choose (?:1|one) of the following", c.effect, re.I)
+        if any(n < 2 for n in counts) or (modal_text and c.effect.count("■") not in counts):
+            broken.append(c.card_number)
+    assert not broken, f"modal effects missing modes: {sorted(broken)}"
