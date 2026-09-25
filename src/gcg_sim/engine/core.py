@@ -513,21 +513,36 @@ def _reduce(
 
 def damage_card(st: GameState, uid: int, amount: int, *, source: int, battle: bool, by: int) -> int:
     """Deal damage to a Unit or Base; returns damage actually dealt (rules 5-5, 5-21)."""
+    dest, final = resolve_damage(st, uid, amount, source=source, battle=battle, by=by)
+    return apply_damage(st, dest, final, source=source, battle=battle, by=by)
+
+
+def resolve_damage(
+    st: GameState, uid: int, amount: int, *, source: int, battle: bool, by: int
+) -> tuple[int, int]:
+    """Where damage lands and how much after redirection, prevention and reduction, evaluated
+    on the current state (so simultaneous battle damage uses the pre-damage state, 8-5-3-2)."""
     if amount <= 0:
-        return 0
+        return uid, 0
     c = st.cards[uid]
     if c.zone not in (Zone.BATTLE, Zone.BASE):
-        return 0
+        return uid, 0
     dv = V.derived(st)
     if battle:
         for r in V.rules_of(dv, uid, d.RuleKind.REDIRECT_BATTLE_DAMAGE):
             dest = r.aux
             if dest >= 0 and dest != uid and st.cards[dest].zone is Zone.BATTLE:
-                return damage_card(st, dest, amount, source=source, battle=battle, by=by)
+                return resolve_damage(st, dest, amount, source=source, battle=battle, by=by)
     if _prevented(st, dv, uid, source, battle, by):
-        return 0
-    amount = _reduce(st, dv, uid, amount, source, battle, by)
-    if amount <= 0:
+        return uid, 0
+    return uid, _reduce(st, dv, uid, amount, source, battle, by)
+
+
+def apply_damage(
+    st: GameState, uid: int, amount: int, *, source: int, battle: bool, by: int
+) -> int:
+    c = st.cards[uid]
+    if amount <= 0 or c.zone not in (Zone.BATTLE, Zone.BASE):
         return 0  # rule 5-5-5 / 5-21-2-1
     c.damage += amount
     st.touch()

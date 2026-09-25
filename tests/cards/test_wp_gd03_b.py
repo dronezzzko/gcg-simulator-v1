@@ -250,10 +250,6 @@ def test_gd03_085_pairs_for_zero_cost_with_nt1_only() -> None:
 
 
 @pytest.mark.card("GD03-085")
-@pytest.mark.xfail(
-    strict=True,
-    reason="ENGINE: main_options skips play modifiers when the printed cost is unpayable",
-)
 def test_gd03_085_free_pairing_offered_with_no_active_resources() -> None:
     sc = Scenario()
     sc.resources(0, 3, rested=3)
@@ -1284,10 +1280,6 @@ def test_gd03_115_needs_unit_paired_with_x_rounder() -> None:
 
 @pytest.mark.card("GD03-115")
 @pytest.mark.rule("8-6-1")
-@pytest.mark.xfail(
-    strict=True,
-    reason="ENGINE: a 'during this battle' lasting effect created outside a battle never expires",
-)
 def test_gd03_115_played_outside_a_battle_grants_nothing_lasting() -> None:
     sc = Scenario()
     sc.resources(0, 3)

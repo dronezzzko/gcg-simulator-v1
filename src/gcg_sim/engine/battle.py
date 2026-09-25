@@ -175,8 +175,12 @@ def _exchange(st: GameState, attacker: int, target: int, first_strike: bool) -> 
             )
             _destroy_battle(st, {attacker: target})
         return
-    core.damage_card(st, target, atk_ap, source=attacker, battle=True, by=a_owner)
-    core.damage_card(st, attacker, tgt_ap, source=target, battle=True, by=t_owner)
+    # rule 8-5-3-2: both Units deal damage simultaneously, so both hits are resolved on the
+    # pre-damage state before either is applied
+    to_target = core.resolve_damage(st, target, atk_ap, source=attacker, battle=True, by=a_owner)
+    to_attacker = core.resolve_damage(st, attacker, tgt_ap, source=target, battle=True, by=t_owner)
+    core.apply_damage(st, *to_target, source=attacker, battle=True, by=a_owner)
+    core.apply_damage(st, *to_attacker, source=target, battle=True, by=t_owner)
     _destroy_battle(st, {target: attacker, attacker: target})  # rule 8-5-3-2-3: simultaneous
 
 

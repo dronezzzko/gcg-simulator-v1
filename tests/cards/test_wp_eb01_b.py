@@ -941,10 +941,6 @@ def test_eb01_070_needs_link() -> None:
 
 @pytest.mark.card("EB01-070")
 @pytest.mark.rule("8-6-1", "7-6-6-1")
-@pytest.mark.xfail(
-    strict=True,
-    reason="ENGINE: a 'during this battle' lasting effect created outside a battle never expires",
-)
 def test_eb01_070_outside_a_battle_the_bonus_does_not_outlive_the_turn() -> None:
     sc = Scenario(active=1)
     zaku = sc.add(0, PSYCHO_ZAKU, pilot=DARYL)
@@ -952,7 +948,8 @@ def test_eb01_070_outside_a_battle_the_bonus_does_not_outlive_the_turn() -> None
     sc.add(0, "EB01-083", Zone.HAND)
     st = _opponent_end_action(sc)
     activate(st, zaku)  # the only Unit in play is chosen
-    assert ap(st, zaku) == 7
+    # "during this battle" outside a battle has no effect (rules 8-2-3, 8-6-1; see CONFLICTS)
+    assert ap(st, zaku) == 6
     to_next_turn(st)
     assert st.active == 0
     assert ap(st, zaku) == 6

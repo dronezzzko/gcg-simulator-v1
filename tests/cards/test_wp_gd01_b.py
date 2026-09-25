@@ -351,10 +351,6 @@ def test_gd01_082_unpaired_cannot_activate() -> None:
 
 
 @pytest.mark.card("GD01-082")
-@pytest.mark.xfail(
-    strict=True,
-    reason="ENGINE: 'during this battle' lasting effects created outside a battle never expire",
-)
 def test_gd01_082_used_in_end_phase_does_not_outlast_the_turn() -> None:
     sc = Scenario()
     sc.resources(0, 2)
@@ -1920,10 +1916,6 @@ def test_gd01_127_needs_zaft_unit_with_5_or_more_ap() -> None:
 
 
 @pytest.mark.card("GD01-127")
-@pytest.mark.xfail(
-    strict=True,
-    reason="ENGINE: 'during this battle' lasting effects created outside a battle never expire",
-)
 def test_gd01_127_used_in_end_phase_does_not_outlast_the_turn() -> None:
     sc = Scenario()
     gamow = sc.base(0, "GD01-127")

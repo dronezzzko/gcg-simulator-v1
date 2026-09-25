@@ -47,8 +47,10 @@ from gcg_sim.testkit import (
     pass_all,
     play,
     select,
+    select_if_asked,
     to_next_turn,
     yes,
+    yes_if_asked,
     zone_of,
 )
 
@@ -822,7 +824,8 @@ def test_removed_cards_go_face_up_to_their_owners_removal_area() -> None:
     palace = sc.add(0, EXILE_TITANS, Zone.HAND)
     st = sc.start()
     play(st, palace)
-    select(st, *titans)
+    yes_if_asked(st)
+    select_if_asked(st, *titans)
     assert st.zones[0][Zone.REMOVAL] == titans
     assert not st.zones[0][Zone.TRASH]
     for uid in titans:

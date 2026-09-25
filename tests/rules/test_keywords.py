@@ -34,8 +34,10 @@ from gcg_sim.testkit import (
     pass_all,
     play,
     select,
+    select_if_asked,
     to_next_turn,
     yes,
+    yes_if_asked,
     zone_of,
 )
 
@@ -486,8 +488,8 @@ def _damage_step_battle(first_strike: bool) -> tuple[GameState, int, int]:
     if first_strike:
         _grant(st, nu, d.Kw.FIRST_STRIKE)
     play(st, pilot, onto=nu)
-    assert _pending(st) is DecisionKind.SELECT
-    select(st, *trash)
+    yes_if_asked(st)
+    select_if_asked(st, *trash)
     assert all(zone_of(st, u) is Zone.REMOVAL for u in trash)
     return st, nu, enemy
 
@@ -1042,7 +1044,8 @@ def test_attack_effect_does_not_activate_in_a_battle_begun_by_an_effect() -> Non
     enemy = sc.add(1, VANILLA_6_4)
     st = sc.start()
     play(st, pilot, onto=nu)
-    select(st, *trash)
+    yes_if_asked(st)
+    select_if_asked(st, *trash)
     assert zone_of(st, enemy) is Zone.TRASH
     assert zone_of(st, nu) is Zone.TRASH
 

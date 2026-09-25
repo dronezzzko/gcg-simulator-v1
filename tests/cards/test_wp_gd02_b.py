@@ -872,10 +872,6 @@ def test_gd02_106_breach_control_without_white_wolf() -> None:
 
 @pytest.mark.card("GD02-106")
 @pytest.mark.rule("8-6-1", "7-6-6-1")
-@pytest.mark.xfail(
-    strict=True,
-    reason="ENGINE: a 'during this battle' effect created outside a battle never expires",
-)
 def test_gd02_106_played_in_end_phase_does_not_protect_later_battles() -> None:
     sc = Scenario(active=1)
     sc.resources(0, 3)
@@ -1292,10 +1288,6 @@ def test_gd02_119_without_gjallarhorn_link_unit_does_nothing() -> None:
 
 @pytest.mark.card("GD02-119")
 @pytest.mark.rule("8-6-1", "7-6-6-1")
-@pytest.mark.xfail(
-    strict=True,
-    reason="ENGINE: a 'during this battle' effect created outside a battle never expires",
-)
 def test_gd02_119_played_in_end_phase_does_not_outlive_the_turn() -> None:
     sc = Scenario(active=1)
     sc.resources(0, 2)

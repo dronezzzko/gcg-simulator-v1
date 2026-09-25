@@ -27,10 +27,11 @@ from gcg_sim.testkit import (
     pass_,
     pass_all,
     play,
-    select,
+    select_if_asked,
     to_next_turn,
     uids_in,
     yes,
+    yes_if_asked,
     zone_of,
 )
 
@@ -205,7 +206,8 @@ def test_units_own_effect_battle_runs_only_the_damage_step() -> None:
     st = sc.start()
     play(st, pilot, onto=nu)
     assert ap(st, nu) == 7
-    select(st, *londo_bell)
+    yes_if_asked(st)
+    select_if_asked(st, *londo_bell)
     act(st, A.SELECT, target)
     assert zone_of(st, target) is Zone.TRASH  # 7 damage to the chosen Unit
     assert st.cards[nu].damage == 3  # the chosen Unit battled back as the attack target

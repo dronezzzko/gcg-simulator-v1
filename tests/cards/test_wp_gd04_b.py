@@ -941,9 +941,6 @@ def test_gd04_100_base_effect_costs_do_not_count() -> None:
 
 @pytest.mark.card("GD04-100")
 @pytest.mark.ruling("GD04-100:Q286")
-@pytest.mark.xfail(
-    strict=True, reason="ENGINE: PlayCard paying a card's cost emits no COST_PAID event"
-)
 def test_gd04_100_q286_paying_to_deploy_with_x_divider_counts() -> None:
     sc = Scenario()
     sc.resources(0, 5)
@@ -1549,10 +1546,6 @@ def test_gd04_113_q292_battle_damage_reduced_by_3_this_battle() -> None:
 
 @pytest.mark.card("GD04-113")
 @pytest.mark.rule("8-6-1")
-@pytest.mark.xfail(
-    strict=True,
-    reason="ENGINE: a 'this battle' lasting effect created outside a battle never expires",
-)
 def test_gd04_113_outside_a_battle_has_no_lasting_effect() -> None:
     sc = Scenario()
     sc.resources(0, 3)
@@ -2212,9 +2205,6 @@ def test_gd04_129_paying_for_unit_effect_recovers_2_once_per_turn() -> None:
 
 @pytest.mark.card("GD04-129")
 @pytest.mark.ruling("GD04-129:Q297")
-@pytest.mark.xfail(
-    strict=True, reason="ENGINE: PlayCard paying a card's cost emits no COST_PAID event"
-)
 def test_gd04_129_q297_paying_to_deploy_with_x_divider_counts() -> None:
     sc = Scenario()
     sc.resources(0, 5)

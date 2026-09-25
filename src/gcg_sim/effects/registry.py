@@ -321,6 +321,8 @@ def build_registry(db: CardDB) -> Registry:
             error = None
         except UnimplementedCardError as exc:
             script, error = None, str(exc)
+        except (ValueError, AssertionError, TypeError, KeyError, IndexError, AttributeError) as exc:
+            script, error = None, f"binding error: {type(exc).__name__}: {exc}"
         _register_card(reg, cdef, script, error)
     _index_events(reg)
     return reg

@@ -1024,10 +1024,6 @@ def test_gd05_021_no_reduction_without_an_earth_federation_pilot() -> None:
 
 
 @pytest.mark.card("GD05-021")
-@pytest.mark.xfail(
-    strict=True,
-    reason="ENGINE: a 'during this battle' effect created outside a battle never expires",
-)
 def test_gd05_021_ap_boost_activated_outside_a_battle_does_not_persist() -> None:
     sc = Scenario()
     sc.resources(0, 1)

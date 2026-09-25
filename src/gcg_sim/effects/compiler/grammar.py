@@ -1176,7 +1176,7 @@ def _pay_deploy(m: re.Match[str], g: G) -> list[d.Step]:
     return [d.PlayCard(g.it)]
 
 
-_TOKDEF = r"(\[[^\[\]]+\]\(\((?:[^()]|\([^()]*\))*\))"
+_TOKDEF = r"(\[[^\[\]]+\]\((?:\([^()]*\)\s*)+[^()]*\))"
 
 
 @core(

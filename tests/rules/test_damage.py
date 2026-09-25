@@ -36,9 +36,11 @@ from gcg_sim.testkit import (
     pass_all,
     play,
     select,
+    select_if_asked,
     to_next_turn,
     uids_in,
     vanilla_deck,
+    yes_if_asked,
     zone_of,
 )
 
@@ -216,7 +218,8 @@ def test_effect_damage_to_the_base_is_not_carried_over_to_shields() -> None:
     st = sc.start()
     attack(st, master)
     specials = uids_in(st, 0, Zone.TRASH)
-    select(st, *specials, done=False)
+    yes_if_asked(st)
+    select_if_asked(st, *specials, done=False)
     assert st.pending is not None and st.pending.kind is DecisionKind.ACTION_STEP
     assert _left_the_game(st, ex_base)
     assert uids_in(st, 1, Zone.SHIELD) == shields
@@ -235,7 +238,8 @@ def test_effect_damage_to_a_shield_destroys_only_that_shield() -> None:
     sc.add(1, ZEON_REMNANT, Zone.HAND)
     st = sc.start()
     attack(st, master)
-    select(st, *uids_in(st, 0, Zone.TRASH), done=False)
+    yes_if_asked(st)
+    select_if_asked(st, *uids_in(st, 0, Zone.TRASH), done=False)
     assert st.pending is not None and st.pending.kind is DecisionKind.ACTION_STEP
     assert zone_of(st, shields[0]) is Zone.TRASH
     assert uids_in(st, 1, Zone.SHIELD) == shields[1:]

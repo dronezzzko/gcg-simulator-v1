@@ -174,16 +174,6 @@ def gd02_011(c: CardDef) -> d.CardScript:
     )
 
 
-@card("GD02-021")
-def gd02_021(c: CardDef) -> d.CardScript:
-    """Q175: the Lv.7 draw after "Then" is still part of the "If you do" branch."""
-    trig = _triggered(c, 0)
-    may, if_you_do, then = trig.steps
-    assert isinstance(if_you_do, d.IfYouDo)
-    steps = (may, d.IfYouDo((*if_you_do.steps, then)))
-    return _script(c, [replace(trig, steps=steps)])
-
-
 @card("GD02-022")
 def gd02_022(c: CardDef) -> d.CardScript:
     """Without an (AGE System) Unit to choose the effect does not activate, so its
@@ -250,16 +240,6 @@ def gd02_053(c: CardDef) -> d.CardScript:
             ),
         ],
     )
-
-
-@card("GD02-058")
-def gd02_058(c: CardDef) -> d.CardScript:
-    """A leading "If you do" also governs the part after "Then" (resolution of Q175)."""
-    trig = _triggered(c, 0)
-    choose, damage, if_you_do, then = trig.steps
-    assert isinstance(if_you_do, d.IfYouDo)
-    steps = (choose, damage, d.IfYouDo((*if_you_do.steps, then)))
-    return _script(c, [replace(trig, steps=steps)])
 
 
 @card("GD02-064")

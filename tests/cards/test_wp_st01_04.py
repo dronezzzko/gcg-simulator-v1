@@ -798,10 +798,6 @@ def test_st02_013_does_not_protect_from_lv5_units() -> None:
 
 @pytest.mark.card("ST02-013")
 @pytest.mark.rule("8-2-3", "8-6-1", "9-1")
-@pytest.mark.xfail(
-    strict=True,
-    reason="ENGINE: a 'this_battle' lasting created outside a battle never expires",
-)
 def test_st02_013_played_outside_a_battle_has_no_lasting_effect() -> None:
     sc = Scenario()
     sc.resources(1, 4)
@@ -1246,10 +1242,6 @@ def test_st03_014_battle_damage_from_3_ap_enemy_still_dealt() -> None:
 
 @pytest.mark.card("ST03-014")
 @pytest.mark.rule("8-2-3", "8-6-1", "9-1")
-@pytest.mark.xfail(
-    strict=True,
-    reason="ENGINE: a 'this_battle' lasting created outside a battle never expires",
-)
 def test_st03_014_played_outside_a_battle_has_no_lasting_effect() -> None:
     sc = Scenario()
     sc.resources(1, 4)

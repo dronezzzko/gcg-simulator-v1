@@ -1408,11 +1408,6 @@ def test_eb01_038_deploy_places_an_ex_resource() -> None:
 
 @pytest.mark.card("EB01-039")
 @pytest.mark.rule("2-9-1")
-@pytest.mark.xfail(
-    strict=True,
-    reason="ENGINE: main_options skips a hand card failing its printed Lv./cost before "
-    "offering PlayModifier plays",
-)
 def test_eb01_039_plays_as_lv3_cost3_with_three_enemy_units() -> None:
     sc = Scenario()
     sc.resources(0, 3)

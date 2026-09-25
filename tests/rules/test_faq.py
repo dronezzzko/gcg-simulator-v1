@@ -13,7 +13,7 @@ import pytest
 from gcg_sim.cards.db import read_data_text
 from gcg_sim.cards.model import CardType
 from gcg_sim.effects import dsl as d
-from gcg_sim.effects.registry import UnimplementedCardError, get_registry
+from gcg_sim.effects.registry import get_registry
 from gcg_sim.engine import core
 from gcg_sim.engine import view as V
 from gcg_sim.engine.game import SUPPORT_AID, DeckList, new_game
@@ -1687,11 +1687,6 @@ def test_q89_non_linking_pilot_still_adds_stats_and_effects() -> None:
 
 @pytest.mark.faq("Q89")
 @pytest.mark.rule("3-3-8-1", "3-2-6-2")
-@pytest.mark.xfail(
-    strict=True,
-    raises=UnimplementedCardError,
-    reason="ENGINE: ST03-011 Char Aznable (named by FAQ Q89) does not compile",
-)
 def test_q89_char_aznable_on_an_amuro_ray_unit() -> None:
     sc = Scenario()
     gundam = sc.add(0, "ST01-001", pilot="ST03-011")

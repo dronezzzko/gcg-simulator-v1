@@ -283,6 +283,12 @@ def no(st: GameState) -> Action:
     return act(st, A.NO)
 
 
+def yes_if_asked(st: GameState) -> None:
+    """Accept a pending optional ("you may") prompt, if there is one."""
+    if st.pending is not None and st.pending.kind is DecisionKind.YES_NO:
+        act(st, A.YES)
+
+
 def select(st: GameState, *uids: int, done: bool | None = None) -> None:
     """Pick cards for a pending SELECT/DISCARD/EXCESS decision; finish with DONE when offered
     and ``done`` is not False."""
@@ -295,6 +301,21 @@ def select(st: GameState, *uids: int, done: bool | None = None) -> None:
         and (done or st.pending.kind is DecisionKind.SELECT)
     ):
         act(st, A.DONE)
+
+
+def arrange_if_asked(st: GameState) -> None:
+    """Resolve pending ordering decisions (cards placed into a deck together) with the first
+    option each time."""
+    while st.pending is not None and st.pending.kind is DecisionKind.ARRANGE:
+        apply(st, st.pending.options[0])
+
+
+def select_if_asked(st: GameState, *uids: int, done: bool | None = None) -> None:
+    """Like :func:`select`, but a forced choice (only as many candidates as required, picked by
+    the engine) leaves nothing to select."""
+    offered = {o.a for o in options(st) if o.kind is A.SELECT}
+    if st.pending is not None and set(uids) & offered:
+        select(st, *uids, done=done)
 
 
 def choose_option(st: GameState, index: int) -> Action:

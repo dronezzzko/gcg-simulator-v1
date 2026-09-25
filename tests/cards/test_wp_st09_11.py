@@ -9,6 +9,7 @@ from gcg_sim.engine import view as V
 from gcg_sim.engine.game import ALT_PLAY_BASE
 from gcg_sim.engine.state import GameState
 from gcg_sim.engine.types import PLAYER_TARGET, ActionKind, DecisionKind, Step, Zone
+from gcg_sim.testkit import arrange_if_asked
 from gcg_sim.testkit import (
     Scenario,
     act,
@@ -120,6 +121,7 @@ def test_st09_001_returns_itself_and_deploys_impulse_without_paying_its_cost() -
     st = sc.start()
     pilot = st.cards[impulse].pair
     activate(st, impulse)
+    arrange_if_asked(st)  # rule 4-1-6: the owner orders the Unit and its Pilot
     deck = st.zones[0][Zone.DECK]
     assert zone_of(st, impulse) is Zone.DECK and zone_of(st, pilot) is Zone.DECK
     assert set(deck[-2:]) == {impulse, pilot}
@@ -771,10 +773,6 @@ def test_st10_014_normal_play_costs_4_and_no_alt_without_g_generation_unit() -> 
 
 @pytest.mark.card("ST10-014")
 @pytest.mark.rule("2-9-1")
-@pytest.mark.xfail(
-    strict=True,
-    reason="ENGINE: main_options skips _alt_play_options when the printed Lv./cost can't be met",
-)
 def test_st10_014_alt_play_offered_with_only_two_resources() -> None:
     sc = Scenario()
     sc.resources(0, 2)
@@ -820,10 +818,6 @@ def test_st10_015_no_friendly_g_generation_unit_does_nothing() -> None:
 @pytest.mark.card("ST10-015")
 @pytest.mark.rule("10-1-8-1-1")
 @pytest.mark.faq("Q100")
-@pytest.mark.xfail(
-    strict=True,
-    reason="ENGINE: _required_targets_ok skips choices inside If branches even when the If holds",
-)
 def test_st10_015_not_playable_with_g_generation_unit_but_no_enemy_unit() -> None:
     sc = Scenario()
     sc.resources(0, 3)
@@ -849,10 +843,6 @@ def test_st10_015_pairs_as_claire_heathrow_pilot() -> None:
 
 @pytest.mark.card("ST10-015")
 @pytest.mark.rule("8-6-1", "7-6-6-1")
-@pytest.mark.xfail(
-    strict=True,
-    reason="ENGINE: a 'during this battle' lasting effect created outside a battle never expires",
-)
 def test_st10_015_played_outside_battle_does_not_persist_past_the_turn() -> None:
     sc = Scenario()
     mine = sc.add(0, FORCE_IMPULSE)

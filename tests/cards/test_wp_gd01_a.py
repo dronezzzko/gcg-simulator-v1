@@ -205,10 +205,6 @@ def test_gd01_002_played_for_zero_cost_by_destroying_linked_unicorn_mode() -> No
 @pytest.mark.card("GD01-002")
 @pytest.mark.ruling("GD01-002:Q120")
 @pytest.mark.rule("2-9-1")
-@pytest.mark.xfail(
-    strict=True,
-    reason="ENGINE: main_options skips play modifiers when the printed Lv./cost can't be met",
-)
 def test_gd01_002_free_play_ignores_level_and_resources() -> None:
     st, unicorn, destroy_mode = _destroy_mode_scenario(linked=True, resources=0)
     plays = [o for o in options(st) if o.kind is A.PLAY_UNIT and o.a == destroy_mode]
@@ -749,7 +745,8 @@ def test_gd01_023_pairs_a_newtype_pilot_from_trash_without_paying_its_cost() -> 
 @pytest.mark.ruling("GD01-023:Q162")
 def test_gd01_023_cannot_choose_a_command_with_a_newtype_pilot_effect() -> None:
     st, gelgoog, (command,) = _gelgoog((VALEDICTORIAN,))
-    activate(st, gelgoog)
+    # no Pilot card can be chosen, so the ability cannot be activated (rule 10-2-2, FAQ Q100)
+    assert not has_action(st, A.ACTIVATE, gelgoog)
     assert zone_of(st, command) is Zone.TRASH
     assert st.cards[gelgoog].pair < 0
 
@@ -1436,10 +1433,6 @@ def test_gd01_058_action_gives_a_lv4_unit_of_either_side_ap_plus_one_during_batt
 
 
 @pytest.mark.card("GD01-058")
-@pytest.mark.xfail(
-    strict=True,
-    reason="ENGINE: a 'during this battle' effect created outside a battle never expires",
-)
 def test_gd01_058_outside_a_battle_the_bonus_does_not_last_into_later_turns() -> None:
     sc = Scenario()
     sc.resources(0, 1)

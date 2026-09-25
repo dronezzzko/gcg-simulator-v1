@@ -1158,10 +1158,6 @@ def test_gd05_101_paying_for_a_base_effect_does_not_trigger() -> None:
 
 @pytest.mark.card("GD05-101")
 @pytest.mark.ruling("GD05-101:Q400")
-@pytest.mark.xfail(
-    strict=True,
-    reason="ENGINE: interp._h_play_card pays 'Pay its cost' without emitting COST_PAID",
-)
 def test_gd05_101_paying_to_deploy_with_x_divider_counts() -> None:
     sc = Scenario()
     sc.resources(0, 6)

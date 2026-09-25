@@ -404,10 +404,6 @@ def test_t026_no_breach_during_opponents_turn() -> None:
 @pytest.mark.card("T-026")
 @pytest.mark.rule("13-1-2-3")
 @pytest.mark.faq("Q55")
-@pytest.mark.xfail(
-    strict=True,
-    reason="ENGINE: Breach program reads KwAmount(This) after the Breach Unit left play, so 0 damage",
-)
 def test_t026_breach_still_activates_when_both_units_are_destroyed() -> None:
     sc = Scenario()
     gundnode = sc.add(0, GUNDNODE)
