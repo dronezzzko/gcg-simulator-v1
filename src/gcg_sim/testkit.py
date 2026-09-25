@@ -251,9 +251,13 @@ def select(st: GameState, *uids: int, done: bool | None = None) -> None:
     and ``done`` is not False."""
     for u in uids:
         act(st, A.SELECT, u)
-    if done is not False and st.pending is not None and has_action(st, A.DONE):
-        if done or st.pending.kind is DecisionKind.SELECT:
-            act(st, A.DONE)
+    if (
+        done is not False
+        and st.pending is not None
+        and has_action(st, A.DONE)
+        and (done or st.pending.kind is DecisionKind.SELECT)
+    ):
+        act(st, A.DONE)
 
 
 def choose_option(st: GameState, index: int) -> Action:

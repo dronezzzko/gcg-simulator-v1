@@ -24,3 +24,18 @@ Every decision made without asking the user is recorded here with its rationale.
   119 rules-FAQ entries, 2 errata (both `applied`). The prompt's "780 distinct effect texts"
   measures 817 raw distinct `effect` strings (see ingestion report for normalized counts); the
   prompt's "about 40" divergent card numbers measures 43.
+
+## Rules interpretation (engine)
+
+| Topic | Decision | Basis |
+| --- | --- | --- |
+| Bases and battle damage | Bases deal no battle damage to the attacking Unit (every Base has 0 AP). | 8-5-2-4 describes one-way damage; conflict `rules-internal` resolution; no Base in the data has AP. |
+| Simultaneous defeat | Game result is a draw (11-2-1, 1-2-1). In BO3 match scoring the turn player at the end loses (TRM 5.2 top-cut rule), so every match resolves. | Official tournament rules; recorded in `bo3_match_rules.json`. |
+| "Exile ... from the game" | Non-token cards go to the removal area (5-12); tokens leave the game (5-17-2-5). | Rules define only "remove"; rulings treat exile as removal area. |
+| Multiplayer wording | In 1v1: "each enemy player"/"another player"/"that player" = the opponent; "2 or more enemy players" is false; "number of enemy players" = 1. | Section 12 out of scope. |
+| Pilot text routing | 【Burst】 and name-alias lines belong to the Pilot card; all other Pilot text is gained by the paired Unit unless it names hand/trash. | 3-3-9-1/3-3-9-2; the data does not mark which lines are above the name. |
+| Resource caps | Placing beyond 15 Resources / 5 EX Resources does nothing (1-3-2). | Section 11 defines no excess management for resources. |
+| Lasting "all your Units" effects | Apply only to Units present at resolution (FAQ Q105). | FAQ. |
+| Card identity | uids are assigned after the seeded shuffle and cut, so a uid carries no identity information. | Needed for information-set honesty. |
+| Simultaneous placement into private zones | Multiple cards placed into a deck at once keep selection order; "randomly" orders use the seeded RNG. | 4-1-6/4-1-7 owner choice modelled as selection order. |
+| Turn safety cap | A game that reaches 200 turns or 20,000 decisions ends as a draw with reason `turn_limit`; the robustness suite asserts this never happens. | Termination guarantee; never silent. |
