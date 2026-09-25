@@ -42,8 +42,8 @@ records what was done, evidence, and what remains.
 - Integration: the mulligan puzzles now use a legal deck (the engine validates decks); a
   coverage test checks that every modal effect offers every printed mode; dominated-move
   pruning (free add-to-hand Bursts, pointless 0-AP attacks) from the replay review.
-- Measured on the integrated engine: AI vs random 400/400, vs greedy 275/400 (Wilson 95%
-  [0.640, 0.731]); 100 BO3 matches of the example decks take about 6–11 minutes on 8 cores.
+- Measured on the integrated engine: AI vs random 400/400, vs greedy 281/400 (Wilson 95%
+  [0.656, 0.745], draws counted as non-wins, 0 draws); 100 BO3 matches of the example decks take about 6–11 minutes on 8 cores.
 
 ## Phase 5 — Skills and docs (done)
 - `gcg-refresh-data` and `gcg-benchmark` skills (`claude plugin validate --strict .claude`
@@ -57,7 +57,27 @@ records what was done, evidence, and what remains.
   findings confirmed by at least 2 of 3 skeptics and fixed with regression tests (e911333,
   aa0dd30), 2 refuted.
 - Review 2 (25 agents): 12 AI-vs-AI replays audited move by move; no rules or card
-  deviations; 7 AI-quality findings (info): two dominated-move classes fixed by pruning, the
-  rest documented as known AI weaknesses in docs/AI.md.
+  deviations; 7 AI-quality findings (info): dominated moves (free Bursts, 0-AP attacks) and
+  plays without effect (AP-3 on a Unit that cannot battle, resting rested Units, paying a
+  cost for an effect that does nothing) are now pruned with tests; choosing the weaker of
+  two targets is documented in docs/AI.md as a remaining AI weakness.
+- Review 3 (105 agents): deliverables vs the request through three lenses; 28 findings
+  confirmed (all minor or info), 6 refuted; all 28 fixed (commits ef05730 and the following
+  documentation commit).
 - Seat-symmetry checks: 4000 random-agent mirror games (first-player win rate 0.551 seat 0,
   0.539 seat 1); AI mirror 96 BO1 games, seat 0 won 50.
+- Refresh-skill dry run (criterion 9), 2026-09-25 on commit ef05730, network reads only:
+  - `git status --short` before: empty; `tools.sources --check`: the lock verifies.
+  - `fetch_gcgapi.sh`: `GCGAPI_COMMIT=f57b7c0b0ebc4c13d359649de19750c793ecbefc` (the pin).
+  - `fetch_official.py fetch`: 36/36 pages; `compare`: 30 unchanged (bytes), 2 unchanged
+    (text), 2 not cached (news listing pages 2–3, expected), 2 CHANGED (`en_news_index`,
+    `en_top`: new PRODUCTS entries for ST11–ST14 and EVX08/09 only); `rules: up to date`
+    (Ver. 1.9.0, 2026-09-11); B&R links unchanged (US July 24, Asia July 25).
+  - `news`: 6 uncached entries, all PRODUCTS; none relevant to rules, errata or B&R.
+  - `refresh diff`: 0 card, ruling, FAQ, errata, product or set changes (the known ST12-001
+    erratum stays covered by `errata-unapplied:ST12-001:news-02_193`); `apply --dry-run`:
+    "no changes: the packaged gcg-api snapshot and its lock entries are current".
+  - `refresh banlist`: banlist OK; `official_normalize.py check`: 53 quotes, 0 failures;
+    `refresh coverage`: 1148 card numbers, nothing unimplemented, changed or untested.
+  - `git status --short` after: empty.
+

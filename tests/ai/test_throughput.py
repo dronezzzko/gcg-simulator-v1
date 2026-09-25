@@ -1,4 +1,4 @@
-"""The throughput tool reports a speed without affecting results."""
+"""The throughput tool plays the requested games and reports a positive speed and game length."""
 
 from __future__ import annotations
 

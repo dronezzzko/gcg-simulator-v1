@@ -12,9 +12,9 @@ never edit it by hand.
 | Conflicts report | `data/conflicts.json`, `docs/CONFLICTS.md` (gen) | `python -m gcg_sim.sources.conflicts` |
 | Conflict resolutions | `src/gcg_sim/data/overrides.json` | by hand, see `conflict-policies.md` |
 | Curated conflicts, reviewed rulings/FAQ | `src/gcg_sim/data/curated_conflicts.json` | by hand; fingerprints come from the conflicts report |
-| New or changed card behaviour | `src/gcg_sim/effects/bindings/<set>.py` or the compiler (`src/gcg_sim/effects/compiler/`) | `card-checklist.md` |
-| Card tests | `tests/cards/test_<set>.py` (`@pytest.mark.card`, `@pytest.mark.ruling`, `@pytest.mark.faq`) | `card-checklist.md` |
-| Ruling/FAQ N/A reasons | `tests/meta/rulings_na/<set>.json`, `tests/meta/faq_na.json` (`{"CARD:Qn": "reason"}` / `{"Qn": "reason"}`) | by hand |
+| New or changed card behaviour | `src/gcg_sim/effects/bindings/<package>.py` (`<package>` = lowercase work-package id, e.g. `wp_gd06_a`) or the compiler (`src/gcg_sim/effects/compiler/`) | `card-checklist.md` |
+| Card tests | `tests/cards/test_<package>.py` (`@pytest.mark.card`, `@pytest.mark.ruling`, `@pytest.mark.faq`) | `card-checklist.md` |
+| Ruling/FAQ N/A reasons | `tests/meta/rulings_na/<package>.json`, `tests/meta/faq_na.json` (`{"CARD:Qn": "reason"}` / `{"Qn": "reason"}`) | by hand |
 | Golden compiled behaviour | `tests/effects/golden/<PREFIX>.json` (gen) | `python -m gcg_sim.tools.golden --write --prefix <PREFIX>` after review |
 | Vanilla-pair list, new cards | `src/gcg_sim/data/official/banlist.json` | by hand; verify with `refresh banlist` |
 | Research profile (optional) | `docs/research/data_profile.json` (gen), `scripts/ingest_profile.py` `PINNED_COMMIT` | bump the constant; `uv run python scripts/ingest_profile.py --full-clone <clone>` |

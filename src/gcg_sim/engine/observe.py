@@ -1,8 +1,8 @@
 """Information sets: what a player legally knows, and determinization for search.
 
-Decklists are open information; hands, deck order, and Shields are hidden. A player knows
-the identity of a card instance when its ``known`` bit is set (public zones, own hand, cards
-they looked at). Everything else is drawn from the multiset of that owner's decklist minus
+Both decklists are known to both players (a benchmarking assumption, docs/ASSUMPTIONS.md);
+hands, deck order, and Shields are hidden. A player knows the identity of a card instance
+when its ``known`` bit is set (public zones, own hand, cards they looked at). Everything else is drawn from the multiset of that owner's decklist minus
 the cards whose identity the player knows.
 """
 
@@ -54,7 +54,7 @@ def unknown_pools(st: GameState, observer: int, owner: int) -> tuple[list[int], 
 def determinize(st: GameState, observer: int, seed: int) -> GameState:
     """Return a full game state consistent with ``observer``'s information set.
 
-    Hidden identities are resampled from the open decklists and the game RNG (which governs
+    Hidden identities are resampled from the known decklists and the game RNG (which governs
     future shuffles) is replaced, so the result depends only on what ``observer`` knows plus
     ``seed``.
     """

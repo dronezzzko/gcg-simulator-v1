@@ -39,8 +39,9 @@ Also collect:
   - Afterwards, check that no previously compiled card changed:
     `uv run python -m gcg_sim.tools.golden --check`.
 - **Binding.** For a one-off wording, write a binding in
-  `src/gcg_sim/effects/bindings/<set>.py`. Use one module per set package (lowercase, e.g.
-  `gd06.py`, `gd06_b.py`). Modules are auto-discovered, so there is no registry edit.
+  `src/gcg_sim/effects/bindings/<package>.py`. Use one module per work package, named like the
+  existing ones (`wp_gd06_a.py`, `wp_gd06_b.py`). Modules are auto-discovered, so there is no
+  registry edit.
 
   ```python
   from gcg_sim.cards.model import CardDef
@@ -69,7 +70,7 @@ Also collect:
 
 ## 3. Test it
 
-Put tests in `tests/cards/test_<set>.py` (one file per package owner), using
+Put tests in `tests/cards/test_<package>.py` (e.g. `test_wp_gd06_a.py`), using
 `gcg_sim.testkit`:
 
 ```python
@@ -89,7 +90,7 @@ def test_gd06_001_deploy_draws_up_to_two() -> None:
 - Test each ability: the positive case, and a boundary or negative case (condition not met,
   no legal target, once per turn, 【During Pair】 gate off).
 - Pin each ruling with `@pytest.mark.ruling("CARD:Qn")`, or give an N/A reason in
-  `tests/meta/rulings_na/<set>.json`: `{"CARD:Qn": "why no engine behaviour is involved"}`.
+  `tests/meta/rulings_na/<package>.json` (e.g. `wp_gd06_a.json`): `{"CARD:Qn": "why no engine behaviour is involved"}`.
   New rules-FAQ entries follow the same pattern (`@pytest.mark.faq("Qn")` or
   `tests/meta/faq_na.json`).
 - When a test exercises a comprehensive rule, tag it `@pytest.mark.rule("n-n-n")` too.
@@ -101,7 +102,7 @@ def test_gd06_001_deploy_draws_up_to_two() -> None:
 ## 4. Freeze it
 
 ```bash
-uv run pytest tests/cards/test_<set>.py -q
+uv run pytest tests/cards/test_<package>.py -q
 uv run python -m gcg_sim.tools.golden --write --prefix GD06
 git diff tests/effects/golden/GD06.json          # review: the compiled behaviour must match the text
 uv run python -m gcg_sim.tools.refresh coverage   # the card no longer appears

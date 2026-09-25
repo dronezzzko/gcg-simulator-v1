@@ -3,7 +3,8 @@
 A Command play or an ability activation is "without effect" when, in one determinization of
 the player's information set, playing it and then continuing with the deterministic policy
 reaches the next turn in the same position as simply ending the main phase (or passing) at
-once, apart from the card and Resources it spent. Such a move can only lose a card; for
+once, apart from the card and Resources it spent and any of the player's own cards it rested
+to pay for it. Such a move can only lose a card; for
 example AP-3 "during this turn" on an enemy Unit that cannot battle any more this turn, or
 "rest it" on Units that are already rested.
 """
@@ -60,6 +61,23 @@ def without_effect(
     out: set[Key] = set()
     for key, action in spending:
         spent = action.a if action.kind is A.PLAY_COMMAND else -1
-        if _signature(_after(world, action), spent) == _signature(idled, spent):
+        if _only_costs_differ(_after(world, action), idled, spent, player):
             out.add(key)
     return out
+
+
+def _only_costs_differ(played: GameState, idled: GameState, spent: int, player: int) -> bool:
+    """The lines differ at most in the player's own cards being rested: the price of an
+    activation (e.g. "Rest 1 of your Units:") whose effect then did nothing."""
+    a, b = _signature(played, spent), _signature(idled, spent)
+    if a[:3] != b[:3] or a[4:] != b[4:] or len(a[3]) != len(b[3]):
+        return False
+    for x, y in zip(a[3], b[3], strict=True):
+        if x == y:
+            continue
+        uid, zone, rested, *rest = x
+        if uid != y[0] or zone != y[1] or rest != list(y[3:]):
+            return False
+        if played.cards[uid].owner != player or not rested or y[2]:
+            return False
+    return True

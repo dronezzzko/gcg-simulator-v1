@@ -31,10 +31,15 @@ uv run python -m gcg_sim.tools.sources --check
 
 - **Determinism.** All randomness goes through `gcg_sim.rng` (`SplitMix64`, `derive_seed`). No
   wall-clock, `random`, or `hash()` of strings in game logic. Iterate in explicit orders.
-- **Sources are read-only.** Never edit files under `src/gcg_sim/data/gcgapi/`,
-  `src/gcg_sim/data/rules/` or `src/gcg_sim/data/official/`. Resolve disagreements in
-  `src/gcg_sim/data/overrides.json` (plus `curated_conflicts.json` with verified quotes), then
-  regenerate `docs/CONFLICTS.md` with `python -m gcg_sim.sources.conflicts`.
+- **Cached sources are read-only.** Never hand-edit `src/gcg_sim/data/gcgapi/*`,
+  `data/official_raw/*` or the Comprehensive Rules markdown
+  (`src/gcg_sim/data/rules/gundam-card-game-comprehensive-rules.md` and its repo-root copy);
+  only `/gcg-refresh-data` replaces them, whole. The derived files `src/gcg_sim/data/official/*.json`
+  and `src/gcg_sim/data/rules/rules_na.json` are curated by hand with verbatim quotes, and
+  `rules_index.json` is generated (`python -m gcg_sim.rules.index --write`); re-hash with
+  `python -m gcg_sim.tools.sources --write` after changing any of them. Resolve source
+  disagreements in `src/gcg_sim/data/overrides.json` (plus `curated_conflicts.json` with
+  verified quotes), then regenerate `docs/CONFLICTS.md` with `python -m gcg_sim.sources.conflicts`.
 - **Card effects.** The text compiler (`effects/compiler/`) handles common wording. Per-card
   bindings in `effects/bindings/*.py` (`@card("GD01-001")`, auto-discovered) handle the rest, and
   a binding wins over the compiler. Prefer a general compiler template or a DSL/engine feature

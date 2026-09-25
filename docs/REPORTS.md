@@ -71,11 +71,11 @@ is either complete or absent.
 | `decks` | For each deck: name, sha256 digest of the card counts, colors, and the main and resource listings. |
 | `results` | Match and game outcomes: `n`, `dut_wins`, `bench_wins`, `draws`, and `dut_win_rate`. |
 | `splits` | Outcomes on the play and on the draw, and by game number (`"1"`, `"2"`, `"3"`). |
-| `game_length`, `end_reasons`, `draws` | Turn-count distribution overall and by DUT result, a histogram, outcomes by end reason, and draw counts (simultaneous defeats, turn limits, and games scored by the TRM 5.2 rule). |
+| `game_length`, `end_reasons`, `draws` | Turn-count distribution overall and by DUT result, a histogram, outcomes by end reason, and draw counts (simultaneous defeats, turn limits, and games scored by the TRM 5.2 rule). Every distribution block (here and in `cards[].played.own_turn`) uses integer nearest-rank statistics: `median` is the ⌈n/2⌉-th smallest value (the lower middle value when n is even), `p10`/`p90` the ⌈0.1n⌉-th/⌈0.9n⌉-th smallest. |
 | `mulligan` | DUT redraw rate and win rate after redrawing or keeping; benchmark redraw rate. |
 | `cards` | Per-card statistics for the DUT main deck (see below). |
 | `benchmark_cards` | For each benchmark card: games in which it was seen in play, the DUT loss rate when it was seen and when it was not, and the difference (`loss_rate_lift`). Cards seen and unseen in at least `hypothesis_thresholds.min_games` games (`rank_eligible`) come first, ordered by lift. These are the benchmark cards most associated with DUT losses. |
-| `hypotheses` | Tuning signals. Each has `"label": "hypothesis"`, a statement, its `sample_size`, and the evidence behind it. |
+| `hypotheses` | Tuning signals. Each has `"label": "hypothesis"`, a statement, its `sample_size`, and the evidence behind it. A comparison becomes a hypothesis only with `hypothesis_thresholds.min_games` games on each side and a two-proportion z-test significant at `alpha` after a Holm correction over every comparison of its kind (`evidence.p_value`, `evidence.comparisons`), so pure noise yields no signals. |
 | `conflict_resolutions` | Resolutions from `src/gcg_sim/data/overrides.json` that touch a card in either deck: card-data overrides (`changes_card_data: true`) and interpretations whose conflict names the card. |
 | `replays` | The saved replay files and the games they hold. |
 | `notes` | Caveats that apply to every run. |

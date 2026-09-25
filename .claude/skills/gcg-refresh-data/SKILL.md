@@ -308,7 +308,7 @@ Stop conditions:
 2. For each card, follow `references/card-checklist.md`:
    - Explain it with `uv run python -m gcg_sim.tools.explain <CARD>`.
    - Make it work by extending the compiler when the wording recurs, or with a binding in
-     `src/gcg_sim/effects/bindings/<set>.py` (auto-discovered, one module per set package).
+     `src/gcg_sim/effects/bindings/<package>.py`, e.g. `wp_gd06_a.py` (auto-discovered, one module per work package).
    - Test it with `@pytest.mark.card` tests. Cover each new ruling with
      `@pytest.mark.ruling("CARD:Qn")`, or give an N/A reason in `tests/meta/rulings_na/`.
      FAQ entries work the same way, with `tests/meta/faq_na.json`.

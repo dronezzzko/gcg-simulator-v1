@@ -21,8 +21,9 @@ A deck file is plain UTF-8 text with one entry per line:
   `Char's Zaku II` matches `Char’s Zaku Ⅱ`.
 - **Comments and blank lines**: a line whose first non-blank character is `#` is a comment.
   There are no end-of-line comments, because card names may contain `#`.
-- **Resource deck**: RESOURCE cards go to the 10-card resource deck. Everything else goes to the
-  50-card main deck.
+- **Resource deck**: RESOURCE and EX RESOURCE cards go to the 10-card resource deck. Everything
+  else goes to the 50-card main deck. EX Resource is a token, so a deck file that lists it fails
+  `CARD_TYPE` (and counts toward `RESOURCE_SIZE`).
 
 Three legal example decks live in `examples/decks/`:
 

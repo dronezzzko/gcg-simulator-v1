@@ -1600,7 +1600,7 @@ in `overrides.json`, naming a policy, the decision and its rationale. Resolution
 uses) and `field_overrides` (field → value, applied to every printing of the listed
 `card_numbers` when the card database loads). Order of authority, highest first:
 
-1. **Official errata** — already applied in the gcg-api snapshot; verified each run.
+1. **Official errata** — applied from the gcg-api snapshot, or through an `errata_supersedes_print` resolution's `field_overrides` when gcg-api lags the official notice (currently ST12-001); verified each run.
 2. **Official card rulings and rules-FAQ answers** — they override literal card text and fill
    gaps in the comprehensive rules; the engine implements the ruled behaviour and a test tagged
    `@pytest.mark.ruling` / `@pytest.mark.faq` pins it.

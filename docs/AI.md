@@ -27,12 +27,13 @@ global random generator.
 
 ## Information-set guarantees
 
-A player sees the decklists (open information), public zones, its own hand, the number of
+A player knows both decklists (a modelling assumption, see `docs/ASSUMPTIONS.md`), the public
+zones, its own hand, the number of
 cards in hidden zones, and cards it has looked at. The agents respect that boundary:
 
 - From the true state an agent reads only `st.pending` (its own legal options) and what it
   may know; every look-ahead runs on `gcg_sim.engine.observe.determinize(st, player, seed)`,
-  which redraws every card hidden from the player from the open decklists and replaces the
+  which redraws every card hidden from the player from the known decklists and replaces the
   game RNG (future shuffles and draws).
 - Search seeds come from the agent seed and the decision counter, never from the state.
 - Move keys (below) identify hand, trash, and deck cards by definition only when the
@@ -41,9 +42,10 @@ cards in hidden zones, and cards it has looked at. The agents respect that bound
 - `tests/ai/test_information_set.py` takes 25 mid-game states from greedy self-play, shuffles
   the hidden identities with `permute_hidden` (three permutations each: a different true state
   inside the same information set), and checks that a fresh MCTS agent and a fresh greedy
-  agent with the same seed return the same move **and** the same search statistics. As a
-  negative control, a search that uses the true state instead of a determinization changes
-  its decision on 25 of the 25 states.
+  agent with the same seed return the same move **and** the same search statistics.
+  `test_negative_control_a_search_on_the_true_state_is_not_invariant` shows that the check
+  can fail: with `determinize` replaced by a copy of the true state, the search's decision
+  or statistics change on 23 of the 25 states.
 
 ## Architecture of the MCTS player (`mcts.py`)
 
@@ -56,7 +58,11 @@ Single-observer information-set MCTS (SO-ISMCTS) over *moves*:
 2. **Dominated moves.** Before searching, the root drops moves that can only be worse than
    another legal move (`actions.prune_dominated`): declining a free "【Burst】Add this card to
    your hand", and attacking with a Unit whose AP is 0 or less when no attack-triggered
-   effect or action-step trick could make the attack matter. Greedy uses the same filter.
+   effect or action-step trick could make the attack matter (greedy uses the same filter).
+   It also drops Command plays and ability activations without effect (`noop.without_effect`):
+   in one determinization, the move and "end the main phase / pass" are each followed by the
+   deterministic policy to the next turn, and the move goes if both lines end in the same
+   position apart from the card and Resources it spent and own cards it rested as a cost.
 3. **Root.** Each iteration picks a root move by UCB1 with a progressive prior:
    `mean + c·sqrt(ln(avail)/visits) + w·prior/(visits+1)` (`c = exploration`, 0.3 in the
    standard preset; `w = prior_weight = 0.5`). Moves not yet tried go first, highest prior
@@ -135,7 +141,7 @@ composition is a sample from the player's information set.
 | `hand_commands` | Command cards in hand | 0.25 | 0.37 |
 | `hand_bases` | Base cards in hand | 0.25 | 0.57 |
 | `level` | cards in the resource area | 0.15 | 0.16 |
-| `bursts` | Shields × fraction of 【Burst】 cards among the cards this player cannot see (from the open decklist) | 0.30 | 0.55 |
+| `bursts` | Shields × fraction of 【Burst】 cards among the cards this player cannot see (from the known decklist) | 0.30 | 0.55 |
 
 The negative `tempo` weight reflects when positions are recorded: at the turn player's first
 decision, after its draw and resource placement, which the hand and level features already
@@ -224,16 +230,18 @@ uv run python -m gcg_sim.ai.throughput --preset standard --games 1
 Acceptance test `tests/slow/test_ai_strength.py` (default `standard` preset, test decks
 Federation blue/white and SEED red/white from `tests/ai/decks.py`, 400 games per opponent in
 mirrored blocks of four so each deal is played with the MCTS agent on both decks and in both
-seats). Run on the integrated engine with dominated-move pruning (12 worker processes,
-8.9 min for all 800 games):
+seats). Wins are counted; draws count as non-wins, as in the benchmark reports. Run on the
+integrated engine with dominated-move and no-effect pruning (12 worker processes, 8.9 min for
+all 800 games):
 
-| Opponent | MCTS score | Win rate | Wilson 95% interval | Mean turns |
-| --- | ---: | ---: | --- | ---: |
-| random | 400 / 400 | 1.000 | [0.990, 1.000] | 11.4 |
-| greedy | 275 / 400 | 0.688 | [0.640, 0.731] | 17.6 |
+| Opponent | MCTS wins | Draws | Win rate | Wilson 95% interval | Mean turns |
+| --- | ---: | ---: | ---: | --- | ---: |
+| random | 400 / 400 | 0 | 1.000 | [0.990, 1.000] | 11.4 |
+| greedy | 281 / 400 | 0 | 0.703 | [0.656, 0.745] | 17.7 |
 
-(Before pruning, on commit 013ea8f: 400/400 and 276/400. On the AI branch's older engine:
-399/400 and 272/400.)
+(Earlier runs of the same test against greedy: 287/400 before cost-only plays were pruned,
+275/400 with dominated-move pruning only, 276/400 before any pruning on commit 013ea8f, and
+272/400 on the AI branch's older engine; the differences are within sampling noise.)
 
 Greedy is a demanding baseline: it shares the tuned evaluation and the playout policy, and
 it compares its moves on a single world (so its comparisons have no sampling noise).
@@ -273,13 +281,13 @@ hand of uncastable cards and keep a hand with early plays; go first.
   sampling, 4× the iterations moved it from 0.70 to 0.77, and with paired sampling 2.5× left
   it at 0.69–0.71 (192 games each). The standard preset therefore spends a moderate budget;
   the strong preset is for confirmation runs.
-- **Cards spent for nothing.** When the search values of "play it" and "keep it" are within
-  sampling noise, the agent sometimes spends a Command or an activated ability where it
-  cannot matter: AP-3 "during this turn" on an active enemy Unit that is not battling on its
-  own turn, "rest" on Units that are already rested, or the less useful of two targets
-  (found by the adversarial replay review; 6 instances in 12 games). Holding a card for the
-  opponent's turn is valued only through the evaluation's hand features, because rollouts
-  rarely use the held card well.
+- **Target choice.** The root drops a Command play or an ability activation whose
+  deterministic continuation reaches the next turn in the position of idling, apart from
+  what it spent (see step 2); this removed the "AP-3 on a Unit that cannot battle", "rest a
+  rested Unit" and "pay a cost for an effect that does nothing" plays the replay review
+  found. Choosing the less useful of two legal targets for an effect remains possible when
+  the search values are within sampling noise: target choices have no "do nothing" option
+  to compare against.
 - **Engine-bound speed.** In a profiled standard game, 91% of the time was inside the
   engine's `apply` and 69% in `engine/view.py:_compute` (338,330 recomputations for 92,691
   applied actions; 20.8 million `_host_abilities` calls, mostly for cards in hand and trash).

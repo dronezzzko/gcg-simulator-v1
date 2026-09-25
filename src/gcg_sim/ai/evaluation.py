@@ -3,7 +3,7 @@
 Every feature is a difference ``side(player) - side(opponent)``. The search only evaluates
 determinized states, so the composition of the opponent's hand is a sample from the
 searching player's information set, never the true hand. The expected number of 【Burst】
-cards among each side's Shields is estimated from the open decklists. The model returns the
+cards among each side's Shields is estimated from the known decklists. The model returns the
 estimated probability that ``player`` wins. Weights are fitted by :mod:`gcg_sim.ai.tuning`.
 """
 

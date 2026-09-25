@@ -1,4 +1,5 @@
-"""Criterion 6: ≥10,000 random-agent games, zero crashes and invariant violations, every card played."""
+"""Criterion 6: ≥10,000 random-agent games with zero crashes and invariant violations; the
+generated decks jointly include every card."""
 
 from __future__ import annotations
 

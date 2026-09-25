@@ -33,7 +33,9 @@ For a real measurement use your own deck files, `--matches 100` or more, and `--
 to your core count, and keep each run's `--out` directory (e.g. `runs/<dut>-vs-<benchmark>-s1`).
 
 - `--format bo3` (default) plays best-of-three matches per the official BO3 rules; `--format bo1`
-  plays single games (≈2.5× more games per minute — use it for quick screening).
+  plays single games. A game costs the same in either format, but a BO3 match averages about 2.5
+  games, so BO1 gives about 2.5× more match results per minute, each from an independent game;
+  use it for quick screening.
 - `--ai-preset standard` (default) or `strong` (slower, stronger). Compare variants only under the
   same preset.
 - Same `--seed` ⇒ byte-identical `results.json` regardless of `--workers`.

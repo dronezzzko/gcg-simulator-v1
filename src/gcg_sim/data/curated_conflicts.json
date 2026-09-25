@@ -7675,7 +7675,7 @@
         "EB01-070"
       ],
       "title": "EB01-070 Daryl Lorenz: reading of “①:If it is your opponent's turn, choose 1 Unit. It gets AP+1 during th…”",
-      "description": "Card text: “①:If it is your opponent's turn, choose 1 Unit. It gets AP+1 during this battle.”. The wording admits more than one reading. 8-6-1 ends 'during this battle' effects at battle end. No reading lets them outlive the turn.",
+      "description": "Card text: “①:If it is your opponent's turn, choose 1 Unit. It gets AP+1 during this battle.”. The wording admits more than one reading. 8-6-1 ends 'during this battle' effects when the battle ends; with no battle there is no period for the effect to apply (the same reading is used for every 'during this battle' effect, see resolution ambiguous:during-this-battle-without-battle).",
       "engine_behaviour": true,
       "evidence": [
         {
@@ -7711,7 +7711,7 @@
         "EB01-036"
       ],
       "title": "EB01-036 Darilbalde: reading of “During your turn, all other (G Generation) Units that are Lv.3 get AP+…”",
-      "description": "Card text: “During your turn, all other (G Generation) Units that are Lv.3 get AP+1.”. The wording admits more than one reading. The text says neither 'your' nor 'friendly', and 'all Units' includes both sides elsewhere in the set (EB01-003 ruling Q311, EB01-029). This keeps the compiled output.",
+      "description": "Card text: “During your turn, all other (G Generation) Units that are Lv.3 get AP+1.”. The wording admits more than one reading. The text says neither 'your' nor 'friendly', and 'all Units' covers both sides elsewhere in the set (EB01-003 ruling Q311, EB01-029).",
       "engine_behaviour": true,
       "evidence": [
         {
@@ -7747,7 +7747,7 @@
         "EB01-003"
       ],
       "title": "EB01-003 Narrative Gundam A-Packs (EX): reading of “At the end of your turn, if this Unit is rested, rest all Units. If th…”",
-      "description": "Card text: “At the end of your turn, if this Unit is rested, rest all Units. If this effect rested 3 or more Units, draw 1.”. The wording admits more than one reading. This matches the compiler's convention for 'If' conditions. Resting an already-rested Unit does nothing (rule 1-3-2-1).",
+      "description": "Card text: “At the end of your turn, if this Unit is rested, rest all Units. If this effect rested 3 or more Units, draw 1.”. The wording admits more than one reading. An 'If' condition is checked when the effect resolves. Resting an already-rested Unit does nothing (rule 1-3-2-1).",
       "engine_behaviour": true,
       "evidence": [
         {
@@ -7765,7 +7765,7 @@
         "EB01-001"
       ],
       "title": "EB01-001 Gundam Astray Red Frame Custom (EX): reading of “It won't be set as active during the start phase of your opponent's ne…”",
-      "description": "Card text: “It won't be set as active during the start phase of your opponent's next turn.”. The wording admits more than one reading. The text limits the restriction to the start phase. The compiler's blanket 'can't be set active' is broader.",
+      "description": "Card text: “It won't be set as active during the start phase of your opponent's next turn.”. The wording admits more than one reading. The text limits the restriction to the start phase (compare rulings ST08-009:Q208 and GD04-102:Q288); a blanket 'can't be set as active' would be broader.",
       "engine_behaviour": true,
       "evidence": [
         {
@@ -7837,7 +7837,7 @@
         "EB01-042"
       ],
       "title": "EB01-042 Psycho Haro (EX): reading of “【Attack】Units that are Lv.7 or lower can't activate <Blocker> during t…”",
-      "description": "Card text: “【Attack】Units that are Lv.7 or lower can't activate <Blocker> during this battle.”. The wording admits more than one reading. During this Unit's attack only the defending player can block, so this is equivalent to 'all Units' in 1v1.",
+      "description": "Card text: “【Attack】Units that are Lv.7 or lower can't activate <Blocker> during this battle.”. The wording admits more than one reading. During this Unit's attack only the defending player can block, so 'enemy Units' and 'all Units' are equivalent in 1v1.",
       "engine_behaviour": true,
       "evidence": [
         {
@@ -7873,7 +7873,7 @@
         "GD01-058"
       ],
       "title": "GD01-058 Galluss-K: reading of “Choose 1 Unit that is Lv.4 or higher. It gets AP+1 during this battle.”",
-      "description": "Card text: “Choose 1 Unit that is Lv.4 or higher. It gets AP+1 during this battle.”. The wording admits more than one reading. 'During this battle' has no battle to scope it to. The test asserts only the weakest safe claim: no AP bonus in the opponent's next turn. It is a strict xfail because the engine keeps the bonus forever.",
+      "description": "Card text: “Choose 1 Unit that is Lv.4 or higher. It gets AP+1 during this battle.”. The wording admits more than one reading. 8-6-1 ends 'during this battle' effects when the battle ends; with no battle there is no period for the effect to apply (the same reading is used for every 'during this battle' effect, see resolution ambiguous:during-this-battle-without-battle).",
       "engine_behaviour": true,
       "evidence": [
         {
@@ -7891,7 +7891,7 @@
         "GD01-066"
       ],
       "title": "GD01-066 Justice Gundam: reading of “Choose 1 of your (Triple Ship Alliance) Unit tokens. It may attack on …”",
-      "description": "Card text: “Choose 1 of your (Triple Ship Alliance) Unit tokens. It may attack on the turn it is deployed.”. The wording admits more than one reading. The permission can only matter on the token's deploy turn. THIS_TURN behaves the same as the compiler's WHILE_ON_FIELD but leaves no lasting state behind.",
+      "description": "Card text: “Choose 1 of your (Triple Ship Alliance) Unit tokens. It may attack on the turn it is deployed.”. The wording admits more than one reading. The permission can only matter on the token's deploy turn, so 'this turn' and 'while in play' give the same result.",
       "engine_behaviour": true,
       "evidence": [
         {
@@ -7927,7 +7927,7 @@
         "GD01-097"
       ],
       "title": "GD01-097 Guel Jeturk: reading of “【Activate･Main】【Once per Turn】If your opponent has 8 or more cards in …”",
-      "description": "Card text: “【Activate･Main】【Once per Turn】If your opponent has 8 or more cards in their hand, set this Unit as active. It can't attack during this turn.”. The wording admits more than one reading. 'It' is the Unit set active by the conditional sentence. With the condition false, the activation is a pure no-op, which per the GD02-002:Q197 resolution does not use 【Once per Turn】, so removing it from the legal actions changes no reachable state. Q150: the restriction outlasts the hand shrinking (tested).",
+      "description": "Card text: “【Activate･Main】【Once per Turn】If your opponent has 8 or more cards in their hand, set this Unit as active. It can't attack during this turn.”. The wording admits more than one reading. 'It' is the Unit set active by the conditional sentence. With the condition false the activation performs nothing, which under resolution ruling:GD02-002:Q197 does not use 【Once per Turn】, so not offering it changes no reachable outcome. Q150: the restriction outlasts the hand shrinking.",
       "engine_behaviour": true,
       "evidence": [
         {
@@ -7945,7 +7945,7 @@
         "GD01-098"
       ],
       "title": "GD01-098 Elan Ceres (Enhanced Person Number 4): reading of “【Activate･Action】【Once per Turn】If an enemy Unit with 1 or less AP is …”",
-      "description": "Card text: “【Activate･Action】【Once per Turn】If an enemy Unit with 1 or less AP is in play, this Unit recovers 1 HP.”. The wording admits more than one reading. Otherwise the activation is a pure no-op (recovering an undamaged Unit does nothing). Under Q197 that must not use 【Once per Turn】, but the engine does use it (see engine_bugs).",
+      "description": "Card text: “【Activate･Action】【Once per Turn】If an enemy Unit with 1 or less AP is in play, this Unit recovers 1 HP.”. The wording admits more than one reading. Otherwise the activation performs nothing (recovering an undamaged Unit does nothing), which under resolution ruling:GD02-002:Q197 does not use 【Once per Turn】.",
       "engine_behaviour": true,
       "evidence": [
         {
@@ -8001,7 +8001,7 @@
         "GD01-127"
       ],
       "title": "GD01-082 Gundam Aerial (Mirasoul Flight Unit): reading of “It gets AP-1 during this battle.”",
-      "description": "Card text: “It gets AP-1 during this battle.”. The wording admits more than one reading. 8-6-1 ends 'during this battle' effects at battle end; with no battle the effect has no period to apply.",
+      "description": "Card text: “It gets AP-1 during this battle.”. The wording admits more than one reading. 8-6-1 ends 'during this battle' effects when the battle ends; with no battle there is no period for the effect to apply (the same reading is used for every 'during this battle' effect, see resolution ambiguous:during-this-battle-without-battle).",
       "engine_behaviour": true,
       "evidence": [
         {
@@ -8129,7 +8129,7 @@
         "GD02-113"
       ],
       "title": "GD02-113 Sisterly Care: reading of “If a friendly (Teiwaz) Link Unit is in play, choose 1 enemy Unit with …”",
-      "description": "Card text: “If a friendly (Teiwaz) Link Unit is in play, choose 1 enemy Unit with 2 or less AP. Destroy it.”. The wording admits more than one reading. _required_targets_ok stops at conditional branches by the lead's design. A stricter 10-1-8-1-1 reading would forbid playing it when the condition holds but no target exists; flagged for the lead.",
+      "description": "Card text: “If a friendly (Teiwaz) Link Unit is in play, choose 1 enemy Unit with 2 or less AP. Destroy it.”. The wording admits more than one reading. Rule 10-1-8-1-1 requires the targets the effect will actually choose; a choice inside a false 'If' is never made.",
       "engine_behaviour": true,
       "evidence": [
         {
@@ -8183,7 +8183,7 @@
         "GD02-071"
       ],
       "title": "GD02-071 Gundam Mk-II (AEUG): reading of “you may pair 1 (AEUG) Pilot card from your hand with this Unit”",
-      "description": "Card text: “you may pair 1 (AEUG) Pilot card from your hand with this Unit”. The wording admits more than one reading. The text says 'Pilot card'. In hand, a Command card with 【Pilot】 is a Command card.",
+      "description": "Card text: “you may pair 1 (AEUG) Pilot card from your hand with this Unit”. The wording admits more than one reading. The text says 'Pilot card'. In the hand, a Command card with 【Pilot】 is a Command card.",
       "engine_behaviour": true,
       "evidence": [
         {
@@ -8219,7 +8219,7 @@
         "GD04-115"
       ],
       "title": "GD04-115 Backup: reading of “Choose 1 of your Units. When it deals battle damage to an enemy Unit t…”",
-      "description": "Card text: “Choose 1 of your Units. When it deals battle damage to an enemy Unit that is Lv.5 or lower during this turn, destroy that enemy Unit.”. The wording admits more than one reading. 'during this turn' sets how long the effect lasts; nothing limits it to one occurrence. The engine's DelayedTrigger is one-shot.",
+      "description": "Card text: “Choose 1 of your Units. When it deals battle damage to an enemy Unit that is Lv.5 or lower during this turn, destroy that enemy Unit.”. The wording admits more than one reading. 'During this turn' sets how long the effect lasts; nothing limits it to one occurrence (10-1-6-1-1).",
       "engine_behaviour": true,
       "evidence": [
         {
@@ -8309,7 +8309,7 @@
         "GD04-057"
       ],
       "title": "GD04-057 Gundam Nadleeh: reading of “During this turn, reduce its AP by an amount equal to the number of Un…”",
-      "description": "Card text: “During this turn, reduce its AP by an amount equal to the number of Unit cards with \"Gundam Virtue\" in their card names in your trash.”. The wording admits more than one reading. It is a one-shot instruction ('reduce ... by an amount equal to'), not a constant effect (10-1-5). A test checks that X does not change when another Gundam Virtue reaches the trash later.",
+      "description": "Card text: “During this turn, reduce its AP by an amount equal to the number of Unit cards with \"Gundam Virtue\" in their card names in your trash.”. The wording admits more than one reading. It is a one-shot instruction ('reduce ... by an amount equal to'), not a constant effect (10-1-5), so X is fixed when it resolves.",
       "engine_behaviour": true,
       "evidence": [
         {
@@ -8327,7 +8327,7 @@
         "GD04-041"
       ],
       "title": "GD04-041 Gundam Throne Drei: reading of “【Once per Turn】When this Unit is rested by an effect, set it as active…”",
-      "description": "Card text: “【Once per Turn】When this Unit is rested by an effect, set it as active.”. The wording admits more than one reading. The engine emits RESTED only from Rest steps. Rest steps paid as activation costs also emit it, so a cost rest would trigger Drei; no GD04 card rests Drei as a cost.",
+      "description": "Card text: “【Once per Turn】When this Unit is rested by an effect, set it as active.”. The wording admits more than one reading. Attacking rests a Unit by the rules, not by an effect; being deployed rested places the Unit in the rested state rather than resting it (Q354).",
       "engine_behaviour": true,
       "evidence": [
         {
@@ -8345,7 +8345,7 @@
         "GD04-022"
       ],
       "title": "GD04-022 Kikeroga (MS Mode) (GQ): reading of “【During Link】All Units that are Lv.3 or lower other than Unit tokens a…”",
-      "description": "Card text: “【During Link】All Units that are Lv.3 or lower other than Unit tokens are deployed rested.”. The wording admits more than one reading. 'All Units' has no side qualifier. Implemented as a deploy trigger; the timing gap is in dsl_gaps.",
+      "description": "Card text: “【During Link】All Units that are Lv.3 or lower other than Unit tokens are deployed rested.”. The wording admits more than one reading. 'All Units' has no side qualifier; 'deployed rested' places the Unit rested rather than resting it (GD05-026:Q354).",
       "engine_behaviour": true,
       "evidence": [
         {
@@ -8381,7 +8381,7 @@
         "GD04-029"
       ],
       "title": "GD04-029 Gundam Dynames (GN Full Shield): reading of “【Once per Turn】If you have a (CB) Pilot in play, when this Unit receiv…”",
-      "description": "Card text: “【Once per Turn】If you have a (CB) Pilot in play, when this Unit receives damage from an enemy, reduce it by 1.”. The wording admits more than one reading. 'you have ... in play' is player-wide, as in the compiled GD04-037 wording.",
+      "description": "Card text: “【Once per Turn】If you have a (CB) Pilot in play, when this Unit receives damage from an enemy, reduce it by 1.”. The wording admits more than one reading. 'You have ... in play' is player-wide, as in GD04-037's identical wording.",
       "engine_behaviour": true,
       "evidence": [
         {
@@ -8399,7 +8399,7 @@
         "GD04-066"
       ],
       "title": "GD04-066 Unicorn Gundam (Awakened): reading of “When you activate a Command's 【Main】/【Action】 effect, choose 1 enemy U…”",
-      "description": "Card text: “When you activate a Command's 【Main】/【Action】 effect, choose 1 enemy Unit.”. The wording admits more than one reading. The text has no turn restriction. The ordering of triggers against the resolving Command is not specified by 10-3-1-4, and the result is the same for an AP-2 effect.",
+      "description": "Card text: “When you activate a Command's 【Main】/【Action】 effect, choose 1 enemy Unit.”. The wording admits more than one reading. The text has no turn restriction; triggered effects wait until the current effect has resolved (10-1-6).",
       "engine_behaviour": true,
       "evidence": [
         {
@@ -8453,7 +8453,7 @@
         "GD03-120"
       ],
       "title": "GD03-120 Immortal Colasour: reading of “【Main】During this turn, if a friendly (Superpower Bloc)/(UN) Unit dest…”",
-      "description": "Card text: “【Main】During this turn, if a friendly (Superpower Bloc)/(UN) Unit destroys an enemy Unit with battle damage, choose 1 rested friendly (Superpower Bloc)/(UN) Unit.”. The wording admits more than one reading. Rule 10-1-6-1-1 says a triggered effect without 【Once per Turn】 activates every time. The engine's DelayedTrigger is one-shot, so a re-arm hook was added (see dsl_gaps).",
+      "description": "Card text: “【Main】During this turn, if a friendly (Superpower Bloc)/(UN) Unit destroys an enemy Unit with battle damage, choose 1 rested friendly (Superpower Bloc)/(UN) Unit.”. The wording admits more than one reading. Rule 10-1-6-1-1: a triggered effect without 【Once per Turn】 activates every time its condition is met.",
       "engine_behaviour": true,
       "evidence": [
         {
@@ -8507,7 +8507,7 @@
         "GD03-130"
       ],
       "title": "GD03-130 Downes: reading of “you may choose 1 (Vagan) Unit card that is Lv.4 or lower from your tra…”",
-      "description": "Card text: “you may choose 1 (Vagan) Unit card that is Lv.4 or lower from your trash. Pay its cost to deploy it.”. The wording admits more than one reading. The text does not limit the choice to payable cards. The outcome is the same as not choosing. Covered by test_gd03_130_unpayable_cost_leaves_the_card_in_trash.",
+      "description": "Card text: “you may choose 1 (Vagan) Unit card that is Lv.4 or lower from your trash. Pay its cost to deploy it.”. The wording admits more than one reading. The text does not limit the choice to payable cards, and the outcome equals not choosing.",
       "engine_behaviour": true,
       "evidence": [
         {
@@ -8543,7 +8543,7 @@
         "GD03-038"
       ],
       "title": "GD03-038 GuAIZ (Commander Type): reading of “During your turn, when this Unit is rested by an effect, choose 1 of y…”",
-      "description": "Card text: “During your turn, when this Unit is rested by an effect, choose 1 of your (ZAFT) Units. It gets AP+2 during this turn.”. The wording admits more than one reading. Rule 13-1-3-1 calls <Support> a keyword effect that activates when you rest the Unit. This card's reminder text prints the rest as part of Support ('Rest this Unit. 1 other friendly Unit gets AP+...'), and the card pairs <Support 1> with this trigger. Kept the compiled behaviour. Rule 10-1-7-2 could support the stricter reading (a cost is not the effect); if an official ruling picks that, add a cost flag to the RESTED event.",
+      "description": "Card text: “During your turn, when this Unit is rested by an effect, choose 1 of your (ZAFT) Units. It gets AP+2 during this turn.”. The wording admits more than one reading. Rule 13-1-3-1 calls <Support> a keyword effect that activates when you rest the Unit, and this card's reminder text prints the rest as part of <Support>. Rule 10-1-7-2 could support the stricter reading (a cost is not the effect); an official ruling would decide.",
       "engine_behaviour": true,
       "evidence": [
         {
@@ -8633,7 +8633,7 @@
         "GD03-076"
       ],
       "title": "GD03-076 Freedom Gundam (METEOR): reading of “【Once per Turn】During your turn, when your (Triple Ship Alliance) Unit…”",
-      "description": "Card text: “【Once per Turn】During your turn, when your (Triple Ship Alliance) Unit deals battle damage to an enemy Unit, you may return the enemy Unit to its owner's hand.”. The wording admits more than one reading. Declining is a choice made while the effect resolves. The Q197 resolution only addresses actions that could not be performed. The destroyed-target case should not use up the effect; that part is xfail pending the engine fix.",
+      "description": "Card text: “【Once per Turn】During your turn, when your (Triple Ship Alliance) Unit deals battle damage to an enemy Unit, you may return the enemy Unit to its owner's hand.”. The wording admits more than one reading. Rule 10-1-3: declining a 'you may' effect is choosing not to activate it; resolution ruling:GD02-002:Q197: an effect that performs nothing does not count for 【Once per Turn】.",
       "engine_behaviour": true,
       "evidence": [
         {
@@ -8741,7 +8741,7 @@
         "GD05-102"
       ],
       "title": "GD05-102 Wings of Light: reading of “choose 1 of the following effects”",
-      "description": "Card text: “choose 1 of the following effects”. The wording admits more than one reading. Implements Q401/Q402 without an engine change. Edge: if every Unit in play can't be chosen, the card is still playable.",
+      "description": "Card text: “choose 1 of the following effects”. The wording admits more than one reading. Rulings Q401/Q402; the same rule as resolution ruling:ST12-015:Q450 for modal Commands.",
       "engine_behaviour": true,
       "evidence": [
         {
@@ -8777,7 +8777,7 @@
         "GD05-123"
       ],
       "title": "GD05-123 Archangel: reading of “can't receive 2 or less enemy effect damage”",
-      "description": "Card text: “can't receive 2 or less enemy effect damage”. The wording admits more than one reading. Over-protection (3+ damage) is rarer than 1-2 damage effects; the encoding becomes exact once the threshold gap is closed.",
+      "description": "Card text: “can't receive 2 or less enemy effect damage”. The wording admits more than one reading. Literal text; Q416 applies the threshold after reductions.",
       "engine_behaviour": true,
       "evidence": [
         {
@@ -8795,7 +8795,7 @@
         "GD05-129"
       ],
       "title": "GD05-129 Axis: reading of “destroyed by one of your (Neo Zeon) card's effects”",
-      "description": "Card text: “destroyed by one of your (Neo Zeon) card's effects”. The wording admits more than one reading. The turn history lacks the destroying card (DSL gap).",
+      "description": "Card text: “destroyed by one of your (Neo Zeon) card's effects”. The wording admits more than one reading. Same reading as GD05-054:Q368 (destruction by an effect means 'destroy it' effects); the (Neo Zeon) card is the one whose effect destroyed the Unit.",
       "engine_behaviour": true,
       "evidence": [
         {
@@ -8850,7 +8850,7 @@
         "GD05-038"
       ],
       "title": "GD05-001 V2 Gundam: reading of “【Activate･Main】【Once per Turn】Rest 2 of your Units：Set this Unit as ac…”",
-      "description": "Card text: “【Activate･Main】【Once per Turn】Rest 2 of your Units：Set this Unit as active.”. The wording admits more than one reading. Literal wording ('your Units', not 'other'). The compiler and engine already do this.",
+      "description": "Card text: “【Activate･Main】【Once per Turn】Rest 2 of your Units：Set this Unit as active.”. The wording admits more than one reading. Literal wording ('your Units', not 'other').",
       "engine_behaviour": true,
       "evidence": [
         {
@@ -8868,7 +8868,7 @@
         "GD05-049"
       ],
       "title": "GD05-049 Sazabi: reading of “all enemy players each choose 1 of their non-battling Units. Destroy t…”",
-      "description": "Card text: “all enemy players each choose 1 of their non-battling Units. Destroy them.”. The wording admits more than one reading. docs/ASSUMPTIONS.md 1v1 wording. The effect belongs to the enemy of the chosen Unit's owner.",
+      "description": "Card text: “all enemy players each choose 1 of their non-battling Units. Destroy them.”. The wording admits more than one reading. The effect belongs to the enemy of the chosen Unit's owner (docs/ASSUMPTIONS.md 1v1 wording).",
       "engine_behaviour": true,
       "evidence": [
         {
@@ -8886,7 +8886,7 @@
         "GD05-053"
       ],
       "title": "GD05-053 Quess's Jagd Doga: reading of “destroyed by one of your (Neo Zeon) card's effects”",
-      "description": "Card text: “destroyed by one of your (Neo Zeon) card's effects”. The wording admits more than one reading. Resolution GD05-054:Q368. The engine records the frame host as the destruction source.",
+      "description": "Card text: “destroyed by one of your (Neo Zeon) card's effects”. The wording admits more than one reading. Resolution GD05-054:Q368. The source of a Pilot-granted effect is the paired Unit.",
       "engine_behaviour": true,
       "evidence": [
         {
@@ -8904,7 +8904,7 @@
         "GD05-026"
       ],
       "title": "GD05-026 Gundam Aerial Rebuild: reading of “is equal to or lower than that number are deployed rested.”",
-      "description": "Card text: “is equal to or lower than that number are deployed rested.”. The wording admits more than one reading. No DSL/engine support for deploy-time static rules.",
+      "description": "Card text: “is equal to or lower than that number are deployed rested.”. The wording admits more than one reading. 'Deployed rested' places the Unit rested rather than resting it (Q354); the count is taken when the Unit is deployed.",
       "engine_behaviour": true,
       "evidence": [
         {
@@ -8923,7 +8923,7 @@
         "T-029"
       ],
       "title": "T-014 Ad Balloon: reading of “This Unit can't be set as active or paired with a Pilot.”",
-      "description": "Card text: “This Unit can't be set as active or paired with a Pilot.”. The wording admits more than one reading. This is the only grammatical reading. It matches the separately printed single-restriction tokens T-022 ('can't be paired with a Pilot') and the engine's existing CANT_* rule kinds.",
+      "description": "Card text: “This Unit can't be set as active or paired with a Pilot.”. The wording admits more than one reading. The only grammatical reading; it matches the separately printed single-restriction token T-022 ('can't be paired with a Pilot'), and 'can't' beats any permission (10-1-5-6).",
       "engine_behaviour": true,
       "evidence": [
         {
@@ -9067,7 +9067,7 @@
         "ST08-006"
       ],
       "title": "ST08-006 Penelope: reading of “【During Pair】【Attack】【Once per Turn】If this Unit is attacking the enem…”",
-      "description": "Card text: “【During Pair】【Attack】【Once per Turn】If this Unit is attacking the enemy player, reveal 1 (Earth Federation) Unit card from your hand. Return it to the bottom of your deck. If you do, draw 2.”. The wording admits more than one reading. 10-1-6-2: the trigger condition is the 【Attack】 event. The compiler puts every in-text 'If' in a resolution step, and this keeps the binding consistent with it.",
+      "description": "Card text: “【During Pair】【Attack】【Once per Turn】If this Unit is attacking the enemy player, reveal 1 (Earth Federation) Unit card from your hand. Return it to the bottom of your deck. If you do, draw 2.”. The wording admits more than one reading. 10-1-6-2: the trigger condition is the 【Attack】 event; an 'If' in the text is checked when the effect resolves.",
       "engine_behaviour": true,
       "evidence": [
         {
@@ -9121,7 +9121,7 @@
         "ST10-001"
       ],
       "title": "ST10-001 Zeta Gundam (EX): reading of “It can't choose the same enemy player or enemy team as its attack targ…”",
-      "description": "Card text: “It can't choose the same enemy player or enemy team as its attack target during this turn.”. The wording admits more than one reading. Resolution ambiguous:multiplayer-vocabulary. 'Shield area card' covers the Base (4-6), and the engine emits DESTROYS_SHIELD_CARD for battle-destroyed Bases.",
+      "description": "Card text: “It can't choose the same enemy player or enemy team as its attack target during this turn.”. The wording admits more than one reading. Resolution ambiguous:multiplayer-vocabulary; 'shield area card' covers the Base (4-6).",
       "engine_behaviour": true,
       "evidence": [
         {
@@ -9139,7 +9139,7 @@
         "ST11-006"
       ],
       "title": "ST11-006 Shamblo: reading of “If another friendly (Marine) Unit is in play at the start of your oppo…”",
-      "description": "Card text: “If another friendly (Marine) Unit is in play at the start of your opponent's turn, during this turn, when a friendly shield area card receives enemy effect damage, reduce it by 5.”. The wording admits more than one reading. 'At the start of your opponent's turn' fixes when the condition is checked, and 'during this turn' is a lasting duration. Prevention equals 'reduce by 5' for 5 or less damage; the gap for 6 or more is recorded as a DSL gap.",
+      "description": "Card text: “If another friendly (Marine) Unit is in play at the start of your opponent's turn, during this turn, when a friendly shield area card receives enemy effect damage, reduce it by 5.”. The wording admits more than one reading. 'At the start of your opponent's turn' fixes when the condition is checked and 'during this turn' sets the duration (rulings Q430, Q431).",
       "engine_behaviour": true,
       "evidence": [
         {
@@ -9211,7 +9211,7 @@
         "ST11-001"
       ],
       "title": "ST11-001 Char's Z'Gok: reading of “Return it to the bottom of its owner's deck.”",
-      "description": "Card text: “Return it to the bottom of its owner's deck.”. The wording admits more than one reading. docs/ASSUMPTIONS.md: simultaneous placement into private zones keeps selection order. The test checks both cards occupy the bottom two positions.",
+      "description": "Card text: “Return it to the bottom of its owner's deck.”. The wording admits more than one reading. Rule 3-3-6: the Pilot moves with its Unit; ruling GD05-002:Q339.",
       "engine_behaviour": true,
       "evidence": [
         {
@@ -9229,7 +9229,7 @@
         "ST11-012"
       ],
       "title": "ST11-012 Loni Garvey: reading of “when it receives battle damage from an enemy Unit, reduce it by 2”",
-      "description": "Card text: “when it receives battle damage from an enemy Unit, reduce it by 2”. The wording admits more than one reading. Matches the compiler's _reduce_when convention; only Units deal battle damage (Bases have 0 AP).",
+      "description": "Card text: “when it receives battle damage from an enemy Unit, reduce it by 2”. The wording admits more than one reading. Only Units deal battle damage (Bases have 0 AP).",
       "engine_behaviour": true,
       "evidence": [
         {

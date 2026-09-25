@@ -87,7 +87,7 @@ Excess Units/Bases go to the trash without being destroyed (11-4, 11-5).
 
 **Information sets.** Card uids are assigned after the seeded shuffle and cut, so they carry
 no identity. Each card has `known` bits per player. `observe.determinize` resamples every
-identity hidden from a player from the open decklists and replaces the game RNG, so search depends
+identity hidden from a player from the known decklists (a modelling assumption, see ASSUMPTIONS) and replaces the game RNG, so search depends
 only on that player's information set.
 
 ## Effect implementation pipeline

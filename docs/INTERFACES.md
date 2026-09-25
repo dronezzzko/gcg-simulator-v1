@@ -27,7 +27,7 @@ from gcg_sim.rng import SplitMix64, derive_seed
   `BLOCK`, `ACTION_STEP`, `ORDER_TRIGGER`, `BURST`/`YES_NO` (`YES`/`NO`), `SELECT`, `EXCESS`,
   `DISCARD`, `ARRANGE`.
 - Information sets: an agent for `player` must only use `determinize(st, player, seed)` states for
-  look-ahead (hidden identities resampled from the open decklists, game RNG replaced). The true
+  look-ahead (hidden identities resampled from the known decklists, game RNG replaced). The true
   `st` may be read only for public information and `player`'s own knowledge
   (`observe.is_hidden_from`).
 

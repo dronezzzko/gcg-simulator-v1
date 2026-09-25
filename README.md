@@ -109,7 +109,7 @@ tuning workflow with adequate sample sizes.
 - **Runner.** A process pool that derives every seed from the master seed. With the
   `standard` preset, 100 BO3 matches of the example decks take about 6–11 minutes on 8 cores
   (measurements in [`docs/AI.md`](docs/AI.md)). Against a random player the AI won 400/400
-  games, and against the greedy baseline 275/400 (Wilson 95% [0.640, 0.731]).
+  games, and against the greedy baseline 281/400 (Wilson 95% [0.656, 0.745]).
 
 Details: [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) and [`docs/AI.md`](docs/AI.md).
 

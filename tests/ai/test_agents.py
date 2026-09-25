@@ -12,7 +12,7 @@ from tests.ai.decks import DECKS
 from tests.ai.situations import EXTRA_SELECTS, SITUATIONS
 
 from gcg_sim.ai import AGENT_KINDS, PRESETS, SearchConfig, make_agent
-from gcg_sim.ai.actions import canonical, ex_used, prune_dominated
+from gcg_sim.ai.actions import Key, canonical, ex_used, prune_dominated
 from gcg_sim.ai.agents import MctsAgent
 from gcg_sim.ai.noop import without_effect
 from gcg_sim.ai.selfplay import run_game
@@ -250,3 +250,35 @@ def test_a_command_with_a_lasting_result_is_not_pruned() -> None:
     dec = st.pending
     assert dec is not None
     assert without_effect(st, 0, dec, canonical(st, dec), seed=3) == set()
+
+
+def _jaburo(
+    enemy_rested: bool, attacker: bool = False
+) -> tuple[GameState, list[tuple[Key, Action]]]:
+    sc = Scenario()
+    sc.base(0, "GD04-122")  # Jaburo: Rest 1 of your (EF) Units: rest an enemy Lv.3 or lower
+    sc.add(0, "GD01-008")  # Guntank (Earth Federation), the only Unit that can pay the cost
+    if attacker:
+        sc.add(0, "ST14-008")  # 6/4, not Earth Federation: can attack the rested enemy
+    sc.add(1, "GD01-060", rested=enemy_rested)  # Lv.2
+    sc.shields(1, "GD01-060", "GD01-060")
+    st = sc.start()
+    dec = st.pending
+    assert dec is not None
+    return st, canonical(st, dec)
+
+
+def test_an_activation_whose_only_result_is_its_cost_is_recognised() -> None:
+    st, moves = _jaburo(enemy_rested=True)
+    assert st.pending is not None
+    activations = {key for key, a in moves if a.kind is ActionKind.ACTIVATE}
+    assert activations
+    assert activations <= without_effect(st, 0, st.pending, moves, seed=5)
+
+
+def test_an_activation_that_enables_an_attack_is_kept() -> None:
+    st, moves = _jaburo(enemy_rested=False, attacker=True)
+    assert st.pending is not None
+    activations = {key for key, a in moves if a.kind is ActionKind.ACTIVATE}
+    assert activations
+    assert not activations & without_effect(st, 0, st.pending, moves, seed=5)
