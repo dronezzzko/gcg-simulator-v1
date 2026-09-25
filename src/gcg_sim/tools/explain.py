@@ -1,6 +1,6 @@
 """Explain a card: data, normalized text, compiled abilities (or errors), binding, rulings, conflicts.
 
-    uv run python -m gcg_sim.tools.explain GD01-001 [GD01-002 ...] [--json]
+uv run python -m gcg_sim.tools.explain GD01-001 [GD01-002 ...] [--json]
 """
 
 from __future__ import annotations
@@ -78,7 +78,9 @@ def main(argv: list[str] | None = None) -> int:
         if args.json:
             print(json.dumps(info, indent=1, ensure_ascii=False))
             continue
-        print(f"== {info['card_number']} {info['name']} [{info['type']} {info['color']} Lv{info['level']} C{info['cost']} {info['ap']}/{info['hp']}]")
+        print(
+            f"== {info['card_number']} {info['name']} [{info['type']} {info['color']} Lv{info['level']} C{info['cost']} {info['ap']}/{info['hp']}]"
+        )
         print(f"traits={info['traits']} link={info['link']} pilot_name={info['pilot_name']}")
         print("text:\n  " + info["text"].replace("\n", "\n  "))
         print(f"binding={info['binding']} source={info['script_source']} error={info['error']}")
