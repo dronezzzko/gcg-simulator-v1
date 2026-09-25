@@ -1715,6 +1715,521 @@
       "field_overrides": {
         "effect": "【During Pair･Lv.5 or Higher Pilot】【Once per Turn】During your turn, when this Unit destroys an enemy Unit with damage, deal 2 damage to all enemy Units with 5 or less AP.\n【Deploy】Choose 1 enemy Base. Deal 5 damage to it."
       }
+    },
+    "ambiguous:EB01-077:choose-rested-friendly-g": {
+      "policy": "most_defensible_reading",
+      "decision": "Only an enemy Unit that is attacking has an attack target, so the change happens only while an enemy Unit is attacking. During your own attack nothing changes. The Command stays playable because the only chosen target is the rested friendly Unit (10-1-8-1-1).",
+      "rationale": "An enemy Unit that is being attacked has no attack target; changing your own attacker's target would contradict 'enemy'."
+    },
+    "ambiguous:EB01-085:then-may-choose-active": {
+      "policy": "most_defensible_reading",
+      "decision": "The optional rest is offered only when both Units can be chosen. The enemy Unit may already be rested.",
+      "rationale": "The CONFLICTS resolution for ruling:EB01-072:Q327 applies the same both-targets reading to identical 'choose 1 X and 1 Y' wording."
+    },
+    "ambiguous:EB01-074:if-do-all-enemy": {
+      "policy": "most_defensible_reading",
+      "decision": "The opponent chooses one of their own active Units (Q329). That choice counts as targeting by the Command's controller, so Units that 'can't be chosen by enemy effects' are excluded.",
+      "rationale": "The effect is controlled by the Command's player, so it is an enemy effect for the opponent's Units."
+    },
+    "ambiguous:EB01-070:if-opponent-s-turn": {
+      "policy": "most_defensible_reading",
+      "decision": "Activated with no battle in progress (e.g. in the end-phase action step), the 'during this battle' effect has no effect.",
+      "rationale": "8-6-1 ends 'during this battle' effects when the battle ends; with no battle there is no period for the effect to apply (the same reading is used for every 'during this battle' effect, see resolution ambiguous:during-this-battle-without-battle)."
+    },
+    "ambiguous:EB01-050:if-placed-card-lv": {
+      "policy": "most_defensible_reading",
+      "decision": "Any card type with a printed Lv of 3 or more counts (Unit, Pilot, Command, Base).",
+      "rationale": "The text says 'a card', not 'a Unit card'."
+    },
+    "ambiguous:EB01-036:during-turn-all-other": {
+      "policy": "most_defensible_reading",
+      "decision": "Applies to other (G Generation) Lv.3 Units on both sides.",
+      "rationale": "The text says neither 'your' nor 'friendly', and 'all Units' covers both sides elsewhere in the set (EB01-003 ruling Q311, EB01-029)."
+    },
+    "ambiguous:EB01-028:once-per-turn-when": {
+      "policy": "most_defensible_reading",
+      "decision": "Triggers only for a friendly Unit other than Plutone that attacks an enemy Unit (not the player). The rested condition is checked when it triggers.",
+      "rationale": "'enemy Unit' is relative to Plutone's controller, so the attacker must be friendly. Checking at trigger time (rule 10-2-1) stops an attack made while Plutone is active from using up 【Once per Turn】."
+    },
+    "ambiguous:EB01-003:at-end-turn-if": {
+      "policy": "most_defensible_reading",
+      "decision": "The rested check happens at resolution. 'Rested by this effect' means Units that were active just before and are rested afterwards; Units already rested do not count.",
+      "rationale": "An 'If' condition is checked when the effect resolves. Resting an already-rested Unit does nothing (rule 1-3-2-1)."
+    },
+    "ambiguous:EB01-001:won-t-be-set": {
+      "policy": "most_defensible_reading",
+      "decision": "Only the untap and set-active effects during that start phase (active step and start-step triggers) are prevented. Set-active effects at any other time still work.",
+      "rationale": "The text limits the restriction to the start phase (compare rulings ST08-009:Q208 and GD04-102:Q288); a blanket 'can't be set as active' would be broader."
+    },
+    "ambiguous:EB01-009:all-enemy-players-each": {
+      "policy": "most_defensible_reading",
+      "decision": "The opponent makes the choice (Q313). A Unit that 'can't be chosen by enemy effects' cannot be chosen.",
+      "rationale": "The effect belongs to its controller, so for the opponent it is an enemy effect whoever does the choosing."
+    },
+    "ambiguous:EB01-023:all-players-each-look": {
+      "policy": "most_defensible_reading",
+      "decision": "The active player does the whole sequence (look, optional add, return top/bottom), then the standby player does the same. Each player learns only their own top card.",
+      "rationale": "Ruling Q319: players perform it in order starting with the active player, treated as simultaneous."
+    },
+    "ambiguous:EB01-017:player-who-destroyed-unit": {
+      "policy": "most_defensible_reading",
+      "decision": "With battle damage, the destroyer is always the opponent.",
+      "rationale": "In 1v1, battles are only between Units of opposing players."
+    },
+    "ambiguous:EB01-042:attack-units-are-lv": {
+      "policy": "most_defensible_reading",
+      "decision": "Applies to enemy Units only.",
+      "rationale": "During this Unit's attack only the defending player can block, so 'enemy Units' and 'all Units' are equivalent in 1v1."
+    },
+    "ambiguous:GD01-003:if-do-set-unit": {
+      "policy": "most_defensible_reading",
+      "decision": "'It' is this Unit, and both the set-active and the First Strike grant depend on 'If you do'",
+      "rationale": "Cards returned to the deck can't gain keywords, so this Unit is the only sensible antecedent. The follow-on sentence continues the 'If you do' result. In practice it is moot, because under Q121 the effect only resolves when all 12 cards are returned."
+    },
+    "ambiguous:GD01-058:choose-unit-lv-4": {
+      "policy": "most_defensible_reading",
+      "decision": "Activated with no battle in progress (e.g. in the end-phase action step), the 'during this battle' effect has no effect.",
+      "rationale": "8-6-1 ends 'during this battle' effects when the battle ends; with no battle there is no period for the effect to apply (the same reading is used for every 'during this battle' effect, see resolution ambiguous:during-this-battle-without-battle)."
+    },
+    "ambiguous:GD01-066:choose-triple-ship-alliance": {
+      "policy": "most_defensible_reading",
+      "decision": "The permission to attack on the turn it is deployed lasts this turn only.",
+      "rationale": "The permission can only matter on the token's deploy turn, so 'this turn' and 'while in play' give the same result."
+    },
+    "ambiguous:GD01-063:during-turn-while-unit": {
+      "policy": "most_defensible_reading",
+      "decision": "'Battling' is the current attacker/target pair of the ongoing battle (5-22-1, 5-22-2). A block changes the battling Unit, and the grant is re-evaluated continuously.",
+      "rationale": "Matches ruling Q136 (a block by a Lv4 Unit removes First Strike). Tokens count as Lv0 (5-17-2-4), so they qualify."
+    },
+    "ambiguous:GD01-097:activate-main-once-per": {
+      "policy": "most_defensible_reading",
+      "decision": "The can't-attack restriction applies only when the If holds. Activation is offered only while the opponent has 8 or more cards.",
+      "rationale": "'It' is the Unit set active by the conditional sentence. With the condition false the activation performs nothing, which under resolution ruling:GD02-002:Q197 does not use 【Once per Turn】, so not offering it changes no reachable outcome. Q150: the restriction outlasts the hand shrinking."
+    },
+    "ambiguous:GD01-098:activate-action-once-per": {
+      "policy": "most_defensible_reading",
+      "decision": "Offered only when an enemy Unit with AP<=1 exists and this Unit is damaged.",
+      "rationale": "Otherwise the activation performs nothing (recovering an undamaged Unit does nothing), which under resolution ruling:GD02-002:Q197 does not use 【Once per Turn】."
+    },
+    "ambiguous:GD01-112:main-choose-2-active": {
+      "policy": "most_defensible_reading",
+      "decision": "The Command can be played only if 2 legal targets exist. It never resolves with one.",
+      "rationale": "The CONFLICTS resolution of GD01-003:Q121 ('choose N' activates only if N can be chosen). The GD01-112 enemy target after 'If you do' is not required to play (10-1-8-1-2)."
+    },
+    "ambiguous:GD01-094:once-per-turn-when": {
+      "policy": "most_defensible_reading",
+      "decision": "'With damage' means battle damage or effect damage that brings the Unit to 0 HP; a 'destroy' effect does not count (Q149). 'Link Unit' uses the linked status at destruction (last known information). It also triggers when this Unit is destroyed in the same damage step, since at that moment it was attacking.",
+      "rationale": "Q149, FAQ Q98, and the GD02-093:Q190 resolution for simultaneous destruction (8-5-3-2-3, 10-1-6-4)."
+    },
+    "ambiguous:GD01-082:gets-ap-during-battle": {
+      "policy": "most_defensible_reading",
+      "decision": "Activated with no battle in progress (e.g. in the end-phase action step), the 'during this battle' effect has no effect.",
+      "rationale": "8-6-1 ends 'during this battle' effects when the battle ends; with no battle there is no period for the effect to apply (the same reading is used for every 'during this battle' effect, see resolution ambiguous:during-this-battle-without-battle)."
+    },
+    "ambiguous:GD01-110:main-action-choose-unit": {
+      "policy": "most_defensible_reading",
+      "decision": "A Unit on either side can be chosen, as printed.",
+      "rationale": "The text has no 'friendly'/'enemy' qualifier."
+    },
+    "ambiguous:GD01-130:activate-main-rest-base": {
+      "policy": "most_defensible_reading",
+      "decision": "With no (Academy) Unit, activation is still legal (the Base rests, nothing else happens). With an (Academy) Unit, an enemy Unit must exist to activate.",
+      "rationale": "The 'If' is part of the effect, not an activation condition (10-3-1-1). The target requirement applies only when the condition holds (10-2-2, FAQ Q100)."
+    },
+    "ambiguous:GD01-091:during-turn-if-unit": {
+      "policy": "most_defensible_reading",
+      "decision": "The source's AP is measured when the damage is dealt, and the source must be an enemy Unit.",
+      "rationale": "The prevention is a constant effect checked at the moment of damage (10-1-5-3)."
+    },
+    "ambiguous:GD02-118:choose-enemy-unit-4": {
+      "policy": "most_defensible_reading",
+      "decision": "Literal: any enemy Unit in the current battle whose opponent is a friendly Unit that currently has <Blocker>, whether that Unit blocked, was attacked, or is attacking. HP is current HP.",
+      "rationale": "The text says 'battling', not 'blocked by'. Rule 5-22-1 defines battling for both participants, and FAQ Q96 makes HP current HP."
+    },
+    "ambiguous:GD02-096:pay-its-cost-deploy": {
+      "policy": "most_defensible_reading",
+      "decision": "Rest Resources equal to the card's cost as modified in the trash (e.g. GD03-058 costs 1 there). No Lv. check, and player-level play-cost modifiers don't apply because deploying isn't playing. If it can't be paid, nothing is deployed. The payment records cost_paid and emits COST_PAID for the effect's host.",
+      "rationale": "Follows the ambiguous:pay-its-cost-to-deploy resolution and Q286; 5-7 vs 5-8 separate playing from deploying."
+    },
+    "ambiguous:GD02-104:return-remaining-cards-bottom": {
+      "policy": "most_defensible_reading",
+      "decision": "The owner picks the order of the bottomed cards, unlike the 'randomly' wording on other cards.",
+      "rationale": "Rules 4-1-6 / 4-1-7 and the ASSUMPTIONS entry on simultaneous placement."
+    },
+    "ambiguous:GD02-113:if-friendly-teiwaz-link": {
+      "policy": "most_defensible_reading",
+      "decision": "When the 'If' condition is false the Command can be played and does nothing; when it is true, the Command can be played only if its target can be chosen.",
+      "rationale": "Rule 10-1-8-1-1 requires the targets the effect will actually choose; a choice inside a false 'If' is never made."
+    },
+    "ambiguous:GD02-069:choose-active-friendly-base": {
+      "policy": "most_defensible_reading",
+      "decision": "The restriction is applied to this Unit inside the If you do branch, together with setting it active.",
+      "rationale": "The restriction is the price of the untap. Resting the chosen active Base always succeeds, so the branch only matters in theory."
+    },
+    "ambiguous:GD02-011:choose-enemy-base-enemy": {
+      "policy": "most_defensible_reading",
+      "decision": "6 effect damage goes to the first card of the enemy shield area (DamageShieldArea), so Base immunities and shield-area protections apply. It can be activated only while this Unit is the attacker, the attack targets the player, and the enemy shield area is not empty.",
+      "rationale": "Resolution ambiguous:GD02-011:battling-shield plus Q173. With no shield-area card there is no target (10-2-2)."
+    },
+    "ambiguous:GD02-071:may-pair-aeug-pilot": {
+      "policy": "most_defensible_reading",
+      "decision": "Only Pilot cards are eligible; a Command card with 【Pilot】 in the hand is not.",
+      "rationale": "The text says 'Pilot card'. In the hand, a Command card with 【Pilot】 is a Command card."
+    },
+    "ambiguous:GD02-009:when-unit-s-ap": {
+      "policy": "most_defensible_reading",
+      "decision": "Triggers only when the Unit's AP actually drops; an AP-3 effect on a Unit already at 0 AP does not trigger.",
+      "rationale": "Rule 1-3-2-1: an entity already in the target state is not changed."
+    },
+    "ambiguous:GD04-115:choose-units-when-deals": {
+      "policy": "most_defensible_reading",
+      "decision": "During this turn the effect triggers every time the Unit deals battle damage, not only the first time.",
+      "rationale": "'During this turn' sets how long the effect lasts; nothing limits it to one occurrence (10-1-6-1-1)."
+    },
+    "ambiguous:GD04-087:may-choose-academy-units": {
+      "policy": "most_defensible_reading",
+      "decision": "This Unit itself is also a legal choice (the text has no 'other'); choosing it is a no-op redirect.",
+      "rationale": "Literal selector; excluding it would add a restriction the text does not state."
+    },
+    "ambiguous:GD04-085:once-per-turn-when": {
+      "policy": "most_defensible_reading",
+      "decision": "The no-remaining-EX condition is an activation condition, checked when the trigger fires (so Once per Turn is not used up while EX Resources remain) and again at resolution.",
+      "rationale": "Rule 10-2-1: an effect whose conditions are not met does not activate."
+    },
+    "ambiguous:GD04-106:if-use-ex-resource": {
+      "policy": "most_defensible_reading",
+      "decision": "Choose 1 (required), then optionally 1 more distinct Unit when the most recent play of this card from the hand used at least one EX Resource.",
+      "rationale": "Same result as 'choose 1 to 2', and it keeps the required-target check of 10-1-8-1-1 on the first choice. Command frames lack an ex_used payload, so play history is used."
+    },
+    "ambiguous:GD04-024:may-reveal-academy-unit": {
+      "policy": "most_defensible_reading",
+      "decision": "The (Academy) trait applies to both the Unit card and the Command card.",
+      "rationale": "Ruling GD03-089:Q240 treats '(Cyclops Team) Pilot cards/Command cards' as '(Cyclops Team) cards', i.e. the trait qualifies every '/'-alternative."
+    },
+    "ambiguous:GD04-057:during-turn-reduce-its": {
+      "policy": "most_defensible_reading",
+      "decision": "X is counted once when the effect resolves and stays fixed for the turn.",
+      "rationale": "It is a one-shot instruction ('reduce ... by an amount equal to'), not a constant effect (10-1-5), so X is fixed when it resolves."
+    },
+    "ambiguous:GD04-041:once-per-turn-when": {
+      "policy": "most_defensible_reading",
+      "decision": "Triggers when an effect of either player rests this Unit, including resting it to pay an activation cost; attacking and being deployed rested (GD05-026:Q354) do not trigger it.",
+      "rationale": "Attacking rests a Unit by the rules, not by an effect; being deployed rested places the Unit in the rested state rather than resting it (Q354)."
+    },
+    "ambiguous:GD04-022:during-link-all-units": {
+      "policy": "most_defensible_reading",
+      "decision": "Covers both players' non-token Units of Lv.3 or lower, deployed from any location while this Unit is linked; they enter play rested.",
+      "rationale": "'All Units' has no side qualifier; 'deployed rested' places the Unit rested rather than resting it (GD05-026:Q354)."
+    },
+    "ambiguous:GD04-021:may-pair-card-from": {
+      "policy": "most_defensible_reading",
+      "decision": "Resolves after the Command's effect ends and it is in the trash (resolution Q267). Allowed only for Commands with 【Pilot】 and unpaired 'Gundam Lfrith' Units. Also allowed when the Command was played in an action step.",
+      "rationale": "Rule 13-2-4-2 restricts the player's pairing action during action steps, not pairing done by an effect."
+    },
+    "ambiguous:GD04-029:once-per-turn-if": {
+      "policy": "most_defensible_reading",
+      "decision": "Any of your paired Pilots with the CB trait counts, including Command cards paired as Pilots; it need not be paired with this Unit.",
+      "rationale": "'You have ... in play' is player-wide, as in GD04-037's identical wording."
+    },
+    "ambiguous:GD04-066:when-activate-command-s": {
+      "policy": "most_defensible_reading",
+      "decision": "Triggers for Commands whose 【Main】/【Action】 you activate from the hand or through an effect, on either player's turn; it resolves after the Command's effect.",
+      "rationale": "The text has no turn restriction; triggered effects wait until the current effect has resolved (10-1-6)."
+    },
+    "ambiguous:GD04-026:return-top-deck-place": {
+      "policy": "most_defensible_reading",
+      "decision": "An optional 'place it into your trash'; declining leaves it on top.",
+      "rationale": "The two choices are equivalent to a yes/no on trashing; the card never leaves the top otherwise."
+    },
+    "ambiguous:GD03-117:main-if-4-enemy": {
+      "policy": "most_defensible_reading",
+      "decision": "Applied the Q245 'unmet leading If means unplayable' policy to the two branches together: the Command is playable only with 1 or more enemy Units.",
+      "rationale": "Read literally ('starts with an unmet If'), the Command would be unplayable with 5+ enemy Units, which contradicts its second sentence. With 0 enemy Units the card does nothing, which is exactly the case Q245 forbids."
+    },
+    "ambiguous:GD03-120:main-during-turn-if": {
+      "policy": "most_defensible_reading",
+      "decision": "A triggered effect that lasts the turn and fires on every qualifying battle kill.",
+      "rationale": "Rule 10-1-6-1-1: a triggered effect without 【Once per Turn】 activates every time its condition is met."
+    },
+    "ambiguous:GD03-102:choose-titans-link-units": {
+      "policy": "most_defensible_reading",
+      "decision": "'Battling an enemy Unit' covers both attacking an enemy Unit and being the attack target (including by blocking). A Unit attacking the player or a Base does not qualify.",
+      "rationale": "A battle between Units exists in both directions. A player or Base target is not an enemy Unit."
+    },
+    "ambiguous:GD03-129:if-do-place-top": {
+      "policy": "most_defensible_reading",
+      "decision": "No prompt when the Base is already rested.",
+      "rationale": "A rested Base cannot be rested, so 'If you do' (5-20-1) could never succeed; asking would be a meaningless decision."
+    },
+    "ambiguous:GD03-130:may-choose-vagan-unit": {
+      "policy": "most_defensible_reading",
+      "decision": "Any matching card may be chosen; if its cost can't be paid it stays in the trash.",
+      "rationale": "The text does not limit the choice to payable cards, and the outcome equals not choosing."
+    },
+    "ambiguous:GD03-093:while-no-enemy-base": {
+      "policy": "most_defensible_reading",
+      "decision": "The enemy EX Base counts as an enemy Base.",
+      "rationale": "5-17-3-1-1: an EX Base is a Base token, and 5-17-2-1 says tokens are treated like real cards."
+    },
+    "ambiguous:GD03-038:during-turn-when-unit": {
+      "policy": "most_defensible_reading",
+      "decision": "Resting through its own <Support> (and other activation costs) counts as 'rested by an effect'. Resting by attacking or blocking does not.",
+      "rationale": "Rule 13-1-3-1 calls <Support> a keyword effect that activates when you rest the Unit, and this card's reminder text prints the rest as part of <Support>. Rule 10-1-7-2 could support the stricter reading (a cost is not the effect); an official ruling would decide."
+    },
+    "ambiguous:GD03-069:during-link-at-end": {
+      "policy": "most_defensible_reading",
+      "decision": "At the end of any turn in which this Unit became paired, set it as active, provided it is linked at that moment. Checked as: the Pilot now paired with it was paired this turn.",
+      "rationale": "The other reading ('at the end of each turn while paired') makes 'when this Unit is paired with a Pilot' redundant under 【During Link】. The text says 'the turn', not 'your turn'."
+    },
+    "ambiguous:GD03-071:for-each-aeug-unit": {
+      "policy": "most_defensible_reading",
+      "decision": "The count is taken once, when the effect resolves.",
+      "rationale": "A resolved effect keeps its result (ruling GD01-059:Q135; FAQ Q105 fixes the affected set at resolution). Only constant effects are continuously re-evaluated (10-1-5)."
+    },
+    "ambiguous:GD03-073:during-link-activate-action": {
+      "policy": "most_defensible_reading",
+      "decision": "The trash count is an activation condition, and a battling enemy target is required, so the ability can't be activated (or spend its Once per Turn) when it would do nothing.",
+      "rationale": "Same observable result as resolving and doing nothing, under the resolution ruling:GD02-002:Q197 (an effect that performs nothing is not used up). Rule 10-2-2 requires a target."
+    },
+    "ambiguous:GD03-051:may-choose-unit-card": {
+      "policy": "most_defensible_reading",
+      "decision": "Pay the card's cost as modified in the trash (GD03-058 -1). Resources are rested normal first, then EX, with no player choice. No Lv. check. If the cost can't be paid, the card is not deployed. The payment emits COST_PAID for GD03-051.",
+      "rationale": "Resolution ambiguous:pay-its-cost-to-deploy; rulings Q286/Q297/Q400. Custom steps must not ask for decisions, so the choice of which Resources to rest is fixed."
+    },
+    "ambiguous:GD03-076:once-per-turn-during": {
+      "policy": "most_defensible_reading",
+      "decision": "If the enemy Unit was destroyed by that damage there is no prompt and nothing happens (Q235), and 【Once per Turn】 is not used. Declining the 'you may' does not use it either.",
+      "rationale": "Rule 10-1-3: declining a 'you may' effect is choosing not to activate it; resolution ruling:GD02-002:Q197: an effect that performs nothing does not count for 【Once per Turn】."
+    },
+    "ambiguous:GD03-001:when-effect-destroys-enemy": {
+      "policy": "most_defensible_reading",
+      "decision": "Draw only if the chosen Unit was destroyed and is no longer in the battle area right after this effect's damage and rules management.",
+      "rationale": "Ruling Q209 / resolution ruling:GD03-001:Q209. Later destruction, or an earlier destruction of the same card this turn, does not count."
+    },
+    "ambiguous:GD05-101:once-per-turn-when": {
+      "policy": "most_defensible_reading",
+      "decision": "The Militia check is a trigger condition (Triggered.cond). A non-Militia host does not trigger, and the 【Once per Turn】 use is not spent.",
+      "rationale": "Rule 10-2-1: an effect whose required condition is not met does not activate."
+    },
+    "ambiguous:GD05-073:won-t-be-set": {
+      "policy": "most_defensible_reading",
+      "decision": "A marker is converted into CANT_BE_SET_ACTIVE at the end of the turn the 【Deploy】 resolved, and removed when the opponent's next turn starts (the controller's delayed trigger resolves after the active player's start-step triggers).",
+      "rationale": "Q381: only the start phase is restricted. Edge case: if Altron is deployed during the opponent's turn, the Unit also can't be set active by effects during your following turn."
+    },
+    "ambiguous:GD05-108:change-battling-enemy-unit": {
+      "policy": "most_defensible_reading",
+      "decision": "Playable whenever the Choose target exists (rule 10-1-8-1-1). The retarget happens only while an enemy Unit is attacking, so during your own attack it does nothing.",
+      "rationale": "'A battling enemy Unit's attack target' exists only when the enemy Unit is the attacker."
+    },
+    "ambiguous:GD05-124:when-would-rest-unit": {
+      "policy": "most_defensible_reading",
+      "decision": "Substitution applies to resting your own Units only; one Base replaces at most one Unit.",
+      "rationale": "Replacing the resting of an enemy Unit would only ever cost the player; Q417/Q418 concern own Units."
+    },
+    "ambiguous:GD05-102:choose-following-effects": {
+      "policy": "most_defensible_reading",
+      "decision": "The card can be played only if the targets of at least one mode can be chosen.",
+      "rationale": "Rulings Q401/Q402; the same rule as resolution ruling:ST12-015:Q450 for modal Commands."
+    },
+    "ambiguous:GD05-104:gains-following-effect-during": {
+      "policy": "most_defensible_reading",
+      "decision": "The granted ability is ability #1 of the Command card itself, gated 【During Link】. It never works on the Command card in hand, trash, or paired as [Helen Jackson] (gate needs the battle area); a Unit receives it only through AbilityGrant.",
+      "rationale": "AbilityGrant references (card_number, index), so the ability must live on the card."
+    },
+    "ambiguous:GD05-123:can-t-receive-2": {
+      "policy": "most_defensible_reading",
+      "decision": "During the opponent's turn, friendly (Orb) Units can't receive enemy effect damage of 2 or less; damage reduced to 2 or less is not received either (Q416).",
+      "rationale": "Literal text; Q416 applies the threshold after reductions."
+    },
+    "ambiguous:GD05-129:destroyed-by-one-neo": {
+      "policy": "most_defensible_reading",
+      "decision": "Counts a Unit of yours destroyed this turn by a 'destroy' effect of one of your (Neo Zeon) cards; destruction by effect damage does not count.",
+      "rationale": "Same reading as GD05-054:Q368 (destruction by an effect means 'destroy it' effects); the (Neo Zeon) card is the one whose effect destroyed the Unit."
+    },
+    "ambiguous:GD05-059:choose-active-gjallarhorn-units": {
+      "policy": "most_defensible_reading",
+      "decision": "Both the draw and <High-Maneuver> require the rest.",
+      "rationale": "Resolution GD05-057:Q371 says a leading 'If you do' governs the following sentences, and GD05-057 has the same sentence shape."
+    },
+    "ambiguous:GD05-002:during-pair-attack-may": {
+      "policy": "most_defensible_reading",
+      "decision": "The option is offered only with 2+ cards in hand; discarding 1 never satisfies 'If you do'.",
+      "rationale": "Consistent with resolution GD01-003:Q121 (no partial resolution of an N-card requirement) and rule 5-20-1."
+    },
+    "ambiguous:GD05-001:activate-main-once-per": {
+      "policy": "most_defensible_reading",
+      "decision": "The Unit itself may be one of the Units rested.",
+      "rationale": "Literal wording ('your Units', not 'other')."
+    },
+    "ambiguous:GD05-049:all-enemy-players-each": {
+      "policy": "most_defensible_reading",
+      "decision": "In 1v1 the opponent picks one of their Units other than the attack target; that Unit counts as chosen by an enemy effect, so 'can't be chosen by enemy effects' applies.",
+      "rationale": "The effect belongs to the enemy of the chosen Unit's owner (docs/ASSUMPTIONS.md 1v1 wording)."
+    },
+    "ambiguous:GD05-053:destroyed-by-one-neo": {
+      "policy": "most_defensible_reading",
+      "decision": "'Destroy' effects only (not damage). The destroying effect's controller must be you and its host card must have (Neo Zeon); for a Pilot-granted effect the host is the paired Unit.",
+      "rationale": "Resolution GD05-054:Q368. The source of a Pilot-granted effect is the paired Unit."
+    },
+    "ambiguous:GD05-026:equal-lower-than-number": {
+      "policy": "most_defensible_reading",
+      "decision": "Enemy Units whose Lv. is at most the count enter play rested; Unit tokens (Lv.0) always do.",
+      "rationale": "'Deployed rested' places the Unit rested rather than resting it (Q354); the count is taken when the Unit is deployed."
+    },
+    "ambiguous:T-014:unit-can-t-be": {
+      "policy": "most_defensible_reading",
+      "decision": "Two independent restrictions (distributive 'or'). Each is a separate constant rule grant, and 'can't' beats any permission (10-1-5-6).",
+      "rationale": "The only grammatical reading; it matches the separately printed single-restriction token T-022 ('can't be paired with a Pilot'), and 'can't' beats any permission (10-1-5-6)."
+    },
+    "ambiguous:ST02-015:look-at-top-2": {
+      "policy": "most_defensible_reading",
+      "decision": "The controller chooses which of the 2 looked cards goes to the bottom; the other stays on top. With only 1 card in the deck, that card is simply returned.",
+      "rationale": "The same as choosing the top card. It leaves every other card's order unchanged and needs only one decision."
+    },
+    "ambiguous:ST01-015:activate-main-once-per": {
+      "policy": "most_defensible_reading",
+      "decision": "Counts your Units in the battle area, Unit tokens included, when the effect resolves (after ② is paid). 'only 1' means exactly 1.",
+      "rationale": "Units in play are the Units in the battle area, and conditions are checked at resolution (resolution ruling:ST04-006:Q118). The _p1/_p2 '0 Units' wording is equivalent (divergent:ST01-015)."
+    },
+    "ambiguous:ST04-012:burst-if-have-no": {
+      "policy": "most_defensible_reading",
+      "decision": "A resolution-time condition, not a play restriction. The Command stays playable with an EA token in play and resolves with no effect. The same condition gates the Burst.",
+      "rationale": "10-1-8-1-1 restricts only effects that require targets. An 'If' clause in the body is checked when the card resolves."
+    },
+    "ambiguous:ST02-016:deploy-add-shields-hand": {
+      "policy": "most_defensible_reading",
+      "decision": "'instead' replaces the Tallgeese token with two Leo tokens; they are not deployed in addition. Only your trash is checked. When deployed by 【Burst】 on the opponent's turn, the card only adds a Shield to hand.",
+      "rationale": "EFFECT_TEMPLATES 6.1.6 classifies ST02-016's 'instead' as a conditional override of the previous step, not a rule 10-1-9 substitution."
+    },
+    "ambiguous:ST03-011:attack-during-turn-unit": {
+      "policy": "most_defensible_reading",
+      "decision": "The Link Unit check is made when the effect resolves. Both the AP+1 and the <High-Maneuver> last this turn.",
+      "rationale": "Canonical ST03-011 wording per divergent:ST03-011 ('During this turn' scopes both clauses). Conditions are evaluated at resolution."
+    },
+    "ambiguous:ST07-009:attack-unit-gets-ap": {
+      "policy": "most_defensible_reading",
+      "decision": "'instead' replaces the whole first sentence, keeping 'during this turn'. With 7+ CB cards, every friendly CB Unit gets AP+1 this turn, and a non-CB Unit paired with Setsuna gets nothing.",
+      "rationale": "10-1-9 style substitution of the preceding step (EFFECT_TEMPLATES 6.1.6). The literal target set of the replacement is 'all your (CB) Units'."
+    },
+    "ambiguous:ST07-013:action-choose-rested-friendly": {
+      "policy": "most_defensible_reading",
+      "decision": "'the battling enemy Unit' is the attacking enemy Unit. When no enemy Unit is attacking (e.g. your own attack), the command resolves with no redirect. It stays playable whenever a rested friendly CB Unit can be chosen.",
+      "rationale": "Only an attacking Unit has an attack target (5-22-1/5-22-2). 10-1-8-1-1 requires only the chosen target to exist."
+    },
+    "ambiguous:ST08-006:during-pair-attack-once": {
+      "policy": "most_defensible_reading",
+      "decision": "The 'If' is checked at resolution, so an attack on a Unit still uses the once-per-turn activation. The reveal is mandatory when possible (no 'you may'), and the draw is gated on the card reaching the deck (5-20-1).",
+      "rationale": "10-1-6-2: the trigger condition is the 【Attack】 event; an 'If' in the text is checked when the effect resolves."
+    },
+    "ambiguous:ST08-011:when-draw-effect-if": {
+      "policy": "most_defensible_reading",
+      "decision": "Any effect that makes you draw counts, including an opponent's. A multi-card draw from one instruction triggers it once. Colour is checked at resolution. Draw-phase draws do not count.",
+      "rationale": "10-1-6-3 (simultaneous events trigger once). 'with an effect' excludes the rule-based draw of 7-3-1."
+    },
+    "ambiguous:ST08-001:when-paired-choose-enemy": {
+      "policy": "most_defensible_reading",
+      "decision": "The highest Lv is computed over all enemy Units in play, including Units that can't be chosen. An unchoosable highest-Lv Unit does not make a lower-Lv Unit eligible. Ties let the chooser pick (Q206).",
+      "rationale": "'with the highest Lv.' describes the Unit, not the set of legal targets."
+    },
+    "ambiguous:ST10-001:can-t-choose-same": {
+      "policy": "most_defensible_reading",
+      "decision": "This Unit can't attack the player for the rest of the turn but may still attack rested enemy Units. Destroying a Base with battle damage also triggers the effect.",
+      "rationale": "Resolution ambiguous:multiplayer-vocabulary; 'shield area card' covers the Base (4-6)."
+    },
+    "ambiguous:ST11-006:if-another-friendly-marine": {
+      "policy": "most_defensible_reading",
+      "decision": "Checked at the start of the opponent's turn: if another friendly (Marine) Unit is in play, then for that whole turn enemy effect damage to each of your shield area cards (Base and Shields, including <Breach>) is reduced by 5, even if this Unit leaves play.",
+      "rationale": "'At the start of your opponent's turn' fixes when the condition is checked and 'during this turn' sets the duration (rulings Q430, Q431)."
+    },
+    "ambiguous:ST11-009:destroyed-if-opponent-s": {
+      "policy": "most_defensible_reading",
+      "decision": "Draw exactly when it is the opponent's turn.",
+      "rationale": "Q432 and resolution ruling:ST11-009:Q432: the destroyed Kapool, a printed Marine, counts by last-known information, so the Marine clause always holds."
+    },
+    "ambiguous:ST10-008:draw-number-cards-equal": {
+      "policy": "most_defensible_reading",
+      "decision": "Draw 1, then Discard 1 only if a card was actually drawn.",
+      "rationale": "1v1 resolution: the number of enemy players is 1. 'The same number you drew' is 0 if the draw failed."
+    },
+    "ambiguous:ST09-010:look-at-top-2": {
+      "policy": "most_defensible_reading",
+      "decision": "The player chooses 1 of the top 2 to keep, and the other card is moved to the trash (not a discard, no event).",
+      "rationale": "The kept card ends on top whichever position it came from. 'Place into your trash' is not a discard."
+    },
+    "ambiguous:ST11-001:return-bottom-its-owner": {
+      "policy": "most_defensible_reading",
+      "decision": "The Unit and its paired Pilot both go to the bottom of the owner's deck.",
+      "rationale": "Rule 3-3-6: the Pilot moves with its Unit; ruling GD05-002:Q339."
+    },
+    "ambiguous:ST11-012:when-receives-battle-damage": {
+      "policy": "most_defensible_reading",
+      "decision": "For this turn, battle damage from enemy Units to the chosen (Marine) Unit is reduced by 2.",
+      "rationale": "Only Units deal battle damage (Bases have 0 AP)."
+    },
+    "ambiguous:ST14-001:each-enemy-player-s": {
+      "policy": "most_defensible_reading",
+      "decision": "The lowest Lv. is taken among the enemy's rested Units, every tied Unit is affected, and it applies only during the enemy's start phase.",
+      "rationale": "The head noun is 'rested Units'. Q462 affects all tied Units, and Q463 limits the freeze to the start phase."
+    },
+    "ambiguous:ST14-011:reduce-its-ap-during": {
+      "policy": "most_defensible_reading",
+      "decision": "The number is counted once, when the effect resolves.",
+      "rationale": "Consistent with the policy in the resolution of GD01-059:Q135 (conditions and target restrictions are evaluated once, at resolution). A continuously re-counted amount would change after a Blocker rests."
+    },
+    "ambiguous:ST13-009:player-chooses-2-unit": {
+      "policy": "most_defensible_reading",
+      "decision": "With fewer than 2 Unit cards in that trash, nothing is exiled.",
+      "rationale": "Applies the resolution of GD01-003:Q121 (choosing N cards from a public location needs N) to identical wording."
+    },
+    "ambiguous:ST13-015:choose-3-unit-cards": {
+      "policy": "most_defensible_reading",
+      "decision": "Not playable with fewer than 3 Unit cards in the trash. The enemy Unit is not required to play it (10-1-8-1-2).",
+      "rationale": "Q121 policy plus 10-1-8-1-1/10-1-8-1-2."
+    },
+    "ambiguous:ST12-015:choose-friendly-unit-enemy": {
+      "policy": "most_defensible_reading",
+      "decision": "'Lv.5 or higher' applies only to the enemy Unit.",
+      "rationale": "Q451's wording ('no friendly Units or no enemy Units that are Lv.5 or higher') matches this reading."
+    },
+    "ambiguous:ST12-013:player-each-choose-own": {
+      "policy": "most_defensible_reading",
+      "decision": "You choose first, so your Unit is the attacking Unit (<First Strike> applies to it). Both choices must be possible to play the card.",
+      "rationale": "5-22-4 (the first chosen Unit attacks). Both choices precede any Then/If you do (10-1-8-1-1)."
+    },
+    "ambiguous:ST12-012:look-at-top-2": {
+      "policy": "most_defensible_reading",
+      "decision": "The player picks which of the 2 cards to keep and the other goes to the trash. The kept card goes to hand if the condition holds, otherwise it stays on top. 'A player' includes yourself and ignores Bases.",
+      "rationale": "Rulings Q444 and Q445. This is a 10-1-9 substitution of the destination of the kept card."
+    },
+    "ambiguous:ST14-015:choose-number-resources-equal": {
+      "policy": "most_defensible_reading",
+      "decision": "Sets 1 rested Resource active, normal Resources before EX Resources, without a player choice.",
+      "rationale": "In 1v1 the number of enemy players is 1. Choosing an already-active Resource does nothing, and a normal Resource is always the better pick."
+    },
+    "ambiguous:ST13-012:when-enemy-unit-destroyed": {
+      "policy": "most_defensible_reading",
+      "decision": "Counts only a destruction by rules management right after an effect's damage step, from any source. It excludes battle damage, 'destroy' effects (Q459) and HP-reduction destruction. 'Attacking' means the current battle's attacker is this Unit.",
+      "rationale": "Resolution of Q459: 'destroyed with damage' means battle or effect damage, and 'destroy' effects do not count."
+    },
+    "ambiguous:ST14-006:may-reveal-number-cards": {
+      "policy": "most_defensible_reading",
+      "decision": "May reveal and add exactly 1 card of any type.",
+      "rationale": "In 1v1 the number of enemy players is 1 (ambiguous:multiplayer-vocabulary resolution)."
+    },
+    "ambiguous:during-this-battle-without-battle": {
+      "policy": "most_defensible_reading",
+      "decision": "A 'during this battle' effect created while no battle is in progress has no effect; the rest of the effect still resolves.",
+      "rationale": "Such effects exist only between 8-2-3 and 8-6-1 of a battle; with no battle there is no period for them to apply, and no reading lets them outlast the turn."
+    },
+    "ambiguous:once-per-turn-declined-may": {
+      "policy": "most_defensible_reading",
+      "decision": "A 【Once per Turn】 triggered effect is used up only if it performs at least one action (including paying a cost). If its target can't be chosen, its 'If' fails, or the player declines its 'you may', it can trigger again this turn. Activated abilities are used up when activated.",
+      "rationale": "10-1-3 treats declining a 'you may' as choosing not to activate the effect, and Q197 treats an effect that performs nothing as not activated; 10-3-3-1: an effect whose target can't be chosen does not activate."
+    },
+    "ambiguous:ST13-013:deploy-1-to-2-tokens": {
+      "policy": "most_defensible_reading",
+      "decision": "Deploy 1 token, then the player may deploy a second one.",
+      "rationale": "Equivalent to choosing 1 or 2 up front: nothing happens between the two deployments that could change the choice."
     }
   }
 }

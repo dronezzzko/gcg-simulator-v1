@@ -37,5 +37,12 @@ Every decision made without asking the user is recorded here with its rationale.
 | Resource caps | Placing beyond 15 Resources / 5 EX Resources does nothing (1-3-2). | Section 11 defines no excess management for resources. |
 | Lasting "all your Units" effects | Apply only to Units present at resolution (FAQ Q105). | FAQ. |
 | Card identity | uids are assigned after the seeded shuffle and cut, so a uid carries no identity information. | Needed for information-set honesty. |
-| Simultaneous placement into private zones | Multiple cards placed into a deck at once keep selection order; "randomly" orders use the seeded RNG. | 4-1-6/4-1-7 owner choice modelled as selection order. |
+| Simultaneous placement into private zones | Several cards placed into one deck at once are ordered by their owner (a decision), hidden from the other player; "randomly" orders use the seeded RNG. | 4-1-6, 4-1-7. |
 | Turn safety cap | A game that reaches 200 turns or 20,000 decisions ends as a draw with reason `turn_limit`; the robustness suite asserts this never happens. | Termination guarantee; never silent. |
+| 【Once per Turn】 | A triggered effect is used up only if it performs an action (paying a cost counts). A missing target, a failed "If", or a declined "you may" leaves it available; activated abilities are used up when activated. | 10-1-3, 10-3-3-1, ruling GD02-002:Q197; conflict `ambiguous:once-per-turn-declined-may`. |
+| Delayed triggers | "During this turn, when …" effects stay armed for their duration and trigger every time. | 10-1-6-1-1. |
+| "During this battle" without a battle | Has no effect (e.g. an 【Action】 in the end-phase action step); the rest of the effect resolves. | 8-2-3, 8-6-1; conflict `ambiguous:during-this-battle-without-battle`. |
+| Destruction by effect damage | Counts as the damaging Unit destroying the card "with damage" (also <Breach>), but not as "destroyed by an effect", which means "destroy" effects only. | Rulings Q361, Q437, Q439; Q287, Q368. |
+| Modal Commands | Playable only if the targets of at least one mode can all be chosen; a triggered modal effect with no legal mode does nothing. | Rulings Q450, Q451, Q469. |
+| Attack target constraints | "Must choose that Unit" (GD04-107) outranks "if possible" attractors; with several, the attacker picks one; a forced Unit that is not a legal target imposes nothing. | Rulings Q289–Q301, Q388. |
+| "Deploy it as an (APx･HPy) Unit" | While in the battle area the card is a Unit with that AP/HP and its printed Lv., cost, name and traits, and no text; anywhere else it is the printed card. | Rulings GD05-089:Q389, Q390. |

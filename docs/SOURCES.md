@@ -75,10 +75,10 @@ runs offline from the packaged copies.
 | src/gcg_sim/data/official/bo3_match_rules.json | `89258028820ccce2` |
 | src/gcg_sim/data/official/edition_language.json | `21f34da1226b27c7` |
 | src/gcg_sim/data/official/rules_version.json | `8d9caac3911e80ba` |
-| src/gcg_sim/data/overrides.json | `50d2651d1416e7b0` |
-| src/gcg_sim/data/curated_conflicts.json | `de8a212d446ab9f8` |
-| src/gcg_sim/data/rules/rules_index.json | `728ef7aac2868f0b` |
-| src/gcg_sim/data/rules/rules_na.json | `d0241fb453b86036` |
+| src/gcg_sim/data/overrides.json | `5f0b4d5cd0938bca` |
+| src/gcg_sim/data/curated_conflicts.json | `418b0f885ec07ef7` |
+| src/gcg_sim/data/rules/rules_index.json | `00d17e03383f4167` |
+| src/gcg_sim/data/rules/rules_na.json | `9ccaf99aab08721d` |
 
 ## Licences and attribution
 

@@ -12,7 +12,7 @@
       "url": "https://www.gundam-gcg.com/en/pdf/comprehensiverules_en.pdf"
     },
     "sha256": {
-      "curated_conflicts.json": "de8a212d446ab9f8768c557aafd65d2a497b381d744e28df62045984fc390f5d",
+      "curated_conflicts.json": "418b0f885ec07ef718b2a08691039f3d86c630044103a0576a79b417fc2c53d5",
       "gcgapi/cards.ndjson": "ad52f9add3593965c46bb82950f1374d0a37d0242a439ef8e5eba27f5b8e496f",
       "gcgapi/errata.json": "243081dd30022b3cc2745f09cad218743b20654a4c386d490d7159a9faf8e6d9",
       "gcgapi/manifest.json": "175adb84d11098a81a504d386a9c3d29c5940dc29bb6664b03de9ce40ac6ec39",
@@ -20,7 +20,7 @@
       "gcgapi/rulings.json": "2da64f7ea88a96edd8b91399a3bd73b43ce1d766f3253474df2b1ca706bbc895",
       "official/banlist.json": "d03313dc88a50a746e01ad7bf11b8abbaf4ce4060988c4b2fd9ade49ef66dac5",
       "official/rules_version.json": "8d9caac3911e80ba3d6b9960c1b6fad69c0dbada75fc7607e392d0803edf48a5",
-      "overrides.json": "50d2651d1416e7b00226b329d4def0ef86d24c3cdb321b71731adcf780dea8b5",
+      "overrides.json": "5f0b4d5cd0938bcabc6b8f9a2131e2459b297e82f8365814f126e453deb7d8e0",
       "rules/gundam-card-game-comprehensive-rules.md": "bf2f3d5c7a1a04d9860d97a38c316309da14707f5e7012f9241885b8635a50b6"
     },
     "counts": {
@@ -78,16 +78,16 @@
       },
       "ambiguous_text": {
         "info": 2,
-        "minor": 3,
+        "minor": 106,
         "major": 0
       }
     }
   },
   "summary": {
-    "total": 292,
+    "total": 395,
     "by_severity": {
       "info": 72,
-      "minor": 213,
+      "minor": 316,
       "major": 7
     },
     "unresolved": [],
@@ -16542,6 +16542,815 @@
       }
     },
     {
+      "id": "ambiguous:EB01-001:won-t-be-set",
+      "kind": "ambiguous_text",
+      "severity": "minor",
+      "card_numbers": [
+        "EB01-001"
+      ],
+      "title": "EB01-001 Gundam Astray Red Frame Custom (EX): reading of “It won't be set as active during the start phase of your opponent's ne…”",
+      "description": "Card text: “It won't be set as active during the start phase of your opponent's next turn.”. The wording admits more than one reading. The text limits the restriction to the start phase. The compiler's blanket 'can't be set active' is broader.",
+      "engine_behaviour": true,
+      "origin": "curated",
+      "sources": [
+        "gcg-api card EB01-001 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=EB01-001 (effect)"
+      ],
+      "details": {
+        "evidence": [
+          {
+            "source": "card",
+            "ref": "EB01-001",
+            "quote": "It won't be set as active during the start phase of your opponent's next turn.",
+            "verified": true
+          }
+        ]
+      },
+      "problems": [],
+      "resolution": {
+        "policy": "most_defensible_reading",
+        "decision": "Only the untap and set-active effects during that start phase (active step and start-step triggers) are prevented. Set-active effects at any other time still work.",
+        "rationale": "The text limits the restriction to the start phase (compare rulings ST08-009:Q208 and GD04-102:Q288); a blanket 'can't be set as active' would be broader."
+      }
+    },
+    {
+      "id": "ambiguous:EB01-003:at-end-turn-if",
+      "kind": "ambiguous_text",
+      "severity": "minor",
+      "card_numbers": [
+        "EB01-003"
+      ],
+      "title": "EB01-003 Narrative Gundam A-Packs (EX): reading of “At the end of your turn, if this Unit is rested, rest all Units. If th…”",
+      "description": "Card text: “At the end of your turn, if this Unit is rested, rest all Units. If this effect rested 3 or more Units, draw 1.”. The wording admits more than one reading. This matches the compiler's convention for 'If' conditions. Resting an already-rested Unit does nothing (rule 1-3-2-1).",
+      "engine_behaviour": true,
+      "origin": "curated",
+      "sources": [
+        "gcg-api card EB01-003 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=EB01-003 (effect)"
+      ],
+      "details": {
+        "evidence": [
+          {
+            "source": "card",
+            "ref": "EB01-003",
+            "quote": "At the end of your turn, if this Unit is rested, rest all Units. If this effect rested 3 or more Units, draw 1.",
+            "verified": true
+          }
+        ]
+      },
+      "problems": [],
+      "resolution": {
+        "policy": "most_defensible_reading",
+        "decision": "The rested check happens at resolution. 'Rested by this effect' means Units that were active just before and are rested afterwards; Units already rested do not count.",
+        "rationale": "An 'If' condition is checked when the effect resolves. Resting an already-rested Unit does nothing (rule 1-3-2-1)."
+      }
+    },
+    {
+      "id": "ambiguous:EB01-009:all-enemy-players-each",
+      "kind": "ambiguous_text",
+      "severity": "minor",
+      "card_numbers": [
+        "EB01-009"
+      ],
+      "title": "EB01-009 Gundam Full Armor (Thunderbolt) (EX): reading of “All enemy players each choose 1 of their active Units. Rest them.”",
+      "description": "Card text: “All enemy players each choose 1 of their active Units. Rest them.”. The wording admits more than one reading. The effect belongs to its controller, so for the opponent it is an enemy effect whoever does the choosing.",
+      "engine_behaviour": true,
+      "origin": "curated",
+      "sources": [
+        "gcg-api card EB01-009 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=EB01-009 (effect)"
+      ],
+      "details": {
+        "evidence": [
+          {
+            "source": "card",
+            "ref": "EB01-009",
+            "quote": "All enemy players each choose 1 of their active Units. Rest them.",
+            "verified": true
+          }
+        ]
+      },
+      "problems": [],
+      "resolution": {
+        "policy": "most_defensible_reading",
+        "decision": "The opponent makes the choice (Q313). A Unit that 'can't be chosen by enemy effects' cannot be chosen.",
+        "rationale": "The effect belongs to its controller, so for the opponent it is an enemy effect whoever does the choosing."
+      }
+    },
+    {
+      "id": "ambiguous:EB01-017:player-who-destroyed-unit",
+      "kind": "ambiguous_text",
+      "severity": "minor",
+      "card_numbers": [
+        "EB01-017"
+      ],
+      "title": "EB01-017 Haro: reading of “you and the player who destroyed this Unit draw 1”",
+      "description": "Card text: “you and the player who destroyed this Unit draw 1”. The wording admits more than one reading. In 1v1, battles are only between Units of opposing players.",
+      "engine_behaviour": true,
+      "origin": "curated",
+      "sources": [
+        "gcg-api card EB01-017 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=EB01-017 (effect)"
+      ],
+      "details": {
+        "evidence": [
+          {
+            "source": "card",
+            "ref": "EB01-017",
+            "quote": "you and the player who destroyed this Unit draw 1",
+            "verified": true
+          }
+        ]
+      },
+      "problems": [],
+      "resolution": {
+        "policy": "most_defensible_reading",
+        "decision": "With battle damage, the destroyer is always the opponent.",
+        "rationale": "In 1v1, battles are only between Units of opposing players."
+      }
+    },
+    {
+      "id": "ambiguous:EB01-023:all-players-each-look",
+      "kind": "ambiguous_text",
+      "severity": "minor",
+      "card_numbers": [
+        "EB01-023"
+      ],
+      "title": "EB01-023 Le Cygne (EX): reading of “All players each look at the top card of their deck. If it is a card t…”",
+      "description": "Card text: “All players each look at the top card of their deck. If it is a card that is Lv.5 or higher, they may reveal it and add it to their hand. They return any remaining card to the top or bottom of their deck.”. The wording admits more than one reading. Ruling Q319: players perform it in order starting with the active player, treated as simultaneous.",
+      "engine_behaviour": true,
+      "origin": "curated",
+      "sources": [
+        "gcg-api card EB01-023 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=EB01-023 (effect)"
+      ],
+      "details": {
+        "evidence": [
+          {
+            "source": "card",
+            "ref": "EB01-023",
+            "quote": "All players each look at the top card of their deck. If it is a card that is Lv.5 or higher, they may reveal it and add it to their hand. They return any remaining card to the top or bottom of their deck.",
+            "verified": true
+          }
+        ]
+      },
+      "problems": [],
+      "resolution": {
+        "policy": "most_defensible_reading",
+        "decision": "The active player does the whole sequence (look, optional add, return top/bottom), then the standby player does the same. Each player learns only their own top card.",
+        "rationale": "Ruling Q319: players perform it in order starting with the active player, treated as simultaneous."
+      }
+    },
+    {
+      "id": "ambiguous:EB01-028:once-per-turn-when",
+      "kind": "ambiguous_text",
+      "severity": "minor",
+      "card_numbers": [
+        "EB01-028"
+      ],
+      "title": "EB01-028 Gundam Plutone: reading of “【Once per Turn】When another Unit attacks an enemy Unit, if this Unit i…”",
+      "description": "Card text: “【Once per Turn】When another Unit attacks an enemy Unit, if this Unit is rested, the attacking Unit gains <Breach 2> during this battle.”. The wording admits more than one reading. 'enemy Unit' is relative to Plutone's controller, so the attacker must be friendly. Checking at trigger time (rule 10-2-1) stops an attack made while Plutone is active from using up 【Once per Turn】.",
+      "engine_behaviour": true,
+      "origin": "curated",
+      "sources": [
+        "gcg-api card EB01-028 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=EB01-028 (effect)"
+      ],
+      "details": {
+        "evidence": [
+          {
+            "source": "card",
+            "ref": "EB01-028",
+            "quote": "【Once per Turn】When another Unit attacks an enemy Unit, if this Unit is rested, the attacking Unit gains <Breach 2> during this battle.",
+            "verified": true
+          }
+        ]
+      },
+      "problems": [],
+      "resolution": {
+        "policy": "most_defensible_reading",
+        "decision": "Triggers only for a friendly Unit other than Plutone that attacks an enemy Unit (not the player). The rested condition is checked when it triggers.",
+        "rationale": "'enemy Unit' is relative to Plutone's controller, so the attacker must be friendly. Checking at trigger time (rule 10-2-1) stops an attack made while Plutone is active from using up 【Once per Turn】."
+      }
+    },
+    {
+      "id": "ambiguous:EB01-036:during-turn-all-other",
+      "kind": "ambiguous_text",
+      "severity": "minor",
+      "card_numbers": [
+        "EB01-036"
+      ],
+      "title": "EB01-036 Darilbalde: reading of “During your turn, all other (G Generation) Units that are Lv.3 get AP+…”",
+      "description": "Card text: “During your turn, all other (G Generation) Units that are Lv.3 get AP+1.”. The wording admits more than one reading. The text says neither 'your' nor 'friendly', and 'all Units' includes both sides elsewhere in the set (EB01-003 ruling Q311, EB01-029). This keeps the compiled output.",
+      "engine_behaviour": true,
+      "origin": "curated",
+      "sources": [
+        "gcg-api card EB01-036 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=EB01-036 (effect)"
+      ],
+      "details": {
+        "evidence": [
+          {
+            "source": "card",
+            "ref": "EB01-036",
+            "quote": "During your turn, all other (G Generation) Units that are Lv.3 get AP+1.",
+            "verified": true
+          }
+        ]
+      },
+      "problems": [],
+      "resolution": {
+        "policy": "most_defensible_reading",
+        "decision": "Applies to other (G Generation) Lv.3 Units on both sides.",
+        "rationale": "The text says neither 'your' nor 'friendly', and 'all Units' covers both sides elsewhere in the set (EB01-003 ruling Q311, EB01-029)."
+      }
+    },
+    {
+      "id": "ambiguous:EB01-042:attack-units-are-lv",
+      "kind": "ambiguous_text",
+      "severity": "minor",
+      "card_numbers": [
+        "EB01-042"
+      ],
+      "title": "EB01-042 Psycho Haro (EX): reading of “【Attack】Units that are Lv.7 or lower can't activate <Blocker> during t…”",
+      "description": "Card text: “【Attack】Units that are Lv.7 or lower can't activate <Blocker> during this battle.”. The wording admits more than one reading. During this Unit's attack only the defending player can block, so this is equivalent to 'all Units' in 1v1.",
+      "engine_behaviour": true,
+      "origin": "curated",
+      "sources": [
+        "gcg-api card EB01-042 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=EB01-042 (effect)"
+      ],
+      "details": {
+        "evidence": [
+          {
+            "source": "card",
+            "ref": "EB01-042",
+            "quote": "【Attack】Units that are Lv.7 or lower can't activate <Blocker> during this battle.",
+            "verified": true
+          }
+        ]
+      },
+      "problems": [],
+      "resolution": {
+        "policy": "most_defensible_reading",
+        "decision": "Applies to enemy Units only.",
+        "rationale": "During this Unit's attack only the defending player can block, so 'enemy Units' and 'all Units' are equivalent in 1v1."
+      }
+    },
+    {
+      "id": "ambiguous:EB01-050:if-placed-card-lv",
+      "kind": "ambiguous_text",
+      "severity": "minor",
+      "card_numbers": [
+        "EB01-050"
+      ],
+      "title": "EB01-050 Saikoro Gundam: reading of “If you placed a card that is Lv.3 or higher with this effect”",
+      "description": "Card text: “If you placed a card that is Lv.3 or higher with this effect”. The wording admits more than one reading. The text says 'a card', not 'a Unit card'.",
+      "engine_behaviour": true,
+      "origin": "curated",
+      "sources": [
+        "gcg-api card EB01-050 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=EB01-050 (effect)"
+      ],
+      "details": {
+        "evidence": [
+          {
+            "source": "card",
+            "ref": "EB01-050",
+            "quote": "If you placed a card that is Lv.3 or higher with this effect",
+            "verified": true
+          }
+        ]
+      },
+      "problems": [],
+      "resolution": {
+        "policy": "most_defensible_reading",
+        "decision": "Any card type with a printed Lv of 3 or more counts (Unit, Pilot, Command, Base).",
+        "rationale": "The text says 'a card', not 'a Unit card'."
+      }
+    },
+    {
+      "id": "ambiguous:EB01-070:if-opponent-s-turn",
+      "kind": "ambiguous_text",
+      "severity": "minor",
+      "card_numbers": [
+        "EB01-070"
+      ],
+      "title": "EB01-070 Daryl Lorenz: reading of “①:If it is your opponent's turn, choose 1 Unit. It gets AP+1 during th…”",
+      "description": "Card text: “①:If it is your opponent's turn, choose 1 Unit. It gets AP+1 during this battle.”. The wording admits more than one reading. 8-6-1 ends 'during this battle' effects at battle end. No reading lets them outlive the turn.",
+      "engine_behaviour": true,
+      "origin": "curated",
+      "sources": [
+        "gcg-api card EB01-070 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=EB01-070 (effect)"
+      ],
+      "details": {
+        "evidence": [
+          {
+            "source": "card",
+            "ref": "EB01-070",
+            "quote": "①:If it is your opponent's turn, choose 1 Unit. It gets AP+1 during this battle.",
+            "verified": true
+          }
+        ]
+      },
+      "problems": [],
+      "resolution": {
+        "policy": "most_defensible_reading",
+        "decision": "Activated with no battle in progress (e.g. in the end-phase action step), the 'during this battle' effect has no effect.",
+        "rationale": "8-6-1 ends 'during this battle' effects when the battle ends; with no battle there is no period for the effect to apply (the same reading is used for every 'during this battle' effect, see resolution ambiguous:during-this-battle-without-battle)."
+      }
+    },
+    {
+      "id": "ambiguous:EB01-074:if-do-all-enemy",
+      "kind": "ambiguous_text",
+      "severity": "minor",
+      "card_numbers": [
+        "EB01-074"
+      ],
+      "title": "EB01-074 Eternal Road: reading of “If you do, all enemy players each choose 1 of their active Units. Rest…”",
+      "description": "Card text: “If you do, all enemy players each choose 1 of their active Units. Rest them.”. The wording admits more than one reading. The effect is controlled by the Command's player, so it is an enemy effect for the opponent's Units.",
+      "engine_behaviour": true,
+      "origin": "curated",
+      "sources": [
+        "gcg-api card EB01-074 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=EB01-074 (effect)"
+      ],
+      "details": {
+        "evidence": [
+          {
+            "source": "card",
+            "ref": "EB01-074",
+            "quote": "If you do, all enemy players each choose 1 of their active Units. Rest them.",
+            "verified": true
+          }
+        ]
+      },
+      "problems": [],
+      "resolution": {
+        "policy": "most_defensible_reading",
+        "decision": "The opponent chooses one of their own active Units (Q329). That choice counts as targeting by the Command's controller, so Units that 'can't be chosen by enemy effects' are excluded.",
+        "rationale": "The effect is controlled by the Command's player, so it is an enemy effect for the opponent's Units."
+      }
+    },
+    {
+      "id": "ambiguous:EB01-077:choose-rested-friendly-g",
+      "kind": "ambiguous_text",
+      "severity": "minor",
+      "card_numbers": [
+        "EB01-077"
+      ],
+      "title": "EB01-077 Master League Begins: reading of “Choose 1 rested friendly (G Generation) Unit. Change a battling enemy …”",
+      "description": "Card text: “Choose 1 rested friendly (G Generation) Unit. Change a battling enemy Unit's attack target to it.”. The wording admits more than one reading. An enemy Unit that is being attacked has no attack target; changing your own attacker's target would contradict 'enemy'.",
+      "engine_behaviour": true,
+      "origin": "curated",
+      "sources": [
+        "gcg-api card EB01-077 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=EB01-077 (effect)"
+      ],
+      "details": {
+        "evidence": [
+          {
+            "source": "card",
+            "ref": "EB01-077",
+            "quote": "Choose 1 rested friendly (G Generation) Unit. Change a battling enemy Unit's attack target to it.",
+            "verified": true
+          }
+        ]
+      },
+      "problems": [],
+      "resolution": {
+        "policy": "most_defensible_reading",
+        "decision": "Only an enemy Unit that is attacking has an attack target, so the change happens only while an enemy Unit is attacking. During your own attack nothing changes. The Command stays playable because the only chosen target is the rested friendly Unit (10-1-8-1-1).",
+        "rationale": "An enemy Unit that is being attacked has no attack target; changing your own attacker's target would contradict 'enemy'."
+      }
+    },
+    {
+      "id": "ambiguous:EB01-085:then-may-choose-active",
+      "kind": "ambiguous_text",
+      "severity": "minor",
+      "card_numbers": [
+        "EB01-085"
+      ],
+      "title": "EB01-085 Kudelia Aina Bernstein & Isaribi: reading of “Then, you may choose 1 active friendly blue (G Generation) Unit and 1 …”",
+      "description": "Card text: “Then, you may choose 1 active friendly blue (G Generation) Unit and 1 enemy Unit. Rest them.”. The wording admits more than one reading. The CONFLICTS resolution for ruling:EB01-072:Q327 applies the same both-targets reading to identical 'choose 1 X and 1 Y' wording.",
+      "engine_behaviour": true,
+      "origin": "curated",
+      "sources": [
+        "gcg-api card EB01-085 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=EB01-085 (effect)"
+      ],
+      "details": {
+        "evidence": [
+          {
+            "source": "card",
+            "ref": "EB01-085",
+            "quote": "Then, you may choose 1 active friendly blue (G Generation) Unit and 1 enemy Unit. Rest them.",
+            "verified": true
+          }
+        ]
+      },
+      "problems": [],
+      "resolution": {
+        "policy": "most_defensible_reading",
+        "decision": "The optional rest is offered only when both Units can be chosen. The enemy Unit may already be rested.",
+        "rationale": "The CONFLICTS resolution for ruling:EB01-072:Q327 applies the same both-targets reading to identical 'choose 1 X and 1 Y' wording."
+      }
+    },
+    {
+      "id": "ambiguous:GD01-003:if-do-set-unit",
+      "kind": "ambiguous_text",
+      "severity": "minor",
+      "card_numbers": [
+        "GD01-003"
+      ],
+      "title": "GD01-003 Unicorn Gundam 02 Banshee (Destroy Mode): reading of “If you do, set this Unit as active. It gains <First Strike> during thi…”",
+      "description": "Card text: “If you do, set this Unit as active. It gains <First Strike> during this turn.”. The wording admits more than one reading. Cards returned to the deck can't gain keywords, so this Unit is the only sensible antecedent. The follow-on sentence continues the 'If you do' result. In practice it is moot, because under Q121 the effect only resolves when all 12 cards are returned.",
+      "engine_behaviour": true,
+      "origin": "curated",
+      "sources": [
+        "gcg-api card GD01-003 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD01-003 (effect)"
+      ],
+      "details": {
+        "evidence": [
+          {
+            "source": "card",
+            "ref": "GD01-003",
+            "quote": "If you do, set this Unit as active. It gains <First Strike> during this turn.",
+            "verified": true
+          }
+        ]
+      },
+      "problems": [],
+      "resolution": {
+        "policy": "most_defensible_reading",
+        "decision": "'It' is this Unit, and both the set-active and the First Strike grant depend on 'If you do'",
+        "rationale": "Cards returned to the deck can't gain keywords, so this Unit is the only sensible antecedent. The follow-on sentence continues the 'If you do' result. In practice it is moot, because under Q121 the effect only resolves when all 12 cards are returned."
+      }
+    },
+    {
+      "id": "ambiguous:GD01-058:choose-unit-lv-4",
+      "kind": "ambiguous_text",
+      "severity": "minor",
+      "card_numbers": [
+        "GD01-058"
+      ],
+      "title": "GD01-058 Galluss-K: reading of “Choose 1 Unit that is Lv.4 or higher. It gets AP+1 during this battle.”",
+      "description": "Card text: “Choose 1 Unit that is Lv.4 or higher. It gets AP+1 during this battle.”. The wording admits more than one reading. 'During this battle' has no battle to scope it to. The test asserts only the weakest safe claim: no AP bonus in the opponent's next turn. It is a strict xfail because the engine keeps the bonus forever.",
+      "engine_behaviour": true,
+      "origin": "curated",
+      "sources": [
+        "gcg-api card GD01-058 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD01-058 (effect)"
+      ],
+      "details": {
+        "evidence": [
+          {
+            "source": "card",
+            "ref": "GD01-058",
+            "quote": "Choose 1 Unit that is Lv.4 or higher. It gets AP+1 during this battle.",
+            "verified": true
+          }
+        ]
+      },
+      "problems": [],
+      "resolution": {
+        "policy": "most_defensible_reading",
+        "decision": "Activated with no battle in progress (e.g. in the end-phase action step), the 'during this battle' effect has no effect.",
+        "rationale": "8-6-1 ends 'during this battle' effects when the battle ends; with no battle there is no period for the effect to apply (the same reading is used for every 'during this battle' effect, see resolution ambiguous:during-this-battle-without-battle)."
+      }
+    },
+    {
+      "id": "ambiguous:GD01-063:during-turn-while-unit",
+      "kind": "ambiguous_text",
+      "severity": "minor",
+      "card_numbers": [
+        "GD01-063"
+      ],
+      "title": "GD01-063 ZnO: reading of “During your turn, while this Unit is battling an enemy Unit that is Lv…”",
+      "description": "Card text: “During your turn, while this Unit is battling an enemy Unit that is Lv.2 or lower, it gains <First Strike>.”. The wording admits more than one reading. Matches ruling Q136 (a block by a Lv4 Unit removes First Strike). Tokens count as Lv0 (5-17-2-4), so they qualify.",
+      "engine_behaviour": true,
+      "origin": "curated",
+      "sources": [
+        "gcg-api card GD01-063 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD01-063 (effect)"
+      ],
+      "details": {
+        "evidence": [
+          {
+            "source": "card",
+            "ref": "GD01-063",
+            "quote": "During your turn, while this Unit is battling an enemy Unit that is Lv.2 or lower, it gains <First Strike>.",
+            "verified": true
+          }
+        ]
+      },
+      "problems": [],
+      "resolution": {
+        "policy": "most_defensible_reading",
+        "decision": "'Battling' is the current attacker/target pair of the ongoing battle (5-22-1, 5-22-2). A block changes the battling Unit, and the grant is re-evaluated continuously.",
+        "rationale": "Matches ruling Q136 (a block by a Lv4 Unit removes First Strike). Tokens count as Lv0 (5-17-2-4), so they qualify."
+      }
+    },
+    {
+      "id": "ambiguous:GD01-066:choose-triple-ship-alliance",
+      "kind": "ambiguous_text",
+      "severity": "minor",
+      "card_numbers": [
+        "GD01-066"
+      ],
+      "title": "GD01-066 Justice Gundam: reading of “Choose 1 of your (Triple Ship Alliance) Unit tokens. It may attack on …”",
+      "description": "Card text: “Choose 1 of your (Triple Ship Alliance) Unit tokens. It may attack on the turn it is deployed.”. The wording admits more than one reading. The permission can only matter on the token's deploy turn. THIS_TURN behaves the same as the compiler's WHILE_ON_FIELD but leaves no lasting state behind.",
+      "engine_behaviour": true,
+      "origin": "curated",
+      "sources": [
+        "gcg-api card GD01-066 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD01-066 (effect)"
+      ],
+      "details": {
+        "evidence": [
+          {
+            "source": "card",
+            "ref": "GD01-066",
+            "quote": "Choose 1 of your (Triple Ship Alliance) Unit tokens. It may attack on the turn it is deployed.",
+            "verified": true
+          }
+        ]
+      },
+      "problems": [],
+      "resolution": {
+        "policy": "most_defensible_reading",
+        "decision": "The permission to attack on the turn it is deployed lasts this turn only.",
+        "rationale": "The permission can only matter on the token's deploy turn, so 'this turn' and 'while in play' give the same result."
+      }
+    },
+    {
+      "id": "ambiguous:GD01-082:gets-ap-during-battle",
+      "kind": "ambiguous_text",
+      "severity": "minor",
+      "card_numbers": [
+        "GD01-082",
+        "GD01-127"
+      ],
+      "title": "GD01-082 Gundam Aerial (Mirasoul Flight Unit): reading of “It gets AP-1 during this battle.”",
+      "description": "Card text: “It gets AP-1 during this battle.”. The wording admits more than one reading. 8-6-1 ends 'during this battle' effects at battle end; with no battle the effect has no period to apply.",
+      "engine_behaviour": true,
+      "origin": "curated",
+      "sources": [
+        "gcg-api card GD01-082 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD01-082 (effect)"
+      ],
+      "details": {
+        "evidence": [
+          {
+            "source": "card",
+            "ref": "GD01-082",
+            "quote": "It gets AP-1 during this battle.",
+            "verified": true
+          }
+        ]
+      },
+      "problems": [],
+      "resolution": {
+        "policy": "most_defensible_reading",
+        "decision": "Activated with no battle in progress (e.g. in the end-phase action step), the 'during this battle' effect has no effect.",
+        "rationale": "8-6-1 ends 'during this battle' effects when the battle ends; with no battle there is no period for the effect to apply (the same reading is used for every 'during this battle' effect, see resolution ambiguous:during-this-battle-without-battle)."
+      }
+    },
+    {
+      "id": "ambiguous:GD01-091:during-turn-if-unit",
+      "kind": "ambiguous_text",
+      "severity": "minor",
+      "card_numbers": [
+        "GD01-091"
+      ],
+      "title": "GD01-091 Chang Wufei: reading of “During your turn, if this Unit has <Breach>, it can't receive battle d…”",
+      "description": "Card text: “During your turn, if this Unit has <Breach>, it can't receive battle damage from enemy Units with 3 or less AP.”. The wording admits more than one reading. The prevention is a constant effect checked at the moment of damage (10-1-5-3).",
+      "engine_behaviour": true,
+      "origin": "curated",
+      "sources": [
+        "gcg-api card GD01-091 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD01-091 (effect)"
+      ],
+      "details": {
+        "evidence": [
+          {
+            "source": "card",
+            "ref": "GD01-091",
+            "quote": "During your turn, if this Unit has <Breach>, it can't receive battle damage from enemy Units with 3 or less AP.",
+            "verified": true
+          }
+        ]
+      },
+      "problems": [],
+      "resolution": {
+        "policy": "most_defensible_reading",
+        "decision": "The source's AP is measured when the damage is dealt, and the source must be an enemy Unit.",
+        "rationale": "The prevention is a constant effect checked at the moment of damage (10-1-5-3)."
+      }
+    },
+    {
+      "id": "ambiguous:GD01-094:once-per-turn-when",
+      "kind": "ambiguous_text",
+      "severity": "minor",
+      "card_numbers": [
+        "GD01-094"
+      ],
+      "title": "GD01-094 Yzak Jule: reading of “【Once per Turn】 When an enemy Link Unit is destroyed with damage while…”",
+      "description": "Card text: “【Once per Turn】 When an enemy Link Unit is destroyed with damage while this Unit is attacking, draw 1.”. The wording admits more than one reading. Q149, FAQ Q98, and the GD02-093:Q190 resolution for simultaneous destruction (8-5-3-2-3, 10-1-6-4).",
+      "engine_behaviour": true,
+      "origin": "curated",
+      "sources": [
+        "gcg-api card GD01-094 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD01-094 (effect)"
+      ],
+      "details": {
+        "evidence": [
+          {
+            "source": "card",
+            "ref": "GD01-094",
+            "quote": "【Once per Turn】 When an enemy Link Unit is destroyed with damage while this Unit is attacking, draw 1.",
+            "verified": true
+          }
+        ]
+      },
+      "problems": [],
+      "resolution": {
+        "policy": "most_defensible_reading",
+        "decision": "'With damage' means battle damage or effect damage that brings the Unit to 0 HP; a 'destroy' effect does not count (Q149). 'Link Unit' uses the linked status at destruction (last known information). It also triggers when this Unit is destroyed in the same damage step, since at that moment it was attacking.",
+        "rationale": "Q149, FAQ Q98, and the GD02-093:Q190 resolution for simultaneous destruction (8-5-3-2-3, 10-1-6-4)."
+      }
+    },
+    {
+      "id": "ambiguous:GD01-097:activate-main-once-per",
+      "kind": "ambiguous_text",
+      "severity": "minor",
+      "card_numbers": [
+        "GD01-097"
+      ],
+      "title": "GD01-097 Guel Jeturk: reading of “【Activate･Main】【Once per Turn】If your opponent has 8 or more cards in …”",
+      "description": "Card text: “【Activate･Main】【Once per Turn】If your opponent has 8 or more cards in their hand, set this Unit as active. It can't attack during this turn.”. The wording admits more than one reading. 'It' is the Unit set active by the conditional sentence. With the condition false, the activation is a pure no-op, which per the GD02-002:Q197 resolution does not use 【Once per Turn】, so removing it from the legal actions changes no reachable state. Q150: the restriction outlasts the hand shrinking (tested).",
+      "engine_behaviour": true,
+      "origin": "curated",
+      "sources": [
+        "gcg-api card GD01-097 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD01-097 (effect)"
+      ],
+      "details": {
+        "evidence": [
+          {
+            "source": "card",
+            "ref": "GD01-097",
+            "quote": "【Activate･Main】【Once per Turn】If your opponent has 8 or more cards in their hand, set this Unit as active. It can't attack during this turn.",
+            "verified": true
+          }
+        ]
+      },
+      "problems": [],
+      "resolution": {
+        "policy": "most_defensible_reading",
+        "decision": "The can't-attack restriction applies only when the If holds. Activation is offered only while the opponent has 8 or more cards.",
+        "rationale": "'It' is the Unit set active by the conditional sentence. With the condition false the activation performs nothing, which under resolution ruling:GD02-002:Q197 does not use 【Once per Turn】, so not offering it changes no reachable outcome. Q150: the restriction outlasts the hand shrinking."
+      }
+    },
+    {
+      "id": "ambiguous:GD01-098:activate-action-once-per",
+      "kind": "ambiguous_text",
+      "severity": "minor",
+      "card_numbers": [
+        "GD01-098"
+      ],
+      "title": "GD01-098 Elan Ceres (Enhanced Person Number 4): reading of “【Activate･Action】【Once per Turn】If an enemy Unit with 1 or less AP is …”",
+      "description": "Card text: “【Activate･Action】【Once per Turn】If an enemy Unit with 1 or less AP is in play, this Unit recovers 1 HP.”. The wording admits more than one reading. Otherwise the activation is a pure no-op (recovering an undamaged Unit does nothing). Under Q197 that must not use 【Once per Turn】, but the engine does use it (see engine_bugs).",
+      "engine_behaviour": true,
+      "origin": "curated",
+      "sources": [
+        "gcg-api card GD01-098 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD01-098 (effect)"
+      ],
+      "details": {
+        "evidence": [
+          {
+            "source": "card",
+            "ref": "GD01-098",
+            "quote": "【Activate･Action】【Once per Turn】If an enemy Unit with 1 or less AP is in play, this Unit recovers 1 HP.",
+            "verified": true
+          }
+        ]
+      },
+      "problems": [],
+      "resolution": {
+        "policy": "most_defensible_reading",
+        "decision": "Offered only when an enemy Unit with AP<=1 exists and this Unit is damaged.",
+        "rationale": "Otherwise the activation performs nothing (recovering an undamaged Unit does nothing), which under resolution ruling:GD02-002:Q197 does not use 【Once per Turn】."
+      }
+    },
+    {
+      "id": "ambiguous:GD01-110:main-action-choose-unit",
+      "kind": "ambiguous_text",
+      "severity": "minor",
+      "card_numbers": [
+        "GD01-110",
+        "GD01-121"
+      ],
+      "title": "GD01-110 Rasid's Orders: reading of “【Main】/【Action】Choose 1 Unit that is Lv.4 or higher. During this turn,…”",
+      "description": "Card text: “【Main】/【Action】Choose 1 Unit that is Lv.4 or higher. During this turn, it may choose an active enemy Unit with 6 or less AP as its attack target.”. The wording admits more than one reading. The text has no 'friendly'/'enemy' qualifier.",
+      "engine_behaviour": true,
+      "origin": "curated",
+      "sources": [
+        "gcg-api card GD01-110 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD01-110 (effect)"
+      ],
+      "details": {
+        "evidence": [
+          {
+            "source": "card",
+            "ref": "GD01-110",
+            "quote": "【Main】/【Action】Choose 1 Unit that is Lv.4 or higher. During this turn, it may choose an active enemy Unit with 6 or less AP as its attack target.",
+            "verified": true
+          }
+        ]
+      },
+      "problems": [],
+      "resolution": {
+        "policy": "most_defensible_reading",
+        "decision": "A Unit on either side can be chosen, as printed.",
+        "rationale": "The text has no 'friendly'/'enemy' qualifier."
+      }
+    },
+    {
+      "id": "ambiguous:GD01-112:main-choose-2-active",
+      "kind": "ambiguous_text",
+      "severity": "minor",
+      "card_numbers": [
+        "GD01-112",
+        "GD01-114"
+      ],
+      "title": "GD01-112 Extreme Hatred: reading of “【Main】Choose 2 of your active Units. Rest them. If you do, choose 1 en…”",
+      "description": "Card text: “【Main】Choose 2 of your active Units. Rest them. If you do, choose 1 enemy Unit. Deal 3 damage to it.”. The wording admits more than one reading. The CONFLICTS resolution of GD01-003:Q121 ('choose N' activates only if N can be chosen). The GD01-112 enemy target after 'If you do' is not required to play (10-1-8-1-2).",
+      "engine_behaviour": true,
+      "origin": "curated",
+      "sources": [
+        "gcg-api card GD01-112 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD01-112 (effect)"
+      ],
+      "details": {
+        "evidence": [
+          {
+            "source": "card",
+            "ref": "GD01-112",
+            "quote": "【Main】Choose 2 of your active Units. Rest them. If you do, choose 1 enemy Unit. Deal 3 damage to it.",
+            "verified": true
+          }
+        ]
+      },
+      "problems": [],
+      "resolution": {
+        "policy": "most_defensible_reading",
+        "decision": "The Command can be played only if 2 legal targets exist. It never resolves with one.",
+        "rationale": "The CONFLICTS resolution of GD01-003:Q121 ('choose N' activates only if N can be chosen). The GD01-112 enemy target after 'If you do' is not required to play (10-1-8-1-2)."
+      }
+    },
+    {
+      "id": "ambiguous:GD01-130:activate-main-rest-base",
+      "kind": "ambiguous_text",
+      "severity": "minor",
+      "card_numbers": [
+        "GD01-130"
+      ],
+      "title": "GD01-130 13th Tactical Testing Sector: reading of “【Activate･Main】Rest this Base:If a friendly (Academy) Unit is in play,…”",
+      "description": "Card text: “【Activate･Main】Rest this Base:If a friendly (Academy) Unit is in play, choose 1 enemy Unit. It gets AP-1 during this turn.”. The wording admits more than one reading. The 'If' is part of the effect, not an activation condition (10-3-1-1). The target requirement applies only when the condition holds (10-2-2, FAQ Q100).",
+      "engine_behaviour": true,
+      "origin": "curated",
+      "sources": [
+        "gcg-api card GD01-130 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD01-130 (effect)"
+      ],
+      "details": {
+        "evidence": [
+          {
+            "source": "card",
+            "ref": "GD01-130",
+            "quote": "【Activate･Main】Rest this Base:If a friendly (Academy) Unit is in play, choose 1 enemy Unit. It gets AP-1 during this turn.",
+            "verified": true
+          }
+        ]
+      },
+      "problems": [],
+      "resolution": {
+        "policy": "most_defensible_reading",
+        "decision": "With no (Academy) Unit, activation is still legal (the Base rests, nothing else happens). With an (Academy) Unit, an enemy Unit must exist to activate.",
+        "rationale": "The 'If' is part of the effect, not an activation condition (10-3-1-1). The target requirement applies only when the condition holds (10-2-2, FAQ Q100)."
+      }
+    },
+    {
+      "id": "ambiguous:GD02-009:when-unit-s-ap",
+      "kind": "ambiguous_text",
+      "severity": "minor",
+      "card_numbers": [
+        "GD02-009"
+      ],
+      "title": "GD02-009 Calamity Gundam: reading of “When this Unit's AP is reduced by an enemy effect”",
+      "description": "Card text: “When this Unit's AP is reduced by an enemy effect”. The wording admits more than one reading. Rule 1-3-2-1: an entity already in the target state is not changed.",
+      "engine_behaviour": true,
+      "origin": "curated",
+      "sources": [
+        "gcg-api card GD02-009 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD02-009 (effect)"
+      ],
+      "details": {
+        "evidence": [
+          {
+            "source": "card",
+            "ref": "GD02-009",
+            "quote": "When this Unit's AP is reduced by an enemy effect",
+            "verified": true
+          }
+        ]
+      },
+      "problems": [],
+      "resolution": {
+        "policy": "most_defensible_reading",
+        "decision": "Triggers only when the Unit's AP actually drops; an AP-3 effect on a Unit already at 0 AP does not trigger.",
+        "rationale": "Rule 1-3-2-1: an entity already in the target state is not changed."
+      }
+    },
+    {
       "id": "ambiguous:GD02-011:battling-shield",
       "kind": "ambiguous_text",
       "severity": "minor",
@@ -16603,6 +17412,2336 @@
         "policy": "most_defensible_reading",
         "decision": "While it attacks a player, the Unit is battling exactly the card that would receive its battle damage: the Base if one is present, otherwise the top Shield; only that card can be chosen (6 effect damage). After a block it battles no shield-area card (Q173).",
         "rationale": "FAQ Q32 says the Base, else the first Shield, is what gets attacked."
+      }
+    },
+    {
+      "id": "ambiguous:GD02-011:choose-enemy-base-enemy",
+      "kind": "ambiguous_text",
+      "severity": "minor",
+      "card_numbers": [
+        "GD02-011"
+      ],
+      "title": "GD02-011 Moebius (Peacemaker Team): reading of “Choose 1 enemy Base/enemy Shield this Unit is battling. Deal 6 damage …”",
+      "description": "Card text: “Choose 1 enemy Base/enemy Shield this Unit is battling. Deal 6 damage to it.”. The wording admits more than one reading. Resolution ambiguous:GD02-011:battling-shield plus Q173. With no shield-area card there is no target (10-2-2).",
+      "engine_behaviour": true,
+      "origin": "curated",
+      "sources": [
+        "gcg-api card GD02-011 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD02-011 (effect)"
+      ],
+      "details": {
+        "evidence": [
+          {
+            "source": "card",
+            "ref": "GD02-011",
+            "quote": "Choose 1 enemy Base/enemy Shield this Unit is battling. Deal 6 damage to it.",
+            "verified": true
+          }
+        ]
+      },
+      "problems": [],
+      "resolution": {
+        "policy": "most_defensible_reading",
+        "decision": "6 effect damage goes to the first card of the enemy shield area (DamageShieldArea), so Base immunities and shield-area protections apply. It can be activated only while this Unit is the attacker, the attack targets the player, and the enemy shield area is not empty.",
+        "rationale": "Resolution ambiguous:GD02-011:battling-shield plus Q173. With no shield-area card there is no target (10-2-2)."
+      }
+    },
+    {
+      "id": "ambiguous:GD02-069:choose-active-friendly-base",
+      "kind": "ambiguous_text",
+      "severity": "minor",
+      "card_numbers": [
+        "GD02-069"
+      ],
+      "title": "GD02-069 Zeta Gundam: reading of “Choose 1 active friendly Base. Rest it. If you do, set this Unit as ac…”",
+      "description": "Card text: “Choose 1 active friendly Base. Rest it. If you do, set this Unit as active. It can't choose the enemy player as its attack target during this turn.”. The wording admits more than one reading. The restriction is the price of the untap. Resting the chosen active Base always succeeds, so the branch only matters in theory.",
+      "engine_behaviour": true,
+      "origin": "curated",
+      "sources": [
+        "gcg-api card GD02-069 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD02-069 (effect)"
+      ],
+      "details": {
+        "evidence": [
+          {
+            "source": "card",
+            "ref": "GD02-069",
+            "quote": "Choose 1 active friendly Base. Rest it. If you do, set this Unit as active. It can't choose the enemy player as its attack target during this turn.",
+            "verified": true
+          }
+        ]
+      },
+      "problems": [],
+      "resolution": {
+        "policy": "most_defensible_reading",
+        "decision": "The restriction is applied to this Unit inside the If you do branch, together with setting it active.",
+        "rationale": "The restriction is the price of the untap. Resting the chosen active Base always succeeds, so the branch only matters in theory."
+      }
+    },
+    {
+      "id": "ambiguous:GD02-071:may-pair-aeug-pilot",
+      "kind": "ambiguous_text",
+      "severity": "minor",
+      "card_numbers": [
+        "GD02-071"
+      ],
+      "title": "GD02-071 Gundam Mk-II (AEUG): reading of “you may pair 1 (AEUG) Pilot card from your hand with this Unit”",
+      "description": "Card text: “you may pair 1 (AEUG) Pilot card from your hand with this Unit”. The wording admits more than one reading. The text says 'Pilot card'. In hand, a Command card with 【Pilot】 is a Command card.",
+      "engine_behaviour": true,
+      "origin": "curated",
+      "sources": [
+        "gcg-api card GD02-071 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD02-071 (effect)"
+      ],
+      "details": {
+        "evidence": [
+          {
+            "source": "card",
+            "ref": "GD02-071",
+            "quote": "you may pair 1 (AEUG) Pilot card from your hand with this Unit",
+            "verified": true
+          }
+        ]
+      },
+      "problems": [],
+      "resolution": {
+        "policy": "most_defensible_reading",
+        "decision": "Only Pilot cards are eligible; a Command card with 【Pilot】 in the hand is not.",
+        "rationale": "The text says 'Pilot card'. In the hand, a Command card with 【Pilot】 is a Command card."
+      }
+    },
+    {
+      "id": "ambiguous:GD02-096:pay-its-cost-deploy",
+      "kind": "ambiguous_text",
+      "severity": "minor",
+      "card_numbers": [
+        "GD02-096",
+        "GD02-110"
+      ],
+      "title": "GD02-096 Desil Galette: reading of “Pay its cost to deploy it.”",
+      "description": "Card text: “Pay its cost to deploy it.”. The wording admits more than one reading. Follows the ambiguous:pay-its-cost-to-deploy resolution and Q286; 5-7 vs 5-8 separate playing from deploying.",
+      "engine_behaviour": true,
+      "origin": "curated",
+      "sources": [
+        "gcg-api card GD02-096 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD02-096 (effect)"
+      ],
+      "details": {
+        "evidence": [
+          {
+            "source": "card",
+            "ref": "GD02-096",
+            "quote": "Pay its cost to deploy it.",
+            "verified": true
+          }
+        ]
+      },
+      "problems": [],
+      "resolution": {
+        "policy": "most_defensible_reading",
+        "decision": "Rest Resources equal to the card's cost as modified in the trash (e.g. GD03-058 costs 1 there). No Lv. check, and player-level play-cost modifiers don't apply because deploying isn't playing. If it can't be paid, nothing is deployed. The payment records cost_paid and emits COST_PAID for the effect's host.",
+        "rationale": "Follows the ambiguous:pay-its-cost-to-deploy resolution and Q286; 5-7 vs 5-8 separate playing from deploying."
+      }
+    },
+    {
+      "id": "ambiguous:GD02-104:return-remaining-cards-bottom",
+      "kind": "ambiguous_text",
+      "severity": "minor",
+      "card_numbers": [
+        "GD02-104"
+      ],
+      "title": "GD02-104 Turning Point of History: reading of “Return the remaining cards to the bottom of your deck.”",
+      "description": "Card text: “Return the remaining cards to the bottom of your deck.”. The wording admits more than one reading. Rules 4-1-6 / 4-1-7 and the ASSUMPTIONS entry on simultaneous placement.",
+      "engine_behaviour": true,
+      "origin": "curated",
+      "sources": [
+        "gcg-api card GD02-104 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD02-104 (effect)"
+      ],
+      "details": {
+        "evidence": [
+          {
+            "source": "card",
+            "ref": "GD02-104",
+            "quote": "Return the remaining cards to the bottom of your deck.",
+            "verified": true
+          }
+        ]
+      },
+      "problems": [],
+      "resolution": {
+        "policy": "most_defensible_reading",
+        "decision": "The owner picks the order of the bottomed cards, unlike the 'randomly' wording on other cards.",
+        "rationale": "Rules 4-1-6 / 4-1-7 and the ASSUMPTIONS entry on simultaneous placement."
+      }
+    },
+    {
+      "id": "ambiguous:GD02-113:if-friendly-teiwaz-link",
+      "kind": "ambiguous_text",
+      "severity": "minor",
+      "card_numbers": [
+        "GD02-113"
+      ],
+      "title": "GD02-113 Sisterly Care: reading of “If a friendly (Teiwaz) Link Unit is in play, choose 1 enemy Unit with …”",
+      "description": "Card text: “If a friendly (Teiwaz) Link Unit is in play, choose 1 enemy Unit with 2 or less AP. Destroy it.”. The wording admits more than one reading. _required_targets_ok stops at conditional branches by the lead's design. A stricter 10-1-8-1-1 reading would forbid playing it when the condition holds but no target exists; flagged for the lead.",
+      "engine_behaviour": true,
+      "origin": "curated",
+      "sources": [
+        "gcg-api card GD02-113 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD02-113 (effect)"
+      ],
+      "details": {
+        "evidence": [
+          {
+            "source": "card",
+            "ref": "GD02-113",
+            "quote": "If a friendly (Teiwaz) Link Unit is in play, choose 1 enemy Unit with 2 or less AP. Destroy it.",
+            "verified": true
+          }
+        ]
+      },
+      "problems": [],
+      "resolution": {
+        "policy": "most_defensible_reading",
+        "decision": "When the 'If' condition is false the Command can be played and does nothing; when it is true, the Command can be played only if its target can be chosen.",
+        "rationale": "Rule 10-1-8-1-1 requires the targets the effect will actually choose; a choice inside a false 'If' is never made."
+      }
+    },
+    {
+      "id": "ambiguous:GD02-118:choose-enemy-unit-4",
+      "kind": "ambiguous_text",
+      "severity": "minor",
+      "card_numbers": [
+        "GD02-118"
+      ],
+      "title": "GD02-118 Heart Set on Revenge: reading of “Choose 1 enemy Unit with 4 or less HP battling a friendly Unit with <B…”",
+      "description": "Card text: “Choose 1 enemy Unit with 4 or less HP battling a friendly Unit with <Blocker>.”. The wording admits more than one reading. The text says 'battling', not 'blocked by'. Rule 5-22-1 defines battling for both participants, and FAQ Q96 makes HP current HP.",
+      "engine_behaviour": true,
+      "origin": "curated",
+      "sources": [
+        "gcg-api card GD02-118 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD02-118 (effect)"
+      ],
+      "details": {
+        "evidence": [
+          {
+            "source": "card",
+            "ref": "GD02-118",
+            "quote": "Choose 1 enemy Unit with 4 or less HP battling a friendly Unit with <Blocker>.",
+            "verified": true
+          }
+        ]
+      },
+      "problems": [],
+      "resolution": {
+        "policy": "most_defensible_reading",
+        "decision": "Literal: any enemy Unit in the current battle whose opponent is a friendly Unit that currently has <Blocker>, whether that Unit blocked, was attacked, or is attacking. HP is current HP.",
+        "rationale": "The text says 'battling', not 'blocked by'. Rule 5-22-1 defines battling for both participants, and FAQ Q96 makes HP current HP."
+      }
+    },
+    {
+      "id": "ambiguous:GD03-001:when-effect-destroys-enemy",
+      "kind": "ambiguous_text",
+      "severity": "minor",
+      "card_numbers": [
+        "GD03-001"
+      ],
+      "title": "GD03-001 Gundam NT-1: reading of “When this effect destroys an enemy Unit, draw 1.”",
+      "description": "Card text: “When this effect destroys an enemy Unit, draw 1.”. The wording admits more than one reading. Ruling Q209 / resolution ruling:GD03-001:Q209. Later destruction, or an earlier destruction of the same card this turn, does not count.",
+      "engine_behaviour": true,
+      "origin": "curated",
+      "sources": [
+        "gcg-api card GD03-001 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD03-001 (effect)"
+      ],
+      "details": {
+        "evidence": [
+          {
+            "source": "card",
+            "ref": "GD03-001",
+            "quote": "When this effect destroys an enemy Unit, draw 1.",
+            "verified": true
+          }
+        ]
+      },
+      "problems": [],
+      "resolution": {
+        "policy": "most_defensible_reading",
+        "decision": "Draw only if the chosen Unit was destroyed and is no longer in the battle area right after this effect's damage and rules management.",
+        "rationale": "Ruling Q209 / resolution ruling:GD03-001:Q209. Later destruction, or an earlier destruction of the same card this turn, does not count."
+      }
+    },
+    {
+      "id": "ambiguous:GD03-038:during-turn-when-unit",
+      "kind": "ambiguous_text",
+      "severity": "minor",
+      "card_numbers": [
+        "GD03-038"
+      ],
+      "title": "GD03-038 GuAIZ (Commander Type): reading of “During your turn, when this Unit is rested by an effect, choose 1 of y…”",
+      "description": "Card text: “During your turn, when this Unit is rested by an effect, choose 1 of your (ZAFT) Units. It gets AP+2 during this turn.”. The wording admits more than one reading. Rule 13-1-3-1 calls <Support> a keyword effect that activates when you rest the Unit. This card's reminder text prints the rest as part of Support ('Rest this Unit. 1 other friendly Unit gets AP+...'), and the card pairs <Support 1> with this trigger. Kept the compiled behaviour. Rule 10-1-7-2 could support the stricter reading (a cost is not the effect); if an official ruling picks that, add a cost flag to the RESTED event.",
+      "engine_behaviour": true,
+      "origin": "curated",
+      "sources": [
+        "gcg-api card GD03-038 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD03-038 (effect)"
+      ],
+      "details": {
+        "evidence": [
+          {
+            "source": "card",
+            "ref": "GD03-038",
+            "quote": "During your turn, when this Unit is rested by an effect, choose 1 of your (ZAFT) Units. It gets AP+2 during this turn.",
+            "verified": true
+          }
+        ]
+      },
+      "problems": [],
+      "resolution": {
+        "policy": "most_defensible_reading",
+        "decision": "Resting through its own <Support> (and other activation costs) counts as 'rested by an effect'. Resting by attacking or blocking does not.",
+        "rationale": "Rule 13-1-3-1 calls <Support> a keyword effect that activates when you rest the Unit, and this card's reminder text prints the rest as part of <Support>. Rule 10-1-7-2 could support the stricter reading (a cost is not the effect); an official ruling would decide."
+      }
+    },
+    {
+      "id": "ambiguous:GD03-051:may-choose-unit-card",
+      "kind": "ambiguous_text",
+      "severity": "minor",
+      "card_numbers": [
+        "GD03-051"
+      ],
+      "title": "GD03-051 Gundam X Divider: reading of “You may choose 1 Unit card that is Lv.4 or lower from your trash. Pay …”",
+      "description": "Card text: “You may choose 1 Unit card that is Lv.4 or lower from your trash. Pay its cost to deploy it.”. The wording admits more than one reading. Resolution ambiguous:pay-its-cost-to-deploy; rulings Q286/Q297/Q400. Custom steps must not ask for decisions, so the choice of which Resources to rest is fixed.",
+      "engine_behaviour": true,
+      "origin": "curated",
+      "sources": [
+        "gcg-api card GD03-051 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD03-051 (effect)"
+      ],
+      "details": {
+        "evidence": [
+          {
+            "source": "card",
+            "ref": "GD03-051",
+            "quote": "You may choose 1 Unit card that is Lv.4 or lower from your trash. Pay its cost to deploy it.",
+            "verified": true
+          }
+        ]
+      },
+      "problems": [],
+      "resolution": {
+        "policy": "most_defensible_reading",
+        "decision": "Pay the card's cost as modified in the trash (GD03-058 -1). Resources are rested normal first, then EX, with no player choice. No Lv. check. If the cost can't be paid, the card is not deployed. The payment emits COST_PAID for GD03-051.",
+        "rationale": "Resolution ambiguous:pay-its-cost-to-deploy; rulings Q286/Q297/Q400. Custom steps must not ask for decisions, so the choice of which Resources to rest is fixed."
+      }
+    },
+    {
+      "id": "ambiguous:GD03-069:during-link-at-end",
+      "kind": "ambiguous_text",
+      "severity": "minor",
+      "card_numbers": [
+        "GD03-069"
+      ],
+      "title": "GD03-069 Graham's Union Flag Custom: reading of “【During Link】At the end of the turn when this Unit is paired with a Pi…”",
+      "description": "Card text: “【During Link】At the end of the turn when this Unit is paired with a Pilot, set it as active.”. The wording admits more than one reading. The other reading ('at the end of each turn while paired') makes 'when this Unit is paired with a Pilot' redundant under 【During Link】. The text says 'the turn', not 'your turn'.",
+      "engine_behaviour": true,
+      "origin": "curated",
+      "sources": [
+        "gcg-api card GD03-069 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD03-069 (effect)"
+      ],
+      "details": {
+        "evidence": [
+          {
+            "source": "card",
+            "ref": "GD03-069",
+            "quote": "【During Link】At the end of the turn when this Unit is paired with a Pilot, set it as active.",
+            "verified": true
+          }
+        ]
+      },
+      "problems": [],
+      "resolution": {
+        "policy": "most_defensible_reading",
+        "decision": "At the end of any turn in which this Unit became paired, set it as active, provided it is linked at that moment. Checked as: the Pilot now paired with it was paired this turn.",
+        "rationale": "The other reading ('at the end of each turn while paired') makes 'when this Unit is paired with a Pilot' redundant under 【During Link】. The text says 'the turn', not 'your turn'."
+      }
+    },
+    {
+      "id": "ambiguous:GD03-071:for-each-aeug-unit",
+      "kind": "ambiguous_text",
+      "severity": "minor",
+      "card_numbers": [
+        "GD03-071"
+      ],
+      "title": "GD03-071 Z Gundam (Biosensor): reading of “For each (AEUG) Unit card in your trash, it gets AP-1 during this turn…”",
+      "description": "Card text: “For each (AEUG) Unit card in your trash, it gets AP-1 during this turn.”. The wording admits more than one reading. A resolved effect keeps its result (ruling GD01-059:Q135; FAQ Q105 fixes the affected set at resolution). Only constant effects are continuously re-evaluated (10-1-5).",
+      "engine_behaviour": true,
+      "origin": "curated",
+      "sources": [
+        "gcg-api card GD03-071 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD03-071 (effect)"
+      ],
+      "details": {
+        "evidence": [
+          {
+            "source": "card",
+            "ref": "GD03-071",
+            "quote": "For each (AEUG) Unit card in your trash, it gets AP-1 during this turn.",
+            "verified": true
+          }
+        ]
+      },
+      "problems": [],
+      "resolution": {
+        "policy": "most_defensible_reading",
+        "decision": "The count is taken once, when the effect resolves.",
+        "rationale": "A resolved effect keeps its result (ruling GD01-059:Q135; FAQ Q105 fixes the affected set at resolution). Only constant effects are continuously re-evaluated (10-1-5)."
+      }
+    },
+    {
+      "id": "ambiguous:GD03-073:during-link-activate-action",
+      "kind": "ambiguous_text",
+      "severity": "minor",
+      "card_numbers": [
+        "GD03-073"
+      ],
+      "title": "GD03-073 Graze Ein: reading of “【During Link】【Activate･Action】【Once per Turn】If there are 6 or more (G…”",
+      "description": "Card text: “【During Link】【Activate･Action】【Once per Turn】If there are 6 or more (Gjallarhorn) cards in your trash, choose 1 enemy Unit battling this Unit. It gets AP-3 during this battle.”. The wording admits more than one reading. Same observable result as resolving and doing nothing, under the resolution ruling:GD02-002:Q197 (an effect that performs nothing is not used up). Rule 10-2-2 requires a target.",
+      "engine_behaviour": true,
+      "origin": "curated",
+      "sources": [
+        "gcg-api card GD03-073 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD03-073 (effect)"
+      ],
+      "details": {
+        "evidence": [
+          {
+            "source": "card",
+            "ref": "GD03-073",
+            "quote": "【During Link】【Activate･Action】【Once per Turn】If there are 6 or more (Gjallarhorn) cards in your trash, choose 1 enemy Unit battling this Unit. It gets AP-3 during this battle.",
+            "verified": true
+          }
+        ]
+      },
+      "problems": [],
+      "resolution": {
+        "policy": "most_defensible_reading",
+        "decision": "The trash count is an activation condition, and a battling enemy target is required, so the ability can't be activated (or spend its Once per Turn) when it would do nothing.",
+        "rationale": "Same observable result as resolving and doing nothing, under the resolution ruling:GD02-002:Q197 (an effect that performs nothing is not used up). Rule 10-2-2 requires a target."
+      }
+    },
+    {
+      "id": "ambiguous:GD03-076:once-per-turn-during",
+      "kind": "ambiguous_text",
+      "severity": "minor",
+      "card_numbers": [
+        "GD03-076"
+      ],
+      "title": "GD03-076 Freedom Gundam (METEOR): reading of “【Once per Turn】During your turn, when your (Triple Ship Alliance) Unit…”",
+      "description": "Card text: “【Once per Turn】During your turn, when your (Triple Ship Alliance) Unit deals battle damage to an enemy Unit, you may return the enemy Unit to its owner's hand.”. The wording admits more than one reading. Declining is a choice made while the effect resolves. The Q197 resolution only addresses actions that could not be performed. The destroyed-target case should not use up the effect; that part is xfail pending the engine fix.",
+      "engine_behaviour": true,
+      "origin": "curated",
+      "sources": [
+        "gcg-api card GD03-076 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD03-076 (effect)"
+      ],
+      "details": {
+        "evidence": [
+          {
+            "source": "card",
+            "ref": "GD03-076",
+            "quote": "【Once per Turn】During your turn, when your (Triple Ship Alliance) Unit deals battle damage to an enemy Unit, you may return the enemy Unit to its owner's hand.",
+            "verified": true
+          }
+        ]
+      },
+      "problems": [],
+      "resolution": {
+        "policy": "most_defensible_reading",
+        "decision": "If the enemy Unit was destroyed by that damage there is no prompt and nothing happens (Q235), and 【Once per Turn】 is not used. Declining the 'you may' does not use it either.",
+        "rationale": "Rule 10-1-3: declining a 'you may' effect is choosing not to activate it; resolution ruling:GD02-002:Q197: an effect that performs nothing does not count for 【Once per Turn】."
+      }
+    },
+    {
+      "id": "ambiguous:GD03-093:while-no-enemy-base",
+      "kind": "ambiguous_text",
+      "severity": "minor",
+      "card_numbers": [
+        "GD03-093"
+      ],
+      "title": "GD03-093 Carris Nautilus: reading of “While no enemy Base is in play, this Unit gets AP+1.”",
+      "description": "Card text: “While no enemy Base is in play, this Unit gets AP+1.”. The wording admits more than one reading. 5-17-3-1-1: an EX Base is a Base token, and 5-17-2-1 says tokens are treated like real cards.",
+      "engine_behaviour": true,
+      "origin": "curated",
+      "sources": [
+        "gcg-api card GD03-093 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD03-093 (effect)"
+      ],
+      "details": {
+        "evidence": [
+          {
+            "source": "card",
+            "ref": "GD03-093",
+            "quote": "While no enemy Base is in play, this Unit gets AP+1.",
+            "verified": true
+          }
+        ]
+      },
+      "problems": [],
+      "resolution": {
+        "policy": "most_defensible_reading",
+        "decision": "The enemy EX Base counts as an enemy Base.",
+        "rationale": "5-17-3-1-1: an EX Base is a Base token, and 5-17-2-1 says tokens are treated like real cards."
+      }
+    },
+    {
+      "id": "ambiguous:GD03-102:choose-titans-link-units",
+      "kind": "ambiguous_text",
+      "severity": "minor",
+      "card_numbers": [
+        "GD03-102"
+      ],
+      "title": "GD03-102 Privileged Position: reading of “Choose 1 of your (Titans) Link Units battling an enemy Unit.”",
+      "description": "Card text: “Choose 1 of your (Titans) Link Units battling an enemy Unit.”. The wording admits more than one reading. A battle between Units exists in both directions. A player or Base target is not an enemy Unit.",
+      "engine_behaviour": true,
+      "origin": "curated",
+      "sources": [
+        "gcg-api card GD03-102 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD03-102 (effect)"
+      ],
+      "details": {
+        "evidence": [
+          {
+            "source": "card",
+            "ref": "GD03-102",
+            "quote": "Choose 1 of your (Titans) Link Units battling an enemy Unit.",
+            "verified": true
+          }
+        ]
+      },
+      "problems": [],
+      "resolution": {
+        "policy": "most_defensible_reading",
+        "decision": "'Battling an enemy Unit' covers both attacking an enemy Unit and being the attack target (including by blocking). A Unit attacking the player or a Base does not qualify.",
+        "rationale": "A battle between Units exists in both directions. A player or Base target is not an enemy Unit."
+      }
+    },
+    {
+      "id": "ambiguous:GD03-117:main-if-4-enemy",
+      "kind": "ambiguous_text",
+      "severity": "minor",
+      "card_numbers": [
+        "GD03-117"
+      ],
+      "title": "GD03-117 Orga's Order: reading of “【Main】If 1 to 4 enemy Units are in play, deploy 1 [Graze Custom]((Tekk…”",
+      "description": "Card text: “【Main】If 1 to 4 enemy Units are in play, deploy 1 [Graze Custom]((Tekkadan)･AP2･HP2) Unit token. If 5 or more are in play, deploy 1 [Gundam Barbatos 4th Form]((Tekkadan)･AP4･HP4) Unit token.”. The wording admits more than one reading. Read literally ('starts with an unmet If'), the Command would be unplayable with 5+ enemy Units, which contradicts its second sentence. With 0 enemy Units the card does nothing, which is exactly the case Q245 forbids.",
+      "engine_behaviour": true,
+      "origin": "curated",
+      "sources": [
+        "gcg-api card GD03-117 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD03-117 (effect)"
+      ],
+      "details": {
+        "evidence": [
+          {
+            "source": "card",
+            "ref": "GD03-117",
+            "quote": "【Main】If 1 to 4 enemy Units are in play, deploy 1 [Graze Custom]((Tekkadan)･AP2･HP2) Unit token. If 5 or more are in play, deploy 1 [Gundam Barbatos 4th Form]((Tekkadan)･AP4･HP4) Unit token.",
+            "verified": true
+          }
+        ]
+      },
+      "problems": [],
+      "resolution": {
+        "policy": "most_defensible_reading",
+        "decision": "Applied the Q245 'unmet leading If means unplayable' policy to the two branches together: the Command is playable only with 1 or more enemy Units.",
+        "rationale": "Read literally ('starts with an unmet If'), the Command would be unplayable with 5+ enemy Units, which contradicts its second sentence. With 0 enemy Units the card does nothing, which is exactly the case Q245 forbids."
+      }
+    },
+    {
+      "id": "ambiguous:GD03-120:main-during-turn-if",
+      "kind": "ambiguous_text",
+      "severity": "minor",
+      "card_numbers": [
+        "GD03-120"
+      ],
+      "title": "GD03-120 Immortal Colasour: reading of “【Main】During this turn, if a friendly (Superpower Bloc)/(UN) Unit dest…”",
+      "description": "Card text: “【Main】During this turn, if a friendly (Superpower Bloc)/(UN) Unit destroys an enemy Unit with battle damage, choose 1 rested friendly (Superpower Bloc)/(UN) Unit.”. The wording admits more than one reading. Rule 10-1-6-1-1 says a triggered effect without 【Once per Turn】 activates every time. The engine's DelayedTrigger is one-shot, so a re-arm hook was added (see dsl_gaps).",
+      "engine_behaviour": true,
+      "origin": "curated",
+      "sources": [
+        "gcg-api card GD03-120 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD03-120 (effect)"
+      ],
+      "details": {
+        "evidence": [
+          {
+            "source": "card",
+            "ref": "GD03-120",
+            "quote": "【Main】During this turn, if a friendly (Superpower Bloc)/(UN) Unit destroys an enemy Unit with battle damage, choose 1 rested friendly (Superpower Bloc)/(UN) Unit.",
+            "verified": true
+          }
+        ]
+      },
+      "problems": [],
+      "resolution": {
+        "policy": "most_defensible_reading",
+        "decision": "A triggered effect that lasts the turn and fires on every qualifying battle kill.",
+        "rationale": "Rule 10-1-6-1-1: a triggered effect without 【Once per Turn】 activates every time its condition is met."
+      }
+    },
+    {
+      "id": "ambiguous:GD03-129:if-do-place-top",
+      "kind": "ambiguous_text",
+      "severity": "minor",
+      "card_numbers": [
+        "GD03-129"
+      ],
+      "title": "GD03-129 Hotarubi: reading of “If you do, place the top card of your deck into your trash.”",
+      "description": "Card text: “If you do, place the top card of your deck into your trash.”. The wording admits more than one reading. A rested Base cannot be rested, so 'If you do' (5-20-1) could never succeed; asking would be a meaningless decision.",
+      "engine_behaviour": true,
+      "origin": "curated",
+      "sources": [
+        "gcg-api card GD03-129 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD03-129 (effect)"
+      ],
+      "details": {
+        "evidence": [
+          {
+            "source": "card",
+            "ref": "GD03-129",
+            "quote": "If you do, place the top card of your deck into your trash.",
+            "verified": true
+          }
+        ]
+      },
+      "problems": [],
+      "resolution": {
+        "policy": "most_defensible_reading",
+        "decision": "No prompt when the Base is already rested.",
+        "rationale": "A rested Base cannot be rested, so 'If you do' (5-20-1) could never succeed; asking would be a meaningless decision."
+      }
+    },
+    {
+      "id": "ambiguous:GD03-130:may-choose-vagan-unit",
+      "kind": "ambiguous_text",
+      "severity": "minor",
+      "card_numbers": [
+        "GD03-130"
+      ],
+      "title": "GD03-130 Downes: reading of “you may choose 1 (Vagan) Unit card that is Lv.4 or lower from your tra…”",
+      "description": "Card text: “you may choose 1 (Vagan) Unit card that is Lv.4 or lower from your trash. Pay its cost to deploy it.”. The wording admits more than one reading. The text does not limit the choice to payable cards. The outcome is the same as not choosing. Covered by test_gd03_130_unpayable_cost_leaves_the_card_in_trash.",
+      "engine_behaviour": true,
+      "origin": "curated",
+      "sources": [
+        "gcg-api card GD03-130 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD03-130 (effect)"
+      ],
+      "details": {
+        "evidence": [
+          {
+            "source": "card",
+            "ref": "GD03-130",
+            "quote": "you may choose 1 (Vagan) Unit card that is Lv.4 or lower from your trash. Pay its cost to deploy it.",
+            "verified": true
+          }
+        ]
+      },
+      "problems": [],
+      "resolution": {
+        "policy": "most_defensible_reading",
+        "decision": "Any matching card may be chosen; if its cost can't be paid it stays in the trash.",
+        "rationale": "The text does not limit the choice to payable cards, and the outcome equals not choosing."
+      }
+    },
+    {
+      "id": "ambiguous:GD04-021:may-pair-card-from",
+      "kind": "ambiguous_text",
+      "severity": "minor",
+      "card_numbers": [
+        "GD04-021"
+      ],
+      "title": "GD04-021 Gundam Lfrith Thorn: reading of “you may pair that card from your trash with one of your Units with \"Gu…”",
+      "description": "Card text: “you may pair that card from your trash with one of your Units with \"Gundam Lfrith\" in its card name”. The wording admits more than one reading. Rule 13-2-4-2 restricts the player's pairing action during action steps, not pairing done by an effect.",
+      "engine_behaviour": true,
+      "origin": "curated",
+      "sources": [
+        "gcg-api card GD04-021 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD04-021 (effect)"
+      ],
+      "details": {
+        "evidence": [
+          {
+            "source": "card",
+            "ref": "GD04-021",
+            "quote": "you may pair that card from your trash with one of your Units with \"Gundam Lfrith\" in its card name",
+            "verified": true
+          }
+        ]
+      },
+      "problems": [],
+      "resolution": {
+        "policy": "most_defensible_reading",
+        "decision": "Resolves after the Command's effect ends and it is in the trash (resolution Q267). Allowed only for Commands with 【Pilot】 and unpaired 'Gundam Lfrith' Units. Also allowed when the Command was played in an action step.",
+        "rationale": "Rule 13-2-4-2 restricts the player's pairing action during action steps, not pairing done by an effect."
+      }
+    },
+    {
+      "id": "ambiguous:GD04-022:during-link-all-units",
+      "kind": "ambiguous_text",
+      "severity": "minor",
+      "card_numbers": [
+        "GD04-022"
+      ],
+      "title": "GD04-022 Kikeroga (MS Mode) (GQ): reading of “【During Link】All Units that are Lv.3 or lower other than Unit tokens a…”",
+      "description": "Card text: “【During Link】All Units that are Lv.3 or lower other than Unit tokens are deployed rested.”. The wording admits more than one reading. 'All Units' has no side qualifier. Implemented as a deploy trigger; the timing gap is in dsl_gaps.",
+      "engine_behaviour": true,
+      "origin": "curated",
+      "sources": [
+        "gcg-api card GD04-022 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD04-022 (effect)"
+      ],
+      "details": {
+        "evidence": [
+          {
+            "source": "card",
+            "ref": "GD04-022",
+            "quote": "【During Link】All Units that are Lv.3 or lower other than Unit tokens are deployed rested.",
+            "verified": true
+          }
+        ]
+      },
+      "problems": [],
+      "resolution": {
+        "policy": "most_defensible_reading",
+        "decision": "Covers both players' non-token Units of Lv.3 or lower, deployed from any location while this Unit is linked; they enter play rested.",
+        "rationale": "'All Units' has no side qualifier; 'deployed rested' places the Unit rested rather than resting it (GD05-026:Q354)."
+      }
+    },
+    {
+      "id": "ambiguous:GD04-024:may-reveal-academy-unit",
+      "kind": "ambiguous_text",
+      "severity": "minor",
+      "card_numbers": [
+        "GD04-024"
+      ],
+      "title": "GD04-024 Gundam Aerial Rebuild: reading of “You may reveal 1 (Academy) Unit card/Command card among them”",
+      "description": "Card text: “You may reveal 1 (Academy) Unit card/Command card among them”. The wording admits more than one reading. Ruling GD03-089:Q240 treats '(Cyclops Team) Pilot cards/Command cards' as '(Cyclops Team) cards', i.e. the trait qualifies every '/'-alternative.",
+      "engine_behaviour": true,
+      "origin": "curated",
+      "sources": [
+        "gcg-api card GD04-024 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD04-024 (effect)"
+      ],
+      "details": {
+        "evidence": [
+          {
+            "source": "card",
+            "ref": "GD04-024",
+            "quote": "You may reveal 1 (Academy) Unit card/Command card among them",
+            "verified": true
+          }
+        ]
+      },
+      "problems": [],
+      "resolution": {
+        "policy": "most_defensible_reading",
+        "decision": "The (Academy) trait applies to both the Unit card and the Command card.",
+        "rationale": "Ruling GD03-089:Q240 treats '(Cyclops Team) Pilot cards/Command cards' as '(Cyclops Team) cards', i.e. the trait qualifies every '/'-alternative."
+      }
+    },
+    {
+      "id": "ambiguous:GD04-026:return-top-deck-place",
+      "kind": "ambiguous_text",
+      "severity": "minor",
+      "card_numbers": [
+        "GD04-026"
+      ],
+      "title": "GD04-026 Garma's Dopp: reading of “Return it to the top of your deck or place it into your trash.”",
+      "description": "Card text: “Return it to the top of your deck or place it into your trash.”. The wording admits more than one reading. The two choices are equivalent to a yes/no on trashing; the card never leaves the top otherwise.",
+      "engine_behaviour": true,
+      "origin": "curated",
+      "sources": [
+        "gcg-api card GD04-026 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD04-026 (effect)"
+      ],
+      "details": {
+        "evidence": [
+          {
+            "source": "card",
+            "ref": "GD04-026",
+            "quote": "Return it to the top of your deck or place it into your trash.",
+            "verified": true
+          }
+        ]
+      },
+      "problems": [],
+      "resolution": {
+        "policy": "most_defensible_reading",
+        "decision": "An optional 'place it into your trash'; declining leaves it on top.",
+        "rationale": "The two choices are equivalent to a yes/no on trashing; the card never leaves the top otherwise."
+      }
+    },
+    {
+      "id": "ambiguous:GD04-029:once-per-turn-if",
+      "kind": "ambiguous_text",
+      "severity": "minor",
+      "card_numbers": [
+        "GD04-029"
+      ],
+      "title": "GD04-029 Gundam Dynames (GN Full Shield): reading of “【Once per Turn】If you have a (CB) Pilot in play, when this Unit receiv…”",
+      "description": "Card text: “【Once per Turn】If you have a (CB) Pilot in play, when this Unit receives damage from an enemy, reduce it by 1.”. The wording admits more than one reading. 'you have ... in play' is player-wide, as in the compiled GD04-037 wording.",
+      "engine_behaviour": true,
+      "origin": "curated",
+      "sources": [
+        "gcg-api card GD04-029 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD04-029 (effect)"
+      ],
+      "details": {
+        "evidence": [
+          {
+            "source": "card",
+            "ref": "GD04-029",
+            "quote": "【Once per Turn】If you have a (CB) Pilot in play, when this Unit receives damage from an enemy, reduce it by 1.",
+            "verified": true
+          }
+        ]
+      },
+      "problems": [],
+      "resolution": {
+        "policy": "most_defensible_reading",
+        "decision": "Any of your paired Pilots with the CB trait counts, including Command cards paired as Pilots; it need not be paired with this Unit.",
+        "rationale": "'You have ... in play' is player-wide, as in GD04-037's identical wording."
+      }
+    },
+    {
+      "id": "ambiguous:GD04-041:once-per-turn-when",
+      "kind": "ambiguous_text",
+      "severity": "minor",
+      "card_numbers": [
+        "GD04-041"
+      ],
+      "title": "GD04-041 Gundam Throne Drei: reading of “【Once per Turn】When this Unit is rested by an effect, set it as active…”",
+      "description": "Card text: “【Once per Turn】When this Unit is rested by an effect, set it as active.”. The wording admits more than one reading. The engine emits RESTED only from Rest steps. Rest steps paid as activation costs also emit it, so a cost rest would trigger Drei; no GD04 card rests Drei as a cost.",
+      "engine_behaviour": true,
+      "origin": "curated",
+      "sources": [
+        "gcg-api card GD04-041 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD04-041 (effect)"
+      ],
+      "details": {
+        "evidence": [
+          {
+            "source": "card",
+            "ref": "GD04-041",
+            "quote": "【Once per Turn】When this Unit is rested by an effect, set it as active.",
+            "verified": true
+          }
+        ]
+      },
+      "problems": [],
+      "resolution": {
+        "policy": "most_defensible_reading",
+        "decision": "Triggers when an effect of either player rests this Unit, including resting it to pay an activation cost; attacking and being deployed rested (GD05-026:Q354) do not trigger it.",
+        "rationale": "Attacking rests a Unit by the rules, not by an effect; being deployed rested places the Unit in the rested state rather than resting it (Q354)."
+      }
+    },
+    {
+      "id": "ambiguous:GD04-057:during-turn-reduce-its",
+      "kind": "ambiguous_text",
+      "severity": "minor",
+      "card_numbers": [
+        "GD04-057"
+      ],
+      "title": "GD04-057 Gundam Nadleeh: reading of “During this turn, reduce its AP by an amount equal to the number of Un…”",
+      "description": "Card text: “During this turn, reduce its AP by an amount equal to the number of Unit cards with \"Gundam Virtue\" in their card names in your trash.”. The wording admits more than one reading. It is a one-shot instruction ('reduce ... by an amount equal to'), not a constant effect (10-1-5). A test checks that X does not change when another Gundam Virtue reaches the trash later.",
+      "engine_behaviour": true,
+      "origin": "curated",
+      "sources": [
+        "gcg-api card GD04-057 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD04-057 (effect)"
+      ],
+      "details": {
+        "evidence": [
+          {
+            "source": "card",
+            "ref": "GD04-057",
+            "quote": "During this turn, reduce its AP by an amount equal to the number of Unit cards with \"Gundam Virtue\" in their card names in your trash.",
+            "verified": true
+          }
+        ]
+      },
+      "problems": [],
+      "resolution": {
+        "policy": "most_defensible_reading",
+        "decision": "X is counted once when the effect resolves and stays fixed for the turn.",
+        "rationale": "It is a one-shot instruction ('reduce ... by an amount equal to'), not a constant effect (10-1-5), so X is fixed when it resolves."
+      }
+    },
+    {
+      "id": "ambiguous:GD04-066:when-activate-command-s",
+      "kind": "ambiguous_text",
+      "severity": "minor",
+      "card_numbers": [
+        "GD04-066"
+      ],
+      "title": "GD04-066 Unicorn Gundam (Awakened): reading of “When you activate a Command's 【Main】/【Action】 effect, choose 1 enemy U…”",
+      "description": "Card text: “When you activate a Command's 【Main】/【Action】 effect, choose 1 enemy Unit.”. The wording admits more than one reading. The text has no turn restriction. The ordering of triggers against the resolving Command is not specified by 10-3-1-4, and the result is the same for an AP-2 effect.",
+      "engine_behaviour": true,
+      "origin": "curated",
+      "sources": [
+        "gcg-api card GD04-066 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD04-066 (effect)"
+      ],
+      "details": {
+        "evidence": [
+          {
+            "source": "card",
+            "ref": "GD04-066",
+            "quote": "When you activate a Command's 【Main】/【Action】 effect, choose 1 enemy Unit.",
+            "verified": true
+          }
+        ]
+      },
+      "problems": [],
+      "resolution": {
+        "policy": "most_defensible_reading",
+        "decision": "Triggers for Commands whose 【Main】/【Action】 you activate from the hand or through an effect, on either player's turn; it resolves after the Command's effect.",
+        "rationale": "The text has no turn restriction; triggered effects wait until the current effect has resolved (10-1-6)."
+      }
+    },
+    {
+      "id": "ambiguous:GD04-085:once-per-turn-when",
+      "kind": "ambiguous_text",
+      "severity": "minor",
+      "card_numbers": [
+        "GD04-085"
+      ],
+      "title": "GD04-085 Suletta Mercury: reading of “【Once per Turn】When you play and activate an (Academy) Command card us…”",
+      "description": "Card text: “【Once per Turn】When you play and activate an (Academy) Command card using an EX Resource, if you have no remaining EX Resources, place 1 rested EX Resource.”. The wording admits more than one reading. Rule 10-2-1: an effect whose conditions are not met does not activate.",
+      "engine_behaviour": true,
+      "origin": "curated",
+      "sources": [
+        "gcg-api card GD04-085 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD04-085 (effect)"
+      ],
+      "details": {
+        "evidence": [
+          {
+            "source": "card",
+            "ref": "GD04-085",
+            "quote": "【Once per Turn】When you play and activate an (Academy) Command card using an EX Resource, if you have no remaining EX Resources, place 1 rested EX Resource.",
+            "verified": true
+          }
+        ]
+      },
+      "problems": [],
+      "resolution": {
+        "policy": "most_defensible_reading",
+        "decision": "The no-remaining-EX condition is an activation condition, checked when the trigger fires (so Once per Turn is not used up while EX Resources remain) and again at resolution.",
+        "rationale": "Rule 10-2-1: an effect whose conditions are not met does not activate."
+      }
+    },
+    {
+      "id": "ambiguous:GD04-087:may-choose-academy-units",
+      "kind": "ambiguous_text",
+      "severity": "minor",
+      "card_numbers": [
+        "GD04-087"
+      ],
+      "title": "GD04-087 Elan Ceres (Enhanced Person Number 5): reading of “You may choose 1 of your (Academy) Units. During this battle, battle d…”",
+      "description": "Card text: “You may choose 1 of your (Academy) Units. During this battle, battle damage this Unit would receive is dealt to that Unit instead.”. The wording admits more than one reading. Literal selector; excluding it would add a restriction the text does not state.",
+      "engine_behaviour": true,
+      "origin": "curated",
+      "sources": [
+        "gcg-api card GD04-087 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD04-087 (effect)"
+      ],
+      "details": {
+        "evidence": [
+          {
+            "source": "card",
+            "ref": "GD04-087",
+            "quote": "You may choose 1 of your (Academy) Units. During this battle, battle damage this Unit would receive is dealt to that Unit instead.",
+            "verified": true
+          }
+        ]
+      },
+      "problems": [],
+      "resolution": {
+        "policy": "most_defensible_reading",
+        "decision": "This Unit itself is also a legal choice (the text has no 'other'); choosing it is a no-op redirect.",
+        "rationale": "Literal selector; excluding it would add a restriction the text does not state."
+      }
+    },
+    {
+      "id": "ambiguous:GD04-106:if-use-ex-resource",
+      "kind": "ambiguous_text",
+      "severity": "minor",
+      "card_numbers": [
+        "GD04-106"
+      ],
+      "title": "GD04-106 Indiscriminate Violence: reading of “If you use an EX Resource to play this card, choose 1 to 2 friendly (A…”",
+      "description": "Card text: “If you use an EX Resource to play this card, choose 1 to 2 friendly (Academy) Units instead.”. The wording admits more than one reading. Same result as 'choose 1 to 2', and it keeps the required-target check of 10-1-8-1-1 on the first choice. Command frames lack an ex_used payload, so play history is used.",
+      "engine_behaviour": true,
+      "origin": "curated",
+      "sources": [
+        "gcg-api card GD04-106 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD04-106 (effect)"
+      ],
+      "details": {
+        "evidence": [
+          {
+            "source": "card",
+            "ref": "GD04-106",
+            "quote": "If you use an EX Resource to play this card, choose 1 to 2 friendly (Academy) Units instead.",
+            "verified": true
+          }
+        ]
+      },
+      "problems": [],
+      "resolution": {
+        "policy": "most_defensible_reading",
+        "decision": "Choose 1 (required), then optionally 1 more distinct Unit when the most recent play of this card from the hand used at least one EX Resource.",
+        "rationale": "Same result as 'choose 1 to 2', and it keeps the required-target check of 10-1-8-1-1 on the first choice. Command frames lack an ex_used payload, so play history is used."
+      }
+    },
+    {
+      "id": "ambiguous:GD04-115:choose-units-when-deals",
+      "kind": "ambiguous_text",
+      "severity": "minor",
+      "card_numbers": [
+        "GD04-115"
+      ],
+      "title": "GD04-115 Backup: reading of “Choose 1 of your Units. When it deals battle damage to an enemy Unit t…”",
+      "description": "Card text: “Choose 1 of your Units. When it deals battle damage to an enemy Unit that is Lv.5 or lower during this turn, destroy that enemy Unit.”. The wording admits more than one reading. 'during this turn' sets how long the effect lasts; nothing limits it to one occurrence. The engine's DelayedTrigger is one-shot.",
+      "engine_behaviour": true,
+      "origin": "curated",
+      "sources": [
+        "gcg-api card GD04-115 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD04-115 (effect)"
+      ],
+      "details": {
+        "evidence": [
+          {
+            "source": "card",
+            "ref": "GD04-115",
+            "quote": "Choose 1 of your Units. When it deals battle damage to an enemy Unit that is Lv.5 or lower during this turn, destroy that enemy Unit.",
+            "verified": true
+          }
+        ]
+      },
+      "problems": [],
+      "resolution": {
+        "policy": "most_defensible_reading",
+        "decision": "During this turn the effect triggers every time the Unit deals battle damage, not only the first time.",
+        "rationale": "'During this turn' sets how long the effect lasts; nothing limits it to one occurrence (10-1-6-1-1)."
+      }
+    },
+    {
+      "id": "ambiguous:GD05-001:activate-main-once-per",
+      "kind": "ambiguous_text",
+      "severity": "minor",
+      "card_numbers": [
+        "GD05-001",
+        "GD05-038"
+      ],
+      "title": "GD05-001 V2 Gundam: reading of “【Activate･Main】【Once per Turn】Rest 2 of your Units：Set this Unit as ac…”",
+      "description": "Card text: “【Activate･Main】【Once per Turn】Rest 2 of your Units：Set this Unit as active.”. The wording admits more than one reading. Literal wording ('your Units', not 'other'). The compiler and engine already do this.",
+      "engine_behaviour": true,
+      "origin": "curated",
+      "sources": [
+        "gcg-api card GD05-001 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-001 (effect)"
+      ],
+      "details": {
+        "evidence": [
+          {
+            "source": "card",
+            "ref": "GD05-001",
+            "quote": "【Activate･Main】【Once per Turn】Rest 2 of your Units：Set this Unit as active.",
+            "verified": true
+          }
+        ]
+      },
+      "problems": [],
+      "resolution": {
+        "policy": "most_defensible_reading",
+        "decision": "The Unit itself may be one of the Units rested.",
+        "rationale": "Literal wording ('your Units', not 'other')."
+      }
+    },
+    {
+      "id": "ambiguous:GD05-002:during-pair-attack-may",
+      "kind": "ambiguous_text",
+      "severity": "minor",
+      "card_numbers": [
+        "GD05-002"
+      ],
+      "title": "GD05-002 Strike Freedom Gundam: reading of “【During Pair】【Attack】You may discard 2.”",
+      "description": "Card text: “【During Pair】【Attack】You may discard 2.”. The wording admits more than one reading. Consistent with resolution GD01-003:Q121 (no partial resolution of an N-card requirement) and rule 5-20-1.",
+      "engine_behaviour": true,
+      "origin": "curated",
+      "sources": [
+        "gcg-api card GD05-002 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-002 (effect)"
+      ],
+      "details": {
+        "evidence": [
+          {
+            "source": "card",
+            "ref": "GD05-002",
+            "quote": "【During Pair】【Attack】You may discard 2.",
+            "verified": true
+          }
+        ]
+      },
+      "problems": [],
+      "resolution": {
+        "policy": "most_defensible_reading",
+        "decision": "The option is offered only with 2+ cards in hand; discarding 1 never satisfies 'If you do'.",
+        "rationale": "Consistent with resolution GD01-003:Q121 (no partial resolution of an N-card requirement) and rule 5-20-1."
+      }
+    },
+    {
+      "id": "ambiguous:GD05-026:equal-lower-than-number",
+      "kind": "ambiguous_text",
+      "severity": "minor",
+      "card_numbers": [
+        "GD05-026"
+      ],
+      "title": "GD05-026 Gundam Aerial Rebuild: reading of “is equal to or lower than that number are deployed rested.”",
+      "description": "Card text: “is equal to or lower than that number are deployed rested.”. The wording admits more than one reading. No DSL/engine support for deploy-time static rules.",
+      "engine_behaviour": true,
+      "origin": "curated",
+      "sources": [
+        "gcg-api card GD05-026 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-026 (effect)"
+      ],
+      "details": {
+        "evidence": [
+          {
+            "source": "card",
+            "ref": "GD05-026",
+            "quote": "is equal to or lower than that number are deployed rested.",
+            "verified": true
+          }
+        ]
+      },
+      "problems": [],
+      "resolution": {
+        "policy": "most_defensible_reading",
+        "decision": "Enemy Units whose Lv. is at most the count enter play rested; Unit tokens (Lv.0) always do.",
+        "rationale": "'Deployed rested' places the Unit rested rather than resting it (Q354); the count is taken when the Unit is deployed."
+      }
+    },
+    {
+      "id": "ambiguous:GD05-049:all-enemy-players-each",
+      "kind": "ambiguous_text",
+      "severity": "minor",
+      "card_numbers": [
+        "GD05-049"
+      ],
+      "title": "GD05-049 Sazabi: reading of “all enemy players each choose 1 of their non-battling Units. Destroy t…”",
+      "description": "Card text: “all enemy players each choose 1 of their non-battling Units. Destroy them.”. The wording admits more than one reading. docs/ASSUMPTIONS.md 1v1 wording. The effect belongs to the enemy of the chosen Unit's owner.",
+      "engine_behaviour": true,
+      "origin": "curated",
+      "sources": [
+        "gcg-api card GD05-049 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-049 (effect)"
+      ],
+      "details": {
+        "evidence": [
+          {
+            "source": "card",
+            "ref": "GD05-049",
+            "quote": "all enemy players each choose 1 of their non-battling Units. Destroy them.",
+            "verified": true
+          }
+        ]
+      },
+      "problems": [],
+      "resolution": {
+        "policy": "most_defensible_reading",
+        "decision": "In 1v1 the opponent picks one of their Units other than the attack target; that Unit counts as chosen by an enemy effect, so 'can't be chosen by enemy effects' applies.",
+        "rationale": "The effect belongs to the enemy of the chosen Unit's owner (docs/ASSUMPTIONS.md 1v1 wording)."
+      }
+    },
+    {
+      "id": "ambiguous:GD05-053:destroyed-by-one-neo",
+      "kind": "ambiguous_text",
+      "severity": "minor",
+      "card_numbers": [
+        "GD05-053"
+      ],
+      "title": "GD05-053 Quess's Jagd Doga: reading of “destroyed by one of your (Neo Zeon) card's effects”",
+      "description": "Card text: “destroyed by one of your (Neo Zeon) card's effects”. The wording admits more than one reading. Resolution GD05-054:Q368. The engine records the frame host as the destruction source.",
+      "engine_behaviour": true,
+      "origin": "curated",
+      "sources": [
+        "gcg-api card GD05-053 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-053 (effect)"
+      ],
+      "details": {
+        "evidence": [
+          {
+            "source": "card",
+            "ref": "GD05-053",
+            "quote": "destroyed by one of your (Neo Zeon) card's effects",
+            "verified": true
+          }
+        ]
+      },
+      "problems": [],
+      "resolution": {
+        "policy": "most_defensible_reading",
+        "decision": "'Destroy' effects only (not damage). The destroying effect's controller must be you and its host card must have (Neo Zeon); for a Pilot-granted effect the host is the paired Unit.",
+        "rationale": "Resolution GD05-054:Q368. The source of a Pilot-granted effect is the paired Unit."
+      }
+    },
+    {
+      "id": "ambiguous:GD05-059:choose-active-gjallarhorn-units",
+      "kind": "ambiguous_text",
+      "severity": "minor",
+      "card_numbers": [
+        "GD05-059"
+      ],
+      "title": "GD05-059 Gundam Barbatos Lupus: reading of “Choose 1 of your active (Gjallarhorn) Units. Rest it. If you do, draw …”",
+      "description": "Card text: “Choose 1 of your active (Gjallarhorn) Units. Rest it. If you do, draw 1. This Unit gains <High-Maneuver> during this turn.”. The wording admits more than one reading. Resolution GD05-057:Q371 says a leading 'If you do' governs the following sentences, and GD05-057 has the same sentence shape.",
+      "engine_behaviour": true,
+      "origin": "curated",
+      "sources": [
+        "gcg-api card GD05-059 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-059 (effect)"
+      ],
+      "details": {
+        "evidence": [
+          {
+            "source": "card",
+            "ref": "GD05-059",
+            "quote": "Choose 1 of your active (Gjallarhorn) Units. Rest it. If you do, draw 1. This Unit gains <High-Maneuver> during this turn.",
+            "verified": true
+          }
+        ]
+      },
+      "problems": [],
+      "resolution": {
+        "policy": "most_defensible_reading",
+        "decision": "Both the draw and <High-Maneuver> require the rest.",
+        "rationale": "Resolution GD05-057:Q371 says a leading 'If you do' governs the following sentences, and GD05-057 has the same sentence shape."
+      }
+    },
+    {
+      "id": "ambiguous:GD05-073:won-t-be-set",
+      "kind": "ambiguous_text",
+      "severity": "minor",
+      "card_numbers": [
+        "GD05-073"
+      ],
+      "title": "GD05-073 Altron Gundam (EW): reading of “It won't be set as active during the start phase of your opponent's ne…”",
+      "description": "Card text: “It won't be set as active during the start phase of your opponent's next turn.”. The wording admits more than one reading. Q381: only the start phase is restricted. Edge case: if Altron is deployed during the opponent's turn, the Unit also can't be set active by effects during your following turn.",
+      "engine_behaviour": true,
+      "origin": "curated",
+      "sources": [
+        "gcg-api card GD05-073 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-073 (effect)"
+      ],
+      "details": {
+        "evidence": [
+          {
+            "source": "card",
+            "ref": "GD05-073",
+            "quote": "It won't be set as active during the start phase of your opponent's next turn.",
+            "verified": true
+          }
+        ]
+      },
+      "problems": [],
+      "resolution": {
+        "policy": "most_defensible_reading",
+        "decision": "A marker is converted into CANT_BE_SET_ACTIVE at the end of the turn the 【Deploy】 resolved, and removed when the opponent's next turn starts (the controller's delayed trigger resolves after the active player's start-step triggers).",
+        "rationale": "Q381: only the start phase is restricted. Edge case: if Altron is deployed during the opponent's turn, the Unit also can't be set active by effects during your following turn."
+      }
+    },
+    {
+      "id": "ambiguous:GD05-101:once-per-turn-when",
+      "kind": "ambiguous_text",
+      "severity": "minor",
+      "card_numbers": [
+        "GD05-101"
+      ],
+      "title": "GD05-101 Gavane Goonny: reading of “【Once per Turn】When you pay ① or more for one of your Unit's effects, …”",
+      "description": "Card text: “【Once per Turn】When you pay ① or more for one of your Unit's effects, if this is a (Militia) Unit, it may recover 2 HP.”. The wording admits more than one reading. Rule 10-2-1: an effect whose required condition is not met does not activate.",
+      "engine_behaviour": true,
+      "origin": "curated",
+      "sources": [
+        "gcg-api card GD05-101 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-101 (effect)"
+      ],
+      "details": {
+        "evidence": [
+          {
+            "source": "card",
+            "ref": "GD05-101",
+            "quote": "【Once per Turn】When you pay ① or more for one of your Unit's effects, if this is a (Militia) Unit, it may recover 2 HP.",
+            "verified": true
+          }
+        ]
+      },
+      "problems": [],
+      "resolution": {
+        "policy": "most_defensible_reading",
+        "decision": "The Militia check is a trigger condition (Triggered.cond). A non-Militia host does not trigger, and the 【Once per Turn】 use is not spent.",
+        "rationale": "Rule 10-2-1: an effect whose required condition is not met does not activate."
+      }
+    },
+    {
+      "id": "ambiguous:GD05-102:choose-following-effects",
+      "kind": "ambiguous_text",
+      "severity": "minor",
+      "card_numbers": [
+        "GD05-102"
+      ],
+      "title": "GD05-102 Wings of Light: reading of “choose 1 of the following effects”",
+      "description": "Card text: “choose 1 of the following effects”. The wording admits more than one reading. Implements Q401/Q402 without an engine change. Edge: if every Unit in play can't be chosen, the card is still playable.",
+      "engine_behaviour": true,
+      "origin": "curated",
+      "sources": [
+        "gcg-api card GD05-102 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-102 (effect)"
+      ],
+      "details": {
+        "evidence": [
+          {
+            "source": "card",
+            "ref": "GD05-102",
+            "quote": "choose 1 of the following effects",
+            "verified": true
+          }
+        ]
+      },
+      "problems": [],
+      "resolution": {
+        "policy": "most_defensible_reading",
+        "decision": "The card can be played only if the targets of at least one mode can be chosen.",
+        "rationale": "Rulings Q401/Q402; the same rule as resolution ruling:ST12-015:Q450 for modal Commands."
+      }
+    },
+    {
+      "id": "ambiguous:GD05-104:gains-following-effect-during",
+      "kind": "ambiguous_text",
+      "severity": "minor",
+      "card_numbers": [
+        "GD05-104"
+      ],
+      "title": "GD05-104 At the Risk of One's Life: reading of “It gains the following effect during this turn:”",
+      "description": "Card text: “It gains the following effect during this turn:”. The wording admits more than one reading. AbilityGrant references (card_number, index), so the ability must live on the card.",
+      "engine_behaviour": true,
+      "origin": "curated",
+      "sources": [
+        "gcg-api card GD05-104 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-104 (effect)"
+      ],
+      "details": {
+        "evidence": [
+          {
+            "source": "card",
+            "ref": "GD05-104",
+            "quote": "It gains the following effect during this turn:",
+            "verified": true
+          }
+        ]
+      },
+      "problems": [],
+      "resolution": {
+        "policy": "most_defensible_reading",
+        "decision": "The granted ability is ability #1 of the Command card itself, gated 【During Link】. It never works on the Command card in hand, trash, or paired as [Helen Jackson] (gate needs the battle area); a Unit receives it only through AbilityGrant.",
+        "rationale": "AbilityGrant references (card_number, index), so the ability must live on the card."
+      }
+    },
+    {
+      "id": "ambiguous:GD05-108:change-battling-enemy-unit",
+      "kind": "ambiguous_text",
+      "severity": "minor",
+      "card_numbers": [
+        "GD05-108"
+      ],
+      "title": "GD05-108 Overcoming Hardships: reading of “Change a battling enemy Unit's attack target to it.”",
+      "description": "Card text: “Change a battling enemy Unit's attack target to it.”. The wording admits more than one reading. 'A battling enemy Unit's attack target' exists only when the enemy Unit is the attacker.",
+      "engine_behaviour": true,
+      "origin": "curated",
+      "sources": [
+        "gcg-api card GD05-108 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-108 (effect)"
+      ],
+      "details": {
+        "evidence": [
+          {
+            "source": "card",
+            "ref": "GD05-108",
+            "quote": "Change a battling enemy Unit's attack target to it.",
+            "verified": true
+          }
+        ]
+      },
+      "problems": [],
+      "resolution": {
+        "policy": "most_defensible_reading",
+        "decision": "Playable whenever the Choose target exists (rule 10-1-8-1-1). The retarget happens only while an enemy Unit is attacking, so during your own attack it does nothing.",
+        "rationale": "'A battling enemy Unit's attack target' exists only when the enemy Unit is the attacker."
+      }
+    },
+    {
+      "id": "ambiguous:GD05-123:can-t-receive-2",
+      "kind": "ambiguous_text",
+      "severity": "minor",
+      "card_numbers": [
+        "GD05-123"
+      ],
+      "title": "GD05-123 Archangel: reading of “can't receive 2 or less enemy effect damage”",
+      "description": "Card text: “can't receive 2 or less enemy effect damage”. The wording admits more than one reading. Over-protection (3+ damage) is rarer than 1-2 damage effects; the encoding becomes exact once the threshold gap is closed.",
+      "engine_behaviour": true,
+      "origin": "curated",
+      "sources": [
+        "gcg-api card GD05-123 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-123 (effect)"
+      ],
+      "details": {
+        "evidence": [
+          {
+            "source": "card",
+            "ref": "GD05-123",
+            "quote": "can't receive 2 or less enemy effect damage",
+            "verified": true
+          }
+        ]
+      },
+      "problems": [],
+      "resolution": {
+        "policy": "most_defensible_reading",
+        "decision": "During the opponent's turn, friendly (Orb) Units can't receive enemy effect damage of 2 or less; damage reduced to 2 or less is not received either (Q416).",
+        "rationale": "Literal text; Q416 applies the threshold after reductions."
+      }
+    },
+    {
+      "id": "ambiguous:GD05-124:when-would-rest-unit",
+      "kind": "ambiguous_text",
+      "severity": "minor",
+      "card_numbers": [
+        "GD05-124"
+      ],
+      "title": "GD05-124 White Ark: reading of “when you would rest a Unit with a friendly (League Militaire) Unit's e…”",
+      "description": "Card text: “when you would rest a Unit with a friendly (League Militaire) Unit's effect, you may rest this Base instead.”. The wording admits more than one reading. Replacing the resting of an enemy Unit would only ever cost the player; Q417/Q418 concern own Units.",
+      "engine_behaviour": true,
+      "origin": "curated",
+      "sources": [
+        "gcg-api card GD05-124 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-124 (effect)"
+      ],
+      "details": {
+        "evidence": [
+          {
+            "source": "card",
+            "ref": "GD05-124",
+            "quote": "when you would rest a Unit with a friendly (League Militaire) Unit's effect, you may rest this Base instead.",
+            "verified": true
+          }
+        ]
+      },
+      "problems": [],
+      "resolution": {
+        "policy": "most_defensible_reading",
+        "decision": "Substitution applies to resting your own Units only; one Base replaces at most one Unit.",
+        "rationale": "Replacing the resting of an enemy Unit would only ever cost the player; Q417/Q418 concern own Units."
+      }
+    },
+    {
+      "id": "ambiguous:GD05-129:destroyed-by-one-neo",
+      "kind": "ambiguous_text",
+      "severity": "minor",
+      "card_numbers": [
+        "GD05-129"
+      ],
+      "title": "GD05-129 Axis: reading of “destroyed by one of your (Neo Zeon) card's effects”",
+      "description": "Card text: “destroyed by one of your (Neo Zeon) card's effects”. The wording admits more than one reading. The turn history lacks the destroying card (DSL gap).",
+      "engine_behaviour": true,
+      "origin": "curated",
+      "sources": [
+        "gcg-api card GD05-129 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-129 (effect)"
+      ],
+      "details": {
+        "evidence": [
+          {
+            "source": "card",
+            "ref": "GD05-129",
+            "quote": "destroyed by one of your (Neo Zeon) card's effects",
+            "verified": true
+          }
+        ]
+      },
+      "problems": [],
+      "resolution": {
+        "policy": "most_defensible_reading",
+        "decision": "Counts a Unit of yours destroyed this turn by a 'destroy' effect of one of your (Neo Zeon) cards; destruction by effect damage does not count.",
+        "rationale": "Same reading as GD05-054:Q368 (destruction by an effect means 'destroy it' effects); the (Neo Zeon) card is the one whose effect destroyed the Unit."
+      }
+    },
+    {
+      "id": "ambiguous:ST01-015:activate-main-once-per",
+      "kind": "ambiguous_text",
+      "severity": "minor",
+      "card_numbers": [
+        "ST01-015"
+      ],
+      "title": "ST01-015 White Base: reading of “【Activate･Main】【Once per Turn】②：Deploy 1 [Gundam]((White Base Team)･AP…”",
+      "description": "Card text: “【Activate･Main】【Once per Turn】②：Deploy 1 [Gundam]((White Base Team)･AP3･HP3) Unit token if you have no Units in play, deploy 1 [Guncannon]((White Base Team)･AP2･HP2) Unit token if you have only 1 Unit in play, or deploy 1 [Guntank]((White Base Team)･AP1･HP1) Unit token if you have 2 or more Units in play.”. The wording admits more than one reading. Units in play are the Units in the battle area, and conditions are checked at resolution (resolution ruling:ST04-006:Q118). The _p1/_p2 '0 Units' wording is equivalent (divergent:ST01-015).",
+      "engine_behaviour": true,
+      "origin": "curated",
+      "sources": [
+        "gcg-api card ST01-015 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST01-015 (effect)"
+      ],
+      "details": {
+        "evidence": [
+          {
+            "source": "card",
+            "ref": "ST01-015",
+            "quote": "【Activate･Main】【Once per Turn】②：Deploy 1 [Gundam]((White Base Team)･AP3･HP3) Unit token if you have no Units in play, deploy 1 [Guncannon]((White Base Team)･AP2･HP2) Unit token if you have only 1 Unit in play, or deploy 1 [Guntank]((White Base Team)･AP1･HP1) Unit token if you have 2 or more Units in play.",
+            "verified": true
+          }
+        ]
+      },
+      "problems": [],
+      "resolution": {
+        "policy": "most_defensible_reading",
+        "decision": "Counts your Units in the battle area, Unit tokens included, when the effect resolves (after ② is paid). 'only 1' means exactly 1.",
+        "rationale": "Units in play are the Units in the battle area, and conditions are checked at resolution (resolution ruling:ST04-006:Q118). The _p1/_p2 '0 Units' wording is equivalent (divergent:ST01-015)."
+      }
+    },
+    {
+      "id": "ambiguous:ST02-015:look-at-top-2",
+      "kind": "ambiguous_text",
+      "severity": "minor",
+      "card_numbers": [
+        "ST02-015"
+      ],
+      "title": "ST02-015 Saint Gabriel Institute: reading of “look at the top 2 cards of your deck and return 1 to the top and 1 to …”",
+      "description": "Card text: “look at the top 2 cards of your deck and return 1 to the top and 1 to the bottom”. The wording admits more than one reading. The same as choosing the top card. It leaves every other card's order unchanged and needs only one decision.",
+      "engine_behaviour": true,
+      "origin": "curated",
+      "sources": [
+        "gcg-api card ST02-015 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST02-015 (effect)"
+      ],
+      "details": {
+        "evidence": [
+          {
+            "source": "card",
+            "ref": "ST02-015",
+            "quote": "look at the top 2 cards of your deck and return 1 to the top and 1 to the bottom",
+            "verified": true
+          }
+        ]
+      },
+      "problems": [],
+      "resolution": {
+        "policy": "most_defensible_reading",
+        "decision": "The controller chooses which of the 2 looked cards goes to the bottom; the other stays on top. With only 1 card in the deck, that card is simply returned.",
+        "rationale": "The same as choosing the top card. It leaves every other card's order unchanged and needs only one decision."
+      }
+    },
+    {
+      "id": "ambiguous:ST02-016:deploy-add-shields-hand",
+      "kind": "ambiguous_text",
+      "severity": "minor",
+      "card_numbers": [
+        "ST02-016"
+      ],
+      "title": "ST02-016 Corsica Base: reading of “【Deploy】Add 1 of your Shields to your hand. Then, if it is your turn, …”",
+      "description": "Card text: “【Deploy】Add 1 of your Shields to your hand. Then, if it is your turn, deploy 1 [Tallgeese]((OZ)･AP4･HP2) Unit token. If it is your turn and a card with \"Corsica Base\" in its card name is in your trash, deploy 2 [Leo]((OZ)･AP1･HP1) Unit tokens instead.”. The wording admits more than one reading. EFFECT_TEMPLATES 6.1.6 classifies ST02-016's 'instead' as a conditional override of the previous step, not a rule 10-1-9 substitution.",
+      "engine_behaviour": true,
+      "origin": "curated",
+      "sources": [
+        "gcg-api card ST02-016 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST02-016 (effect)"
+      ],
+      "details": {
+        "evidence": [
+          {
+            "source": "card",
+            "ref": "ST02-016",
+            "quote": "【Deploy】Add 1 of your Shields to your hand. Then, if it is your turn, deploy 1 [Tallgeese]((OZ)･AP4･HP2) Unit token. If it is your turn and a card with \"Corsica Base\" in its card name is in your trash, deploy 2 [Leo]((OZ)･AP1･HP1) Unit tokens instead.",
+            "verified": true
+          }
+        ]
+      },
+      "problems": [],
+      "resolution": {
+        "policy": "most_defensible_reading",
+        "decision": "'instead' replaces the Tallgeese token with two Leo tokens; they are not deployed in addition. Only your trash is checked. When deployed by 【Burst】 on the opponent's turn, the card only adds a Shield to hand.",
+        "rationale": "EFFECT_TEMPLATES 6.1.6 classifies ST02-016's 'instead' as a conditional override of the previous step, not a rule 10-1-9 substitution."
+      }
+    },
+    {
+      "id": "ambiguous:ST03-011:attack-during-turn-unit",
+      "kind": "ambiguous_text",
+      "severity": "minor",
+      "card_numbers": [
+        "ST03-011"
+      ],
+      "title": "ST03-011 Char Aznable: reading of “【Attack】During this turn, this Unit gets AP+1 and, if it is a Link Uni…”",
+      "description": "Card text: “【Attack】During this turn, this Unit gets AP+1 and, if it is a Link Unit, it gains <High-Maneuver>.”. The wording admits more than one reading. Canonical ST03-011 wording per divergent:ST03-011 ('During this turn' scopes both clauses). Conditions are evaluated at resolution.",
+      "engine_behaviour": true,
+      "origin": "curated",
+      "sources": [
+        "gcg-api card ST03-011 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST03-011 (effect)"
+      ],
+      "details": {
+        "evidence": [
+          {
+            "source": "card",
+            "ref": "ST03-011",
+            "quote": "【Attack】During this turn, this Unit gets AP+1 and, if it is a Link Unit, it gains <High-Maneuver>.",
+            "verified": true
+          }
+        ]
+      },
+      "problems": [],
+      "resolution": {
+        "policy": "most_defensible_reading",
+        "decision": "The Link Unit check is made when the effect resolves. Both the AP+1 and the <High-Maneuver> last this turn.",
+        "rationale": "Canonical ST03-011 wording per divergent:ST03-011 ('During this turn' scopes both clauses). Conditions are evaluated at resolution."
+      }
+    },
+    {
+      "id": "ambiguous:ST04-012:burst-if-have-no",
+      "kind": "ambiguous_text",
+      "severity": "minor",
+      "card_numbers": [
+        "ST04-012"
+      ],
+      "title": "ST04-012 Striker Pack: reading of “【Burst】If you have no (Earth Alliance) Unit tokens in play, deploy 1 […”",
+      "description": "Card text: “【Burst】If you have no (Earth Alliance) Unit tokens in play, deploy 1 [Aile Strike Gundam]((Earth Alliance)･AP3･HP3･<Blocker>) Unit token.”. The wording admits more than one reading. 10-1-8-1-1 restricts only effects that require targets. An 'If' clause in the body is checked when the card resolves.",
+      "engine_behaviour": true,
+      "origin": "curated",
+      "sources": [
+        "gcg-api card ST04-012 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST04-012 (effect)"
+      ],
+      "details": {
+        "evidence": [
+          {
+            "source": "card",
+            "ref": "ST04-012",
+            "quote": "【Burst】If you have no (Earth Alliance) Unit tokens in play, deploy 1 [Aile Strike Gundam]((Earth Alliance)･AP3･HP3･<Blocker>) Unit token.",
+            "verified": true
+          }
+        ]
+      },
+      "problems": [],
+      "resolution": {
+        "policy": "most_defensible_reading",
+        "decision": "A resolution-time condition, not a play restriction. The Command stays playable with an EA token in play and resolves with no effect. The same condition gates the Burst.",
+        "rationale": "10-1-8-1-1 restricts only effects that require targets. An 'If' clause in the body is checked when the card resolves."
+      }
+    },
+    {
+      "id": "ambiguous:ST07-009:attack-unit-gets-ap",
+      "kind": "ambiguous_text",
+      "severity": "minor",
+      "card_numbers": [
+        "ST07-009"
+      ],
+      "title": "ST07-009 Setsuna F. Seiei: reading of “【Attack】This Unit gets AP+1 during this turn. If there are 7 or more (…”",
+      "description": "Card text: “【Attack】This Unit gets AP+1 during this turn. If there are 7 or more (CB) cards in your trash, all your (CB) Units get AP+1 instead.”. The wording admits more than one reading. 10-1-9 style substitution of the preceding step (EFFECT_TEMPLATES 6.1.6). The literal target set of the replacement is 'all your (CB) Units'.",
+      "engine_behaviour": true,
+      "origin": "curated",
+      "sources": [
+        "gcg-api card ST07-009 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST07-009 (effect)"
+      ],
+      "details": {
+        "evidence": [
+          {
+            "source": "card",
+            "ref": "ST07-009",
+            "quote": "【Attack】This Unit gets AP+1 during this turn. If there are 7 or more (CB) cards in your trash, all your (CB) Units get AP+1 instead.",
+            "verified": true
+          }
+        ]
+      },
+      "problems": [],
+      "resolution": {
+        "policy": "most_defensible_reading",
+        "decision": "'instead' replaces the whole first sentence, keeping 'during this turn'. With 7+ CB cards, every friendly CB Unit gets AP+1 this turn, and a non-CB Unit paired with Setsuna gets nothing.",
+        "rationale": "10-1-9 style substitution of the preceding step (EFFECT_TEMPLATES 6.1.6). The literal target set of the replacement is 'all your (CB) Units'."
+      }
+    },
+    {
+      "id": "ambiguous:ST07-013:action-choose-rested-friendly",
+      "kind": "ambiguous_text",
+      "severity": "minor",
+      "card_numbers": [
+        "ST07-013"
+      ],
+      "title": "ST07-013 Armed Intervention: reading of “【Action】Choose 1 rested friendly (CB) Unit. Change the attack target o…”",
+      "description": "Card text: “【Action】Choose 1 rested friendly (CB) Unit. Change the attack target of the battling enemy Unit to it.”. The wording admits more than one reading. Only an attacking Unit has an attack target (5-22-1/5-22-2). 10-1-8-1-1 requires only the chosen target to exist.",
+      "engine_behaviour": true,
+      "origin": "curated",
+      "sources": [
+        "gcg-api card ST07-013 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST07-013 (effect)"
+      ],
+      "details": {
+        "evidence": [
+          {
+            "source": "card",
+            "ref": "ST07-013",
+            "quote": "【Action】Choose 1 rested friendly (CB) Unit. Change the attack target of the battling enemy Unit to it.",
+            "verified": true
+          }
+        ]
+      },
+      "problems": [],
+      "resolution": {
+        "policy": "most_defensible_reading",
+        "decision": "'the battling enemy Unit' is the attacking enemy Unit. When no enemy Unit is attacking (e.g. your own attack), the command resolves with no redirect. It stays playable whenever a rested friendly CB Unit can be chosen.",
+        "rationale": "Only an attacking Unit has an attack target (5-22-1/5-22-2). 10-1-8-1-1 requires only the chosen target to exist."
+      }
+    },
+    {
+      "id": "ambiguous:ST08-001:when-paired-choose-enemy",
+      "kind": "ambiguous_text",
+      "severity": "minor",
+      "card_numbers": [
+        "ST08-001"
+      ],
+      "title": "ST08-001 Ξ Gundam: reading of “【When Paired】Choose 1 enemy Unit with the highest Lv. Deal 3 damage to…”",
+      "description": "Card text: “【When Paired】Choose 1 enemy Unit with the highest Lv. Deal 3 damage to it.”. The wording admits more than one reading. 'with the highest Lv.' describes the Unit, not the set of legal targets.",
+      "engine_behaviour": true,
+      "origin": "curated",
+      "sources": [
+        "gcg-api card ST08-001 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST08-001 (effect)"
+      ],
+      "details": {
+        "evidence": [
+          {
+            "source": "card",
+            "ref": "ST08-001",
+            "quote": "【When Paired】Choose 1 enemy Unit with the highest Lv. Deal 3 damage to it.",
+            "verified": true
+          }
+        ]
+      },
+      "problems": [],
+      "resolution": {
+        "policy": "most_defensible_reading",
+        "decision": "The highest Lv is computed over all enemy Units in play, including Units that can't be chosen. An unchoosable highest-Lv Unit does not make a lower-Lv Unit eligible. Ties let the chooser pick (Q206).",
+        "rationale": "'with the highest Lv.' describes the Unit, not the set of legal targets."
+      }
+    },
+    {
+      "id": "ambiguous:ST08-006:during-pair-attack-once",
+      "kind": "ambiguous_text",
+      "severity": "minor",
+      "card_numbers": [
+        "ST08-006"
+      ],
+      "title": "ST08-006 Penelope: reading of “【During Pair】【Attack】【Once per Turn】If this Unit is attacking the enem…”",
+      "description": "Card text: “【During Pair】【Attack】【Once per Turn】If this Unit is attacking the enemy player, reveal 1 (Earth Federation) Unit card from your hand. Return it to the bottom of your deck. If you do, draw 2.”. The wording admits more than one reading. 10-1-6-2: the trigger condition is the 【Attack】 event. The compiler puts every in-text 'If' in a resolution step, and this keeps the binding consistent with it.",
+      "engine_behaviour": true,
+      "origin": "curated",
+      "sources": [
+        "gcg-api card ST08-006 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST08-006 (effect)"
+      ],
+      "details": {
+        "evidence": [
+          {
+            "source": "card",
+            "ref": "ST08-006",
+            "quote": "【During Pair】【Attack】【Once per Turn】If this Unit is attacking the enemy player, reveal 1 (Earth Federation) Unit card from your hand. Return it to the bottom of your deck. If you do, draw 2.",
+            "verified": true
+          }
+        ]
+      },
+      "problems": [],
+      "resolution": {
+        "policy": "most_defensible_reading",
+        "decision": "The 'If' is checked at resolution, so an attack on a Unit still uses the once-per-turn activation. The reveal is mandatory when possible (no 'you may'), and the draw is gated on the card reaching the deck (5-20-1).",
+        "rationale": "10-1-6-2: the trigger condition is the 【Attack】 event; an 'If' in the text is checked when the effect resolves."
+      }
+    },
+    {
+      "id": "ambiguous:ST08-011:when-draw-effect-if",
+      "kind": "ambiguous_text",
+      "severity": "minor",
+      "card_numbers": [
+        "ST08-011"
+      ],
+      "title": "ST08-011 Lane Aim: reading of “When you draw with an effect, if this is a blue Unit, it gains <High-M…”",
+      "description": "Card text: “When you draw with an effect, if this is a blue Unit, it gains <High-Maneuver> during this turn.”. The wording admits more than one reading. 10-1-6-3 (simultaneous events trigger once). 'with an effect' excludes the rule-based draw of 7-3-1.",
+      "engine_behaviour": true,
+      "origin": "curated",
+      "sources": [
+        "gcg-api card ST08-011 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST08-011 (effect)"
+      ],
+      "details": {
+        "evidence": [
+          {
+            "source": "card",
+            "ref": "ST08-011",
+            "quote": "When you draw with an effect, if this is a blue Unit, it gains <High-Maneuver> during this turn.",
+            "verified": true
+          }
+        ]
+      },
+      "problems": [],
+      "resolution": {
+        "policy": "most_defensible_reading",
+        "decision": "Any effect that makes you draw counts, including an opponent's. A multi-card draw from one instruction triggers it once. Colour is checked at resolution. Draw-phase draws do not count.",
+        "rationale": "10-1-6-3 (simultaneous events trigger once). 'with an effect' excludes the rule-based draw of 7-3-1."
+      }
+    },
+    {
+      "id": "ambiguous:ST09-010:look-at-top-2",
+      "kind": "ambiguous_text",
+      "severity": "minor",
+      "card_numbers": [
+        "ST09-010"
+      ],
+      "title": "ST09-010 Minerva: reading of “look at the top 2 cards of your deck and return 1 to the top. Place th…”",
+      "description": "Card text: “look at the top 2 cards of your deck and return 1 to the top. Place the remaining card into your trash.”. The wording admits more than one reading. The kept card ends on top whichever position it came from. 'Place into your trash' is not a discard.",
+      "engine_behaviour": true,
+      "origin": "curated",
+      "sources": [
+        "gcg-api card ST09-010 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST09-010 (effect)"
+      ],
+      "details": {
+        "evidence": [
+          {
+            "source": "card",
+            "ref": "ST09-010",
+            "quote": "look at the top 2 cards of your deck and return 1 to the top. Place the remaining card into your trash.",
+            "verified": true
+          }
+        ]
+      },
+      "problems": [],
+      "resolution": {
+        "policy": "most_defensible_reading",
+        "decision": "The player chooses 1 of the top 2 to keep, and the other card is moved to the trash (not a discard, no event).",
+        "rationale": "The kept card ends on top whichever position it came from. 'Place into your trash' is not a discard."
+      }
+    },
+    {
+      "id": "ambiguous:ST10-001:can-t-choose-same",
+      "kind": "ambiguous_text",
+      "severity": "minor",
+      "card_numbers": [
+        "ST10-001"
+      ],
+      "title": "ST10-001 Zeta Gundam (EX): reading of “It can't choose the same enemy player or enemy team as its attack targ…”",
+      "description": "Card text: “It can't choose the same enemy player or enemy team as its attack target during this turn.”. The wording admits more than one reading. Resolution ambiguous:multiplayer-vocabulary. 'Shield area card' covers the Base (4-6), and the engine emits DESTROYS_SHIELD_CARD for battle-destroyed Bases.",
+      "engine_behaviour": true,
+      "origin": "curated",
+      "sources": [
+        "gcg-api card ST10-001 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST10-001 (effect)"
+      ],
+      "details": {
+        "evidence": [
+          {
+            "source": "card",
+            "ref": "ST10-001",
+            "quote": "It can't choose the same enemy player or enemy team as its attack target during this turn.",
+            "verified": true
+          }
+        ]
+      },
+      "problems": [],
+      "resolution": {
+        "policy": "most_defensible_reading",
+        "decision": "This Unit can't attack the player for the rest of the turn but may still attack rested enemy Units. Destroying a Base with battle damage also triggers the effect.",
+        "rationale": "Resolution ambiguous:multiplayer-vocabulary; 'shield area card' covers the Base (4-6)."
+      }
+    },
+    {
+      "id": "ambiguous:ST10-008:draw-number-cards-equal",
+      "kind": "ambiguous_text",
+      "severity": "minor",
+      "card_numbers": [
+        "ST10-008"
+      ],
+      "title": "ST10-008 Gundam Barbatos 1st Form: reading of “Draw a number of cards equal to the number of enemy players. Then, dis…”",
+      "description": "Card text: “Draw a number of cards equal to the number of enemy players. Then, discard the same number of cards you drew with this effect.”. The wording admits more than one reading. 1v1 resolution: the number of enemy players is 1. 'The same number you drew' is 0 if the draw failed.",
+      "engine_behaviour": true,
+      "origin": "curated",
+      "sources": [
+        "gcg-api card ST10-008 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST10-008 (effect)"
+      ],
+      "details": {
+        "evidence": [
+          {
+            "source": "card",
+            "ref": "ST10-008",
+            "quote": "Draw a number of cards equal to the number of enemy players. Then, discard the same number of cards you drew with this effect.",
+            "verified": true
+          }
+        ]
+      },
+      "problems": [],
+      "resolution": {
+        "policy": "most_defensible_reading",
+        "decision": "Draw 1, then Discard 1 only if a card was actually drawn.",
+        "rationale": "1v1 resolution: the number of enemy players is 1. 'The same number you drew' is 0 if the draw failed."
+      }
+    },
+    {
+      "id": "ambiguous:ST11-001:return-bottom-its-owner",
+      "kind": "ambiguous_text",
+      "severity": "minor",
+      "card_numbers": [
+        "ST11-001"
+      ],
+      "title": "ST11-001 Char's Z'Gok: reading of “Return it to the bottom of its owner's deck.”",
+      "description": "Card text: “Return it to the bottom of its owner's deck.”. The wording admits more than one reading. docs/ASSUMPTIONS.md: simultaneous placement into private zones keeps selection order. The test checks both cards occupy the bottom two positions.",
+      "engine_behaviour": true,
+      "origin": "curated",
+      "sources": [
+        "gcg-api card ST11-001 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST11-001 (effect)"
+      ],
+      "details": {
+        "evidence": [
+          {
+            "source": "card",
+            "ref": "ST11-001",
+            "quote": "Return it to the bottom of its owner's deck.",
+            "verified": true
+          }
+        ]
+      },
+      "problems": [],
+      "resolution": {
+        "policy": "most_defensible_reading",
+        "decision": "The Unit and its paired Pilot both go to the bottom of the owner's deck.",
+        "rationale": "Rule 3-3-6: the Pilot moves with its Unit; ruling GD05-002:Q339."
+      }
+    },
+    {
+      "id": "ambiguous:ST11-006:if-another-friendly-marine",
+      "kind": "ambiguous_text",
+      "severity": "minor",
+      "card_numbers": [
+        "ST11-006"
+      ],
+      "title": "ST11-006 Shamblo: reading of “If another friendly (Marine) Unit is in play at the start of your oppo…”",
+      "description": "Card text: “If another friendly (Marine) Unit is in play at the start of your opponent's turn, during this turn, when a friendly shield area card receives enemy effect damage, reduce it by 5.”. The wording admits more than one reading. 'At the start of your opponent's turn' fixes when the condition is checked, and 'during this turn' is a lasting duration. Prevention equals 'reduce by 5' for 5 or less damage; the gap for 6 or more is recorded as a DSL gap.",
+      "engine_behaviour": true,
+      "origin": "curated",
+      "sources": [
+        "gcg-api card ST11-006 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST11-006 (effect)"
+      ],
+      "details": {
+        "evidence": [
+          {
+            "source": "card",
+            "ref": "ST11-006",
+            "quote": "If another friendly (Marine) Unit is in play at the start of your opponent's turn, during this turn, when a friendly shield area card receives enemy effect damage, reduce it by 5.",
+            "verified": true
+          }
+        ]
+      },
+      "problems": [],
+      "resolution": {
+        "policy": "most_defensible_reading",
+        "decision": "Checked at the start of the opponent's turn: if another friendly (Marine) Unit is in play, then for that whole turn enemy effect damage to each of your shield area cards (Base and Shields, including <Breach>) is reduced by 5, even if this Unit leaves play.",
+        "rationale": "'At the start of your opponent's turn' fixes when the condition is checked and 'during this turn' sets the duration (rulings Q430, Q431)."
+      }
+    },
+    {
+      "id": "ambiguous:ST11-009:destroyed-if-opponent-s",
+      "kind": "ambiguous_text",
+      "severity": "minor",
+      "card_numbers": [
+        "ST11-009"
+      ],
+      "title": "ST11-009 Kapool: reading of “【Destroyed】If it is your opponent's turn and a friendly (Marine) Unit …”",
+      "description": "Card text: “【Destroyed】If it is your opponent's turn and a friendly (Marine) Unit is in play, draw 1.”. The wording admits more than one reading. Q432 and resolution ruling:ST11-009:Q432: the destroyed Kapool, a printed Marine, counts by last-known information, so the Marine clause always holds.",
+      "engine_behaviour": true,
+      "origin": "curated",
+      "sources": [
+        "gcg-api card ST11-009 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST11-009 (effect)"
+      ],
+      "details": {
+        "evidence": [
+          {
+            "source": "card",
+            "ref": "ST11-009",
+            "quote": "【Destroyed】If it is your opponent's turn and a friendly (Marine) Unit is in play, draw 1.",
+            "verified": true
+          }
+        ]
+      },
+      "problems": [],
+      "resolution": {
+        "policy": "most_defensible_reading",
+        "decision": "Draw exactly when it is the opponent's turn.",
+        "rationale": "Q432 and resolution ruling:ST11-009:Q432: the destroyed Kapool, a printed Marine, counts by last-known information, so the Marine clause always holds."
+      }
+    },
+    {
+      "id": "ambiguous:ST11-012:when-receives-battle-damage",
+      "kind": "ambiguous_text",
+      "severity": "minor",
+      "card_numbers": [
+        "ST11-012"
+      ],
+      "title": "ST11-012 Loni Garvey: reading of “when it receives battle damage from an enemy Unit, reduce it by 2”",
+      "description": "Card text: “when it receives battle damage from an enemy Unit, reduce it by 2”. The wording admits more than one reading. Matches the compiler's _reduce_when convention; only Units deal battle damage (Bases have 0 AP).",
+      "engine_behaviour": true,
+      "origin": "curated",
+      "sources": [
+        "gcg-api card ST11-012 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST11-012 (effect)"
+      ],
+      "details": {
+        "evidence": [
+          {
+            "source": "card",
+            "ref": "ST11-012",
+            "quote": "when it receives battle damage from an enemy Unit, reduce it by 2",
+            "verified": true
+          }
+        ]
+      },
+      "problems": [],
+      "resolution": {
+        "policy": "most_defensible_reading",
+        "decision": "For this turn, battle damage from enemy Units to the chosen (Marine) Unit is reduced by 2.",
+        "rationale": "Only Units deal battle damage (Bases have 0 AP)."
+      }
+    },
+    {
+      "id": "ambiguous:ST12-012:look-at-top-2",
+      "kind": "ambiguous_text",
+      "severity": "minor",
+      "card_numbers": [
+        "ST12-012"
+      ],
+      "title": "ST12-012 Ple-Twelve: reading of “Look at the top 2 cards of your deck and return 1 to the top. Place th…”",
+      "description": "Card text: “Look at the top 2 cards of your deck and return 1 to the top. Place the remaining card into your trash. If there is a player with 3 or less Shields, add the card to your hand instead of returning it to your deck.”. The wording admits more than one reading. Rulings Q444 and Q445. This is a 10-1-9 substitution of the destination of the kept card.",
+      "engine_behaviour": true,
+      "origin": "curated",
+      "sources": [
+        "gcg-api card ST12-012 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST12-012 (effect)"
+      ],
+      "details": {
+        "evidence": [
+          {
+            "source": "card",
+            "ref": "ST12-012",
+            "quote": "Look at the top 2 cards of your deck and return 1 to the top. Place the remaining card into your trash. If there is a player with 3 or less Shields, add the card to your hand instead of returning it to your deck.",
+            "verified": true
+          }
+        ]
+      },
+      "problems": [],
+      "resolution": {
+        "policy": "most_defensible_reading",
+        "decision": "The player picks which of the 2 cards to keep and the other goes to the trash. The kept card goes to hand if the condition holds, otherwise it stays on top. 'A player' includes yourself and ignores Bases.",
+        "rationale": "Rulings Q444 and Q445. This is a 10-1-9 substitution of the destination of the kept card."
+      }
+    },
+    {
+      "id": "ambiguous:ST12-013:player-each-choose-own",
+      "kind": "ambiguous_text",
+      "severity": "minor",
+      "card_numbers": [
+        "ST12-013"
+      ],
+      "title": "ST12-013 The Final Victor: reading of “You and that player each choose 1 of your own Units. Begin a battle be…”",
+      "description": "Card text: “You and that player each choose 1 of your own Units. Begin a battle between them and only perform the damage step.”. The wording admits more than one reading. 5-22-4 (the first chosen Unit attacks). Both choices precede any Then/If you do (10-1-8-1-1).",
+      "engine_behaviour": true,
+      "origin": "curated",
+      "sources": [
+        "gcg-api card ST12-013 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST12-013 (effect)"
+      ],
+      "details": {
+        "evidence": [
+          {
+            "source": "card",
+            "ref": "ST12-013",
+            "quote": "You and that player each choose 1 of your own Units. Begin a battle between them and only perform the damage step.",
+            "verified": true
+          }
+        ]
+      },
+      "problems": [],
+      "resolution": {
+        "policy": "most_defensible_reading",
+        "decision": "You choose first, so your Unit is the attacking Unit (<First Strike> applies to it). Both choices must be possible to play the card.",
+        "rationale": "5-22-4 (the first chosen Unit attacks). Both choices precede any Then/If you do (10-1-8-1-1)."
+      }
+    },
+    {
+      "id": "ambiguous:ST12-015:choose-friendly-unit-enemy",
+      "kind": "ambiguous_text",
+      "severity": "minor",
+      "card_numbers": [
+        "ST12-015"
+      ],
+      "title": "ST12-015 Two Unicorns: reading of “Choose 1 friendly Unit and 1 enemy Unit that is Lv.5 or higher. Deal 2…”",
+      "description": "Card text: “Choose 1 friendly Unit and 1 enemy Unit that is Lv.5 or higher. Deal 2 damage to them.”. The wording admits more than one reading. Q451's wording ('no friendly Units or no enemy Units that are Lv.5 or higher') matches this reading.",
+      "engine_behaviour": true,
+      "origin": "curated",
+      "sources": [
+        "gcg-api card ST12-015 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST12-015 (effect)"
+      ],
+      "details": {
+        "evidence": [
+          {
+            "source": "card",
+            "ref": "ST12-015",
+            "quote": "Choose 1 friendly Unit and 1 enemy Unit that is Lv.5 or higher. Deal 2 damage to them.",
+            "verified": true
+          }
+        ]
+      },
+      "problems": [],
+      "resolution": {
+        "policy": "most_defensible_reading",
+        "decision": "'Lv.5 or higher' applies only to the enemy Unit.",
+        "rationale": "Q451's wording ('no friendly Units or no enemy Units that are Lv.5 or higher') matches this reading."
+      }
+    },
+    {
+      "id": "ambiguous:ST13-009:player-chooses-2-unit",
+      "kind": "ambiguous_text",
+      "severity": "minor",
+      "card_numbers": [
+        "ST13-009",
+        "ST14-003"
+      ],
+      "title": "ST13-009 Gundam Pharact: reading of “That player chooses 2 Unit cards from their trash. Exile them from the…”",
+      "description": "Card text: “That player chooses 2 Unit cards from their trash. Exile them from the game.”. The wording admits more than one reading. Applies the resolution of GD01-003:Q121 (choosing N cards from a public location needs N) to identical wording.",
+      "engine_behaviour": true,
+      "origin": "curated",
+      "sources": [
+        "gcg-api card ST13-009 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST13-009 (effect)"
+      ],
+      "details": {
+        "evidence": [
+          {
+            "source": "card",
+            "ref": "ST13-009",
+            "quote": "That player chooses 2 Unit cards from their trash. Exile them from the game.",
+            "verified": true
+          }
+        ]
+      },
+      "problems": [],
+      "resolution": {
+        "policy": "most_defensible_reading",
+        "decision": "With fewer than 2 Unit cards in that trash, nothing is exiled.",
+        "rationale": "Applies the resolution of GD01-003:Q121 (choosing N cards from a public location needs N) to identical wording."
+      }
+    },
+    {
+      "id": "ambiguous:ST13-012:when-enemy-unit-destroyed",
+      "kind": "ambiguous_text",
+      "severity": "minor",
+      "card_numbers": [
+        "ST13-012"
+      ],
+      "title": "ST13-012 Suletta Mercury: reading of “When an enemy Unit is destroyed with effect damage while this Unit is …”",
+      "description": "Card text: “When an enemy Unit is destroyed with effect damage while this Unit is attacking, draw 1.”. The wording admits more than one reading. Resolution of Q459: 'destroyed with damage' means battle or effect damage, and 'destroy' effects do not count.",
+      "engine_behaviour": true,
+      "origin": "curated",
+      "sources": [
+        "gcg-api card ST13-012 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST13-012 (effect)"
+      ],
+      "details": {
+        "evidence": [
+          {
+            "source": "card",
+            "ref": "ST13-012",
+            "quote": "When an enemy Unit is destroyed with effect damage while this Unit is attacking, draw 1.",
+            "verified": true
+          }
+        ]
+      },
+      "problems": [],
+      "resolution": {
+        "policy": "most_defensible_reading",
+        "decision": "Counts only a destruction by rules management right after an effect's damage step, from any source. It excludes battle damage, 'destroy' effects (Q459) and HP-reduction destruction. 'Attacking' means the current battle's attacker is this Unit.",
+        "rationale": "Resolution of Q459: 'destroyed with damage' means battle or effect damage, and 'destroy' effects do not count."
+      }
+    },
+    {
+      "id": "ambiguous:ST13-013:deploy-1-to-2-tokens",
+      "kind": "ambiguous_text",
+      "severity": "minor",
+      "card_numbers": [
+        "ST13-001",
+        "ST13-013"
+      ],
+      "title": "ST13-013 / ST13-001: 'Deploy 1 to 2 ... Unit tokens'",
+      "description": "The text lets the player pick how many tokens (1 or 2) without saying when the number is chosen.",
+      "engine_behaviour": true,
+      "origin": "curated",
+      "sources": [
+        "gcg-api card ST13-013 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST13-013 (effect)"
+      ],
+      "details": {
+        "evidence": [
+          {
+            "source": "card",
+            "ref": "ST13-013",
+            "quote": "Deploy 1 to 2 [Bit / Funnel]((Long-Range Weapon)･AP2･HP2･This Unit can't be paired with a Pilot or attack) Unit tokens.",
+            "verified": true
+          }
+        ]
+      },
+      "problems": [],
+      "resolution": {
+        "policy": "most_defensible_reading",
+        "decision": "Deploy 1 token, then the player may deploy a second one.",
+        "rationale": "Equivalent to choosing 1 or 2 up front: nothing happens between the two deployments that could change the choice."
+      }
+    },
+    {
+      "id": "ambiguous:ST13-015:choose-3-unit-cards",
+      "kind": "ambiguous_text",
+      "severity": "minor",
+      "card_numbers": [
+        "ST13-015"
+      ],
+      "title": "ST13-015 Operation to Intercept Solomon: reading of “Choose 3 Unit cards from your trash. Exile them from the game. If you …”",
+      "description": "Card text: “Choose 3 Unit cards from your trash. Exile them from the game. If you do, choose 1 enemy Unit. Deal 3 damage to it.”. The wording admits more than one reading. Q121 policy plus 10-1-8-1-1/10-1-8-1-2.",
+      "engine_behaviour": true,
+      "origin": "curated",
+      "sources": [
+        "gcg-api card ST13-015 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST13-015 (effect)"
+      ],
+      "details": {
+        "evidence": [
+          {
+            "source": "card",
+            "ref": "ST13-015",
+            "quote": "Choose 3 Unit cards from your trash. Exile them from the game. If you do, choose 1 enemy Unit. Deal 3 damage to it.",
+            "verified": true
+          }
+        ]
+      },
+      "problems": [],
+      "resolution": {
+        "policy": "most_defensible_reading",
+        "decision": "Not playable with fewer than 3 Unit cards in the trash. The enemy Unit is not required to play it (10-1-8-1-2).",
+        "rationale": "Q121 policy plus 10-1-8-1-1/10-1-8-1-2."
+      }
+    },
+    {
+      "id": "ambiguous:ST14-001:each-enemy-player-s",
+      "kind": "ambiguous_text",
+      "severity": "minor",
+      "card_numbers": [
+        "ST14-001"
+      ],
+      "title": "ST14-001 The-O: reading of “Each enemy player's rested Units with the lowest Lv. won't be set as a…”",
+      "description": "Card text: “Each enemy player's rested Units with the lowest Lv. won't be set as active during the start phase of their turn.”. The wording admits more than one reading. The head noun is 'rested Units'. Q462 affects all tied Units, and Q463 limits the freeze to the start phase.",
+      "engine_behaviour": true,
+      "origin": "curated",
+      "sources": [
+        "gcg-api card ST14-001 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST14-001 (effect)"
+      ],
+      "details": {
+        "evidence": [
+          {
+            "source": "card",
+            "ref": "ST14-001",
+            "quote": "Each enemy player's rested Units with the lowest Lv. won't be set as active during the start phase of their turn.",
+            "verified": true
+          }
+        ]
+      },
+      "problems": [],
+      "resolution": {
+        "policy": "most_defensible_reading",
+        "decision": "The lowest Lv. is taken among the enemy's rested Units, every tied Unit is affected, and it applies only during the enemy's start phase.",
+        "rationale": "The head noun is 'rested Units'. Q462 affects all tied Units, and Q463 limits the freeze to the start phase."
+      }
+    },
+    {
+      "id": "ambiguous:ST14-006:may-reveal-number-cards",
+      "kind": "ambiguous_text",
+      "severity": "minor",
+      "card_numbers": [
+        "ST14-006"
+      ],
+      "title": "ST14-006 Full Armor Unicorn Gundam (Destroy Mode): reading of “You may reveal a number of cards equal to the number of enemy players …”",
+      "description": "Card text: “You may reveal a number of cards equal to the number of enemy players among them and add them to your hand.”. The wording admits more than one reading. In 1v1 the number of enemy players is 1 (ambiguous:multiplayer-vocabulary resolution).",
+      "engine_behaviour": true,
+      "origin": "curated",
+      "sources": [
+        "gcg-api card ST14-006 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST14-006 (effect)"
+      ],
+      "details": {
+        "evidence": [
+          {
+            "source": "card",
+            "ref": "ST14-006",
+            "quote": "You may reveal a number of cards equal to the number of enemy players among them and add them to your hand.",
+            "verified": true
+          }
+        ]
+      },
+      "problems": [],
+      "resolution": {
+        "policy": "most_defensible_reading",
+        "decision": "May reveal and add exactly 1 card of any type.",
+        "rationale": "In 1v1 the number of enemy players is 1 (ambiguous:multiplayer-vocabulary resolution)."
+      }
+    },
+    {
+      "id": "ambiguous:ST14-011:reduce-its-ap-during",
+      "kind": "ambiguous_text",
+      "severity": "minor",
+      "card_numbers": [
+        "ST14-011"
+      ],
+      "title": "ST14-011 Paptimus Scirocco: reading of “Reduce its AP during this battle by an amount equal to the number of r…”",
+      "description": "Card text: “Reduce its AP during this battle by an amount equal to the number of rested enemy Units.”. The wording admits more than one reading. Consistent with the policy in the resolution of GD01-059:Q135 (conditions and target restrictions are evaluated once, at resolution). A continuously re-counted amount would change after a Blocker rests.",
+      "engine_behaviour": true,
+      "origin": "curated",
+      "sources": [
+        "gcg-api card ST14-011 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST14-011 (effect)"
+      ],
+      "details": {
+        "evidence": [
+          {
+            "source": "card",
+            "ref": "ST14-011",
+            "quote": "Reduce its AP during this battle by an amount equal to the number of rested enemy Units.",
+            "verified": true
+          }
+        ]
+      },
+      "problems": [],
+      "resolution": {
+        "policy": "most_defensible_reading",
+        "decision": "The number is counted once, when the effect resolves.",
+        "rationale": "Consistent with the policy in the resolution of GD01-059:Q135 (conditions and target restrictions are evaluated once, at resolution). A continuously re-counted amount would change after a Blocker rests."
+      }
+    },
+    {
+      "id": "ambiguous:ST14-015:choose-number-resources-equal",
+      "kind": "ambiguous_text",
+      "severity": "minor",
+      "card_numbers": [
+        "ST14-015"
+      ],
+      "title": "ST14-015 Battlefield Emotions: reading of “choose a number of your Resources equal to the number of enemy players…”",
+      "description": "Card text: “choose a number of your Resources equal to the number of enemy players. Set them as active.”. The wording admits more than one reading. In 1v1 the number of enemy players is 1. Choosing an already-active Resource does nothing, and a normal Resource is always the better pick.",
+      "engine_behaviour": true,
+      "origin": "curated",
+      "sources": [
+        "gcg-api card ST14-015 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST14-015 (effect)"
+      ],
+      "details": {
+        "evidence": [
+          {
+            "source": "card",
+            "ref": "ST14-015",
+            "quote": "choose a number of your Resources equal to the number of enemy players. Set them as active.",
+            "verified": true
+          }
+        ]
+      },
+      "problems": [],
+      "resolution": {
+        "policy": "most_defensible_reading",
+        "decision": "Sets 1 rested Resource active, normal Resources before EX Resources, without a player choice.",
+        "rationale": "In 1v1 the number of enemy players is 1. Choosing an already-active Resource does nothing, and a normal Resource is always the better pick."
+      }
+    },
+    {
+      "id": "ambiguous:T-014:unit-can-t-be",
+      "kind": "ambiguous_text",
+      "severity": "minor",
+      "card_numbers": [
+        "T-014",
+        "T-029"
+      ],
+      "title": "T-014 Ad Balloon: reading of “This Unit can't be set as active or paired with a Pilot.”",
+      "description": "Card text: “This Unit can't be set as active or paired with a Pilot.”. The wording admits more than one reading. This is the only grammatical reading. It matches the separately printed single-restriction tokens T-022 ('can't be paired with a Pilot') and the engine's existing CANT_* rule kinds.",
+      "engine_behaviour": true,
+      "origin": "curated",
+      "sources": [
+        "gcg-api card T-014 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=T-014 (effect)"
+      ],
+      "details": {
+        "evidence": [
+          {
+            "source": "card",
+            "ref": "T-014",
+            "quote": "This Unit can't be set as active or paired with a Pilot.",
+            "verified": true
+          }
+        ]
+      },
+      "problems": [],
+      "resolution": {
+        "policy": "most_defensible_reading",
+        "decision": "Two independent restrictions (distributive 'or'). Each is a separate constant rule grant, and 'can't' beats any permission (10-1-5-6).",
+        "rationale": "The only grammatical reading; it matches the separately printed single-restriction token T-022 ('can't be paired with a Pilot'), and 'can't' beats any permission (10-1-5-6)."
       }
     },
     {
@@ -16697,6 +19836,56 @@
       }
     },
     {
+      "id": "ambiguous:during-this-battle-without-battle",
+      "kind": "ambiguous_text",
+      "severity": "minor",
+      "card_numbers": [
+        "EB01-070",
+        "GD01-058",
+        "GD01-082",
+        "GD02-105",
+        "GD02-106",
+        "GD02-119"
+      ],
+      "title": "'During this battle' effects created when no battle is in progress",
+      "description": "【Action】 effects can be used in the end-phase action step, when no battle is in progress. The rules only say when 'during this battle' effects start (8-2-3) and end (8-6-1).",
+      "engine_behaviour": true,
+      "origin": "curated",
+      "sources": [
+        "Comprehensive Rules Ver. 1.9.0 §8-2-3",
+        "Comprehensive Rules Ver. 1.9.0 §8-6-1",
+        "gcg-api card GD01-058 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD01-058 (effect)"
+      ],
+      "details": {
+        "evidence": [
+          {
+            "source": "rules",
+            "ref": "8-2-3",
+            "quote": "Effects worded “during this battle” gain effect now.",
+            "verified": true
+          },
+          {
+            "source": "rules",
+            "ref": "8-6-1",
+            "quote": "All effects worded “during this battle” lose effect.",
+            "verified": true
+          },
+          {
+            "source": "card",
+            "ref": "GD01-058",
+            "quote": "Choose 1 Unit that is Lv.4 or higher. It gets AP+1 during this battle.",
+            "verified": true
+          }
+        ]
+      },
+      "problems": [],
+      "resolution": {
+        "policy": "most_defensible_reading",
+        "decision": "A 'during this battle' effect created while no battle is in progress has no effect; the rest of the effect still resolves.",
+        "rationale": "Such effects exist only between 8-2-3 and 8-6-1 of a battle; with no battle there is no period for them to apply, and no reading lets them outlast the turn."
+      }
+    },
+    {
       "id": "ambiguous:multiplayer-vocabulary",
       "kind": "ambiguous_text",
       "severity": "info",
@@ -16772,6 +19961,52 @@
         "policy": "most_defensible_reading",
         "decision": "In 1v1: 'enemy player(s)', 'enemy team' and 'another player' mean the opponent; 'the number of enemy players' is 1, so 'if there are 2 or more enemy players' is never met; 'Choose 1 enemy player' chooses the opponent; 'all players each …' is both players, active player first and treated as simultaneous (1-3-4, Q319); ST10-001's 'same enemy player' means it cannot attack the opponent again this turn but may attack rested enemy Units.",
         "rationale": "Direct specialisation of the multiplayer definitions (12-2-6, 12-3-10) to two players."
+      }
+    },
+    {
+      "id": "ambiguous:once-per-turn-declined-may",
+      "kind": "ambiguous_text",
+      "severity": "minor",
+      "card_numbers": [
+        "GD02-002",
+        "GD03-076"
+      ],
+      "title": "Does declining a 'you may' use up 【Once per Turn】?",
+      "description": "13-2-13-1 limits 【Once per Turn】 effects to one activation per turn, and ruling GD02-002:Q197 says an effect that performs nothing does not end up activated. Neither says what happens when the player declines a 'you may' part of the effect.",
+      "engine_behaviour": true,
+      "origin": "curated",
+      "sources": [
+        "Comprehensive Rules Ver. 1.9.0 §13-2-13-1",
+        "Comprehensive Rules Ver. 1.9.0 §10-1-3",
+        "Card ruling GD02-002:Q197 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD02-002"
+      ],
+      "details": {
+        "evidence": [
+          {
+            "source": "rules",
+            "ref": "13-2-13-1",
+            "quote": "【Once per Turn】 is the keyword indicating that that effect can only be activated one time during that turn.",
+            "verified": true
+          },
+          {
+            "source": "rules",
+            "ref": "10-1-3",
+            "quote": "If told “you may” perform an effect, you may also choose not to activate that effect.",
+            "verified": true
+          },
+          {
+            "source": "ruling",
+            "ref": "GD02-002:Q197",
+            "quote": "This means its once per turn activation has not occurred at this time.",
+            "verified": true
+          }
+        ]
+      },
+      "problems": [],
+      "resolution": {
+        "policy": "most_defensible_reading",
+        "decision": "A 【Once per Turn】 triggered effect is used up only if it performs at least one action (including paying a cost). If its target can't be chosen, its 'If' fails, or the player declines its 'you may', it can trigger again this turn. Activated abilities are used up when activated.",
+        "rationale": "10-1-3 treats declining a 'you may' as choosing not to activate the effect, and Q197 treats an effect that performs nothing as not activated; 10-3-3-1: an effect whose target can't be chosen does not activate."
       }
     },
     {
