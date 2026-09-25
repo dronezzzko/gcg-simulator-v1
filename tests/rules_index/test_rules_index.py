@@ -299,7 +299,7 @@ def test_na_file_is_valid_and_partitions_the_index(index: RulesIndex) -> None:
     assert list(raw["rules"]) == sorted(raw["rules"], key=rule_number)
     assert set(index.na_ids()) | set(index.testable_ids()) == set(index.ids())
     assert not set(index.na_ids()) & set(index.testable_ids())
-    assert (len(index.na_ids()), len(index.testable_ids())) == (180, 399)
+    assert (len(index.na_ids()), len(index.testable_ids())) == (184, 395)
     for rule_id, reason in reasons.items():
         assert len(reason) >= 20, rule_id
         assert index.status(rule_id) == "na"
@@ -365,10 +365,7 @@ def test_presentational_rules_are_na(index: RulesIndex) -> None:
         "5-17-2-5-1",
         "5-17-3-2-3",
         "5-17-4",
-        "5-17-4-1",
         "5-17-4-2",
-        "5-17-4-3",
-        "5-17-4-4",
         "5-20-1",
         "5-20-2",
         "6-1-1",
@@ -430,7 +427,7 @@ def test_rules_index_json_matches_parse(index: RulesIndex, index_json: dict[str,
         assert list(payload) == sorted(payload)
     counts = index_json["counts"]
     assert isinstance(counts, dict)
-    assert (counts["total"], counts["na"], counts["testable"]) == (579, 180, 399)
+    assert (counts["total"], counts["na"], counts["testable"]) == (579, 184, 395)
     assert index_json["feature_areas"] == list(FEATURE_AREAS)
 
 
