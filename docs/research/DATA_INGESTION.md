@@ -4,6 +4,7 @@ Profile of the pinned card data, written so the card model (`CardDef`) can be fr
 Every number below comes from `docs/research/data_profile.json`, which is regenerated
 deterministically (sorted keys, no timestamps) by:
 
+<!-- doc-check: skip needs a full git clone of gcg-api at f57b7c0 (network); the refresh skill runs it -->
 ```bash
 uv run python scripts/ingest_profile.py --full-clone <gcg-api clone at f57b7c0>
 # provenance fragment as well:

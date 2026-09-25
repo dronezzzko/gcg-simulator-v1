@@ -14,19 +14,23 @@ bar, not a verdict.
 ## 1. Validate both decks first
 
 ```bash
-uv run gcg-sim validate path/to/dut.txt
-uv run gcg-sim validate path/to/benchmark.txt
+uv run gcg-sim validate examples/decks/red-green-zeon.txt
+uv run gcg-sim validate examples/decks/blue-white-federation.txt
 ```
 
 Deck file format (details: `docs/DECK_FORMAT.md`): one entry per line, `<count> <card_number> [name]`,
 `#` comment lines, RESOURCE cards form the 10-card resource deck. Fix every violation before
-running; the benchmark refuses illegal decks.
+running; the benchmark refuses illegal decks (exit code 1 with one line per violation).
 
 ## 2. Run a benchmark
 
 ```bash
-uv run gcg-sim benchmark dut.txt benchmark.txt --matches 100 --seed 1 --workers 8 --out runs/dut-vs-meta-s1
+uv run gcg-sim benchmark examples/decks/red-green-zeon.txt examples/decks/blue-white-federation.txt \
+    --matches 2 --seed 1 --workers 2 --out /tmp/gcg-benchmark-demo
 ```
+
+For a real measurement use your own deck files, `--matches 100` or more, and `--workers` equal
+to your core count, and keep each run's `--out` directory (e.g. `runs/<dut>-vs-<benchmark>-s1`).
 
 - `--format bo3` (default) plays best-of-three matches per the official BO3 rules; `--format bo1`
   plays single games (≈2.5× more games per minute — use it for quick screening).
@@ -44,7 +48,7 @@ Files in `--out` (full guide: `docs/REPORTS.md`):
 | `summary.md` | Human summary: win rates with 95% Wilson intervals, splits, per-card table, hypotheses. |
 | `results.json` | Machine-readable results (validated by the published JSON Schema). |
 | `games.ndjson` | One line per game: seeds, seats, first player, winner, end reason, length. |
-| `replays/*.json` | Representative wins/losses; replay with `uv run gcg-sim replay <file>`. |
+| `replays/*.json` | Representative wins/losses (`win-m0003-g2.json`, …); `uv run gcg-sim replay FILE --log` re-simulates one and prints its turns. |
 | `timing.json` | Wall-clock only (kept separate so results stay reproducible). |
 
 Read in this order:
@@ -93,7 +97,8 @@ Workflow for a card swap:
 
 - The AI is strong but not perfect; decks whose power depends on long, precise lines may be
   underrated. Check a few replays of losses for implausible plays before trusting a surprising
-  result (`docs/AI.md` lists known weaknesses).
+  result (`docs/AI.md` lists known weaknesses). Rerun a few matches with `--decision-log` to see
+  the values and visit counts of the alternatives the AI considered at each decision.
 - Results reflect the implemented card behaviour and conflict resolutions (`docs/CONFLICTS.md`),
   the current B&R list, and no sideboarding or clock.
 
