@@ -69,7 +69,7 @@ review records that no longer match anything are listed as orphaned so they can 
   - `gcgapi/rulings.json`: `2da64f7ea88a96edd8b91399a3bd73b43ce1d766f3253474df2b1ca706bbc895`
   - `official/banlist.json`: `d03313dc88a50a746e01ad7bf11b8abbaf4ce4060988c4b2fd9ade49ef66dac5`
   - `official/rules_version.json`: `8d9caac3911e80ba3d6b9960c1b6fad69c0dbada75fc7607e392d0803edf48a5`
-  - `overrides.json`: `5f0b4d5cd0938bcabc6b8f9a2131e2459b297e82f8365814f126e453deb7d8e0`
+  - `overrides.json`: `fdbd8e5f298515ec7155af7ebab7fcb67a2705835c8b09fe911d239ad128344a`
   - `rules/gundam-card-game-comprehensive-rules.md`: `bf2f3d5c7a1a04d9860d97a38c316309da14707f5e7012f9241885b8635a50b6`
 
 ## Summary
@@ -5237,8 +5237,8 @@ Total: 395 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
 - Evidence:
   - card ST13-013: “Deploy 1 to 2 [Bit / Funnel]((Long-Range Weapon)･AP2･HP2･This Unit can't be paired with a Pilot or attack) Unit tokens.”
 - Sources: gcg-api card ST13-013 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST13-013 (effect)
-- **Resolution** (`most_defensible_reading`): Deploy 1 token, then the player may deploy a second one.
-  - Rationale: Equivalent to choosing 1 or 2 up front: nothing happens between the two deployments that could change the choice.
+- **Resolution** (`most_defensible_reading`): The player chooses 1 or 2 first, then that many tokens are deployed simultaneously: with a full battle area, as many Units already in the battle area are trashed (11-4-2-2), and a 'when deployed' trigger fires once for the pair (10-1-6-3).
+  - Rationale: One instruction deploys the tokens, so they enter together; deploying one and then optionally a second would let excess management trash the first token and double 'when deployed' triggers, results the rules cannot produce.
 
 ### `ambiguous:ST13-015:choose-3-unit-cards` — ST13-015 Operation to Intercept Solomon: reading of “Choose 3 Unit cards from your trash. Exile them from the game. If you …”
 

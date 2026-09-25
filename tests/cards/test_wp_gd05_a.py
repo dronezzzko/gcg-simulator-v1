@@ -2408,8 +2408,24 @@ def test_gd05_068_special_move_command_grants_suppression_this_turn() -> None:
     assert "Suppression" not in keywords(st, super_mode)
 
 
-@pytest.mark.card("GD05-068")
+@pytest.mark.card("GD05-068", "GD05-035", "GD05-112")
 @pytest.mark.ruling("GD05-068:Q376")
+@pytest.mark.rule("3-4-6-3-1")
+def test_gd05_068_q376_main_of_a_paired_special_move_command_activated_by_dragon_gundam() -> None:
+    sc = Scenario()
+    super_mode = sc.add(0, "GD05-068")
+    dragon = sc.add(0, "GD05-035", pilot="GD05-112")  # Hoka Kyoten Juzetsujin, [Sai Saici]
+    sc.shields(1, VANILLA, VANILLA)
+    st = sc.start()
+    attack(st, dragon)
+    select(st, dragon)
+    pass_all(st)
+    assert keywords(st, dragon).get("Breach") == 3
+    assert zone_of(st, st.cards[dragon].pair) is Zone.PAIRED
+    assert "Suppression" in keywords(st, super_mode)
+
+
+@pytest.mark.card("GD05-068")
 def test_gd05_068_main_activated_by_an_effect_also_grants_suppression() -> None:
     sc = Scenario(active=1)
     super_mode = sc.add(0, "GD05-068")

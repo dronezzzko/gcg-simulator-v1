@@ -72,7 +72,8 @@ def deck_construction_problems(deck: DeckList) -> list[str]:
             f"resource deck has {len(deck.resources)} cards; exactly {RESOURCE_DECK_SIZE} required (6-1-1)"
         )
     colors = set()
-    for number, n in sorted(Counter(deck.main).items()):
+    printings = Counter(db.normalize_id(n) or n for n in deck.main)  # rule 2-1-1
+    for number, n in sorted(printings.items()):
         cd = db.get(number)
         if cd is None:
             problems.append(f"unknown card {number}")

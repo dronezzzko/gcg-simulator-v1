@@ -1913,3 +1913,24 @@ def test_gd03_132_no_aeug_link_unit_no_rest() -> None:
     assert zone_of(st, base) is Zone.TRASH
     assert pending_kind(st) is DecisionKind.MAIN
     assert not st.cards[other].rested
+
+
+@pytest.mark.card("GD03-106")
+@pytest.mark.rule("11-4-2-2")
+@pytest.mark.parametrize(("in_play", "trashed"), [(6, 2), (5, 1)])
+def test_gd03_106_both_tokens_deploy_together_and_excess_only_takes_existing_units(
+    in_play: int, trashed: int
+) -> None:
+    sc = Scenario()
+    sc.resources(0, 6)
+    existing = [sc.add(0, ZAKU) for _ in range(in_play)]
+    cmd = sc.add(0, "GD03-106", Zone.HAND)
+    st = sc.start()
+    play(st, cmd)
+    for n in range(trashed):
+        assert st.pending is not None and st.pending.kind is DecisionKind.EXCESS
+        assert {o.a for o in options(st)} <= set(existing)
+        act(st, A.SELECT, existing[n])
+    assert sum(zone_of(st, u) is Zone.TRASH for u in existing) == trashed
+    tokens = [u for u in st.zones[0][Zone.BATTLE] if u not in existing]
+    assert len(tokens) == 2 and all(st.cards[u].rested for u in tokens)

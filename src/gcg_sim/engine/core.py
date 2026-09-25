@@ -166,6 +166,7 @@ def _subject_matches(
     sel: d.Sel,
     subject: int,
     include_self: bool,
+    event: tuple[tuple[str, int], ...] = (),
 ) -> bool:
     if subject < 0:
         return False
@@ -177,7 +178,7 @@ def _subject_matches(
     if sel.side is d.Side.ENEMY and owner == host_owner:
         return False
     if sel.filters:
-        return V.matches(st, dv, V.Ctx(host_owner, host), subject, sel.filters)
+        return V.matches(st, dv, V.Ctx(host_owner, host, event=event), subject, sel.filters)
     return True
 
 
@@ -205,7 +206,9 @@ def _trigger_ok(
         if subject != host:
             return False
     elif trig.subject is not None:
-        if not _subject_matches(st, dv, host_owner, host, trig.subject, subject, trig.include_self):
+        if not _subject_matches(
+            st, dv, host_owner, host, trig.subject, subject, trig.include_self, event
+        ):
             return False
     elif not trig.include_self and subject == host:
         return False
@@ -420,7 +423,7 @@ def _walk_delayed(steps: tuple[d.Step, ...]) -> list[d.DelayedTrigger]:
         elif isinstance(s, d.If):
             out.extend(_walk_delayed(s.then))
             out.extend(_walk_delayed(s.otherwise))
-        elif isinstance(s, (d.May, d.IfYouDo, d.ForEach, d.Repeat)):
+        elif isinstance(s, (d.May, d.IfYouDo, d.Simultaneous, d.ForEach, d.Repeat)):
             out.extend(_walk_delayed(s.steps))
         elif isinstance(s, d.ChooseMode):
             for _, body in s.options:

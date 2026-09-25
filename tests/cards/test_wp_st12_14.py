@@ -797,8 +797,23 @@ def test_st12_013_q448_effect_battle_destruction_is_battle_destruction() -> None
     assert st.cards[bystander].damage == 1
 
 
-@pytest.mark.card("ST12-013", "ST14-006")
+@pytest.mark.card("ST12-013", "GD02-073")
 @pytest.mark.ruling("ST12-013:Q447")
+@pytest.mark.rule("5-22-4", "13-1-5-2")
+def test_st12_013_q447_carta_gives_the_battling_unit_first_strike() -> None:
+    sc = Scenario()
+    sc.resources(0, 6)
+    mine = sc.add(0, "GD01-041")  # Shenlong Gundam 4/3
+    carta = sc.add(1, "GD02-073")  # 5/4: the enemy Unit battling it gains <First Strike>
+    victor = sc.add(0, FINAL_VICTOR, Zone.HAND)
+    st = sc.start()
+    play(st, victor)
+    assert zone_of(st, carta) is Zone.TRASH
+    assert zone_of(st, mine) is Zone.BATTLE
+    assert st.cards[mine].damage == 0
+
+
+@pytest.mark.card("ST12-013", "ST14-006")
 def test_st12_013_q447_enemy_battle_effects_apply_in_effect_battles() -> None:
     sc = Scenario()
     sc.resources(0, 6)
@@ -1087,8 +1102,8 @@ def test_st13_001_pairing_deploys_1_to_2_bit_funnels_once_per_turn() -> None:
     first, second = sc.hand(0, PILOT_LV3, PILOT_LV3)
     st = sc.start()
     play(st, first, onto=other)
-    assert _kind(st) is DecisionKind.YES_NO
-    yes(st)
+    assert _kind(st) is DecisionKind.SELECT
+    choose_option(st, 1)
     tokens = _tokens(st, 0)
     assert len(tokens) == 2
     assert all(ap(st, t) == 2 and V.hp_of(st, V.derived(st), t) == 2 for t in tokens)
@@ -1105,7 +1120,7 @@ def test_st13_001_second_token_is_optional() -> None:
     pilot = sc.add(0, PILOT_LV3, Zone.HAND)
     st = sc.start()
     play(st, pilot, onto=qubeley)
-    no(st)
+    choose_option(st, 0)
     assert len(_tokens(st, 0)) == 1
 
 
@@ -1121,7 +1136,7 @@ def _qubeley_with_tokens(*enemies: str, extra_hand: tuple[str, ...] = ()) -> Gam
     sc.shields(1, VANILLA_2_2, VANILLA_2_2)
     st = sc.start()
     play(st, newtype)
-    yes(st)
+    choose_option(st, 1)
     return st
 
 
@@ -1145,8 +1160,23 @@ def test_st13_001_q454_token_battles_enemy_unit_with_damage_step_only() -> None:
     assert not has_action(st, A.ACTIVATE, qubeley, aid)
 
 
-@pytest.mark.card("ST13-001", "ST14-006")
+@pytest.mark.card("ST13-001", "GD02-073")
 @pytest.mark.ruling("ST13-001:Q455")
+@pytest.mark.rule("13-1-5-4")
+def test_st13_001_q455_carta_gives_the_token_first_strike() -> None:
+    sc = Scenario()
+    sc.resources(0, 5)
+    qubeley = sc.add(0, QUBELEY)
+    token = sc.add(0, "T-007")  # [Zaku II] Unit token 1/1
+    carta = sc.add(1, "GD02-073", damage=3)  # 5/4
+    st = sc.start()
+    activate(st, qubeley, _aid(QUBELEY, 1))
+    assert zone_of(st, carta) is Zone.TRASH
+    assert zone_of(st, token) is Zone.BATTLE
+    assert st.cards[token].damage == 0
+
+
+@pytest.mark.card("ST13-001", "ST14-006")
 def test_st13_001_q455_enemy_battle_effects_apply_in_effect_battles() -> None:
     sc = Scenario()
     sc.resources(0, 4)
@@ -1199,6 +1229,25 @@ def test_st13_002_deploy_deploys_one_bit_funnel() -> None:
 
 
 @pytest.mark.card("ST13-013")
+@pytest.mark.rule("11-4-2-2")
+def test_st13_013_two_tokens_deploy_together_with_a_full_battle_area() -> None:
+    sc = Scenario()
+    sc.resources(0, 4)
+    existing = [sc.add(0, VANILLA_2_2) for _ in range(6)]
+    card = sc.add(0, NEWTYPE, Zone.HAND)
+    st = sc.start()
+    play(st, card)
+    choose_option(st, 1)
+    for n in range(2):
+        assert st.pending is not None and st.pending.kind is DecisionKind.EXCESS
+        assert {o.kind for o in st.pending.options} == {A.SELECT}
+        assert {o.a for o in st.pending.options} <= set(existing)
+        act(st, A.SELECT, existing[n])
+    assert len(_tokens(st, 0)) == 2
+    assert sum(zone_of(st, u) is Zone.TRASH for u in existing) == 2
+
+
+@pytest.mark.card("ST13-013")
 @pytest.mark.parametrize(("second", "expected"), [(True, 2), (False, 1)])
 def test_st13_013_deploys_1_to_2_bit_funnels(second: bool, expected: int) -> None:
     sc = Scenario()
@@ -1206,10 +1255,7 @@ def test_st13_013_deploys_1_to_2_bit_funnels(second: bool, expected: int) -> Non
     card = sc.add(0, NEWTYPE, Zone.HAND)
     st = sc.start()
     play(st, card)
-    if second:
-        yes(st)
-    else:
-        no(st)
+    choose_option(st, 1 if second else 0)
     assert len(_tokens(st, 0)) == expected
     assert zone_of(st, card) is Zone.TRASH
 
@@ -1472,7 +1518,7 @@ def test_st13_010_destroy_token_for_breach_3_once_per_turn() -> None:
     aid = _aid(RED_GUNDAM, 0)
     assert not has_action(st, A.ACTIVATE, red, aid)
     play(st, newtype)
-    yes(st)
+    choose_option(st, 1)
     first, second = _tokens(st, 0)
     activate(st, red, aid)
     select(st, first)

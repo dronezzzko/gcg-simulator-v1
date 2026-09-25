@@ -608,14 +608,29 @@ def select(st: GameState, dv: Derived, ctx: Ctx, sel: d.Sel) -> list[int]:
     return out
 
 
-def _kind_ok(st: GameState, dv: Derived, card: CardInstance, cd: CardDef, kind: d.CardKind) -> bool:
+def _activated_as_command(event: tuple[tuple[str, int], ...], uid: int) -> bool:
+    """A Command card paired as a Pilot whose command effect an effect activates is a Command
+    for that activation (rule 3-4-6-3-1, ruling GD05-068:Q376)."""
+    return ("subject", uid) in event and ("as_command", 1) in event
+
+
+def _kind_ok(
+    st: GameState,
+    dv: Derived,
+    card: CardInstance,
+    cd: CardDef,
+    kind: d.CardKind,
+    event: tuple[tuple[str, int], ...] = (),
+) -> bool:
     t = cd.card_type
     if kind is d.CardKind.UNIT:
         return t.is_unit
     if kind is d.CardKind.PILOT:
         return t is CardType.PILOT or (t is CardType.COMMAND and card.zone is Zone.PAIRED)
     if kind is d.CardKind.COMMAND:
-        return t is CardType.COMMAND and card.zone is not Zone.PAIRED
+        return t is CardType.COMMAND and (
+            card.zone is not Zone.PAIRED or _activated_as_command(event, card.uid)
+        )
     if kind is d.CardKind.BASE:
         return t.is_base
     if kind is d.CardKind.RESOURCE:
@@ -671,7 +686,7 @@ def _match1(
 ) -> bool:
     uid = card.uid
     if isinstance(f, d.IsKind):
-        return any(_kind_ok(st, dv, card, cd, k) for k in f.kinds)
+        return any(_kind_ok(st, dv, card, cd, k, ctx.event) for k in f.kinds)
     if isinstance(f, d.HasTrait):
         tr = dv.traits.get(uid, cd.traits) if card.zone in (Zone.BATTLE, Zone.BASE) else cd.traits
         return any(t in tr for t in f.traits)

@@ -25,6 +25,7 @@ def declare_attack(st: GameState, attacker: int, target: int) -> None:
     )
     st.next_battle_id += 1
     st.battles.append(b)
+    st.touch()
     core.record(st, "attack", a.owner, a.owner, attacker)
     core.next_group(st)
     core.emit(st, d.Ev.ATTACKS, attacker, player=a.owner, target=target, defender=defender)
@@ -273,6 +274,7 @@ def damage_only_battle(st: GameState, attacker: int, target: int) -> None:
     )
     st.next_battle_id += 1
     st.battles.append(b)
+    st.touch()  # "battling" continuous effects apply in this battle (5-22-4, Q447, Q455)
     damage_step(st)
     if st.winner is None:
         end_battle(st)

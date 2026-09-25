@@ -325,7 +325,7 @@ def _delayed_steps(a: d.Ability) -> list[tuple[d.Step, ...]]:
             elif isinstance(s, d.If):
                 walk(s.then)
                 walk(s.otherwise)
-            elif isinstance(s, (d.May, d.IfYouDo, d.ForEach, d.Repeat)):
+            elif isinstance(s, (d.May, d.IfYouDo, d.Simultaneous, d.ForEach, d.Repeat)):
                 walk(s.steps)
             elif isinstance(s, d.ChooseMode):
                 for _, body in s.options:

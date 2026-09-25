@@ -847,6 +847,19 @@ def test_gd03_029_only_during_your_turn() -> None:
 
 @pytest.mark.card("GD03-030")
 @pytest.mark.ruling("GD03-030:Q218")
+def test_gd03_030_q218_cost_reduction_does_not_lower_the_level() -> None:
+    sc = Scenario()
+    sc.resources(0, 2)
+    card = sc.add(0, "GD03-030", Zone.HAND)
+    sc.add(0, "GD03-022", pilot=HALLELUJAH)  # (CB) Link Unit
+    st = sc.start()
+    dv = V.derived(st)
+    assert V.play_cost(st, dv, card) == 2
+    assert V.play_level(st, dv, card) == 3
+    assert not has_action(st, A.PLAY_UNIT, card)
+
+
+@pytest.mark.card("GD03-030")
 def test_gd03_030_costs_one_less_with_a_cb_link_unit() -> None:
     sc = Scenario()
     sc.resources(0, 3, rested=1)
@@ -859,7 +872,6 @@ def test_gd03_030_costs_one_less_with_a_cb_link_unit() -> None:
 
 
 @pytest.mark.card("GD03-030")
-@pytest.mark.ruling("GD03-030:Q218")
 def test_gd03_030_level_unchanged_and_needs_link() -> None:
     sc = Scenario()
     sc.resources(0, 2)

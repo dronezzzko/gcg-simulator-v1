@@ -951,13 +951,15 @@ class DeployCard:
 
 @dataclass(frozen=True, slots=True)
 class DeployToken:
-    """Deploy ``count`` Unit tokens (rule 5-17) identified by their inline definition key."""
+    """Deploy ``count`` Unit tokens (rule 5-17) identified by their inline definition key, plus
+    the ``also`` (key, count) tokens in the same simultaneous deployment (rule 11-4-2-2)."""
 
     token_key: str
     count: Value = 1
     rested: bool = False
     player: P = P.YOU
     var: str = "tokens"
+    also: tuple[tuple[str, int], ...] = ()
 
 
 @dataclass(frozen=True, slots=True)
@@ -1130,6 +1132,14 @@ class May:
 
 
 @dataclass(frozen=True, slots=True)
+class Simultaneous:
+    """``steps`` are performed in order but treated as simultaneous: rules management (defeat,
+    lethal damage) runs only after all of them (rulings EB01-023:Q319, EB01-078:Q331)."""
+
+    steps: tuple[Step, ...]
+
+
+@dataclass(frozen=True, slots=True)
 class IfYouDo:
     """Rule 5-20-1: resolve ``steps`` only if the preceding portion resolved."""
 
@@ -1224,6 +1234,7 @@ type Step = (
     | If
     | May
     | IfYouDo
+    | Simultaneous
     | ForEach
     | Repeat
     | BindVar

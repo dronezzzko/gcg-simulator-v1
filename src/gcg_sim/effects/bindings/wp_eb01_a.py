@@ -207,7 +207,7 @@ def eb01_010(c: CardDef) -> d.CardScript:
 def eb01_017(c: CardDef) -> d.CardScript:
     destroyed = d.Triggered(
         d.Trigger(d.Ev.DESTROYED, battle_only=True),
-        (d.Draw(1, d.P.YOU), d.Draw(1, d.P.OPP)),
+        (d.Draw(1, each_player=True),),
     )
     return _script(c, destroyed)
 
@@ -241,8 +241,12 @@ def eb01_023(c: CardDef) -> d.CardScript:
     attack = d.Triggered(
         d.Trigger(d.Ev.ATTACKS),
         (
-            *_le_cygne_player(d.P.ACTIVE, "looked_active"),
-            *_le_cygne_player(d.P.STANDBY, "looked_standby"),
+            d.Simultaneous(
+                (
+                    *_le_cygne_player(d.P.ACTIVE, "looked_active"),
+                    *_le_cygne_player(d.P.STANDBY, "looked_standby"),
+                )
+            ),
         ),
     )
     return _script(c, attack, notes="Q319: players act in turn order from the active player.")

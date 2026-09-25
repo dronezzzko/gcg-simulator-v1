@@ -300,13 +300,10 @@ def gd03_104(c: CardDef) -> d.CardScript:
 
 @card("GD03-106")
 def gd03_106(c: CardDef) -> d.CardScript:
-    """M.A.V. Tactics: deploy two rested (Clan) Unit tokens."""
+    """M.A.V. Tactics: deploy two rested (Clan) Unit tokens simultaneously (11-4-2-2)."""
     cmd = d.Command(
         d.Timing.MAIN,
-        (
-            d.DeployToken(_token_key(c, 0), 1, rested=True),
-            d.DeployToken(_token_key(c, 1), 1, rested=True, var="tokens2"),
-        ),
+        (d.DeployToken(_token_key(c, 0), 1, rested=True, also=((_token_key(c, 1), 1),)),),
     )
     return d.CardScript(c.card_number, abilities=(cmd,), source="binding")
 

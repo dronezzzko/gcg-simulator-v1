@@ -1786,3 +1786,22 @@ def test_eb01_090_burst_in_opponents_turn_returns_nothing() -> None:
     assert zone_of(st, attacker) is Zone.BATTLE
     assert all(zone_of(st, u) is Zone.BATTLE for u in st.zones[0][Zone.BATTLE])
     assert len(st.zones[0][Zone.BATTLE]) == 2
+
+
+@pytest.mark.card("EB01-078")
+@pytest.mark.ruling("EB01-078:Q331")
+@pytest.mark.rule("11-2-1", "1-2-2-2")
+def test_eb01_078_q331_both_players_act_before_defeat_is_checked() -> None:
+    sc = Scenario(deck_size=0)
+    sc.deck(0, GG_1)
+    sc.deck(1, GG_1)
+    sc.resources(0, 1)
+    cmd = sc.add(0, "EB01-078", Zone.HAND)
+    st = sc.start()
+    play(st, cmd)
+    assert st.pending is not None and st.pending.player == 0
+    yes(st)
+    assert st.winner is None and st.pending is not None and st.pending.player == 1
+    yes(st)
+    assert st.winner == -1
+    assert len(st.zones[0][Zone.HAND]) == len(st.zones[1][Zone.HAND]) == 1

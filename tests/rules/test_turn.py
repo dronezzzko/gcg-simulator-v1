@@ -47,6 +47,7 @@ from gcg_sim.testkit import (
     play,
     select,
     to_next_turn,
+    vanilla_deck,
     zone_of,
 )
 from gcg_sim.testkit import card_text as override_card_text
@@ -1270,3 +1271,14 @@ def test_effects_caused_by_the_cleanup_step_resolve_before_the_turn_passes(
     assert (st.turn, st.active) == (3, 0)
     select(st, dec.options[0].a)
     assert (st.turn, st.active) == (4, 1)
+
+
+@pytest.mark.rule("2-1-1", "2-1-2", "6-1-1-3")
+def test_new_game_counts_every_printing_of_a_card_number_together() -> None:
+    legal = vanilla_deck()
+    other = next(n for n in legal.main if n != "GD01-051")
+    main = list(legal.main)
+    main[main.index(other)] = "GD01-051_p1"
+    deck = DeckList(tuple(main), legal.resources)
+    with pytest.raises(game.DeckConstructionError, match="5 copies of GD01-051"):
+        new_game((deck, legal), seed=1)

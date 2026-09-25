@@ -2049,6 +2049,21 @@ def test_gd04_066_burst_activating_a_command_main_triggers() -> None:
     assert ap(st, attacker) == 5 - 3 - 2
 
 
+@pytest.mark.card("GD04-066", "GD05-069", "GD05-121")
+@pytest.mark.rule("3-4-6-3-1")
+def test_gd04_066_main_of_a_paired_command_activated_by_an_effect_triggers() -> None:
+    sc = Scenario()
+    sc.add(0, "GD04-066")
+    maxter = sc.add(0, "GD05-069", pilot="GD05-121")  # Cyclone Punch, [Chibodee Crocket]
+    enemy = sc.add(1, "ST14-008")  # 6/4, the only enemy Unit
+    sc.shields(1, VANILLA, VANILLA)
+    st = sc.start()
+    attack(st, maxter)
+    pass_all(st)
+    assert zone_of(st, st.cards[maxter].pair) is Zone.PAIRED
+    assert ap(st, enemy) == 6 - 2 - 2
+
+
 # ---------------------------------------------------------------------------------------------
 # GD04-067 ∀ Gundam
 

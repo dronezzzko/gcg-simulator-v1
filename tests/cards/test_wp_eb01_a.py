@@ -1627,3 +1627,34 @@ def test_eb01_046_needs_a_paired_pilot() -> None:
     attack(st, striker)
     assert pending_kind(st) is DecisionKind.BLOCK
     assert ap(st, enemy) == 3
+
+
+@pytest.mark.card("EB01-017")
+@pytest.mark.rule("11-2-1")
+def test_eb01_017_both_draws_are_simultaneous_for_deck_out() -> None:
+    sc = Scenario(active=1, deck_size=1)
+    haro = sc.add(0, "EB01-017", rested=True)
+    attacker = sc.add(1, "EB01-007")  # Hazel-Rah 5/4
+    st = sc.start()
+    attack(st, attacker, haro)
+    pass_all(st)
+    assert zone_of(st, haro) is Zone.TRASH
+    assert not st.zones[0][Zone.DECK] and not st.zones[1][Zone.DECK]
+    assert st.winner == -1
+
+
+@pytest.mark.card("EB01-023")
+@pytest.mark.ruling("EB01-023:Q319")
+@pytest.mark.rule("11-2-1")
+def test_eb01_023_q319_both_players_act_before_defeat_is_checked() -> None:
+    sc = Scenario(deck_size=0)
+    sc.deck(0, "GD03-002")  # The O, Lv7
+    sc.deck(1, "GD03-002")
+    cygne = sc.add(0, "EB01-023")
+    st = sc.start()
+    attack(st, cygne)
+    assert st.pending is not None and st.pending.player == 0
+    yes(st)
+    assert st.winner is None and st.pending is not None and st.pending.player == 1
+    yes(st)
+    assert st.winner == -1

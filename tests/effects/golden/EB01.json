@@ -923,11 +923,8 @@
     "_": "Triggered",
     "steps": [
      {
-      "_": "Draw"
-     },
-     {
       "_": "Draw",
-      "player": "opponent"
+      "each_player": true
      }
     ],
     "trigger": {
@@ -1211,118 +1208,123 @@
     "_": "Triggered",
     "steps": [
      {
-      "_": "CustomStep",
-      "name": "wp_eb01_a_look_own_top",
-      "params": [
-       [
-        "player",
-        "active"
-       ],
-       [
-        "var",
-        "looked_active"
-       ]
-      ]
-     },
-     {
-      "_": "If",
-      "cond": {
-       "_": "RefMatches",
-       "filters": [
-        {
-         "_": "StatCmp",
-         "op": ">=",
-         "stat": "lv",
-         "value": 5
-        }
-       ],
-       "ref": {
-        "_": "Var",
-        "name": "looked_active"
-       }
-      },
-      "then": [
+      "_": "Simultaneous",
+      "steps": [
        {
-        "_": "May",
+        "_": "CustomStep",
+        "name": "wp_eb01_a_look_own_top",
+        "params": [
+         [
+          "player",
+          "active"
+         ],
+         [
+          "var",
+          "looked_active"
+         ]
+        ]
+       },
+       {
+        "_": "If",
+        "cond": {
+         "_": "RefMatches",
+         "filters": [
+          {
+           "_": "StatCmp",
+           "op": ">=",
+           "stat": "lv",
+           "value": 5
+          }
+         ],
+         "ref": {
+          "_": "Var",
+          "name": "looked_active"
+         }
+        },
+        "then": [
+         {
+          "_": "May",
+          "player": "active",
+          "steps": [
+           {
+            "_": "AddToHand",
+            "ref": {
+             "_": "Var",
+             "name": "looked_active"
+            },
+            "reveal": true
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "_": "Arrange",
+        "mode": "top_or_bottom",
         "player": "active",
-        "steps": [
-         {
-          "_": "AddToHand",
-          "ref": {
-           "_": "Var",
-           "name": "looked_active"
-          },
-          "reveal": true
-         }
-        ]
-       }
-      ]
-     },
-     {
-      "_": "Arrange",
-      "mode": "top_or_bottom",
-      "player": "active",
-      "ref": {
-       "_": "Var",
-       "name": "looked_active"
-      }
-     },
-     {
-      "_": "CustomStep",
-      "name": "wp_eb01_a_look_own_top",
-      "params": [
-       [
-        "player",
-        "standby"
-       ],
-       [
-        "var",
-        "looked_standby"
-       ]
-      ]
-     },
-     {
-      "_": "If",
-      "cond": {
-       "_": "RefMatches",
-       "filters": [
-        {
-         "_": "StatCmp",
-         "op": ">=",
-         "stat": "lv",
-         "value": 5
+        "ref": {
+         "_": "Var",
+         "name": "looked_active"
         }
-       ],
-       "ref": {
-        "_": "Var",
-        "name": "looked_standby"
-       }
-      },
-      "then": [
+       },
        {
-        "_": "May",
-        "player": "standby",
-        "steps": [
+        "_": "CustomStep",
+        "name": "wp_eb01_a_look_own_top",
+        "params": [
+         [
+          "player",
+          "standby"
+         ],
+         [
+          "var",
+          "looked_standby"
+         ]
+        ]
+       },
+       {
+        "_": "If",
+        "cond": {
+         "_": "RefMatches",
+         "filters": [
+          {
+           "_": "StatCmp",
+           "op": ">=",
+           "stat": "lv",
+           "value": 5
+          }
+         ],
+         "ref": {
+          "_": "Var",
+          "name": "looked_standby"
+         }
+        },
+        "then": [
          {
-          "_": "AddToHand",
-          "ref": {
-           "_": "Var",
-           "name": "looked_standby"
-          },
-          "reveal": true
+          "_": "May",
+          "player": "standby",
+          "steps": [
+           {
+            "_": "AddToHand",
+            "ref": {
+             "_": "Var",
+             "name": "looked_standby"
+            },
+            "reveal": true
+           }
+          ]
          }
         ]
+       },
+       {
+        "_": "Arrange",
+        "mode": "top_or_bottom",
+        "player": "standby",
+        "ref": {
+         "_": "Var",
+         "name": "looked_standby"
+        }
        }
       ]
-     },
-     {
-      "_": "Arrange",
-      "mode": "top_or_bottom",
-      "player": "standby",
-      "ref": {
-       "_": "Var",
-       "name": "looked_standby"
-      }
      }
     ],
     "trigger": {
@@ -4498,107 +4500,112 @@
     "_": "Command",
     "steps": [
      {
-      "_": "LookTop",
-      "count": 1,
-      "var": "top0"
-     },
-     {
-      "_": "If",
-      "cond": {
-       "_": "RefMatches",
-       "filters": [
-        {
-         "_": "IsKind",
-         "kinds": [
-          "unit"
-         ]
-        }
-       ],
-       "ref": {
-        "_": "Var",
-        "name": "top0"
-       }
-      },
-      "then": [
+      "_": "Simultaneous",
+      "steps": [
        {
-        "_": "May",
-        "steps": [
+        "_": "LookTop",
+        "count": 1,
+        "var": "top0"
+       },
+       {
+        "_": "If",
+        "cond": {
+         "_": "RefMatches",
+         "filters": [
+          {
+           "_": "IsKind",
+           "kinds": [
+            "unit"
+           ]
+          }
+         ],
+         "ref": {
+          "_": "Var",
+          "name": "top0"
+         }
+        },
+        "then": [
          {
-          "_": "AddToHand",
-          "ref": {
-           "_": "Var",
-           "name": "top0"
-          },
-          "reveal": true
+          "_": "May",
+          "steps": [
+           {
+            "_": "AddToHand",
+            "ref": {
+             "_": "Var",
+             "name": "top0"
+            },
+            "reveal": true
+           }
+          ]
          }
         ]
-       }
-      ]
-     },
-     {
-      "_": "Arrange",
-      "mode": "top_or_bottom",
-      "ref": {
-       "_": "Var",
-       "name": "top0"
-      }
-     },
-     {
-      "_": "CustomStep",
-      "name": "wp_eb01_b_look_top_own",
-      "params": [
-       [
-        "player",
-        "opponent"
-       ],
-       [
-        "var",
-        "top1"
-       ]
-      ]
-     },
-     {
-      "_": "If",
-      "cond": {
-       "_": "RefMatches",
-       "filters": [
-        {
-         "_": "IsKind",
-         "kinds": [
-          "unit"
-         ]
-        }
-       ],
-       "ref": {
-        "_": "Var",
-        "name": "top1"
-       }
-      },
-      "then": [
+       },
        {
-        "_": "May",
+        "_": "Arrange",
+        "mode": "top_or_bottom",
+        "ref": {
+         "_": "Var",
+         "name": "top0"
+        }
+       },
+       {
+        "_": "CustomStep",
+        "name": "wp_eb01_b_look_top_own",
+        "params": [
+         [
+          "player",
+          "opponent"
+         ],
+         [
+          "var",
+          "top1"
+         ]
+        ]
+       },
+       {
+        "_": "If",
+        "cond": {
+         "_": "RefMatches",
+         "filters": [
+          {
+           "_": "IsKind",
+           "kinds": [
+            "unit"
+           ]
+          }
+         ],
+         "ref": {
+          "_": "Var",
+          "name": "top1"
+         }
+        },
+        "then": [
+         {
+          "_": "May",
+          "player": "opponent",
+          "steps": [
+           {
+            "_": "AddToHand",
+            "ref": {
+             "_": "Var",
+             "name": "top1"
+            },
+            "reveal": true
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "_": "Arrange",
+        "mode": "top_or_bottom",
         "player": "opponent",
-        "steps": [
-         {
-          "_": "AddToHand",
-          "ref": {
-           "_": "Var",
-           "name": "top1"
-          },
-          "reveal": true
-         }
-        ]
+        "ref": {
+         "_": "Var",
+         "name": "top1"
+        }
        }
       ]
-     },
-     {
-      "_": "Arrange",
-      "mode": "top_or_bottom",
-      "player": "opponent",
-      "ref": {
-       "_": "Var",
-       "name": "top1"
-      }
      }
     ],
     "timing": "main"

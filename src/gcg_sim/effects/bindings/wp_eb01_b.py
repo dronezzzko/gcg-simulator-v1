@@ -264,8 +264,12 @@ def _premium_look(player: d.P, var: str, look: d.Step) -> tuple[d.Step, ...]:
 def eb01_078(c: CardDef) -> d.CardScript:
     opp_look = d.CustomStep("wp_eb01_b_look_top_own", (("player", "opponent"), ("var", "top1")))
     steps: tuple[d.Step, ...] = (
-        *_premium_look(d.P.YOU, "top0", d.LookTop(1, var="top0")),
-        *_premium_look(d.P.OPP, "top1", opp_look),
+        d.Simultaneous(
+            (
+                *_premium_look(d.P.YOU, "top0", d.LookTop(1, var="top0")),
+                *_premium_look(d.P.OPP, "top1", opp_look),
+            )
+        ),
     )
     return _script(
         c,

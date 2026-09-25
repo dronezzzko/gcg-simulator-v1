@@ -1193,26 +1193,30 @@ _TOKDEF = r"(\[[^\[\]]+\]\((?:\([^()]*\)\s*)+[^()]*\))"
     + r" Unit tokens?)?"
 )
 def _deploy_token(m: re.Match[str], g: G) -> list[d.Step]:
-    def one(cnt: str, rested: bool, tdef: str, var: str) -> list[d.Step]:
+    """Tokens named in one instruction are deployed simultaneously (rule 11-4-2-2); for "N to M"
+    the player chooses the number first."""
+
+    def key(tdef: str) -> str:
         specs = parse_token_specs(tdef)
         if len(specs) != 1:
             raise CompileError("token definition")
-        if " to " in cnt:
-            lo, hi = (int(x) for x in cnt.split(" to "))
-            out: list[d.Step] = [d.DeployToken(specs[0].key, lo, rested=rested, var=var)]
-            if hi > lo:
-                out.append(
-                    d.May((d.DeployToken(specs[0].key, hi - lo, rested=rested, var=var + "_x"),))
-                )
-            return out
-        return [d.DeployToken(specs[0].key, int(cnt), rested=rested, var=var)]
+        return specs[0].key
 
-    steps = one(m.group(1), bool(m.group(2)), m.group(3), "tokens")
+    rested = bool(m.group(2))
     g.it = d.Var("tokens")
     if m.group(6):
-        steps += one(m.group(4), bool(m.group(5)), m.group(6), "tokens2")
-        g.it = d.Union((d.Var("tokens"), d.Var("tokens2")))
-    return steps
+        if " to " in m.group(1) or " to " in m.group(4) or bool(m.group(5)) != rested:
+            raise CompileError("mixed token deployment")
+        also = ((key(m.group(6)), int(m.group(4))),)
+        return [d.DeployToken(key(m.group(3)), int(m.group(1)), rested=rested, also=also)]
+    if " to " in m.group(1):
+        lo, hi = (int(x) for x in m.group(1).split(" to "))
+        options = tuple(
+            (f"deploy {n}", (d.DeployToken(key(m.group(3)), n, rested=rested),))
+            for n in range(lo, hi + 1)
+        )
+        return [d.ChooseMode(options)]
+    return [d.DeployToken(key(m.group(3)), int(m.group(1)), rested=rested)]
 
 
 @core(r"deploy 1 EX Base")

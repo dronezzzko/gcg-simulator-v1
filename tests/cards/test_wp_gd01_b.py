@@ -611,6 +611,17 @@ def test_gd01_092_non_zeon_unit_gains_nothing() -> None:
 
 @pytest.mark.card("GD01-093")
 @pytest.mark.ruling("GD01-093:Q148")
+def test_gd01_093_q148_threshold_is_the_paired_units_level_not_maridas() -> None:
+    sc = Scenario()
+    unit = sc.add(0, "GD03-005", pilot="GD01-093")  # Lv6 Link Unit; Marida is Lv4
+    lv5 = sc.add(1, "GD01-040")
+    sc.shields(1, EF_LV4_3_4)
+    st = sc.start()
+    attack(st, unit)
+    assert st.cards[lv5].damage == 1
+
+
+@pytest.mark.card("GD01-093")
 def test_gd01_093_linked_attack_damages_enemy_of_equal_or_lower_lv() -> None:
     sc = Scenario()
     kshatriya = sc.add(0, NEOZEON_LINK_3_4, pilot="GD01-093")  # Lv4

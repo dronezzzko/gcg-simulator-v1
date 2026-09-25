@@ -66,8 +66,24 @@ class SetDid:
     value: bool
 
 
+@dataclass(frozen=True, slots=True)
+class HoldRules:
+    """Enter (+1) or leave (-1) a d.Simultaneous block: no rules management inside it."""
+
+    delta: int
+
+
 type Instr = (
-    d.Step | Jump | JumpIfNot | AskMay | JumpIfNotDid | ModeSelect | LoopInit | LoopNext | SetDid
+    d.Step
+    | Jump
+    | JumpIfNot
+    | AskMay
+    | JumpIfNotDid
+    | ModeSelect
+    | LoopInit
+    | LoopNext
+    | SetDid
+    | HoldRules
 )
 
 
@@ -111,6 +127,10 @@ class _Builder:
             j = self.emit(None)
             self.steps(s.steps)
             self.patch(j, AskMay(s.prompt, s.player, self.here()))
+        elif isinstance(s, d.Simultaneous):
+            self.emit(HoldRules(1))
+            self.steps(s.steps)
+            self.emit(HoldRules(-1))
         elif isinstance(s, d.IfYouDo):
             j = self.emit(None)
             self.steps(s.steps)

@@ -48,10 +48,14 @@ def _bit_funnel_key(c: CardDef) -> str:
 
 
 def _deploy_bit_funnels(key: str, *, up_to_two: bool) -> tuple[d.Step, ...]:
-    first = d.DeployToken(key, 1)
+    """'Deploy 1 to 2' tokens: choose the number, then deploy them together (11-4-2-2)."""
     if not up_to_two:
-        return (first,)
-    return (first, d.May((d.DeployToken(key, 1, var="tokens_x"),)))
+        return (d.DeployToken(key, 1),)
+    return (
+        d.ChooseMode(
+            (("deploy 1", (d.DeployToken(key, 1),)), ("deploy 2", (d.DeployToken(key, 2),)))
+        ),
+    )
 
 
 def _one_if_at_least(value: d.Value, n: int) -> d.Value:

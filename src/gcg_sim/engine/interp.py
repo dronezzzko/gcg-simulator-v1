@@ -36,6 +36,8 @@ CustomStepFn = Callable[[GameState, Frame, V.Ctx, dict[str, object]], bool]
 CUSTOM_STEPS: dict[str, CustomStepFn] = {}
 
 
+HOLD_RULES = "__hold_rules"
+
 NON_ACTIONS = (
     pr.Jump,
     pr.JumpIfNot,
@@ -45,6 +47,7 @@ NON_ACTIONS = (
     pr.LoopInit,
     pr.LoopNext,
     pr.SetDid,
+    pr.HoldRules,
     d.Choose,
     d.ChooseMode,
     d.BindVar,
@@ -119,7 +122,8 @@ def run_top_frame(st: GameState) -> None:
             f.pc += 1
         if core.over(st):
             return
-        core.rules_management(st)
+        if HOLD_RULES not in f.ints:
+            core.rules_management(st)
         if core.over(st):
             return
         if status is Status.WAIT or status is Status.PUSHED:
@@ -167,7 +171,8 @@ def resume(st: GameState, action: Action) -> None:
         f.acted = True
     if status is Status.NEXT:
         f.pc += 1
-    core.rules_management(st)
+    if HOLD_RULES not in f.ints:
+        core.rules_management(st)
 
 
 # ---------------------------------------------------------------------------------------------
@@ -195,6 +200,13 @@ def _h_jump_if_not_did(st: GameState, f: Frame, ins: pr.JumpIfNotDid) -> Status:
 
 def _h_set_did(st: GameState, f: Frame, ins: pr.SetDid) -> Status:
     f.did = ins.value
+    return Status.NEXT
+
+
+def _h_hold_rules(st: GameState, f: Frame, ins: pr.HoldRules) -> Status:
+    f.ints[HOLD_RULES] = f.ints.get(HOLD_RULES, 0) + ins.delta
+    if not f.ints[HOLD_RULES]:
+        del f.ints[HOLD_RULES]
     return Status.NEXT
 
 
@@ -976,21 +988,22 @@ def _enter_rested(st: GameState, uids: list[int]) -> None:
 
 def _h_deploy_token(st: GameState, f: Frame, ins: d.DeployToken) -> Status:
     p = V.player_of(st, ctx_of(f), ins.player)
-    n = _val(st, f, ins.count)
+    batches = [(ins.token_key, _val(st, f, ins.count)), *ins.also]
+    n = sum(max(0, k) for _, k in batches)
     if n <= 0:
         f.did = False
         return Status.NEXT
     ex_u, _ = _excess_needed(st, p, n, 0)
     if ex_u and len(st.zones[p][Zone.BATTLE]) > 0:
         return _ask_excess(st, f, p, Zone.BATTLE, ())
-    spec = token_spec(ins.token_key)
-    tdef = V.reg().db.token_for(spec)
     group = core.next_group(st)
-    made = []
-    for _ in range(min(n, core.BATTLE_LIMIT)):
-        uid = core.new_card(st, tdef.def_id, p, Zone.BATTLE, rested=ins.rested)
-        made.append(uid)
-        core.record(st, "deployed", p, f.controller, uid)
+    made: list[int] = []
+    for key, k in batches:
+        tdef = V.reg().db.token_for(token_spec(key))
+        for _ in range(max(0, min(k, core.BATTLE_LIMIT - len(made)))):
+            uid = core.new_card(st, tdef.def_id, p, Zone.BATTLE, rested=ins.rested)
+            made.append(uid)
+            core.record(st, "deployed", p, f.controller, uid)
     _enter_rested(st, made)
     for uid in made:
         core.emit(st, d.Ev.DEPLOYED, uid, player=p, by=f.controller, group=group, token=1)
@@ -1468,7 +1481,7 @@ def _h_activate_main(st: GameState, f: Frame, ins: d.ActivateMain) -> Status:
         f.did = False
         return Status.NEXT
     core.record(st, "command_activated", f.controller, f.controller, uid)
-    core.emit(st, d.Ev.COMMAND_PLAYED, uid, player=f.controller, ex_used=0)
+    core.emit(st, d.Ev.COMMAND_PLAYED, uid, player=f.controller, ex_used=0, as_command=1)
     push_frame(
         st,
         V.reg().abilities[entry.command_aid].program_id,
@@ -1586,6 +1599,7 @@ _HANDLERS: dict[type, Callable[..., Status]] = {
     pr.JumpIfNot: _h_jump_if_not,
     pr.JumpIfNotDid: _h_jump_if_not_did,
     pr.SetDid: _h_set_did,
+    pr.HoldRules: _h_hold_rules,
     pr.AskMay: _h_ask_may,
     pr.ModeSelect: _h_mode,
     pr.LoopInit: _h_loop_init,
