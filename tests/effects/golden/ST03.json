@@ -190,8 +190,25 @@
   "text_hash": "18569022c62f52f8"
  },
  "ST03-009": {
-  "error": "'【Deploy】Deploy 1 rested [Zaku Ⅱ]((Zeon)･AP1･HP1) Unit token.': no step template for 'Deploy 1 rested [Zaku Ⅱ]((Zeon)･AP1･HP1) Unit token'",
+  "abilities": [
+   {
+    "_": "Triggered",
+    "steps": [
+     {
+      "_": "DeployToken",
+      "rested": true,
+      "token_key": "Zaku Ⅱ|Zeon|1|1|"
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "event": "deployed"
+    }
+   }
+  ],
+  "binding": "wp_st01_04",
   "name": "Gouf",
+  "source": "binding",
   "text_hash": "d2e46ab5cfb9f0ba"
  },
  "ST03-010": {
@@ -267,9 +284,70 @@
   ]
  },
  "ST03-011": {
-  "error": "'【Attack】During this turn, this Unit gets AP+1 and, if it is a Link Unit, it gains <High-Maneuver>.': unknown predicate 'gets AP+1 and, if it is a Link Unit, it gains <High-Maneuver>'",
+  "abilities": [
+   {
+    "_": "Burst",
+    "steps": [
+     {
+      "_": "AddToHand",
+      "ref": {
+       "_": "ThisCard"
+      }
+     }
+    ]
+   }
+  ],
+  "binding": "wp_st01_04",
   "name": "Char Aznable",
-  "text_hash": "e640805a03a49542"
+  "source": "binding",
+  "text_hash": "e640805a03a49542",
+  "unit_abilities": [
+   {
+    "_": "Triggered",
+    "steps": [
+     {
+      "_": "Apply",
+      "effect": {
+       "_": "StatMod",
+       "ap": 1
+      },
+      "ref": {
+       "_": "This"
+      }
+     },
+     {
+      "_": "If",
+      "cond": {
+       "_": "RefMatches",
+       "filters": [
+        {
+         "_": "IsLinked"
+        }
+       ],
+       "ref": {
+        "_": "This"
+       }
+      },
+      "then": [
+       {
+        "_": "Apply",
+        "effect": {
+         "_": "KeywordGrant",
+         "keyword": "High-Maneuver"
+        },
+        "ref": {
+         "_": "This"
+        }
+       }
+      ]
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "event": "attacks"
+    }
+   }
+  ]
  },
  "ST03-012": {
   "abilities": [
@@ -482,8 +560,47 @@
   "text_hash": "5c2899e4222a687b"
  },
  "ST03-016": {
-  "error": "\"【Deploy】Add 1 of your Shields to your hand. Then, if it is your turn, deploy 1 rested [Char's Zaku Ⅱ]((Zeon)･AP3･HP1) Unit token.\": no step template for \"Deploy 1 rested [Char's Zaku Ⅱ]((Zeon)･AP3･HP1) Unit token\"",
+  "abilities": [
+   {
+    "_": "Burst",
+    "steps": [
+     {
+      "_": "DeployCard",
+      "ref": {
+       "_": "ThisCard"
+      }
+     }
+    ]
+   },
+   {
+    "_": "Triggered",
+    "steps": [
+     {
+      "_": "ShieldToHand"
+     },
+     {
+      "_": "If",
+      "cond": {
+       "_": "IsTurn"
+      },
+      "then": [
+       {
+        "_": "DeployToken",
+        "rested": true,
+        "token_key": "Char's Zaku Ⅱ|Zeon|3|1|"
+       }
+      ]
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "event": "deployed"
+    }
+   }
+  ],
+  "binding": "wp_st01_04",
   "name": "Falmel",
+  "source": "binding",
   "text_hash": "d1b8364dc5d7ca65"
  }
 }

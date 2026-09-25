@@ -1,12 +1,194 @@
 {
  "ST11-001": {
-  "error": "\"【During Pair】While 2 or more other friendly (Marine) Units are in play, enemy Units can't choose this Unit as their attack target.\": unknown predicate \"can't choose this Unit as their attack target\"",
+  "abilities": [
+   {
+    "_": "Constant",
+    "cond": {
+     "_": "Exists",
+     "at_least": 2,
+     "sel": {
+      "_": "Sel",
+      "filters": [
+       {
+        "_": "IsKind",
+        "kinds": [
+         "unit"
+        ]
+       },
+       {
+        "_": "NotRef",
+        "ref": {
+         "_": "This"
+        }
+       },
+       {
+        "_": "HasTrait",
+        "traits": [
+         "Marine"
+        ]
+       }
+      ],
+      "loc": "battle",
+      "side": "friendly"
+     }
+    },
+    "effects": [
+     {
+      "_": "RuleGrant",
+      "rule": {
+       "_": "RuleMod",
+       "kind": "cant_be_attacked"
+      }
+     }
+    ],
+    "gate": "paired"
+   },
+   {
+    "_": "Triggered",
+    "steps": [
+     {
+      "_": "If",
+      "cond": {
+       "_": "Exists",
+       "sel": {
+        "_": "Sel",
+        "filters": [
+         {
+          "_": "IsKind",
+          "kinds": [
+           "unit"
+          ]
+         },
+         {
+          "_": "NotRef",
+          "ref": {
+           "_": "This"
+          }
+         },
+         {
+          "_": "HasTrait",
+          "traits": [
+           "Marine"
+          ]
+         }
+        ],
+        "loc": "battle",
+        "side": "friendly"
+       }
+      },
+      "then": [
+       {
+        "_": "Choose",
+        "sel": {
+         "_": "Sel",
+         "filters": [
+          {
+           "_": "IsKind",
+           "kinds": [
+            "unit"
+           ]
+          },
+          {
+           "_": "StatCmp",
+           "op": "<=",
+           "stat": "lv",
+           "value": 2
+          }
+         ],
+         "loc": "battle",
+         "side": "enemy"
+        },
+        "var": "t1"
+       }
+      ]
+     },
+     {
+      "_": "ToDeck",
+      "ref": {
+       "_": "Var",
+       "name": "t1"
+      }
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "event": "deployed"
+    }
+   }
+  ],
+  "binding": "wp_st09_11",
   "name": "Char's Z'Gok",
+  "source": "binding",
   "text_hash": "764d173bc49f43f4"
  },
  "ST11-002": {
-  "error": "\"During your opponent's turn, while this Unit is rested, friendly (Marine) Units with 2 or less HP can't receive enemy effect damage.\": unknown constant \"while this Unit is rested, friendly (Marine) Units with 2 or less HP can't receive enemy effect damage\"",
+  "abilities": [
+   {
+    "_": "Constant",
+    "cond": {
+     "_": "And",
+     "conds": [
+      {
+       "_": "IsTurn",
+       "player": "opponent"
+      },
+      {
+       "_": "RefMatches",
+       "filters": [
+        {
+         "_": "IsRested"
+        }
+       ],
+       "ref": {
+        "_": "This"
+       }
+      }
+     ]
+    },
+    "effects": [
+     {
+      "_": "RuleGrant",
+      "rule": {
+       "_": "RuleMod",
+       "damage_kind": "effect",
+       "kind": "cant_receive_damage",
+       "source_side": "enemy"
+      }
+     }
+    ],
+    "scope": {
+     "_": "All",
+     "sel": {
+      "_": "Sel",
+      "filters": [
+       {
+        "_": "IsKind",
+        "kinds": [
+         "unit"
+        ]
+       },
+       {
+        "_": "HasTrait",
+        "traits": [
+         "Marine"
+        ]
+       },
+       {
+        "_": "StatCmp",
+        "op": "<=",
+        "stat": "remaining_hp",
+        "value": 2
+       }
+      ],
+      "loc": "battle",
+      "side": "friendly"
+     }
+    }
+   }
+  ],
+  "binding": "wp_st09_11",
   "name": "Acguy",
+  "source": "binding",
   "text_hash": "00617fc77b0175f1"
  },
  "ST11-003": {
@@ -54,8 +236,25 @@
   "text_hash": "21418045ecb489a4"
  },
  "ST11-004": {
-  "error": "'【Deploy】Deploy 1 rested [GOOhN]((ZAFT) (Marine)･AP1･HP1) Unit token.': no step template for 'Deploy 1 rested [GOOhN]((ZAFT) (Marine)･AP1･HP1) Unit token'",
+  "abilities": [
+   {
+    "_": "Triggered",
+    "steps": [
+     {
+      "_": "DeployToken",
+      "rested": true,
+      "token_key": "GOOhN|ZAFT/Marine|1|1|"
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "event": "deployed"
+    }
+   }
+  ],
+  "binding": "wp_st09_11",
   "name": "ZnO",
+  "source": "binding",
   "text_hash": "73da3745e110d3ec"
  },
  "ST11-005": {
@@ -71,8 +270,123 @@
   "text_hash": "08ca5d3ff66accf2"
  },
  "ST11-006": {
-  "error": "\"If another friendly (Marine) Unit is in play at the start of your opponent's turn, during this turn, when a friendly shield area card receives enemy effect damage, reduce it by 5.\": unknown condition \"another friendly (Marine) Unit is in play at the start of your opponent's turn\"",
+  "abilities": [
+   {
+    "_": "Triggered",
+    "cond": {
+     "_": "Exists",
+     "sel": {
+      "_": "Sel",
+      "filters": [
+       {
+        "_": "IsKind",
+        "kinds": [
+         "unit"
+        ]
+       },
+       {
+        "_": "NotRef",
+        "ref": {
+         "_": "This"
+        }
+       },
+       {
+        "_": "HasTrait",
+        "traits": [
+         "Marine"
+        ]
+       }
+      ],
+      "loc": "battle",
+      "side": "friendly"
+     }
+    },
+    "steps": [
+     {
+      "_": "ApplyPlayer",
+      "effect": {
+       "_": "RuleGrant",
+       "rule": {
+        "_": "RuleMod",
+        "damage_kind": "effect",
+        "kind": "shield_area_protection",
+        "source_side": "enemy"
+       }
+      },
+      "player": "you"
+     },
+     {
+      "_": "Apply",
+      "effect": {
+       "_": "RuleGrant",
+       "rule": {
+        "_": "RuleMod",
+        "amount": 5,
+        "damage_kind": "effect",
+        "kind": "reduce_damage",
+        "source_side": "enemy"
+       }
+      },
+      "ref": {
+       "_": "All",
+       "sel": {
+        "_": "Sel",
+        "loc": "base",
+        "side": "friendly"
+       }
+      }
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "event": "turn_start",
+     "self_only": false,
+     "whose_turn": "opponent"
+    }
+   },
+   {
+    "_": "Triggered",
+    "steps": [
+     {
+      "_": "Choose",
+      "sel": {
+       "_": "Sel",
+       "filters": [
+        {
+         "_": "IsKind",
+         "kinds": [
+          "unit"
+         ]
+        },
+        {
+         "_": "HasTrait",
+         "traits": [
+          "Marine"
+         ]
+        }
+       ],
+       "loc": "trash",
+       "side": "friendly"
+      },
+      "var": "t1"
+     },
+     {
+      "_": "AddToHand",
+      "ref": {
+       "_": "Var",
+       "name": "t1"
+      }
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "event": "deployed"
+    }
+   }
+  ],
+  "binding": "wp_st09_11",
   "name": "Shamblo",
+  "source": "binding",
   "text_hash": "fab91491d3264e6f"
  },
  "ST11-007": {
@@ -95,35 +409,8 @@
      {
       "_": "If",
       "cond": {
-       "_": "And",
-       "conds": [
-        {
-         "_": "IsTurn",
-         "player": "opponent"
-        },
-        {
-         "_": "Exists",
-         "sel": {
-          "_": "Sel",
-          "filters": [
-           {
-            "_": "IsKind",
-            "kinds": [
-             "unit"
-            ]
-           },
-           {
-            "_": "HasTrait",
-            "traits": [
-             "Marine"
-            ]
-           }
-          ],
-          "loc": "battle",
-          "side": "friendly"
-         }
-        }
-       ]
+       "_": "IsTurn",
+       "player": "opponent"
       },
       "then": [
        {
@@ -138,8 +425,9 @@
     }
    }
   ],
+  "binding": "wp_st09_11",
   "name": "Kapool",
-  "source": "compiled",
+  "source": "binding",
   "text_hash": "73ceaeca4f850793"
  },
  "ST11-010": {
@@ -212,9 +500,82 @@
   ]
  },
  "ST11-012": {
-  "error": "'【When Paired】Choose 1 friendly (Marine) Unit. During this turn, when it receives battle damage from an enemy Unit, reduce it by 2.': no step template for 'When it receives battle damage from an enemy Unit, reduce it by 2'",
+  "abilities": [
+   {
+    "_": "Burst",
+    "steps": [
+     {
+      "_": "AddToHand",
+      "ref": {
+       "_": "ThisCard"
+      }
+     }
+    ]
+   }
+  ],
+  "binding": "wp_st09_11",
   "name": "Loni Garvey",
-  "text_hash": "f796d1fe5eead2f3"
+  "source": "binding",
+  "text_hash": "f796d1fe5eead2f3",
+  "unit_abilities": [
+   {
+    "_": "Triggered",
+    "steps": [
+     {
+      "_": "Choose",
+      "sel": {
+       "_": "Sel",
+       "filters": [
+        {
+         "_": "IsKind",
+         "kinds": [
+          "unit"
+         ]
+        },
+        {
+         "_": "HasTrait",
+         "traits": [
+          "Marine"
+         ]
+        }
+       ],
+       "loc": "battle",
+       "side": "friendly"
+      },
+      "var": "t1"
+     },
+     {
+      "_": "Apply",
+      "effect": {
+       "_": "RuleGrant",
+       "rule": {
+        "_": "RuleMod",
+        "amount": 2,
+        "damage_kind": "battle",
+        "kind": "reduce_damage",
+        "source_filters": [
+         {
+          "_": "IsKind",
+          "kinds": [
+           "unit"
+          ]
+         }
+        ],
+        "source_side": "enemy"
+       }
+      },
+      "ref": {
+       "_": "Var",
+       "name": "t1"
+      }
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "event": "paired"
+    }
+   }
+  ]
  },
  "ST11-013": {
   "abilities": [
@@ -238,7 +599,7 @@
         {
          "_": "StatCmp",
          "op": "<=",
-         "stat": "hp",
+         "stat": "remaining_hp",
          "value": 3
         }
        ],
@@ -276,7 +637,7 @@
         {
          "_": "StatCmp",
          "op": "<=",
-         "stat": "hp",
+         "stat": "remaining_hp",
          "value": 3
         }
        ],
@@ -304,8 +665,9 @@
     "timing": "main_or_action"
    }
   ],
+  "binding": "wp_st09_11",
   "name": "Poorly Planned Offensive",
-  "source": "compiled",
+  "source": "binding",
   "text_hash": "cc1baa4282ba78f8"
  },
  "ST11-014": {

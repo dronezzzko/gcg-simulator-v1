@@ -719,8 +719,75 @@
   "text_hash": "170a9662f6c91af7"
  },
  "ST06-015": {
-  "error": "'【Once per Turn】When a friendly (Clan) Unit links, it gains <Breach 3> during this turn.': pronoun 'It' without antecedent",
+  "abilities": [
+   {
+    "_": "Burst",
+    "steps": [
+     {
+      "_": "DeployCard",
+      "ref": {
+       "_": "ThisCard"
+      }
+     }
+    ]
+   },
+   {
+    "_": "Triggered",
+    "steps": [
+     {
+      "_": "ShieldToHand"
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "event": "deployed"
+    }
+   },
+   {
+    "_": "Triggered",
+    "once_per_turn": true,
+    "steps": [
+     {
+      "_": "Apply",
+      "effect": {
+       "_": "KeywordGrant",
+       "amount": 3,
+       "keyword": "Breach"
+      },
+      "ref": {
+       "_": "EventCard"
+      }
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "event": "linked",
+     "self_only": false,
+     "subject": {
+      "_": "Sel",
+      "filters": [
+       {
+        "_": "IsKind",
+        "kinds": [
+         "unit"
+        ]
+       },
+       {
+        "_": "HasTrait",
+        "traits": [
+         "Clan"
+        ]
+       }
+      ],
+      "loc": "battle",
+      "side": "friendly"
+     }
+    }
+   }
+  ],
+  "binding": "wp_st05_08",
   "name": "Kaneban Co., Ltd.",
+  "source": "binding",
   "text_hash": "d7ad79e0adc9aba8"
  }
 }

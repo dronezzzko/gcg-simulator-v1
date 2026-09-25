@@ -360,7 +360,7 @@
         {
          "_": "StatCmp",
          "op": "<=",
-         "stat": "hp",
+         "stat": "remaining_hp",
          "value": 5
         }
        ],
@@ -380,18 +380,141 @@
     "timing": "main_or_action"
    }
   ],
+  "binding": "wp_st01_04",
   "name": "Siege Ploy",
-  "source": "compiled",
+  "source": "binding",
   "text_hash": "be09a347e391c23b"
  },
  "ST02-015": {
-  "error": "'【Deploy】Add 1 of your Shields to your hand. Then, look at the top 2 cards of your deck and return 1 to the top and 1 to the bottom.': no step template for 'Look at the top 2 cards of your deck and return 1 to the top and 1 to the bottom'",
+  "abilities": [
+   {
+    "_": "Burst",
+    "steps": [
+     {
+      "_": "DeployCard",
+      "ref": {
+       "_": "ThisCard"
+      }
+     }
+    ]
+   },
+   {
+    "_": "Triggered",
+    "steps": [
+     {
+      "_": "ShieldToHand"
+     },
+     {
+      "_": "LookTop",
+      "count": 2
+     },
+     {
+      "_": "Choose",
+      "sel": {
+       "_": "Sel",
+       "filters": [
+        {
+         "_": "IsRef",
+         "ref": {
+          "_": "Var",
+          "name": "looked"
+         }
+        }
+       ],
+       "loc": "deck",
+       "side": "friendly"
+      },
+      "targeting": false,
+      "var": "bottom"
+     },
+     {
+      "_": "ToDeck",
+      "ref": {
+       "_": "Var",
+       "name": "bottom"
+      }
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "event": "deployed"
+    }
+   }
+  ],
+  "binding": "wp_st01_04",
   "name": "Saint Gabriel Institute",
+  "source": "binding",
   "text_hash": "5297a2d9c7f68309"
  },
  "ST02-016": {
-  "error": "'【Deploy】Add 1 of your Shields to your hand. Then, if it is your turn, deploy 1 [Tallgeese]((OZ)･AP4･HP2) Unit token. If it is your turn and a card with \"Corsica Base\" in its card name is in your trash, deploy 2 [Leo]((OZ)･AP1･HP1) Unit tokens instead.': no step template for 'Deploy 1 [Tallgeese]((OZ)･AP4･HP2) Unit token'",
+  "abilities": [
+   {
+    "_": "Burst",
+    "steps": [
+     {
+      "_": "DeployCard",
+      "ref": {
+       "_": "ThisCard"
+      }
+     }
+    ]
+   },
+   {
+    "_": "Triggered",
+    "steps": [
+     {
+      "_": "ShieldToHand"
+     },
+     {
+      "_": "If",
+      "cond": {
+       "_": "IsTurn"
+      },
+      "then": [
+       {
+        "_": "If",
+        "cond": {
+         "_": "Exists",
+         "sel": {
+          "_": "Sel",
+          "filters": [
+           {
+            "_": "NameContains",
+            "parts": [
+             "Corsica Base"
+            ]
+           }
+          ],
+          "loc": "trash",
+          "side": "friendly"
+         }
+        },
+        "otherwise": [
+         {
+          "_": "DeployToken",
+          "token_key": "Tallgeese|OZ|4|2|"
+         }
+        ],
+        "then": [
+         {
+          "_": "DeployToken",
+          "count": 2,
+          "token_key": "Leo|OZ|1|1|"
+         }
+        ]
+       }
+      ]
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "event": "deployed"
+    }
+   }
+  ],
+  "binding": "wp_st01_04",
   "name": "Corsica Base",
+  "source": "binding",
   "text_hash": "528f0b5a12a8da59"
  }
 }

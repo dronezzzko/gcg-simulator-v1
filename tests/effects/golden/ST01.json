@@ -92,7 +92,7 @@
         {
          "_": "StatCmp",
          "op": "<=",
-         "stat": "hp",
+         "stat": "remaining_hp",
          "value": 2
         }
        ],
@@ -115,8 +115,9 @@
     }
    }
   ],
+  "binding": "wp_st01_04",
   "name": "Guntank",
-  "source": "compiled",
+  "source": "binding",
   "text_hash": "705e3adedf6e18f2"
  },
  "ST01-005": {
@@ -229,8 +230,9 @@
     ]
    }
   ],
+  "binding": "wp_st01_04",
   "name": "Amuro Ray",
-  "source": "compiled",
+  "source": "binding",
   "text_hash": "8e34f604d532cd25",
   "unit_abilities": [
    {
@@ -250,7 +252,7 @@
         {
          "_": "StatCmp",
          "op": "<=",
-         "stat": "hp",
+         "stat": "remaining_hp",
          "value": 5
         }
        ],
@@ -457,8 +459,115 @@
   "text_hash": "71c7bf6f9b556d0a"
  },
  "ST01-015": {
-  "error": "'【Activate･Main】【Once per Turn】②:Deploy 1 [Gundam]((White Base Team)･AP3･HP3) Unit token if you have no Units in play, deploy 1 [Guncannon]((White Base Team)･AP2･HP2) Unit token if you have only 1 Unit in play, or deploy 1 [Guntank]((White Base Team)･AP1･HP1) Unit token if you have 2 or more Units in play.': no step template for 'Deploy 1 [Gundam]((White Base Team)･AP3･HP3) Unit token if you have no Units in play, deploy 1 [Guncannon]((White Base Team)･AP2･HP2) Unit token if you have only 1 Unit in play, or deploy 1 [Guntank]((White Base Team)･AP1･HP1) Unit token if you have 2 or more Units in play'",
+  "abilities": [
+   {
+    "_": "Burst",
+    "steps": [
+     {
+      "_": "DeployCard",
+      "ref": {
+       "_": "ThisCard"
+      }
+     }
+    ]
+   },
+   {
+    "_": "Triggered",
+    "steps": [
+     {
+      "_": "ShieldToHand"
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "event": "deployed"
+    }
+   },
+   {
+    "_": "Activated",
+    "costs": [
+     {
+      "_": "PayResources",
+      "amount": 2
+     }
+    ],
+    "once_per_turn": true,
+    "steps": [
+     {
+      "_": "If",
+      "cond": {
+       "_": "Cmp",
+       "left": {
+        "_": "Count",
+        "sel": {
+         "_": "Sel",
+         "filters": [
+          {
+           "_": "IsKind",
+           "kinds": [
+            "unit"
+           ]
+          }
+         ],
+         "loc": "battle",
+         "side": "friendly"
+        }
+       },
+       "op": "==",
+       "right": 0
+      },
+      "otherwise": [
+       {
+        "_": "If",
+        "cond": {
+         "_": "Cmp",
+         "left": {
+          "_": "Count",
+          "sel": {
+           "_": "Sel",
+           "filters": [
+            {
+             "_": "IsKind",
+             "kinds": [
+              "unit"
+             ]
+            }
+           ],
+           "loc": "battle",
+           "side": "friendly"
+          }
+         },
+         "op": "==",
+         "right": 1
+        },
+        "otherwise": [
+         {
+          "_": "DeployToken",
+          "token_key": "Guntank|White Base Team|1|1|"
+         }
+        ],
+        "then": [
+         {
+          "_": "DeployToken",
+          "token_key": "Guncannon|White Base Team|2|2|"
+         }
+        ]
+       }
+      ],
+      "then": [
+       {
+        "_": "DeployToken",
+        "token_key": "Gundam|White Base Team|3|3|"
+       }
+      ]
+     }
+    ],
+    "timing": "main"
+   }
+  ],
+  "binding": "wp_st01_04",
   "name": "White Base",
+  "source": "binding",
   "text_hash": "6c6d9b9911ffa785"
  },
  "ST01-016": {

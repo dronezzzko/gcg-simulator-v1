@@ -1,12 +1,131 @@
 {
  "ST13-001": {
-  "error": "\"【Once per Turn】During your turn, when you pair a Pilot with one of your Units, deploy 1 to 2 [Bit / Funnel]((Long-Range Weapon)･AP2･HP2･This Unit can't be paired with a Pilot or attack) Unit tokens.\": no step template for \"Deploy 1 to 2 [Bit / Funnel]((Long-Range Weapon)･AP2･HP2･This Unit can't be paired with a Pilot or attack) Unit tokens\"",
+  "abilities": [
+   {
+    "_": "Triggered",
+    "once_per_turn": true,
+    "steps": [
+     {
+      "_": "DeployToken",
+      "token_key": "Bit / Funnel|Long-Range Weapon|2|2|This Unit can't be paired with a Pilot or attack."
+     },
+     {
+      "_": "May",
+      "steps": [
+       {
+        "_": "DeployToken",
+        "token_key": "Bit / Funnel|Long-Range Weapon|2|2|This Unit can't be paired with a Pilot or attack.",
+        "var": "tokens_x"
+       }
+      ]
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "event": "paired",
+     "self_only": false,
+     "subject": {
+      "_": "Sel",
+      "filters": [
+       {
+        "_": "IsKind",
+        "kinds": [
+         "unit"
+        ]
+       }
+      ],
+      "loc": "battle",
+      "side": "friendly"
+     },
+     "whose_turn": "you"
+    }
+   },
+   {
+    "_": "Activated",
+    "costs": [
+     {
+      "_": "PayResources",
+      "amount": 1
+     }
+    ],
+    "once_per_turn": true,
+    "steps": [
+     {
+      "_": "Choose",
+      "sel": {
+       "_": "Sel",
+       "filters": [
+        {
+         "_": "IsKind",
+         "kinds": [
+          "unit_token"
+         ]
+        }
+       ],
+       "loc": "battle",
+       "side": "friendly"
+      },
+      "var": "t1"
+     },
+     {
+      "_": "Choose",
+      "distinct_from": [
+       "t1"
+      ],
+      "sel": {
+       "_": "Sel",
+       "filters": [
+        {
+         "_": "IsKind",
+         "kinds": [
+          "unit"
+         ]
+        }
+       ],
+       "loc": "battle",
+       "side": "enemy"
+      },
+      "var": "t2"
+     },
+     {
+      "_": "StartBattle",
+      "attacker": {
+       "_": "Var",
+       "name": "t1"
+      },
+      "target": {
+       "_": "Var",
+       "name": "t2"
+      }
+     }
+    ],
+    "timing": "main"
+   }
+  ],
+  "binding": "wp_st12_14",
   "name": "Qubeley",
+  "source": "binding",
   "text_hash": "090c6eee9f3ca9a1"
  },
  "ST13-002": {
-  "error": "\"【Deploy】Deploy 1 [Bit / Funnel]((Long-Range Weapon)･AP2･HP2･This Unit can't be paired with a Pilot or attack) Unit token.\": no step template for \"Deploy 1 [Bit / Funnel]((Long-Range Weapon)･AP2･HP2･This Unit can't be paired with a Pilot or attack) Unit token\"",
+  "abilities": [
+   {
+    "_": "Triggered",
+    "steps": [
+     {
+      "_": "DeployToken",
+      "token_key": "Bit / Funnel|Long-Range Weapon|2|2|This Unit can't be paired with a Pilot or attack."
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "event": "deployed"
+    }
+   }
+  ],
+  "binding": "wp_st12_14",
   "name": "Elmeth",
+  "source": "binding",
   "text_hash": "ad8f83eb89409f6b"
  },
  "ST13-003": {
@@ -113,12 +232,12 @@
           "reveal": true
          }
         ]
+       },
+       {
+        "_": "CustomStep",
+        "name": "return_looked_bottom"
        }
       ]
-     },
-     {
-      "_": "CustomStep",
-      "name": "return_looked_bottom"
      }
     ],
     "trigger": {
@@ -127,8 +246,9 @@
     }
    }
   ],
+  "binding": "wp_st12_14",
   "name": "GFreD",
-  "source": "compiled",
+  "source": "binding",
   "text_hash": "2c2ebb3855708600"
  },
  "ST13-006": {
@@ -263,31 +383,57 @@
     "_": "Triggered",
     "steps": [
      {
-      "_": "Choose",
-      "chooser": "opponent",
-      "count": 2,
-      "sel": {
-       "_": "Sel",
-       "filters": [
-        {
-         "_": "IsKind",
-         "kinds": [
-          "unit"
-         ]
+      "_": "If",
+      "cond": {
+       "_": "Cmp",
+       "left": {
+        "_": "Count",
+        "sel": {
+         "_": "Sel",
+         "filters": [
+          {
+           "_": "IsKind",
+           "kinds": [
+            "unit"
+           ]
+          }
+         ],
+         "loc": "trash",
+         "side": "enemy"
         }
-       ],
-       "loc": "trash",
-       "side": "enemy"
+       },
+       "op": ">=",
+       "right": 2
       },
-      "targeting": false,
-      "var": "t1"
-     },
-     {
-      "_": "Exile",
-      "ref": {
-       "_": "Var",
-       "name": "t1"
-      }
+      "then": [
+       {
+        "_": "Choose",
+        "chooser": "opponent",
+        "count": 2,
+        "sel": {
+         "_": "Sel",
+         "filters": [
+          {
+           "_": "IsKind",
+           "kinds": [
+            "unit"
+           ]
+          }
+         ],
+         "loc": "trash",
+         "side": "enemy"
+        },
+        "targeting": false,
+        "var": "t1"
+       },
+       {
+        "_": "Exile",
+        "ref": {
+         "_": "Var",
+         "name": "t1"
+        }
+       }
+      ]
      }
     ],
     "trigger": {
@@ -296,8 +442,9 @@
     }
    }
   ],
+  "binding": "wp_st12_14",
   "name": "Gundam Pharact",
-  "source": "compiled",
+  "source": "binding",
   "text_hash": "0fa6b6dcd2829fa3"
  },
  "ST13-010": {
@@ -429,13 +576,100 @@
   ]
  },
  "ST13-012": {
-  "error": "'【Once per Turn】When an enemy Unit is destroyed with effect damage while this Unit is attacking, draw 1.': unknown trigger 'When an enemy Unit is destroyed with effect damage while this Unit is attacking'",
+  "abilities": [
+   {
+    "_": "Burst",
+    "steps": [
+     {
+      "_": "AddToHand",
+      "ref": {
+       "_": "ThisCard"
+      }
+     }
+    ]
+   }
+  ],
+  "binding": "wp_st12_14",
   "name": "Suletta Mercury",
-  "text_hash": "eb3c6e3ca4cdd9dd"
+  "source": "binding",
+  "text_hash": "eb3c6e3ca4cdd9dd",
+  "unit_abilities": [
+   {
+    "_": "Triggered",
+    "cond": {
+     "_": "And",
+     "conds": [
+      {
+       "_": "RefMatches",
+       "filters": [
+        {
+         "_": "IsAttacking"
+        }
+       ],
+       "ref": {
+        "_": "This"
+       }
+      },
+      {
+       "_": "CustomCond",
+       "name": "wp_st12_14_destroyed_by_effect_damage"
+      }
+     ]
+    },
+    "once_per_turn": true,
+    "steps": [
+     {
+      "_": "Draw"
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "battle_only": false,
+     "event": "destroyed",
+     "self_only": false,
+     "subject": {
+      "_": "Sel",
+      "filters": [
+       {
+        "_": "IsKind",
+        "kinds": [
+         "unit"
+        ]
+       }
+      ],
+      "loc": "battle",
+      "side": "enemy"
+     }
+    }
+   }
+  ]
  },
  "ST13-013": {
-  "error": "\"【Main】Deploy 1 to 2 [Bit / Funnel]((Long-Range Weapon)･AP2･HP2･This Unit can't be paired with a Pilot or attack) Unit tokens.\": no step template for \"Deploy 1 to 2 [Bit / Funnel]((Long-Range Weapon)･AP2･HP2･This Unit can't be paired with a Pilot or attack) Unit tokens\"",
+  "abilities": [
+   {
+    "_": "Command",
+    "steps": [
+     {
+      "_": "DeployToken",
+      "token_key": "Bit / Funnel|Long-Range Weapon|2|2|This Unit can't be paired with a Pilot or attack."
+     },
+     {
+      "_": "May",
+      "steps": [
+       {
+        "_": "DeployToken",
+        "token_key": "Bit / Funnel|Long-Range Weapon|2|2|This Unit can't be paired with a Pilot or attack.",
+        "var": "tokens_x"
+       }
+      ]
+     }
+    ],
+    "timing": "main"
+   }
+  ],
+  "binding": "wp_st12_14",
   "name": "I'm a Newtype",
+  "source": "binding",
   "text_hash": "2396a05c744e1c71"
  },
  "ST13-014": {
@@ -516,19 +750,20 @@
           }
          }
         ]
+       },
+       {
+        "_": "CustomStep",
+        "name": "return_looked_bottom"
        }
       ]
-     },
-     {
-      "_": "CustomStep",
-      "name": "return_looked_bottom"
      }
     ],
     "timing": "main"
    }
   ],
+  "binding": "wp_st12_14",
   "name": "Final Duty",
-  "source": "compiled",
+  "source": "binding",
   "text_hash": "3e6f679786623cb2"
  },
  "ST13-015": {
@@ -546,6 +781,27 @@
    },
    {
     "_": "Command",
+    "cond": {
+     "_": "Cmp",
+     "left": {
+      "_": "Count",
+      "sel": {
+       "_": "Sel",
+       "filters": [
+        {
+         "_": "IsKind",
+         "kinds": [
+          "unit"
+         ]
+        }
+       ],
+       "loc": "trash",
+       "side": "friendly"
+      }
+     },
+     "op": ">=",
+     "right": 3
+    },
     "steps": [
      {
       "_": "Choose",
@@ -606,13 +862,44 @@
     "timing": "main_or_action"
    }
   ],
+  "binding": "wp_st12_14",
   "name": "Operation to Intercept Solomon",
-  "source": "compiled",
+  "source": "binding",
   "text_hash": "446f925a4255849a"
  },
  "ST13-016": {
-  "error": "\"【Deploy】Add 1 of your Shields to your hand. Then, deploy 1 [Bit / Funnel]((Long-Range Weapon)･AP2･HP2･This Unit can't be paired with a Pilot or attack) Unit token.\": no step template for \"Deploy 1 [Bit / Funnel]((Long-Range Weapon)･AP2･HP2･This Unit can't be paired with a Pilot or attack) Unit token\"",
+  "abilities": [
+   {
+    "_": "Burst",
+    "steps": [
+     {
+      "_": "DeployCard",
+      "ref": {
+       "_": "ThisCard"
+      }
+     }
+    ]
+   },
+   {
+    "_": "Triggered",
+    "steps": [
+     {
+      "_": "ShieldToHand"
+     },
+     {
+      "_": "DeployToken",
+      "token_key": "Bit / Funnel|Long-Range Weapon|2|2|This Unit can't be paired with a Pilot or attack."
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "event": "deployed"
+    }
+   }
+  ],
+  "binding": "wp_st12_14",
   "name": "Sodon",
+  "source": "binding",
   "text_hash": "7c15c912a0187382"
  }
 }

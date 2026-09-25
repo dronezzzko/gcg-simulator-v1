@@ -337,8 +337,85 @@
   "text_hash": "3973e022e93220f9"
  },
  "ST12-009": {
-  "error": "'【Destroyed】If there is a player with 3 or less Shields, choose 1 Unit card that is Lv.6 or higher from your trash. Add it to your hand. If you do, discard 1.': no step template for 'If there is a player with 3 or less Shields, choose 1 Unit card that is Lv.6 or higher from your trash'",
+  "abilities": [
+   {
+    "_": "Triggered",
+    "steps": [
+     {
+      "_": "If",
+      "cond": {
+       "_": "Or",
+       "conds": [
+        {
+         "_": "Cmp",
+         "left": {
+          "_": "ShieldCount"
+         },
+         "op": "<=",
+         "right": 3
+        },
+        {
+         "_": "Cmp",
+         "left": {
+          "_": "ShieldCount",
+          "player": "opponent"
+         },
+         "op": "<=",
+         "right": 3
+        }
+       ]
+      },
+      "then": [
+       {
+        "_": "Choose",
+        "sel": {
+         "_": "Sel",
+         "filters": [
+          {
+           "_": "IsKind",
+           "kinds": [
+            "unit"
+           ]
+          },
+          {
+           "_": "StatCmp",
+           "op": ">=",
+           "stat": "lv",
+           "value": 6
+          }
+         ],
+         "loc": "trash",
+         "side": "friendly"
+        },
+        "var": "t1"
+       },
+       {
+        "_": "AddToHand",
+        "ref": {
+         "_": "Var",
+         "name": "t1"
+        }
+       },
+       {
+        "_": "IfYouDo",
+        "steps": [
+         {
+          "_": "Discard"
+         }
+        ]
+       }
+      ]
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "event": "destroyed"
+    }
+   }
+  ],
+  "binding": "wp_st12_14",
   "name": "Unicorn Gundam 02 Banshee (Unicorn Mode)",
+  "source": "binding",
   "text_hash": "c3cd14a67e2069bf"
  },
  "ST12-010": {
@@ -367,8 +444,9 @@
     ]
    }
   ],
+  "binding": "wp_st12_14",
   "name": "Milliardo Peacecraft",
-  "source": "compiled",
+  "source": "binding",
   "text_hash": "17cf5ea9987b9eae",
   "unit_abilities": [
    {
@@ -419,18 +497,304 @@
   ]
  },
  "ST12-012": {
-  "error": "'【When Linked】Look at the top 2 cards of your deck and return 1 to the top. Place the remaining card into your trash. If there is a player with 3 or less Shields, add the card to your hand instead of returning it to your deck.': no step template for 'Look at the top 2 cards of your deck and return 1 to the top'",
+  "abilities": [
+   {
+    "_": "NameAlias",
+    "names": [
+     "Marida Cruz"
+    ]
+   },
+   {
+    "_": "Burst",
+    "steps": [
+     {
+      "_": "AddToHand",
+      "ref": {
+       "_": "ThisCard"
+      }
+     }
+    ]
+   }
+  ],
+  "binding": "wp_st12_14",
   "name": "Ple-Twelve",
-  "text_hash": "f80d7f78fbd47004"
+  "source": "binding",
+  "text_hash": "f80d7f78fbd47004",
+  "unit_abilities": [
+   {
+    "_": "Triggered",
+    "steps": [
+     {
+      "_": "LookTop",
+      "count": 2
+     },
+     {
+      "_": "Choose",
+      "sel": {
+       "_": "Sel",
+       "filters": [
+        {
+         "_": "IsRef",
+         "ref": {
+          "_": "Var",
+          "name": "looked"
+         }
+        }
+       ],
+       "loc": "deck",
+       "side": "friendly"
+      },
+      "targeting": false,
+      "var": "kept"
+     },
+     {
+      "_": "ToTrash",
+      "ref": {
+       "_": "All",
+       "sel": {
+        "_": "Sel",
+        "filters": [
+         {
+          "_": "IsRef",
+          "ref": {
+           "_": "Var",
+           "name": "looked"
+          }
+         },
+         {
+          "_": "NotRef",
+          "ref": {
+           "_": "Var",
+           "name": "kept"
+          }
+         }
+        ],
+        "loc": "deck",
+        "side": "friendly"
+       }
+      }
+     },
+     {
+      "_": "If",
+      "cond": {
+       "_": "Or",
+       "conds": [
+        {
+         "_": "Cmp",
+         "left": {
+          "_": "ShieldCount"
+         },
+         "op": "<=",
+         "right": 3
+        },
+        {
+         "_": "Cmp",
+         "left": {
+          "_": "ShieldCount",
+          "player": "opponent"
+         },
+         "op": "<=",
+         "right": 3
+        }
+       ]
+      },
+      "then": [
+       {
+        "_": "AddToHand",
+        "ref": {
+         "_": "Var",
+         "name": "kept"
+        }
+       }
+      ]
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "event": "linked"
+    }
+   }
+  ]
  },
  "ST12-013": {
-  "error": "'【Main】Choose 1 enemy player. You and that player each choose 1 of your own Units. Begin a battle between them and only perform the damage step.': no step template for 'You and your opponent each choose 1 of your own Units'",
+  "abilities": [
+   {
+    "_": "Burst",
+    "steps": [
+     {
+      "_": "Choose",
+      "sel": {
+       "_": "Sel",
+       "filters": [
+        {
+         "_": "IsKind",
+         "kinds": [
+          "unit"
+         ]
+        }
+       ],
+       "loc": "battle",
+       "side": "enemy"
+      },
+      "var": "t1"
+     },
+     {
+      "_": "Damage",
+      "amount": 1,
+      "ref": {
+       "_": "Var",
+       "name": "t1"
+      }
+     }
+    ]
+   },
+   {
+    "_": "Command",
+    "steps": [
+     {
+      "_": "Choose",
+      "sel": {
+       "_": "Sel",
+       "filters": [
+        {
+         "_": "IsKind",
+         "kinds": [
+          "unit"
+         ]
+        }
+       ],
+       "loc": "battle",
+       "side": "friendly"
+      },
+      "var": "mine"
+     },
+     {
+      "_": "Choose",
+      "chooser": "opponent",
+      "sel": {
+       "_": "Sel",
+       "filters": [
+        {
+         "_": "IsKind",
+         "kinds": [
+          "unit"
+         ]
+        }
+       ],
+       "loc": "battle",
+       "side": "enemy"
+      },
+      "var": "theirs"
+     },
+     {
+      "_": "StartBattle",
+      "attacker": {
+       "_": "Var",
+       "name": "mine"
+      },
+      "target": {
+       "_": "Var",
+       "name": "theirs"
+      }
+     }
+    ],
+    "timing": "main"
+   }
+  ],
+  "binding": "wp_st12_14",
   "name": "The Final Victor",
+  "source": "binding",
   "text_hash": "80fa8c5dfe99733d"
  },
  "ST12-014": {
-  "error": "'【Action】Choose 1 friendly Unit. It gains the following effect during this battle:\\n■When this Unit destroys an enemy Unit with battle damage, choose 1 enemy Unit with 2 or less AP. Destroy it.': unknown predicate 'gains the following effect during this battle:'",
+  "abilities": [
+   {
+    "_": "Command",
+    "steps": [
+     {
+      "_": "Choose",
+      "sel": {
+       "_": "Sel",
+       "filters": [
+        {
+         "_": "IsKind",
+         "kinds": [
+          "unit"
+         ]
+        }
+       ],
+       "loc": "battle",
+       "side": "friendly"
+      },
+      "var": "t1"
+     },
+     {
+      "_": "Apply",
+      "duration": "this_battle",
+      "effect": {
+       "_": "AbilityGrant",
+       "ability_index": 1,
+       "card_number": "ST12-014"
+      },
+      "ref": {
+       "_": "Var",
+       "name": "t1"
+      }
+     }
+    ],
+    "timing": "action"
+   },
+   {
+    "_": "Triggered",
+    "steps": [
+     {
+      "_": "Choose",
+      "sel": {
+       "_": "Sel",
+       "filters": [
+        {
+         "_": "IsKind",
+         "kinds": [
+          "unit"
+         ]
+        },
+        {
+         "_": "StatCmp",
+         "op": "<=",
+         "stat": "ap",
+         "value": 2
+        }
+       ],
+       "loc": "battle",
+       "side": "enemy"
+      },
+      "var": "t1"
+     },
+     {
+      "_": "Destroy",
+      "ref": {
+       "_": "Var",
+       "name": "t1"
+      }
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "event": "destroys_by_battle",
+     "target_filters": [
+      {
+       "_": "IsKind",
+       "kinds": [
+        "unit"
+       ]
+      }
+     ]
+    }
+   }
+  ],
+  "binding": "wp_st12_14",
   "name": "Wise Leader's Pride",
+  "source": "binding",
   "text_hash": "d08473292c52d75f"
  },
  "ST12-015": {
@@ -442,7 +806,7 @@
       "_": "ChooseMode",
       "options": [
        [
-        "option1",
+        "destroy_enemy_lv2_or_lower",
         [
          {
           "_": "Choose",
@@ -465,90 +829,170 @@
            "loc": "battle",
            "side": "enemy"
           },
-          "var": "t21"
+          "var": "t1"
          },
          {
           "_": "Destroy",
           "ref": {
            "_": "Var",
-           "name": "t21"
+           "name": "t1"
+          }
+         }
+        ]
+       ],
+       [
+        "damage_friendly_and_enemy_lv5_or_higher",
+        [
+         {
+          "_": "Choose",
+          "sel": {
+           "_": "Sel",
+           "filters": [
+            {
+             "_": "IsKind",
+             "kinds": [
+              "unit"
+             ]
+            }
+           ],
+           "loc": "battle",
+           "side": "friendly"
+          },
+          "var": "t1"
+         },
+         {
+          "_": "Choose",
+          "sel": {
+           "_": "Sel",
+           "filters": [
+            {
+             "_": "IsKind",
+             "kinds": [
+              "unit"
+             ]
+            },
+            {
+             "_": "StatCmp",
+             "op": ">=",
+             "stat": "lv",
+             "value": 5
+            }
+           ],
+           "loc": "battle",
+           "side": "enemy"
+          },
+          "var": "t2"
+         },
+         {
+          "_": "Damage",
+          "amount": 2,
+          "ref": {
+           "_": "Union",
+           "refs": [
+            {
+             "_": "Var",
+             "name": "t1"
+            },
+            {
+             "_": "Var",
+             "name": "t2"
+            }
+           ]
           }
          }
         ]
        ]
       ]
-     },
-     {
-      "_": "Choose",
-      "sel": {
-       "_": "Sel",
-       "filters": [
-        {
-         "_": "IsKind",
-         "kinds": [
-          "unit"
-         ]
-        }
-       ],
-       "loc": "battle",
-       "side": "friendly"
-      },
-      "var": "t1"
-     },
-     {
-      "_": "Choose",
-      "distinct_from": [
-       "t1"
-      ],
-      "sel": {
-       "_": "Sel",
-       "filters": [
-        {
-         "_": "IsKind",
-         "kinds": [
-          "unit"
-         ]
-        },
-        {
-         "_": "StatCmp",
-         "op": ">=",
-         "stat": "lv",
-         "value": 5
-        }
-       ],
-       "loc": "battle",
-       "side": "enemy"
-      },
-      "var": "t2"
-     },
-     {
-      "_": "Damage",
-      "amount": 2,
-      "ref": {
-       "_": "Union",
-       "refs": [
-        {
-         "_": "Var",
-         "name": "t1"
-        },
-        {
-         "_": "Var",
-         "name": "t2"
-        }
-       ]
-      }
      }
     ],
     "timing": "action"
    }
   ],
+  "binding": "wp_st12_14",
   "name": "Two Unicorns",
-  "source": "compiled",
+  "source": "binding",
   "text_hash": "433cfc72d2b2edd6"
  },
  "ST12-016": {
-  "error": "'【Activate･Main】Rest this Base:If a friendly Unit paired with a Pilot has destroyed an enemy Unit with battle damage this turn, choose 1 enemy Unit that is Lv.4 or lower. Deal 1 damage to it.': no step template for 'If a friendly Unit paired with a Pilot has destroyed an enemy Unit with battle damage this turn, choose 1 enemy Unit that is Lv.4 or lower'",
+  "abilities": [
+   {
+    "_": "Burst",
+    "steps": [
+     {
+      "_": "DeployCard",
+      "ref": {
+       "_": "ThisCard"
+      }
+     }
+    ]
+   },
+   {
+    "_": "Triggered",
+    "steps": [
+     {
+      "_": "ShieldToHand"
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "event": "deployed"
+    }
+   },
+   {
+    "_": "Activated",
+    "costs": [
+     {
+      "_": "RestSelf"
+     }
+    ],
+    "steps": [
+     {
+      "_": "If",
+      "cond": {
+       "_": "HappenedThisTurn",
+       "kind": "destroys_by_battle_paired"
+      },
+      "then": [
+       {
+        "_": "Choose",
+        "sel": {
+         "_": "Sel",
+         "filters": [
+          {
+           "_": "IsKind",
+           "kinds": [
+            "unit"
+           ]
+          },
+          {
+           "_": "StatCmp",
+           "op": "<=",
+           "stat": "lv",
+           "value": 4
+          }
+         ],
+         "loc": "battle",
+         "side": "enemy"
+        },
+        "var": "t1"
+       },
+       {
+        "_": "Damage",
+        "amount": 1,
+        "ref": {
+         "_": "Var",
+         "name": "t1"
+        }
+       }
+      ]
+     }
+    ],
+    "timing": "main"
+   }
+  ],
+  "binding": "wp_st12_14",
   "name": "Libra",
+  "source": "binding",
   "text_hash": "9b38acfbfccf410b"
  }
 }

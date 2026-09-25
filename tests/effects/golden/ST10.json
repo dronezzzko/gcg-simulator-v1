@@ -1,7 +1,39 @@
 {
  "ST10-001": {
-  "error": "\"When this Unit destroys an enemy shield area card with battle damage, set it as active. It can't choose the same enemy player or enemy team as its attack target during this turn.\": pronoun 'it' without antecedent",
+  "abilities": [
+   {
+    "_": "Triggered",
+    "steps": [
+     {
+      "_": "SetActive",
+      "ref": {
+       "_": "This"
+      }
+     },
+     {
+      "_": "Apply",
+      "effect": {
+       "_": "RuleGrant",
+       "rule": {
+        "_": "RuleMod",
+        "kind": "cant_attack_player"
+       }
+      },
+      "ref": {
+       "_": "This"
+      }
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "battle_only": true,
+     "event": "destroys_shield_card"
+    }
+   }
+  ],
+  "binding": "wp_st09_11",
   "name": "Zeta Gundam (EX)",
+  "source": "binding",
   "text_hash": "51ee8c20b181be3f"
  },
  "ST10-002": {
@@ -31,6 +63,7 @@
       "then": [
        {
         "_": "May",
+        "prompt": "Development 2: exile 2 (G Generation) cards?",
         "steps": [
          {
           "_": "Choose",
@@ -48,44 +81,50 @@
            "loc": "trash",
            "side": "friendly"
           },
-          "var": "t1"
+          "targeting": false,
+          "var": "development"
          },
          {
           "_": "Exile",
           "ref": {
            "_": "Var",
-           "name": "t1"
+           "name": "development"
           }
          },
          {
-          "_": "Choose",
-          "sel": {
-           "_": "Sel",
-           "filters": [
-            {
-             "_": "IsKind",
-             "kinds": [
-              "unit"
-             ]
+          "_": "IfYouDo",
+          "steps": [
+           {
+            "_": "Choose",
+            "sel": {
+             "_": "Sel",
+             "filters": [
+              {
+               "_": "IsKind",
+               "kinds": [
+                "unit"
+               ]
+              },
+              {
+               "_": "StatCmp",
+               "op": "<=",
+               "stat": "remaining_hp",
+               "value": 4
+              }
+             ],
+             "loc": "battle",
+             "side": "enemy"
             },
-            {
-             "_": "StatCmp",
-             "op": "<=",
-             "stat": "hp",
-             "value": 4
+            "var": "t1"
+           },
+           {
+            "_": "Rest",
+            "ref": {
+             "_": "Var",
+             "name": "t1"
             }
-           ],
-           "loc": "battle",
-           "side": "enemy"
-          },
-          "var": "t2"
-         },
-         {
-          "_": "Rest",
-          "ref": {
-           "_": "Var",
-           "name": "t2"
-          }
+           }
+          ]
          }
         ]
        }
@@ -98,8 +137,9 @@
     }
    }
   ],
+  "binding": "wp_st09_11",
   "name": "Zeta Gundam",
-  "source": "compiled",
+  "source": "binding",
   "text_hash": "187bc67128ccc194"
  },
  "ST10-003": {
@@ -146,7 +186,7 @@
         {
          "_": "StatCmp",
          "op": "<=",
-         "stat": "hp",
+         "stat": "remaining_hp",
          "value": 3
         }
        ],
@@ -178,8 +218,9 @@
     }
    }
   ],
+  "binding": "wp_st09_11",
   "name": "Phoenix Gundam (Power Unleashed) (EX)",
-  "source": "compiled",
+  "source": "binding",
   "text_hash": "1966211b1cbb71fa"
  },
  "ST10-007": {
@@ -209,6 +250,7 @@
       "then": [
        {
         "_": "May",
+        "prompt": "Development 2: exile 2 (G Generation) cards?",
         "steps": [
          {
           "_": "Choose",
@@ -226,44 +268,50 @@
            "loc": "trash",
            "side": "friendly"
           },
-          "var": "t1"
+          "targeting": false,
+          "var": "development"
          },
          {
           "_": "Exile",
           "ref": {
            "_": "Var",
-           "name": "t1"
+           "name": "development"
           }
          },
          {
-          "_": "Choose",
-          "sel": {
-           "_": "Sel",
-           "filters": [
-            {
-             "_": "IsKind",
-             "kinds": [
-              "command"
-             ]
+          "_": "IfYouDo",
+          "steps": [
+           {
+            "_": "Choose",
+            "sel": {
+             "_": "Sel",
+             "filters": [
+              {
+               "_": "IsKind",
+               "kinds": [
+                "command"
+               ]
+              },
+              {
+               "_": "StatCmp",
+               "op": "<=",
+               "stat": "lv",
+               "value": 4
+              }
+             ],
+             "loc": "trash",
+             "side": "friendly"
             },
-            {
-             "_": "StatCmp",
-             "op": "<=",
-             "stat": "lv",
-             "value": 4
+            "var": "t1"
+           },
+           {
+            "_": "AddToHand",
+            "ref": {
+             "_": "Var",
+             "name": "t1"
             }
-           ],
-           "loc": "trash",
-           "side": "friendly"
-          },
-          "var": "t2"
-         },
-         {
-          "_": "AddToHand",
-          "ref": {
-           "_": "Var",
-           "name": "t2"
-          }
+           }
+          ]
          }
         ]
        }
@@ -276,13 +324,99 @@
     }
    }
   ],
+  "binding": "wp_st09_11",
   "name": "Gundam Barbatos 4th Form",
-  "source": "compiled",
+  "source": "binding",
   "text_hash": "ffa8cf64bedee23e"
  },
  "ST10-008": {
-  "error": "'【Deploy･Development 2】You may exile the specified number of (G Generation) cards in your trash from the game. If you do, activate the following effect:\\n■Draw a number of cards equal to the number of enemy players. Then, discard the same number of cards you drew with this effect.': no step template for 'Draw a number of cards equal to the number of enemy players'",
+  "abilities": [
+   {
+    "_": "Triggered",
+    "steps": [
+     {
+      "_": "If",
+      "cond": {
+       "_": "Exists",
+       "at_least": 2,
+       "sel": {
+        "_": "Sel",
+        "filters": [
+         {
+          "_": "HasTrait",
+          "traits": [
+           "G Generation"
+          ]
+         }
+        ],
+        "loc": "trash",
+        "side": "friendly"
+       }
+      },
+      "then": [
+       {
+        "_": "May",
+        "prompt": "Development 2: exile 2 (G Generation) cards?",
+        "steps": [
+         {
+          "_": "Choose",
+          "count": 2,
+          "sel": {
+           "_": "Sel",
+           "filters": [
+            {
+             "_": "HasTrait",
+             "traits": [
+              "G Generation"
+             ]
+            }
+           ],
+           "loc": "trash",
+           "side": "friendly"
+          },
+          "targeting": false,
+          "var": "development"
+         },
+         {
+          "_": "Exile",
+          "ref": {
+           "_": "Var",
+           "name": "development"
+          }
+         },
+         {
+          "_": "IfYouDo",
+          "steps": [
+           {
+            "_": "Draw"
+           },
+           {
+            "_": "If",
+            "cond": {
+             "_": "DidLast"
+            },
+            "then": [
+             {
+              "_": "Discard"
+             }
+            ]
+           }
+          ]
+         }
+        ]
+       }
+      ]
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "event": "deployed"
+    }
+   }
+  ],
+  "binding": "wp_st09_11",
   "name": "Gundam Barbatos 1st Form",
+  "source": "binding",
   "text_hash": "8f83d7e69ec2c0bf"
  },
  "ST10-009": {
@@ -576,8 +710,9 @@
     "timing": "main"
    }
   ],
+  "binding": "wp_st09_11",
   "name": "Unlocking the Development Diagram",
-  "source": "compiled",
+  "source": "binding",
   "text_hash": "87f947078d82749d"
  },
  "ST10-015": {

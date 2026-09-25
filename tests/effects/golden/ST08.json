@@ -1,7 +1,127 @@
 {
  "ST08-001": {
-  "error": "'While you have no Units that are Lv.6 or higher in play, this card in your hand gets Lv. -1 and cost -1 for each enemy Unit in play.': unknown constant 'This card in your hand gets Lv. -1 and cost -1 for each enemy Unit in play'; '【When Paired】Choose 1 enemy Unit with the highest Lv. Deal 3 damage to it.': unparsed selector suffix 'with the highest Lv. Deal 3 damage to it' in '1 enemy Unit with the highest Lv. Deal 3 damage to it'",
+  "abilities": [
+   {
+    "_": "Constant",
+    "cond": {
+     "_": "NotC",
+     "cond": {
+      "_": "Exists",
+      "sel": {
+       "_": "Sel",
+       "filters": [
+        {
+         "_": "IsKind",
+         "kinds": [
+          "unit"
+         ]
+        },
+        {
+         "_": "StatCmp",
+         "op": ">=",
+         "stat": "lv",
+         "value": 6
+        }
+       ],
+       "loc": "battle",
+       "side": "friendly"
+      }
+     }
+    },
+    "effects": [
+     {
+      "_": "CostMod",
+      "cost": {
+       "_": "Times",
+       "factor": -1,
+       "value": {
+        "_": "Count",
+        "sel": {
+         "_": "Sel",
+         "filters": [
+          {
+           "_": "IsKind",
+           "kinds": [
+            "unit"
+           ]
+          }
+         ],
+         "loc": "battle",
+         "side": "enemy"
+        }
+       }
+      },
+      "level": {
+       "_": "Times",
+       "factor": -1,
+       "value": {
+        "_": "Count",
+        "sel": {
+         "_": "Sel",
+         "filters": [
+          {
+           "_": "IsKind",
+           "kinds": [
+            "unit"
+           ]
+          }
+         ],
+         "loc": "battle",
+         "side": "enemy"
+        }
+       }
+      }
+     }
+    ],
+    "where": "hand"
+   },
+   {
+    "_": "Triggered",
+    "steps": [
+     {
+      "_": "Choose",
+      "sel": {
+       "_": "Sel",
+       "filters": [
+        {
+         "_": "IsKind",
+         "kinds": [
+          "unit"
+         ]
+        },
+        {
+         "_": "StatCmp",
+         "op": ">=",
+         "stat": "lv",
+         "value": {
+          "_": "CustomValue",
+          "name": "wp_st05_08_highest_enemy_unit_lv"
+         }
+        }
+       ],
+       "loc": "battle",
+       "side": "enemy"
+      },
+      "var": "t1"
+     },
+     {
+      "_": "Damage",
+      "amount": 3,
+      "ref": {
+       "_": "Var",
+       "name": "t1"
+      }
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "event": "paired"
+    }
+   }
+  ],
+  "binding": "wp_st05_08",
   "name": "Ξ Gundam",
+  "source": "binding",
   "text_hash": "4543bf2cdf9b113f"
  },
  "ST08-002": {
@@ -108,8 +228,78 @@
   "text_hash": "3973e022e93220f9"
  },
  "ST08-006": {
-  "error": "'【During Pair】【Attack】【Once per Turn】If this Unit is attacking the enemy player, reveal 1 (Earth Federation) Unit card from your hand. Return it to the bottom of your deck. If you do, draw 2.': no step template for 'Reveal 1 (Earth Federation) Unit card from your hand'",
+  "abilities": [
+   {
+    "_": "Triggered",
+    "gate": "paired",
+    "once_per_turn": true,
+    "steps": [
+     {
+      "_": "If",
+      "cond": {
+       "_": "AttackTargetIs",
+       "kind": "player"
+      },
+      "then": [
+       {
+        "_": "Choose",
+        "sel": {
+         "_": "Sel",
+         "filters": [
+          {
+           "_": "IsKind",
+           "kinds": [
+            "unit"
+           ]
+          },
+          {
+           "_": "HasTrait",
+           "traits": [
+            "Earth Federation"
+           ]
+          }
+         ],
+         "loc": "hand",
+         "side": "friendly"
+        },
+        "targeting": false,
+        "var": "t1"
+       },
+       {
+        "_": "Reveal",
+        "ref": {
+         "_": "Var",
+         "name": "t1"
+        }
+       },
+       {
+        "_": "ToDeck",
+        "ref": {
+         "_": "Var",
+         "name": "t1"
+        }
+       },
+       {
+        "_": "IfYouDo",
+        "steps": [
+         {
+          "_": "Draw",
+          "count": 2
+         }
+        ]
+       }
+      ]
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "event": "attacks"
+    }
+   }
+  ],
+  "binding": "wp_st05_08",
   "name": "Penelope",
+  "source": "binding",
   "text_hash": "241af047694a7276"
  },
  "ST08-007": {
@@ -319,9 +509,79 @@
   ]
  },
  "ST08-011": {
-  "error": "'When you draw with an effect, if this is a blue Unit, it gains <High-Maneuver> during this turn.': unknown trigger 'When you draw with an effect'",
+  "abilities": [
+   {
+    "_": "Burst",
+    "steps": [
+     {
+      "_": "AddToHand",
+      "ref": {
+       "_": "ThisCard"
+      }
+     }
+    ]
+   }
+  ],
+  "binding": "wp_st05_08",
   "name": "Lane Aim",
-  "text_hash": "f592192cd5511dd1"
+  "source": "binding",
+  "text_hash": "f592192cd5511dd1",
+  "unit_abilities": [
+   {
+    "_": "Triggered",
+    "cond": {
+     "_": "EventFlag",
+     "key": "by_effect"
+    },
+    "steps": [
+     {
+      "_": "If",
+      "cond": {
+       "_": "RefMatches",
+       "filters": [
+        {
+         "_": "IsKind",
+         "kinds": [
+          "unit"
+         ]
+        },
+        {
+         "_": "HasColor",
+         "colors": [
+          "Blue"
+         ]
+        }
+       ],
+       "ref": {
+        "_": "This"
+       }
+      },
+      "then": [
+       {
+        "_": "Apply",
+        "effect": {
+         "_": "KeywordGrant",
+         "keyword": "High-Maneuver"
+        },
+        "ref": {
+         "_": "This"
+        }
+       }
+      ]
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "event": "drawn",
+     "self_only": false,
+     "subject": {
+      "_": "Sel",
+      "loc": "hand",
+      "side": "friendly"
+     }
+    }
+   }
+  ]
  },
  "ST08-012": {
   "abilities": [
@@ -369,8 +629,82 @@
   "text_hash": "e4d018d32eaf8d8b"
  },
  "ST08-013": {
-  "error": "'【Main】/【Action】Choose 1 enemy Unit. Deal 1 damage to it. If a friendly (Mafty) Link Unit is in play, deal 2 damage instead.': no step template for 'Deal 2 damage'",
+  "abilities": [
+   {
+    "_": "Command",
+    "steps": [
+     {
+      "_": "Choose",
+      "sel": {
+       "_": "Sel",
+       "filters": [
+        {
+         "_": "IsKind",
+         "kinds": [
+          "unit"
+         ]
+        }
+       ],
+       "loc": "battle",
+       "side": "enemy"
+      },
+      "var": "t1"
+     },
+     {
+      "_": "If",
+      "cond": {
+       "_": "Exists",
+       "sel": {
+        "_": "Sel",
+        "filters": [
+         {
+          "_": "IsKind",
+          "kinds": [
+           "unit"
+          ]
+         },
+         {
+          "_": "HasTrait",
+          "traits": [
+           "Mafty"
+          ]
+         },
+         {
+          "_": "IsLinked"
+         }
+        ],
+        "loc": "battle",
+        "side": "friendly"
+       }
+      },
+      "otherwise": [
+       {
+        "_": "Damage",
+        "amount": 1,
+        "ref": {
+         "_": "Var",
+         "name": "t1"
+        }
+       }
+      ],
+      "then": [
+       {
+        "_": "Damage",
+        "amount": 2,
+        "ref": {
+         "_": "Var",
+         "name": "t1"
+        }
+       }
+      ]
+     }
+    ],
+    "timing": "main_or_action"
+   }
+  ],
+  "binding": "wp_st05_08",
   "name": "Lady Luck",
+  "source": "binding",
   "text_hash": "840512c51242f62b"
  },
  "ST08-014": {

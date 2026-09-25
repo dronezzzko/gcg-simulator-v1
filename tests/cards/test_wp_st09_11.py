@@ -9,12 +9,12 @@ from gcg_sim.engine import view as V
 from gcg_sim.engine.game import ALT_PLAY_BASE
 from gcg_sim.engine.state import GameState
 from gcg_sim.engine.types import PLAYER_TARGET, ActionKind, DecisionKind, Step, Zone
-from gcg_sim.testkit import arrange_if_asked
 from gcg_sim.testkit import (
     Scenario,
     act,
     activate,
     ap,
+    arrange_if_asked,
     attack,
     block,
     has_action,

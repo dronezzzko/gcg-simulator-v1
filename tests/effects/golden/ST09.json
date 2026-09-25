@@ -1,7 +1,64 @@
 {
  "ST09-001": {
-  "error": "'【Activate･Main】②, return this Unit to the bottom of its owner\\'s deck:Choose 1 Unit card with \"Impulse Gundam\" in its card name that is Lv.4 or higher from your trash. Deploy it.': unknown cost \"return this Unit to the bottom of its owner's deck\"",
+  "abilities": [
+   {
+    "_": "Activated",
+    "costs": [
+     {
+      "_": "PayResources",
+      "amount": 2
+     }
+    ],
+    "steps": [
+     {
+      "_": "ToDeck",
+      "ref": {
+       "_": "This"
+      }
+     },
+     {
+      "_": "Choose",
+      "sel": {
+       "_": "Sel",
+       "filters": [
+        {
+         "_": "IsKind",
+         "kinds": [
+          "unit"
+         ]
+        },
+        {
+         "_": "NameContains",
+         "parts": [
+          "Impulse Gundam"
+         ]
+        },
+        {
+         "_": "StatCmp",
+         "op": ">=",
+         "stat": "lv",
+         "value": 4
+        }
+       ],
+       "loc": "trash",
+       "side": "friendly"
+      },
+      "var": "t1"
+     },
+     {
+      "_": "DeployCard",
+      "ref": {
+       "_": "Var",
+       "name": "t1"
+      }
+     }
+    ],
+    "timing": "main"
+   }
+  ],
+  "binding": "wp_st09_11",
   "name": "Impulse Gundam",
+  "source": "binding",
   "text_hash": "9bf7fecf7ea3525e"
  },
  "ST09-002": {
@@ -366,8 +423,78 @@
   "text_hash": "564474066a01df0b"
  },
  "ST09-010": {
-  "error": "'【Deploy】Add 1 of your Shields to your hand. Then, if it is your turn, look at the top 2 cards of your deck and return 1 to the top. Place the remaining card into your trash.': no step template for 'Look at the top 2 cards of your deck and return 1 to the top'",
+  "abilities": [
+   {
+    "_": "Burst",
+    "steps": [
+     {
+      "_": "DeployCard",
+      "ref": {
+       "_": "ThisCard"
+      }
+     }
+    ]
+   },
+   {
+    "_": "Triggered",
+    "steps": [
+     {
+      "_": "ShieldToHand"
+     },
+     {
+      "_": "If",
+      "cond": {
+       "_": "IsTurn"
+      },
+      "then": [
+       {
+        "_": "LookTop",
+        "count": 2
+       },
+       {
+        "_": "Choose",
+        "sel": {
+         "_": "Sel",
+         "loc": "deck_top",
+         "side": "friendly",
+         "top_n": 2
+        },
+        "targeting": false,
+        "var": "keep"
+       },
+       {
+        "_": "ToTrash",
+        "ref": {
+         "_": "All",
+         "sel": {
+          "_": "Sel",
+          "filters": [
+           {
+            "_": "NotRef",
+            "ref": {
+             "_": "Var",
+             "name": "keep"
+            }
+           }
+          ],
+          "loc": "deck_top",
+          "side": "friendly",
+          "top_n": 2
+         }
+        }
+       }
+      ]
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "event": "deployed"
+    }
+   }
+  ],
+  "binding": "wp_st09_11",
   "name": "Minerva",
+  "source": "binding",
   "text_hash": "7fbe75d8cbeba383"
  }
 }

@@ -388,10 +388,6 @@ def test_breach_3_destroys_top_shield_after_battle_destruction(number: str) -> N
 
 @pytest.mark.card("ST12-004")
 @pytest.mark.rule("13-1-2-3")
-@pytest.mark.xfail(
-    strict=True,
-    reason="ENGINE: <Breach> amount is read from the destroyed Unit, so it deals 0 damage",
-)
 def test_st12_004_breach_when_both_units_are_destroyed() -> None:
     sc = Scenario()
     exia = sc.add(0, EXIA, damage=2)
@@ -532,10 +528,6 @@ def test_st12_006_q441_second_activation_adds_no_second_suppression() -> None:
 
 @pytest.mark.card("ST12-006")
 @pytest.mark.rule("8-2-3", "8-6-1")
-@pytest.mark.xfail(
-    strict=True,
-    reason="ENGINE: a 'during this battle' effect created outside a battle never expires",
-)
 def test_st12_006_suppression_activated_outside_a_battle_does_not_persist() -> None:
     sc = Scenario()
     banshee = sc.add(0, BANSHEE_DM)
@@ -922,10 +914,6 @@ def test_st12_014_granted_effect_ends_with_the_battle() -> None:
 
 @pytest.mark.card("ST12-014")
 @pytest.mark.rule("8-2-3", "8-6-1")
-@pytest.mark.xfail(
-    strict=True,
-    reason="ENGINE: a 'during this battle' effect created outside a battle never expires",
-)
 def test_st12_014_played_outside_a_battle_grants_nothing_lasting() -> None:
     sc = Scenario()
     sc.resources(0, 3)

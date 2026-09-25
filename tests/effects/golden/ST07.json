@@ -1,7 +1,115 @@
 {
  "ST07-001": {
-  "error": "'【When Paired】Place the top 2 cards of your deck into your trash. If you place a (CB) card with this effect, draw 1.': no selector head in 'the top 2 cards of your deck'",
+  "abilities": [
+   {
+    "_": "Triggered",
+    "steps": [
+     {
+      "_": "If",
+      "cond": {
+       "_": "Cmp",
+       "left": {
+        "_": "Count",
+        "sel": {
+         "_": "Sel",
+         "filters": [
+          {
+           "_": "HasTrait",
+           "traits": [
+            "CB"
+           ]
+          }
+         ],
+         "loc": "trash",
+         "side": "friendly"
+        }
+       },
+       "op": ">=",
+       "right": 7
+      },
+      "then": [
+       {
+        "_": "Choose",
+        "sel": {
+         "_": "Sel",
+         "filters": [
+          {
+           "_": "IsKind",
+           "kinds": [
+            "resource"
+           ]
+          }
+         ],
+         "loc": "resource_area",
+         "side": "friendly"
+        },
+        "var": "t1"
+       },
+       {
+        "_": "SetActive",
+        "ref": {
+         "_": "Var",
+         "name": "t1"
+        }
+       }
+      ]
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "event": "turn_end",
+     "self_only": false,
+     "whose_turn": "you"
+    }
+   },
+   {
+    "_": "Triggered",
+    "steps": [
+     {
+      "_": "Mill",
+      "count": 2
+     },
+     {
+      "_": "If",
+      "cond": {
+       "_": "Exists",
+       "sel": {
+        "_": "Sel",
+        "filters": [
+         {
+          "_": "HasTrait",
+          "traits": [
+           "CB"
+          ]
+         },
+         {
+          "_": "IsRef",
+          "ref": {
+           "_": "Var",
+           "name": "milled"
+          }
+         }
+        ],
+        "loc": "trash",
+        "side": "friendly"
+       }
+      },
+      "then": [
+       {
+        "_": "Draw"
+       }
+      ]
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "event": "paired"
+    }
+   }
+  ],
+  "binding": "wp_st05_08",
   "name": "Gundam Exia",
+  "source": "binding",
   "text_hash": "283df1920cfcc506"
  },
  "ST07-002": {
@@ -103,8 +211,50 @@
   "text_hash": "3973e022e93220f9"
  },
  "ST07-007": {
-  "error": "'During your turn, while you have a (CB) Pilot in play, this Unit gets AP+2.': unknown constant 'while you have a (CB) Pilot in play, this Unit gets AP+2'",
+  "abilities": [
+   {
+    "_": "Constant",
+    "cond": {
+     "_": "And",
+     "conds": [
+      {
+       "_": "IsTurn"
+      },
+      {
+       "_": "Exists",
+       "sel": {
+        "_": "Sel",
+        "filters": [
+         {
+          "_": "IsKind",
+          "kinds": [
+           "pilot"
+          ]
+         },
+         {
+          "_": "HasTrait",
+          "traits": [
+           "CB"
+          ]
+         }
+        ],
+        "loc": "paired",
+        "side": "friendly"
+       }
+      }
+     ]
+    },
+    "effects": [
+     {
+      "_": "StatMod",
+      "ap": 2
+     }
+    ]
+   }
+  ],
+  "binding": "wp_st05_08",
   "name": "Gundam Kyrios",
+  "source": "binding",
   "text_hash": "91118b8df72b657f"
  },
  "ST07-008": {
@@ -127,8 +277,9 @@
     ]
    }
   ],
+  "binding": "wp_st05_08",
   "name": "Setsuna F. Seiei",
-  "source": "compiled",
+  "source": "binding",
   "text_hash": "e9389ae3cd81bb81",
   "unit_abilities": [
    {
@@ -276,14 +427,175 @@
   ]
  },
  "ST07-011": {
-  "error": "'【When Paired】If this is a (CB) Unit, it may choose an active enemy Unit whose Lv. is equal to or lower than this Unit as its attack target during this turn.': pronoun 'It' without antecedent",
+  "abilities": [
+   {
+    "_": "Burst",
+    "steps": [
+     {
+      "_": "AddToHand",
+      "ref": {
+       "_": "ThisCard"
+      }
+     }
+    ]
+   }
+  ],
+  "binding": "wp_st05_08",
   "name": "Lockon Stratos (Neil)",
-  "text_hash": "7acc07ecc85ce273"
+  "source": "binding",
+  "text_hash": "7acc07ecc85ce273",
+  "unit_abilities": [
+   {
+    "_": "Triggered",
+    "steps": [
+     {
+      "_": "If",
+      "cond": {
+       "_": "RefMatches",
+       "filters": [
+        {
+         "_": "IsKind",
+         "kinds": [
+          "unit"
+         ]
+        },
+        {
+         "_": "HasTrait",
+         "traits": [
+          "CB"
+         ]
+        }
+       ],
+       "ref": {
+        "_": "This"
+       }
+      },
+      "then": [
+       {
+        "_": "Apply",
+        "effect": {
+         "_": "RuleGrant",
+         "rule": {
+          "_": "RuleMod",
+          "kind": "may_attack_active",
+          "source_filters": [
+           {
+            "_": "IsKind",
+            "kinds": [
+             "unit"
+            ]
+           },
+           {
+            "_": "IsRested",
+            "rested": false
+           },
+           {
+            "_": "LevelCmpRef",
+            "op": "<=",
+            "ref": {
+             "_": "This"
+            },
+            "ref_stat": "lv",
+            "stat": "lv"
+           }
+          ]
+         }
+        },
+        "ref": {
+         "_": "This"
+        }
+       }
+      ]
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "event": "paired"
+    }
+   }
+  ]
  },
  "ST07-012": {
-  "error": "\"During your turn, while you have a (CB) Link Unit in play, this Unit can't receive battle damage from enemy Units with 3 or less AP.\": unknown constant \"while you have a (CB) Link Unit in play, this Unit can't receive battle damage from enemy Units with 3 or less AP\"",
+  "abilities": [
+   {
+    "_": "Burst",
+    "steps": [
+     {
+      "_": "AddToHand",
+      "ref": {
+       "_": "ThisCard"
+      }
+     }
+    ]
+   }
+  ],
+  "binding": "wp_st05_08",
   "name": "Allelujah Haptism",
-  "text_hash": "768b4bf1e4e3a84c"
+  "source": "binding",
+  "text_hash": "768b4bf1e4e3a84c",
+  "unit_abilities": [
+   {
+    "_": "Constant",
+    "cond": {
+     "_": "And",
+     "conds": [
+      {
+       "_": "IsTurn"
+      },
+      {
+       "_": "Exists",
+       "sel": {
+        "_": "Sel",
+        "filters": [
+         {
+          "_": "IsKind",
+          "kinds": [
+           "unit"
+          ]
+         },
+         {
+          "_": "HasTrait",
+          "traits": [
+           "CB"
+          ]
+         },
+         {
+          "_": "IsLinked"
+         }
+        ],
+        "loc": "battle",
+        "side": "friendly"
+       }
+      }
+     ]
+    },
+    "effects": [
+     {
+      "_": "RuleGrant",
+      "rule": {
+       "_": "RuleMod",
+       "damage_kind": "battle",
+       "kind": "cant_receive_damage",
+       "source_filters": [
+        {
+         "_": "IsKind",
+         "kinds": [
+          "unit"
+         ]
+        },
+        {
+         "_": "StatCmp",
+         "op": "<=",
+         "stat": "ap",
+         "value": 3
+        }
+       ],
+       "source_side": "enemy"
+      }
+     }
+    ]
+   }
+  ]
  },
  "ST07-013": {
   "abilities": [
@@ -325,18 +637,43 @@
       "var": "t1"
      },
      {
-      "_": "ChangeAttackTarget",
-      "target": {
-       "_": "Var",
-       "name": "t1"
-      }
+      "_": "If",
+      "cond": {
+       "_": "Exists",
+       "sel": {
+        "_": "Sel",
+        "filters": [
+         {
+          "_": "IsKind",
+          "kinds": [
+           "unit"
+          ]
+         },
+         {
+          "_": "IsAttacking"
+         }
+        ],
+        "loc": "battle",
+        "side": "enemy"
+       }
+      },
+      "then": [
+       {
+        "_": "ChangeAttackTarget",
+        "target": {
+         "_": "Var",
+         "name": "t1"
+        }
+       }
+      ]
      }
     ],
     "timing": "action"
    }
   ],
+  "binding": "wp_st05_08",
   "name": "Armed Intervention",
-  "source": "compiled",
+  "source": "binding",
   "text_hash": "26cac844cc59952e"
  },
  "ST07-014": {

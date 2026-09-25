@@ -524,11 +524,10 @@ def main_options(st: GameState) -> list[Action]:
     my_units = [u for u in st.zones[p][Zone.BATTLE] if I.can_pair(st, dv, u)]
     for uid in st.zones[p][Zone.HAND]:
         cd = R.db.by_id(st.cards[uid].def_id)
-        out.extend(_alt_play_options(st, dv, p, uid, my_units))
-        if not _level_ok(st, dv, p, uid):
-            continue
-        pays = payment_choices(st, p, V.play_cost(st, dv, uid))
+        alternatives = _alt_play_options(st, dv, p, uid, my_units)
+        pays = payment_choices(st, p, V.play_cost(st, dv, uid)) if _level_ok(st, dv, p, uid) else []
         if not pays:
+            out.extend(alternatives)
             continue
         t = cd.card_type
         if t is CardType.UNIT:
@@ -544,6 +543,7 @@ def main_options(st: GameState) -> list[Action]:
             if cd.pilot_name is not None:  # rule 3-4-6-2
                 for u in my_units:
                     out.extend(Action(A.PAIR, uid, u, c) for c in pays)
+        out.extend(alternatives)
     for host, aid, cost in _activated_list(st, p, d.Timing.MAIN):
         out.extend(Action(A.ACTIVATE, host, aid, c) for c in payment_choices(st, p, cost))
     out.extend(_attack_options(st, p))

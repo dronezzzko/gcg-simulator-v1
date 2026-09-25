@@ -301,66 +301,139 @@
     ]
    }
   ],
+  "binding": "wp_st05_08",
   "name": "Mikazuki Augus",
-  "source": "compiled",
+  "source": "binding",
   "text_hash": "898b24534e963876",
   "unit_abilities": [
    {
     "_": "Triggered",
     "steps": [
      {
-      "_": "Choose",
-      "sel": {
-       "_": "Sel",
-       "filters": [
+      "_": "If",
+      "cond": {
+       "_": "And",
+       "conds": [
         {
-         "_": "IsKind",
-         "kinds": [
-          "unit"
-         ]
-        }
-       ],
-       "loc": "battle",
-       "side": "friendly"
-      },
-      "var": "t1"
-     },
-     {
-      "_": "Choose",
-      "distinct_from": [
-       "t1"
-      ],
-      "sel": {
-       "_": "Sel",
-       "filters": [
-        {
-         "_": "IsKind",
-         "kinds": [
-          "unit"
-         ]
-        }
-       ],
-       "loc": "battle",
-       "side": "enemy"
-      },
-      "var": "t2"
-     },
-     {
-      "_": "Damage",
-      "amount": 1,
-      "ref": {
-       "_": "Union",
-       "refs": [
-        {
-         "_": "Var",
-         "name": "t1"
+         "_": "Exists",
+         "sel": {
+          "_": "Sel",
+          "filters": [
+           {
+            "_": "IsKind",
+            "kinds": [
+             "unit"
+            ]
+           }
+          ],
+          "loc": "battle",
+          "side": "friendly"
+         }
         },
         {
-         "_": "Var",
-         "name": "t2"
+         "_": "Exists",
+         "sel": {
+          "_": "Sel",
+          "filters": [
+           {
+            "_": "IsKind",
+            "kinds": [
+             "unit"
+            ]
+           }
+          ],
+          "loc": "battle",
+          "side": "enemy"
+         }
         }
        ]
-      }
+      },
+      "then": [
+       {
+        "_": "Choose",
+        "sel": {
+         "_": "Sel",
+         "filters": [
+          {
+           "_": "IsKind",
+           "kinds": [
+            "unit"
+           ]
+          }
+         ],
+         "loc": "battle",
+         "side": "friendly"
+        },
+        "var": "t1"
+       },
+       {
+        "_": "Choose",
+        "distinct_from": [
+         "t1"
+        ],
+        "sel": {
+         "_": "Sel",
+         "filters": [
+          {
+           "_": "IsKind",
+           "kinds": [
+            "unit"
+           ]
+          }
+         ],
+         "loc": "battle",
+         "side": "enemy"
+        },
+        "var": "t2"
+       },
+       {
+        "_": "If",
+        "cond": {
+         "_": "And",
+         "conds": [
+          {
+           "_": "NotC",
+           "cond": {
+            "_": "RefEmpty",
+            "ref": {
+             "_": "Var",
+             "name": "t1"
+            }
+           }
+          },
+          {
+           "_": "NotC",
+           "cond": {
+            "_": "RefEmpty",
+            "ref": {
+             "_": "Var",
+             "name": "t2"
+            }
+           }
+          }
+         ]
+        },
+        "then": [
+         {
+          "_": "Damage",
+          "amount": 1,
+          "ref": {
+           "_": "Union",
+           "refs": [
+            {
+             "_": "Var",
+             "name": "t1"
+            },
+            {
+             "_": "Var",
+             "name": "t2"
+            }
+           ]
+          }
+         }
+        ]
+       }
+      ]
      }
     ],
     "trigger": {

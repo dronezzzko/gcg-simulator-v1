@@ -97,11 +97,8 @@
         {
          "_": "IsKind",
          "kinds": [
-          "unit"
+          "link_unit"
          ]
-        },
-        {
-         "_": "IsLinked"
         },
         {
          "_": "NameContains",
@@ -157,8 +154,9 @@
     }
    }
   ],
+  "binding": "wp_gd01_a",
   "name": "Unicorn Gundam (Destroy Mode)",
-  "source": "compiled",
+  "source": "binding",
   "text_hash": "f124a6c4ef85b1ab"
  },
  "GD01-003": {
@@ -168,42 +166,59 @@
     "gate": "linked",
     "steps": [
      {
-      "_": "Choose",
-      "count": 12,
-      "sel": {
-       "_": "Sel",
-       "loc": "trash",
-       "side": "friendly"
-      },
-      "var": "t1"
-     },
-     {
-      "_": "ToDeck",
-      "ref": {
-       "_": "Var",
-       "name": "t1"
-      },
-      "shuffle": true
-     },
-     {
-      "_": "IfYouDo",
-      "steps": [
-       {
-        "_": "SetActive",
-        "ref": {
-         "_": "This"
+      "_": "If",
+      "cond": {
+       "_": "Cmp",
+       "left": {
+        "_": "Count",
+        "sel": {
+         "_": "Sel",
+         "loc": "trash",
+         "side": "friendly"
         }
        },
+       "op": ">=",
+       "right": 12
+      },
+      "then": [
        {
-        "_": "Apply",
-        "effect": {
-         "_": "KeywordGrant",
-         "keyword": "First Strike"
+        "_": "Choose",
+        "count": 12,
+        "sel": {
+         "_": "Sel",
+         "loc": "trash",
+         "side": "friendly"
         },
+        "var": "t1"
+       },
+       {
+        "_": "ToDeck",
         "ref": {
          "_": "Var",
          "name": "t1"
-        }
+        },
+        "shuffle": true
+       },
+       {
+        "_": "IfYouDo",
+        "steps": [
+         {
+          "_": "SetActive",
+          "ref": {
+           "_": "This"
+          }
+         },
+         {
+          "_": "Apply",
+          "effect": {
+           "_": "KeywordGrant",
+           "keyword": "First Strike"
+          },
+          "ref": {
+           "_": "This"
+          }
+         }
+        ]
        }
       ]
      }
@@ -214,8 +229,9 @@
     }
    }
   ],
+  "binding": "wp_gd01_a",
   "name": "Unicorn Gundam 02 Banshee (Destroy Mode)",
-  "source": "compiled",
+  "source": "binding",
   "text_hash": "ba7c34d6b2b423d1"
  },
  "GD01-004": {
@@ -242,7 +258,7 @@
         {
          "_": "StatCmp",
          "op": "<=",
-         "stat": "hp",
+         "stat": "remaining_hp",
          "value": 2
         }
        ],
@@ -265,8 +281,9 @@
     }
    }
   ],
+  "binding": "wp_gd01_a",
   "name": "Guncannon",
-  "source": "compiled",
+  "source": "binding",
   "text_hash": "07dcc2c0d3253b9b"
  },
  "GD01-005": {
@@ -278,10 +295,8 @@
      {
       "_": "ReturnToHand",
       "ref": {
-       "_": "PairedPilotOf",
-       "ref": {
-        "_": "This"
-       }
+       "_": "EventCard",
+       "key": "pilot"
       }
      },
      {
@@ -294,8 +309,9 @@
     }
    }
   ],
+  "binding": "wp_gd01_a",
   "name": "Unicorn Gundam (Unicorn Mode)",
-  "source": "compiled",
+  "source": "binding",
   "text_hash": "fa10fe091112cfcc"
  },
  "GD01-006": {
@@ -485,7 +501,7 @@
         {
          "_": "StatCmp",
          "op": "<=",
-         "stat": "hp",
+         "stat": "remaining_hp",
          "value": 3
         }
        ],
@@ -508,8 +524,9 @@
     }
    }
   ],
+  "binding": "wp_gd01_a",
   "name": "Unicorn Gundam 02 Banshee (Unicorn Mode)",
-  "source": "compiled",
+  "source": "binding",
   "text_hash": "73a5c7c646fcc1c5"
  },
  "GD01-011": {
@@ -537,7 +554,7 @@
         {
          "_": "StatCmp",
          "op": "<=",
-         "stat": "hp",
+         "stat": "remaining_hp",
          "value": 3
         }
        ],
@@ -560,8 +577,9 @@
     }
    }
   ],
+  "binding": "wp_gd01_a",
   "name": "Zechs' Leo",
-  "source": "compiled",
+  "source": "binding",
   "text_hash": "73a5c7c646fcc1c5"
  },
  "GD01-013": {
@@ -987,8 +1005,26 @@
   "text_hash": "827fd504232f4309"
  },
  "GD01-026": {
-  "error": "\"【During Pair】【Destroyed】Deploy 1 rested [Char's Zaku Ⅱ]((Zeon)･AP3･HP1) Unit token.\": no step template for \"Deploy 1 rested [Char's Zaku Ⅱ]((Zeon)･AP3･HP1) Unit token\"",
+  "abilities": [
+   {
+    "_": "Triggered",
+    "gate": "paired",
+    "steps": [
+     {
+      "_": "DeployToken",
+      "rested": true,
+      "token_key": "Char's Zaku Ⅱ|Zeon|3|1|"
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "event": "destroyed"
+    }
+   }
+  ],
+  "binding": "wp_gd01_a",
   "name": "Char's Zaku Ⅱ",
+  "source": "binding",
   "text_hash": "8c387ba5f3fcfbf2"
  },
  "GD01-027": {
@@ -1642,8 +1678,55 @@
   "text_hash": "68002fd702f6a5ab"
  },
  "GD01-046": {
-  "error": "\"【During Pair･(Coordinator) Pilot】【Once per Turn】When you use this Unit's <Support> to increase a (ZAFT) Unit's AP, set this Unit as active.\": unknown trigger \"When you use this Unit's <Support> to increase a (ZAFT) Unit's AP\"",
+  "abilities": [
+   {
+    "_": "Keyword",
+    "amount": 3,
+    "keyword": "Support"
+   },
+   {
+    "_": "Triggered",
+    "gate": "paired",
+    "gate_filters": [
+     {
+      "_": "HasTrait",
+      "traits": [
+       "Coordinator"
+      ]
+     }
+    ],
+    "once_per_turn": true,
+    "steps": [
+     {
+      "_": "SetActive",
+      "ref": {
+       "_": "This"
+      }
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "event": "support_used",
+     "target_filters": [
+      {
+       "_": "IsKind",
+       "kinds": [
+        "unit"
+       ]
+      },
+      {
+       "_": "HasTrait",
+       "traits": [
+        "ZAFT"
+       ]
+      }
+     ]
+    }
+   }
+  ],
+  "binding": "wp_gd01_a",
   "name": "Buster Gundam",
+  "source": "binding",
   "text_hash": "fe7b53440366661d"
  },
  "GD01-047": {
@@ -2227,8 +2310,59 @@
   "text_hash": "3973e022e93220f9"
  },
  "GD01-063": {
-  "error": "'During your turn, while this Unit is battling an enemy Unit that is Lv.2 or lower, it gains <First Strike>.': unknown constant 'while this Unit is battling an enemy Unit that is Lv.2 or lower, it gains <First Strike>'",
+  "abilities": [
+   {
+    "_": "Constant",
+    "cond": {
+     "_": "And",
+     "conds": [
+      {
+       "_": "IsTurn"
+      },
+      {
+       "_": "Exists",
+       "sel": {
+        "_": "Sel",
+        "filters": [
+         {
+          "_": "IsKind",
+          "kinds": [
+           "unit"
+          ]
+         },
+         {
+          "_": "StatCmp",
+          "op": "<=",
+          "stat": "lv",
+          "value": 2
+         },
+         {
+          "_": "IsRef",
+          "ref": {
+           "_": "BattlingWith",
+           "ref": {
+            "_": "This"
+           }
+          }
+         }
+        ],
+        "loc": "battle",
+        "side": "enemy"
+       }
+      }
+     ]
+    },
+    "effects": [
+     {
+      "_": "KeywordGrant",
+      "keyword": "First Strike"
+     }
+    ]
+   }
+  ],
+  "binding": "wp_gd01_a",
   "name": "ZnO",
+  "source": "binding",
   "text_hash": "78133c7dae115596"
  },
  "GD01-064": {
@@ -2308,8 +2442,71 @@
   "text_hash": "e1d05e29c1ec9bdd"
  },
  "GD01-066": {
-  "error": "'【Deploy】Deploy 1 [Fatum-00]((Triple Ship Alliance)･AP2･HP2･<Blocker>) Unit token.': no step template for 'Deploy 1 [Fatum-00]((Triple Ship Alliance)･AP2･HP2･<Blocker>) Unit token'",
+  "abilities": [
+   {
+    "_": "Triggered",
+    "steps": [
+     {
+      "_": "DeployToken",
+      "token_key": "Fatum-00|Triple Ship Alliance|2|2|<Blocker>."
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "event": "deployed"
+    }
+   },
+   {
+    "_": "Triggered",
+    "gate": "paired",
+    "steps": [
+     {
+      "_": "Choose",
+      "sel": {
+       "_": "Sel",
+       "filters": [
+        {
+         "_": "IsKind",
+         "kinds": [
+          "unit_token"
+         ]
+        },
+        {
+         "_": "HasTrait",
+         "traits": [
+          "Triple Ship Alliance"
+         ]
+        }
+       ],
+       "loc": "battle",
+       "side": "friendly"
+      },
+      "var": "t1"
+     },
+     {
+      "_": "Apply",
+      "effect": {
+       "_": "RuleGrant",
+       "rule": {
+        "_": "RuleMod",
+        "kind": "attack_on_deploy_turn"
+       }
+      },
+      "ref": {
+       "_": "Var",
+       "name": "t1"
+      }
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "event": "attacks"
+    }
+   }
+  ],
+  "binding": "wp_gd01_a",
   "name": "Justice Gundam",
+  "source": "binding",
   "text_hash": "8d0897004d9eff63"
  },
  "GD01-067": {
@@ -2381,7 +2578,7 @@
         {
          "_": "StatCmp",
          "op": "==",
-         "stat": "hp",
+         "stat": "remaining_hp",
          "value": 1
         }
        ],
@@ -2404,8 +2601,9 @@
     }
    }
   ],
+  "binding": "wp_gd01_a",
   "name": "Perfect Strike Gundam",
-  "source": "compiled",
+  "source": "binding",
   "text_hash": "fb577679d6d0ec59"
  },
  "GD01-069": {
@@ -2594,7 +2792,7 @@
         {
          "_": "StatCmp",
          "op": "<=",
-         "stat": "hp",
+         "stat": "remaining_hp",
          "value": 2
         }
        ],
@@ -2617,8 +2815,9 @@
     }
    }
   ],
+  "binding": "wp_gd01_b",
   "name": "Sword Strike Gundam",
-  "source": "compiled",
+  "source": "binding",
   "text_hash": "f18984968f81eed6"
  },
  "GD01-074": {
@@ -2662,7 +2861,7 @@
         {
          "_": "StatCmp",
          "op": "==",
-         "stat": "hp",
+         "stat": "remaining_hp",
          "value": 1
         }
        ],
@@ -2685,8 +2884,9 @@
     }
    }
   ],
+  "binding": "wp_gd01_b",
   "name": "Darilbalde",
-  "source": "compiled",
+  "source": "binding",
   "text_hash": "b5836d57ea081c2d"
  },
  "GD01-076": {
@@ -3074,14 +3274,107 @@
   ]
  },
  "GD01-090": {
-  "error": "\"【During Link】This Unit's AP can't be reduced by enemy effects.\": unknown constant \"This Unit's AP can't be reduced by enemy effects\"",
+  "abilities": [
+   {
+    "_": "Burst",
+    "steps": [
+     {
+      "_": "AddToHand",
+      "ref": {
+       "_": "ThisCard"
+      }
+     }
+    ]
+   }
+  ],
+  "binding": "wp_gd01_b",
   "name": "Duo Maxwell",
-  "text_hash": "f884b5f88e348012"
+  "source": "binding",
+  "text_hash": "f884b5f88e348012",
+  "unit_abilities": [
+   {
+    "_": "Constant",
+    "effects": [
+     {
+      "_": "RuleGrant",
+      "rule": {
+       "_": "RuleMod",
+       "kind": "ap_cant_be_reduced"
+      }
+     }
+    ],
+    "gate": "linked"
+   }
+  ]
  },
  "GD01-091": {
-  "error": "\"During your turn, while this Unit has <Breach>, it can't receive battle damage from enemy Units with 3 or less AP.\": unknown constant \"while this Unit has <Breach>, it can't receive battle damage from enemy Units with 3 or less AP\"",
+  "abilities": [
+   {
+    "_": "Burst",
+    "steps": [
+     {
+      "_": "AddToHand",
+      "ref": {
+       "_": "ThisCard"
+      }
+     }
+    ]
+   }
+  ],
+  "binding": "wp_gd01_b",
   "name": "Chang Wufei",
-  "text_hash": "88cc9cf9bbc5c164"
+  "source": "binding",
+  "text_hash": "88cc9cf9bbc5c164",
+  "unit_abilities": [
+   {
+    "_": "Constant",
+    "cond": {
+     "_": "And",
+     "conds": [
+      {
+       "_": "IsTurn"
+      },
+      {
+       "_": "RefMatches",
+       "filters": [
+        {
+         "_": "HasKeyword",
+         "keyword": "Breach"
+        }
+       ],
+       "ref": {
+        "_": "This"
+       }
+      }
+     ]
+    },
+    "effects": [
+     {
+      "_": "RuleGrant",
+      "rule": {
+       "_": "RuleMod",
+       "damage_kind": "battle",
+       "kind": "cant_receive_damage",
+       "source_filters": [
+        {
+         "_": "IsKind",
+         "kinds": [
+          "unit"
+         ]
+        },
+        {
+         "_": "StatCmp",
+         "op": "<=",
+         "stat": "ap",
+         "value": 3
+        }
+       ],
+       "source_side": "enemy"
+      }
+     }
+    ]
+   }
+  ]
  },
  "GD01-092": {
   "abilities": [
@@ -3192,9 +3485,68 @@
   ]
  },
  "GD01-094": {
-  "error": "'【Once per Turn】 When an enemy Link Unit is destroyed with damage while this Unit is attacking, draw 1.': unknown trigger 'When an enemy Link Unit is destroyed with damage while this Unit is attacking'",
+  "abilities": [
+   {
+    "_": "Burst",
+    "steps": [
+     {
+      "_": "AddToHand",
+      "ref": {
+       "_": "ThisCard"
+      }
+     }
+    ]
+   }
+  ],
+  "binding": "wp_gd01_b",
   "name": "Yzak Jule",
-  "text_hash": "873d4bd3905c8254"
+  "source": "binding",
+  "text_hash": "873d4bd3905c8254",
+  "unit_abilities": [
+   {
+    "_": "Triggered",
+    "cond": {
+     "_": "And",
+     "conds": [
+      {
+       "_": "EventFlag",
+       "key": "linked"
+      },
+      {
+       "_": "RefMatches",
+       "filters": [
+        {
+         "_": "IsAttacking"
+        }
+       ],
+       "ref": {
+        "_": "This"
+       }
+      },
+      {
+       "_": "CustomCond",
+       "name": "wp_gd01_b_destroyed_with_damage"
+      }
+     ]
+    },
+    "once_per_turn": true,
+    "steps": [
+     {
+      "_": "Draw"
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "event": "destroyed",
+     "self_only": false,
+     "subject": {
+      "_": "Sel",
+      "loc": "battle",
+      "side": "enemy"
+     }
+    }
+   }
+  ]
  },
  "GD01-095": {
   "abilities": [
@@ -3293,12 +3645,22 @@
     ]
    }
   ],
+  "binding": "wp_gd01_b",
   "name": "Guel Jeturk",
-  "source": "compiled",
+  "source": "binding",
   "text_hash": "046bee4e55b32959",
   "unit_abilities": [
    {
     "_": "Activated",
+    "cond": {
+     "_": "Cmp",
+     "left": {
+      "_": "HandSize",
+      "player": "opponent"
+     },
+     "op": ">=",
+     "right": 8
+    },
     "costs": [],
     "once_per_turn": true,
     "steps": [
@@ -3354,12 +3716,51 @@
     ]
    }
   ],
+  "binding": "wp_gd01_b",
   "name": "Elan Ceres (Enhanced Person Number 4)",
-  "source": "compiled",
+  "source": "binding",
   "text_hash": "1f08b48e59a508d5",
   "unit_abilities": [
    {
     "_": "Activated",
+    "cond": {
+     "_": "And",
+     "conds": [
+      {
+       "_": "Exists",
+       "sel": {
+        "_": "Sel",
+        "filters": [
+         {
+          "_": "IsKind",
+          "kinds": [
+           "unit"
+          ]
+         },
+         {
+          "_": "StatCmp",
+          "op": "<=",
+          "stat": "ap",
+          "value": 1
+         }
+        ],
+        "loc": "battle",
+        "side": "enemy"
+       }
+      },
+      {
+       "_": "RefMatches",
+       "filters": [
+        {
+         "_": "IsDamaged"
+        }
+       ],
+       "ref": {
+        "_": "This"
+       }
+      }
+     ]
+    },
     "costs": [],
     "once_per_turn": true,
     "steps": [
@@ -3421,7 +3822,7 @@
         {
          "_": "StatCmp",
          "op": "<=",
-         "stat": "hp",
+         "stat": "remaining_hp",
          "value": 5
         }
        ],
@@ -3458,7 +3859,7 @@
         {
          "_": "StatCmp",
          "op": "<=",
-         "stat": "hp",
+         "stat": "remaining_hp",
          "value": 3
         }
        ],
@@ -3478,8 +3879,9 @@
     "timing": "main_or_action"
    }
   ],
+  "binding": "wp_gd01_b",
   "name": "Intercept Orders",
-  "source": "compiled",
+  "source": "binding",
   "text_hash": "a56816eec117a589"
  },
  "GD01-100": {
@@ -3756,8 +4158,22 @@
   "text_hash": "1a0ea7eca82dca42"
  },
  "GD01-106": {
-  "error": "'【Main】Deploy 2 [Zaku Ⅱ]((Zeon)･AP1･HP1) Unit tokens.': no step template for 'Deploy 2 [Zaku Ⅱ]((Zeon)･AP1･HP1) Unit tokens'",
+  "abilities": [
+   {
+    "_": "Command",
+    "steps": [
+     {
+      "_": "DeployToken",
+      "count": 2,
+      "token_key": "Zaku Ⅱ|Zeon|1|1|"
+     }
+    ],
+    "timing": "main"
+   }
+  ],
+  "binding": "wp_gd01_b",
   "name": "Fortress Defense",
+  "source": "binding",
   "text_hash": "cd458d036fe8029b"
  },
  "GD01-107": {
@@ -4032,6 +4448,31 @@
   "abilities": [
    {
     "_": "Command",
+    "cond": {
+     "_": "Cmp",
+     "left": {
+      "_": "Count",
+      "sel": {
+       "_": "Sel",
+       "filters": [
+        {
+         "_": "IsKind",
+         "kinds": [
+          "unit"
+         ]
+        },
+        {
+         "_": "IsRested",
+         "rested": false
+        }
+       ],
+       "loc": "battle",
+       "side": "friendly"
+      }
+     },
+     "op": ">=",
+     "right": 2
+    },
     "steps": [
      {
       "_": "Choose",
@@ -4096,8 +4537,9 @@
     "timing": "main"
    }
   ],
+  "binding": "wp_gd01_b",
   "name": "Extreme Hatred",
-  "source": "compiled",
+  "source": "binding",
   "text_hash": "ff31cb6b9943b8d1"
  },
  "GD01-113": {
@@ -4151,6 +4593,27 @@
   "abilities": [
    {
     "_": "Command",
+    "cond": {
+     "_": "Cmp",
+     "left": {
+      "_": "Count",
+      "sel": {
+       "_": "Sel",
+       "filters": [
+        {
+         "_": "IsKind",
+         "kinds": [
+          "unit"
+         ]
+        }
+       ],
+       "loc": "battle",
+       "side": "friendly"
+      }
+     },
+     "op": ">=",
+     "right": 2
+    },
     "steps": [
      {
       "_": "Choose",
@@ -4185,8 +4648,9 @@
     "timing": "action"
    }
   ],
+  "binding": "wp_gd01_b",
   "name": "Assault on Torrington Base",
-  "source": "compiled",
+  "source": "binding",
   "text_hash": "4bf0f3adc49ad0c4"
  },
  "GD01-115": {
@@ -4298,7 +4762,7 @@
         {
          "_": "StatCmp",
          "op": "<=",
-         "stat": "hp",
+         "stat": "remaining_hp",
          "value": 5
         }
        ],
@@ -4318,8 +4782,9 @@
     "timing": "main_or_action"
    }
   ],
+  "binding": "wp_gd01_b",
   "name": "The Witch and the Bride",
-  "source": "compiled",
+  "source": "binding",
   "text_hash": "a4c07a552f6818ce"
  },
  "GD01-118": {
@@ -4539,76 +5004,61 @@
     "_": "Command",
     "steps": [
      {
-      "_": "If",
-      "cond": {
-       "_": "Exists",
-       "sel": {
-        "_": "Sel",
-        "filters": [
-         {
-          "_": "IsKind",
-          "kinds": [
-           "unit"
+      "_": "Choose",
+      "sel": {
+       "_": "Sel",
+       "filters": [
+        {
+         "_": "IsKind",
+         "kinds": [
+          "unit"
+         ]
+        },
+        {
+         "_": "StatCmp",
+         "op": "<=",
+         "stat": "remaining_hp",
+         "value": {
+          "_": "Sum",
+          "terms": [
+           2,
+           {
+            "_": "Times",
+            "factor": 2,
+            "value": {
+             "_": "MinOf",
+             "terms": [
+              {
+               "_": "Count",
+               "sel": {
+                "_": "Sel",
+                "filters": [
+                 {
+                  "_": "IsKind",
+                  "kinds": [
+                   "unit"
+                  ]
+                 },
+                 {
+                  "_": "IsLinked"
+                 }
+                ],
+                "loc": "battle",
+                "side": "friendly"
+               }
+              },
+              1
+             ]
+            }
+           }
           ]
-         },
-         {
-          "_": "IsLinked"
          }
-        ],
-        "loc": "battle",
-        "side": "friendly"
-       }
+        }
+       ],
+       "loc": "battle",
+       "side": "enemy"
       },
-      "otherwise": [
-       {
-        "_": "Choose",
-        "sel": {
-         "_": "Sel",
-         "filters": [
-          {
-           "_": "IsKind",
-           "kinds": [
-            "unit"
-           ]
-          },
-          {
-           "_": "StatCmp",
-           "op": "<=",
-           "stat": "hp",
-           "value": 2
-          }
-         ],
-         "loc": "battle",
-         "side": "enemy"
-        },
-        "var": "t1"
-       }
-      ],
-      "then": [
-       {
-        "_": "Choose",
-        "sel": {
-         "_": "Sel",
-         "filters": [
-          {
-           "_": "IsKind",
-           "kinds": [
-            "unit"
-           ]
-          },
-          {
-           "_": "StatCmp",
-           "op": "<=",
-           "stat": "hp",
-           "value": 4
-          }
-         ],
-         "loc": "battle",
-         "side": "enemy"
-        },
-        "var": "t1"
-       }
-      ]
+      "var": "t1"
      },
      {
       "_": "ReturnToHand",
@@ -4621,8 +5071,9 @@
     "timing": "main"
    }
   ],
+  "binding": "wp_gd01_b",
   "name": "Covert Operative",
-  "source": "compiled",
+  "source": "binding",
   "text_hash": "7f4332bfa5dedb07"
  },
  "GD01-123": {
@@ -4659,7 +5110,7 @@
         {
          "_": "StatCmp",
          "op": "<=",
-         "stat": "hp",
+         "stat": "remaining_hp",
          "value": 3
         }
        ],
@@ -4682,8 +5133,9 @@
     }
    }
   ],
+  "binding": "wp_gd01_b",
   "name": "Nahel Argama",
-  "source": "compiled",
+  "source": "binding",
   "text_hash": "138897b2364757c7"
  },
  "GD01-124": {
@@ -5009,7 +5461,7 @@
         {
          "_": "StatCmp",
          "op": "<=",
-         "stat": "hp",
+         "stat": "remaining_hp",
          "value": 3
         }
        ],
@@ -5032,8 +5484,9 @@
     }
    }
   ],
+  "binding": "wp_gd01_b",
   "name": "Kusanagi",
-  "source": "compiled",
+  "source": "binding",
   "text_hash": "91e8ba12847b7f9f"
  },
  "GD01-130": {
@@ -5063,6 +5516,52 @@
    },
    {
     "_": "Activated",
+    "cond": {
+     "_": "Or",
+     "conds": [
+      {
+       "_": "NotC",
+       "cond": {
+        "_": "Exists",
+        "sel": {
+         "_": "Sel",
+         "filters": [
+          {
+           "_": "IsKind",
+           "kinds": [
+            "unit"
+           ]
+          },
+          {
+           "_": "HasTrait",
+           "traits": [
+            "Academy"
+           ]
+          }
+         ],
+         "loc": "battle",
+         "side": "friendly"
+        }
+       }
+      },
+      {
+       "_": "Exists",
+       "sel": {
+        "_": "Sel",
+        "filters": [
+         {
+          "_": "IsKind",
+          "kinds": [
+           "unit"
+          ]
+         }
+        ],
+        "loc": "battle",
+        "side": "enemy"
+       }
+      }
+     ]
+    },
     "costs": [
      {
       "_": "RestSelf"
@@ -5128,8 +5627,9 @@
     "timing": "main"
    }
   ],
+  "binding": "wp_gd01_b",
   "name": "13th Tactical Testing Sector",
-  "source": "compiled",
+  "source": "binding",
   "text_hash": "a2a02bdee38aa4b5"
  }
 }

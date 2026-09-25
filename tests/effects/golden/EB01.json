@@ -61,11 +61,9 @@
       "_": "Apply",
       "duration": "opponent_next_turn",
       "effect": {
-       "_": "RuleGrant",
-       "rule": {
-        "_": "RuleMod",
-        "kind": "cant_be_set_active"
-       }
+       "_": "AbilityGrant",
+       "ability_index": 1,
+       "card_number": "EB01-001"
       },
       "ref": {
        "_": "Var",
@@ -74,10 +72,28 @@
      }
     ],
     "timing": "main"
+   },
+   {
+    "_": "Constant",
+    "cond": {
+     "_": "CustomCond",
+     "name": "wp_eb01_a_start_phase_in_battle_area"
+    },
+    "effects": [
+     {
+      "_": "RuleGrant",
+      "rule": {
+       "_": "RuleMod",
+       "kind": "cant_be_set_active"
+      }
+     }
+    ],
+    "where": "trash"
    }
   ],
+  "binding": "wp_eb01_a",
   "name": "Gundam Astray Red Frame Custom (EX)",
-  "source": "compiled",
+  "source": "binding",
   "text_hash": "e57cdcd001c4256e"
  },
  "EB01-002": {
@@ -129,7 +145,7 @@
           }
          ],
          "loc": "battle",
-         "side": "any"
+         "side": "enemy"
         },
         "var": "t1"
        },
@@ -201,13 +217,125 @@
     }
    }
   ],
+  "binding": "wp_eb01_a",
   "name": "Hi-Nu Gundam (EX)",
-  "source": "compiled",
+  "source": "binding",
   "text_hash": "ed6542160106f30b"
  },
  "EB01-003": {
-  "error": "'At the end of your turn, if this Unit is rested, rest all Units. If this effect rested 3 or more Units, draw 1.': no step template for 'If this effect rested 3 or more Units, draw 1'",
+  "abilities": [
+   {
+    "_": "Keyword",
+    "amount": 2,
+    "keyword": "Repair"
+   },
+   {
+    "_": "Triggered",
+    "steps": [
+     {
+      "_": "If",
+      "cond": {
+       "_": "RefMatches",
+       "filters": [
+        {
+         "_": "IsRested"
+        }
+       ],
+       "ref": {
+        "_": "This"
+       }
+      },
+      "then": [
+       {
+        "_": "BindVar",
+        "ref": {
+         "_": "All",
+         "sel": {
+          "_": "Sel",
+          "filters": [
+           {
+            "_": "IsKind",
+            "kinds": [
+             "unit"
+            ]
+           },
+           {
+            "_": "IsRested",
+            "rested": false
+           }
+          ],
+          "loc": "battle",
+          "side": "any"
+         }
+        },
+        "var": "was_active"
+       },
+       {
+        "_": "Rest",
+        "ref": {
+         "_": "All",
+         "sel": {
+          "_": "Sel",
+          "filters": [
+           {
+            "_": "IsKind",
+            "kinds": [
+             "unit"
+            ]
+           }
+          ],
+          "loc": "battle",
+          "side": "any"
+         }
+        }
+       },
+       {
+        "_": "If",
+        "cond": {
+         "_": "Cmp",
+         "left": {
+          "_": "Count",
+          "sel": {
+           "_": "Sel",
+           "filters": [
+            {
+             "_": "IsRef",
+             "ref": {
+              "_": "Var",
+              "name": "was_active"
+             }
+            },
+            {
+             "_": "IsRested"
+            }
+           ],
+           "loc": "battle",
+           "side": "any"
+          }
+         },
+         "op": ">=",
+         "right": 3
+        },
+        "then": [
+         {
+          "_": "Draw"
+         }
+        ]
+       }
+      ]
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "event": "turn_end",
+     "self_only": false,
+     "whose_turn": "you"
+    }
+   }
+  ],
+  "binding": "wp_eb01_a",
   "name": "Narrative Gundam A-Packs (EX)",
+  "source": "binding",
   "text_hash": "33810e3aa526d24a"
  },
  "EB01-004": {
@@ -282,7 +410,7 @@
         }
        ],
        "loc": "battle",
-       "side": "any"
+       "side": "enemy"
       },
       "var": "t1"
      },
@@ -303,8 +431,9 @@
     }
    }
   ],
+  "binding": "wp_eb01_a",
   "name": "Zeta Gundam Ⅲ P2 Type",
-  "source": "compiled",
+  "source": "binding",
   "text_hash": "e86efffc969718f1"
  },
  "EB01-006": {
@@ -384,6 +513,7 @@
       "then": [
        {
         "_": "May",
+        "prompt": "Development 1: exile 1 (G Generation) cards from your trash?",
         "steps": [
          {
           "_": "Choose",
@@ -400,39 +530,45 @@
            "loc": "trash",
            "side": "friendly"
           },
-          "var": "t1"
+          "targeting": false,
+          "var": "dev"
          },
          {
           "_": "Exile",
           "ref": {
            "_": "Var",
-           "name": "t1"
+           "name": "dev"
           }
          },
          {
-          "_": "Choose",
-          "sel": {
-           "_": "Sel",
-           "filters": [
-            {
-             "_": "IsKind",
-             "kinds": [
-              "unit"
-             ]
+          "_": "IfYouDo",
+          "steps": [
+           {
+            "_": "Choose",
+            "sel": {
+             "_": "Sel",
+             "filters": [
+              {
+               "_": "IsKind",
+               "kinds": [
+                "unit"
+               ]
+              }
+             ],
+             "loc": "battle",
+             "side": "friendly"
+            },
+            "var": "t1"
+           },
+           {
+            "_": "Recover",
+            "amount": 2,
+            "ref": {
+             "_": "Var",
+             "name": "t1"
             }
-           ],
-           "loc": "battle",
-           "side": "friendly"
-          },
-          "var": "t2"
-         },
-         {
-          "_": "Recover",
-          "amount": 2,
-          "ref": {
-           "_": "Var",
-           "name": "t2"
-          }
+           }
+          ]
          }
         ]
        }
@@ -445,13 +581,55 @@
     }
    }
   ],
+  "binding": "wp_eb01_a",
   "name": "Gundam Delta Kai",
-  "source": "compiled",
+  "source": "binding",
   "text_hash": "4ef90288835a25ec"
  },
  "EB01-009": {
-  "error": "'【Deploy】All enemy players each choose 1 of their active Units. Rest them.': no step template for 'your opponent choose 1 of their active Units'",
+  "abilities": [
+   {
+    "_": "Triggered",
+    "steps": [
+     {
+      "_": "Choose",
+      "chooser": "opponent",
+      "sel": {
+       "_": "Sel",
+       "filters": [
+        {
+         "_": "IsKind",
+         "kinds": [
+          "unit"
+         ]
+        },
+        {
+         "_": "IsRested",
+         "rested": false
+        }
+       ],
+       "loc": "battle",
+       "side": "enemy"
+      },
+      "var": "t1"
+     },
+     {
+      "_": "Rest",
+      "ref": {
+       "_": "Var",
+       "name": "t1"
+      }
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "event": "deployed"
+    }
+   }
+  ],
+  "binding": "wp_eb01_a",
   "name": "Gundam Full Armor (Thunderbolt) (EX)",
+  "source": "binding",
   "text_hash": "52355402f3abce7b"
  },
  "EB01-010": {
@@ -481,6 +659,7 @@
       "then": [
        {
         "_": "May",
+        "prompt": "Development 3: exile 3 (G Generation) cards from your trash?",
         "steps": [
          {
           "_": "Choose",
@@ -498,42 +677,48 @@
            "loc": "trash",
            "side": "friendly"
           },
-          "var": "t1"
+          "targeting": false,
+          "var": "dev"
          },
          {
           "_": "Exile",
           "ref": {
            "_": "Var",
-           "name": "t1"
+           "name": "dev"
           }
          },
          {
-          "_": "Choose",
-          "sel": {
-           "_": "Sel",
-           "filters": [
-            {
-             "_": "IsKind",
-             "kinds": [
-              "unit"
-             ]
+          "_": "IfYouDo",
+          "steps": [
+           {
+            "_": "Choose",
+            "sel": {
+             "_": "Sel",
+             "filters": [
+              {
+               "_": "IsKind",
+               "kinds": [
+                "unit"
+               ]
+              },
+              {
+               "_": "IsRested"
+              }
+             ],
+             "loc": "battle",
+             "side": "enemy"
             },
-            {
-             "_": "IsRested"
+            "var": "t1"
+           },
+           {
+            "_": "Damage",
+            "amount": 2,
+            "ref": {
+             "_": "Var",
+             "name": "t1"
             }
-           ],
-           "loc": "battle",
-           "side": "enemy"
-          },
-          "var": "t2"
-         },
-         {
-          "_": "Damage",
-          "amount": 2,
-          "ref": {
-           "_": "Var",
-           "name": "t2"
-          }
+           }
+          ]
          }
         ]
        }
@@ -546,8 +731,9 @@
     }
    }
   ],
+  "binding": "wp_eb01_a",
   "name": "Gundam Barbatos 6th Form",
-  "source": "compiled",
+  "source": "binding",
   "text_hash": "5704b7dee9941e2e"
  },
  "EB01-011": {
@@ -732,8 +918,28 @@
   "text_hash": "3973e022e93220f9"
  },
  "EB01-017": {
-  "error": "'【Destroyed】If this Unit is destroyed with battle damage, you and the player who destroyed this Unit draw 1.': no step template for 'If this Unit is destroyed with battle damage, you and the player who destroyed this Unit draw 1'",
+  "abilities": [
+   {
+    "_": "Triggered",
+    "steps": [
+     {
+      "_": "Draw"
+     },
+     {
+      "_": "Draw",
+      "player": "opponent"
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "battle_only": true,
+     "event": "destroyed"
+    }
+   }
+  ],
+  "binding": "wp_eb01_a",
   "name": "Haro",
+  "source": "binding",
   "text_hash": "00e9605ecca8375d"
  },
  "EB01-018": {
@@ -946,13 +1152,188 @@
   "text_hash": "ba19019fe5d026fe"
  },
  "EB01-022": {
-  "error": "'【During Pair･(G Generation) Pilot】At the end of your turn, you may destroy this Unit. If you do, deploy 3 [Gundam Exia]((G Generation)･AP2･HP2) Unit tokens.': no step template for 'Deploy 3 [Gundam Exia]((G Generation)･AP2･HP2) Unit tokens'",
+  "abilities": [
+   {
+    "_": "Keyword",
+    "amount": 5,
+    "keyword": "Breach"
+   },
+   {
+    "_": "Triggered",
+    "gate": "paired",
+    "gate_filters": [
+     {
+      "_": "HasTrait",
+      "traits": [
+       "G Generation"
+      ]
+     }
+    ],
+    "steps": [
+     {
+      "_": "May",
+      "steps": [
+       {
+        "_": "Destroy",
+        "ref": {
+         "_": "This"
+        }
+       },
+       {
+        "_": "IfYouDo",
+        "steps": [
+         {
+          "_": "DeployToken",
+          "count": 3,
+          "token_key": "Gundam Exia|G Generation|2|2|"
+         }
+        ]
+       }
+      ]
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "event": "turn_end",
+     "self_only": false,
+     "whose_turn": "you"
+    }
+   }
+  ],
+  "binding": "wp_eb01_a",
   "name": "Gundam Exia (EX)",
+  "source": "binding",
   "text_hash": "f53fab8d4cd75cc5"
  },
  "EB01-023": {
-  "error": "'【Attack】All players each look at the top card of their deck. If it is a card that is Lv.5 or higher, they may reveal it and add it to their hand. They return any remaining card to the top or bottom of their deck.': no step template for 'All players each look at the top card of their deck'",
+  "abilities": [
+   {
+    "_": "Triggered",
+    "steps": [
+     {
+      "_": "CustomStep",
+      "name": "wp_eb01_a_look_own_top",
+      "params": [
+       [
+        "player",
+        "active"
+       ],
+       [
+        "var",
+        "looked_active"
+       ]
+      ]
+     },
+     {
+      "_": "If",
+      "cond": {
+       "_": "RefMatches",
+       "filters": [
+        {
+         "_": "StatCmp",
+         "op": ">=",
+         "stat": "lv",
+         "value": 5
+        }
+       ],
+       "ref": {
+        "_": "Var",
+        "name": "looked_active"
+       }
+      },
+      "then": [
+       {
+        "_": "May",
+        "player": "active",
+        "steps": [
+         {
+          "_": "AddToHand",
+          "ref": {
+           "_": "Var",
+           "name": "looked_active"
+          },
+          "reveal": true
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "_": "Arrange",
+      "mode": "top_or_bottom",
+      "player": "active",
+      "ref": {
+       "_": "Var",
+       "name": "looked_active"
+      }
+     },
+     {
+      "_": "CustomStep",
+      "name": "wp_eb01_a_look_own_top",
+      "params": [
+       [
+        "player",
+        "standby"
+       ],
+       [
+        "var",
+        "looked_standby"
+       ]
+      ]
+     },
+     {
+      "_": "If",
+      "cond": {
+       "_": "RefMatches",
+       "filters": [
+        {
+         "_": "StatCmp",
+         "op": ">=",
+         "stat": "lv",
+         "value": 5
+        }
+       ],
+       "ref": {
+        "_": "Var",
+        "name": "looked_standby"
+       }
+      },
+      "then": [
+       {
+        "_": "May",
+        "player": "standby",
+        "steps": [
+         {
+          "_": "AddToHand",
+          "ref": {
+           "_": "Var",
+           "name": "looked_standby"
+          },
+          "reveal": true
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "_": "Arrange",
+      "mode": "top_or_bottom",
+      "player": "standby",
+      "ref": {
+       "_": "Var",
+       "name": "looked_standby"
+      }
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "event": "attacks"
+    }
+   }
+  ],
+  "binding": "wp_eb01_a",
   "name": "Le Cygne (EX)",
+  "source": "binding",
   "text_hash": "62fb4cf88a62d6ab"
  },
  "EB01-024": {
@@ -1012,8 +1393,132 @@
   "text_hash": "ab7df7f216a206bd"
  },
  "EB01-025": {
-  "error": "'【Deploy･Development 2】You may exile the specified number of (G Generation) cards in your trash from the game. If you do, activate the following effect:\\n■All players place 1 EX Resource.': no step template for 'All players place 1 EX Resource'",
+  "abilities": [
+   {
+    "_": "Triggered",
+    "steps": [
+     {
+      "_": "If",
+      "cond": {
+       "_": "Exists",
+       "at_least": 2,
+       "sel": {
+        "_": "Sel",
+        "filters": [
+         {
+          "_": "HasTrait",
+          "traits": [
+           "G Generation"
+          ]
+         }
+        ],
+        "loc": "trash",
+        "side": "friendly"
+       }
+      },
+      "then": [
+       {
+        "_": "May",
+        "prompt": "Development 2: exile 2 (G Generation) cards from your trash?",
+        "steps": [
+         {
+          "_": "Choose",
+          "count": 2,
+          "sel": {
+           "_": "Sel",
+           "filters": [
+            {
+             "_": "HasTrait",
+             "traits": [
+              "G Generation"
+             ]
+            }
+           ],
+           "loc": "trash",
+           "side": "friendly"
+          },
+          "targeting": false,
+          "var": "dev"
+         },
+         {
+          "_": "Exile",
+          "ref": {
+           "_": "Var",
+           "name": "dev"
+          }
+         },
+         {
+          "_": "IfYouDo",
+          "steps": [
+           {
+            "_": "PlaceExResource",
+            "player": "active"
+           },
+           {
+            "_": "PlaceExResource",
+            "player": "standby"
+           }
+          ]
+         }
+        ]
+       }
+      ]
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "event": "deployed"
+    }
+   },
+   {
+    "_": "Constant",
+    "cond": {
+     "_": "Exists",
+     "sel": {
+      "_": "Sel",
+      "filters": [
+       {
+        "_": "IsKind",
+        "kinds": [
+         "ex_resource"
+        ]
+       }
+      ],
+      "loc": "resource_area",
+      "side": "enemy"
+     }
+    },
+    "effects": [
+     {
+      "_": "RuleGrant",
+      "rule": {
+       "_": "RuleMod",
+       "damage_kind": "battle",
+       "kind": "cant_receive_damage",
+       "source_filters": [
+        {
+         "_": "IsKind",
+         "kinds": [
+          "unit"
+         ]
+        },
+        {
+         "_": "StatCmp",
+         "op": "<=",
+         "stat": "lv",
+         "value": 5
+        }
+       ],
+       "source_side": "enemy"
+      }
+     }
+    ],
+    "gate": "paired"
+   }
+  ],
+  "binding": "wp_eb01_a",
   "name": "Tallgeese Ⅱ",
+  "source": "binding",
   "text_hash": "d19e4fe1b044da6d"
  },
  "EB01-026": {
@@ -1049,6 +1554,7 @@
       "then": [
        {
         "_": "May",
+        "prompt": "Development 2: exile 2 (G Generation) cards from your trash?",
         "steps": [
          {
           "_": "Choose",
@@ -1066,49 +1572,55 @@
            "loc": "trash",
            "side": "friendly"
           },
-          "var": "t1"
+          "targeting": false,
+          "var": "dev"
          },
          {
           "_": "Exile",
           "ref": {
            "_": "Var",
-           "name": "t1"
+           "name": "dev"
           }
          },
          {
-          "_": "Choose",
-          "sel": {
-           "_": "Sel",
-           "filters": [
-            {
-             "_": "IsKind",
-             "kinds": [
-              "unit"
-             ]
+          "_": "IfYouDo",
+          "steps": [
+           {
+            "_": "Choose",
+            "sel": {
+             "_": "Sel",
+             "filters": [
+              {
+               "_": "IsKind",
+               "kinds": [
+                "unit"
+               ]
+              },
+              {
+               "_": "HasTrait",
+               "traits": [
+                "G Generation"
+               ]
+              }
+             ],
+             "loc": "battle",
+             "side": "friendly"
             },
-            {
-             "_": "HasTrait",
-             "traits": [
-              "G Generation"
-             ]
+            "var": "t1"
+           },
+           {
+            "_": "Apply",
+            "effect": {
+             "_": "KeywordGrant",
+             "amount": 1,
+             "keyword": "Breach"
+            },
+            "ref": {
+             "_": "Var",
+             "name": "t1"
             }
-           ],
-           "loc": "battle",
-           "side": "friendly"
-          },
-          "var": "t2"
-         },
-         {
-          "_": "Apply",
-          "effect": {
-           "_": "KeywordGrant",
-           "amount": 1,
-           "keyword": "Breach"
-          },
-          "ref": {
-           "_": "Var",
-           "name": "t2"
-          }
+           }
+          ]
          }
         ]
        }
@@ -1121,13 +1633,73 @@
     }
    }
   ],
+  "binding": "wp_eb01_a",
   "name": "Tallgeese",
-  "source": "compiled",
+  "source": "binding",
   "text_hash": "ad4c910f43c1911d"
  },
  "EB01-028": {
-  "error": "'【Once per Turn】When another Unit attacks an enemy Unit, if this Unit is rested, the attacking Unit gains <Breach 2> during this battle.': no step template for 'The attacking Unit gains <Breach 2> during this battle'",
+  "abilities": [
+   {
+    "_": "Triggered",
+    "cond": {
+     "_": "RefMatches",
+     "filters": [
+      {
+       "_": "IsRested"
+      }
+     ],
+     "ref": {
+      "_": "This"
+     }
+    },
+    "once_per_turn": true,
+    "steps": [
+     {
+      "_": "Apply",
+      "duration": "this_battle",
+      "effect": {
+       "_": "KeywordGrant",
+       "amount": 2,
+       "keyword": "Breach"
+      },
+      "ref": {
+       "_": "EventCard"
+      }
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "event": "attacks",
+     "include_self": false,
+     "self_only": false,
+     "subject": {
+      "_": "Sel",
+      "filters": [
+       {
+        "_": "IsKind",
+        "kinds": [
+         "unit"
+        ]
+       }
+      ],
+      "loc": "battle",
+      "side": "friendly"
+     },
+     "target_filters": [
+      {
+       "_": "IsKind",
+       "kinds": [
+        "unit"
+       ]
+      }
+     ]
+    }
+   }
+  ],
+  "binding": "wp_eb01_a",
   "name": "Gundam Plutone",
+  "source": "binding",
   "text_hash": "7d88cf800181295b"
  },
  "EB01-029": {
@@ -1560,8 +2132,53 @@
   "text_hash": "06d21651f499547d"
  },
  "EB01-037": {
-  "error": "\"During your turn, while this Unit is battling an enemy Unit with <Blocker>, this Unit can't receive battle damage.\": unknown constant \"while this Unit is battling an enemy Unit with <Blocker>, this Unit can't receive battle damage\"",
+  "abilities": [
+   {
+    "_": "Constant",
+    "cond": {
+     "_": "And",
+     "conds": [
+      {
+       "_": "IsTurn"
+      },
+      {
+       "_": "RefMatches",
+       "filters": [
+        {
+         "_": "IsKind",
+         "kinds": [
+          "unit"
+         ]
+        },
+        {
+         "_": "HasKeyword",
+         "keyword": "Blocker"
+        }
+       ],
+       "ref": {
+        "_": "BattlingWith",
+        "ref": {
+         "_": "This"
+        }
+       }
+      }
+     ]
+    },
+    "effects": [
+     {
+      "_": "RuleGrant",
+      "rule": {
+       "_": "RuleMod",
+       "damage_kind": "battle",
+       "kind": "cant_receive_damage"
+      }
+     }
+    ]
+   }
+  ],
+  "binding": "wp_eb01_a",
   "name": "Zudah Unit 1",
+  "source": "binding",
   "text_hash": "48f8e0abd3bd2726"
  },
  "EB01-038": {
@@ -1612,8 +2229,9 @@
     "level": 3
    }
   ],
+  "binding": "wp_eb01_a",
   "name": "Rising Freedom Gundam",
-  "source": "compiled",
+  "source": "binding",
   "text_hash": "6bd32d4d56c95b0a"
  },
  "EB01-040": {
@@ -1700,7 +2318,7 @@
         }
        ],
        "loc": "battle",
-       "side": "any"
+       "side": "enemy"
       },
       "var": "t1"
      },
@@ -1718,8 +2336,9 @@
     }
    }
   ],
+  "binding": "wp_eb01_a",
   "name": "Strike Freedom Gundam (EX)",
-  "source": "compiled",
+  "source": "binding",
   "text_hash": "cd7fca31ff79e29a"
  },
  "EB01-042": {
@@ -1884,8 +2503,57 @@
   "text_hash": "84628f9630598cc5"
  },
  "EB01-044": {
-  "error": "\"【Deploy】If there are 2 or more enemy players, choose 1 Unit belonging to an enemy player with the most Units. Return it to its owner's hand.\": unparsed selector suffix 'with the most Units' in '1 Unit with the most Units'",
+  "abilities": [
+   {
+    "_": "Keyword",
+    "keyword": "Blocker"
+   },
+   {
+    "_": "Triggered",
+    "steps": [
+     {
+      "_": "If",
+      "cond": {
+       "_": "Or",
+       "conds": []
+      },
+      "then": [
+       {
+        "_": "Choose",
+        "sel": {
+         "_": "Sel",
+         "filters": [
+          {
+           "_": "IsKind",
+           "kinds": [
+            "unit"
+           ]
+          }
+         ],
+         "loc": "battle",
+         "side": "enemy"
+        },
+        "var": "t1"
+       },
+       {
+        "_": "ReturnToHand",
+        "ref": {
+         "_": "Var",
+         "name": "t1"
+        }
+       }
+      ]
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "event": "deployed"
+    }
+   }
+  ],
+  "binding": "wp_eb01_a",
   "name": "Justice Gundam (EX)",
+  "source": "binding",
   "text_hash": "2a48eca1c3f9d8e1"
  },
  "EB01-045": {
@@ -2030,24 +2698,29 @@
            "loc": "trash",
            "side": "friendly"
           },
-          "var": "t1"
+          "var": "dev"
          },
          {
           "_": "Exile",
           "ref": {
            "_": "Var",
-           "name": "t1"
+           "name": "dev"
           }
          },
          {
-          "_": "Apply",
-          "effect": {
-           "_": "KeywordGrant",
-           "keyword": "High-Maneuver"
-          },
-          "ref": {
-           "_": "This"
-          }
+          "_": "IfYouDo",
+          "steps": [
+           {
+            "_": "Apply",
+            "effect": {
+             "_": "KeywordGrant",
+             "keyword": "High-Maneuver"
+            },
+            "ref": {
+             "_": "This"
+            }
+           }
+          ]
          }
         ]
        }
@@ -2060,8 +2733,9 @@
     }
    }
   ],
+  "binding": "wp_eb01_b",
   "name": "Casval's Gundam",
-  "source": "compiled",
+  "source": "binding",
   "text_hash": "9e2494d04862a812"
  },
  "EB01-048": {
@@ -2118,8 +2792,73 @@
   "text_hash": "20b959ab71471bf8"
  },
  "EB01-050": {
-  "error": "'【Attack】Place the top card of your deck into your trash. If you placed a card that is Lv.3 or higher with this effect, choose 1 enemy Unit. It gets AP-2 during this battle.': no selector head in 'the top card of your deck'",
+  "abilities": [
+   {
+    "_": "Triggered",
+    "steps": [
+     {
+      "_": "Mill",
+      "count": 1
+     },
+     {
+      "_": "If",
+      "cond": {
+       "_": "RefMatches",
+       "filters": [
+        {
+         "_": "StatCmp",
+         "op": ">=",
+         "stat": "lv",
+         "value": 3
+        }
+       ],
+       "ref": {
+        "_": "Var",
+        "name": "milled"
+       }
+      },
+      "then": [
+       {
+        "_": "Choose",
+        "sel": {
+         "_": "Sel",
+         "filters": [
+          {
+           "_": "IsKind",
+           "kinds": [
+            "unit"
+           ]
+          }
+         ],
+         "loc": "battle",
+         "side": "enemy"
+        },
+        "var": "t1"
+       },
+       {
+        "_": "Apply",
+        "duration": "this_battle",
+        "effect": {
+         "_": "StatMod",
+         "ap": -2
+        },
+        "ref": {
+         "_": "Var",
+         "name": "t1"
+        }
+       }
+      ]
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "event": "attacks"
+    }
+   }
+  ],
+  "binding": "wp_eb01_b",
   "name": "Saikoro Gundam",
+  "source": "binding",
   "text_hash": "7f6ee905cbf1bc6d"
  },
  "EB01-051": {
@@ -2387,8 +3126,57 @@
   "text_hash": "da13f6b25ed9105d"
  },
  "EB01-059": {
-  "error": "'【During Link】【Attack】【Once per Turn】All players each choose 1 of their Resources. Set them as active.': no step template for 'All players each choose 1 of their Resources'",
+  "abilities": [
+   {
+    "_": "Triggered",
+    "gate": "linked",
+    "once_per_turn": true,
+    "steps": [
+     {
+      "_": "Choose",
+      "sel": {
+       "_": "Sel",
+       "loc": "resource_area",
+       "side": "friendly"
+      },
+      "var": "r0"
+     },
+     {
+      "_": "Choose",
+      "chooser": "opponent",
+      "sel": {
+       "_": "Sel",
+       "loc": "resource_area",
+       "side": "enemy"
+      },
+      "var": "r1"
+     },
+     {
+      "_": "SetActive",
+      "ref": {
+       "_": "Union",
+       "refs": [
+        {
+         "_": "Var",
+         "name": "r0"
+        },
+        {
+         "_": "Var",
+         "name": "r1"
+        }
+       ]
+      }
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "event": "attacks"
+    }
+   }
+  ],
+  "binding": "wp_eb01_b",
   "name": "Psycho Zaku",
+  "source": "binding",
   "text_hash": "a74190081fdc8f18"
  },
  "EB01-060": {
@@ -2435,44 +3223,49 @@
            "loc": "trash",
            "side": "friendly"
           },
-          "var": "t1"
+          "var": "dev"
          },
          {
           "_": "Exile",
           "ref": {
            "_": "Var",
-           "name": "t1"
+           "name": "dev"
           }
          },
          {
-          "_": "Choose",
-          "sel": {
-           "_": "Sel",
-           "filters": [
-            {
-             "_": "IsKind",
-             "kinds": [
-              "unit"
-             ]
+          "_": "IfYouDo",
+          "steps": [
+           {
+            "_": "Choose",
+            "sel": {
+             "_": "Sel",
+             "filters": [
+              {
+               "_": "IsKind",
+               "kinds": [
+                "unit"
+               ]
+              },
+              {
+               "_": "StatCmp",
+               "op": "<=",
+               "stat": "lv",
+               "value": 4
+              }
+             ],
+             "loc": "battle",
+             "side": "enemy"
             },
-            {
-             "_": "StatCmp",
-             "op": "<=",
-             "stat": "lv",
-             "value": 4
+            "var": "t1"
+           },
+           {
+            "_": "ReturnToHand",
+            "ref": {
+             "_": "Var",
+             "name": "t1"
             }
-           ],
-           "loc": "battle",
-           "side": "enemy"
-          },
-          "var": "t2"
-         },
-         {
-          "_": "ReturnToHand",
-          "ref": {
-           "_": "Var",
-           "name": "t2"
-          }
+           }
+          ]
          }
         ]
        }
@@ -2485,8 +3278,9 @@
     }
    }
   ],
+  "binding": "wp_eb01_b",
   "name": "Gundam Aquarius",
-  "source": "compiled",
+  "source": "binding",
   "text_hash": "2d7ddb78ba7cdbfc"
  },
  "EB01-061": {
@@ -2576,9 +3370,53 @@
   ]
  },
  "EB01-062": {
-  "error": "'【Attack】【Once per Turn】Choose 1 enemy player. They may draw 1. If they draw with this effect, draw 1.': no step template for 'They may draw 1'",
+  "abilities": [
+   {
+    "_": "Burst",
+    "steps": [
+     {
+      "_": "AddToHand",
+      "ref": {
+       "_": "ThisCard"
+      }
+     }
+    ]
+   }
+  ],
+  "binding": "wp_eb01_b",
   "name": "Jona Basta",
-  "text_hash": "2b8e38118c2abd45"
+  "source": "binding",
+  "text_hash": "2b8e38118c2abd45",
+  "unit_abilities": [
+   {
+    "_": "Triggered",
+    "once_per_turn": true,
+    "steps": [
+     {
+      "_": "May",
+      "player": "opponent",
+      "steps": [
+       {
+        "_": "Draw",
+        "player": "opponent"
+       }
+      ]
+     },
+     {
+      "_": "IfYouDo",
+      "steps": [
+       {
+        "_": "Draw"
+       }
+      ]
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "event": "attacks"
+    }
+   }
+  ]
  },
  "EB01-063": {
   "abilities": [
@@ -2829,9 +3667,117 @@
   ]
  },
  "EB01-067": {
-  "error": "'【When Paired】Look at the top 3 cards of your deck. You may reveal 1 (G Generation) Unit card among them and return it to the top of your deck. Return the remaining cards randomly to the bottom of your deck.': no step template for 'Reveal 1 (G Generation) Unit card among them and return it to the top of your deck'",
+  "abilities": [
+   {
+    "_": "Burst",
+    "steps": [
+     {
+      "_": "AddToHand",
+      "ref": {
+       "_": "ThisCard"
+      }
+     }
+    ]
+   }
+  ],
+  "binding": "wp_eb01_b",
   "name": "Asuna Elmarit",
-  "text_hash": "9a1aa03b05487c40"
+  "source": "binding",
+  "text_hash": "9a1aa03b05487c40",
+  "unit_abilities": [
+   {
+    "_": "Triggered",
+    "steps": [
+     {
+      "_": "LookTop",
+      "count": 3
+     },
+     {
+      "_": "Choose",
+      "optional": true,
+      "sel": {
+       "_": "Sel",
+       "filters": [
+        {
+         "_": "IsRef",
+         "ref": {
+          "_": "Var",
+          "name": "looked"
+         }
+        },
+        {
+         "_": "IsKind",
+         "kinds": [
+          "unit"
+         ]
+        },
+        {
+         "_": "HasTrait",
+         "traits": [
+          "G Generation"
+         ]
+        }
+       ],
+       "loc": "deck",
+       "side": "friendly"
+      },
+      "targeting": false,
+      "var": "pick"
+     },
+     {
+      "_": "Reveal",
+      "ref": {
+       "_": "Var",
+       "name": "pick"
+      }
+     },
+     {
+      "_": "BindVar",
+      "ref": {
+       "_": "All",
+       "sel": {
+        "_": "Sel",
+        "filters": [
+         {
+          "_": "IsRef",
+          "ref": {
+           "_": "Var",
+           "name": "looked"
+          }
+         },
+         {
+          "_": "NotRef",
+          "ref": {
+           "_": "Var",
+           "name": "pick"
+          }
+         }
+        ],
+        "loc": "deck",
+        "side": "friendly"
+       }
+      },
+      "var": "looked"
+     },
+     {
+      "_": "CustomStep",
+      "name": "return_looked_bottom"
+     },
+     {
+      "_": "ToDeck",
+      "bottom": false,
+      "ref": {
+       "_": "Var",
+       "name": "pick"
+      }
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "event": "paired"
+    }
+   }
+  ]
  },
  "EB01-068": {
   "abilities": [
@@ -2847,8 +3793,9 @@
     ]
    }
   ],
+  "binding": "wp_eb01_b",
   "name": "Chall Acustica",
-  "source": "compiled",
+  "source": "binding",
   "text_hash": "c17106728b78bbce",
   "unit_abilities": [
    {
@@ -2862,9 +3809,20 @@
         "_": "ToDeck",
         "bottom": false,
         "ref": {
-         "_": "PairedPilotOf",
-         "ref": {
-          "_": "This"
+         "_": "All",
+         "sel": {
+          "_": "Sel",
+          "filters": [
+           {
+            "_": "IsRef",
+            "ref": {
+             "_": "EventCard",
+             "key": "pilot"
+            }
+           }
+          ],
+          "loc": "trash",
+          "side": "any"
          }
         }
        }
@@ -3055,79 +4013,133 @@
     ]
    }
   ],
+  "binding": "wp_eb01_b",
   "name": "Yuu Kajima",
-  "source": "compiled",
+  "source": "binding",
   "text_hash": "710ca4fcb4fde5c6",
   "unit_abilities": [
    {
     "_": "Triggered",
     "steps": [
      {
-      "_": "Choose",
-      "sel": {
-       "_": "Sel",
-       "filters": [
+      "_": "If",
+      "cond": {
+       "_": "And",
+       "conds": [
         {
-         "_": "IsKind",
-         "kinds": [
-          "unit"
-         ]
+         "_": "Exists",
+         "sel": {
+          "_": "Sel",
+          "filters": [
+           {
+            "_": "IsKind",
+            "kinds": [
+             "unit"
+            ]
+           },
+           {
+            "_": "IsRested",
+            "rested": false
+           },
+           {
+            "_": "HasKeyword",
+            "keyword": "Blocker"
+           }
+          ],
+          "loc": "battle",
+          "side": "friendly"
+         }
         },
         {
-         "_": "IsRested",
-         "rested": false
-        },
-        {
-         "_": "HasKeyword",
-         "keyword": "Blocker"
-        }
-       ],
-       "loc": "battle",
-       "side": "friendly"
-      },
-      "var": "t1"
-     },
-     {
-      "_": "Choose",
-      "distinct_from": [
-       "t1"
-      ],
-      "sel": {
-       "_": "Sel",
-       "filters": [
-        {
-         "_": "IsKind",
-         "kinds": [
-          "unit"
-         ]
-        },
-        {
-         "_": "StatCmp",
-         "op": "<=",
-         "stat": "lv",
-         "value": 4
-        }
-       ],
-       "loc": "battle",
-       "side": "enemy"
-      },
-      "var": "t2"
-     },
-     {
-      "_": "Rest",
-      "ref": {
-       "_": "Union",
-       "refs": [
-        {
-         "_": "Var",
-         "name": "t1"
-        },
-        {
-         "_": "Var",
-         "name": "t2"
+         "_": "Exists",
+         "sel": {
+          "_": "Sel",
+          "filters": [
+           {
+            "_": "IsKind",
+            "kinds": [
+             "unit"
+            ]
+           },
+           {
+            "_": "StatCmp",
+            "op": "<=",
+            "stat": "lv",
+            "value": 4
+           }
+          ],
+          "loc": "battle",
+          "side": "enemy"
+         }
         }
        ]
-      }
+      },
+      "then": [
+       {
+        "_": "Choose",
+        "sel": {
+         "_": "Sel",
+         "filters": [
+          {
+           "_": "IsKind",
+           "kinds": [
+            "unit"
+           ]
+          },
+          {
+           "_": "IsRested",
+           "rested": false
+          },
+          {
+           "_": "HasKeyword",
+           "keyword": "Blocker"
+          }
+         ],
+         "loc": "battle",
+         "side": "friendly"
+        },
+        "var": "t1"
+       },
+       {
+        "_": "Choose",
+        "sel": {
+         "_": "Sel",
+         "filters": [
+          {
+           "_": "IsKind",
+           "kinds": [
+            "unit"
+           ]
+          },
+          {
+           "_": "StatCmp",
+           "op": "<=",
+           "stat": "lv",
+           "value": 4
+          }
+         ],
+         "loc": "battle",
+         "side": "enemy"
+        },
+        "var": "t2"
+       },
+       {
+        "_": "Rest",
+        "ref": {
+         "_": "Union",
+         "refs": [
+          {
+           "_": "Var",
+           "name": "t1"
+          },
+          {
+           "_": "Var",
+           "name": "t2"
+          }
+         ]
+        }
+       }
+      ]
      }
     ],
     "trigger": {
@@ -3192,8 +4204,121 @@
   "text_hash": "17e6f059bf804533"
  },
  "EB01-074": {
-  "error": "'【Main】/【Action】Choose 1 active friendly (G Generation) Unit. Rest it. If you do, all enemy players each choose 1 of their active Units. Rest them.': no step template for 'Your opponent choose 1 of their active Units'",
+  "abilities": [
+   {
+    "_": "Burst",
+    "steps": [
+     {
+      "_": "Choose",
+      "sel": {
+       "_": "Sel",
+       "filters": [
+        {
+         "_": "IsKind",
+         "kinds": [
+          "unit"
+         ]
+        },
+        {
+         "_": "StatCmp",
+         "op": "<=",
+         "stat": "hp",
+         "value": 3
+        }
+       ],
+       "loc": "battle",
+       "side": "enemy"
+      },
+      "var": "t1"
+     },
+     {
+      "_": "Rest",
+      "ref": {
+       "_": "Var",
+       "name": "t1"
+      }
+     }
+    ]
+   },
+   {
+    "_": "Command",
+    "steps": [
+     {
+      "_": "Choose",
+      "sel": {
+       "_": "Sel",
+       "filters": [
+        {
+         "_": "IsKind",
+         "kinds": [
+          "unit"
+         ]
+        },
+        {
+         "_": "IsRested",
+         "rested": false
+        },
+        {
+         "_": "HasTrait",
+         "traits": [
+          "G Generation"
+         ]
+        }
+       ],
+       "loc": "battle",
+       "side": "friendly"
+      },
+      "var": "t1"
+     },
+     {
+      "_": "Rest",
+      "ref": {
+       "_": "Var",
+       "name": "t1"
+      }
+     },
+     {
+      "_": "IfYouDo",
+      "steps": [
+       {
+        "_": "Choose",
+        "after_then": true,
+        "chooser": "opponent",
+        "sel": {
+         "_": "Sel",
+         "filters": [
+          {
+           "_": "IsKind",
+           "kinds": [
+            "unit"
+           ]
+          },
+          {
+           "_": "IsRested",
+           "rested": false
+          }
+         ],
+         "loc": "battle",
+         "side": "enemy"
+        },
+        "var": "t2"
+       },
+       {
+        "_": "Rest",
+        "ref": {
+         "_": "Var",
+         "name": "t2"
+        }
+       }
+      ]
+     }
+    ],
+    "timing": "main_or_action"
+   }
+  ],
+  "binding": "wp_eb01_b",
   "name": "Eternal Road",
+  "source": "binding",
   "text_hash": "52a78b4e7d69d238"
  },
  "EB01-075": {
@@ -3328,23 +4453,160 @@
       "var": "t1"
      },
      {
-      "_": "ChangeAttackTarget",
-      "target": {
-       "_": "Var",
-       "name": "t1"
-      }
+      "_": "If",
+      "cond": {
+       "_": "Exists",
+       "sel": {
+        "_": "Sel",
+        "filters": [
+         {
+          "_": "IsKind",
+          "kinds": [
+           "unit"
+          ]
+         },
+         {
+          "_": "IsAttacking"
+         }
+        ],
+        "loc": "battle",
+        "side": "enemy"
+       }
+      },
+      "then": [
+       {
+        "_": "ChangeAttackTarget",
+        "target": {
+         "_": "Var",
+         "name": "t1"
+        }
+       }
+      ]
      }
     ],
     "timing": "action"
    }
   ],
+  "binding": "wp_eb01_b",
   "name": "Master League Begins",
-  "source": "compiled",
+  "source": "binding",
   "text_hash": "1834c9e2eee37876"
  },
  "EB01-078": {
-  "error": "'【Main】All players each look at the top card of their deck. If it is a Unit card, they may reveal it and add it to their hand. They return any remaining card to the top or bottom of their deck.': no step template for 'All players each look at the top card of their deck'",
+  "abilities": [
+   {
+    "_": "Command",
+    "steps": [
+     {
+      "_": "LookTop",
+      "count": 1,
+      "var": "top0"
+     },
+     {
+      "_": "If",
+      "cond": {
+       "_": "RefMatches",
+       "filters": [
+        {
+         "_": "IsKind",
+         "kinds": [
+          "unit"
+         ]
+        }
+       ],
+       "ref": {
+        "_": "Var",
+        "name": "top0"
+       }
+      },
+      "then": [
+       {
+        "_": "May",
+        "steps": [
+         {
+          "_": "AddToHand",
+          "ref": {
+           "_": "Var",
+           "name": "top0"
+          },
+          "reveal": true
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "_": "Arrange",
+      "mode": "top_or_bottom",
+      "ref": {
+       "_": "Var",
+       "name": "top0"
+      }
+     },
+     {
+      "_": "CustomStep",
+      "name": "wp_eb01_b_look_top_own",
+      "params": [
+       [
+        "player",
+        "opponent"
+       ],
+       [
+        "var",
+        "top1"
+       ]
+      ]
+     },
+     {
+      "_": "If",
+      "cond": {
+       "_": "RefMatches",
+       "filters": [
+        {
+         "_": "IsKind",
+         "kinds": [
+          "unit"
+         ]
+        }
+       ],
+       "ref": {
+        "_": "Var",
+        "name": "top1"
+       }
+      },
+      "then": [
+       {
+        "_": "May",
+        "player": "opponent",
+        "steps": [
+         {
+          "_": "AddToHand",
+          "ref": {
+           "_": "Var",
+           "name": "top1"
+          },
+          "reveal": true
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "_": "Arrange",
+      "mode": "top_or_bottom",
+      "player": "opponent",
+      "ref": {
+       "_": "Var",
+       "name": "top1"
+      }
+     }
+    ],
+    "timing": "main"
+   }
+  ],
+  "binding": "wp_eb01_b",
   "name": "Premium Unit Assembly",
+  "source": "binding",
   "text_hash": "8f04ccf53c641461"
  },
  "EB01-079": {
@@ -3563,7 +4825,7 @@
         }
        ],
        "loc": "battle",
-       "side": "any"
+       "side": "enemy"
       },
       "var": "t1"
      },
@@ -3578,8 +4840,9 @@
     "timing": "action"
    }
   ],
+  "binding": "wp_eb01_b",
   "name": "Warship Cruise",
-  "source": "compiled",
+  "source": "binding",
   "text_hash": "f0f4f98496c18c4e"
  },
  "EB01-083": {
@@ -3707,46 +4970,135 @@
       "_": "ShieldToHand"
      },
      {
-      "_": "Choose",
-      "after_then": true,
-      "optional": true,
-      "sel": {
-       "_": "Sel",
-       "filters": [
+      "_": "If",
+      "cond": {
+       "_": "And",
+       "conds": [
         {
-         "_": "IsKind",
-         "kinds": [
-          "unit"
-         ]
+         "_": "Exists",
+         "sel": {
+          "_": "Sel",
+          "filters": [
+           {
+            "_": "IsKind",
+            "kinds": [
+             "unit"
+            ]
+           },
+           {
+            "_": "IsRested",
+            "rested": false
+           },
+           {
+            "_": "HasColor",
+            "colors": [
+             "Blue"
+            ]
+           },
+           {
+            "_": "HasTrait",
+            "traits": [
+             "G Generation"
+            ]
+           }
+          ],
+          "loc": "battle",
+          "side": "friendly"
+         }
         },
         {
-         "_": "IsRested",
-         "rested": false
-        },
-        {
-         "_": "HasColor",
-         "colors": [
-          "Blue"
-         ]
-        },
-        {
-         "_": "HasTrait",
-         "traits": [
-          "G Generation"
-         ]
+         "_": "Exists",
+         "sel": {
+          "_": "Sel",
+          "filters": [
+           {
+            "_": "IsKind",
+            "kinds": [
+             "unit"
+            ]
+           }
+          ],
+          "loc": "battle",
+          "side": "enemy"
+         }
         }
-       ],
-       "loc": "battle",
-       "side": "friendly"
+       ]
       },
-      "var": "t1"
-     },
-     {
-      "_": "Rest",
-      "ref": {
-       "_": "Var",
-       "name": "t1"
-      }
+      "then": [
+       {
+        "_": "May",
+        "steps": [
+         {
+          "_": "Choose",
+          "after_then": true,
+          "sel": {
+           "_": "Sel",
+           "filters": [
+            {
+             "_": "IsKind",
+             "kinds": [
+              "unit"
+             ]
+            },
+            {
+             "_": "IsRested",
+             "rested": false
+            },
+            {
+             "_": "HasColor",
+             "colors": [
+              "Blue"
+             ]
+            },
+            {
+             "_": "HasTrait",
+             "traits": [
+              "G Generation"
+             ]
+            }
+           ],
+           "loc": "battle",
+           "side": "friendly"
+          },
+          "var": "t1"
+         },
+         {
+          "_": "Choose",
+          "after_then": true,
+          "sel": {
+           "_": "Sel",
+           "filters": [
+            {
+             "_": "IsKind",
+             "kinds": [
+              "unit"
+             ]
+            }
+           ],
+           "loc": "battle",
+           "side": "enemy"
+          },
+          "var": "t2"
+         },
+         {
+          "_": "Rest",
+          "ref": {
+           "_": "Union",
+           "refs": [
+            {
+             "_": "Var",
+             "name": "t1"
+            },
+            {
+             "_": "Var",
+             "name": "t2"
+            }
+           ]
+          }
+         }
+        ]
+       }
+      ]
      }
     ],
     "trigger": {
@@ -3755,13 +5107,81 @@
     }
    }
   ],
+  "binding": "wp_eb01_b",
   "name": "Kudelia Aina Bernstein & Isaribi",
-  "source": "compiled",
+  "source": "binding",
   "text_hash": "b942782e7c6029b1"
  },
  "EB01-086": {
-  "error": "'【Once per Turn】When a friendly (G Generation) Unit links, it gains <Repair 2> during this turn.': pronoun 'It' without antecedent",
+  "abilities": [
+   {
+    "_": "Burst",
+    "steps": [
+     {
+      "_": "DeployCard",
+      "ref": {
+       "_": "ThisCard"
+      }
+     }
+    ]
+   },
+   {
+    "_": "Triggered",
+    "steps": [
+     {
+      "_": "ShieldToHand"
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "event": "deployed"
+    }
+   },
+   {
+    "_": "Triggered",
+    "once_per_turn": true,
+    "steps": [
+     {
+      "_": "Apply",
+      "effect": {
+       "_": "KeywordGrant",
+       "amount": 2,
+       "keyword": "Repair"
+      },
+      "ref": {
+       "_": "EventCard"
+      }
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "event": "linked",
+     "self_only": false,
+     "subject": {
+      "_": "Sel",
+      "filters": [
+       {
+        "_": "IsKind",
+        "kinds": [
+         "unit"
+        ]
+       },
+       {
+        "_": "HasTrait",
+        "traits": [
+         "G Generation"
+        ]
+       }
+      ],
+      "loc": "battle",
+      "side": "friendly"
+     }
+    }
+   }
+  ],
+  "binding": "wp_eb01_b",
   "name": "Kycilia Zabi & Gwazine",
+  "source": "binding",
   "text_hash": "3f808a9fbf6ee913"
  },
  "EB01-087": {
@@ -4064,18 +5484,18 @@
           }
          ],
          "loc": "battle",
-         "side": "any"
+         "side": "enemy"
         },
         "var": "t1"
+       },
+       {
+        "_": "ReturnToHand",
+        "ref": {
+         "_": "Var",
+         "name": "t1"
+        }
        }
       ]
-     },
-     {
-      "_": "ReturnToHand",
-      "ref": {
-       "_": "Var",
-       "name": "t1"
-      }
      }
     ],
     "trigger": {
@@ -4084,8 +5504,9 @@
     }
    }
   ],
+  "binding": "wp_eb01_b",
   "name": "Tiffa Adill & Freeden",
-  "source": "compiled",
+  "source": "binding",
   "text_hash": "87136ef10fb88550"
  }
 }

@@ -44,9 +44,161 @@
   "text_hash": "46df55799f215472"
  },
  "GD05-002": {
-  "error": "'【Deploy】 Choose 1 to 2 of your Units. During this turn, when they destroy an enemy card with battle damage, draw 1.': unknown trigger 'when this Unit destroys an enemy card with battle damage'; \"【During Pair】【Attack】You may discard 2. If you do, choose 1 enemy Unit with the lowest Lv. Return it to the bottom of its owner's deck.\": unparsed selector suffix \"with the lowest Lv. Return it to the bottom of its owner's deck\" in \"1 enemy Unit with the lowest Lv. Return it to the bottom of its owner's deck\"",
+  "abilities": [
+   {
+    "_": "Triggered",
+    "steps": [
+     {
+      "_": "Choose",
+      "count": 2,
+      "min_count": 1,
+      "sel": {
+       "_": "Sel",
+       "filters": [
+        {
+         "_": "IsKind",
+         "kinds": [
+          "unit"
+         ]
+        }
+       ],
+       "loc": "battle",
+       "side": "friendly"
+      },
+      "var": "t1"
+     },
+     {
+      "_": "Apply",
+      "effect": {
+       "_": "AbilityGrant",
+       "ability_index": 2,
+       "card_number": "GD05-002"
+      },
+      "ref": {
+       "_": "Var",
+       "name": "t1"
+      }
+     },
+     {
+      "_": "Apply",
+      "effect": {
+       "_": "AbilityGrant",
+       "ability_index": 3,
+       "card_number": "GD05-002"
+      },
+      "ref": {
+       "_": "Var",
+       "name": "t1"
+      }
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "event": "deployed"
+    }
+   },
+   {
+    "_": "Triggered",
+    "gate": "paired",
+    "steps": [
+     {
+      "_": "If",
+      "cond": {
+       "_": "Cmp",
+       "left": {
+        "_": "HandSize"
+       },
+       "op": ">=",
+       "right": 2
+      },
+      "then": [
+       {
+        "_": "May",
+        "steps": [
+         {
+          "_": "Discard",
+          "count": 2
+         }
+        ]
+       },
+       {
+        "_": "IfYouDo",
+        "steps": [
+         {
+          "_": "Choose",
+          "sel": {
+           "_": "Sel",
+           "filters": [
+            {
+             "_": "IsKind",
+             "kinds": [
+              "unit"
+             ]
+            },
+            {
+             "_": "StatCmp",
+             "op": "==",
+             "stat": "lv",
+             "value": {
+              "_": "CustomValue",
+              "name": "wp_gd05_a_lowest_enemy_unit_level"
+             }
+            }
+           ],
+           "loc": "battle",
+           "side": "enemy"
+          },
+          "var": "t2"
+         },
+         {
+          "_": "ToDeck",
+          "ref": {
+           "_": "Var",
+           "name": "t2"
+          }
+         }
+        ]
+       }
+      ]
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "event": "attacks"
+    }
+   }
+  ],
+  "binding": "wp_gd05_a",
   "name": "Strike Freedom Gundam",
-  "text_hash": "df19c239e8541733"
+  "source": "binding",
+  "text_hash": "df19c239e8541733",
+  "unit_abilities": [
+   {
+    "_": "Triggered",
+    "steps": [
+     {
+      "_": "Draw"
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "event": "destroys_by_battle"
+    }
+   },
+   {
+    "_": "Triggered",
+    "steps": [
+     {
+      "_": "Draw"
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "battle_only": true,
+     "event": "destroys_shield_card"
+    }
+   }
+  ]
  },
  "GD05-003": {
   "abilities": [
@@ -56,26 +208,46 @@
      {
       "_": "If",
       "cond": {
-       "_": "Exists",
-       "sel": {
-        "_": "Sel",
-        "filters": [
-         {
-          "_": "IsKind",
-          "kinds": [
-           "pilot"
-          ]
-         },
-         {
-          "_": "HasTrait",
-          "traits": [
-           "Orb"
-          ]
+       "_": "Or",
+       "conds": [
+        {
+         "_": "Exists",
+         "sel": {
+          "_": "Sel",
+          "filters": [
+           {
+            "_": "IsKind",
+            "kinds": [
+             "pilot"
+            ]
+           },
+           {
+            "_": "HasTrait",
+            "traits": [
+             "Orb"
+            ]
+           }
+          ],
+          "loc": "paired",
+          "side": "friendly"
          }
-        ],
-        "loc": "paired",
-        "side": "friendly"
-       }
+        },
+        {
+         "_": "RefMatches",
+         "filters": [
+          {
+           "_": "HasTrait",
+           "traits": [
+            "Orb"
+           ]
+          }
+         ],
+         "ref": {
+          "_": "EventCard",
+          "key": "pilot"
+         }
+        }
+       ]
       },
       "then": [
        {
@@ -90,13 +262,142 @@
     }
    }
   ],
+  "binding": "wp_gd05_a",
   "name": "Waldfeld's Murasame",
-  "source": "compiled",
+  "source": "binding",
   "text_hash": "b84120902d21e723"
  },
  "GD05-004": {
-  "error": "'While you have no Units that are Lv.6 or higher in play, this card in your hand gets Lv. -1 and cost -1 for each of your (Orb) Units in play.': unknown constant 'This card in your hand gets Lv. -1 and cost -1 for each of your (Orb) Units in play'",
+  "abilities": [
+   {
+    "_": "Constant",
+    "cond": {
+     "_": "NotC",
+     "cond": {
+      "_": "Exists",
+      "sel": {
+       "_": "Sel",
+       "filters": [
+        {
+         "_": "IsKind",
+         "kinds": [
+          "unit"
+         ]
+        },
+        {
+         "_": "StatCmp",
+         "op": ">=",
+         "stat": "lv",
+         "value": 6
+        }
+       ],
+       "loc": "battle",
+       "side": "friendly"
+      }
+     }
+    },
+    "effects": [
+     {
+      "_": "CostMod",
+      "cost": {
+       "_": "Times",
+       "factor": -1,
+       "value": {
+        "_": "Count",
+        "sel": {
+         "_": "Sel",
+         "filters": [
+          {
+           "_": "IsKind",
+           "kinds": [
+            "unit"
+           ]
+          },
+          {
+           "_": "HasTrait",
+           "traits": [
+            "Orb"
+           ]
+          }
+         ],
+         "loc": "battle",
+         "side": "friendly"
+        }
+       }
+      },
+      "level": {
+       "_": "Times",
+       "factor": -1,
+       "value": {
+        "_": "Count",
+        "sel": {
+         "_": "Sel",
+         "filters": [
+          {
+           "_": "IsKind",
+           "kinds": [
+            "unit"
+           ]
+          },
+          {
+           "_": "HasTrait",
+           "traits": [
+            "Orb"
+           ]
+          }
+         ],
+         "loc": "battle",
+         "side": "friendly"
+        }
+       }
+      }
+     }
+    ],
+    "where": "hand"
+   },
+   {
+    "_": "Triggered",
+    "steps": [
+     {
+      "_": "Choose",
+      "sel": {
+       "_": "Sel",
+       "filters": [
+        {
+         "_": "IsKind",
+         "kinds": [
+          "unit"
+         ]
+        },
+        {
+         "_": "StatCmp",
+         "op": "<=",
+         "stat": "lv",
+         "value": 4
+        }
+       ],
+       "loc": "battle",
+       "side": "enemy"
+      },
+      "var": "t1"
+     },
+     {
+      "_": "ReturnToHand",
+      "ref": {
+       "_": "Var",
+       "name": "t1"
+      }
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "event": "linked"
+    }
+   }
+  ],
+  "binding": "wp_gd05_a",
   "name": "Akatsuki (Oowashi)",
+  "source": "binding",
   "text_hash": "951a26fdfe6742f6"
  },
  "GD05-005": {
@@ -111,8 +412,163 @@
   "text_hash": "e90d3c6fa84291d7"
  },
  "GD05-006": {
-  "error": "'【Once per Turn】During your turn, when this Unit destroys an enemy card with battle damage, deploy 1 [Pluma]((Calamity War)･AP2･HP1) Unit token.': unknown trigger 'when this Unit destroys an enemy card with battle damage'; 'This Unit gains the same number of <Repair 1> as the number of (Calamity War) Unit tokens you have in play.': unknown predicate 'gains the same number of <Repair 1> as the number of (Calamity War) Unit tokens you have in play'",
+  "abilities": [
+   {
+    "_": "Triggered",
+    "cond": {
+     "_": "CustomCond",
+     "name": "wp_gd05_a_once_free",
+     "params": [
+      [
+       "tag",
+       -205006
+      ]
+     ]
+    },
+    "steps": [
+     {
+      "_": "If",
+      "cond": {
+       "_": "CustomCond",
+       "name": "wp_gd05_a_once_free",
+       "params": [
+        [
+         "tag",
+         -205006
+        ]
+       ]
+      },
+      "then": [
+       {
+        "_": "CustomStep",
+        "name": "wp_gd05_a_use_once",
+        "params": [
+         [
+          "tag",
+          -205006
+         ]
+        ]
+       },
+       {
+        "_": "DeployToken",
+        "token_key": "Pluma|Calamity War|2|1|"
+       }
+      ]
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "event": "destroys_by_battle",
+     "whose_turn": "you"
+    }
+   },
+   {
+    "_": "Triggered",
+    "cond": {
+     "_": "CustomCond",
+     "name": "wp_gd05_a_once_free",
+     "params": [
+      [
+       "tag",
+       -205006
+      ]
+     ]
+    },
+    "steps": [
+     {
+      "_": "If",
+      "cond": {
+       "_": "CustomCond",
+       "name": "wp_gd05_a_once_free",
+       "params": [
+        [
+         "tag",
+         -205006
+        ]
+       ]
+      },
+      "then": [
+       {
+        "_": "CustomStep",
+        "name": "wp_gd05_a_use_once",
+        "params": [
+         [
+          "tag",
+          -205006
+         ]
+        ]
+       },
+       {
+        "_": "DeployToken",
+        "token_key": "Pluma|Calamity War|2|1|"
+       }
+      ]
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "battle_only": true,
+     "event": "destroys_shield_card",
+     "whose_turn": "you"
+    }
+   },
+   {
+    "_": "Constant",
+    "cond": {
+     "_": "Exists",
+     "sel": {
+      "_": "Sel",
+      "filters": [
+       {
+        "_": "IsKind",
+        "kinds": [
+         "unit_token"
+        ]
+       },
+       {
+        "_": "HasTrait",
+        "traits": [
+         "Calamity War"
+        ]
+       }
+      ],
+      "loc": "battle",
+      "side": "friendly"
+     }
+    },
+    "effects": [
+     {
+      "_": "KeywordGrant",
+      "amount": {
+       "_": "Count",
+       "sel": {
+        "_": "Sel",
+        "filters": [
+         {
+          "_": "IsKind",
+          "kinds": [
+           "unit_token"
+          ]
+         },
+         {
+          "_": "HasTrait",
+          "traits": [
+           "Calamity War"
+          ]
+         }
+        ],
+        "loc": "battle",
+        "side": "friendly"
+       }
+      },
+      "keyword": "Repair"
+     }
+    ]
+   }
+  ],
+  "binding": "wp_gd05_a",
   "name": "Hashmal",
+  "source": "binding",
   "text_hash": "4238212a29d8adb7"
  },
  "GD05-007": {
@@ -454,60 +910,90 @@
     "_": "Triggered",
     "steps": [
      {
-      "_": "Choose",
-      "count": 3,
-      "optional": true,
-      "sel": {
-       "_": "Sel",
-       "filters": [
-        {
-         "_": "HasTrait",
-         "traits": [
-          "Londo Bell"
-         ]
-        }
-       ],
-       "loc": "trash",
-       "side": "friendly"
-      },
-      "var": "t1"
-     },
-     {
-      "_": "Exile",
-      "ref": {
-       "_": "Var",
-       "name": "t1"
-      }
-     },
-     {
-      "_": "IfYouDo",
-      "steps": [
-       {
-        "_": "Choose",
+      "_": "If",
+      "cond": {
+       "_": "Cmp",
+       "left": {
+        "_": "Count",
         "sel": {
          "_": "Sel",
          "filters": [
           {
-           "_": "IsKind",
-           "kinds": [
-            "unit"
+           "_": "HasTrait",
+           "traits": [
+            "Londo Bell"
            ]
           }
          ],
-         "loc": "battle",
-         "side": "enemy"
-        },
-        "var": "t2"
-       },
-       {
-        "_": "StartBattle",
-        "attacker": {
-         "_": "This"
-        },
-        "target": {
-         "_": "Var",
-         "name": "t2"
+         "loc": "trash",
+         "side": "friendly"
         }
+       },
+       "op": ">=",
+       "right": 3
+      },
+      "then": [
+       {
+        "_": "May",
+        "steps": [
+         {
+          "_": "Choose",
+          "count": 3,
+          "sel": {
+           "_": "Sel",
+           "filters": [
+            {
+             "_": "HasTrait",
+             "traits": [
+              "Londo Bell"
+             ]
+            }
+           ],
+           "loc": "trash",
+           "side": "friendly"
+          },
+          "var": "t1"
+         },
+         {
+          "_": "Exile",
+          "ref": {
+           "_": "Var",
+           "name": "t1"
+          }
+         },
+         {
+          "_": "IfYouDo",
+          "steps": [
+           {
+            "_": "Choose",
+            "sel": {
+             "_": "Sel",
+             "filters": [
+              {
+               "_": "IsKind",
+               "kinds": [
+                "unit"
+               ]
+              }
+             ],
+             "loc": "battle",
+             "side": "enemy"
+            },
+            "var": "t2"
+           },
+           {
+            "_": "StartBattle",
+            "attacker": {
+             "_": "This"
+            },
+            "target": {
+             "_": "Var",
+             "name": "t2"
+            }
+           }
+          ]
+         }
+        ]
        }
       ]
      }
@@ -518,13 +1004,92 @@
     }
    }
   ],
+  "binding": "wp_gd05_a",
   "name": "Nu Gundam",
-  "source": "compiled",
+  "source": "binding",
   "text_hash": "0646ed4eaea1dc4d"
  },
  "GD05-018": {
-  "error": "'When one of your EX Resources is exiled from the game, you may choose 1 of your Units. During this turn, when it receives enemy damage, reduce it by 3.': unknown trigger 'When one of your EX Resources is exiled from the game'",
+  "abilities": [
+   {
+    "_": "Triggered",
+    "steps": [
+     {
+      "_": "Choose",
+      "optional": true,
+      "sel": {
+       "_": "Sel",
+       "filters": [
+        {
+         "_": "IsKind",
+         "kinds": [
+          "unit"
+         ]
+        }
+       ],
+       "loc": "battle",
+       "side": "friendly"
+      },
+      "var": "t1"
+     },
+     {
+      "_": "Apply",
+      "effect": {
+       "_": "RuleGrant",
+       "rule": {
+        "_": "RuleMod",
+        "amount": 3,
+        "kind": "reduce_damage",
+        "source_side": "enemy"
+       }
+      },
+      "ref": {
+       "_": "Var",
+       "name": "t1"
+      }
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "event": "exiled",
+     "self_only": false,
+     "subject": {
+      "_": "Sel",
+      "filters": [
+       {
+        "_": "IsKind",
+        "kinds": [
+         "ex_resource"
+        ]
+       }
+      ],
+      "loc": "resource_area",
+      "side": "friendly"
+     }
+    }
+   },
+   {
+    "_": "Triggered",
+    "steps": [
+     {
+      "_": "PlaceExResource"
+     },
+     {
+      "_": "PlaceExResource"
+     },
+     {
+      "_": "PlaceExResource"
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "event": "deployed"
+    }
+   }
+  ],
+  "binding": "wp_gd05_a",
   "name": "Gundam Calibarn",
+  "source": "binding",
   "text_hash": "2d8b7d2c5a45d36a"
  },
  "GD05-019": {
@@ -652,13 +1217,126 @@
   "text_hash": "e3d95e836a36ce25"
  },
  "GD05-021": {
-  "error": "'【Once per Turn】When this Unit receives enemy damage, if you have an (Earth Federation) Pilot in play, reduce it by 2.': no step template for 'Reduce it by 2'",
+  "abilities": [
+   {
+    "_": "Activated",
+    "costs": [
+     {
+      "_": "PayResources",
+      "amount": 1
+     }
+    ],
+    "once_per_turn": true,
+    "steps": [
+     {
+      "_": "Apply",
+      "duration": "this_battle",
+      "effect": {
+       "_": "StatMod",
+       "ap": 4
+      },
+      "ref": {
+       "_": "This"
+      }
+     }
+    ],
+    "timing": "action"
+   },
+   {
+    "_": "Constant",
+    "cond": {
+     "_": "Exists",
+     "sel": {
+      "_": "Sel",
+      "filters": [
+       {
+        "_": "IsKind",
+        "kinds": [
+         "pilot"
+        ]
+       },
+       {
+        "_": "HasTrait",
+        "traits": [
+         "Earth Federation"
+        ]
+       }
+      ],
+      "loc": "paired",
+      "side": "friendly"
+     }
+    },
+    "effects": [
+     {
+      "_": "RuleGrant",
+      "rule": {
+       "_": "RuleMod",
+       "amount": 2,
+       "kind": "reduce_damage",
+       "once_per_turn": true,
+       "source_side": "enemy"
+      }
+     }
+    ]
+   }
+  ],
+  "binding": "wp_gd05_a",
   "name": "Gundam AGE-2 Double Bullet",
+  "source": "binding",
   "text_hash": "31e6442606d19f17"
  },
  "GD05-022": {
-  "error": "'【Activate･Action】Exile 2 Command cards in your trash from the game:During this battle, when this Unit receives enemy damage, reduce it by 2.': no step template for 'When this Unit receives enemy damage, reduce it by 2'",
+  "abilities": [
+   {
+    "_": "Keyword",
+    "amount": 3,
+    "keyword": "Breach"
+   },
+   {
+    "_": "Activated",
+    "costs": [
+     {
+      "_": "ExileCards",
+      "count": 2,
+      "sel": {
+       "_": "Sel",
+       "filters": [
+        {
+         "_": "IsKind",
+         "kinds": [
+          "command"
+         ]
+        }
+       ],
+       "loc": "trash",
+       "side": "friendly"
+      }
+     }
+    ],
+    "steps": [
+     {
+      "_": "Apply",
+      "duration": "this_battle",
+      "effect": {
+       "_": "RuleGrant",
+       "rule": {
+        "_": "RuleMod",
+        "amount": 2,
+        "kind": "reduce_damage",
+        "source_side": "enemy"
+       }
+      },
+      "ref": {
+       "_": "This"
+      }
+     }
+    ],
+    "timing": "action"
+   }
+  ],
+  "binding": "wp_gd05_a",
   "name": "Gundam Schwarzette",
+  "source": "binding",
   "text_hash": "d42b38121b2a6e6d"
  },
  "GD05-023": {
@@ -803,8 +1481,124 @@
   "text_hash": "815fe2109009756a"
  },
  "GD05-026": {
-  "error": "'Count up the number of your Units with \"Gundam Lfrith\"/\"Gundnode\" in their card name, plus this Unit. All enemy Units whose Lv. is equal to or lower than that number are deployed rested.': unknown constant 'Count up the number of your Units with \"Gundam Lfrith\"/\"Gundnode\" in their card name, plus this Unit'",
+  "abilities": [
+   {
+    "_": "Triggered",
+    "steps": [
+     {
+      "_": "CustomStep",
+      "name": "wp_gd05_a_deployed_rested",
+      "params": [
+       [
+        "sel",
+        {
+         "_": "Sel",
+         "filters": [
+          {
+           "_": "IsKind",
+           "kinds": [
+            "unit"
+           ]
+          },
+          {
+           "_": "StatCmp",
+           "op": "<=",
+           "stat": "lv",
+           "value": {
+            "_": "Sum",
+            "terms": [
+             {
+              "_": "Count",
+              "sel": {
+               "_": "Sel",
+               "filters": [
+                {
+                 "_": "IsKind",
+                 "kinds": [
+                  "unit"
+                 ]
+                },
+                {
+                 "_": "NameContains",
+                 "parts": [
+                  "Gundam Lfrith",
+                  "Gundnode"
+                 ]
+                }
+               ],
+               "loc": "battle",
+               "side": "friendly"
+              }
+             },
+             1
+            ]
+           }
+          }
+         ],
+         "loc": "battle",
+         "side": "enemy"
+        }
+       ]
+      ]
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "event": "deployed",
+     "self_only": false,
+     "subject": {
+      "_": "Sel",
+      "filters": [
+       {
+        "_": "IsKind",
+        "kinds": [
+         "unit"
+        ]
+       },
+       {
+        "_": "StatCmp",
+        "op": "<=",
+        "stat": "lv",
+        "value": {
+         "_": "Sum",
+         "terms": [
+          {
+           "_": "Count",
+           "sel": {
+            "_": "Sel",
+            "filters": [
+             {
+              "_": "IsKind",
+              "kinds": [
+               "unit"
+              ]
+             },
+             {
+              "_": "NameContains",
+              "parts": [
+               "Gundam Lfrith",
+               "Gundnode"
+              ]
+             }
+            ],
+            "loc": "battle",
+            "side": "friendly"
+           }
+          },
+          1
+         ]
+        }
+       }
+      ],
+      "loc": "battle",
+      "side": "enemy"
+     }
+    }
+   }
+  ],
+  "binding": "wp_gd05_a",
   "name": "Gundam Aerial Rebuild",
+  "source": "binding",
   "text_hash": "1f46e4eb7e0036b4"
  },
  "GD05-027": {
@@ -955,44 +1749,80 @@
     "_": "Triggered",
     "steps": [
      {
-      "_": "Choose",
-      "count": 2,
-      "optional": true,
-      "sel": {
-       "_": "Sel",
-       "filters": [
-        {
-         "_": "IsKind",
-         "kinds": [
-          "command"
-         ]
-        },
-        {
-         "_": "HasTrait",
-         "traits": [
-          "Special Move"
-         ]
+      "_": "If",
+      "cond": {
+       "_": "Cmp",
+       "left": {
+        "_": "Count",
+        "sel": {
+         "_": "Sel",
+         "filters": [
+          {
+           "_": "IsKind",
+           "kinds": [
+            "command"
+           ]
+          },
+          {
+           "_": "HasTrait",
+           "traits": [
+            "Special Move"
+           ]
+          }
+         ],
+         "loc": "trash",
+         "side": "friendly"
         }
-       ],
-       "loc": "trash",
-       "side": "friendly"
+       },
+       "op": ">=",
+       "right": 2
       },
-      "var": "t1"
-     },
-     {
-      "_": "Exile",
-      "ref": {
-       "_": "Var",
-       "name": "t1"
-      }
-     },
-     {
-      "_": "IfYouDo",
-      "steps": [
+      "then": [
        {
-        "_": "DamageShieldArea",
-        "amount": 5,
-        "player": "opponent"
+        "_": "May",
+        "steps": [
+         {
+          "_": "Choose",
+          "count": 2,
+          "sel": {
+           "_": "Sel",
+           "filters": [
+            {
+             "_": "IsKind",
+             "kinds": [
+              "command"
+             ]
+            },
+            {
+             "_": "HasTrait",
+             "traits": [
+              "Special Move"
+             ]
+            }
+           ],
+           "loc": "trash",
+           "side": "friendly"
+          },
+          "var": "t1"
+         },
+         {
+          "_": "Exile",
+          "ref": {
+           "_": "Var",
+           "name": "t1"
+          }
+         },
+         {
+          "_": "IfYouDo",
+          "steps": [
+           {
+            "_": "DamageShieldArea",
+            "amount": 5,
+            "player": "opponent"
+           }
+          ]
+         }
+        ]
        }
       ]
      }
@@ -1003,13 +1833,88 @@
     }
    }
   ],
+  "binding": "wp_gd05_a",
   "name": "Master Gundam",
-  "source": "compiled",
+  "source": "binding",
   "text_hash": "54d3d9f8949a2dc8"
  },
  "GD05-034": {
-  "error": "\"【During Pair】【Once per Turn】When this Unit destroys an enemy shield area card with battle damage, that enemy player may discard 1. If they don't discard with this effect, you may deploy 1 (Phantom Pain) Unit card that is Lv.4 or lower from your hand.\": no step template for \"If they don't discard with this effect, you may deploy 1 (Phantom Pain) Unit card that is Lv.4 or lower from your hand\"",
+  "abilities": [
+   {
+    "_": "Triggered",
+    "gate": "paired",
+    "once_per_turn": true,
+    "steps": [
+     {
+      "_": "May",
+      "player": "opponent",
+      "steps": [
+       {
+        "_": "Discard",
+        "player": "opponent"
+       }
+      ]
+     },
+     {
+      "_": "If",
+      "cond": {
+       "_": "NotC",
+       "cond": {
+        "_": "DidLast"
+       }
+      },
+      "then": [
+       {
+        "_": "Choose",
+        "optional": true,
+        "sel": {
+         "_": "Sel",
+         "filters": [
+          {
+           "_": "IsKind",
+           "kinds": [
+            "unit"
+           ]
+          },
+          {
+           "_": "HasTrait",
+           "traits": [
+            "Phantom Pain"
+           ]
+          },
+          {
+           "_": "StatCmp",
+           "op": "<=",
+           "stat": "lv",
+           "value": 4
+          }
+         ],
+         "loc": "hand",
+         "side": "friendly"
+        },
+        "targeting": false,
+        "var": "t1"
+       },
+       {
+        "_": "DeployCard",
+        "ref": {
+         "_": "Var",
+         "name": "t1"
+        }
+       }
+      ]
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "battle_only": true,
+     "event": "destroys_shield_card"
+    }
+   }
+  ],
+  "binding": "wp_gd05_a",
   "name": "Gaia Gundam",
+  "source": "binding",
   "text_hash": "9b0cdda6dae587a0"
  },
  "GD05-035": {
@@ -1147,7 +2052,7 @@
             "op": "<=",
             "ref": {
              "_": "Var",
-             "name": "__that"
+             "name": "t1"
             },
             "ref_stat": "lv",
             "stat": "lv"
@@ -1167,8 +2072,9 @@
     }
    }
   ],
+  "binding": "wp_gd05_a",
   "name": "Haow Gundam",
-  "source": "compiled",
+  "source": "binding",
   "text_hash": "749ea7fb40dba500"
  },
  "GD05-037": {
@@ -1353,8 +2259,27 @@
   "text_hash": "6de6e3251b1fc029"
  },
  "GD05-041": {
-  "error": "'During a turn where your opponent has discarded due to one of your effects, this card in your hand gets cost -2.': unknown constant 'During a turn where your opponent has discarded due to one of your effects, this card in your hand gets cost -2'",
+  "abilities": [
+   {
+    "_": "Constant",
+    "cond": {
+     "_": "HappenedThisTurn",
+     "by": "you",
+     "kind": "discard",
+     "player": "opponent"
+    },
+    "effects": [
+     {
+      "_": "CostMod",
+      "cost": -2
+     }
+    ],
+    "where": "hand"
+   }
+  ],
+  "binding": "wp_gd05_a",
   "name": "Gaia Gundam (MA Mode)",
+  "source": "binding",
   "text_hash": "b3f980d2adf0dd4e"
  },
  "GD05-042": {
@@ -1408,8 +2333,46 @@
   "text_hash": "6fb66bcde1116dac"
  },
  "GD05-046": {
-  "error": "'【When Paired･(Phantom Pain) Pilot】Choose 1 enemy player with 4 or more cards in their hand. They discard 1.': no selector head in '1 enemy player with 4 or more cards in their hand'",
+  "abilities": [
+   {
+    "_": "Triggered",
+    "steps": [
+     {
+      "_": "If",
+      "cond": {
+       "_": "Cmp",
+       "left": {
+        "_": "HandSize",
+        "player": "opponent"
+       },
+       "op": ">=",
+       "right": 4
+      },
+      "then": [
+       {
+        "_": "Discard",
+        "player": "opponent"
+       }
+      ]
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "event": "paired",
+     "pilot_filters": [
+      {
+       "_": "HasTrait",
+       "traits": [
+        "Phantom Pain"
+       ]
+      }
+     ]
+    }
+   }
+  ],
+  "binding": "wp_gd05_a",
   "name": "Abyss Gundam (MA Mode)",
+  "source": "binding",
   "text_hash": "85e4e1f6f6c513a2"
  },
  "GD05-047": {
@@ -1444,28 +2407,378 @@
   "text_hash": "d7486168cf7998ce"
  },
  "GD05-049": {
-  "error": "'【Attack】You may choose 1 of your Units. Destroy it. If you do, all enemy players each choose 1 of their non-battling Units. Destroy them.': no step template for 'Your opponent choose 1 of their non-battling Units'",
+  "abilities": [
+   {
+    "_": "Keyword",
+    "keyword": "Suppression"
+   },
+   {
+    "_": "Triggered",
+    "steps": [
+     {
+      "_": "Choose",
+      "optional": true,
+      "sel": {
+       "_": "Sel",
+       "filters": [
+        {
+         "_": "IsKind",
+         "kinds": [
+          "unit"
+         ]
+        }
+       ],
+       "loc": "battle",
+       "side": "friendly"
+      },
+      "var": "t1"
+     },
+     {
+      "_": "Destroy",
+      "ref": {
+       "_": "Var",
+       "name": "t1"
+      }
+     },
+     {
+      "_": "IfYouDo",
+      "steps": [
+       {
+        "_": "Choose",
+        "chooser": "opponent",
+        "sel": {
+         "_": "Sel",
+         "filters": [
+          {
+           "_": "IsKind",
+           "kinds": [
+            "unit"
+           ]
+          },
+          {
+           "_": "IsBattling",
+           "battling": false
+          }
+         ],
+         "loc": "battle",
+         "side": "enemy"
+        },
+        "var": "t2"
+       },
+       {
+        "_": "Destroy",
+        "ref": {
+         "_": "Var",
+         "name": "t2"
+        }
+       }
+      ]
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "event": "attacks"
+    }
+   }
+  ],
+  "binding": "wp_gd05_a",
   "name": "Sazabi",
+  "source": "binding",
   "text_hash": "231d34c2f689719c"
  },
  "GD05-050": {
-  "error": "'When this Unit deals battle damage to an enemy Unit that is Lv.4 or lower that has no paired Pilot, destroy that enemy Unit.': no selector head in '1 an enemy Unit that is Lv.4 or lower that has no paired Pilot'; '【Destroyed】Place the top 2 cards of your deck into your trash.': no selector head in 'the top 2 cards of your deck'",
+  "abilities": [
+   {
+    "_": "Triggered",
+    "steps": [
+     {
+      "_": "Destroy",
+      "ref": {
+       "_": "EventCard",
+       "key": "target"
+      }
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "battle_only": true,
+     "event": "deals_damage",
+     "target_filters": [
+      {
+       "_": "IsKind",
+       "kinds": [
+        "unit"
+       ]
+      },
+      {
+       "_": "StatCmp",
+       "op": "<=",
+       "stat": "lv",
+       "value": 4
+      },
+      {
+       "_": "IsPaired",
+       "paired": false
+      }
+     ]
+    }
+   },
+   {
+    "_": "Triggered",
+    "steps": [
+     {
+      "_": "Mill",
+      "count": 2
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "event": "destroyed"
+    }
+   }
+  ],
+  "binding": "wp_gd05_a",
   "name": "Gundam Exia Repair",
+  "source": "binding",
   "text_hash": "1e28bf40d0b1d65a"
  },
  "GD05-051": {
-  "error": "\"Increase this Unit's AP by an amount equal to the amount of damage it has received.\": unknown constant \"Increase this Unit's AP by an amount equal to the amount of damage it has received\"",
+  "abilities": [
+   {
+    "_": "Constant",
+    "effects": [
+     {
+      "_": "StatMod",
+      "ap": {
+       "_": "StatOf",
+       "ref": {
+        "_": "This"
+       },
+       "stat": "damage"
+      }
+     }
+    ]
+   },
+   {
+    "_": "Triggered",
+    "steps": [
+     {
+      "_": "Choose",
+      "optional": true,
+      "sel": {
+       "_": "Sel",
+       "filters": [
+        {
+         "_": "IsKind",
+         "kinds": [
+          "unit"
+         ]
+        },
+        {
+         "_": "HasTrait",
+         "traits": [
+          "Tekkadan"
+         ]
+        }
+       ],
+       "loc": "battle",
+       "side": "friendly"
+      },
+      "var": "t1"
+     },
+     {
+      "_": "Damage",
+      "amount": 1,
+      "ref": {
+       "_": "Var",
+       "name": "t1"
+      }
+     },
+     {
+      "_": "SetActive",
+      "ref": {
+       "_": "Var",
+       "name": "t1"
+      }
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "event": "turn_end",
+     "self_only": false,
+     "whose_turn": "you"
+    }
+   }
+  ],
+  "binding": "wp_gd05_a",
   "name": "Gundam Barbatos Lupus Rex",
+  "source": "binding",
   "text_hash": "84c34d6392cc1f6a"
  },
  "GD05-052": {
-  "error": "'【Deploy】You may choose 1 of your other Units. Destroy it. If you do, place the top 3 cards of your deck into your trash. Add 1 (Neo Zeon) Unit card you placed from your deck with this effect to your hand.': no selector head in 'the top 3 cards of your deck'",
+  "abilities": [
+   {
+    "_": "Triggered",
+    "steps": [
+     {
+      "_": "Choose",
+      "optional": true,
+      "sel": {
+       "_": "Sel",
+       "filters": [
+        {
+         "_": "IsKind",
+         "kinds": [
+          "unit"
+         ]
+        },
+        {
+         "_": "NotRef",
+         "ref": {
+          "_": "This"
+         }
+        }
+       ],
+       "loc": "battle",
+       "side": "friendly"
+      },
+      "var": "t1"
+     },
+     {
+      "_": "Destroy",
+      "ref": {
+       "_": "Var",
+       "name": "t1"
+      }
+     },
+     {
+      "_": "IfYouDo",
+      "steps": [
+       {
+        "_": "Mill",
+        "count": 3
+       },
+       {
+        "_": "Choose",
+        "sel": {
+         "_": "Sel",
+         "filters": [
+          {
+           "_": "IsKind",
+           "kinds": [
+            "unit"
+           ]
+          },
+          {
+           "_": "HasTrait",
+           "traits": [
+            "Neo Zeon"
+           ]
+          },
+          {
+           "_": "IsRef",
+           "ref": {
+            "_": "Var",
+            "name": "milled"
+           }
+          }
+         ],
+         "loc": "trash",
+         "side": "friendly"
+        },
+        "targeting": false,
+        "var": "t2"
+       },
+       {
+        "_": "AddToHand",
+        "ref": {
+         "_": "Var",
+         "name": "t2"
+        }
+       }
+      ]
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "event": "deployed"
+    }
+   }
+  ],
+  "binding": "wp_gd05_a",
   "name": "Sazabi",
+  "source": "binding",
   "text_hash": "a7123d81a1ace88f"
  },
  "GD05-053": {
-  "error": "\"【Destroyed】If this Unit is destroyed by one of your (Neo Zeon) card's effects, add it from your trash to your hand.\": no step template for \"If this Unit is destroyed by one of your (Neo Zeon) card's effects, add it from your trash to your hand\"",
+  "abilities": [
+   {
+    "_": "Triggered",
+    "steps": [
+     {
+      "_": "If",
+      "cond": {
+       "_": "And",
+       "conds": [
+        {
+         "_": "CustomCond",
+         "name": "wp_gd05_a_destroyed_by_effect",
+         "params": [
+          [
+           "by",
+           "you"
+          ]
+         ]
+        },
+        {
+         "_": "RefMatches",
+         "filters": [
+          {
+           "_": "HasTrait",
+           "traits": [
+            "Neo Zeon"
+           ]
+          }
+         ],
+         "ref": {
+          "_": "EventCard",
+          "key": "source"
+         }
+        }
+       ]
+      },
+      "then": [
+       {
+        "_": "AddToHand",
+        "ref": {
+         "_": "All",
+         "sel": {
+          "_": "Sel",
+          "filters": [
+           {
+            "_": "IsRef",
+            "ref": {
+             "_": "This"
+            }
+           }
+          ],
+          "loc": "trash",
+          "side": "friendly"
+         }
+        }
+       }
+      ]
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "event": "destroyed"
+    }
+   }
+  ],
+  "binding": "wp_gd05_a",
   "name": "Quess's Jagd Doga",
+  "source": "binding",
   "text_hash": "07f4d19944b88fce"
  },
  "GD05-054": {
@@ -1476,6 +2789,10 @@
    },
    {
     "_": "Triggered",
+    "cond": {
+     "_": "CustomCond",
+     "name": "wp_gd05_a_destroyed_by_effect"
+    },
     "once_per_turn": true,
     "steps": [
      {
@@ -1484,7 +2801,6 @@
     ],
     "trigger": {
      "_": "Trigger",
-     "battle_only": false,
      "event": "destroyed",
      "self_only": false,
      "subject": {
@@ -1503,8 +2819,9 @@
     }
    }
   ],
+  "binding": "wp_gd05_a",
   "name": "Alpha Azieru",
-  "source": "compiled",
+  "source": "binding",
   "text_hash": "3f356a0167ae63b2"
  },
  "GD05-055": {
@@ -1596,8 +2913,7 @@
          }
         },
         "ref": {
-         "_": "Var",
-         "name": "t1"
+         "_": "This"
         }
        }
       ]
@@ -1606,8 +2922,9 @@
     "timing": "main"
    }
   ],
+  "binding": "wp_gd05_a",
   "name": "Gyunei's Jagd Doga",
-  "source": "compiled",
+  "source": "binding",
   "text_hash": "fc2195e488ef1d06"
  },
  "GD05-058": {
@@ -1685,8 +3002,9 @@
     }
    }
   ],
+  "binding": "wp_gd05_a",
   "name": "Gundam Barbatos Lupus",
-  "source": "compiled",
+  "source": "binding",
   "text_hash": "2eb4d65ed4e7552c"
  },
  "GD05-060": {
@@ -1911,69 +3229,105 @@
     "_": "Triggered",
     "steps": [
      {
-      "_": "Choose",
-      "count": 2,
-      "optional": true,
-      "sel": {
-       "_": "Sel",
-       "filters": [
-        {
-         "_": "IsKind",
-         "kinds": [
-          "unit"
-         ]
-        },
-        {
-         "_": "HasTrait",
-         "traits": [
-          "MF"
-         ]
-        }
-       ],
-       "loc": "trash",
-       "side": "friendly"
-      },
-      "var": "t1"
-     },
-     {
-      "_": "Exile",
-      "ref": {
-       "_": "Var",
-       "name": "t1"
-      }
-     },
-     {
-      "_": "IfYouDo",
-      "steps": [
-       {
-        "_": "Choose",
+      "_": "If",
+      "cond": {
+       "_": "Cmp",
+       "left": {
+        "_": "Count",
         "sel": {
          "_": "Sel",
          "filters": [
           {
            "_": "IsKind",
            "kinds": [
-            "command"
+            "unit"
            ]
           },
           {
            "_": "HasTrait",
            "traits": [
-            "Special Move"
+            "MF"
            ]
           }
          ],
          "loc": "trash",
          "side": "friendly"
-        },
-        "var": "t2"
-       },
-       {
-        "_": "AddToHand",
-        "ref": {
-         "_": "Var",
-         "name": "t2"
         }
+       },
+       "op": ">=",
+       "right": 2
+      },
+      "then": [
+       {
+        "_": "May",
+        "steps": [
+         {
+          "_": "Choose",
+          "count": 2,
+          "sel": {
+           "_": "Sel",
+           "filters": [
+            {
+             "_": "IsKind",
+             "kinds": [
+              "unit"
+             ]
+            },
+            {
+             "_": "HasTrait",
+             "traits": [
+              "MF"
+             ]
+            }
+           ],
+           "loc": "trash",
+           "side": "friendly"
+          },
+          "var": "t1"
+         },
+         {
+          "_": "Exile",
+          "ref": {
+           "_": "Var",
+           "name": "t1"
+          }
+         },
+         {
+          "_": "IfYouDo",
+          "steps": [
+           {
+            "_": "Choose",
+            "sel": {
+             "_": "Sel",
+             "filters": [
+              {
+               "_": "IsKind",
+               "kinds": [
+                "command"
+               ]
+              },
+              {
+               "_": "HasTrait",
+               "traits": [
+                "Special Move"
+               ]
+              }
+             ],
+             "loc": "trash",
+             "side": "friendly"
+            },
+            "var": "t2"
+           },
+           {
+            "_": "AddToHand",
+            "ref": {
+             "_": "Var",
+             "name": "t2"
+            }
+           }
+          ]
+         }
+        ]
        }
       ]
      }
@@ -2021,8 +3375,9 @@
     }
    }
   ],
+  "binding": "wp_gd05_a",
   "name": "Shining Gundam",
-  "source": "compiled",
+  "source": "binding",
   "text_hash": "0d46bc7e7abded70"
  },
  "GD05-067": {
@@ -2094,8 +3449,71 @@
   "text_hash": "f5e3c15ed2450742"
  },
  "GD05-068": {
-  "error": "\"When you activate a (Special Move) Command's 【Main】/【Action】, this Unit gains <Suppression> during this turn.\": unknown trigger \"When you activate a (Special Move) Command's 【Main】/【Action】\"",
+  "abilities": [
+   {
+    "_": "Triggered",
+    "steps": [
+     {
+      "_": "Apply",
+      "effect": {
+       "_": "KeywordGrant",
+       "keyword": "Suppression"
+      },
+      "ref": {
+       "_": "This"
+      }
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "event": "command_played",
+     "self_only": false,
+     "subject": {
+      "_": "Sel",
+      "filters": [
+       {
+        "_": "IsKind",
+        "kinds": [
+         "command"
+        ]
+       },
+       {
+        "_": "HasTrait",
+        "traits": [
+         "Special Move"
+        ]
+       }
+      ],
+      "loc": "hand",
+      "side": "friendly"
+     }
+    }
+   },
+   {
+    "_": "Triggered",
+    "gate": "linked",
+    "steps": [
+     {
+      "_": "Apply",
+      "duration": "this_battle",
+      "effect": {
+       "_": "StatMod",
+       "ap": 2
+      },
+      "ref": {
+       "_": "This"
+      }
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "event": "attacks"
+    }
+   }
+  ],
+  "binding": "wp_gd05_a",
   "name": "Shining Gundam (Super Mode)",
+  "source": "binding",
   "text_hash": "f3f6307dd33a7ba8"
  },
  "GD05-069": {
@@ -2368,7 +3786,7 @@
         {
          "_": "StatCmp",
          "op": "<=",
-         "stat": "hp",
+         "stat": "remaining_hp",
          "value": 4
         }
        ],
@@ -2391,8 +3809,9 @@
     }
    }
   ],
+  "binding": "wp_gd05_b",
   "name": "Rising Gundam",
-  "source": "compiled",
+  "source": "binding",
   "text_hash": "fbd7d205b885ad99"
  },
  "GD05-073": {
@@ -2427,12 +3846,43 @@
        "_": "RuleGrant",
        "rule": {
         "_": "RuleMod",
-        "kind": "cant_be_set_active"
+        "kind": "custom",
+        "name": "wp_gd05_b_073_pending"
        }
       },
       "ref": {
        "_": "Var",
        "name": "t1"
+      }
+     },
+     {
+      "_": "DelayedTrigger",
+      "steps": [
+       {
+        "_": "CustomStep",
+        "name": "wp_gd05_b_073_freeze"
+       }
+      ],
+      "trigger": {
+       "_": "Trigger",
+       "event": "turn_end",
+       "self_only": false
+      }
+     },
+     {
+      "_": "DelayedTrigger",
+      "duration": "opponent_next_turn",
+      "steps": [
+       {
+        "_": "CustomStep",
+        "name": "wp_gd05_b_073_thaw"
+       }
+      ],
+      "trigger": {
+       "_": "Trigger",
+       "event": "turn_start",
+       "self_only": false,
+       "whose_turn": "opponent"
       }
      }
     ],
@@ -2442,8 +3892,9 @@
     }
    }
   ],
+  "binding": "wp_gd05_b",
   "name": "Altron Gundam (EW)",
-  "source": "compiled",
+  "source": "binding",
   "text_hash": "646f896fa987711d"
  },
  "GD05-074": {
@@ -2740,8 +4191,9 @@
     ]
    }
   ],
+  "binding": "wp_gd05_b",
   "name": "Cagalli Yula Athha",
-  "source": "compiled",
+  "source": "binding",
   "text_hash": "5972e2d18c71d897",
   "unit_abilities": [
    {
@@ -2761,7 +4213,7 @@
         {
          "_": "StatCmp",
          "op": "==",
-         "stat": "hp",
+         "stat": "remaining_hp",
          "value": 1
         }
        ],
@@ -2888,9 +4340,46 @@
   ]
  },
  "GD05-086": {
-  "error": "'【During Link】Enemy Units other than Link Units choose this rested Unit as their attack target if possible when attacking.': unknown constant 'Enemy Units other than Link Units choose this rested Unit as their attack target if possible when attacking'",
+  "abilities": [
+   {
+    "_": "Burst",
+    "steps": [
+     {
+      "_": "AddToHand",
+      "ref": {
+       "_": "ThisCard"
+      }
+     }
+    ]
+   }
+  ],
+  "binding": "wp_gd05_b",
   "name": "Kayra Su",
-  "text_hash": "7d15928ed48c8441"
+  "source": "binding",
+  "text_hash": "7d15928ed48c8441",
+  "unit_abilities": [
+   {
+    "_": "Constant",
+    "effects": [
+     {
+      "_": "RuleGrant",
+      "rule": {
+       "_": "RuleMod",
+       "kind": "force_attack_target",
+       "source_filters": [
+        {
+         "_": "Not",
+         "filter": {
+          "_": "IsLinked"
+         }
+        }
+       ]
+      }
+     }
+    ],
+    "gate": "linked"
+   }
+  ]
  },
  "GD05-087": {
   "abilities": [
@@ -2936,14 +4425,138 @@
   ]
  },
  "GD05-088": {
-  "error": "'This Unit and all your Units with \"Gundam Lfrith\" or \"Gundnode\" in their card name get AP+1.': unknown constant 'This Unit and all your Units with \"Gundam Lfrith\" or \"Gundnode\" in their card name get AP+1'",
+  "abilities": [
+   {
+    "_": "Burst",
+    "steps": [
+     {
+      "_": "AddToHand",
+      "ref": {
+       "_": "ThisCard"
+      }
+     }
+    ]
+   }
+  ],
+  "binding": "wp_gd05_b",
   "name": "Prospera Mercury",
-  "text_hash": "27257c758a208ca2"
+  "source": "binding",
+  "text_hash": "27257c758a208ca2",
+  "unit_abilities": [
+   {
+    "_": "Constant",
+    "effects": [
+     {
+      "_": "StatMod",
+      "ap": 1
+     }
+    ],
+    "scope": {
+     "_": "Union",
+     "refs": [
+      {
+       "_": "This"
+      },
+      {
+       "_": "All",
+       "sel": {
+        "_": "Sel",
+        "filters": [
+         {
+          "_": "IsKind",
+          "kinds": [
+           "unit"
+          ]
+         },
+         {
+          "_": "NameContains",
+          "parts": [
+           "Gundam Lfrith",
+           "Gundnode"
+          ]
+         }
+        ],
+        "loc": "battle",
+        "side": "friendly"
+       }
+      }
+     ]
+    }
+   }
+  ]
  },
  "GD05-089": {
-  "error": "'【Burst】Add this card to your hand. If there are 3 or more (MF) cards in your trash, you may deploy it as an (AP3･HP3) Unit instead.': no step template for 'Deploy it as an (AP3･HP3) Unit'; \"【During Link】【Attack】If you have activated a (Special Move) Command card's 【Main】/【Action】 during this turn, choose 1 enemy Unit. Deal 2 damage to it.\": no step template for \"If you have activated a (Special Move) Command card's 【Main】/【Action】 during this turn, choose 1 enemy Unit\"",
+  "abilities": [
+   {
+    "_": "Burst",
+    "steps": [
+     {
+      "_": "AddToHand",
+      "ref": {
+       "_": "ThisCard"
+      }
+     }
+    ]
+   }
+  ],
+  "binding": "wp_gd05_b",
   "name": "Master Asia",
-  "text_hash": "d35473469aefc4d2"
+  "source": "binding",
+  "text_hash": "d35473469aefc4d2",
+  "unit_abilities": [
+   {
+    "_": "Triggered",
+    "gate": "linked",
+    "steps": [
+     {
+      "_": "If",
+      "cond": {
+       "_": "HappenedThisTurn",
+       "filters": [
+        {
+         "_": "HasTrait",
+         "traits": [
+          "Special Move"
+         ]
+        }
+       ],
+       "kind": "command_activated"
+      },
+      "then": [
+       {
+        "_": "Choose",
+        "sel": {
+         "_": "Sel",
+         "filters": [
+          {
+           "_": "IsKind",
+           "kinds": [
+            "unit"
+           ]
+          }
+         ],
+         "loc": "battle",
+         "side": "enemy"
+        },
+        "var": "t1"
+       },
+       {
+        "_": "Damage",
+        "amount": 2,
+        "ref": {
+         "_": "Var",
+         "name": "t1"
+        }
+       }
+      ]
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "event": "attacks"
+    }
+   }
+  ]
  },
  "GD05-090": {
   "abilities": [
@@ -3170,9 +4783,74 @@
   ]
  },
  "GD05-094": {
-  "error": "'【Destroyed】Choose 1 of your (Neo Zeon) Units. During this turn, when it receives enemy battle damage, reduce it by 2.': no step template for 'When it receives enemy battle damage, reduce it by 2'",
+  "abilities": [
+   {
+    "_": "Burst",
+    "steps": [
+     {
+      "_": "AddToHand",
+      "ref": {
+       "_": "ThisCard"
+      }
+     }
+    ]
+   }
+  ],
+  "binding": "wp_gd05_b",
   "name": "Quess Paraya",
-  "text_hash": "8320718e0d318eec"
+  "source": "binding",
+  "text_hash": "8320718e0d318eec",
+  "unit_abilities": [
+   {
+    "_": "Triggered",
+    "steps": [
+     {
+      "_": "Choose",
+      "sel": {
+       "_": "Sel",
+       "filters": [
+        {
+         "_": "IsKind",
+         "kinds": [
+          "unit"
+         ]
+        },
+        {
+         "_": "HasTrait",
+         "traits": [
+          "Neo Zeon"
+         ]
+        }
+       ],
+       "loc": "battle",
+       "side": "friendly"
+      },
+      "var": "t1"
+     },
+     {
+      "_": "Apply",
+      "effect": {
+       "_": "RuleGrant",
+       "rule": {
+        "_": "RuleMod",
+        "amount": 2,
+        "damage_kind": "battle",
+        "kind": "reduce_damage",
+        "source_side": "enemy"
+       }
+      },
+      "ref": {
+       "_": "Var",
+       "name": "t1"
+      }
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "event": "destroyed"
+    }
+   }
+  ]
  },
  "GD05-095": {
   "abilities": [
@@ -3301,9 +4979,79 @@
   ]
  },
  "GD05-097": {
-  "error": "'【When Paired】Draw 1. Then, discard 1. If you discard a (Special Move) Command card with this effect, you may activate its 【Main】.': no step template for 'If you discard a (Special Move) Command card with this effect, you may activate its 【Main】'",
+  "abilities": [
+   {
+    "_": "Burst",
+    "steps": [
+     {
+      "_": "AddToHand",
+      "ref": {
+       "_": "ThisCard"
+      }
+     }
+    ]
+   }
+  ],
+  "binding": "wp_gd05_b",
   "name": "Domon Kasshu",
-  "text_hash": "85203cf7c5d81323"
+  "source": "binding",
+  "text_hash": "85203cf7c5d81323",
+  "unit_abilities": [
+   {
+    "_": "Triggered",
+    "steps": [
+     {
+      "_": "Draw"
+     },
+     {
+      "_": "Discard",
+      "var": "discarded97"
+     },
+     {
+      "_": "If",
+      "cond": {
+       "_": "RefMatches",
+       "filters": [
+        {
+         "_": "IsKind",
+         "kinds": [
+          "command"
+         ]
+        },
+        {
+         "_": "HasTrait",
+         "traits": [
+          "Special Move"
+         ]
+        }
+       ],
+       "ref": {
+        "_": "Var",
+        "name": "discarded97"
+       }
+      },
+      "then": [
+       {
+        "_": "May",
+        "steps": [
+         {
+          "_": "ActivateMain",
+          "ref": {
+           "_": "Var",
+           "name": "discarded97"
+          }
+         }
+        ]
+       }
+      ]
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "event": "paired"
+    }
+   }
+  ]
  },
  "GD05-098": {
   "abilities": [
@@ -3466,20 +5214,102 @@
   ]
  },
  "GD05-101": {
-  "error": "\"【Once per Turn】When you pay ① or more for one of your Unit's effects, if this is a (Militia) Unit, it may recover 2 HP.\": unknown trigger \"When you pay ① or more for one of your Unit's effects\"",
+  "abilities": [
+   {
+    "_": "Burst",
+    "steps": [
+     {
+      "_": "AddToHand",
+      "ref": {
+       "_": "ThisCard"
+      }
+     }
+    ]
+   }
+  ],
+  "binding": "wp_gd05_b",
   "name": "Gavane Goonny",
-  "text_hash": "c08bae93a725fb9d"
+  "source": "binding",
+  "text_hash": "c08bae93a725fb9d",
+  "unit_abilities": [
+   {
+    "_": "Triggered",
+    "cond": {
+     "_": "RefMatches",
+     "filters": [
+      {
+       "_": "HasTrait",
+       "traits": [
+        "Militia"
+       ]
+      }
+     ],
+     "ref": {
+      "_": "This"
+     }
+    },
+    "once_per_turn": true,
+    "steps": [
+     {
+      "_": "May",
+      "steps": [
+       {
+        "_": "Recover",
+        "amount": 2,
+        "ref": {
+         "_": "This"
+        }
+       }
+      ]
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "event": "cost_paid",
+     "self_only": false,
+     "subject": {
+      "_": "Sel",
+      "filters": [
+       {
+        "_": "IsKind",
+        "kinds": [
+         "unit"
+        ]
+       }
+      ],
+      "loc": "battle",
+      "side": "friendly"
+     }
+    }
+   }
+  ]
  },
  "GD05-102": {
   "abilities": [
    {
     "_": "Command",
+    "cond": {
+     "_": "Exists",
+     "sel": {
+      "_": "Sel",
+      "filters": [
+       {
+        "_": "IsKind",
+        "kinds": [
+         "unit"
+        ]
+       }
+      ],
+      "loc": "battle",
+      "side": "any"
+     }
+    },
     "steps": [
      {
       "_": "ChooseMode",
       "options": [
        [
-        "option1",
+        "return",
         [
          {
           "_": "Choose",
@@ -3495,57 +5325,63 @@
             {
              "_": "StatCmp",
              "op": "<=",
-             "stat": "hp",
+             "stat": "remaining_hp",
              "value": 5
             }
            ],
            "loc": "battle",
            "side": "enemy"
           },
-          "var": "t21"
+          "var": "t1"
          },
          {
           "_": "ReturnToHand",
           "ref": {
            "_": "Var",
-           "name": "t21"
+           "name": "t1"
+          }
+         }
+        ]
+       ],
+       [
+        "recover",
+        [
+         {
+          "_": "Choose",
+          "sel": {
+           "_": "Sel",
+           "filters": [
+            {
+             "_": "IsKind",
+             "kinds": [
+              "unit"
+             ]
+            }
+           ],
+           "loc": "battle",
+           "side": "any"
+          },
+          "var": "t2"
+         },
+         {
+          "_": "Recover",
+          "amount": 3,
+          "ref": {
+           "_": "Var",
+           "name": "t2"
           }
          }
         ]
        ]
       ]
-     },
-     {
-      "_": "Choose",
-      "sel": {
-       "_": "Sel",
-       "filters": [
-        {
-         "_": "IsKind",
-         "kinds": [
-          "unit"
-         ]
-        }
-       ],
-       "loc": "battle",
-       "side": "any"
-      },
-      "var": "t1"
-     },
-     {
-      "_": "Recover",
-      "amount": 3,
-      "ref": {
-       "_": "Var",
-       "name": "t1"
-      }
      }
     ],
     "timing": "action"
    }
   ],
+  "binding": "wp_gd05_b",
   "name": "Wings of Light",
-  "source": "compiled",
+  "source": "binding",
   "text_hash": "cbe908522763ba5c"
  },
  "GD05-103": {
@@ -3598,8 +5434,92 @@
   "text_hash": "c9ba46a1b438b74c"
  },
  "GD05-104": {
-  "error": "'【Action】Choose 1 friendly (Shrike Team) Unit. It gains the following effect during this turn:\\n■【During Link】【Destroyed】Choose 1 friendly (League Militaire) Unit. Set it as active.': unknown predicate 'gains the following effect during this turn:'",
+  "abilities": [
+   {
+    "_": "Command",
+    "steps": [
+     {
+      "_": "Choose",
+      "sel": {
+       "_": "Sel",
+       "filters": [
+        {
+         "_": "IsKind",
+         "kinds": [
+          "unit"
+         ]
+        },
+        {
+         "_": "HasTrait",
+         "traits": [
+          "Shrike Team"
+         ]
+        }
+       ],
+       "loc": "battle",
+       "side": "friendly"
+      },
+      "var": "t1"
+     },
+     {
+      "_": "Apply",
+      "effect": {
+       "_": "AbilityGrant",
+       "ability_index": 1,
+       "card_number": "GD05-104"
+      },
+      "ref": {
+       "_": "Var",
+       "name": "t1"
+      }
+     }
+    ],
+    "timing": "action"
+   },
+   {
+    "_": "Triggered",
+    "gate": "linked",
+    "steps": [
+     {
+      "_": "Choose",
+      "sel": {
+       "_": "Sel",
+       "filters": [
+        {
+         "_": "IsKind",
+         "kinds": [
+          "unit"
+         ]
+        },
+        {
+         "_": "HasTrait",
+         "traits": [
+          "League Militaire"
+         ]
+        }
+       ],
+       "loc": "battle",
+       "side": "friendly"
+      },
+      "var": "t1"
+     },
+     {
+      "_": "SetActive",
+      "ref": {
+       "_": "Var",
+       "name": "t1"
+      }
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "event": "destroyed"
+    }
+   }
+  ],
+  "binding": "wp_gd05_b",
   "name": "At the Risk of One's Life",
+  "source": "binding",
   "text_hash": "f8feb79a05096e2d"
  },
  "GD05-105": {
@@ -3716,8 +5636,35 @@
   "text_hash": "83bae4bf60dc841d"
  },
  "GD05-107": {
-  "error": "\"【Main】Choose 1 enemy player. Destroy the first 2 cards in that player's shield area.\": no selector head in \"the first 2 cards in your opponent's shield area\"",
+  "abilities": [
+   {
+    "_": "Burst",
+    "steps": [
+     {
+      "_": "PlaceExResource"
+     }
+    ]
+   },
+   {
+    "_": "Command",
+    "steps": [
+     {
+      "_": "CustomStep",
+      "name": "wp_gd05_b_destroy_first_shield_area_cards",
+      "params": [
+       [
+        "count",
+        2
+       ]
+      ]
+     }
+    ],
+    "timing": "main"
+   }
+  ],
+  "binding": "wp_gd05_b",
   "name": "Interwoven Blessings",
+  "source": "binding",
   "text_hash": "b758f4a7ab3e5279"
  },
  "GD05-108": {
@@ -3752,18 +5699,43 @@
       "var": "t1"
      },
      {
-      "_": "ChangeAttackTarget",
-      "target": {
-       "_": "Var",
-       "name": "t1"
-      }
+      "_": "If",
+      "cond": {
+       "_": "Exists",
+       "sel": {
+        "_": "Sel",
+        "filters": [
+         {
+          "_": "IsKind",
+          "kinds": [
+           "unit"
+          ]
+         },
+         {
+          "_": "IsAttacking"
+         }
+        ],
+        "loc": "battle",
+        "side": "enemy"
+       }
+      },
+      "then": [
+       {
+        "_": "ChangeAttackTarget",
+        "target": {
+         "_": "Var",
+         "name": "t1"
+        }
+       }
+      ]
      }
     ],
     "timing": "action"
    }
   ],
+  "binding": "wp_gd05_b",
   "name": "Overcoming Hardships",
-  "source": "compiled",
+  "source": "binding",
   "text_hash": "5d6c5dad2695b3f2"
  },
  "GD05-109": {
@@ -3985,66 +5957,78 @@
        "_": "Var",
        "name": "t1"
       }
-     }
-    ],
-    "timing": "main"
-   },
-   {
-    "_": "Triggered",
-    "steps": [
+     },
      {
-      "_": "May",
-      "steps": [
-       {
-        "_": "May",
-        "steps": [
+      "_": "CustomStep",
+      "name": "wp_gd05_b_resolving_command_to_trash"
+     },
+     {
+      "_": "If",
+      "cond": {
+       "_": "Exists",
+       "sel": {
+        "_": "Sel",
+        "filters": [
          {
-          "_": "Choose",
-          "sel": {
-           "_": "Sel",
-           "filters": [
-            {
-             "_": "IsKind",
-             "kinds": [
-              "unit"
-             ]
-            },
-            {
-             "_": "HasTrait",
-             "traits": [
-              "MF"
-             ]
-            }
-           ],
-           "loc": "battle",
-           "side": "friendly"
-          },
-          "var": "t1"
-         },
-         {
-          "_": "Pair",
-          "pilot": {
+          "_": "IsRef",
+          "ref": {
            "_": "ThisCard"
-          },
-          "unit": {
-           "_": "Var",
-           "name": "t1"
           }
          }
-        ]
+        ],
+        "loc": "trash",
+        "side": "friendly"
+       }
+      },
+      "then": [
+       {
+        "_": "Choose",
+        "optional": true,
+        "sel": {
+         "_": "Sel",
+         "filters": [
+          {
+           "_": "IsKind",
+           "kinds": [
+            "unit"
+           ]
+          },
+          {
+           "_": "HasTrait",
+           "traits": [
+            "MF"
+           ]
+          },
+          {
+           "_": "CustomFilter",
+           "name": "wp_gd05_b_can_pair"
+          }
+         ],
+         "loc": "battle",
+         "side": "friendly"
+        },
+        "targeting": false,
+        "var": "pair_with"
+       },
+       {
+        "_": "Pair",
+        "pilot": {
+         "_": "ThisCard"
+        },
+        "unit": {
+         "_": "Var",
+         "name": "pair_with"
+        }
        }
       ]
      }
     ],
-    "trigger": {
-     "_": "Trigger",
-     "event": "command_resolved"
-    },
-    "where": "trash"
+    "timing": "main"
    }
   ],
+  "binding": "wp_gd05_b",
   "name": "Hoka Kyoten Juzetsujin",
-  "source": "compiled",
+  "source": "binding",
   "text_hash": "7b517bf91e0d15a1"
  },
  "GD05-113": {
@@ -4091,66 +6075,78 @@
        "_": "Var",
        "name": "t1"
       }
-     }
-    ],
-    "timing": "main"
-   },
-   {
-    "_": "Triggered",
-    "steps": [
+     },
      {
-      "_": "May",
-      "steps": [
-       {
-        "_": "May",
-        "steps": [
+      "_": "CustomStep",
+      "name": "wp_gd05_b_resolving_command_to_trash"
+     },
+     {
+      "_": "If",
+      "cond": {
+       "_": "Exists",
+       "sel": {
+        "_": "Sel",
+        "filters": [
          {
-          "_": "Choose",
-          "sel": {
-           "_": "Sel",
-           "filters": [
-            {
-             "_": "IsKind",
-             "kinds": [
-              "unit"
-             ]
-            },
-            {
-             "_": "HasTrait",
-             "traits": [
-              "MF"
-             ]
-            }
-           ],
-           "loc": "battle",
-           "side": "friendly"
-          },
-          "var": "t1"
-         },
-         {
-          "_": "Pair",
-          "pilot": {
+          "_": "IsRef",
+          "ref": {
            "_": "ThisCard"
-          },
-          "unit": {
-           "_": "Var",
-           "name": "t1"
           }
          }
-        ]
+        ],
+        "loc": "trash",
+        "side": "friendly"
+       }
+      },
+      "then": [
+       {
+        "_": "Choose",
+        "optional": true,
+        "sel": {
+         "_": "Sel",
+         "filters": [
+          {
+           "_": "IsKind",
+           "kinds": [
+            "unit"
+           ]
+          },
+          {
+           "_": "HasTrait",
+           "traits": [
+            "MF"
+           ]
+          },
+          {
+           "_": "CustomFilter",
+           "name": "wp_gd05_b_can_pair"
+          }
+         ],
+         "loc": "battle",
+         "side": "friendly"
+        },
+        "targeting": false,
+        "var": "pair_with"
+       },
+       {
+        "_": "Pair",
+        "pilot": {
+         "_": "ThisCard"
+        },
+        "unit": {
+         "_": "Var",
+         "name": "pair_with"
+        }
        }
       ]
      }
     ],
-    "trigger": {
-     "_": "Trigger",
-     "event": "command_resolved"
-    },
-    "where": "trash"
+    "timing": "main"
    }
   ],
+  "binding": "wp_gd05_b",
   "name": "Rose Screamer",
-  "source": "compiled",
+  "source": "binding",
   "text_hash": "7e34c7e681832c10"
  },
  "GD05-114": {
@@ -4388,19 +6384,15 @@
      {
       "_": "If",
       "cond": {
-       "_": "Cmp",
-       "left": {
-        "_": "EventAmount",
-        "key": "ex_used"
-       },
-       "op": ">=",
-       "right": 1
+       "_": "CustomCond",
+       "name": "wp_gd05_b_played_with_ex"
       },
       "then": [
        {
         "_": "Rest",
         "ref": {
-         "_": "EventCard"
+         "_": "Var",
+         "name": "t1"
         }
        }
       ]
@@ -4409,18 +6401,174 @@
     "timing": "main"
    }
   ],
+  "binding": "wp_gd05_b",
   "name": "Incendiary Spark",
-  "source": "compiled",
+  "source": "binding",
   "text_hash": "5594073f460d752d"
  },
  "GD05-119": {
-  "error": "'【Action】Choose 1 enemy Unit that is battling one of your Units that is Lv.5 or higher. It gets AP-3 during this battle.': unparsed selector suffix 'one of your Units that is Lv.5 or higher' in '1 enemy Unit that is battling one of your Units that is Lv.5 or higher'",
+  "abilities": [
+   {
+    "_": "Command",
+    "steps": [
+     {
+      "_": "Choose",
+      "sel": {
+       "_": "Sel",
+       "filters": [
+        {
+         "_": "IsKind",
+         "kinds": [
+          "unit"
+         ]
+        },
+        {
+         "_": "IsRef",
+         "ref": {
+          "_": "BattlingWith",
+          "ref": {
+           "_": "All",
+           "sel": {
+            "_": "Sel",
+            "filters": [
+             {
+              "_": "IsKind",
+              "kinds": [
+               "unit"
+              ]
+             },
+             {
+              "_": "StatCmp",
+              "op": ">=",
+              "stat": "lv",
+              "value": 5
+             },
+             {
+              "_": "IsBattling"
+             }
+            ],
+            "loc": "battle",
+            "side": "friendly"
+           }
+          }
+         }
+        }
+       ],
+       "loc": "battle",
+       "side": "enemy"
+      },
+      "var": "t1"
+     },
+     {
+      "_": "Apply",
+      "duration": "this_battle",
+      "effect": {
+       "_": "StatMod",
+       "ap": -3
+      },
+      "ref": {
+       "_": "Var",
+       "name": "t1"
+      }
+     }
+    ],
+    "timing": "action"
+   }
+  ],
+  "binding": "wp_gd05_b",
   "name": "A Wind Against Fires",
+  "source": "binding",
   "text_hash": "777f3f996933af0a"
  },
  "GD05-120": {
-  "error": "'【Main】/【Action】Choose 1 enemy Unit with 4 or less HP. Rest it. Then, you may choose 1 of your Units with \"Shining Gundam\" in its card name. It gets <First Strike> during this turn.': unknown predicate 'gets <First Strike>'",
+  "abilities": [
+   {
+    "_": "Burst",
+    "steps": [
+     {
+      "_": "AddToHand",
+      "ref": {
+       "_": "ThisCard"
+      }
+     }
+    ]
+   },
+   {
+    "_": "Command",
+    "steps": [
+     {
+      "_": "Choose",
+      "sel": {
+       "_": "Sel",
+       "filters": [
+        {
+         "_": "IsKind",
+         "kinds": [
+          "unit"
+         ]
+        },
+        {
+         "_": "StatCmp",
+         "op": "<=",
+         "stat": "remaining_hp",
+         "value": 4
+        }
+       ],
+       "loc": "battle",
+       "side": "enemy"
+      },
+      "var": "t1"
+     },
+     {
+      "_": "Rest",
+      "ref": {
+       "_": "Var",
+       "name": "t1"
+      }
+     },
+     {
+      "_": "Choose",
+      "after_then": true,
+      "optional": true,
+      "sel": {
+       "_": "Sel",
+       "filters": [
+        {
+         "_": "IsKind",
+         "kinds": [
+          "unit"
+         ]
+        },
+        {
+         "_": "NameContains",
+         "parts": [
+          "Shining Gundam"
+         ]
+        }
+       ],
+       "loc": "battle",
+       "side": "friendly"
+      },
+      "var": "t2"
+     },
+     {
+      "_": "Apply",
+      "effect": {
+       "_": "KeywordGrant",
+       "keyword": "First Strike"
+      },
+      "ref": {
+       "_": "Var",
+       "name": "t2"
+      }
+     }
+    ],
+    "timing": "main_or_action"
+   }
+  ],
+  "binding": "wp_gd05_b",
   "name": "Shining Finger",
+  "source": "binding",
   "text_hash": "d7a05ea497475d7d"
  },
  "GD05-121": {
@@ -4455,66 +6603,78 @@
        "_": "Var",
        "name": "t1"
       }
-     }
-    ],
-    "timing": "main"
-   },
-   {
-    "_": "Triggered",
-    "steps": [
+     },
      {
-      "_": "May",
-      "steps": [
-       {
-        "_": "May",
-        "steps": [
+      "_": "CustomStep",
+      "name": "wp_gd05_b_resolving_command_to_trash"
+     },
+     {
+      "_": "If",
+      "cond": {
+       "_": "Exists",
+       "sel": {
+        "_": "Sel",
+        "filters": [
          {
-          "_": "Choose",
-          "sel": {
-           "_": "Sel",
-           "filters": [
-            {
-             "_": "IsKind",
-             "kinds": [
-              "unit"
-             ]
-            },
-            {
-             "_": "HasTrait",
-             "traits": [
-              "MF"
-             ]
-            }
-           ],
-           "loc": "battle",
-           "side": "friendly"
-          },
-          "var": "t1"
-         },
-         {
-          "_": "Pair",
-          "pilot": {
+          "_": "IsRef",
+          "ref": {
            "_": "ThisCard"
-          },
-          "unit": {
-           "_": "Var",
-           "name": "t1"
           }
          }
-        ]
+        ],
+        "loc": "trash",
+        "side": "friendly"
+       }
+      },
+      "then": [
+       {
+        "_": "Choose",
+        "optional": true,
+        "sel": {
+         "_": "Sel",
+         "filters": [
+          {
+           "_": "IsKind",
+           "kinds": [
+            "unit"
+           ]
+          },
+          {
+           "_": "HasTrait",
+           "traits": [
+            "MF"
+           ]
+          },
+          {
+           "_": "CustomFilter",
+           "name": "wp_gd05_b_can_pair"
+          }
+         ],
+         "loc": "battle",
+         "side": "friendly"
+        },
+        "targeting": false,
+        "var": "pair_with"
+       },
+       {
+        "_": "Pair",
+        "pilot": {
+         "_": "ThisCard"
+        },
+        "unit": {
+         "_": "Var",
+         "name": "pair_with"
+        }
        }
       ]
      }
     ],
-    "trigger": {
-     "_": "Trigger",
-     "event": "command_resolved"
-    },
-    "where": "trash"
+    "timing": "main"
    }
   ],
+  "binding": "wp_gd05_b",
   "name": "Cyclone Punch",
-  "source": "compiled",
+  "source": "binding",
   "text_hash": "bdb5fea671563249"
  },
  "GD05-122": {
@@ -4551,91 +6711,465 @@
        "_": "Var",
        "name": "t1"
       }
+     },
+     {
+      "_": "CustomStep",
+      "name": "wp_gd05_b_resolving_command_to_trash"
+     },
+     {
+      "_": "If",
+      "cond": {
+       "_": "Exists",
+       "sel": {
+        "_": "Sel",
+        "filters": [
+         {
+          "_": "IsRef",
+          "ref": {
+           "_": "ThisCard"
+          }
+         }
+        ],
+        "loc": "trash",
+        "side": "friendly"
+       }
+      },
+      "then": [
+       {
+        "_": "Choose",
+        "optional": true,
+        "sel": {
+         "_": "Sel",
+         "filters": [
+          {
+           "_": "IsKind",
+           "kinds": [
+            "unit"
+           ]
+          },
+          {
+           "_": "HasTrait",
+           "traits": [
+            "MF"
+           ]
+          },
+          {
+           "_": "CustomFilter",
+           "name": "wp_gd05_b_can_pair"
+          }
+         ],
+         "loc": "battle",
+         "side": "friendly"
+        },
+        "targeting": false,
+        "var": "pair_with"
+       },
+       {
+        "_": "Pair",
+        "pilot": {
+         "_": "ThisCard"
+        },
+        "unit": {
+         "_": "Var",
+         "name": "pair_with"
+        }
+       }
+      ]
      }
     ],
     "timing": "main"
+   }
+  ],
+  "binding": "wp_gd05_b",
+  "name": "Graviton Hammer",
+  "source": "binding",
+  "text_hash": "1fced65f33a0e366"
+ },
+ "GD05-123": {
+  "abilities": [
+   {
+    "_": "Burst",
+    "steps": [
+     {
+      "_": "DeployCard",
+      "ref": {
+       "_": "ThisCard"
+      }
+     }
+    ]
    },
    {
     "_": "Triggered",
     "steps": [
      {
-      "_": "May",
-      "steps": [
-       {
-        "_": "May",
-        "steps": [
-         {
-          "_": "Choose",
-          "sel": {
-           "_": "Sel",
-           "filters": [
-            {
-             "_": "IsKind",
-             "kinds": [
-              "unit"
-             ]
-            },
-            {
-             "_": "HasTrait",
-             "traits": [
-              "MF"
-             ]
-            }
-           ],
-           "loc": "battle",
-           "side": "friendly"
-          },
-          "var": "t1"
-         },
-         {
-          "_": "Pair",
-          "pilot": {
-           "_": "ThisCard"
-          },
-          "unit": {
-           "_": "Var",
-           "name": "t1"
-          }
-         }
-        ]
-       }
-      ]
+      "_": "ShieldToHand"
      }
     ],
     "trigger": {
      "_": "Trigger",
-     "event": "command_resolved"
+     "event": "deployed"
+    }
+   },
+   {
+    "_": "Constant",
+    "cond": {
+     "_": "IsTurn",
+     "player": "opponent"
     },
-    "where": "trash"
+    "effects": [
+     {
+      "_": "RuleGrant",
+      "rule": {
+       "_": "RuleMod",
+       "amount": 2,
+       "damage_kind": "effect",
+       "kind": "cant_receive_damage",
+       "source_side": "enemy"
+      }
+     }
+    ],
+    "scope": {
+     "_": "All",
+     "sel": {
+      "_": "Sel",
+      "filters": [
+       {
+        "_": "IsKind",
+        "kinds": [
+         "unit"
+        ]
+       },
+       {
+        "_": "HasTrait",
+        "traits": [
+         "Orb"
+        ]
+       }
+      ],
+      "loc": "battle",
+      "side": "friendly"
+     }
+    }
    }
   ],
-  "name": "Graviton Hammer",
-  "source": "compiled",
-  "text_hash": "1fced65f33a0e366"
- },
- "GD05-123": {
-  "error": "\"During your opponent's turn, friendly (Orb) Units can't receive 2 or less enemy effect damage.\": unknown predicate \"can't receive 2 or less enemy effect damage\"",
+  "binding": "wp_gd05_b",
   "name": "Archangel",
+  "source": "binding",
   "text_hash": "27a40dc34add687d"
  },
  "GD05-124": {
-  "error": "\"During your turn, when you would rest a Unit with a friendly (League Militaire) Unit's effect, you may rest this Base instead.\": unknown trigger \"when you would rest a Unit with a friendly (League Militaire) Unit's effect\"",
+  "abilities": [
+   {
+    "_": "Burst",
+    "steps": [
+     {
+      "_": "DeployCard",
+      "ref": {
+       "_": "ThisCard"
+      }
+     }
+    ]
+   },
+   {
+    "_": "Triggered",
+    "steps": [
+     {
+      "_": "ShieldToHand"
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "event": "deployed"
+    }
+   },
+   {
+    "_": "Constant",
+    "cond": {
+     "_": "IsTurn"
+    },
+    "effects": [
+     {
+      "_": "RuleGrant",
+      "rule": {
+       "_": "RuleMod",
+       "kind": "rest_substitute",
+       "name": "unit",
+       "source_filters": [
+        {
+         "_": "IsKind",
+         "kinds": [
+          "unit"
+         ]
+        },
+        {
+         "_": "HasTrait",
+         "traits": [
+          "League Militaire"
+         ]
+        }
+       ]
+      }
+     }
+    ]
+   }
+  ],
+  "binding": "wp_gd05_b",
   "name": "White Ark",
+  "source": "binding",
   "text_hash": "17fef29da14d96a9"
  },
  "GD05-125": {
-  "error": "'【Activate･Main】Rest this Base:Choose 1 friendly (Londo Bell) Unit. During this turn, when it receives enemy damage, reduce it by 1.': no step template for 'When it receives enemy damage, reduce it by 1'",
+  "abilities": [
+   {
+    "_": "Burst",
+    "steps": [
+     {
+      "_": "DeployCard",
+      "ref": {
+       "_": "ThisCard"
+      }
+     }
+    ]
+   },
+   {
+    "_": "Triggered",
+    "steps": [
+     {
+      "_": "ShieldToHand"
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "event": "deployed"
+    }
+   },
+   {
+    "_": "Activated",
+    "costs": [
+     {
+      "_": "RestSelf"
+     }
+    ],
+    "steps": [
+     {
+      "_": "Choose",
+      "sel": {
+       "_": "Sel",
+       "filters": [
+        {
+         "_": "IsKind",
+         "kinds": [
+          "unit"
+         ]
+        },
+        {
+         "_": "HasTrait",
+         "traits": [
+          "Londo Bell"
+         ]
+        }
+       ],
+       "loc": "battle",
+       "side": "friendly"
+      },
+      "var": "t1"
+     },
+     {
+      "_": "Apply",
+      "effect": {
+       "_": "RuleGrant",
+       "rule": {
+        "_": "RuleMod",
+        "amount": 1,
+        "kind": "reduce_damage",
+        "source_side": "enemy"
+       }
+      },
+      "ref": {
+       "_": "Var",
+       "name": "t1"
+      }
+     }
+    ],
+    "timing": "main"
+   }
+  ],
+  "binding": "wp_gd05_b",
   "name": "Ra Cailum",
+  "source": "binding",
   "text_hash": "7c98278aabc0923a"
  },
  "GD05-126": {
-  "error": "'【Activate･Main】【Once per Turn】②:If you have a Unit with \"Gundam Aerial\" in its card name that is Lv.5 or higher in play, deploy 1 [Gundnode]((Quiet Zero)･AP2･HP2･<Breach 1>) Unit token.': no step template for 'Deploy 1 [Gundnode]((Quiet Zero)･AP2･HP2･<Breach 1>) Unit token'",
+  "abilities": [
+   {
+    "_": "Burst",
+    "steps": [
+     {
+      "_": "DeployCard",
+      "ref": {
+       "_": "ThisCard"
+      }
+     }
+    ]
+   },
+   {
+    "_": "Triggered",
+    "steps": [
+     {
+      "_": "ShieldToHand"
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "event": "deployed"
+    }
+   },
+   {
+    "_": "Activated",
+    "costs": [
+     {
+      "_": "PayResources",
+      "amount": 2
+     }
+    ],
+    "once_per_turn": true,
+    "steps": [
+     {
+      "_": "If",
+      "cond": {
+       "_": "Exists",
+       "sel": {
+        "_": "Sel",
+        "filters": [
+         {
+          "_": "IsKind",
+          "kinds": [
+           "unit"
+          ]
+         },
+         {
+          "_": "NameContains",
+          "parts": [
+           "Gundam Aerial"
+          ]
+         },
+         {
+          "_": "StatCmp",
+          "op": ">=",
+          "stat": "lv",
+          "value": 5
+         }
+        ],
+        "loc": "battle",
+        "side": "friendly"
+       }
+      },
+      "then": [
+       {
+        "_": "DeployToken",
+        "token_key": "Gundnode|Quiet Zero|2|2|<Breach 1>."
+       }
+      ]
+     }
+    ],
+    "timing": "main"
+   }
+  ],
+  "binding": "wp_gd05_b",
   "name": "Quiet Zero",
+  "source": "binding",
   "text_hash": "405a87c588b198cb"
  },
  "GD05-127": {
-  "error": "\"【Once per Turn】When a friendly (Phantom Pain) Unit links, choose 1 enemy Unit. It can't activate <Blocker> during this turn.\": no selector head in 'all enemy It'",
+  "abilities": [
+   {
+    "_": "Burst",
+    "steps": [
+     {
+      "_": "DeployCard",
+      "ref": {
+       "_": "ThisCard"
+      }
+     }
+    ]
+   },
+   {
+    "_": "Triggered",
+    "steps": [
+     {
+      "_": "ShieldToHand"
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "event": "deployed"
+    }
+   },
+   {
+    "_": "Triggered",
+    "once_per_turn": true,
+    "steps": [
+     {
+      "_": "Choose",
+      "sel": {
+       "_": "Sel",
+       "filters": [
+        {
+         "_": "IsKind",
+         "kinds": [
+          "unit"
+         ]
+        }
+       ],
+       "loc": "battle",
+       "side": "enemy"
+      },
+      "var": "t1"
+     },
+     {
+      "_": "Apply",
+      "effect": {
+       "_": "RuleGrant",
+       "rule": {
+        "_": "RuleMod",
+        "kind": "cant_block"
+       }
+      },
+      "ref": {
+       "_": "Var",
+       "name": "t1"
+      }
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "event": "linked",
+     "self_only": false,
+     "subject": {
+      "_": "Sel",
+      "filters": [
+       {
+        "_": "IsKind",
+        "kinds": [
+         "unit"
+        ]
+       },
+       {
+        "_": "HasTrait",
+        "traits": [
+         "Phantom Pain"
+        ]
+       }
+      ],
+      "loc": "battle",
+      "side": "friendly"
+     }
+    }
+   }
+  ],
+  "binding": "wp_gd05_b",
   "name": "Girty Lue",
+  "source": "binding",
   "text_hash": "04ee2cbc55618e84"
  },
  "GD05-128": {
@@ -4738,13 +7272,207 @@
   "text_hash": "0f6ac3e439f3c705"
  },
  "GD05-129": {
-  "error": "\"【Activate･Main】Rest this Base:If one of your Units has been destroyed by one of your (Neo Zeon) card's effects during this turn, deploy 1 (Neo Zeon) Unit card that is Lv.3 or lower from your hand.\": no step template for \"If one of your Units has been destroyed by one of your (Neo Zeon) card's effects during this turn, deploy 1 (Neo Zeon) Unit card that is Lv.3 or lower from your hand\"",
+  "abilities": [
+   {
+    "_": "Burst",
+    "steps": [
+     {
+      "_": "DeployCard",
+      "ref": {
+       "_": "ThisCard"
+      }
+     }
+    ]
+   },
+   {
+    "_": "Triggered",
+    "steps": [
+     {
+      "_": "ShieldToHand"
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "event": "deployed"
+    }
+   },
+   {
+    "_": "Activated",
+    "costs": [
+     {
+      "_": "RestSelf"
+     }
+    ],
+    "steps": [
+     {
+      "_": "If",
+      "cond": {
+       "_": "HappenedThisTurn",
+       "by": "you",
+       "filters": [
+        {
+         "_": "IsKind",
+         "kinds": [
+          "unit"
+         ]
+        }
+       ],
+       "kind": "destroyed"
+      },
+      "then": [
+       {
+        "_": "Choose",
+        "sel": {
+         "_": "Sel",
+         "filters": [
+          {
+           "_": "IsKind",
+           "kinds": [
+            "unit"
+           ]
+          },
+          {
+           "_": "HasTrait",
+           "traits": [
+            "Neo Zeon"
+           ]
+          },
+          {
+           "_": "StatCmp",
+           "op": "<=",
+           "stat": "lv",
+           "value": 3
+          }
+         ],
+         "loc": "hand",
+         "side": "friendly"
+        },
+        "targeting": false,
+        "var": "t1"
+       },
+       {
+        "_": "DeployCard",
+        "ref": {
+         "_": "Var",
+         "name": "t1"
+        }
+       }
+      ]
+     }
+    ],
+    "timing": "main"
+   }
+  ],
+  "binding": "wp_gd05_b",
   "name": "Axis",
+  "source": "binding",
   "text_hash": "b167b955c35870f6"
  },
  "GD05-130": {
-  "error": "'【Destroyed】You may exile this card in your trash from the game. If you do, you may deploy 1 Base card with \"Presidential Office\" in its card name from your hand.': no selector head in 'this card in your trash'",
+  "abilities": [
+   {
+    "_": "Burst",
+    "steps": [
+     {
+      "_": "DeployCard",
+      "ref": {
+       "_": "ThisCard"
+      }
+     }
+    ]
+   },
+   {
+    "_": "Triggered",
+    "steps": [
+     {
+      "_": "ShieldToHand"
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "event": "deployed"
+    }
+   },
+   {
+    "_": "Triggered",
+    "steps": [
+     {
+      "_": "May",
+      "steps": [
+       {
+        "_": "Choose",
+        "sel": {
+         "_": "Sel",
+         "filters": [
+          {
+           "_": "IsRef",
+           "ref": {
+            "_": "ThisCard"
+           }
+          }
+         ],
+         "loc": "trash",
+         "side": "friendly"
+        },
+        "targeting": false,
+        "var": "self"
+       },
+       {
+        "_": "Exile",
+        "ref": {
+         "_": "Var",
+         "name": "self"
+        }
+       }
+      ]
+     },
+     {
+      "_": "IfYouDo",
+      "steps": [
+       {
+        "_": "Choose",
+        "optional": true,
+        "sel": {
+         "_": "Sel",
+         "filters": [
+          {
+           "_": "IsKind",
+           "kinds": [
+            "base"
+           ]
+          },
+          {
+           "_": "NameContains",
+           "parts": [
+            "Presidential Office"
+           ]
+          }
+         ],
+         "loc": "hand",
+         "side": "friendly"
+        },
+        "targeting": false,
+        "var": "t1"
+       },
+       {
+        "_": "DeployCard",
+        "ref": {
+         "_": "Var",
+         "name": "t1"
+        }
+       }
+      ]
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "event": "destroyed"
+    }
+   }
+  ],
+  "binding": "wp_gd05_b",
   "name": "Presidential Office",
+  "source": "binding",
   "text_hash": "b3bb15a2f95454d0"
  }
 }
