@@ -424,33 +424,53 @@ def _activation_ok(st: GameState, dv: V.Derived, p: int, host: int, a: AbilityEn
 
 
 def _attack_options(st: GameState, p: int) -> list[Action]:
-    """Rules 3-2-4, 3-2-6-3, 7-5-4-1, 8-2-1."""
+    """Rules 3-2-4, 3-2-6-3, 7-5-4-1, 8-2-1, plus attack restrictions/permissions from effects."""
     dv = V.derived(st)
     out: list[Action] = []
     enemy = 1 - p
+    enemy_units = st.zones[enemy][Zone.BATTLE]
+    forced = [
+        t
+        for t in enemy_units
+        if st.cards[t].rested
+        and V.rules_of(dv, t, d.RuleKind.FORCE_ATTACK_TARGET)
+        and not V.rules_of(dv, t, d.RuleKind.CANT_BE_ATTACKED)
+    ]
     for uid in st.zones[p][Zone.BATTLE]:
         c = st.cards[uid]
         if c.rested or V.rules_of(dv, uid, d.RuleKind.CANT_ATTACK):
             continue
-        if (
-            c.entered_turn == st.turn
-            and uid not in dv.linked
-            and not V.rules_of(dv, uid, d.RuleKind.ATTACK_ON_DEPLOY_TURN)
-        ):
-            continue
-        if not V.rules_of(dv, uid, d.RuleKind.CANT_ATTACK_PLAYER):
+        deploy_limits: tuple[d.Filter, ...] | None = None
+        if c.entered_turn == st.turn and uid not in dv.linked:
+            perms = V.rules_of(dv, uid, d.RuleKind.ATTACK_ON_DEPLOY_TURN)
+            if not perms:
+                continue
+            if all(r.rule.name == "units_only" for r in perms):
+                deploy_limits = perms[0].rule.source_filters
+        unit_targets: list[int] = []
+        if not V.rules_of(dv, uid, d.RuleKind.CANT_ATTACK_UNITS):
+            active_perms = V.rules_of(dv, uid, d.RuleKind.MAY_ATTACK_ACTIVE)
+            for t in enemy_units:
+                if V.rules_of(dv, t, d.RuleKind.CANT_BE_ATTACKED):
+                    continue
+                tc = st.cards[t]
+                ok = tc.rested or any(
+                    not r.rule.source_filters
+                    or V.matches(st, dv, V.Ctx(p, uid), t, r.rule.source_filters)
+                    for r in active_perms
+                )
+                if ok and deploy_limits is not None and deploy_limits:
+                    ok = V.matches(st, dv, V.Ctx(p, uid), t, deploy_limits)
+                if ok:
+                    unit_targets.append(t)
+        if forced:
+            legal_forced = [t for t in forced if t in unit_targets]
+            if legal_forced:
+                out.extend(Action(A.ATTACK, uid, t) for t in legal_forced)
+                continue
+        if deploy_limits is None and not V.rules_of(dv, uid, d.RuleKind.CANT_ATTACK_PLAYER):
             out.append(Action(A.ATTACK, uid, PLAYER_TARGET))
-        if V.rules_of(dv, uid, d.RuleKind.CANT_ATTACK_UNITS):
-            continue
-        active_perms = V.rules_of(dv, uid, d.RuleKind.MAY_ATTACK_ACTIVE)
-        for t in st.zones[enemy][Zone.BATTLE]:
-            tc = st.cards[t]
-            if tc.rested or any(
-                not r.rule.source_filters
-                or V.matches(st, dv, V.Ctx(p, uid), t, r.rule.source_filters)
-                for r in active_perms
-            ):
-                out.append(Action(A.ATTACK, uid, t))
+        out.extend(Action(A.ATTACK, uid, t) for t in unit_targets)
     return out
 
 

@@ -330,7 +330,15 @@ def _delayed_triggers(
             )
             if dt is not None and dt.trigger.event is ev:
                 host = le.source_uid
-                if _trigger_ok(st, dv, dt.trigger, host, le.controller, event):
+                bound = [u for u, seq in le.targets if st.cards[u].zone_seq == seq]
+                subject = _payload(event, "subject")
+                if dt.trigger.self_only and le.targets:
+                    ok = subject in bound and _trigger_ok(
+                        st, dv, dt.trigger, subject, st.cards[subject].owner, event
+                    )
+                else:
+                    ok = _trigger_ok(st, dv, dt.trigger, host, le.controller, event)
+                if ok:
                     pid = R.program(dt.steps, f"{spec.card_number}#delayed")
                     st.pending_triggers.append(
                         TriggerInst(
@@ -402,7 +410,10 @@ def _keyword_triggers(
         # rule 13-1-2: <Breach> during your turn when this Unit destroys an enemy Unit with battle damage
         owner = st.cards[subject].owner
         amount = _payload(event, "breach")
-        if amount <= 0 or owner != st.active:
+        victim = _payload(event, "target")
+        if amount <= 0 or owner != st.active or victim < 0:
+            return
+        if not V.reg().db.by_id(st.cards[victim].def_id).card_type.is_unit:
             return
         victim_owner = 1 - owner
         if not st.zones[victim_owner][Zone.BASE] and not st.zones[victim_owner][Zone.SHIELD]:
@@ -500,7 +511,46 @@ def damage_card(st: GameState, uid: int, amount: int, *, source: int, battle: bo
         source=source,
         by=by,
     )
+    if source >= 0:
+        emit(
+            st,
+            d.Ev.DEALS_DAMAGE,
+            source,
+            player=st.cards[source].owner,
+            target=uid,
+            amount=amount,
+            battle=int(battle),
+            by=by,
+        )
     return amount
+
+
+def shield_area_protected(st: GameState, player: int, source: int, battle: bool, by: int) -> bool:
+    """Player-level protection of a shield area (e.g. "your shield area cards can't receive
+    damage from enemy Units that are Lv.3 or lower during this battle")."""
+    if not st.lasting:
+        return False
+    R = V.reg()
+    dv = V.derived(st)
+    for le in st.lasting:
+        if le.player != player:
+            continue
+        eff = R.continuous[le.effect_key]
+        if not isinstance(eff, d.RuleGrant) or eff.rule.kind is not d.RuleKind.SHIELD_AREA_PROTECTION:
+            continue
+        rule = eff.rule
+        if rule.damage_kind is d.DamageKind.BATTLE and not battle:
+            continue
+        if rule.damage_kind is d.DamageKind.EFFECT and battle:
+            continue
+        if rule.source_side is d.Side.ENEMY and (by < 0 or by == player):
+            continue
+        if rule.source_filters and (
+            source < 0 or not V.matches(st, dv, V.Ctx(player, source), source, rule.source_filters)
+        ):
+            continue
+        return True
+    return False
 
 
 def destroy_shields(
@@ -543,6 +593,16 @@ def destroy_shields(
             by=by,
             group=group,
         )
+        if source >= 0:
+            emit(
+                st,
+                d.Ev.DESTROYS_SHIELD_CARD,
+                source,
+                player=st.cards[source].owner,
+                target=uid,
+                battle=int(battle),
+                group=group,
+            )
 
 
 def damage_shield_area(
@@ -550,6 +610,8 @@ def damage_shield_area(
 ) -> None:
     """Damage the first card(s) of a shield area: the Base if present, else top Shield(s)."""
     if amount <= 0:
+        return
+    if shield_area_protected(st, player, source, battle, by):
         return
     base = st.zones[player][Zone.BASE]
     if base:

@@ -80,6 +80,8 @@ def normalize(text: str) -> str:
         "【Activate･ Action】", "【Activate･Action】"
     )
     t = t.replace("：", ":")
+    t = re.sub(r"(\w)' (s|t|re|ll|ve|d)\b", r"\1'\2", t)
+    t = t.replace("[Suppression]", "<Suppression>")
     t = strip_reminders(t)
     lines = []
     for raw in t.split("\n"):
@@ -110,7 +112,13 @@ def split_abilities(normalized: str) -> list[RawAbility]:
     if normalized.strip() in ("", "-"):
         return []
     out: list[RawAbility] = []
+    joined: list[str] = []
     for line in normalized.split("\n"):
+        if line.startswith("■") and joined:
+            joined[-1] = joined[-1] + "\n" + line
+        else:
+            joined.append(line)
+    for line in joined:
         if line in ("-",):
             continue
         rest = line

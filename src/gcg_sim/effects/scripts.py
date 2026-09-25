@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from gcg_sim.cards.model import CardDef
+from gcg_sim.effects import builtins as _builtins
 from gcg_sim.effects.bindings import load_bindings
 from gcg_sim.effects.compiler import compile_card
 from gcg_sim.effects.dsl import CardScript
@@ -13,6 +14,9 @@ def script_for(cdef: CardDef) -> CardScript:
     if bound is not None:
         return bound[1](cdef)
     return compile_card(cdef)
+
+
+_ = _builtins
 
 
 def binding_module(card_number: str) -> str | None:

@@ -83,8 +83,11 @@ def block(st: GameState, blocker: int) -> None:
     b.blocked = True
     st.touch()
     core.record(st, "block", c.owner, c.owner, blocker)
-    core.next_group(st)
-    core.emit(st, d.Ev.BLOCKS, blocker, player=c.owner, attacker=b.attacker)
+    group = core.next_group(st)
+    core.emit(st, d.Ev.BLOCKS, blocker, player=c.owner, attacker=b.attacker, group=group)
+    core.emit(
+        st, d.Ev.BLOCKED, b.attacker, player=st.cards[b.attacker].owner, blocker=blocker, group=group
+    )
 
 
 def _destroy_battle(st: GameState, victims: dict[int, int]) -> list[int]:
@@ -103,6 +106,17 @@ def _destroy_battle(st: GameState, victims: dict[int, int]) -> list[int]:
     for u in destroyed:
         src = victims[u]
         if st.cards[src].owner == st.cards[u].owner:
+            continue
+        if V.reg().db.by_id(st.cards[u].def_id).card_type.is_base:
+            core.emit(
+                st,
+                d.Ev.DESTROYS_SHIELD_CARD,
+                src,
+                player=st.cards[src].owner,
+                target=u,
+                battle=1,
+                group=group,
+            )
             continue
         core.emit(
             st,
@@ -152,6 +166,10 @@ def damage_step(st: GameState) -> None:
     if b.target == PLAYER_TARGET:
         defender = b.defender
         base = st.zones[defender][Zone.BASE]
+        if (base or st.zones[defender][Zone.SHIELD]) and core.shield_area_protected(
+            st, defender, attacker, True, a_owner
+        ):
+            return
         if base:
             _exchange(st, attacker, base[0], first_strike)  # rules 8-5-2-4, 8-5-2-4-2
         elif st.zones[defender][Zone.SHIELD]:

@@ -601,6 +601,10 @@ class RuleKind(StrEnum):
     PLAY_COST_DELTA = "play_cost_delta"  # card in hand: cost +/- amount
     PLAY_LEVEL_DELTA = "play_level_delta"
     ATTACK_TARGET_FIXED = "attack_target_fixed"
+    CANT_BE_ATTACKED = "cant_be_attacked"  # enemy Units can't choose this as their attack target
+    FORCE_ATTACK_TARGET = "force_attack_target"  # enemy Units must choose this (rested) Unit if possible
+    SHIELD_AREA_PROTECTION = "shield_area_protection"  # player-level: shield area can't receive damage
+    AP_CANT_BE_REDUCED = "ap_cant_be_reduced"
     CUSTOM = "custom"
 
 
@@ -677,11 +681,14 @@ class Ev(StrEnum):
     DEPLOYED = "deployed"  # Unit/Base deployed (subject)
     ATTACKS = "attacks"  # attack declared (subject = attacker, target)
     BLOCKS = "blocks"  # <Blocker> activated (subject = blocker, attacker)
+    BLOCKED = "blocked"  # the attacking Unit was blocked (subject = attacker, blocker)
     DESTROYED = "destroyed"  # subject destroyed (battle or effect)
     PAIRED = "paired"  # pilot paired (subject = unit, pilot)
     LINKED = "linked"  # pilot meeting link condition paired (subject = unit, pilot)
     DAMAGED = "damaged"  # subject received damage (amount, battle flag, source)
     DESTROYS_BY_BATTLE = "destroys_by_battle"  # subject destroyed an enemy Unit with battle damage
+    DESTROYS_SHIELD_CARD = "destroys_shield_card"  # subject destroyed an enemy shield area card
+    DEALS_DAMAGE = "deals_damage"  # subject dealt damage to target (amount, battle flag)
     SHIELD_DESTROYED = "shield_destroyed"  # a Shield was destroyed (subject shield, owner)
     TURN_START = "turn_start"
     TURN_END = "turn_end"
@@ -1136,6 +1143,14 @@ class DelayedTrigger:
 
 
 @dataclass(frozen=True, slots=True)
+class PayCost:
+    """Rest ``amount`` active Resources as part of an effect ("You may pay ①"); did = paid."""
+
+    amount: int
+    player: P = P.YOU
+
+
+@dataclass(frozen=True, slots=True)
 class CustomStep:
     name: str
     params: tuple[tuple[str, object], ...] = ()
@@ -1185,6 +1200,7 @@ type Step = (
     | Repeat
     | BindVar
     | DelayedTrigger
+    | PayCost
     | CustomStep
 )
 

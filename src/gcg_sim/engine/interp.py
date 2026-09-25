@@ -660,12 +660,12 @@ def _h_deploy_card(st: GameState, f: Frame, ins: d.DeployCard) -> Status:
                 trash_excess(st, base[0])
             else:
                 return _ask_excess(st, f, p, Zone.BASE, tuple(us))
-    deploy_cards(st, cards, rested=ins.rested, by=f.controller)
+    deploy_cards(st, cards, rested=ins.rested, by=f.controller, ex_used=f.ints.get("ex_used", 0))
     f.did = True
     return Status.NEXT
 
 
-def deploy_cards(st: GameState, cards: list[int], *, rested: bool, by: int) -> None:
+def deploy_cards(st: GameState, cards: list[int], *, rested: bool, by: int, ex_used: int = 0) -> None:
     group = core.next_group(st)
     froms = {u: st.cards[u].zone for u in cards}
     for u in cards:
@@ -681,6 +681,7 @@ def deploy_cards(st: GameState, cards: list[int], *, rested: bool, by: int) -> N
             by=by,
             group=group,
             from_loc=V.zone_loc_code(froms[u]),
+            ex_used=ex_used,
         )
 
 
@@ -1214,6 +1215,12 @@ def _h_delayed(st: GameState, f: Frame, ins: d.DelayedTrigger) -> Status:
     return Status.NEXT
 
 
+def _h_pay_cost(st: GameState, f: Frame, ins: d.PayCost) -> Status:
+    p = V.player_of(st, ctx_of(f), ins.player)
+    f.did = pay_generic(st, p, ins.amount)
+    return Status.NEXT
+
+
 def _h_custom(st: GameState, f: Frame, ins: d.CustomStep) -> Status:
     fn = CUSTOM_STEPS[ins.name]
     f.did = fn(st, f, ctx_of(f), dict(ins.params))
@@ -1286,6 +1293,7 @@ _HANDLERS: dict[type, Callable[..., Status]] = {
     d.ChangeAttackTarget: _h_change_target,
     d.BindVar: _h_bind,
     d.DelayedTrigger: _h_delayed,
+    d.PayCost: _h_pay_cost,
     d.CustomStep: _h_custom,
 }
 
