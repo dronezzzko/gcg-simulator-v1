@@ -106,7 +106,10 @@ tuning workflow with adequate sample sizes.
   bindings.
 - **AI.** Information-set Monte Carlo tree search (determinized, with fixed node budgets) plus
   random and greedy baselines.
-- **Runner.** A process pool that derives every seed from the master seed.
+- **Runner.** A process pool that derives every seed from the master seed. With the
+  `standard` preset, 100 BO3 matches of the example decks take about 6–11 minutes on 8 cores
+  (measurements in [`docs/AI.md`](docs/AI.md)). Against a random player the AI won 400/400
+  games, and against the greedy baseline 276/400 (Wilson 95% [0.643, 0.733]).
 
 Details: [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) and [`docs/AI.md`](docs/AI.md).
 

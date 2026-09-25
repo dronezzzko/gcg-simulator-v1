@@ -191,21 +191,23 @@ uv run python -m gcg_sim.ai.tuning --games 2 --rounds 1
 | `standard` (default) | clamp(32·n, 80, 320) | exploration 0.3, rollout temperature 0.5, 24 play/draw game pairs, 96 mulligan samples |
 | `strong` | clamp(128·n, 320, 1280) | exploration 0.15, rollout temperature 0.3, 48 play/draw game pairs, 192 mulligan samples |
 
-Measured MCTS-vs-MCTS throughput (both players use the preset, mirrored games, 13 worker
-processes on a 14-core Apple-silicon machine; core-seconds = wall time × workers):
+Measured on the integrated engine (commit 013ea8f, 8 worker processes on an otherwise idle
+14-core Apple-silicon machine; core-seconds = wall time × workers):
 
-| Preset | Decks | Games | Mean turns | Core-seconds per game | Games per core-minute |
-| --- | --- | ---: | ---: | ---: | ---: |
-| standard | Federation vs SEED (test decks) | 52 | 17.2 | 36.3 | 1.65 |
-| standard | Zeon vs Wing (tuning decks) | 52 | 15.5 | 23.5 | 2.55 |
-| strong | Federation vs SEED (test decks) | 26 | 16.4 | 135.6 | 0.44 |
-| strong | Zeon vs Wing (tuning decks) | 26 | 14.7 | 78.0 | 0.77 |
+| Measurement | Games | Mean turns | Wall time | Core-seconds per game | Games per core-minute |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| `gcg_sim.ai.throughput --preset standard` (tuning decks, MCTS vs MCTS) | 24 | 14.3 | 38.0 s | 12.7 | 4.74 |
+| `gcg_sim.ai.throughput --preset strong` (tuning decks, MCTS vs MCTS) | 16 | 15.0 | 121.8 s | 60.9 | 0.99 |
+| `gcg-sim benchmark` red-green-zeon vs blue-white-federation, 16 BO3 matches, standard | 44 | 15.7 | 100.2 s | 18.2 | 3.29 |
+| `gcg-sim benchmark` red-green-zeon mirror, 32 BO3 matches, standard | 81 | — | 107.9 s | 10.7 | 5.63 |
 
-A single process (no contention) played 4 standard games on the test decks at 2.08 games per
-core-minute. At 1.65 games per core-minute, 100 BO3 matches (about 250 games) take about
-19 minutes on 8 cores; `strong` is about 3.7× slower. About 90% of search time is spent inside
-the engine's `apply`, two thirds of it recomputing derived characteristics
-(`engine/view.py:_compute`); the playout policy and evaluation take under 10%.
+So 100 BO3 matches of the example decks (about 250–275 games) take about 6–11 minutes on 8
+cores with `standard`, well inside the 30-minute target; `strong` is about 4–5× slower.
+During development, on the AI branch's older engine and the AI test decks (Federation vs
+SEED, 13 workers), `standard` measured 1.65 games per core-minute and `strong` 0.44.
+About 90% of search time is spent inside the engine's `apply`, two thirds of it recomputing
+derived characteristics (`engine/view.py:_compute`); the playout policy and evaluation take
+under 10%.
 
 Measure with (wall-clock is read only to report speed):
 
@@ -218,17 +220,21 @@ uv run python -m gcg_sim.ai.throughput --preset standard --games 1
 Acceptance test `tests/slow/test_ai_strength.py` (default `standard` preset, test decks
 Federation blue/white and SEED red/white from `tests/ai/decks.py`, 400 games per opponent in
 mirrored blocks of four so each deal is played with the MCTS agent on both decks and in both
-seats; 13 worker processes, 15.6 min for all 800 games):
+seats). Run on the integrated engine (commit 013ea8f, 12 worker processes, 10.1 min for all
+800 games):
 
 | Opponent | MCTS score | Win rate | Wilson 95% interval | Mean turns |
 | --- | ---: | ---: | --- | ---: |
-| random | 399 / 400 | 0.998 | [0.986, 1.000] | 11.5 |
-| greedy | 272 / 400 | 0.680 | [0.633, 0.724] | 17.6 |
+| random | 400 / 400 | 1.000 | [0.990, 1.000] | 11.4 |
+| greedy | 276 / 400 | 0.690 | [0.643, 0.733] | 17.6 |
+
+(On the AI branch's older engine the same test scored 399/400 and 272/400.)
 
 Greedy is a demanding baseline: it shares the tuned evaluation and the playout policy, and
 it compares its moves on a single world (so its comparisons have no sampling noise).
 
-`strong` against `standard` (test decks, mirrored): 58 of 96 games (seed 7) and 103 of 192
+`strong` against `standard` (measured during development on the older engine; test decks,
+mirrored): 58 of 96 games (seed 7) and 103 of 192
 (seed 8), together 161 of 288 = 0.559, Wilson 95% [0.501, 0.615]. Simply giving the standard
 knobs 4× the iterations did not help (46 of 96, 0.479), nor did a three-turn horizon at 2×
 (51 of 96); what helps a large budget is spending it on the best lines (exploration 0.15) with
