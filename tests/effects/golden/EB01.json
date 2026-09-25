@@ -61,9 +61,11 @@
       "_": "Apply",
       "duration": "opponent_next_turn",
       "effect": {
-       "_": "AbilityGrant",
-       "ability_index": 1,
-       "card_number": "EB01-001"
+       "_": "RuleGrant",
+       "rule": {
+        "_": "RuleMod",
+        "kind": "stays_rested_in_start_phase"
+       }
       },
       "ref": {
        "_": "Var",
@@ -72,23 +74,6 @@
      }
     ],
     "timing": "main"
-   },
-   {
-    "_": "Constant",
-    "cond": {
-     "_": "CustomCond",
-     "name": "wp_eb01_a_start_phase_in_battle_area"
-    },
-    "effects": [
-     {
-      "_": "RuleGrant",
-      "rule": {
-       "_": "RuleMod",
-       "kind": "cant_be_set_active"
-      }
-     }
-    ],
-    "where": "trash"
    }
   ],
   "binding": "wp_eb01_a",

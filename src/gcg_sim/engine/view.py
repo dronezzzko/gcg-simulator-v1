@@ -72,6 +72,7 @@ class Derived:
         "by_event",
         "cost_mod",
         "hp",
+        "key",
         "kw",
         "level_mod",
         "linked",
@@ -90,6 +91,7 @@ class Derived:
         self.linked: set[int] = set()
         self.abilities: dict[int, list[AbilityEntry]] = {}
         self.by_event: dict[d.Ev, list[tuple[int, AbilityEntry]]] | None = None
+        self.key: tuple[object, ...] = ()
 
     def same_values(self, other: Derived) -> bool:
         return (
@@ -220,12 +222,23 @@ def _host_abilities(
 # derived computation
 
 
+def _view_key(st: GameState) -> tuple[object, ...]:
+    """Turn state the view reads besides the cards and lasting effects (whose changes call
+    ``st.touch()``): the turn player, battles and turn history. No view input depends on the
+    phase or step; start-phase restrictions are rules checked by the active step itself."""
+    b = st.battles[-1] if st.battles else None
+    battle = (b.battle_id, b.target, b.ended) if b is not None else ()
+    return (st.active, st.turn, len(st.battles), battle, len(st.history))
+
+
 def derived(st: GameState) -> Derived:
-    dv = st._derived
-    if dv is None:
+    dv: Derived | None = st._derived
+    key = _view_key(st)
+    if dv is None or dv.key != key:
         dv = _compute(st)
+        dv.key = key
         st._derived = dv
-    return dv  # type: ignore[no-any-return]
+    return dv
 
 
 _HOST_ZONES = (Zone.BATTLE, Zone.BASE, Zone.PAIRED, Zone.HAND, Zone.TRASH)

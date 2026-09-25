@@ -11,17 +11,15 @@ from __future__ import annotations
 
 from gcg_sim.cards.model import CardDef
 from gcg_sim.effects import dsl as d
-from gcg_sim.effects.bindings import card, custom_cond, custom_step
+from gcg_sim.effects.bindings import card, custom_step
 from gcg_sim.engine import view as V
 from gcg_sim.engine.state import Frame, GameState
-from gcg_sim.engine.types import Duration, Step, Zone
+from gcg_sim.engine.types import Duration, Zone
 
 UNIT = d.IsKind((d.CardKind.UNIT,))
 G_GENERATION = d.HasTrait(("G Generation",))
 NEVER: d.Cond = d.Or(())
 G_GENERATION_TRASH = d.Sel(d.Side.FRIENDLY, d.Loc.TRASH, (G_GENERATION,))
-START_PHASE_STEPS = frozenset({Step.ACTIVE_STEP, Step.START_STEP, Step.DRAW_STEP})
-EB01_001_FREEZE_INDEX = 1
 
 
 def _units(side: d.Side, *filters: d.Filter) -> d.Sel:
@@ -60,15 +58,6 @@ def _development(n: int, effect: tuple[d.Step, ...]) -> tuple[d.Step, ...]:
 # custom hooks
 
 
-@custom_cond("wp_eb01_a_start_phase_in_battle_area")
-def start_phase_in_battle_area(
-    st: GameState, dv: V.Derived, ctx: V.Ctx, params: dict[str, object]
-) -> bool:
-    """The host is in the battle area during a start phase; start-step triggers resolve while
-    the engine is on its draw step, before the draw is performed."""
-    return st.step in START_PHASE_STEPS and ctx.host >= 0 and st.cards[ctx.host].zone is Zone.BATTLE
-
-
 @custom_step("wp_eb01_a_look_own_top")
 def look_own_top(st: GameState, f: Frame, ctx: V.Ctx, params: dict[str, object]) -> bool:
     """A player looks at the top card of their own deck; only that player learns it."""
@@ -94,25 +83,13 @@ def eb01_001(c: CardDef) -> d.CardScript:
             d.Rest(d.Var("t1")),
             d.Apply(
                 d.Var("t1"),
-                d.AbilityGrant(c.card_number, EB01_001_FREEZE_INDEX),
+                d.RuleGrant(d.RuleMod(d.RuleKind.STAYS_RESTED_IN_START_PHASE)),
                 Duration.OPPONENT_NEXT_TURN,
             ),
         ),
         once_per_turn=True,
     )
-    start_phase_freeze = d.Constant(
-        (d.RuleGrant(d.RuleMod(d.RuleKind.CANT_BE_SET_ACTIVE)),),
-        cond=d.CustomCond("wp_eb01_a_start_phase_in_battle_area"),
-        where=d.Where.TRASH,
-    )
-    return _script(
-        c,
-        activated,
-        start_phase_freeze,
-        notes="The granted freeze applies only during the start phase of the opponent's next "
-        "turn; its own copy never applies (it would need this card in the battle area while "
-        "in the trash).",
-    )
+    return _script(c, activated)
 
 
 @card("EB01-002")

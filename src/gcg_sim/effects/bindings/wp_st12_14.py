@@ -9,7 +9,7 @@ from gcg_sim.effects.bindings import card, custom_cond, custom_value
 from gcg_sim.engine import core
 from gcg_sim.engine import view as V
 from gcg_sim.engine.state import GameState
-from gcg_sim.engine.types import Duration, Phase, Step, Zone
+from gcg_sim.engine.types import Duration, Zone
 
 FRIENDLY = d.Side.FRIENDLY
 ENEMY = d.Side.ENEMY
@@ -100,12 +100,6 @@ def lowest_rested_enemy_lv(
     enemy = 1 - ctx.controller
     levels = [V.level_of(st, u) for u in st.zones[enemy][Zone.BATTLE] if st.cards[u].rested]
     return min(levels, default=-1)
-
-
-@custom_cond("wp_st12_14_start_phase")
-def start_phase(st: GameState, dv: V.Derived, ctx: V.Ctx, params: dict[str, object]) -> bool:
-    """Rule 7-2; start-step triggers resolve after the engine has moved to the draw step."""
-    return st.phase is Phase.START or st.step is Step.DRAW_STEP
 
 
 # ---------------------------------------------------------------------------------------------
@@ -375,9 +369,9 @@ def st14_001(c: CardDef) -> d.CardScript:
         _lv(d.Op.LE, d.CustomValue("wp_st12_14_lowest_rested_enemy_lv")),
     )
     freeze = d.Constant(
-        (d.RuleGrant(d.RuleMod(d.RuleKind.CANT_BE_SET_ACTIVE)),),
+        (d.RuleGrant(d.RuleMod(d.RuleKind.STAYS_RESTED_IN_START_PHASE)),),
         scope=d.All(lowest_rested),
-        cond=d.And((d.IsTurn(d.P.OPP), d.CustomCond("wp_st12_14_start_phase"))),
+        cond=d.IsTurn(d.P.OPP),
     )
     return _script(c, (d.Keyword(d.Kw.SUPPRESSION), freeze))
 

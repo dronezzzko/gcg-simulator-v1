@@ -12,7 +12,7 @@ from gcg_sim.cards.model import CardType
 from gcg_sim.effects import dsl as d
 from gcg_sim.effects.registry import get_registry
 from gcg_sim.engine import view as V
-from gcg_sim.engine.state import GameState
+from gcg_sim.engine.state import Battle, GameState
 from gcg_sim.engine.types import ActionKind, DecisionKind, Zone
 from gcg_sim.testkit import (
     Scenario,
@@ -1169,3 +1169,25 @@ def test_choosing_from_the_deck_confirms_the_top_cards_first() -> None:
     assert zone_of(st, top[1]) is Zone.HAND
     assert st.zones[0][Zone.DECK][0] == top[3]
     assert set(st.zones[0][Zone.DECK][-2:]) == {top[0], top[2]}
+
+
+@pytest.mark.rule("10-1-5", "5-22-4")
+def test_derived_view_follows_battles_and_the_turn_player_without_explicit_invalidation() -> None:
+    sc = Scenario()
+    mine = sc.add(0, "GD01-041")
+    carta = sc.add(1, "GD02-073")  # the enemy Unit battling it gains <First Strike> on my turn
+    st = sc.start()
+    assert not V.has_kw(V.derived(st), mine, d.Kw.FIRST_STRIKE)
+    st.battles.append(
+        Battle(
+            attacker=mine,
+            attacker_seq=st.cards[mine].zone_seq,
+            target=carta,
+            target_seq=st.cards[carta].zone_seq,
+            defender=1,
+            battle_id=st.next_battle_id,
+        )
+    )
+    assert V.has_kw(V.derived(st), mine, d.Kw.FIRST_STRIKE)
+    st.active = 1
+    assert not V.has_kw(V.derived(st), mine, d.Kw.FIRST_STRIKE)
