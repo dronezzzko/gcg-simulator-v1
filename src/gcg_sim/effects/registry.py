@@ -176,10 +176,44 @@ def _timings(script: d.CardScript) -> frozenset[str]:
 def _register_card(
     reg: Registry, cdef: CardDef, script: d.CardScript | None, error: str | None
 ) -> None:
+    reg.cards.append(_build_entry(reg, cdef, script, error))
+
+
+def override_script(reg: Registry, cdef: CardDef, script: d.CardScript) -> CardEntry:
+    """Replace a card's script in the live registry (used by tests that give a card test-only
+    text); returns the previous entry so the caller can restore it with ``restore_entry``."""
+    previous = reg.cards[cdef.def_id]
+    reg.cards[cdef.def_id] = _build_entry(reg, cdef, script, None)
+    reg.events_by_def[cdef.def_id] = _card_events(reg, reg.cards[cdef.def_id])
+    reg.always_events = reg.always_events | _delayed_events(reg.cards[cdef.def_id])
+    return previous
+
+
+def restore_entry(reg: Registry, entry: CardEntry) -> None:
+    reg.cards[entry.def_id] = entry
+    reg.events_by_def[entry.def_id] = _card_events(reg, entry)
+
+
+def _card_events(reg: Registry, entry: CardEntry) -> frozenset[d.Ev]:
+    if entry.script is None:
+        return frozenset()
+    nodes = _walk_nodes((entry.script.abilities, entry.script.unit_abilities))
+    return frozenset(n.event for n in nodes if isinstance(n, d.Trigger))
+
+
+def _delayed_events(entry: CardEntry) -> frozenset[d.Ev]:
+    if entry.script is None:
+        return frozenset()
+    nodes = _walk_nodes((entry.script.abilities, entry.script.unit_abilities))
+    return frozenset(n.trigger.event for n in nodes if isinstance(n, d.DelayedTrigger))
+
+
+def _build_entry(
+    reg: Registry, cdef: CardDef, script: d.CardScript | None, error: str | None
+) -> CardEntry:
     entry = CardEntry(def_id=cdef.def_id, card_number=cdef.card_number, script=script, error=error)
-    reg.cards.append(entry)
     if script is None:
-        return
+        return entry
     own: list[int] = []
     unit: list[int] = []
     for unit_text, abilities in ((False, script.abilities), (True, script.unit_abilities)):
@@ -235,6 +269,7 @@ def _register_card(
         if _where(reg.abilities[a].ability) in (d.Where.FIELD, d.Where.ANY)
     )
     entry.gated = any(_gate(reg.abilities[a].ability) is not d.Gate.NONE for a in (*own, *unit))
+    return entry
 
 
 def _where(a: d.Ability) -> d.Where:

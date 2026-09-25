@@ -4,16 +4,15 @@ resource, main and end phases."""
 
 from __future__ import annotations
 
-import dataclasses
-from collections.abc import Callable
+from collections.abc import Callable, Iterator
+from contextlib import ExitStack
 from typing import Any, NamedTuple
 
 import pytest
 
 from gcg_sim.cards.model import CardType
 from gcg_sim.effects import dsl as d
-from gcg_sim.effects.compiler import compile_card
-from gcg_sim.effects.registry import AbilityEntry, get_registry
+from gcg_sim.effects.registry import get_registry
 from gcg_sim.engine import core, game, interp
 from gcg_sim.engine import view as V
 from gcg_sim.engine.game import DeckList, IllegalActionError, apply, legal_actions, new_game
@@ -50,6 +49,7 @@ from gcg_sim.testkit import (
     to_next_turn,
     zone_of,
 )
+from gcg_sim.testkit import card_text as override_card_text
 
 A = ActionKind
 
@@ -163,38 +163,19 @@ def events(monkeypatch: pytest.MonkeyPatch) -> list[Seen]:
 
 
 @pytest.fixture
-def card_text(monkeypatch: pytest.MonkeyPatch) -> Callable[[str, str], None]:
+def card_text() -> Iterator[Callable[[str, str], None]]:
     """Give a vanilla card an extra triggered ability, compiled from ``text``, for one test.
 
     No implemented card prints an "at the start/end of your turn" trigger or a "during this
     turn" HP bonus, so these tests compile the template sentence with the real compiler and
-    attach it to a vanilla Unit. Every registry list touched is restored after the test.
+    attach it to a vanilla Unit (gcg_sim.testkit.card_text restores the registry afterwards).
     """
-    reg = get_registry()
-    # interp caches engine program ids; register them before the snapshot so they stay valid
-    for name in interp._SYSTEM:
-        interp.system_program(name)
-    monkeypatch.setattr(reg, "programs", list(reg.programs))
-    monkeypatch.setattr(reg, "_program_index", dict(reg._program_index))
-    monkeypatch.setattr(reg, "abilities", list(reg.abilities))
-    monkeypatch.setattr(reg, "cards", list(reg.cards))
+    with ExitStack() as stack:
 
-    def install(number: str, text: str) -> None:
-        cdef = reg.db[number]
-        entry = reg.cards[cdef.def_id]
-        script = compile_card(dataclasses.replace(cdef, effect=text))
-        added = []
-        for i, ability in enumerate(script.abilities):
-            assert isinstance(ability, d.Triggered)
-            aid = len(reg.abilities)
-            pid = reg.program(ability.steps, f"test:{number}#{i}")
-            reg.abilities.append(
-                AbilityEntry(aid, number, cdef.def_id, len(entry.own) + i, False, ability, pid)
-            )
-            added.append(aid)
-        reg.cards[cdef.def_id] = dataclasses.replace(entry, own=(*entry.own, *added))
+        def install(number: str, text: str) -> None:
+            stack.enter_context(override_card_text(number, text))
 
-    return install
+        yield install
 
 
 # ---------------------------------------------------------------------------------------------

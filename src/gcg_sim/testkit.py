@@ -15,10 +15,12 @@ of legal options when no action matches, so a failing test explains itself.
 
 from __future__ import annotations
 
-from collections.abc import Iterable, Sequence
+import dataclasses
+from collections.abc import Iterable, Iterator, Sequence
+from contextlib import contextmanager
 
 from gcg_sim.cards.model import CardType
-from gcg_sim.effects.registry import get_registry
+from gcg_sim.effects.registry import get_registry, override_script, restore_entry
 from gcg_sim.engine import core
 from gcg_sim.engine import view as V
 from gcg_sim.engine.game import IllegalActionError, advance, apply
@@ -159,6 +161,24 @@ class Scenario:
         st.touch()
         advance(st)
         return st
+
+
+@contextmanager
+def card_text(number: str, text: str) -> Iterator[None]:
+    """Temporarily give ``number`` the compiled behaviour of ``text`` (for rule tests that need
+    a template no printed card uses). The original script is restored on exit."""
+    from gcg_sim.effects.compiler import compile_card
+
+    reg = get_registry()
+    cdef = reg.db[number]
+    script = compile_card(dataclasses.replace(cdef, effect=text))
+    previous = override_script(reg, cdef, script)
+    core.clear_listen_cache()
+    try:
+        yield
+    finally:
+        restore_entry(reg, previous)
+        core.clear_listen_cache()
 
 
 # ---------------------------------------------------------------------------------------------

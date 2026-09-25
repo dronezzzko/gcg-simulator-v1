@@ -269,6 +269,10 @@ def queue_trigger(
 _LISTEN_CACHE: dict[tuple[tuple[int, ...], tuple[int, ...]], frozenset[d.Ev]] = {}
 
 
+def clear_listen_cache() -> None:
+    _LISTEN_CACHE.clear()
+
+
 def listened_events(st: GameState) -> frozenset[d.Ev]:
     """Events any card in this game (both decklists, tokens, delayed triggers) can trigger on."""
     key = st.decklists
