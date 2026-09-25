@@ -69,6 +69,7 @@ class Derived:
     __slots__ = (
         "abilities",
         "ap",
+        "by_event",
         "cost_mod",
         "hp",
         "kw",
@@ -88,6 +89,7 @@ class Derived:
         self.level_mod: dict[int, int] = {}
         self.linked: set[int] = set()
         self.abilities: dict[int, list[AbilityEntry]] = {}
+        self.by_event: dict[d.Ev, list[tuple[int, AbilityEntry]]] | None = None
 
     def same_values(self, other: Derived) -> bool:
         return (
@@ -178,47 +180,40 @@ _WHERE_FOR_ZONE = {
 def _host_abilities(
     st: GameState, dv: Derived, uid: int, granted: dict[int, list[int]]
 ) -> list[AbilityEntry]:
-    R = reg()
     card = st.cards[uid]
+    R = reg()
     entry = R.cards[card.def_id]
-    wheres = _WHERE_FOR_ZONE.get(card.zone)
-    if wheres is None:
+    z = card.zone
+    if z is Zone.BATTLE or z is Zone.BASE:
+        base: tuple[AbilityEntry, ...] = entry.field_entries
+    elif z is Zone.HAND:
+        base = entry.hand_entries
+    elif z is Zone.TRASH:
+        base = entry.trash_entries
+    elif z is Zone.PAIRED:
+        base = entry.paired_entries
+    else:
         return []
-    out: list[AbilityEntry] = []
-    ctype = R.db.by_id(card.def_id).card_type
-    is_pilot_card = ctype is CardType.PILOT
-    own_aids: Iterable[int] = entry.own
-    for aid in own_aids:
-        a = R.abilities[aid]
-        where = _ability_where(a.ability)
-        if card.zone is Zone.PAIRED and is_pilot_card and where is d.Where.FIELD:
-            # Pilot's own text above the name (rule 3-3-9-1) is typically 【Burst】; it has no
-            # field presence of its own apart from abilities it grants the Unit.
-            continue
-        if where not in wheres:
-            continue
+    out = list(base)
+    gated = entry.gated
+    if z is Zone.BATTLE and card.pair >= 0:
+        pentry = R.cards[st.cards[card.pair].def_id]
+        if pentry.unit_entries:
+            out.extend(pentry.unit_entries)
+            gated = gated or pentry.gated
+    g = granted.get(uid)
+    if g:
+        out.extend(R.abilities[aid] for aid in g)
+        gated = True
+    if not gated:
+        return out
+    kept = []
+    for a in out:
         gate, gf = _ability_gate(a.ability)
         if gate is not d.Gate.NONE and not _gate_ok(st, dv, uid, gate, gf):
             continue
-        out.append(a)
-    if card.zone is Zone.BATTLE and card.pair >= 0:
-        pilot = st.cards[card.pair]
-        pentry = R.cards[pilot.def_id]
-        for aid in pentry.unit:
-            a = R.abilities[aid]
-            if _ability_where(a.ability) not in (d.Where.FIELD, d.Where.ANY):
-                continue
-            gate, gf = _ability_gate(a.ability)
-            if gate is not d.Gate.NONE and not _gate_ok(st, dv, uid, gate, gf):
-                continue
-            out.append(a)
-    for aid in granted.get(uid, ()):
-        a = R.abilities[aid]
-        gate, gf = _ability_gate(a.ability)
-        if gate is not d.Gate.NONE and not _gate_ok(st, dv, uid, gate, gf):
-            continue
-        out.append(a)
-    return out
+        kept.append(a)
+    return kept
 
 
 # ---------------------------------------------------------------------------------------------
@@ -239,6 +234,7 @@ _HOST_ZONES = (Zone.BATTLE, Zone.BASE, Zone.PAIRED, Zone.HAND, Zone.TRASH)
 def _base_view(st: GameState, granted: dict[int, list[int]], prev: Derived | None) -> Derived:
     R = reg()
     db = R.db
+    cards = R.cards
     dv = Derived()
     for p in (0, 1):
         for uid in st.zones[p][Zone.BATTLE]:
@@ -263,20 +259,64 @@ def _base_view(st: GameState, granted: dict[int, list[int]], prev: Derived | Non
             dv.kw[uid] = {}
     gate_view = prev if prev is not None else dv
     for p in (0, 1):
-        for z in _HOST_ZONES:
-            for uid in st.zones[p][z]:
-                abil = _host_abilities(st, gate_view if prev is not None else dv, uid, granted)
+        zp = st.zones[p]
+        for z in (Zone.BATTLE, Zone.BASE):
+            for uid in zp[z]:
+                abil = _host_abilities(st, gate_view, uid, granted)
                 if abil:
                     dv.abilities[uid] = abil
-                    if z in (Zone.BATTLE, Zone.BASE):
-                        kws = dv.kw[uid]
-                        for a in abil:
-                            ab = a.ability
-                            if isinstance(ab, d.Keyword):
-                                if ab.keyword in d.STACKING_KEYWORDS:
-                                    kws[ab.keyword] = kws.get(ab.keyword, 0) + ab.amount
-                                else:
-                                    kws[ab.keyword] = 1
+                    kws = dv.kw[uid]
+                    for a in abil:
+                        ab = a.ability
+                        if isinstance(ab, d.Keyword):
+                            if ab.keyword in d.STACKING_KEYWORDS:
+                                kws[ab.keyword] = kws.get(ab.keyword, 0) + ab.amount
+                            else:
+                                kws[ab.keyword] = 1
+        for z, attr in (
+            (Zone.PAIRED, "paired_entries"),
+            (Zone.HAND, "hand_entries"),
+            (Zone.TRASH, "trash_entries"),
+        ):
+            for uid in zp[z]:
+                if not getattr(cards[st.cards[uid].def_id], attr) and uid not in granted:
+                    continue
+                abil = _host_abilities(st, gate_view, uid, granted)
+                if abil:
+                    dv.abilities[uid] = abil
+    return dv
+
+
+def trigger_index(st: GameState, dv: Derived) -> dict[d.Ev, list[tuple[int, AbilityEntry]]]:
+    """Triggered abilities by event, in host order: active player first, then location order
+    (battle, base, paired, hand, trash), then location order within each list."""
+    idx = dv.by_event
+    if idx is not None:
+        return idx
+    idx = {}
+    for p in (st.active, 1 - st.active):
+        zp = st.zones[p]
+        for z in (Zone.BATTLE, Zone.BASE, Zone.PAIRED, Zone.HAND, Zone.TRASH):
+            for uid in zp[z]:
+                abil = dv.abilities.get(uid)
+                if not abil:
+                    continue
+                for a in abil:
+                    ev = a.trigger_event
+                    if ev is not None:
+                        idx.setdefault(ev, []).append((uid, a))
+    dv.by_event = idx
+    return idx
+
+
+def _copy_base(base: Derived) -> Derived:
+    dv = Derived()
+    dv.ap = dict(base.ap)
+    dv.hp = dict(base.hp)
+    dv.kw = {k: dict(v) for k, v in base.kw.items()}
+    dv.traits = dict(base.traits)
+    dv.linked = base.linked
+    dv.abilities = base.abilities
     return dv
 
 
@@ -346,18 +386,18 @@ def _compute(st: GameState) -> Derived:
     R = reg()
     granted: dict[int, list[int]] = {}
     prev: Derived | None = None
-    dv = _base_view(st, granted, None)
-    has_lasting = bool(st.lasting)
+    base = _base_view(st, granted, None)
     has_constants = any(
-        isinstance(a.ability, d.Constant) for abil in dv.abilities.values() for a in abil
+        isinstance(a.ability, d.Constant) for abil in base.abilities.values() for a in abil
     )
-    if not has_lasting and not has_constants:
-        _finalize(dv)
-        return dv
+    if not st.lasting and not has_constants:
+        _finalize(base)
+        return base
+    dv = base
     for _ in range(6):
-        view = prev if prev is not None else dv
+        view = prev if prev is not None else base
         new_granted: dict[int, list[int]] = {}
-        cur = _base_view(st, granted, prev)
+        cur = _copy_base(base) if not granted else _base_view(st, granted, prev)
         for host, abil in list(view.abilities.items()):
             hc = st.cards[host]
             for a in abil:
@@ -371,7 +411,6 @@ def _compute(st: GameState) -> Derived:
                 for eff in ab.effects:
                     _apply_cont(st, cur, view, ctx, eff, targets, (a.aid, host), host, new_granted)
         for le in st.lasting:
-            eff = R.continuous[le.effect_key]
             if le.player != NO_ARG:
                 continue
             live = [uid for uid, seq in le.targets if st.cards[uid].zone_seq == seq]
@@ -383,7 +422,7 @@ def _compute(st: GameState) -> Derived:
                 cur,
                 view,
                 ctx,
-                eff,
+                R.continuous[le.effect_key],
                 live,
                 (-1, le.effect_key),
                 le.source_uid,

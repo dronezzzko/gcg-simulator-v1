@@ -30,6 +30,7 @@ class AbilityEntry:
     ability: d.Ability
     program_id: int  # -1 when the ability has no steps (keywords, constants)
     cost_program_id: int = -1
+    trigger_event: d.Ev | None = None
 
 
 @dataclass(slots=True)
@@ -44,6 +45,13 @@ class CardEntry:
     burst_aid: int = -1
     has_burst: bool = False
     timings: frozenset[str] = frozenset()
+    # Abilities that function in each location class (rules 2-11-2, 3-3-9, 10-1-2).
+    field_entries: tuple[AbilityEntry, ...] = ()
+    hand_entries: tuple[AbilityEntry, ...] = ()
+    trash_entries: tuple[AbilityEntry, ...] = ()
+    paired_entries: tuple[AbilityEntry, ...] = ()
+    unit_entries: tuple[AbilityEntry, ...] = ()
+    gated: bool = False
 
 
 # Engine-provided keyword programs (rule 13-1).
@@ -193,6 +201,7 @@ def _register_card(
                     ability=a,
                     program_id=pid,
                     cost_program_id=cost_pid,
+                    trigger_event=a.trigger.event if isinstance(a, d.Triggered) else None,
                 )
             )
             (unit if unit_text else own).append(aid)
@@ -206,6 +215,35 @@ def _register_card(
     entry.own = tuple(own)
     entry.unit = tuple(unit)
     entry.timings = _timings(script)
+    own_entries = [reg.abilities[a] for a in own]
+    entry.field_entries = tuple(
+        a for a in own_entries if _where(a.ability) in (d.Where.FIELD, d.Where.ANY)
+    )
+    entry.hand_entries = tuple(
+        a for a in own_entries if _where(a.ability) in (d.Where.HAND, d.Where.ANY)
+    )
+    entry.trash_entries = tuple(
+        a for a in own_entries if _where(a.ability) in (d.Where.TRASH, d.Where.ANY)
+    )
+    entry.paired_entries = tuple(a for a in own_entries if _where(a.ability) is d.Where.ANY)
+    entry.unit_entries = tuple(
+        reg.abilities[a]
+        for a in unit
+        if _where(reg.abilities[a].ability) in (d.Where.FIELD, d.Where.ANY)
+    )
+    entry.gated = any(_gate(reg.abilities[a].ability) is not d.Gate.NONE for a in (*own, *unit))
+
+
+def _where(a: d.Ability) -> d.Where:
+    if isinstance(a, (d.Constant, d.Triggered, d.Activated)):
+        return a.where
+    return d.Where.FIELD
+
+
+def _gate(a: d.Ability) -> d.Gate:
+    if isinstance(a, (d.Constant, d.Triggered, d.Activated, d.Keyword, d.Replacement)):
+        return a.gate
+    return d.Gate.NONE
 
 
 def _delayed_steps(a: d.Ability) -> list[tuple[d.Step, ...]]:

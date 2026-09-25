@@ -286,30 +286,22 @@ def emit(
     event = tuple(items)
     dv = V.derived(st)
     lki = lki or {}
-    hosts: list[tuple[int, list[AbilityEntry]]] = []
-    for p in (st.active, 1 - st.active):
-        for z in (Zone.BATTLE, Zone.BASE, Zone.PAIRED, Zone.HAND, Zone.TRASH):
-            for uid in st.zones[p][z]:
-                if uid in lki:
-                    continue
-                abil = dv.abilities.get(uid)
-                if abil:
-                    hosts.append((uid, abil))
+    candidates: list[tuple[int, AbilityEntry]] = [
+        (host, a) for host, a in V.trigger_index(st, dv).get(ev, ()) if host not in lki
+    ]
     for uid in sorted(lki, key=lambda u: (st.cards[u].owner != st.active, u)):
-        hosts.append((uid, lki[uid]))
-    for host, abil in hosts:
+        candidates.extend((uid, a) for a in lki[uid] if a.trigger_event is ev)
+    for host, a in candidates:
+        ab = a.ability
+        assert isinstance(ab, d.Triggered)
         owner = st.cards[host].owner
-        for a in abil:
-            ab = a.ability
-            if not isinstance(ab, d.Triggered) or ab.trigger.event is not ev:
+        if not _trigger_ok(st, dv, ab.trigger, host, owner, event):
+            continue
+        if ab.cond is not d.TRUE:
+            ctx = V.Ctx(owner, host, _card_uid_for(st, a, host), event=event)
+            if not V.cond(st, dv, ctx, ab.cond):
                 continue
-            if not _trigger_ok(st, dv, ab.trigger, host, owner, event):
-                continue
-            if ab.cond is not d.TRUE:
-                ctx = V.Ctx(owner, host, _card_uid_for(st, a, host), event=event)
-                if not V.cond(st, dv, ctx, ab.cond):
-                    continue
-            queue_trigger(st, a, host, owner, event)
+        queue_trigger(st, a, host, owner, event)
     _delayed_triggers(st, dv, ev, event)
     _keyword_triggers(st, dv, ev, event, subject)
 
