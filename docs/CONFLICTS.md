@@ -61,7 +61,7 @@ review records that no longer match anything are listed as orphaned so they can 
 - Official latest rules: Ver. 1.9.0 (updated 2026-09-11) — https://www.gundam-gcg.com/en/pdf/comprehensiverules_en.pdf
 - 1912 printings / 1148 card numbers, 368 card rulings, 119 rules-FAQ entries, 2 errata
 - SHA-256 of every input:
-  - `curated_conflicts.json`: `8f4779439dda89209556f38f01fabb1e9a718b819d20d84b588a171dddd44015`
+  - `curated_conflicts.json`: `de8a212d446ab9f8768c557aafd65d2a497b381d744e28df62045984fc390f5d`
   - `gcgapi/cards.ndjson`: `ad52f9add3593965c46bb82950f1374d0a37d0242a439ef8e5eba27f5b8e496f`
   - `gcgapi/errata.json`: `243081dd30022b3cc2745f09cad218743b20654a4c386d490d7159a9faf8e6d9`
   - `gcgapi/manifest.json`: `175adb84d11098a81a504d386a9c3d29c5940dc29bb6664b03de9ce40ac6ec39`
@@ -69,7 +69,7 @@ review records that no longer match anything are listed as orphaned so they can 
   - `gcgapi/rulings.json`: `2da64f7ea88a96edd8b91399a3bd73b43ce1d766f3253474df2b1ca706bbc895`
   - `official/banlist.json`: `d03313dc88a50a746e01ad7bf11b8abbaf4ce4060988c4b2fd9ade49ef66dac5`
   - `official/rules_version.json`: `8d9caac3911e80ba3d6b9960c1b6fad69c0dbada75fc7607e392d0803edf48a5`
-  - `overrides.json`: `e70ee3490608c6e9e427bcf75c50c725a16d92a7ac9600878e6ea80c72804af4`
+  - `overrides.json`: `50d2651d1416e7b00226b329d4def0ef86d24c3cdb321b71731adcf780dea8b5`
   - `rules/gundam-card-game-comprehensive-rules.md`: `bf2f3d5c7a1a04d9860d97a38c316309da14707f5e7012f9241885b8635a50b6`
 
 ## Summary
@@ -77,7 +77,7 @@ review records that no longer match anything are listed as orphaned so they can 
 | Kind | info | minor | major |
 | --- | ---: | ---: | ---: |
 | Divergent printings | 27 | 15 | 1 |
-| Errata | 2 | 0 | 0 |
+| Errata | 2 | 0 | 1 |
 | Banned/restricted list ambiguities | 0 | 6 | 0 |
 | Keyword and timing markers vs effect text | 5 | 2 | 1 |
 | Card data vs rules | 2 | 1 | 0 |
@@ -87,7 +87,7 @@ review records that no longer match anything are listed as orphaned so they can 
 | Rules FAQ vs rules | 9 | 7 | 0 |
 | Ambiguous card text | 2 | 3 | 0 |
 
-Total: 291 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entries: 0; orphaned resolutions: 0.
+Total: 292 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entries: 0; orphaned resolutions: 0.
 
 ## Divergent printings (43)
 
@@ -803,7 +803,19 @@ Total: 291 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
   - Canonical printing: `T-006`
 
 
-## Errata (2)
+## Errata (3)
+
+### `errata-unapplied:ST12-001:news-02_193` — ST12-001 Gundam Epyon: official errata (2026-09-04) adds 【Once per Turn】; missing from gcg-api
+
+- severity **major**; origin curated; changes engine behaviour
+- Cards: ST12-001
+- The official notice https://www.gundam-gcg.com/en/news/02_193.html (2026-09-04, cached at data/official_raw/en_news_02_193.html) changes '【During Pair･Lv.5 or Higher Pilot】' to '【During Pair･Lv.5 or Higher Pilot】【Once per Turn】'. The pinned gcg-api snapshot (errata.json and cards.ndjson) still has the printed wording.
+- Evidence:
+  - card ST12-001: “【During Pair･Lv.5 or Higher Pilot】During your turn, when this Unit destroys an enemy Unit with damage”
+- Sources: gcg-api card ST12-001 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST12-001 (effect)
+- **Resolution** (`errata_supersedes_print`): Apply the official errata: the first ability is 【During Pair･Lv.5 or Higher Pilot】【Once per Turn】.
+  - Rationale: Official errata (news 02_193, 2026-09-04) supersede the printed text; the snapshot lags the official site.
+  - Override `effect` → `"【During Pair･Lv.5 or Higher Pilot】【Once per Turn】During your turn, when this Unit destroys an enemy Unit with damage, deal 2 damage to all enemy Units with 5 or less AP.\n【Deploy】Choose 1 enemy Base. Deal 5 damage to it."`
 
 ### `errata:GD04-067` — GD04-067 ∀ Gundam: printed effect superseded by errata
 

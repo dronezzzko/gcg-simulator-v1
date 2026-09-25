@@ -52,6 +52,7 @@ CURATED_KINDS: Final = frozenset(
     {
         "rules_xref",
         "rules_internal",
+        "errata",
         "ruling_vs_text",
         "faq_vs_rules",
         "ambiguous_text",
@@ -1642,7 +1643,7 @@ def _render_details(conflict: Conflict) -> list[str]:
             for variant in diff["variants"]:
                 ids = ", ".join(f"`{pid}`" for pid in variant["product_ids"])
                 lines.append(f"    - {ids}: {_md_value(variant['value'])}")
-    elif conflict.kind == "errata":
+    elif conflict.kind == "errata" and "field" in details:
         lines.append(
             f"- Field `{details['field']}`: {_md_value(details['before'])} → {_md_value(details['after'])}"
         )

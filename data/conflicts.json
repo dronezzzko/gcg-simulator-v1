@@ -12,7 +12,7 @@
       "url": "https://www.gundam-gcg.com/en/pdf/comprehensiverules_en.pdf"
     },
     "sha256": {
-      "curated_conflicts.json": "8f4779439dda89209556f38f01fabb1e9a718b819d20d84b588a171dddd44015",
+      "curated_conflicts.json": "de8a212d446ab9f8768c557aafd65d2a497b381d744e28df62045984fc390f5d",
       "gcgapi/cards.ndjson": "ad52f9add3593965c46bb82950f1374d0a37d0242a439ef8e5eba27f5b8e496f",
       "gcgapi/errata.json": "243081dd30022b3cc2745f09cad218743b20654a4c386d490d7159a9faf8e6d9",
       "gcgapi/manifest.json": "175adb84d11098a81a504d386a9c3d29c5940dc29bb6664b03de9ce40ac6ec39",
@@ -20,7 +20,7 @@
       "gcgapi/rulings.json": "2da64f7ea88a96edd8b91399a3bd73b43ce1d766f3253474df2b1ca706bbc895",
       "official/banlist.json": "d03313dc88a50a746e01ad7bf11b8abbaf4ce4060988c4b2fd9ade49ef66dac5",
       "official/rules_version.json": "8d9caac3911e80ba3d6b9960c1b6fad69c0dbada75fc7607e392d0803edf48a5",
-      "overrides.json": "e70ee3490608c6e9e427bcf75c50c725a16d92a7ac9600878e6ea80c72804af4",
+      "overrides.json": "50d2651d1416e7b00226b329d4def0ef86d24c3cdb321b71731adcf780dea8b5",
       "rules/gundam-card-game-comprehensive-rules.md": "bf2f3d5c7a1a04d9860d97a38c316309da14707f5e7012f9241885b8635a50b6"
     },
     "counts": {
@@ -39,7 +39,7 @@
       "errata": {
         "info": 2,
         "minor": 0,
-        "major": 0
+        "major": 1
       },
       "banlist_ambiguity": {
         "info": 0,
@@ -84,11 +84,11 @@
     }
   },
   "summary": {
-    "total": 291,
+    "total": 292,
     "by_severity": {
       "info": 72,
       "minor": 213,
-      "major": 6
+      "major": 7
     },
     "unresolved": [],
     "invalid": [],
@@ -3782,6 +3782,43 @@
         "decision": "Use T-006 (AP3/HP1), matching '[Char's Zaku Ⅱ]((Zeon)･AP3･HP1)' on GD01-026 and ST03-016; the Edition Beta record's AP1 is ignored.",
         "rationale": "Tokens are created with the stats written in the creating effect.",
         "canonical_product_id": "T-006"
+      }
+    },
+    {
+      "id": "errata-unapplied:ST12-001:news-02_193",
+      "kind": "errata",
+      "severity": "major",
+      "card_numbers": [
+        "ST12-001"
+      ],
+      "title": "ST12-001 Gundam Epyon: official errata (2026-09-04) adds 【Once per Turn】; missing from gcg-api",
+      "description": "The official notice https://www.gundam-gcg.com/en/news/02_193.html (2026-09-04, cached at data/official_raw/en_news_02_193.html) changes '【During Pair･Lv.5 or Higher Pilot】' to '【During Pair･Lv.5 or Higher Pilot】【Once per Turn】'. The pinned gcg-api snapshot (errata.json and cards.ndjson) still has the printed wording.",
+      "engine_behaviour": true,
+      "origin": "curated",
+      "sources": [
+        "gcg-api card ST12-001 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST12-001 (effect)"
+      ],
+      "details": {
+        "evidence": [
+          {
+            "source": "card",
+            "ref": "ST12-001",
+            "quote": "【During Pair･Lv.5 or Higher Pilot】During your turn, when this Unit destroys an enemy Unit with damage",
+            "verified": true
+          }
+        ]
+      },
+      "problems": [],
+      "resolution": {
+        "policy": "errata_supersedes_print",
+        "decision": "Apply the official errata: the first ability is 【During Pair･Lv.5 or Higher Pilot】【Once per Turn】.",
+        "rationale": "Official errata (news 02_193, 2026-09-04) supersede the printed text; the snapshot lags the official site.",
+        "card_numbers": [
+          "ST12-001"
+        ],
+        "field_overrides": {
+          "effect": "【During Pair･Lv.5 or Higher Pilot】【Once per Turn】During your turn, when this Unit destroys an enemy Unit with damage, deal 2 damage to all enemy Units with 5 or less AP.\n【Deploy】Choose 1 enemy Base. Deal 5 damage to it."
+        }
       }
     },
     {
