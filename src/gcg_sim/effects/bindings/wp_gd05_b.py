@@ -22,9 +22,6 @@ UNIT = d.IsKind((d.CardKind.UNIT,))
 T1 = d.Var("t1")
 T2 = d.Var("t2")
 
-FREEZE_PENDING = d.RuleGrant(d.RuleMod(d.RuleKind.CUSTOM, name="wp_gd05_b_073_pending"))
-FREEZE = d.RuleGrant(d.RuleMod(d.RuleKind.CANT_BE_SET_ACTIVE, name="wp_gd05_b_073"))
-
 
 def units(side: d.Side, *filters: d.Filter) -> d.Sel:
     return d.Sel(side, d.Loc.BATTLE, (UNIT, *filters))
@@ -68,39 +65,6 @@ def script(
 
 # ---------------------------------------------------------------------------------------------
 # custom hooks
-
-
-@custom_step("wp_gd05_b_073_freeze")
-def freeze_pending_targets(st: GameState, f: Frame, ctx: V.Ctx, params: dict[str, object]) -> bool:
-    """At the end of the turn Altron Gundam (EW) resolved, turn its pending marker into
-    "can't be set as active" lasting through the opponent's next start phase."""
-    from gcg_sim.engine.interp import add_lasting
-
-    pending = V.reg().cont_key(FREEZE_PENDING)
-    mine = [
-        le
-        for le in st.lasting
-        if le.effect_key == pending and le.source_uid == f.host and le.controller == f.controller
-    ]
-    st.lasting = [le for le in st.lasting if le not in mine]
-    for le in mine:
-        add_lasting(
-            st, FREEZE, le.controller, le.source_uid, le.targets, Duration.OPPONENT_NEXT_TURN
-        )
-    return bool(mine)
-
-
-@custom_step("wp_gd05_b_073_thaw")
-def thaw_after_start_phase(st: GameState, f: Frame, ctx: V.Ctx, params: dict[str, object]) -> bool:
-    """The opponent's start phase has passed its active step: the restriction ends (Q381)."""
-    key = V.reg().cont_key(FREEZE)
-    before = len(st.lasting)
-    st.lasting = [
-        le
-        for le in st.lasting
-        if not (le.effect_key == key and le.source_uid == f.host and le.controller == f.controller)
-    ]
-    return len(st.lasting) != before
 
 
 @custom_step("wp_gd05_b_destroy_first_shield_area_cards")
@@ -201,36 +165,6 @@ def gd05_072(c: CardDef) -> d.CardScript:
     )
 
 
-@card("GD05-073")
-def gd05_073(c: CardDef) -> d.CardScript:
-    return script(
-        c,
-        (
-            d.Triggered(
-                d.Trigger(d.Ev.DEPLOYED),
-                (
-                    d.Choose("t1", units(ENEMY, d.IsRested())),
-                    d.Apply(T1, FREEZE_PENDING, Duration.OPPONENT_NEXT_TURN),
-                    d.DelayedTrigger(
-                        d.Trigger(d.Ev.TURN_END, self_only=False),
-                        (d.CustomStep("wp_gd05_b_073_freeze"),),
-                        Duration.THIS_TURN,
-                    ),
-                    d.DelayedTrigger(
-                        d.Trigger(d.Ev.TURN_START, self_only=False, whose_turn=d.P.OPP),
-                        (d.CustomStep("wp_gd05_b_073_thaw"),),
-                        Duration.OPPONENT_NEXT_TURN,
-                    ),
-                ),
-            ),
-        ),
-        notes=(
-            "compiled 'can't be set active' lasted the whole of both turns; Q381 limits it to "
-            "the opponent's next start phase, so effects may still set the Unit active"
-        ),
-    )
-
-
 # ---------------------------------------------------------------------------------------------
 # Pilots
 
@@ -280,9 +214,23 @@ def gd05_089(c: CardDef) -> d.CardScript:
     special_move_activated = d.HappenedThisTurn(
         "command_activated", d.P.YOU, filters=(trait("Special Move"),)
     )
+    add_to_hand = d.AddToHand(d.ThisCard())
+    three_mf_in_trash = d.Cmp(d.Count(d.Sel(FRIENDLY, d.Loc.TRASH, (trait("MF"),))), d.Op.GE, 3)
+    burst = d.Burst(
+        (
+            d.If(
+                three_mf_in_trash,
+                (
+                    d.May((d.DeployCard(d.ThisCard(), as_unit=True),)),
+                    d.If(d.NotC(d.DidLast()), (add_to_hand,)),
+                ),
+                (add_to_hand,),
+            ),
+        )
+    )
     return script(
         c,
-        (burst_add_self(),),
+        (burst,),
         (
             d.Triggered(
                 d.Trigger(d.Ev.ATTACKS),
@@ -295,11 +243,7 @@ def gd05_089(c: CardDef) -> d.CardScript:
                 gate=d.Gate.LINKED,
             ),
         ),
-        notes=(
-            "compile error; the 【Burst】 alternative 'deploy it as an (AP3･HP3) Unit instead' "
-            "needs a per-instance Unit override the DSL lacks (DSL gap), so only 'add to hand' "
-            "is bound"
-        ),
+        notes="compile error ('deploy it as an (AP3･HP3) Unit instead')",
     )
 
 
@@ -612,10 +556,7 @@ def gd05_123(c: CardDef) -> d.CardScript:
                 cond=d.IsTurn(d.P.OPP),
             ),
         ),
-        notes=(
-            "compile error ('can't receive 2 or less enemy effect damage'); the engine ignores "
-            "the amount threshold of CANT_RECEIVE_DAMAGE (DSL gap)"
-        ),
+        notes="compile error ('can't receive 2 or less enemy effect damage')",
     )
 
 
@@ -704,7 +645,9 @@ def gd05_127(c: CardDef) -> d.CardScript:
 
 @card("GD05-129")
 def gd05_129(c: CardDef) -> d.CardScript:
-    destroyed_by_your_effect = d.HappenedThisTurn("destroyed", d.P.YOU, by=d.P.YOU, filters=(UNIT,))
+    destroyed_by_neo_zeon_effect = d.HappenedThisTurn(
+        "destroyed", d.P.YOU, by=d.P.YOU, filters=(UNIT,), source_filters=(trait("Neo Zeon"),)
+    )
     neo_zeon_lv3 = d.Sel(
         FRIENDLY,
         d.Loc.HAND,
@@ -720,16 +663,13 @@ def gd05_129(c: CardDef) -> d.CardScript:
                 (d.RestSelf(),),
                 (
                     d.If(
-                        destroyed_by_your_effect,
+                        destroyed_by_neo_zeon_effect,
                         (d.Choose("t1", neo_zeon_lv3, targeting=False), d.DeployCard(T1)),
                     ),
                 ),
             ),
         ),
-        notes=(
-            "compile error; the turn history does not record which card's effect destroyed a "
-            "Unit, so '(Neo Zeon) card's effects' is approximated as 'your effects' (DSL gap)"
-        ),
+        notes="compile error ('destroyed by one of your (Neo Zeon) card's effects')",
     )
 
 

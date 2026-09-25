@@ -7,16 +7,11 @@ from dataclasses import replace
 from gcg_sim.cards.model import CardDef
 from gcg_sim.cards.tokens import parse_token_specs
 from gcg_sim.effects import dsl as d
-from gcg_sim.effects.bindings import card, custom_step
+from gcg_sim.effects.bindings import card
 from gcg_sim.effects.compiler import compile_parts, route_abilities
 from gcg_sim.effects.compiler.abilities import CompileError
-from gcg_sim.engine import view as V
-from gcg_sim.engine.state import Frame, GameState
-from gcg_sim.engine.types import Duration
 
 PREFIX = "wp_gd02_a_"
-START_PHASE_MARK = d.RuleGrant(d.RuleMod(d.RuleKind.CUSTOM, name=PREFIX + "start_phase_lock"))
-NO_SET_ACTIVE = d.RuleGrant(d.RuleMod(d.RuleKind.CANT_BE_SET_ACTIVE))
 
 
 def _line(c: CardDef, index: int) -> list[d.Ability]:
@@ -69,68 +64,6 @@ def gd02_003(c: CardDef) -> d.CardScript:
         d.IfYouDo((d.ReturnToHand(d.EventCard("pilot")),)),
     )
     return _script(c, [replace(trig, steps=steps)])
-
-
-@card("GD02-004")
-def gd02_004(c: CardDef) -> d.CardScript:
-    """Q172: the Unit only stays rested through the opponent's next start phase; effects in
-    any other phase can set it active. A marker records the target; the lock itself exists
-    from the end of this turn until the opponent's start step."""
-    trig = _triggered(c, 0)
-    choose = trig.steps[0]
-    assert isinstance(choose, d.Choose)
-    steps = (
-        choose,
-        d.Apply(d.Var(choose.var), START_PHASE_MARK, Duration.OPPONENT_NEXT_TURN),
-        d.DelayedTrigger(
-            d.Trigger(d.Ev.TURN_END, self_only=False, whose_turn=d.P.YOU),
-            (d.CustomStep(PREFIX + "arm_start_phase_lock"),),
-            Duration.OPPONENT_NEXT_TURN,
-        ),
-        d.DelayedTrigger(
-            d.Trigger(d.Ev.TURN_START, self_only=False, whose_turn=d.P.OPP),
-            (d.CustomStep(PREFIX + "release_start_phase_lock"),),
-            Duration.OPPONENT_NEXT_TURN,
-        ),
-    )
-    return _script(c, [replace(trig, steps=steps)])
-
-
-def _own_lasting(st: GameState, f: Frame, key: int) -> list[int]:
-    return [
-        i
-        for i, le in enumerate(st.lasting)
-        if le.effect_key == key
-        and le.source_uid == f.host
-        and le.controller == f.controller
-        and le.player < 0
-    ]
-
-
-@custom_step(PREFIX + "arm_start_phase_lock")
-def arm_start_phase_lock(st: GameState, f: Frame, ctx: V.Ctx, params: dict[str, object]) -> bool:
-    from gcg_sim.engine.interp import add_lasting
-
-    R = V.reg()
-    marks = _own_lasting(st, f, R.cont_key(START_PHASE_MARK))
-    for i in marks:
-        le = st.lasting[i]
-        add_lasting(
-            st, NO_SET_ACTIVE, le.controller, le.source_uid, le.targets, Duration.OPPONENT_NEXT_TURN
-        )
-    return bool(marks)
-
-
-@custom_step(PREFIX + "release_start_phase_lock")
-def release_start_phase_lock(
-    st: GameState, f: Frame, ctx: V.Ctx, params: dict[str, object]
-) -> bool:
-    R = V.reg()
-    drop = set(_own_lasting(st, f, R.cont_key(NO_SET_ACTIVE)))
-    if not drop:
-        return False
-    st.lasting = [le for i, le in enumerate(st.lasting) if i not in drop]
-    return True
 
 
 @card("GD02-009")

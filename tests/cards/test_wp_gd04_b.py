@@ -636,10 +636,6 @@ def test_gd04_093_requires_zaft_link_unit() -> None:
 
 
 @pytest.mark.card("GD04-094")
-@pytest.mark.xfail(
-    strict=True,
-    reason="ENGINE: HasKeyword never matches cards outside the battle area/base section",
-)
 def test_gd04_094_when_linked_adds_purple_suppression_unit_from_trash() -> None:
     sc = Scenario()
     sc.resources(0, 3)
@@ -709,10 +705,6 @@ def test_gd04_095_q283_redirected_damage_is_battle_damage() -> None:
 @pytest.mark.card("GD04-095")
 @pytest.mark.ruling("GD04-095:Q283")
 @pytest.mark.rule("8-5-3-2-3")
-@pytest.mark.xfail(
-    strict=True,
-    reason="ENGINE: a Unit killed by redirected battle damage is destroyed by rules management",
-)
 def test_gd04_095_q283_unit_killed_by_redirected_damage_is_destroyed_in_battle(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
@@ -1087,10 +1079,6 @@ def test_gd04_102_burst_draws_1() -> None:
 
 @pytest.mark.card("GD04-102")
 @pytest.mark.ruling("GD04-102:Q288")
-@pytest.mark.xfail(
-    strict=True,
-    reason="DSL: no rule kind for 'won't be set as active during the start phase' only",
-)
 def test_gd04_102_q288_effects_may_still_set_it_active() -> None:
     sc = Scenario()
     sc.resources(0, 4)
@@ -1321,9 +1309,6 @@ def test_gd04_107_q300_active_chosen_unit_frees_attackers() -> None:
 
 @pytest.mark.card("GD04-107")
 @pytest.mark.ruling("GD04-107:Q301")
-@pytest.mark.xfail(
-    strict=True, reason="ENGINE: forced attack targets are only honoured while rested"
-)
 def test_gd04_107_q301_active_chosen_unit_binds_attackers_allowed_to_hit_active() -> None:
     st, u = _destined(my_r=LAUNCHER, shield="GD01-121")
     play(st, u["iv"])  # the opponent's Beguir-Pente may attack active Units with 5 or less AP
@@ -1337,10 +1322,6 @@ def test_gd04_107_q301_active_chosen_unit_binds_attackers_allowed_to_hit_active(
 
 @pytest.mark.card("GD04-107")
 @pytest.mark.ruling("GD04-107:Q289")
-@pytest.mark.xfail(
-    strict=True,
-    reason="ENGINE: 'must choose that Unit' is not prioritised over 'if possible' attractors",
-)
 def test_gd04_107_q289_outranks_if_possible_attractors() -> None:
     sc = Scenario(active=1)
     sc.resources(0, 2)
@@ -1403,10 +1384,6 @@ def test_gd04_108_with_ex_resource_reduced_by_4() -> None:
 
 
 @pytest.mark.card("GD04-108", "GD04-114")
-@pytest.mark.xfail(
-    strict=True,
-    reason="ENGINE: one-shot reductions from identical lasting effects share one usage key",
-)
 def test_gd04_108_second_copy_reduces_a_later_damage() -> None:
     sc = Scenario()
     sc.resources(0, 6)

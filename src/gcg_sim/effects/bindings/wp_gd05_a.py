@@ -25,7 +25,6 @@ PILOT = d.IsKind((d.CardKind.PILOT,))
 COMMAND = d.IsKind((d.CardKind.COMMAND,))
 
 ONCE_TAG_GD05_006 = -205_006
-DEPLOYED_RESTED_TAG = -205_026
 
 
 def _line(cdef: CardDef, index: int) -> tuple[d.Ability, ...]:
@@ -130,65 +129,6 @@ def destroyed_by_effect(
     if ctx.ev("battle", 0) != 0 or by < 0:
         return False
     return params.get("by") != "you" or by == ctx.controller
-
-
-def _deploy_group(st: GameState, subject: int) -> list[int]:
-    """Cards deployed together with ``subject``: the contiguous run of 'deployed' history
-    records (same player and deploying player) that contains the subject's latest record."""
-    hist = st.history
-    idx = next(
-        (
-            i
-            for i in range(len(hist) - 1, -1, -1)
-            if hist[i].kind == "deployed" and hist[i].uid == subject
-        ),
-        -1,
-    )
-    if idx < 0:
-        return [subject]
-    first = hist[idx]
-
-    def same(i: int) -> bool:
-        h = hist[i]
-        return h.kind == "deployed" and h.player == first.player and h.by == first.by
-
-    lo = idx
-    while lo > 0 and same(lo - 1):
-        lo -= 1
-    hi = idx
-    while hi + 1 < len(hist) and same(hi + 1):
-        hi += 1
-    return [hist[i].uid for i in range(lo, hi + 1)]
-
-
-@custom_step("wp_gd05_a_deployed_rested")
-def deployed_rested(st: GameState, f: Frame, ctx: V.Ctx, params: dict[str, object]) -> bool:
-    """GD05-026: enemy Units matching ``sel`` that were just deployed become rested. The Unit is
-    placed rested rather than rested by an effect, so no rested event is emitted (ruling
-    GD05-026:Q354)."""
-    sel = params["sel"]
-    if not isinstance(sel, d.Sel):
-        raise TypeError("wp_gd05_a_deployed_rested needs a Sel parameter 'sel'")
-    subject = f.ev("subject")
-    if subject < 0:
-        return False
-    dv = V.derived(st)
-    did = False
-    for uid in _deploy_group(st, subject):
-        c = st.cards[uid]
-        if c.zone is not Zone.BATTLE or c.rested or c.owner == f.controller:
-            continue
-        key = (DEPLOYED_RESTED_TAG, uid, c.zone_seq)
-        if key in st.once_used:
-            continue
-        if uid != subject and not V.matches(st, dv, ctx, uid, sel.filters):
-            continue
-        c.rested = True
-        st.once_used.add(key)
-        did = True
-    if did:
-        st.touch()
-    return did
 
 
 # ---------------------------------------------------------------------------------------------
@@ -337,11 +277,8 @@ def gd05_026(c: CardDef) -> d.CardScript:
     low_enemy = _units(ENEMY, d.StatCmp(d.Stat.LV, d.Op.LE, d.Sum((namesakes, 1))))
     return _script(
         c,
-        d.Triggered(
-            d.Trigger(d.Ev.DEPLOYED, self_only=False, subject=low_enemy),
-            (d.CustomStep("wp_gd05_a_deployed_rested", (("sel", low_enemy),)),),
-        ),
-        notes="static 'deployed rested' approximated by a trigger that rests without an event",
+        d.Constant((d.RuleGrant(d.RuleMod(d.RuleKind.DEPLOYED_RESTED)),), scope=d.All(low_enemy)),
+        notes="compile error: static 'are deployed rested'",
     )
 
 

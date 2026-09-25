@@ -569,7 +569,9 @@ def _h_damage(st: GameState, f: Frame, ins: d.Damage) -> Status:
     for u in targets:
         c = st.cards[u]
         if c.zone is Zone.SHIELD:
-            if amount > 0:
+            if core.shields_receiving_damage(
+                st, [u], amount, source=f.host, battle=False, by=f.controller
+            ):
                 core.destroy_shields(st, c.owner, [u], battle=False, source=f.host, by=f.controller)
                 dealt = True
             continue
@@ -600,13 +602,20 @@ def _h_damage_player(st: GameState, f: Frame, ins: d.DamagePlayer) -> Status:
 
 
 def _h_destroy(st: GameState, f: Frame, ins: d.Destroy) -> Status:
-    targets = _in_play(st, _refs(st, f, ins.ref))
+    targets = [
+        u
+        for u in _refs(st, f, ins.ref)
+        if st.cards[u].zone in (Zone.BATTLE, Zone.BASE, Zone.PAIRED)
+    ]
     f.did = bool(core.destroy(st, targets, battle=False, by=f.controller, source=f.host))
     return Status.NEXT
 
 
-def _rest_substitutes(st: GameState, f: Frame, target: int) -> list[int]:
-    """Cards that may be rested instead of ``target`` (rule 10-1-9 substitution effects)."""
+def _rest_substitutes(
+    st: GameState, f: Frame, target: int, taken: frozenset[int] = frozenset()
+) -> list[int]:
+    """Cards that may be rested instead of ``target`` (rule 10-1-9 substitution effects); cards
+    in ``taken`` are already rested by this instruction."""
     tc = st.cards[target]
     if tc.owner != f.controller or f.host < 0:
         return []
@@ -615,7 +624,7 @@ def _rest_substitutes(st: GameState, f: Frame, target: int) -> list[int]:
     out = []
     for z in (Zone.BATTLE, Zone.BASE):
         for u in st.zones[tc.owner][z]:
-            if u == target or st.cards[u].rested:
+            if u == target or u in taken or st.cards[u].rested:
                 continue
             for r in V.rules_of(dv, u, d.RuleKind.REST_SUBSTITUTE):
                 if r.rule.name and r.rule.name != kind:
@@ -662,7 +671,8 @@ def _h_rest_continue(st: GameState, f: Frame, ins: d.Rest) -> Status:
         if f"__rest_as{done}" in f.ints:
             done += 1
             continue
-        subs = _rest_substitutes(st, f, targets[done])
+        chosen = {f.ints[k] for k in f.ints if k.startswith("__rest_as")}
+        subs = _rest_substitutes(st, f, targets[done], frozenset((*targets, *chosen)))
         if subs:
             f.ints["__rest_i"] = done
             opts = [Action(A.SELECT, u) for u in subs] + [Action(A.DONE)]
@@ -703,6 +713,8 @@ def _h_set_active(st: GameState, f: Frame, ins: d.SetActive) -> Status:
             c.rested = False
             st.touch()
             did = True
+            if c.zone is Zone.RESOURCE_AREA:
+                core.record(st, "resource_set_active", c.owner, f.controller, u, f.host)
             core.emit(st, d.Ev.SET_ACTIVE, u, player=c.owner, by=f.controller, group=group)
     f.did = did
     return Status.NEXT
@@ -897,6 +909,14 @@ def _deployable(st: GameState, uids: tuple[int, ...]) -> list[int]:
 
 
 def _h_deploy_card(st: GameState, f: Frame, ins: d.DeployCard) -> Status:
+    if ins.as_unit:
+        db = V.reg().db
+        for u in _refs(st, f, ins.ref):
+            c = st.cards[u]
+            variant = db.unit_variant(c.def_id)
+            if variant is not None and c.zone not in (Zone.BATTLE, Zone.BASE, Zone.OUTSIDE):
+                c.def_id = variant.def_id
+                st.touch()
     cards = _deployable(st, _refs(st, f, ins.ref))
     if not cards:
         f.did = False
@@ -930,6 +950,7 @@ def deploy_cards(
         t = core.card_type(st, u)
         core.move(st, u, Zone.BATTLE if t.is_unit else Zone.BASE, rested=rested)
         core.record(st, "deployed", st.cards[u].owner, by, u)
+    _enter_rested(st, cards)
     for u in cards:
         core.emit(
             st,
@@ -941,6 +962,16 @@ def deploy_cards(
             from_loc=V.zone_loc_code(froms[u]),
             ex_used=ex_used,
         )
+
+
+def _enter_rested(st: GameState, uids: list[int]) -> None:
+    """Cards "deployed rested" by a constant effect enter play rested (GD04-022, GD05-026)."""
+    dv = V.derived(st)
+    for u in uids:
+        c = st.cards[u]
+        if not c.rested and V.rules_of(dv, u, d.RuleKind.DEPLOYED_RESTED):
+            c.rested = True
+            st.touch()
 
 
 def _h_deploy_token(st: GameState, f: Frame, ins: d.DeployToken) -> Status:
@@ -960,6 +991,7 @@ def _h_deploy_token(st: GameState, f: Frame, ins: d.DeployToken) -> Status:
         uid = core.new_card(st, tdef.def_id, p, Zone.BATTLE, rested=ins.rested)
         made.append(uid)
         core.record(st, "deployed", p, f.controller, uid)
+    _enter_rested(st, made)
     for uid in made:
         core.emit(st, d.Ev.DEPLOYED, uid, player=p, by=f.controller, group=group, token=1)
     f.vars[ins.var] = tuple(made)
@@ -1028,6 +1060,7 @@ def _h_set_resources_active(st: GameState, f: Frame, ins: d.SetResourcesActive) 
             c.rested = False
             n -= 1
             did = True
+            core.record(st, "resource_set_active", p, f.controller, u, f.host)
     if did:
         st.touch()
     f.did = did
@@ -1267,8 +1300,10 @@ def add_lasting(
             uses=uses,
             filters_key=R.filters_key(filters) if filters else NO_ARG,
             aux=aux,
+            serial=st.next_lasting_serial,
         )
     )
+    st.next_lasting_serial += 1
     st.touch()
 
 

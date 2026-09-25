@@ -86,6 +86,8 @@ def _move_single(
 ) -> None:
     src = c.zone
     _remove_from_zone(st, c)
+    if dst is not Zone.BATTLE:
+        c.def_id = V.reg().db.base_def_id(c.def_id)  # a Unit variant is the printed card again
     c.zone_seq += 1
     c.damage = 0
     c.rested = rested
@@ -135,9 +137,16 @@ def shuffle_deck(st: GameState, player: int) -> None:
     st.touch()
 
 
-def record(st: GameState, kind: str, player: int, by: int = NO_ARG, uid: int = NO_ARG) -> None:
+def record(
+    st: GameState,
+    kind: str,
+    player: int,
+    by: int = NO_ARG,
+    uid: int = NO_ARG,
+    source: int = NO_ARG,
+) -> None:
     def_id = st.cards[uid].def_id if uid >= 0 else NO_ARG
-    st.history.append(HistoryEvent(kind, player, by, uid, def_id))
+    st.history.append(HistoryEvent(kind, player, by, uid, def_id, source))
 
 
 # ---------------------------------------------------------------------------------------------
@@ -481,8 +490,25 @@ def ability_snapshot(st: GameState, uids: list[int]) -> dict[int, Snapshot]:
 # damage
 
 
-def _prevented(st: GameState, dv: V.Derived, uid: int, source: int, battle: bool, by: int) -> bool:
+def _prevented(
+    st: GameState,
+    dv: V.Derived,
+    uid: int,
+    amount: int,
+    source: int,
+    battle: bool,
+    by: int,
+    *,
+    thresholds: bool = False,
+) -> bool:
+    """Rules that the card can't receive this damage. With ``thresholds``, only rules limited
+    to damage of their ``amount`` or less (GD05-123), checked against the already reduced
+    ``amount`` (Q416); otherwise only unlimited rules."""
     for r in V.rules_of(dv, uid, d.RuleKind.CANT_RECEIVE_DAMAGE):
+        limit = r.rule.amount if isinstance(r.rule.amount, int) else 0
+        limited = limit > 0
+        if limited != thresholds or (limited and amount > limit):
+            continue
         if _damage_rule_applies(st, dv, r, uid, source, battle, by):
             if r.rule.once_per_turn:
                 key = (PREVENT_ONCE_TAG, *r.key, uid, st.cards[uid].zone_seq)
@@ -553,9 +579,14 @@ def resolve_damage(
             dest = r.aux
             if dest >= 0 and dest != uid and st.cards[dest].zone is Zone.BATTLE:
                 return resolve_damage(st, dest, amount, source=source, battle=battle, by=by)
-    if _prevented(st, dv, uid, source, battle, by):
+    if _prevented(st, dv, uid, amount, source, battle, by):
         return uid, 0
-    return uid, _reduce(st, dv, uid, amount, source, battle, by)
+    amount = _reduce(st, dv, uid, amount, source, battle, by)
+    if c.zone is Zone.BASE:
+        amount -= shield_area_reduction(st, c.owner, source, battle, by)
+    if amount <= 0 or _prevented(st, dv, uid, amount, source, battle, by, thresholds=True):
+        return uid, 0
+    return uid, amount
 
 
 def apply_damage(
@@ -592,21 +623,21 @@ def apply_damage(
     return amount
 
 
-def shield_area_protected(st: GameState, player: int, source: int, battle: bool, by: int) -> bool:
-    """Player-level protection of a shield area (e.g. "your shield area cards can't receive
-    damage from enemy Units that are Lv.3 or lower during this battle")."""
+def _shield_area_rules(
+    st: GameState, player: int, kind: d.RuleKind, source: int, battle: bool, by: int
+) -> list[d.RuleMod]:
+    """Player-level rules on a shield area (from lasting effects applied to the player)
+    that apply to this damage."""
     if not st.lasting:
-        return False
+        return []
     R = V.reg()
     dv = V.derived(st)
+    out: list[d.RuleMod] = []
     for le in st.lasting:
         if le.player != player:
             continue
         eff = R.continuous[le.effect_key]
-        if (
-            not isinstance(eff, d.RuleGrant)
-            or eff.rule.kind is not d.RuleKind.SHIELD_AREA_PROTECTION
-        ):
+        if not isinstance(eff, d.RuleGrant) or eff.rule.kind is not kind:
             continue
         rule = eff.rule
         if rule.damage_kind is d.DamageKind.BATTLE and not battle:
@@ -619,8 +650,41 @@ def shield_area_protected(st: GameState, player: int, source: int, battle: bool,
             source < 0 or not V.matches(st, dv, V.Ctx(player, source), source, rule.source_filters)
         ):
             continue
-        return True
-    return False
+        out.append(rule)
+    return out
+
+
+def shield_area_protected(st: GameState, player: int, source: int, battle: bool, by: int) -> bool:
+    """Player-level protection of a shield area (e.g. "your shield area cards can't receive
+    damage from enemy Units that are Lv.3 or lower during this battle")."""
+    return bool(
+        _shield_area_rules(st, player, d.RuleKind.SHIELD_AREA_PROTECTION, source, battle, by)
+    )
+
+
+def shield_area_reduction(st: GameState, player: int, source: int, battle: bool, by: int) -> int:
+    """Player-level reduction of damage to shield area cards (ST11-006, ruling Q430)."""
+    rules = _shield_area_rules(st, player, d.RuleKind.SHIELD_AREA_REDUCTION, source, battle, by)
+    return sum(r.amount for r in rules if isinstance(r.amount, int))
+
+
+def shields_receiving_damage(
+    st: GameState, uids: list[int], amount: int, *, source: int, battle: bool, by: int
+) -> list[int]:
+    """Shields among ``uids`` that ``amount`` damage would destroy: not protected by "can't
+    receive damage" rules on the Shield (e.g. GD03-070) and not reduced to 0 (ST11-006)."""
+    if not uids:
+        return []
+    dv = V.derived(st)
+    left = amount - shield_area_reduction(st, st.cards[uids[0]].owner, source, battle, by)
+    if left <= 0:
+        return []
+    return [
+        u
+        for u in uids
+        if not _prevented(st, dv, u, amount, source, battle, by)
+        and not _prevented(st, dv, u, left, source, battle, by, thresholds=True)
+    ]
 
 
 def destroy_shields(
@@ -687,8 +751,10 @@ def damage_shield_area(
     if base:
         damage_card(st, base[0], amount, source=source, battle=battle, by=by)
         return
-    shields = st.zones[player][Zone.SHIELD][:cards]
-    destroy_shields(st, player, list(shields), battle=battle, source=source, by=by)
+    shields = shields_receiving_damage(
+        st, st.zones[player][Zone.SHIELD][:cards], amount, source=source, battle=battle, by=by
+    )
+    destroy_shields(st, player, shields, battle=battle, source=source, by=by)
 
 
 # ---------------------------------------------------------------------------------------------
@@ -698,12 +764,13 @@ def damage_shield_area(
 def destroy(
     st: GameState, uids: list[int], *, battle: bool, by: int, source: int = NO_ARG
 ) -> list[int]:
-    """Destroy Units/Bases simultaneously (rules 5-10, 13-2-8). Returns destroyed uids."""
+    """Destroy Units/Bases, and Pilots paired in the battle area (GD03-110), simultaneously
+    (rules 5-10, 13-2-8). Returns destroyed uids."""
     dv = V.derived(st)
     targets = []
     for u in uids:
         c = st.cards[u]
-        if c.zone not in (Zone.BATTLE, Zone.BASE):
+        if c.zone not in (Zone.BATTLE, Zone.BASE, Zone.PAIRED):
             continue
         if any(
             _destroy_rule_applies(st, dv, r, u, battle, by)
@@ -717,17 +784,18 @@ def destroy(
     info: dict[int, dict[str, int]] = {}
     for u in targets:
         c = st.cards[u]
+        on_unit = c.zone is not Zone.PAIRED
         info[u] = {
             "owner": c.owner,
-            "pilot": c.pair,
+            "pilot": c.pair if on_unit else NO_ARG,
             "linked": int(u in dv.linked),
-            "ap": V.ap_of(st, dv, u),
+            "ap": V.ap_of(st, dv, u) if on_unit else 0,
             "was_zone": int(c.zone),
         }
     group = next_group(st)
     for u in targets:
         move(st, u, Zone.TRASH)
-        record(st, "destroyed", info[u]["owner"], by, u)
+        record(st, "destroyed", info[u]["owner"], by, u, source)
     for u in targets:
         i = info[u]
         emit(

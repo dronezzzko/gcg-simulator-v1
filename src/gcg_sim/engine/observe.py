@@ -10,6 +10,7 @@ from __future__ import annotations
 
 from collections import Counter
 
+from gcg_sim.engine import view as V
 from gcg_sim.engine.state import GameState
 from gcg_sim.engine.types import Zone
 from gcg_sim.rng import SplitMix64, derive_seed
@@ -38,13 +39,15 @@ def unknown_pools(st: GameState, observer: int, owner: int) -> tuple[list[int], 
     """(main-deck pool, resource pool): def ids the hidden instances of ``owner`` can be."""
     main = Counter(st.decklists[owner])
     res = Counter(st.resource_decklists[owner])
+    db = V.reg().db
     for c in st.cards:
         if c.owner != owner or is_hidden_from(st, c.uid, observer):
             continue
-        if main[c.def_id] > 0:
-            main[c.def_id] -= 1
-        elif res[c.def_id] > 0:
-            res[c.def_id] -= 1
+        def_id = db.base_def_id(c.def_id)
+        if main[def_id] > 0:
+            main[def_id] -= 1
+        elif res[def_id] > 0:
+            res[def_id] -= 1
     return sorted(main.elements()), sorted(res.elements())
 
 

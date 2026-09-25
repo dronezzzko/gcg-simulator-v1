@@ -106,6 +106,7 @@ def _destroy_battle(st: GameState, victims: dict[int, int]) -> list[int]:
     if not doomed:
         return []
     breach = {src: V.kw_amount(dv, src, d.Kw.BREACH) for src in set(victims.values())}
+    paired = {src: st.cards[src].pair >= 0 for src in set(victims.values())}
     sources_lki = core.ability_snapshot(st, sorted(set(victims.values())))
     destroyed = core.destroy(st, doomed, battle=True, by=NO_ARG)
     group = core.next_group(st)
@@ -127,6 +128,10 @@ def _destroy_battle(st: GameState, victims: dict[int, int]) -> list[int]:
                 group=group,
             )
             continue
+        owner = st.cards[src].owner
+        core.record(st, "destroys_by_battle", owner, owner, src)
+        if paired[src]:  # ruling ST12-016:Q452/Q453: paired when the destruction happened
+            core.record(st, "destroys_by_battle_paired", owner, owner, src)
         core.emit(
             st,
             d.Ev.DESTROYS_BY_BATTLE,
@@ -163,26 +168,28 @@ def _exchange(st: GameState, attacker: int, target: int, first_strike: bool) -> 
     atk_ap = V.ap_of(st, dv, attacker)
     tgt_ap = V.ap_of(st, dv, target)
     if first_strike:
-        core.damage_card(st, target, atk_ap, source=attacker, battle=True, by=a_owner)
-        if _destroy_battle(st, {target: attacker}):
-            return  # rule 13-1-5-2: no damage from a destroyed target
-        if (
+        hit = core.resolve_damage(st, target, atk_ap, source=attacker, battle=True, by=a_owner)
+        core.apply_damage(st, *hit, source=attacker, battle=True, by=a_owner)
+        _destroy_battle(st, {hit[0]: attacker})
+        if (  # rule 13-1-5-2: a destroyed target deals no damage
             st.cards[target].zone in (Zone.BATTLE, Zone.BASE)
             and st.cards[attacker].zone is Zone.BATTLE
         ):
             dv = V.derived(st)
-            core.damage_card(
+            back = core.resolve_damage(
                 st, attacker, V.ap_of(st, dv, target), source=target, battle=True, by=t_owner
             )
-            _destroy_battle(st, {attacker: target})
+            core.apply_damage(st, *back, source=target, battle=True, by=t_owner)
+            _destroy_battle(st, {back[0]: target})
         return
     # rule 8-5-3-2: both Units deal damage simultaneously, so both hits are resolved on the
-    # pre-damage state before either is applied
+    # pre-damage state before either is applied; redirected damage (GD04-095) is still battle
+    # damage, so its recipient is destroyed in battle (Q283)
     to_target = core.resolve_damage(st, target, atk_ap, source=attacker, battle=True, by=a_owner)
     to_attacker = core.resolve_damage(st, attacker, tgt_ap, source=target, battle=True, by=t_owner)
     core.apply_damage(st, *to_target, source=attacker, battle=True, by=a_owner)
     core.apply_damage(st, *to_attacker, source=target, battle=True, by=t_owner)
-    _destroy_battle(st, {target: attacker, attacker: target})  # rule 8-5-3-2-3: simultaneous
+    _destroy_battle(st, {to_target[0]: attacker, to_attacker[0]: target})  # rule 8-5-3-2-3
 
 
 def damage_step(st: GameState) -> None:
@@ -206,7 +213,14 @@ def damage_step(st: GameState) -> None:
             ap = V.ap_of(st, dv, attacker)
             if ap >= 1:  # Q35: each Shield has 1 HP; 0 damage is not dealt (5-5-5)
                 n = 2 if V.has_kw(dv, attacker, d.Kw.SUPPRESSION) else 1  # rule 13-1-7
-                shields = list(st.zones[defender][Zone.SHIELD][:n])
+                shields = core.shields_receiving_damage(
+                    st,
+                    st.zones[defender][Zone.SHIELD][:n],
+                    ap,
+                    source=attacker,
+                    battle=True,
+                    by=a_owner,
+                )
                 core.destroy_shields(
                     st, defender, shields, battle=True, source=attacker, by=a_owner
                 )

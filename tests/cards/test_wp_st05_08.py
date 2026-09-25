@@ -1694,13 +1694,6 @@ def test_st08_009_chosen_unit_stays_rested_through_next_start_phase() -> None:
 
 @pytest.mark.card("ST08-009")
 @pytest.mark.ruling("ST08-009:Q208")
-@pytest.mark.xfail(
-    strict=True,
-    reason=(
-        "DSL: 'won't be set as active during the start phase' compiles to CANT_BE_SET_ACTIVE, "
-        "which interp._h_set_active also applies to effects (Q208)"
-    ),
-)
 def test_st08_009_effect_can_still_set_the_unit_active() -> None:
     sc = Scenario()
     sc.resources(0, 1)

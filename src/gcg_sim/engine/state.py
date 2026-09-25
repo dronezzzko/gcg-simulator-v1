@@ -210,6 +210,7 @@ class Lasting:
     uses: int = 0
     filters_key: int = NO_ARG
     aux: int = NO_ARG
+    serial: int = NO_ARG
 
     def copy(self) -> Lasting:
         return Lasting(
@@ -224,6 +225,7 @@ class Lasting:
             self.uses,
             self.filters_key,
             self.aux,
+            self.serial,
         )
 
     def to_json(self) -> list[Any]:
@@ -239,6 +241,7 @@ class Lasting:
             self.uses,
             self.filters_key,
             self.aux,
+            self.serial,
         ]
 
     @staticmethod
@@ -255,6 +258,7 @@ class Lasting:
             int(d[8]),
             int(d[9]),
             int(d[10]),
+            int(d[11]),
         )
 
 
@@ -416,13 +420,14 @@ class HistoryEvent:
     by: int
     uid: int
     def_id: int
+    source: int = NO_ARG  # the card whose effect caused the event, when known
 
     def to_json(self) -> list[Any]:
-        return [self.kind, self.player, self.by, self.uid, self.def_id]
+        return [self.kind, self.player, self.by, self.uid, self.def_id, self.source]
 
     @staticmethod
     def from_json(d: list[Any]) -> HistoryEvent:
-        return HistoryEvent(str(d[0]), int(d[1]), int(d[2]), int(d[3]), int(d[4]))
+        return HistoryEvent(str(d[0]), int(d[1]), int(d[2]), int(d[3]), int(d[4]), int(d[5]))
 
 
 class GameState:
@@ -446,6 +451,7 @@ class GameState:
         "lasting",
         "max_actions",
         "next_battle_id",
+        "next_lasting_serial",
         "once_used",
         "passes",
         "pending",
@@ -479,6 +485,7 @@ class GameState:
         self.pending: Decision | None = None
         self.battles: list[Battle] = []
         self.next_battle_id = 1
+        self.next_lasting_serial = 0
         self.priority = 0
         self.passes = 0
         self.lasting: list[Lasting] = []
@@ -537,6 +544,7 @@ class GameState:
         s.pending = self.pending
         s.battles = [b.copy() for b in self.battles]
         s.next_battle_id = self.next_battle_id
+        s.next_lasting_serial = self.next_lasting_serial
         s.priority = self.priority
         s.passes = self.passes
         s.lasting = [x.copy() for x in self.lasting]
@@ -576,6 +584,7 @@ class GameState:
             "pending": self.pending.to_json() if self.pending else None,
             "battles": [b.to_json() for b in self.battles],
             "next_battle_id": self.next_battle_id,
+            "next_lasting_serial": self.next_lasting_serial,
             "priority": self.priority,
             "passes": self.passes,
             "lasting": [x.to_json() for x in self.lasting],
@@ -613,6 +622,7 @@ class GameState:
         s.pending = Decision.from_json(d["pending"]) if d["pending"] else None
         s.battles = [Battle.from_json(b) for b in d["battles"]]
         s.next_battle_id = int(d["next_battle_id"])
+        s.next_lasting_serial = int(d["next_lasting_serial"])
         s.priority = int(d["priority"])
         s.passes = int(d["passes"])
         s.lasting = [Lasting.from_json(x) for x in d["lasting"]]

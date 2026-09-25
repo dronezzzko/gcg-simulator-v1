@@ -227,7 +227,11 @@ def _turn_step(st: GameState) -> None:
         for z in (Zone.BATTLE, Zone.RESOURCE_AREA, Zone.BASE):  # rule 7-2-3-1
             for uid in st.zones[p][z]:
                 c = st.cards[uid]
-                if c.rested and not V.rules_of(dv, uid, d.RuleKind.CANT_BE_SET_ACTIVE):
+                if (
+                    c.rested
+                    and not V.rules_of(dv, uid, d.RuleKind.CANT_BE_SET_ACTIVE)
+                    and not V.rules_of(dv, uid, d.RuleKind.STAYS_RESTED_IN_START_PHASE)
+                ):
                     c.rested = False
         st.touch()
         st.step = Step.START_STEP
@@ -470,13 +474,7 @@ def _attack_options(st: GameState, p: int) -> list[Action]:
     out: list[Action] = []
     enemy = 1 - p
     enemy_units = st.zones[enemy][Zone.BATTLE]
-    forced = [
-        t
-        for t in enemy_units
-        if st.cards[t].rested
-        and V.rules_of(dv, t, d.RuleKind.FORCE_ATTACK_TARGET)
-        and not V.rules_of(dv, t, d.RuleKind.CANT_BE_ATTACKED)
-    ]
+    attractors = [t for t in enemy_units if V.rules_of(dv, t, d.RuleKind.FORCE_ATTACK_TARGET)]
     for uid in st.zones[p][Zone.BATTLE]:
         c = st.cards[uid]
         if c.rested or V.rules_of(dv, uid, d.RuleKind.CANT_ATTACK):
@@ -504,15 +502,38 @@ def _attack_options(st: GameState, p: int) -> list[Action]:
                     ok = V.matches(st, dv, V.Ctx(p, uid), t, deploy_limits)
                 if ok:
                     unit_targets.append(t)
+        forced = _forced_targets(st, dv, uid, attractors, unit_targets)
         if forced:
-            legal_forced = [t for t in forced if t in unit_targets]
-            if legal_forced:
-                out.extend(Action(A.ATTACK, uid, t) for t in legal_forced)
-                continue
+            out.extend(Action(A.ATTACK, uid, t) for t in forced)
+            continue
         if deploy_limits is None and not V.rules_of(dv, uid, d.RuleKind.CANT_ATTACK_PLAYER):
             out.append(Action(A.ATTACK, uid, PLAYER_TARGET))
         out.extend(Action(A.ATTACK, uid, t) for t in unit_targets)
     return out
+
+
+def _forced_targets(
+    st: GameState, dv: V.Derived, attacker: int, attractors: list[int], legal: list[int]
+) -> list[int]:
+    """Attack targets ``attacker`` is limited to: Units it "must choose" (GD04-107) outrank
+    rested Units it chooses "if possible" (Q289); the attacker picks among several (Q290,
+    Q388); a forced Unit that is not a legal target imposes nothing (Q300, Q301)."""
+    must: list[int] = []
+    if_possible: list[int] = []
+    for t in attractors:
+        if t not in legal:
+            continue
+        for r in V.rules_of(dv, t, d.RuleKind.FORCE_ATTACK_TARGET):
+            filters = r.rule.source_filters
+            owner = st.cards[t].owner
+            if filters and not V.matches(st, dv, V.Ctx(owner, t), attacker, filters):
+                continue
+            if r.rule.name == "must":
+                must.append(t)
+                break
+            if st.cards[t].rested and t not in if_possible:
+                if_possible.append(t)
+    return must or if_possible
 
 
 def main_options(st: GameState) -> list[Action]:

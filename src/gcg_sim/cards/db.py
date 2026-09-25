@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import re
 from collections.abc import Iterator, Mapping
 from dataclasses import dataclass
 from functools import cache
@@ -40,6 +41,10 @@ GAMEPLAY_FIELDS = (
 
 EX_BASE_NUMBER = "EXB-001"
 EX_RESOURCE_NUMBER = "EXR-001"
+
+
+UNIT_VARIANT_PREFIX = "UNIT:"
+_AS_UNIT = re.compile(r"deploy it as an? \(AP(\d+)[･・]HP(\d+)\) Unit")
 
 
 def read_data_text(*parts: str) -> str:
@@ -148,6 +153,9 @@ class CardDB:
                 self._product_to_number[p["product_id"]] = number
         self._token_by_key: dict[str, CardDef] = {}
         self._register_inline_tokens()
+        self._unit_variant: dict[int, int] = {}
+        self._variant_base: dict[int, int] = {}
+        self._register_unit_variants()
 
     @staticmethod
     def _make_def(def_id: int, rec: dict[str, Any], product_ids: tuple[str, ...]) -> CardDef:
@@ -232,6 +240,46 @@ class CardDB:
             self._defs.append(synth)
             self._token_by_key[key] = synth
 
+    def _register_unit_variants(self) -> None:
+        """A card whose text deploys it "as an (APx･HPy) Unit" (e.g. GD05-089) gets a synthetic
+        Unit definition with that AP/HP and the card's Lv., cost, name and traits (Q389)."""
+        for base in list(self._defs):
+            m = _AS_UNIT.search(base.effect)
+            if m is None or base.card_type.is_unit:
+                continue
+            variant = CardDef(
+                def_id=len(self._defs),
+                card_number=f"{UNIT_VARIANT_PREFIX}{base.card_number}:{m[1]}/{m[2]}",
+                name=base.name,
+                card_type=CardType.UNIT,
+                color=base.color,
+                level=base.level,
+                cost=base.cost,
+                ap=int(m[1]),
+                hp=int(m[2]),
+                zones=(),
+                traits=base.traits,
+                link=None,
+                effect="-",
+                pilot_name=None,
+                set_code=base.set_code,
+                rarity="",
+                product_ids=(),
+                canonical_product_id="",
+            )
+            self._defs.append(variant)
+            self._unit_variant[base.def_id] = variant.def_id
+            self._variant_base[variant.def_id] = base.def_id
+
+    def unit_variant(self, def_id: int) -> CardDef | None:
+        """The Unit definition a card becomes when deployed "as a Unit", if it has one."""
+        v = self._unit_variant.get(def_id)
+        return self._defs[v] if v is not None else None
+
+    def base_def_id(self, def_id: int) -> int:
+        """The printed card of a Unit variant (identity for every other definition)."""
+        return self._variant_base.get(def_id, def_id)
+
     def __len__(self) -> int:
         return len(self._defs)
 
@@ -260,7 +308,9 @@ class CardDB:
 
     def real_cards(self) -> list[CardDef]:
         """Every card number present in the snapshot (excludes synthetic inline tokens)."""
-        return [d for d in self._defs if not d.card_number.startswith("TOKEN:")]
+        return [
+            d for d in self._defs if not d.card_number.startswith(("TOKEN:", UNIT_VARIANT_PREFIX))
+        ]
 
     def token_for(self, spec: TokenSpec) -> CardDef:
         return self._token_by_key[spec.key]

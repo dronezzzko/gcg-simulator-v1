@@ -530,6 +530,7 @@ class HappenedThisTurn:
     by: P | None = None
     at_least: int = 1
     filters: tuple[Filter, ...] = ()
+    source_filters: tuple[Filter, ...] = ()  # the card whose effect caused it
 
 
 @dataclass(frozen=True, slots=True)
@@ -590,6 +591,8 @@ class RuleKind(StrEnum):
     MAY_ATTACK_ACTIVE = "may_attack_active"  # may choose active enemy Units matching `filters`
     ATTACK_ON_DEPLOY_TURN = "attack_on_deploy_turn"
     CANT_BE_SET_ACTIVE = "cant_be_set_active"
+    STAYS_RESTED_IN_START_PHASE = "stays_rested_in_start_phase"  # Q208, Q288
+    DEPLOYED_RESTED = "deployed_rested"  # the card enters play rested (not "rested", Q354)
     CANT_BE_PAIRED = "cant_be_paired"
     CANT_RECEIVE_DAMAGE = "cant_receive_damage"  # params: damage kind, source filters
     REDUCE_DAMAGE = "reduce_damage"  # amount, damage kind, source filters, once per turn
@@ -607,6 +610,9 @@ class RuleKind(StrEnum):
     )
     SHIELD_AREA_PROTECTION = (
         "shield_area_protection"  # player-level: shield area can't receive damage
+    )
+    SHIELD_AREA_REDUCTION = (
+        "shield_area_reduction"  # player-level: reduce damage to shield area cards by amount
     )
     AP_CANT_BE_REDUCED = "ap_cant_be_reduced"
     REDIRECT_BATTLE_DAMAGE = (
@@ -933,12 +939,14 @@ class AddToHand:
 
 @dataclass(frozen=True, slots=True)
 class DeployCard:
-    """Deploy Unit/Base cards from any location (rule 5-8). ``pay_cost`` false means free."""
+    """Deploy Unit/Base cards from any location (rule 5-8). ``pay_cost`` false means free.
+    ``as_unit`` deploys a non-Unit card as its "(APx･HPy) Unit" variant (GD05-089)."""
 
     ref: Ref
     rested: bool = False
     pay_cost: bool = False
     ignore_level: bool = True
+    as_unit: bool = False
 
 
 @dataclass(frozen=True, slots=True)

@@ -424,7 +424,7 @@ def _compute(st: GameState) -> Derived:
                 ctx,
                 R.continuous[le.effect_key],
                 live,
-                (-1, le.effect_key),
+                (-1, le.effect_key, le.serial),
                 le.source_uid,
                 new_granted,
                 le.aux,
@@ -686,7 +686,9 @@ def _match1(
     if isinstance(f, d.IsRested):
         return card.rested == f.rested
     if isinstance(f, d.HasKeyword):
-        return f.keyword in dv.kw.get(uid, {})
+        if card.zone in (Zone.BATTLE, Zone.BASE):
+            return f.keyword in dv.kw.get(uid, {})
+        return f.keyword in reg().printed_keywords(card.def_id)
     if isinstance(f, d.IsLinked):
         return (uid in dv.linked) == f.linked
     if isinstance(f, d.IsPaired):
@@ -861,6 +863,10 @@ def cond(st: GameState, dv: Derived, ctx: Ctx, c: d.Cond, did: bool = True) -> b
             if by not in (NO_ARG, h.by):
                 continue
             if c.filters and (h.uid < 0 or not matches(st, dv, ctx, h.uid, c.filters)):
+                continue
+            if c.source_filters and (
+                h.source < 0 or not matches(st, dv, ctx, h.source, c.source_filters)
+            ):
                 continue
             n += 1
         return n >= c.at_least

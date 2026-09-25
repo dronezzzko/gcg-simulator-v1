@@ -5,6 +5,7 @@ from __future__ import annotations
 import pytest
 
 from gcg_sim.effects import dsl as d
+from gcg_sim.engine import invariants
 from gcg_sim.engine import view as V
 from gcg_sim.engine.interp import add_lasting
 from gcg_sim.engine.state import Action, GameState
@@ -576,10 +577,6 @@ def test_gd05_086_no_attraction_unless_linked_and_rested(unit: str, rested: bool
 
 
 @pytest.mark.card("GD05-086")
-@pytest.mark.xfail(
-    strict=True,
-    reason="ENGINE: game._attack_options applies FORCE_ATTACK_TARGET to every attacker (ignores source_filters)",
-)
 def test_gd05_086_link_unit_attackers_are_not_attracted() -> None:
     sc = Scenario(active=1)
     kayra = sc.add(0, "GD05-029", pilot="GD05-086", rested=True)
@@ -697,10 +694,6 @@ def _master_asia_burst(sc: Scenario | None = None) -> tuple[GameState, int]:
 
 
 @pytest.mark.card("GD05-089")
-@pytest.mark.xfail(
-    strict=True,
-    reason="DSL: no step deploys a Pilot card as an (AP3･HP3) Unit (card-type override)",
-)
 def test_gd05_089_burst_may_deploy_it_as_ap3_hp3_unit() -> None:
     st, asia = _master_asia_burst()
     assert zone_of(st, asia) is Zone.BATTLE
@@ -709,10 +702,6 @@ def test_gd05_089_burst_may_deploy_it_as_ap3_hp3_unit() -> None:
 
 @pytest.mark.card("GD05-089")
 @pytest.mark.ruling("GD05-089:Q389")
-@pytest.mark.xfail(
-    strict=True,
-    reason="DSL: no step deploys a Pilot card as an (AP3･HP3) Unit (card-type override)",
-)
 def test_gd05_089_deployed_as_unit_is_lv6() -> None:
     st, asia = _master_asia_burst()
     assert zone_of(st, asia) is Zone.BATTLE
@@ -721,10 +710,6 @@ def test_gd05_089_deployed_as_unit_is_lv6() -> None:
 
 @pytest.mark.card("GD05-089")
 @pytest.mark.ruling("GD05-089:Q390")
-@pytest.mark.xfail(
-    strict=True,
-    reason="DSL: no step deploys a Pilot card as an (AP3･HP3) Unit (card-type override)",
-)
 def test_gd05_089_deployed_as_unit_can_be_paired() -> None:
     sc = Scenario()
     sc.resources(1, 5)
@@ -734,6 +719,40 @@ def test_gd05_089_deployed_as_unit_can_be_paired() -> None:
     to_next_turn(st)
     assert st.active == 1
     assert has_action(st, A.PAIR, pilot, asia)
+
+
+@pytest.mark.card("GD05-089")
+@pytest.mark.parametrize("mf_cards", [3, 2])
+def test_gd05_089_burst_adds_it_to_hand_otherwise(mf_cards: int) -> None:
+    sc = Scenario()
+    attacker = sc.add(0, VANILLA)
+    (asia,) = sc.shields(1, "GD05-089")
+    sc.trash(1, *["GD05-042"] * mf_cards)
+    st = sc.start()
+    attack(st, attacker)
+    yes(st)
+    if mf_cards >= 3:
+        assert pending(st) is DecisionKind.YES_NO
+        no(st)
+    assert zone_of(st, asia) is Zone.HAND
+
+
+@pytest.mark.card("GD05-089")
+def test_gd05_089_unit_is_the_pilot_card_again_once_it_leaves_play() -> None:
+    sc = Scenario()
+    big = sc.add(0, VANILLA_6_4)
+    st, asia = _master_asia_burst(sc)
+    initial = invariants.initial_multiset(st)
+    assert V.cdef(st, asia).card_number.startswith("UNIT:")
+    to_next_turn(st)
+    st.cards[asia].rested = True
+    st.touch()
+    to_next_turn(st)
+    attack(st, big, asia)
+    pass_all(st)
+    assert zone_of(st, asia) is Zone.TRASH
+    assert V.cdef(st, asia).card_number == "GD05-089"
+    invariants.check(st, initial)
 
 
 @pytest.mark.card("GD05-089")
@@ -1903,10 +1922,6 @@ def test_gd05_123_no_protection_during_your_turn() -> None:
 
 
 @pytest.mark.card("GD05-123")
-@pytest.mark.xfail(
-    strict=True,
-    reason="DSL: CANT_RECEIVE_DAMAGE has no 'N or less' amount threshold (core._prevented ignores RuleMod.amount)",
-)
 def test_gd05_123_three_enemy_effect_damage_is_received() -> None:
     sc, orb, _other, technique = _archangel("GD03-109")  # 3 damage to a Lv.4 or lower Unit
     st = sc.start()
@@ -1972,10 +1987,6 @@ def test_gd05_124_needs_the_unit_that_would_be_rested() -> None:
 
 @pytest.mark.card("GD05-124")
 @pytest.mark.ruling("GD05-124:Q418")
-@pytest.mark.xfail(
-    strict=True,
-    reason="ENGINE: interp._rest_substitutes offers the same Base again for a second Unit of one Rest",
-)
 def test_gd05_124_replaces_only_one_of_two_units() -> None:
     sc = Scenario()
     ark = sc.base(0, "GD05-124")
@@ -2183,10 +2194,6 @@ def test_gd05_129_nothing_without_a_destroyed_unit() -> None:
 
 
 @pytest.mark.card("GD05-129")
-@pytest.mark.xfail(
-    strict=True,
-    reason="DSL: turn history does not record the destroying card, so '(Neo Zeon) card's effects' cannot be checked",
-)
 def test_gd05_129_destruction_by_a_non_neo_zeon_effect_does_not_count() -> None:
     sc = Scenario()
     sc.resources(0, 6)

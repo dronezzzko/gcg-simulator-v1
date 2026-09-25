@@ -1928,10 +1928,6 @@ def test_gd03_069_needs_link() -> None:
 
 
 @pytest.mark.card("GD03-070")
-@pytest.mark.xfail(
-    strict=True,
-    reason="ENGINE: battle damage to Shields ignores CANT_RECEIVE_DAMAGE rules on the Shields",
-)
 def test_gd03_070_rested_freedom_protects_shields_from_enemy_battle_damage() -> None:
     sc = Scenario(active=1)
     attacker = sc.add(1, ZAKU)

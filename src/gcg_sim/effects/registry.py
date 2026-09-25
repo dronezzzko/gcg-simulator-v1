@@ -84,6 +84,33 @@ class Registry:
     breach_program: int = -1
     support_program: int = -1
     support_cost_program: int = -1
+    _printed_kw: dict[int, dict[d.Kw, int]] = field(default_factory=dict)
+
+    def printed_keywords(self, def_id: int) -> dict[d.Kw, int]:
+        """Keyword effects a card has unconditionally, wherever it is (ruling GD04-067:Q276):
+        printed <Keyword> lines and ungated self-grants; 【During Pair】/【During Link】/'while'
+        grants do not count."""
+        got = self._printed_kw.get(def_id)
+        if got is not None:
+            return got
+        out: dict[d.Kw, int] = {}
+        for aid in self.cards[def_id].own:
+            ab = self.abilities[aid].ability
+            if isinstance(ab, d.Keyword) and ab.gate is d.Gate.NONE:
+                out[ab.keyword] = out.get(ab.keyword, 0) + ab.amount
+            elif isinstance(ab, d.Activated) and ab.support > 0 and ab.gate is d.Gate.NONE:
+                out[d.Kw.SUPPORT] = out.get(d.Kw.SUPPORT, 0) + ab.support
+            elif (
+                isinstance(ab, d.Constant)
+                and ab.gate is d.Gate.NONE
+                and ab.cond == d.TRUE
+                and isinstance(ab.scope, d.This)
+            ):
+                for eff in ab.effects:
+                    if isinstance(eff, d.KeywordGrant) and isinstance(eff.amount, int):
+                        out[eff.keyword] = out.get(eff.keyword, 0) + eff.amount
+        self._printed_kw[def_id] = out
+        return out
 
     def program(self, steps: tuple[d.Step, ...], label: str) -> int:
         pid = self._program_index.get(steps)

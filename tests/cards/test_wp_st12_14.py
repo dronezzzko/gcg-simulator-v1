@@ -1054,10 +1054,6 @@ def test_st12_016_no_damage_after_unpaired_unit_destroys() -> None:
 
 
 @pytest.mark.card("ST12-016")
-@pytest.mark.xfail(
-    strict=True,
-    reason="DSL: no turn-history record of battle destructions by paired Units",
-)
 def test_st12_016_damage_after_paired_unit_destroys_with_battle_damage() -> None:
     st, _, victim = _libra_after_battle(pilot=PILOT_LV3)
     assert st.cards[victim].damage == 1
@@ -1065,10 +1061,6 @@ def test_st12_016_damage_after_paired_unit_destroys_with_battle_damage() -> None
 
 @pytest.mark.card("ST12-016")
 @pytest.mark.ruling("ST12-016:Q452")
-@pytest.mark.xfail(
-    strict=True,
-    reason="DSL: no turn-history record of battle destructions by paired Units",
-)
 def test_st12_016_q452_counts_when_both_units_are_destroyed() -> None:
     st, _, victim = _libra_after_battle(pilot=PILOT_LV3, unit=VANILLA_3_4, damage=2)
     assert st.cards[victim].damage == 1
@@ -2195,10 +2187,6 @@ def test_st14_015_second_copy_in_a_turn_does_not_set_active() -> None:
 
 
 @pytest.mark.card("ST14-015")
-@pytest.mark.xfail(
-    strict=True,
-    reason="DSL: Resources set active by other effects are not in the turn history",
-)
 def test_st14_015_resource_set_active_by_another_effect_this_turn() -> None:
     sc, (card,) = _emotions(5, 1, rested=1)
     unit = sc.add(0, VANILLA_2_2, pilot=SET_RESOURCE_ACTIVE_PILOT)

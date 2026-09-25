@@ -56,26 +56,7 @@ def _pilot_capable(
 
 
 def _printed_keywords(st: GameState, uid: int) -> dict[d.Kw, int]:
-    """Keyword effects a card possesses unconditionally (ruling GD04-067:Q276): printed <Keyword>
-    lines and ungated self-grants; 【During Pair】/【During Link】/'while' grants do not count."""
-    R = V.reg()
-    out: dict[d.Kw, int] = {}
-    for aid in R.cards[st.cards[uid].def_id].own:
-        ab = R.abilities[aid].ability
-        if isinstance(ab, d.Keyword) and ab.gate is d.Gate.NONE:
-            out[ab.keyword] = out.get(ab.keyword, 0) + ab.amount
-        elif isinstance(ab, d.Activated) and ab.support > 0 and ab.gate is d.Gate.NONE:
-            out[d.Kw.SUPPORT] = out.get(d.Kw.SUPPORT, 0) + ab.support
-        elif (
-            isinstance(ab, d.Constant)
-            and ab.gate is d.Gate.NONE
-            and ab.cond == d.TRUE
-            and isinstance(ab.scope, d.This)
-        ):
-            for eff in ab.effects:
-                if isinstance(eff, d.KeywordGrant) and isinstance(eff.amount, int):
-                    out[eff.keyword] = out.get(eff.keyword, 0) + eff.amount
-    return out
+    return V.reg().printed_keywords(st.cards[uid].def_id)
 
 
 @custom_filter("wp_gd04_a_has_printed_keyword")
@@ -125,21 +106,6 @@ def _ap_down_by_named_trash_units(
             core.emit(
                 st, d.Ev.AP_REDUCED, u, player=st.cards[u].owner, by=f.controller, group=group
             )
-    return True
-
-
-@custom_step("wp_gd04_a_deployed_rested")
-def _deployed_rested(st: GameState, f: Frame, ctx: V.Ctx, params: dict[str, object]) -> bool:
-    """GD04-022: the deployed Unit enters rested. Resting it here is not "rested by an effect"
-    (ruling GD05-026:Q354), so no RESTED event is emitted."""
-    uid = ctx.ev("subject")
-    if uid < 0:
-        return False
-    c = st.cards[uid]
-    if c.zone is not Zone.BATTLE or c.rested:
-        return False
-    c.rested = True
-    st.touch()
     return True
 
 
@@ -346,12 +312,12 @@ def gd04_022(c: CardDef) -> d.CardScript:
     return _script(
         c,
         d.Constant((d.KeywordGrant(d.Kw.BREACH, 1),), scope=d.All(tokens)),
-        d.Triggered(
-            d.Trigger(d.Ev.DEPLOYED, self_only=False, subject=small),
-            steps=(d.CustomStep("wp_gd04_a_deployed_rested"),),
+        d.Constant(
+            (d.RuleGrant(d.RuleMod(d.RuleKind.DEPLOYED_RESTED)),),
+            scope=d.All(small),
             gate=d.Gate.LINKED,
         ),
-        notes="compile error: static 'are deployed rested' (approximated by a deploy trigger)",
+        notes="compile error: static 'are deployed rested'",
     )
 
 

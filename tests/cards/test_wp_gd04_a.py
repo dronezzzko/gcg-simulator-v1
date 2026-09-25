@@ -812,10 +812,6 @@ def test_gd04_022_linked_tokens_are_not_deployed_rested() -> None:
 
 
 @pytest.mark.card("GD04-022", "GD04-015")
-@pytest.mark.xfail(
-    strict=True,
-    reason="DSL: no 'deployed rested' static; the Unit is still active while its own 【Deploy】 resolves",
-)
 def test_gd04_022_unit_is_already_rested_when_its_deploy_effect_resolves() -> None:
     sc = Scenario()
     sc.resources(0, 3)

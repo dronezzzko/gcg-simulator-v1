@@ -87,7 +87,7 @@ def check(st: GameState, initial: Counter[tuple[int, int]] | None = None) -> Non
             errors.append(f"player {p} resource area over limit")
     if initial is not None:
         now: Counter[tuple[int, int]] = Counter(
-            (c.owner, c.def_id) for c in st.cards if not db.by_id(c.def_id).is_token
+            (c.owner, db.base_def_id(c.def_id)) for c in st.cards if not db.by_id(c.def_id).is_token
         )
         if now != initial:
             errors.append(f"card multiset changed: {now - initial} / {initial - now}")
@@ -111,4 +111,6 @@ def check(st: GameState, initial: Counter[tuple[int, int]] | None = None) -> Non
 
 def initial_multiset(st: GameState) -> Counter[tuple[int, int]]:
     db = V.reg().db
-    return Counter((c.owner, c.def_id) for c in st.cards if not db.by_id(c.def_id).is_token)
+    return Counter(
+        (c.owner, db.base_def_id(c.def_id)) for c in st.cards if not db.by_id(c.def_id).is_token
+    )

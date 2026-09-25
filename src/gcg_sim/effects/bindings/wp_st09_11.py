@@ -264,16 +264,8 @@ def st11_004(c: CardDef) -> d.CardScript:
 
 @card("ST11-006")
 def st11_006(c: CardDef) -> d.CardScript:
-    """The engine has no player-level damage reduction for shield area cards: damage to the
-    first shield area card is prevented (exact up to 5 damage), and Bases in play also get
-    "reduce enemy effect damage by 5" for direct damage such as "Deal 5 damage to an enemy Base"."""
-    first_card_vs_enemy_effects = d.RuleMod(
-        d.RuleKind.SHIELD_AREA_PROTECTION,
-        damage_kind=d.DamageKind.EFFECT,
-        source_side=d.Side.ENEMY,
-    )
-    base_reduce_enemy_effects = d.RuleMod(
-        d.RuleKind.REDUCE_DAMAGE,
+    reduce_enemy_effects = d.RuleMod(
+        d.RuleKind.SHIELD_AREA_REDUCTION,
         amount=5,
         damage_kind=d.DamageKind.EFFECT,
         source_side=d.Side.ENEMY,
@@ -283,16 +275,7 @@ def st11_006(c: CardDef) -> d.CardScript:
         c,
         d.Triggered(
             d.Trigger(d.Ev.TURN_START, self_only=False, whose_turn=d.P.OPP),
-            (
-                d.ApplyPlayer(
-                    d.P.YOU, d.RuleGrant(first_card_vs_enemy_effects), Duration.THIS_TURN
-                ),
-                d.Apply(
-                    d.All(d.Sel(d.Side.FRIENDLY, d.Loc.BASE)),
-                    d.RuleGrant(base_reduce_enemy_effects),
-                    Duration.THIS_TURN,
-                ),
-            ),
+            (d.ApplyPlayer(d.P.YOU, d.RuleGrant(reduce_enemy_effects), Duration.THIS_TURN),),
             cond=d.Exists(_other_friendly_marine()),
         ),
         d.Triggered(

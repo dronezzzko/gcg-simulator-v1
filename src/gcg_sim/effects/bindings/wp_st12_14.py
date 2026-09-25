@@ -5,10 +5,10 @@ from __future__ import annotations
 from gcg_sim.cards.model import CardDef
 from gcg_sim.cards.tokens import parse_token_specs
 from gcg_sim.effects import dsl as d
-from gcg_sim.effects.bindings import card, custom_cond, custom_step, custom_value
+from gcg_sim.effects.bindings import card, custom_cond, custom_value
 from gcg_sim.engine import core
 from gcg_sim.engine import view as V
-from gcg_sim.engine.state import Frame, GameState
+from gcg_sim.engine.state import GameState
 from gcg_sim.engine.types import Duration, Phase, Step, Zone
 
 FRIENDLY = d.Side.FRIENDLY
@@ -102,14 +102,6 @@ def lowest_rested_enemy_lv(
 def start_phase(st: GameState, dv: V.Derived, ctx: V.Ctx, params: dict[str, object]) -> bool:
     """Rule 7-2; start-step triggers resolve after the engine has moved to the draw step."""
     return st.phase is Phase.START or st.step is Step.DRAW_STEP
-
-
-@custom_step("wp_st12_14_record_resource_set_active")
-def record_resource_set_active(
-    st: GameState, f: Frame, ctx: V.Ctx, params: dict[str, object]
-) -> bool:
-    core.record(st, RESOURCE_SET_ACTIVE, f.controller, f.controller)
-    return True
 
 
 # ---------------------------------------------------------------------------------------------
@@ -491,10 +483,7 @@ def st14_015(c: CardDef) -> d.CardScript:
             d.PlaceResource(rested=True),
             d.If(
                 d.NotC(d.HappenedThisTurn(RESOURCE_SET_ACTIVE, d.P.YOU, by=d.P.YOU)),
-                (
-                    d.SetResourcesActive(1),
-                    d.IfYouDo((d.CustomStep("wp_st12_14_record_resource_set_active"),)),
-                ),
+                (d.SetResourcesActive(1),),
             ),
         ),
     )

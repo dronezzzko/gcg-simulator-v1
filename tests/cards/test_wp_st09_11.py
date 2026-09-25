@@ -1151,10 +1151,6 @@ def test_st11_006_needs_another_marine_at_start_of_opponent_turn() -> None:
 
 @pytest.mark.card("ST11-006")
 @pytest.mark.ruling("ST11-006:Q430")
-@pytest.mark.xfail(
-    strict=True,
-    reason="DSL: no player-level damage reduction for shield area cards; modelled as prevention",
-)
 def test_st11_006_reduces_six_breach_damage_to_one() -> None:
     st, _victim, _shields, base = _shamblo_opponent_turn(other_marine=True, base=True, fire=True)
     assert st.cards[base].damage == 1

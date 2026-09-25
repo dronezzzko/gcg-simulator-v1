@@ -1377,7 +1377,9 @@ def _freeze(m: re.Match[str], g: G) -> list[d.Step]:
     _, ref = ref_phrase(m.group(1), g)
     return [
         d.Apply(
-            ref, d.RuleGrant(d.RuleMod(d.RuleKind.CANT_BE_SET_ACTIVE)), Duration.OPPONENT_NEXT_TURN
+            ref,
+            d.RuleGrant(d.RuleMod(d.RuleKind.STAYS_RESTED_IN_START_PHASE)),
+            Duration.OPPONENT_NEXT_TURN,
         )
     ]
 
@@ -1546,13 +1548,12 @@ def _cant_be_attacked(m: re.Match[str], g: G) -> list[d.Step]:
 
 
 @core(
-    r"all enemy Units must choose (that Unit|it|this Unit) as their attack target(?: if possible)? when attacking during this turn"
+    r"all enemy Units must choose (that Unit|it|this Unit) as their attack target( if possible)? when attacking during this turn"
 )
 def _force_target(m: re.Match[str], g: G) -> list[d.Step]:
     _, ref = ref_phrase(m.group(1), g)
-    return [
-        d.Apply(ref, d.RuleGrant(d.RuleMod(d.RuleKind.FORCE_ATTACK_TARGET)), Duration.THIS_TURN)
-    ]
+    rule = d.RuleMod(d.RuleKind.FORCE_ATTACK_TARGET, name="" if m.group(2) else "must")
+    return [d.Apply(ref, d.RuleGrant(rule), Duration.THIS_TURN)]
 
 
 @core(

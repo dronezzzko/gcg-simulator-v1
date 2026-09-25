@@ -1485,70 +1485,19 @@
  "GD05-026": {
   "abilities": [
    {
-    "_": "Triggered",
-    "steps": [
+    "_": "Constant",
+    "effects": [
      {
-      "_": "CustomStep",
-      "name": "wp_gd05_a_deployed_rested",
-      "params": [
-       [
-        "sel",
-        {
-         "_": "Sel",
-         "filters": [
-          {
-           "_": "IsKind",
-           "kinds": [
-            "unit"
-           ]
-          },
-          {
-           "_": "StatCmp",
-           "op": "<=",
-           "stat": "lv",
-           "value": {
-            "_": "Sum",
-            "terms": [
-             {
-              "_": "Count",
-              "sel": {
-               "_": "Sel",
-               "filters": [
-                {
-                 "_": "IsKind",
-                 "kinds": [
-                  "unit"
-                 ]
-                },
-                {
-                 "_": "NameContains",
-                 "parts": [
-                  "Gundam Lfrith",
-                  "Gundnode"
-                 ]
-                }
-               ],
-               "loc": "battle",
-               "side": "friendly"
-              }
-             },
-             1
-            ]
-           }
-          }
-         ],
-         "loc": "battle",
-         "side": "enemy"
-        }
-       ]
-      ]
+      "_": "RuleGrant",
+      "rule": {
+       "_": "RuleMod",
+       "kind": "deployed_rested"
+      }
      }
     ],
-    "trigger": {
-     "_": "Trigger",
-     "event": "deployed",
-     "self_only": false,
-     "subject": {
+    "scope": {
+     "_": "All",
+     "sel": {
       "_": "Sel",
       "filters": [
        {
@@ -3850,43 +3799,12 @@
        "_": "RuleGrant",
        "rule": {
         "_": "RuleMod",
-        "kind": "custom",
-        "name": "wp_gd05_b_073_pending"
+        "kind": "stays_rested_in_start_phase"
        }
       },
       "ref": {
        "_": "Var",
        "name": "t1"
-      }
-     },
-     {
-      "_": "DelayedTrigger",
-      "steps": [
-       {
-        "_": "CustomStep",
-        "name": "wp_gd05_b_073_freeze"
-       }
-      ],
-      "trigger": {
-       "_": "Trigger",
-       "event": "turn_end",
-       "self_only": false
-      }
-     },
-     {
-      "_": "DelayedTrigger",
-      "duration": "opponent_next_turn",
-      "steps": [
-       {
-        "_": "CustomStep",
-        "name": "wp_gd05_b_073_thaw"
-       }
-      ],
-      "trigger": {
-       "_": "Trigger",
-       "event": "turn_start",
-       "self_only": false,
-       "whose_turn": "opponent"
       }
      }
     ],
@@ -3896,9 +3814,8 @@
     }
    }
   ],
-  "binding": "wp_gd05_b",
   "name": "Altron Gundam (EW)",
-  "source": "binding",
+  "source": "compiled",
   "text_hash": "646f896fa987711d"
  },
  "GD05-074": {
@@ -4496,10 +4413,67 @@
     "_": "Burst",
     "steps": [
      {
-      "_": "AddToHand",
-      "ref": {
-       "_": "ThisCard"
-      }
+      "_": "If",
+      "cond": {
+       "_": "Cmp",
+       "left": {
+        "_": "Count",
+        "sel": {
+         "_": "Sel",
+         "filters": [
+          {
+           "_": "HasTrait",
+           "traits": [
+            "MF"
+           ]
+          }
+         ],
+         "loc": "trash",
+         "side": "friendly"
+        }
+       },
+       "op": ">=",
+       "right": 3
+      },
+      "otherwise": [
+       {
+        "_": "AddToHand",
+        "ref": {
+         "_": "ThisCard"
+        }
+       }
+      ],
+      "then": [
+       {
+        "_": "May",
+        "steps": [
+         {
+          "_": "DeployCard",
+          "as_unit": true,
+          "ref": {
+           "_": "ThisCard"
+          }
+         }
+        ]
+       },
+       {
+        "_": "If",
+        "cond": {
+         "_": "NotC",
+         "cond": {
+          "_": "DidLast"
+         }
+        },
+        "then": [
+         {
+          "_": "AddToHand",
+          "ref": {
+           "_": "ThisCard"
+          }
+         }
+        ]
+       }
+      ]
      }
     ]
    }
@@ -7323,7 +7297,15 @@
          ]
         }
        ],
-       "kind": "destroyed"
+       "kind": "destroyed",
+       "source_filters": [
+        {
+         "_": "HasTrait",
+         "traits": [
+          "Neo Zeon"
+         ]
+        }
+       ]
       },
       "then": [
        {

@@ -1205,19 +1205,20 @@
     }
    },
    {
-    "_": "Triggered",
-    "gate": "linked",
-    "steps": [
+    "_": "Constant",
+    "effects": [
      {
-      "_": "CustomStep",
-      "name": "wp_gd04_a_deployed_rested"
+      "_": "RuleGrant",
+      "rule": {
+       "_": "RuleMod",
+       "kind": "deployed_rested"
+      }
      }
     ],
-    "trigger": {
-     "_": "Trigger",
-     "event": "deployed",
-     "self_only": false,
-     "subject": {
+    "gate": "linked",
+    "scope": {
+     "_": "All",
+     "sel": {
       "_": "Sel",
       "filters": [
        {
@@ -5435,7 +5436,7 @@
        "_": "RuleGrant",
        "rule": {
         "_": "RuleMod",
-        "kind": "cant_be_set_active"
+        "kind": "stays_rested_in_start_phase"
        }
       },
       "ref": {

@@ -1032,7 +1032,6 @@ def test_gd03_110_unplayable_without_enemy_pilot() -> None:
 
 @pytest.mark.card("GD03-110")
 @pytest.mark.rule("5-10-1")
-@pytest.mark.xfail(strict=True, reason="ENGINE: Destroy ignores Pilots paired in the battle area")
 def test_gd03_110_destroys_the_pilot_and_keeps_the_unit() -> None:
     sc = Scenario()
     sc.resources(0, 6)
@@ -1050,7 +1049,6 @@ def test_gd03_110_destroys_the_pilot_and_keeps_the_unit() -> None:
 @pytest.mark.card("GD03-110")
 @pytest.mark.ruling("GD03-110:Q249")
 @pytest.mark.rule("3-2-6-3")
-@pytest.mark.xfail(strict=True, reason="ENGINE: Destroy ignores Pilots paired in the battle area")
 def test_gd03_110_link_unit_deployed_this_turn_can_no_longer_attack() -> None:
     sc = Scenario(active=1)
     sc.resources(0, 6)
