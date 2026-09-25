@@ -7,6 +7,7 @@ from pathlib import Path
 
 import pytest
 
+from gcg_sim.cards.db import load_overrides
 from gcg_sim.cli import main
 from gcg_sim.reports import validate_results
 from gcg_sim.runner import agents as agents_module
@@ -92,6 +93,10 @@ def test_help_exits_0(capsys: pytest.CaptureFixture[str]) -> None:
 # --- data status --------------------------------------------------------------------------
 
 
+def _resolution_count() -> int:
+    return len(load_overrides()["resolutions"])
+
+
 def test_data_status_text(capsys: pytest.CaptureFixture[str]) -> None:
     assert main(["data", "status"]) == 0
     out = capsys.readouterr().out
@@ -101,7 +106,7 @@ def test_data_status_text(capsys: pytest.CaptureFixture[str]) -> None:
     assert "rules: Comprehensive Rules Ver. 1.9.0 (effective 2026-09-11)" in out
     assert "banned & restricted list: effective 2026-09-25 (1 banned, 1 restricted" in out
     assert "implementation coverage: " in out
-    assert "conflicts: 291 resolutions in overrides.json" in out
+    assert f"conflicts: {_resolution_count()} resolutions in overrides.json" in out
 
 
 def test_data_status_json(capsys: pytest.CaptureFixture[str]) -> None:
@@ -111,8 +116,8 @@ def test_data_status_json(capsys: pytest.CaptureFixture[str]) -> None:
     assert status["versions"]["rules_version"] == "1.9.0"
     assert status["banlist"]["banned"] == ["GD01-020"]
     coverage = status["coverage"]
-    assert 0 < coverage["implemented"] <= coverage["card_numbers"] == 1148
-    assert status["conflicts"]["resolutions"] == 291
+    assert coverage["implemented"] == coverage["card_numbers"] == 1148
+    assert status["conflicts"]["resolutions"] == _resolution_count()
 
 
 # --- benchmark ----------------------------------------------------------------------------
