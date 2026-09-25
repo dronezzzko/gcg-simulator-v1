@@ -86,7 +86,12 @@ def block(st: GameState, blocker: int) -> None:
     group = core.next_group(st)
     core.emit(st, d.Ev.BLOCKS, blocker, player=c.owner, attacker=b.attacker, group=group)
     core.emit(
-        st, d.Ev.BLOCKED, b.attacker, player=st.cards[b.attacker].owner, blocker=blocker, group=group
+        st,
+        d.Ev.BLOCKED,
+        b.attacker,
+        player=st.cards[b.attacker].owner,
+        blocker=blocker,
+        group=group,
     )
 
 

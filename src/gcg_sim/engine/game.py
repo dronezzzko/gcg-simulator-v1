@@ -29,6 +29,7 @@ from gcg_sim.rng import SplitMix64
 
 A = ActionKind
 SUPPORT_AID = -10
+ALT_PLAY_BASE = 100  # Action.c = EX used + ALT_PLAY_BASE * (modifier index + 1)
 MAX_ACTIONS_DEFAULT = 20000
 
 
@@ -502,10 +503,72 @@ def main_options(st: GameState) -> list[Action]:
             if cd.pilot_name is not None:  # rule 3-4-6-2
                 for u in my_units:
                     out.extend(Action(A.PAIR, uid, u, c) for c in pays)
+        out.extend(_alt_play_options(st, dv, p, uid, my_units))
     for host, aid, cost in _activated_list(st, p, d.Timing.MAIN):
         out.extend(Action(A.ACTIVATE, host, aid, c) for c in payment_choices(st, p, cost))
     out.extend(_attack_options(st, p))
     out.append(Action(A.END_MAIN))
+    return out
+
+
+def play_modifiers(st: GameState, uid: int) -> list[AbilityEntry]:
+    R = V.reg()
+    entry = R.cards[st.cards[uid].def_id]
+    return [R.abilities[a] for a in entry.own if isinstance(R.abilities[a].ability, d.PlayModifier)]
+
+
+def _costs_payable(
+    st: GameState, dv: V.Derived, p: int, host: int, costs: tuple[d.Cost, ...]
+) -> bool:
+    ctx = V.Ctx(p, host)
+    for c in costs:
+        if isinstance(c, (d.RestCards, d.DestroyCards, d.DiscardCards, d.ExileCards)):
+            sel = c.sel
+            if isinstance(c, d.RestCards):
+                sel = d.Sel(sel.side, sel.loc, (*sel.filters, d.IsRested(False)), sel.top_n)
+            cands = [u for u in V.select(st, dv, ctx, sel) if u != host]
+            if len(cands) < c.count:
+                return False
+    return True
+
+
+def _alt_play_options(
+    st: GameState, dv: V.Derived, p: int, uid: int, my_units: list[int]
+) -> list[Action]:
+    """Play modifiers ("When playing this card from your hand, ... play it as if it has N Lv.
+    and cost"): each offers the card at its modified Lv./cost when its condition and extra
+    costs can be met."""
+    mods = play_modifiers(st, uid)
+    if not mods:
+        return []
+    R = V.reg()
+    cd = R.db.by_id(st.cards[uid].def_id)
+    out: list[Action] = []
+    for i, entry in enumerate(mods):
+        pm = entry.ability
+        assert isinstance(pm, d.PlayModifier)
+        ctx = V.Ctx(p, uid)
+        if pm.cond is not d.TRUE and not V.cond(st, dv, ctx, pm.cond):
+            continue
+        if not _costs_payable(st, dv, p, uid, pm.costs):
+            continue
+        level = pm.level if pm.level is not None else V.play_level(st, dv, uid)
+        if len(st.zones[p][Zone.RESOURCE_AREA]) < level:
+            continue
+        cost = pm.cost if pm.cost is not None else V.play_cost(st, dv, uid)
+        enc = [c + ALT_PLAY_BASE * (i + 1) for c in payment_choices(st, p, cost)]
+        t = cd.card_type
+        if t is CardType.UNIT:
+            out.extend(Action(A.PLAY_UNIT, uid, NO_ARG, c) for c in enc)
+        elif t is CardType.BASE:
+            out.extend(Action(A.PLAY_BASE, uid, NO_ARG, c) for c in enc)
+        elif t is CardType.COMMAND and _command_playable(st, p, uid, d.Timing.MAIN):
+            out.extend(Action(A.PLAY_COMMAND, uid, NO_ARG, c) for c in enc)
+        if cd.is_pilot_capable:
+            for u in my_units:
+                if pm.pair_filters and not V.matches(st, dv, ctx, u, pm.pair_filters):
+                    continue
+                out.extend(Action(A.PAIR, uid, u, c) for c in enc)
     return out
 
 
@@ -746,6 +809,9 @@ def _play_or_activate(st: GameState, p: int, action: Action) -> None:
         if ab.once_per_turn:
             st.once_used.add((a.aid, host, st.cards[host].zone_seq))
         core.record(st, "activate", p, p, host)
+        if res:
+            core.record(st, "cost_paid", p, p, host)
+            core.emit(st, d.Ev.COST_PAID, host, player=p, amount=res)
         I.push_frame(
             st,
             a.program_id,
@@ -756,12 +822,25 @@ def _play_or_activate(st: GameState, p: int, action: Action) -> None:
         )
         return
     uid = action.a
-    cost = V.play_cost(st, dv, uid)
+    alt_cost_program = -1
+    ex = action.c
+    if action.c >= ALT_PLAY_BASE:
+        alt = action.c // ALT_PLAY_BASE - 1
+        ex = action.c % ALT_PLAY_BASE
+        entry_pm = play_modifiers(st, uid)[alt]
+        pm = entry_pm.ability
+        assert isinstance(pm, d.PlayModifier)
+        cost = pm.cost if pm.cost is not None else V.play_cost(st, dv, uid)
+        alt_cost_program = entry_pm.cost_program_id
+    else:
+        cost = V.play_cost(st, dv, uid)
     st.cards[uid].known = core.BOTH_KNOW  # rule 7-5-2-2-1: reveal
-    _pay(st, p, uid, action.c, cost)
+    _pay(st, p, uid, ex, cost)
     core.record(st, "play", p, p, uid)
+    if ex > 0:
+        core.record(st, "played_with_ex", p, p, uid)
     if k is A.PLAY_UNIT or k is A.PLAY_BASE:
-        I.push_frame(
+        fr = I.push_frame(
             st,
             I.system_program("deploy"),
             controller=p,
@@ -769,6 +848,7 @@ def _play_or_activate(st: GameState, p: int, action: Action) -> None:
             kind="system",
             vars={"card": (uid,)},
         )
+        fr.ints["ex_used"] = ex
     elif k is A.PAIR:
         I.push_frame(
             st,
@@ -781,12 +861,15 @@ def _play_or_activate(st: GameState, p: int, action: Action) -> None:
     elif k is A.PLAY_COMMAND:
         entry = R.cards[st.cards[uid].def_id]
         core.move(st, uid, Zone.RESOLVING, reveal=True)  # rule 3-4-3
-        core.emit(st, d.Ev.COMMAND_PLAYED, uid, player=p)
+        core.record(st, "command_activated", p, p, uid)
+        core.emit(st, d.Ev.COMMAND_PLAYED, uid, player=p, ex_used=ex)
         I.push_frame(
             st, R.abilities[entry.command_aid].program_id, controller=p, host=uid, kind="command"
         )
     else:
         raise core.EngineError(f"unexpected play action {action}")
+    if alt_cost_program >= 0:
+        I.push_frame(st, alt_cost_program, controller=p, host=uid, kind="system")
 
 
 # ---------------------------------------------------------------------------------------------

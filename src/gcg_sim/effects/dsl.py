@@ -602,9 +602,17 @@ class RuleKind(StrEnum):
     PLAY_LEVEL_DELTA = "play_level_delta"
     ATTACK_TARGET_FIXED = "attack_target_fixed"
     CANT_BE_ATTACKED = "cant_be_attacked"  # enemy Units can't choose this as their attack target
-    FORCE_ATTACK_TARGET = "force_attack_target"  # enemy Units must choose this (rested) Unit if possible
-    SHIELD_AREA_PROTECTION = "shield_area_protection"  # player-level: shield area can't receive damage
+    FORCE_ATTACK_TARGET = (
+        "force_attack_target"  # enemy Units must choose this (rested) Unit if possible
+    )
+    SHIELD_AREA_PROTECTION = (
+        "shield_area_protection"  # player-level: shield area can't receive damage
+    )
     AP_CANT_BE_REDUCED = "ap_cant_be_reduced"
+    REDIRECT_BATTLE_DAMAGE = (
+        "redirect_battle_damage"  # battle damage is dealt to the aux card instead
+    )
+    REST_SUBSTITUTE = "rest_substitute"  # may rest this card instead (name: "unit"|"base"; source_filters: effect host)
     CUSTOM = "custom"
 
 
@@ -689,6 +697,9 @@ class Ev(StrEnum):
     DESTROYS_BY_BATTLE = "destroys_by_battle"  # subject destroyed an enemy Unit with battle damage
     DESTROYS_SHIELD_CARD = "destroys_shield_card"  # subject destroyed an enemy shield area card
     DEALS_DAMAGE = "deals_damage"  # subject dealt damage to target (amount, battle flag)
+    COST_PAID = "cost_paid"  # resources paid for an effect of subject (amount)
+    SUPPORT_USED = "support_used"  # subject used <Support> on target
+    AP_REDUCED = "ap_reduced"  # subject's AP was reduced by an effect (by)
     SHIELD_DESTROYED = "shield_destroyed"  # a Shield was destroyed (subject shield, owner)
     TURN_START = "turn_start"
     TURN_END = "turn_end"
@@ -1028,11 +1039,15 @@ class Recover:
 
 @dataclass(frozen=True, slots=True)
 class Apply:
-    """Create a lasting effect on the cards in ``ref`` for ``duration``."""
+    """Create a lasting effect on the cards in ``ref`` for ``duration``.
+
+    ``aux`` binds a related card to the effect (e.g. the destination of redirected damage).
+    """
 
     ref: Ref
     effect: Continuous
     duration: Duration = Duration.THIS_TURN
+    aux: Ref | None = None
 
 
 @dataclass(frozen=True, slots=True)
@@ -1308,7 +1323,40 @@ class Replacement:
     gate: Gate = Gate.NONE
 
 
-type Ability = Keyword | Constant | Triggered | Activated | Command | Burst | Replacement
+@dataclass(frozen=True, slots=True)
+class NameAlias:
+    """ "This card's name is also treated as [X]" (rule 2-2-4)."""
+
+    names: tuple[str, ...]
+
+
+@dataclass(frozen=True, slots=True)
+class PlayModifier:
+    """Alternative way to play this card from the hand ("When playing this card from your
+    hand, ... play this card as if it has N Lv. and cost").
+
+    ``costs`` are additional costs paid when playing this way; ``level``/``cost`` replace the
+    printed values when not ``None``; ``pair_filters`` restrict the Unit a Pilot is paired with.
+    """
+
+    cond: Cond = TRUE
+    costs: tuple[Cost, ...] = ()
+    level: int | None = None
+    cost: int | None = None
+    pair_filters: tuple[Filter, ...] = ()
+
+
+type Ability = (
+    Keyword
+    | Constant
+    | Triggered
+    | Activated
+    | Command
+    | Burst
+    | Replacement
+    | NameAlias
+    | PlayModifier
+)
 
 
 @dataclass(frozen=True, slots=True)

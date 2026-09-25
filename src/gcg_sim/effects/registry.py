@@ -53,6 +53,7 @@ SUPPORT_STEPS: tuple[d.Step, ...] = (
     d.Rest(d.This()),
     d.Choose("t", d.Sel(d.Side.FRIENDLY, d.Loc.BATTLE, (d.NotRef(d.This()),))),
     d.Apply(d.Var("t"), d.StatMod(ap=d.KwAmount(d.Kw.SUPPORT)), Duration.THIS_TURN),
+    d.CustomStep("support_used"),
 )
 
 
@@ -67,6 +68,7 @@ class Registry:
     _cont_index: dict[d.Continuous, int] = field(default_factory=dict)
     _filter_index: dict[tuple[d.Filter, ...], int] = field(default_factory=dict)
     _program_index: dict[tuple[d.Step, ...], int] = field(default_factory=dict)
+    aliases: dict[int, tuple[str, ...]] = field(default_factory=dict)
     repair_program: int = -1
     breach_program: int = -1
     support_program: int = -1
@@ -175,6 +177,11 @@ def _register_card(
             pid = -1
             if steps is not None:
                 pid = reg.program(steps, f"{cdef.card_number}#{'u' if unit_text else 'a'}{idx}")
+            cost_pid = -1
+            if isinstance(a, d.PlayModifier) and a.costs:
+                cost_pid = reg.program(cost_steps(a.costs), f"{cdef.card_number}#alt{idx}")
+            if isinstance(a, d.NameAlias):
+                reg.aliases[cdef.def_id] = reg.aliases.get(cdef.def_id, ()) + a.names
             aid = len(reg.abilities)
             reg.abilities.append(
                 AbilityEntry(
@@ -185,6 +192,7 @@ def _register_card(
                     unit_text=unit_text,
                     ability=a,
                     program_id=pid,
+                    cost_program_id=cost_pid,
                 )
             )
             (unit if unit_text else own).append(aid)

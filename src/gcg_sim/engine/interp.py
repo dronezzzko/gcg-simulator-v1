@@ -347,11 +347,11 @@ def _val(st: GameState, f: Frame, v: d.Value) -> int:
 def _h_draw(st: GameState, f: Frame, ins: d.Draw) -> Status:
     p = V.player_of(st, ctx_of(f), ins.player)
     n = _val(st, f, ins.count)
-    f.did = draw(st, p, n) > 0
+    f.did = draw(st, p, n, by_effect=True) > 0
     return Status.NEXT
 
 
-def draw(st: GameState, p: int, n: int) -> int:
+def draw(st: GameState, p: int, n: int, *, by_effect: bool = False) -> int:
     drawn = 0
     group = core.next_group(st)
     for _ in range(max(0, n)):
@@ -362,7 +362,7 @@ def draw(st: GameState, p: int, n: int) -> int:
         core.move(st, uid, Zone.HAND)
         drawn += 1
         core.record(st, "draw", p, p, uid)
-        core.emit(st, d.Ev.DRAWN, uid, player=p, group=group)
+        core.emit(st, d.Ev.DRAWN, uid, player=p, group=group, by_effect=int(by_effect))
     return drawn
 
 
@@ -471,10 +471,82 @@ def _h_destroy(st: GameState, f: Frame, ins: d.Destroy) -> Status:
     return Status.NEXT
 
 
+def _rest_substitutes(st: GameState, f: Frame, target: int) -> list[int]:
+    """Cards that may be rested instead of ``target`` (rule 10-1-9 substitution effects)."""
+    tc = st.cards[target]
+    if tc.owner != f.controller or f.host < 0:
+        return []
+    dv = V.derived(st)
+    kind = "base" if tc.zone is Zone.BASE else "unit"
+    out = []
+    for z in (Zone.BATTLE, Zone.BASE):
+        for u in st.zones[tc.owner][z]:
+            if u == target or st.cards[u].rested:
+                continue
+            for r in V.rules_of(dv, u, d.RuleKind.REST_SUBSTITUTE):
+                if r.rule.name and r.rule.name != kind:
+                    continue
+                if r.rule.source_filters and not V.matches(
+                    st, dv, V.Ctx(tc.owner, u), f.host, r.rule.source_filters
+                ):
+                    continue
+                if r.rule.once_per_turn and (core.REST_SUB_TAG, u, st.turn) in st.once_used:
+                    continue
+                out.append(u)
+                break
+    return out
+
+
+def _rest_targets(st: GameState, f: Frame, ins: d.Rest) -> list[int]:
+    return [
+        u
+        for u in _refs(st, f, ins.ref)
+        if st.cards[u].zone in (Zone.BATTLE, Zone.BASE, Zone.RESOURCE_AREA)
+        and not st.cards[u].rested
+    ]
+
+
 def _h_rest(st: GameState, f: Frame, ins: d.Rest) -> Status:
+    return _h_rest_continue(st, f, ins)
+
+
+def _r_rest(st: GameState, f: Frame, ins: d.Rest, action: Action) -> Status:
+    i = f.ints.get("__rest_i", 0)
+    if action.kind is A.SELECT:
+        f.ints[f"__rest_as{i}"] = action.a
+        dv = V.derived(st)
+        if any(r.rule.once_per_turn for r in V.rules_of(dv, action.a, d.RuleKind.REST_SUBSTITUTE)):
+            st.once_used.add((core.REST_SUB_TAG, action.a, st.turn))
+    f.ints["__rest_i"] = i + 1
+    return _h_rest_continue(st, f, ins)
+
+
+def _h_rest_continue(st: GameState, f: Frame, ins: d.Rest) -> Status:
+    targets = _rest_targets(st, f, ins)
+    done = f.ints.get("__rest_i", 0)
+    while done < len(targets):
+        if f"__rest_as{done}" in f.ints:
+            done += 1
+            continue
+        subs = _rest_substitutes(st, f, targets[done])
+        if subs:
+            f.ints["__rest_i"] = done
+            opts = [Action(A.SELECT, u) for u in subs] + [Action(A.DONE)]
+            return _decide(
+                st,
+                f,
+                st.cards[targets[done]].owner,
+                DecisionKind.SELECT,
+                opts,
+                "rest instead?",
+                (("rest_sub", targets[done]),),
+            )
+        done += 1
+    f.ints.pop("__rest_i", None)
+    final = [f.ints.pop(f"__rest_as{i}", t) for i, t in enumerate(targets)]
     did = False
     group = core.next_group(st)
-    for u in _refs(st, f, ins.ref):
+    for u in final:
         c = st.cards[u]
         if c.zone in (Zone.BATTLE, Zone.BASE, Zone.RESOURCE_AREA) and not c.rested:
             c.rested = True
@@ -665,7 +737,9 @@ def _h_deploy_card(st: GameState, f: Frame, ins: d.DeployCard) -> Status:
     return Status.NEXT
 
 
-def deploy_cards(st: GameState, cards: list[int], *, rested: bool, by: int, ex_used: int = 0) -> None:
+def deploy_cards(
+    st: GameState, cards: list[int], *, rested: bool, by: int, ex_used: int = 0
+) -> None:
     group = core.next_group(st)
     froms = {u: st.cards[u].zone for u in cards}
     for u in cards:
@@ -948,8 +1022,24 @@ def _h_apply(st: GameState, f: Frame, ins: d.Apply) -> Status:
     if not live:
         f.did = False
         return Status.NEXT
-    add_lasting(st, ins.effect, f.controller, f.host, live, ins.duration)
+    aux = NO_ARG
+    if ins.aux is not None:
+        aux_cards = _refs(st, f, ins.aux)
+        if not aux_cards:
+            f.did = False
+            return Status.NEXT
+        aux = aux_cards[0]
+    before = {u: V.ap_of(st, V.derived(st), u) for u, _ in live}
+    add_lasting(st, ins.effect, f.controller, f.host, live, ins.duration, aux=aux)
     f.did = True
+    eff = ins.effect
+    if isinstance(eff, d.StatMod) and eff.ap != 0:
+        dv = V.derived(st)
+        group = core.next_group(st)
+        for u, _ in live:
+            c = st.cards[u]
+            if c.zone is Zone.BATTLE and V.ap_of(st, dv, u) < before[u]:
+                core.emit(st, d.Ev.AP_REDUCED, u, player=c.owner, by=f.controller, group=group)
     return Status.NEXT
 
 
@@ -964,6 +1054,7 @@ def add_lasting(
     player: int = NO_ARG,
     uses: int = 0,
     filters: tuple[d.Filter, ...] = (),
+    aux: int = NO_ARG,
 ) -> None:
     R = V.reg()
     b = st.battle
@@ -979,6 +1070,7 @@ def add_lasting(
             player=player,
             uses=uses,
             filters_key=R.filters_key(filters) if filters else NO_ARG,
+            aux=aux,
         )
     )
     st.touch()
@@ -1127,6 +1219,8 @@ def pay_generic(st: GameState, p: int, cost: int, ex_used: int = -1) -> bool:
     for u in ex[:ex_used]:
         st.cards[u].rested = True
         core.remove_from_game(st, u)
+        core.record(st, "ex_exiled", p, p, u)
+        core.emit(st, d.Ev.EXILED, u, player=p, by=p, ex_resource=1)
     st.touch()
     return True
 
@@ -1218,6 +1312,9 @@ def _h_delayed(st: GameState, f: Frame, ins: d.DelayedTrigger) -> Status:
 def _h_pay_cost(st: GameState, f: Frame, ins: d.PayCost) -> Status:
     p = V.player_of(st, ctx_of(f), ins.player)
     f.did = pay_generic(st, p, ins.amount)
+    if f.did and ins.amount > 0 and f.host >= 0:
+        core.record(st, "cost_paid", p, p, f.host)
+        core.emit(st, d.Ev.COST_PAID, f.host, player=p, amount=ins.amount)
     return Status.NEXT
 
 
@@ -1305,6 +1402,7 @@ _RESUMERS: dict[type, Callable[..., Status]] = {
     d.DeployCard: _r_excess,
     d.DeployToken: _r_excess,
     d.Arrange: _r_arrange,
+    d.Rest: _r_rest,
 }
 
 __all__ = ["CUSTOM_STEPS", "PLAYER_TARGET", "Battle", "run_top_frame"]

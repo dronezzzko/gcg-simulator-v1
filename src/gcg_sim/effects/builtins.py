@@ -12,7 +12,7 @@ from gcg_sim.engine.types import Zone
 
 @custom_step("return_looked_bottom")
 def return_looked_bottom(st: GameState, f: Frame, ctx: V.Ctx, params: dict[str, object]) -> bool:
-    """"Return the remaining cards randomly to the bottom of your deck.\""""
+    """ "Return the remaining cards randomly to the bottom of your deck.\""""
     looked = [u for u in f.vars.get("looked", ()) if st.cards[u].zone is Zone.DECK]
     if not looked:
         return False
@@ -41,15 +41,29 @@ def deploy_ex_base(st: GameState, f: Frame, ctx: V.Ctx, params: dict[str, object
 
 
 @custom_filter("is_attack_target")
-def is_attack_target(st: GameState, dv: V.Derived, ctx: V.Ctx, uid: int, params: dict[str, object]) -> bool:
+def is_attack_target(
+    st: GameState, dv: V.Derived, ctx: V.Ctx, uid: int, params: dict[str, object]
+) -> bool:
     b = st.battle
     return b is not None and not b.ended and b.target == uid
 
 
 @custom_cond("attack_target_damaged")
-def attack_target_damaged(st: GameState, dv: V.Derived, ctx: V.Ctx, params: dict[str, object]) -> bool:
+def attack_target_damaged(
+    st: GameState, dv: V.Derived, ctx: V.Ctx, params: dict[str, object]
+) -> bool:
     b = st.battle
     return b is not None and not b.ended and b.target >= 0 and st.cards[b.target].damage > 0
 
 
 __all__ = ["core"]
+
+
+@custom_step("support_used")
+def support_used(st: GameState, f: Frame, ctx: V.Ctx, params: dict[str, object]) -> bool:
+    """Emit the <Support> usage event (GD01-046 "When you use this Unit's <Support> ...")."""
+    targets = f.vars.get("t", ())
+    if not targets:
+        return False
+    core.emit(st, d.Ev.SUPPORT_USED, f.host, player=f.controller, target=targets[0])
+    return True

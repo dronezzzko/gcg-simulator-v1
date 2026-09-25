@@ -19,6 +19,8 @@ SHIELD_COUNT = 6
 START_HAND = 5
 
 REDUCE_ONCE_TAG = -7
+PREVENT_ONCE_TAG = -8
+REST_SUB_TAG = -9
 
 TOKEN_ZONES = frozenset({Zone.BATTLE, Zone.RESOURCE_AREA, Zone.SHIELD, Zone.BASE})
 
@@ -444,6 +446,11 @@ def ability_snapshot(st: GameState, uids: list[int]) -> dict[int, list[AbilityEn
 def _prevented(st: GameState, dv: V.Derived, uid: int, source: int, battle: bool, by: int) -> bool:
     for r in V.rules_of(dv, uid, d.RuleKind.CANT_RECEIVE_DAMAGE):
         if _damage_rule_applies(st, dv, r, uid, source, battle, by):
+            if r.rule.once_per_turn:
+                key = (PREVENT_ONCE_TAG, *r.key, uid, st.cards[uid].zone_seq)
+                if key in st.once_used:
+                    continue
+                st.once_used.add(key)
             return True
     return False
 
@@ -494,6 +501,11 @@ def damage_card(st: GameState, uid: int, amount: int, *, source: int, battle: bo
     if c.zone not in (Zone.BATTLE, Zone.BASE):
         return 0
     dv = V.derived(st)
+    if battle:
+        for r in V.rules_of(dv, uid, d.RuleKind.REDIRECT_BATTLE_DAMAGE):
+            dest = r.aux
+            if dest >= 0 and dest != uid and st.cards[dest].zone is Zone.BATTLE:
+                return damage_card(st, dest, amount, source=source, battle=battle, by=by)
     if _prevented(st, dv, uid, source, battle, by):
         return 0
     amount = _reduce(st, dv, uid, amount, source, battle, by)
@@ -536,7 +548,10 @@ def shield_area_protected(st: GameState, player: int, source: int, battle: bool,
         if le.player != player:
             continue
         eff = R.continuous[le.effect_key]
-        if not isinstance(eff, d.RuleGrant) or eff.rule.kind is not d.RuleKind.SHIELD_AREA_PROTECTION:
+        if (
+            not isinstance(eff, d.RuleGrant)
+            or eff.rule.kind is not d.RuleKind.SHIELD_AREA_PROTECTION
+        ):
             continue
         rule = eff.rule
         if rule.damage_kind is d.DamageKind.BATTLE and not battle:

@@ -41,10 +41,20 @@ _NUM_WORDS = {"a": 1, "an": 1, "one": 1, "another": 1, "two": 2, "three": 3}
 _HEADS: list[tuple[str, tuple[d.CardKind, ...], d.Loc | None, tuple[d.Filter, ...]]] = [
     (r"Unit tokens?", (d.CardKind.UNIT_TOKEN,), d.Loc.BATTLE, ()),
     (r"Link Units?|Linked Units", (d.CardKind.UNIT,), d.Loc.BATTLE, (d.IsLinked(),)),
-    (r"Units?/Bases?|Unit/Base", (d.CardKind.UNIT, d.CardKind.BASE), d.Loc.FIELD_UNITS_AND_BASES, ()),
+    (
+        r"Units?/Bases?|Unit/Base",
+        (d.CardKind.UNIT, d.CardKind.BASE),
+        d.Loc.FIELD_UNITS_AND_BASES,
+        (),
+    ),
     (r"Unit cards?/Base cards?|Unit/Base cards?", (d.CardKind.UNIT, d.CardKind.BASE), None, ()),
     (r"Unit/Pilot cards?|Unit cards?/Pilot cards?", (d.CardKind.UNIT, d.CardKind.PILOT), None, ()),
-    (r"Pilot/Command cards?|Pilot cards?/Command cards?", (d.CardKind.PILOT, d.CardKind.COMMAND), None, ()),
+    (
+        r"Pilot/Command cards?|Pilot cards?/Command cards?",
+        (d.CardKind.PILOT, d.CardKind.COMMAND),
+        None,
+        (),
+    ),
     (r"Unit cards?", (d.CardKind.UNIT,), None, ()),
     (r"Pilot cards?", (d.CardKind.PILOT,), None, ()),
     (r"Command cards?", (d.CardKind.COMMAND,), None, ()),
@@ -62,7 +72,13 @@ _HEADS: list[tuple[str, tuple[d.CardKind, ...], d.Loc | None, tuple[d.Filter, ..
 
 
 def _stat_word(w: str) -> d.Stat:
-    return {"AP": d.Stat.AP, "HP": d.Stat.HP, "Lv.": d.Stat.LV, "Lv": d.Stat.LV, "cost": d.Stat.COST}[w]
+    return {
+        "AP": d.Stat.AP,
+        "HP": d.Stat.HP,
+        "Lv.": d.Stat.LV,
+        "Lv": d.Stat.LV,
+        "cost": d.Stat.COST,
+    }[w]
 
 
 _POST: list[tuple[re.Pattern[str], str]] = [
@@ -73,16 +89,29 @@ _POST: list[tuple[re.Pattern[str], str]] = [
     (re.compile(r"^with a Lv\. of (\d+) (or lower|or higher)"), "lv_cmp"),
     (re.compile(r"^with (?:a )?cost of (\d+) (or less|or more)"), "cost_cmp"),
     (re.compile(r"^with (\d+) (or less|or more) cost"), "cost_cmp"),
-    (re.compile(r"^whose Lv\. is (equal to or lower|equal to or higher|lower|higher) than (this Unit|that Unit|it)(?:'s Lv\.)?"), "lv_rel"),
+    (
+        re.compile(
+            r"^whose Lv\. is (equal to or lower|equal to or higher|lower|higher) than (this Unit|that Unit|it)(?:'s Lv\.)?"
+        ),
+        "lv_rel",
+    ),
     (re.compile(r"^with (?:AP|HP) equal to or less than (this Unit|it)"), "ap_rel"),
     (re.compile(r"^with " + KW_RE + r"(?:\s*/\s*" + KW_RE + r")*"), "kw"),
     (re.compile(r"^without " + KW_RE), "no_kw"),
-    (re.compile(r"^with (?:no paired Pilot|no Pilot paired with it)|^that has no Pilot paired with it|^that is not paired with a Pilot"), "unpaired"),
+    (
+        re.compile(
+            r"^with (?:no paired Pilot|no Pilot paired with it)|^that has no Pilot paired with it|^that is not paired with a Pilot"
+        ),
+        "unpaired",
+    ),
     (re.compile(r"^paired with (?:a|an) Pilot"), "paired"),
     (re.compile(r"^paired with (?:a|an) (" + TRAITS_RE + r") Pilot"), "paired_trait"),
     (re.compile(r"^paired with (?:a|an) (blue|green|red|white|purple) Pilot"), "paired_color"),
     (re.compile(r"^paired with a Pilot that is Lv\.(\d+) (or lower|or higher)"), "paired_lv"),
-    (re.compile(r'^with "([^"]+)"(?:\s*(?:/|or)\s*"([^"]+)")* in (?:its|their) card names?'), "name"),
+    (
+        re.compile(r'^with "([^"]+)"(?:\s*(?:/|or)\s*"([^"]+)")* in (?:its|their) card names?'),
+        "name",
+    ),
     (re.compile(r'^without "([^"]+)" in (?:its|their) card names?'), "no_name"),
     (re.compile(r"^other than (?:this Unit|this card|this Base)"), "other"),
     (re.compile(r"^other than Link Units"), "not_link"),
@@ -102,7 +131,10 @@ _POST: list[tuple[re.Pattern[str], str]] = [
     (re.compile(r"^(?:from|in) your deck"), "your_deck"),
     (re.compile(r"^among them"), "among_them"),
     (re.compile(r"^in your shield area"), "your_shield_area"),
-    (re.compile(r"^in (?:your opponent's|the enemy's|an enemy's) shield area"), "enemy_shield_area"),
+    (
+        re.compile(r"^in (?:your opponent's|the enemy's|an enemy's) shield area"),
+        "enemy_shield_area",
+    ),
     (re.compile(r"^(?:in|on) the field"), "in_play"),
 ]
 
@@ -119,16 +151,18 @@ def parse_selector(phrase: str, *, default_side: d.Side | None = None) -> SelSpe
     m = re.match(r"^(\d+) to (\d+) ", s)
     if m:
         min_count, count = int(m.group(1)), int(m.group(2))
-        s = s[m.end():]
+        s = s[m.end() :]
         plural = True
     else:
         m = re.match(r"^up to (\d+) ", s)
         if m:
             min_count, count = 0, int(m.group(1))
-            s = s[m.end():]
+            s = s[m.end() :]
             plural = True
         else:
-            m = re.match(r"^(\d+|a|an|one|another|two|three|all|each|any number of|the|every)\b ?", s, re.I)
+            m = re.match(
+                r"^(\d+|a|an|one|another|two|three|all|each|any number of|the|every)\b ?", s, re.I
+            )
             if m:
                 w = m.group(1).lower()
                 if w in ("all", "each", "every"):
@@ -146,14 +180,14 @@ def parse_selector(phrase: str, *, default_side: d.Side | None = None) -> SelSpe
                     count = _NUM_WORDS[w]
                 if w == "another":
                     filters.append(d.NotRef(d.This()))
-                s = s[m.end():]
+                s = s[m.end() :]
     m = re.match(r"^of (?:your|their)(?: own)? ", s)
     if m:
         side = d.Side.FRIENDLY
-        s = s[m.end():]
+        s = s[m.end() :]
     m = re.match(r"^of the ", s)
     if m:
-        s = s[m.end():]
+        s = s[m.end() :]
     # modifiers
     while True:
         m = re.match(
@@ -189,7 +223,7 @@ def parse_selector(phrase: str, *, default_side: d.Side | None = None) -> SelSpe
             filters.append(d.HasColor((lw.capitalize(),)))
         else:
             filters.append(d.HasTrait(traits_of(w)))
-        s = s[m.end():]
+        s = s[m.end() :]
     kinds: tuple[d.CardKind, ...] = ()
     loc: d.Loc | None = None
     for pat, ks, lc, fs in _HEADS:
@@ -200,7 +234,7 @@ def parse_selector(phrase: str, *, default_side: d.Side | None = None) -> SelSpe
             filters.extend(fs)
             if m.group(0).endswith("s") and not m.group(0).endswith("ss"):
                 plural = True
-            s = s[m.end():].strip()
+            s = s[m.end() :].strip()
             break
     else:
         raise CompileError(f"no selector head in {phrase!r}")
@@ -214,7 +248,7 @@ def parse_selector(phrase: str, *, default_side: d.Side | None = None) -> SelSpe
             if not m:
                 continue
             loc, side = _apply_post(kind, m, filters, loc, side)
-            s = s[m.end():].strip()
+            s = s[m.end() :].strip()
             break
         else:
             raise CompileError(f"unparsed selector suffix {s!r} in {phrase!r}")
@@ -243,7 +277,12 @@ def _apply_post(
         filters.append(d.StatCmp(d.Stat.COST, cmp_op(m.group(2)), int(m.group(1))))
     elif kind == "lv_rel":
         rel = m.group(1)
-        op = {"equal to or lower": d.Op.LE, "equal to or higher": d.Op.GE, "lower": d.Op.LT, "higher": d.Op.GT}[rel]
+        op = {
+            "equal to or lower": d.Op.LE,
+            "equal to or higher": d.Op.GE,
+            "lower": d.Op.LT,
+            "higher": d.Op.GT,
+        }[rel]
         ref: d.Ref = d.This() if m.group(2) == "this Unit" else d.Var("__that")
         filters.append(d.LevelCmpRef(d.Stat.LV, op, ref, d.Stat.LV))
     elif kind == "ap_rel":

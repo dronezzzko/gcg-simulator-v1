@@ -209,6 +209,7 @@ class Lasting:
     player: int = NO_ARG
     uses: int = 0
     filters_key: int = NO_ARG
+    aux: int = NO_ARG
 
     def copy(self) -> Lasting:
         return Lasting(
@@ -222,6 +223,7 @@ class Lasting:
             self.player,
             self.uses,
             self.filters_key,
+            self.aux,
         )
 
     def to_json(self) -> list[Any]:
@@ -236,6 +238,7 @@ class Lasting:
             self.player,
             self.uses,
             self.filters_key,
+            self.aux,
         ]
 
     @staticmethod
@@ -251,6 +254,7 @@ class Lasting:
             int(d[7]),
             int(d[8]),
             int(d[9]),
+            int(d[10]),
         )
 
 

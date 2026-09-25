@@ -53,13 +53,16 @@ class Ctx:
 
 
 class RuleInst:
-    __slots__ = ("controller", "key", "rule", "source")
+    __slots__ = ("aux", "controller", "key", "rule", "source")
 
-    def __init__(self, rule: d.RuleMod, controller: int, source: int, key: tuple[int, ...]) -> None:
+    def __init__(
+        self, rule: d.RuleMod, controller: int, source: int, key: tuple[int, ...], aux: int = NO_ARG
+    ) -> None:
         self.rule = rule
         self.controller = controller
         self.source = source
         self.key = key
+        self.aux = aux
 
 
 class Derived:
@@ -126,6 +129,7 @@ def link_satisfied(unit_def: CardDef, pilot_def: CardDef) -> bool:
     names = (
         pilot_def.names if pilot_def.card_type is CardType.PILOT else (pilot_def.pilot_name or "",)
     )
+    names = (*names, *reg().aliases.get(pilot_def.def_id, ()))
     for part in link.name_parts:
         if any(part in n for n in names):
             return True
@@ -286,11 +290,16 @@ def _apply_cont(
     rule_key: tuple[int, ...],
     source: int,
     granted_out: dict[int, list[int]],
+    aux: int = NO_ARG,
 ) -> None:
     if isinstance(eff, d.StatMod):
         ap = value(st, view, ctx, eff.ap) if eff.ap != 0 else 0
         hp = value(st, view, ctx, eff.hp) if eff.hp != 0 else 0
         for t in targets:
+            if ap < 0 and st.cards[t].owner != ctx.controller and _ap_protected(view, t):
+                if t in dv.hp:
+                    dv.hp[t] += hp
+                continue
             if t in dv.ap:
                 dv.ap[t] += ap
                 dv.hp[t] += hp
@@ -311,7 +320,9 @@ def _apply_cont(
                 dv.traits[t] = cur + tuple(x for x in eff.traits if x not in cur)
     elif isinstance(eff, d.RuleGrant):
         for t in targets:
-            dv.rules.setdefault(t, []).append(RuleInst(eff.rule, ctx.controller, source, rule_key))
+            dv.rules.setdefault(t, []).append(
+                RuleInst(eff.rule, ctx.controller, source, rule_key, aux)
+            )
     elif isinstance(eff, d.CostMod):
         cm = value(st, view, ctx, eff.cost) if eff.cost != 0 else 0
         lm = value(st, view, ctx, eff.level) if eff.level != 0 else 0
@@ -368,7 +379,16 @@ def _compute(st: GameState) -> Derived:
                 continue
             ctx = Ctx(le.controller, le.source_uid)
             _apply_cont(
-                st, cur, view, ctx, eff, live, (-1, le.effect_key), le.source_uid, new_granted
+                st,
+                cur,
+                view,
+                ctx,
+                eff,
+                live,
+                (-1, le.effect_key),
+                le.source_uid,
+                new_granted,
+                le.aux,
             )
         if prev is not None and cur.same_values(prev) and new_granted == granted:
             dv = cur
@@ -378,6 +398,17 @@ def _compute(st: GameState) -> Derived:
         dv = cur
     _finalize(dv)
     return dv
+
+
+def _ap_protected(view: Derived, uid: int) -> bool:
+    """ "This Unit's AP can't be reduced by enemy effects" (rule 10-1-5-6: "can't" wins)."""
+    return any(r.rule.kind is d.RuleKind.AP_CANT_BE_REDUCED for r in view.rules.get(uid, ()))
+
+
+def names_of(cd: CardDef) -> tuple[str, ...]:
+    """All names including aliases granted by the card's own text (rule 2-2-4)."""
+    extra = reg().aliases.get(cd.def_id)
+    return (*cd.names, *extra) if extra else cd.names
 
 
 def _finalize(dv: Derived) -> None:
@@ -605,9 +636,9 @@ def _match1(
         tr = dv.traits.get(uid, cd.traits) if card.zone in (Zone.BATTLE, Zone.BASE) else cd.traits
         return any(t in tr for t in f.traits)
     if isinstance(f, d.NameContains):
-        return any(part in n for part in f.parts for n in cd.names)
+        return any(part in n for part in f.parts for n in names_of(cd))
     if isinstance(f, d.NameIs):
-        return any(n in f.names for n in cd.names)
+        return any(n in f.names for n in names_of(cd))
     if isinstance(f, d.HasColor):
         return cd.color is not None and not cd.is_token and cd.color.value in f.colors
     if isinstance(f, d.StatCmp):
