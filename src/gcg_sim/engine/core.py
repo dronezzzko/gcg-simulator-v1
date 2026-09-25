@@ -266,6 +266,26 @@ def queue_trigger(
     )
 
 
+_LISTEN_CACHE: dict[tuple[tuple[int, ...], tuple[int, ...]], frozenset[d.Ev]] = {}
+
+
+def listened_events(st: GameState) -> frozenset[d.Ev]:
+    """Events any card in this game (both decklists, tokens, delayed triggers) can trigger on."""
+    key = st.decklists
+    got = _LISTEN_CACHE.get(key)
+    if got is None:
+        R = V.reg()
+        evs: set[d.Ev] = set(R.always_events)
+        for dl in key:
+            for def_id in set(dl):
+                evs.update(R.events_by_def.get(def_id, ()))
+        got = frozenset(evs)
+        if len(_LISTEN_CACHE) > 256:
+            _LISTEN_CACHE.clear()
+        _LISTEN_CACHE[key] = got
+    return got
+
+
 def emit(
     st: GameState,
     ev: d.Ev,
@@ -284,6 +304,8 @@ def emit(
     items: list[tuple[str, int]] = [("subject", subject), ("player", player), ("group", group)]
     items.extend(sorted(extra.items()))
     event = tuple(items)
+    if ev not in listened_events(st) and not st.delayed and not lki:
+        return
     dv = V.derived(st)
     lki = lki or {}
     candidates: list[tuple[int, AbilityEntry]] = [
@@ -723,6 +745,8 @@ def rules_management(st: GameState) -> None:
         if losers:
             set_winner(st, losers, EndReason.DECK_OUT)
             return
+        if not V.reg().hp_reduction_possible and not _any_damaged_or_zero_hp(st):
+            return
         dv = V.derived(st)
         doomed = []
         for p in (st.active, 1 - st.active):
@@ -734,6 +758,17 @@ def rules_management(st: GameState) -> None:
             return
         if not destroy(st, doomed, battle=False, by=NO_ARG):
             return
+
+
+def _any_damaged_or_zero_hp(st: GameState) -> bool:
+    db = V.reg().db
+    for p in (0, 1):
+        for z in (Zone.BATTLE, Zone.BASE):
+            for uid in st.zones[p][z]:
+                c = st.cards[uid]
+                if c.damage > 0 or db.by_id(c.def_id).hp <= 0:
+                    return True
+    return False
 
 
 def over(st: GameState) -> bool:

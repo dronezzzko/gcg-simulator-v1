@@ -77,6 +77,9 @@ class Registry:
     _filter_index: dict[tuple[d.Filter, ...], int] = field(default_factory=dict)
     _program_index: dict[tuple[d.Step, ...], int] = field(default_factory=dict)
     aliases: dict[int, tuple[str, ...]] = field(default_factory=dict)
+    hp_reduction_possible: bool = False
+    events_by_def: dict[int, frozenset[d.Ev]] = field(default_factory=dict)
+    always_events: frozenset[d.Ev] = frozenset()
     repair_program: int = -1
     breach_program: int = -1
     support_program: int = -1
@@ -284,7 +287,44 @@ def build_registry(db: CardDB) -> Registry:
         except UnimplementedCardError as exc:
             script, error = None, str(exc)
         _register_card(reg, cdef, script, error)
+    _index_events(reg)
     return reg
+
+
+def _walk_nodes(x: object) -> list[object]:
+    out: list[object] = []
+    stack = [x]
+    while stack:
+        n = stack.pop()
+        out.append(n)
+        if isinstance(n, (tuple, list)):
+            stack.extend(n)
+        elif hasattr(n, "__dataclass_fields__"):
+            stack.extend(getattr(n, f) for f in n.__dataclass_fields__)
+    return out
+
+
+def _index_events(reg: Registry) -> None:
+    """Per-card listened events (so the engine can skip trigger scans no card needs) and whether
+    any effect can lower HP (so rules management can skip the lethal-damage scan)."""
+    always: set[d.Ev] = {d.Ev.TURN_END, d.Ev.DESTROYS_BY_BATTLE}
+    for entry in reg.cards:
+        if entry.script is None:
+            continue
+        events: set[d.Ev] = set()
+        for node in _walk_nodes((entry.script.abilities, entry.script.unit_abilities)):
+            if isinstance(node, d.Trigger):
+                events.add(node.event)
+            elif isinstance(node, d.DelayedTrigger):
+                always.add(node.trigger.event)
+            elif isinstance(node, d.AbilityGrant):
+                always.update(d.Ev)
+            elif isinstance(node, d.StatMod) and not (isinstance(node.hp, int) and node.hp >= 0):
+                reg.hp_reduction_possible = True
+        if reg.db.by_id(entry.def_id).is_token:
+            always.update(events)
+        reg.events_by_def[entry.def_id] = frozenset(events)
+    reg.always_events = frozenset(always)
 
 
 @cache
