@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from gcg_sim.ai.actions import canonical
+from gcg_sim.ai.actions import canonical, prune_dominated
 from gcg_sim.ai.base import Agent, AgentCore, Alternative
 from gcg_sim.ai.config import PRESETS, SearchConfig
 from gcg_sim.ai.evaluation import DEFAULT_WEIGHTS, Weights, burst_density, evaluate
@@ -56,7 +56,7 @@ class GreedyAgent(AgentCore):
         det = determinize(st, player, rng.next_u64())
         density = burst_density(st, player)
         scored: list[Alternative] = []
-        for _, action in canonical(st, dec):
+        for _, action in prune_dominated(st, dec, canonical(st, dec)):
             s = det.clone()
             apply(s, action, check=False)
             play_until_turn(s, st.turn + 1, None, 0.0, GREEDY_MAX_DECISIONS)

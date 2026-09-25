@@ -33,15 +33,31 @@ records what was done, evidence, and what remains.
   `most_defensible_reading` resolutions (commit da570b3): `docs/CONFLICTS.md` lists 395
   conflicts, 0 unresolved/invalid/stale/orphaned.
 
-## Phase 4 — AI, runner, CLI, reports (in progress)
-- Deck/runner/reports/CLI package merged (5174e95): deck parser and validator with every
-  violation class, 3 legal example decks, seeded BO3/BO1 runner with a process pool,
-  replayable game records, schema-validated reports, `gcg-sim` CLI (`benchmark`, `validate`,
-  `data status`, `replay`).
-- AI package (random, greedy, determinized MCTS, presets, decision log): agent still running.
+## Phase 4 — AI, runner, CLI, reports (done; merges 5174e95, AI branch 81a45d9)
+- Deck/runner/reports/CLI package: deck parser and validator with every violation class,
+  3 legal example decks, seeded BO3/BO1 runner with a process pool, replayable game records,
+  schema-validated reports, `gcg-sim` CLI (`benchmark`, `validate`, `data status`, `replay`).
+- AI package: random, greedy and determinized ISMCTS agents with `standard`/`strong`
+  presets, tuned evaluation, decision log, tactical puzzles, information-set tests.
+- Integration: the mulligan puzzles now use a legal deck (the engine validates decks); a
+  coverage test checks that every modal effect offers every printed mode; dominated-move
+  pruning (free add-to-hand Bursts, pointless 0-AP attacks) from the replay review.
+- Measured on the integrated engine: AI vs random 400/400, vs greedy 275/400 (Wilson 95%
+  [0.640, 0.731]); 100 BO3 matches of the example decks take about 6–11 minutes on 8 cores.
 
-## Phase 5 — Skills and docs (in progress)
-- `gcg-refresh-data` skill merged (06349a3); `gcg-benchmark` skill drafted.
-- `RULES_TRACEABILITY.md` generated from the full JUnit run: 395 tested, 184 N/A, 0 missing.
+## Phase 5 — Skills and docs (done)
+- `gcg-refresh-data` and `gcg-benchmark` skills (`claude plugin validate --strict .claude`
+  passes), README, CLAUDE.md, docs (ARCHITECTURE, RULES_TRACEABILITY, AI, REPORTS,
+  DECK_FORMAT, SOURCES, CONFLICTS, ASSUMPTIONS), `scripts/verify_all.sh`,
+  `scripts/verify_wheel_offline.sh`, `scripts/check_doc_commands.py` (18 blocks pass, 1 skipped
+  with a reason: it needs a network clone).
 
-## Phase 6 — Verification and adversarial review (pending)
+## Phase 6 — Verification and adversarial review (in progress)
+- Review 1 (63 agents): stratified rules sample (54 rules), 23 N/A reasons, 64 cards; 14
+  findings confirmed by at least 2 of 3 skeptics and fixed with regression tests (e911333,
+  aa0dd30), 2 refuted.
+- Review 2 (25 agents): 12 AI-vs-AI replays audited move by move; no rules or card
+  deviations; 7 AI-quality findings (info): two dominated-move classes fixed by pruning, the
+  rest documented as known AI weaknesses in docs/AI.md.
+- Seat-symmetry checks: 4000 random-agent mirror games (first-player win rate 0.551 seat 0,
+  0.539 seat 1); AI mirror 96 BO1 games, seat 0 won 50.

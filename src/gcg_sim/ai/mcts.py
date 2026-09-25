@@ -18,7 +18,7 @@ import math
 from dataclasses import dataclass, field
 
 from gcg_sim.ai import policy
-from gcg_sim.ai.actions import Key, canonical
+from gcg_sim.ai.actions import Key, canonical, prune_dominated
 from gcg_sim.ai.base import Alternative
 from gcg_sim.ai.config import SearchConfig
 from gcg_sim.ai.evaluation import Weights, burst_density, logistic, score
@@ -75,7 +75,7 @@ def search(
     dec = st.pending
     assert dec is not None
     assert dec.player == player
-    root_moves = canonical(st, dec)
+    root_moves = prune_dominated(st, dec, canonical(st, dec))
     if len(root_moves) == 1:
         return SearchResult(root_moves[0][1], [], 0)
     ctx = _Search(

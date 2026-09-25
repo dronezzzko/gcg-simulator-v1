@@ -12,12 +12,13 @@ from tests.ai.decks import DECKS
 from tests.ai.situations import EXTRA_SELECTS, SITUATIONS
 
 from gcg_sim.ai import AGENT_KINDS, PRESETS, SearchConfig, make_agent
-from gcg_sim.ai.actions import canonical, ex_used
+from gcg_sim.ai.actions import canonical, ex_used, prune_dominated
 from gcg_sim.ai.agents import MctsAgent
 from gcg_sim.ai.selfplay import run_game
 from gcg_sim.engine.game import apply, new_game
 from gcg_sim.engine.state import Action, GameState
-from gcg_sim.engine.types import DecisionKind
+from gcg_sim.engine.types import ActionKind, DecisionKind, Zone
+from gcg_sim.testkit import Scenario, attack, pass_all
 
 ALL_SITUATIONS: dict[str, Callable[[], GameState]] = {
     **{k.value: f for k, f in SITUATIONS.items()},
@@ -174,3 +175,47 @@ def test_pre_game_choices_log_their_options(kind: str, decision: DecisionKind) -
         assert logged == set()  # greedy always plays first without simulating
     else:
         assert logged == {tuple(o.to_json()) for o in st.pending.options}
+
+
+def _zero_ap_attacker(*, trick: bool) -> tuple[GameState, int]:
+    sc = Scenario()
+    sc.resources(0, 3)
+    cgs = sc.add(0, "ST05-003")  # CGS Mobile Worker, AP 0, no attack trigger
+    sc.add(1, "GD01-060")
+    sc.shields(1, "GD01-060", "GD01-060")
+    if trick:
+        sc.add(0, "ST01-014", Zone.HAND)  # 【Main】/【Action】 Unforeseen Incident
+    st = sc.start()
+    return st, cgs
+
+
+def test_zero_ap_attack_without_any_follow_up_is_pruned() -> None:
+    st, cgs = _zero_ap_attacker(trick=False)
+    dec = st.pending
+    assert dec is not None and any(o.kind is ActionKind.ATTACK and o.a == cgs for o in dec.options)
+    moves = prune_dominated(st, dec, canonical(st, dec))
+    assert not any(a.kind is ActionKind.ATTACK for _, a in moves)
+    assert moves
+
+
+def test_zero_ap_attack_is_kept_when_an_action_step_trick_could_matter() -> None:
+    st, cgs = _zero_ap_attacker(trick=True)
+    dec = st.pending
+    assert dec is not None
+    moves = prune_dominated(st, dec, canonical(st, dec))
+    assert any(a.kind is ActionKind.ATTACK and a.a == cgs for _, a in moves)
+
+
+def test_a_free_add_to_hand_burst_is_always_accepted() -> None:
+    sc = Scenario(active=1)
+    attacker = sc.add(1, "GD01-060")
+    sc.shields(0, "ST05-010")  # 【Burst】Add this card to your hand.
+    st = sc.start()
+    attack(st, attacker)
+    pass_all(st)
+    dec = st.pending
+    assert dec is not None and dec.kind is DecisionKind.BURST
+    moves = prune_dominated(st, dec, canonical(st, dec))
+    assert [a.kind for _, a in moves] == [ActionKind.YES]
+    for seed in range(3):
+        assert make_agent("mcts", seed=seed).choose(st, 0) == Action(ActionKind.YES)

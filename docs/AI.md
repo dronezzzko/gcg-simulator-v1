@@ -53,28 +53,32 @@ Single-observer information-set MCTS (SO-ISMCTS) over *moves*:
    card in hand, or the same play paid with a different number of EX Resources (the
    representative spends the fewest EX Resources, which are single-use). A move key is
    `(kind, card, target, play-variant)` with hand/trash/deck cards named by definition.
-2. **Root.** Each iteration picks a root move by UCB1 with a progressive prior:
+2. **Dominated moves.** Before searching, the root drops moves that can only be worse than
+   another legal move (`actions.prune_dominated`): declining a free "【Burst】Add this card to
+   your hand", and attacking with a Unit whose AP is 0 or less when no attack-triggered
+   effect or action-step trick could make the attack matter. Greedy uses the same filter.
+3. **Root.** Each iteration picks a root move by UCB1 with a progressive prior:
    `mean + c·sqrt(ln(avail)/visits) + w·prior/(visits+1)` (`c = exploration`, 0.3 in the
    standard preset; `w = prior_weight = 0.5`). Moves not yet tried go first, highest prior
    first. Priors are the playout policy's scores through a softmax (temperature 1.5).
-3. **Common random numbers.** The *n*-th visit of every root move is played in the *n*-th
+4. **Common random numbers.** The *n*-th visit of every root move is played in the *n*-th
    determinization with the *n*-th rollout seed, so root moves are compared on identical
    worlds (paired sampling). This alone raised the win rate against greedy from 0.61 to 0.68
    in 192-game mirrored tests.
-4. **Tree.** Below the root the walk chooses among the moves legal in the current world;
+5. **Tree.** Below the root the walk chooses among the moves legal in the current world;
    children are keyed by `(mover, move key)` and keep availability counts, so a move that
    exists only in some worlds (the opponent holding a certain card) is judged fairly.
    Decisions with one legal move are applied without a node. One node is added per
    iteration.
-5. **Rollout.** The heuristic playout policy (softmax over its scores, temperature 0.5 in the
+6. **Rollout.** The heuristic playout policy (softmax over its scores, temperature 0.5 in the
    standard preset) plays both sides until `horizon_turns = 2` turn boundaries have passed:
    the rest of the current turn and the whole reply turn, stopping at the start of the turn
    after that.
-6. **Leaf value** (for the searching player): a finished game scores `1 - 0.01·turns elapsed`
+7. **Leaf value** (for the searching player): a finished game scores `1 - 0.01·turns elapsed`
    for a win and `0.01·turns elapsed` for a loss (win sooner, lose later; 0.5 for a draw);
    otherwise `0.05 + 0.9·σ(score / value_scale)` with `value_scale = 2`, so a certain result
    always outranks an estimate and lopsided positions keep a usable gradient.
-7. **Budget and choice.** A decision with *n* distinct moves gets
+8. **Budget and choice.** A decision with *n* distinct moves gets
    `clamp(iterations_per_option·n, min_iterations, max_iterations)` iterations; the search stops
    early once the most-visited move cannot be overtaken. The move with the most visits is
    played (ties: higher mean, then option order).
@@ -220,15 +224,16 @@ uv run python -m gcg_sim.ai.throughput --preset standard --games 1
 Acceptance test `tests/slow/test_ai_strength.py` (default `standard` preset, test decks
 Federation blue/white and SEED red/white from `tests/ai/decks.py`, 400 games per opponent in
 mirrored blocks of four so each deal is played with the MCTS agent on both decks and in both
-seats). Run on the integrated engine (commit 013ea8f, 12 worker processes, 10.1 min for all
-800 games):
+seats). Run on the integrated engine with dominated-move pruning (12 worker processes,
+8.9 min for all 800 games):
 
 | Opponent | MCTS score | Win rate | Wilson 95% interval | Mean turns |
 | --- | ---: | ---: | --- | ---: |
 | random | 400 / 400 | 1.000 | [0.990, 1.000] | 11.4 |
-| greedy | 276 / 400 | 0.690 | [0.643, 0.733] | 17.6 |
+| greedy | 275 / 400 | 0.688 | [0.640, 0.731] | 17.6 |
 
-(On the AI branch's older engine the same test scored 399/400 and 272/400.)
+(Before pruning, on commit 013ea8f: 400/400 and 276/400. On the AI branch's older engine:
+399/400 and 272/400.)
 
 Greedy is a demanding baseline: it shares the tuned evaluation and the playout policy, and
 it compares its moves on a single world (so its comparisons have no sampling noise).
@@ -268,6 +273,13 @@ hand of uncastable cards and keep a hand with early plays; go first.
   sampling, 4× the iterations moved it from 0.70 to 0.77, and with paired sampling 2.5× left
   it at 0.69–0.71 (192 games each). The standard preset therefore spends a moderate budget;
   the strong preset is for confirmation runs.
+- **Cards spent for nothing.** When the search values of "play it" and "keep it" are within
+  sampling noise, the agent sometimes spends a Command or an activated ability where it
+  cannot matter: AP-3 "during this turn" on an active enemy Unit that is not battling on its
+  own turn, "rest" on Units that are already rested, or the less useful of two targets
+  (found by the adversarial replay review; 6 instances in 12 games). Holding a card for the
+  opponent's turn is valued only through the evaluation's hand features, because rollouts
+  rarely use the held card well.
 - **Engine-bound speed.** In a profiled standard game, 91% of the time was inside the
   engine's `apply` and 69% in `engine/view.py:_compute` (338,330 recomputations for 92,691
   applied actions; 20.8 million `_host_abilities` calls, mostly for cards in hand and trash).
