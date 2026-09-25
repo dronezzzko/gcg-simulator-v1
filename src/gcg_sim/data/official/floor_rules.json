@@ -1,0 +1,213 @@
+{
+  "cut": {
+    "official_procedure": "The opponent cuts or shuffles to confirm. For a cut by proxy: the owner splits the deck into three roughly equal stacks, the opponent chooses the recombination order, and the owner stacks them in that order.",
+    "simulator_model": "Not modelled (no effect on the distribution of a uniform shuffle).",
+    "sources": [
+      {
+        "local_text": "data/official_raw/en_pdf_tournament-rules_en.txt",
+        "quote": "The player who shuffled divides their deck into three stacks with roughly the same number of cards in each stack.",
+        "ref": "Sanctioned Floor Rules 8.I"
+      },
+      {
+        "local_text": "data/official_raw/en_pdf_tournament-rules_en.txt",
+        "quote": "Their opponent chooses what order the stacks are recombined in.",
+        "ref": "Sanctioned Floor Rules 8.I"
+      }
+    ]
+  },
+  "deck_checks": {
+    "official": "The TO or Head Judge may check that a deck matches its deck list; deck problems cost a Game Loss (TRM 4.4, 7.4.2).",
+    "simulator_model": "Validate both decks before the match (deck_construction.json + banlist.json); an invalid deck is rejected with a specific message.",
+    "sources": [
+      {
+        "local_text": "data/official_raw/en_pdf_floor_rule_en.txt",
+        "quote": "When you present your deck to your opponent, you agree that you have sufficiently shuffled and randomized your deck contents, your deck is legal, and that it matches your submitted deck list registration form.",
+        "ref": "TRM 4.5"
+      }
+    ]
+  },
+  "effective_date": "2026-09-11",
+  "effective_date_notes": "Game-start order from CR Ver. 1.9.0 (2026-09-11). Shuffle/cut procedure from Sanctioned Tournament Floor Rules Ver. 1.1.0 (last edited 2025-11-19) and TRM (last updated 2025-07-10). The site labels the TRM 'Updated July 25, 2025'; the PDF says July 10th, 2025.",
+  "first_player": {
+    "chosen_before_looking_at_starting_hand": true,
+    "method": "random (rock paper scissors, die roll, coin flip)",
+    "simulator_model": "Seeded fair coin flip picks the chooser. The chooser's agent (or the configured policy) decides who is Player One without seeing any hand.",
+    "sources": [
+      {
+        "local_text": "data/official_raw/en_pdf_comprehensiverules_en.txt",
+        "quote": "Both players determine Player One and Player Two using a method such as rock paper scissors or a die roll. The winner decides who becomes Player One.",
+        "ref": "CR 6-2-1-4"
+      },
+      {
+        "local_text": "data/official_raw/en_rules_faqs_preparing.txt",
+        "quote": "Play a game of rock paper scissors or use a similar method. The winner then chooses who goes first before looking at their starting hand.",
+        "ref": "FAQ Q9"
+      },
+      {
+        "local_text": "data/official_raw/en_pdf_floor_rule_en.txt",
+        "quote": "After players have shuffled both of their decks thoroughly, players should use a random method to decide which player is the starting player.",
+        "ref": "TRM 4.6"
+      },
+      {
+        "local_text": "data/official_raw/en_pdf_floor_rule_en.txt",
+        "quote": "Players may roll a die, flip a coin, play Rock-Paper-Scissors, etc. The winner chooses who goes first.",
+        "ref": "TRM 4.6"
+      }
+    ],
+    "timing": "after both decks are shuffled, before starting hands are drawn",
+    "winner_chooses_player_one": true
+  },
+  "game_start_procedure": [
+    {
+      "action": "present_decks",
+      "ref": "CR 6-2-1-1",
+      "step": 1,
+      "summary": "Present a deck and resource deck that satisfy 6-1 (validate)."
+    },
+    {
+      "action": "shuffle_decks",
+      "ref": "CR 6-2-1-2",
+      "step": 2,
+      "summary": "Each player thoroughly shuffles their deck and places it face down in the deck area."
+    },
+    {
+      "action": "place_resource_decks",
+      "ref": "CR 6-2-1-3",
+      "step": 3,
+      "summary": "Each player places their resource deck face down (the resource deck is not shuffled)."
+    },
+    {
+      "action": "determine_player_one",
+      "ref": "CR 6-2-1-4",
+      "step": 4,
+      "summary": "Random method (rock paper scissors, die roll); the winner decides who is Player One, before looking at any starting hand (FAQ Q9)."
+    },
+    {
+      "action": "draw_starting_hands",
+      "ref": "CR 6-2-1-5",
+      "step": 5,
+      "summary": "Each player draws five cards."
+    },
+    {
+      "action": "redraw_player_one",
+      "ref": "CR 6-2-1-6, 6-2-1-6-1",
+      "step": 6,
+      "summary": "Player One decides whether to redraw once (see redraw)."
+    },
+    {
+      "action": "redraw_player_two",
+      "ref": "CR 6-2-1-7",
+      "step": 7,
+      "summary": "After Player One has announced, Player Two decides whether to redraw once."
+    },
+    {
+      "action": "place_shields",
+      "ref": "CR 6-2-2",
+      "step": 8,
+      "summary": "Each player moves the top six deck cards, one at a time, face down into the shield section; FAQ Q8: the top card of the deck becomes the bottom Shield."
+    },
+    {
+      "action": "place_ex_base",
+      "ref": "CR 6-2-3",
+      "step": 9,
+      "summary": "Each player places one active EX Base token in the base section."
+    },
+    {
+      "action": "place_ex_resource_player_two",
+      "ref": "CR 6-2-4",
+      "step": 10,
+      "summary": "Player Two places one active EX Resource token in their resource area."
+    },
+    {
+      "action": "begin_player_one_turn",
+      "ref": "CR 6-2-5",
+      "step": 11,
+      "summary": "The game begins with Player One's turn."
+    }
+  ],
+  "not_modelled": [
+    "judge shuffles",
+    "penalties",
+    "sleeves",
+    "note taking",
+    "time spent shuffling"
+  ],
+  "redraw": {
+    "consequence": "The returned cards sit under the other 45 cards, so the new hand cannot contain them. They become random again only at the shuffle that follows.",
+    "max_redraws_per_player": 1,
+    "optional": true,
+    "order": [
+      "player_one",
+      "player_two"
+    ],
+    "partial_redraw_allowed": false,
+    "player_two_decides_after_player_one_announces": true,
+    "procedure": [
+      "return the entire hand to the bottom of the deck",
+      "draw five new cards from the top of the deck",
+      "shuffle the deck"
+    ],
+    "sources": [
+      {
+        "local_text": "data/official_raw/en_pdf_comprehensiverules_en.txt",
+        "quote": "Then, starting with Player One, each player decides if they will redraw their hand one time according to the rules explained below. Players are not required to redraw if they do not wish to.",
+        "ref": "CR 6-2-1-6"
+      },
+      {
+        "local_text": "data/official_raw/en_pdf_comprehensiverules_en.txt",
+        "quote": "If you decide to redraw, return your entire hand to the bottom of your deck and draw five new cards, which will become your new starting hand. Then, shuffle your deck.",
+        "ref": "CR 6-2-1-6-1"
+      },
+      {
+        "local_text": "data/official_raw/en_pdf_comprehensiverules_en.txt",
+        "quote": "After Player One has announced whether or not they will redraw, Player Two may redraw according to the same rules",
+        "ref": "CR 6-2-1-7"
+      },
+      {
+        "local_text": "data/official_raw/en_rules_faqs_preparing.txt",
+        "quote": "Yes. Each player can redraw their starting hand once, starting with Player One. If you choose to redraw your hand, return your entire original hand to the bottom of your deck and draw five new cards from the top of your deck to create a new starting hand. Then, shuffle your deck.",
+        "ref": "FAQ Q10"
+      }
+    ]
+  },
+  "retrieved_at": "2026-09-25T12:46:33Z",
+  "schema_version": 1,
+  "shuffle": {
+    "official_procedure": "The player shuffles in view of the opponent until randomized. The opponent then cuts or shuffles to confirm; after that the owner may not shuffle or cut again. The opponent's confirmation may be skipped when both players agree.",
+    "simulator_model": "Uniformly random permutation (Fisher-Yates) from the seeded platform-independent PRNG. A confirming cut or shuffle of a uniform permutation leaves it uniform, so the simulator does not model it separately.",
+    "sources": [
+      {
+        "local_text": "data/official_raw/en_pdf_tournament-rules_en.txt",
+        "quote": "Decks must be thoroughly shuffled at the start of each game.",
+        "ref": "Sanctioned Floor Rules 8.I"
+      },
+      {
+        "local_text": "data/official_raw/en_pdf_tournament-rules_en.txt",
+        "quote": "After shuffling, allow your opponent to cut or shuffle your deck to confirm it is ready.",
+        "ref": "Sanctioned Floor Rules 8.I"
+      },
+      {
+        "local_text": "data/official_raw/en_pdf_tournament-rules_en.txt",
+        "quote": "After your opponent has finished cutting or shuffling your deck, you cannot cut or shuffle it again. Shuffling by your opponent is not necessary provided that both players agree to skip it.",
+        "ref": "Sanctioned Floor Rules 8.I"
+      },
+      {
+        "local_text": "data/official_raw/en_pdf_floor_rule_en.txt",
+        "quote": "After players have shuffled their decks, it should be presented to the opponent to either cut (separating the deck into multiple, smaller piles which are then rearranged to form a single deck again) or shuffle.",
+        "ref": "TRM 4.5"
+      }
+    ],
+    "when": [
+      "start of every game (CR 6-2-1-2)",
+      "after a redraw (CR 6-2-1-6-1)",
+      "whenever an effect or rule says to shuffle"
+    ]
+  },
+  "source_urls": [
+    "https://www.gundam-gcg.com/en/pdf/comprehensiverules_en.pdf",
+    "https://www.gundam-gcg.com/en/pdf/floor_rule_en.pdf",
+    "https://www.gundam-gcg.com/en/pdf/tournament-rules_en.pdf",
+    "https://www.gundam-gcg.com/en/rules/",
+    "https://www.gundam-gcg.com/en/rules/faqs/list.php?sub_category=Preparing+to+Play"
+  ]
+}
