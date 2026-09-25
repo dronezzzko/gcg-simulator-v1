@@ -1,0 +1,503 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:gcg-sim:schema:results:1.0.0",
+  "title": "gcg-sim benchmark results",
+  "description": "results.json written by `gcg-sim benchmark`. Version 1.0.0. Every value is deterministic for a given configuration and seed; wall-clock data lives only in timing.json.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "schema_version",
+    "versions",
+    "config",
+    "seeds",
+    "ai",
+    "decks",
+    "results",
+    "splits",
+    "game_length",
+    "end_reasons",
+    "draws",
+    "mulligan",
+    "cards",
+    "benchmark_cards",
+    "hypotheses",
+    "hypothesis_thresholds",
+    "conflict_resolutions",
+    "replays",
+    "notes"
+  ],
+  "properties": {
+    "schema": {"const": "urn:gcg-sim:schema:results:1.0.0"},
+    "schema_version": {"const": "1.0.0"},
+    "versions": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "package",
+        "results_schema",
+        "dataset_version",
+        "data_source_commit",
+        "data_built_at",
+        "rules_version",
+        "rules_effective_date",
+        "banlist_effective_date",
+        "deck_rules_effective_date",
+        "bo3_rules_effective_date"
+      ],
+      "properties": {
+        "package": {"type": "string"},
+        "results_schema": {"const": "1.0.0"},
+        "dataset_version": {"type": "string", "minLength": 1},
+        "data_source_commit": {"type": "string", "minLength": 1},
+        "data_built_at": {"type": "string", "minLength": 1},
+        "rules_version": {"type": "string", "minLength": 1},
+        "rules_effective_date": {"type": "string", "format": "date"},
+        "banlist_effective_date": {"type": "string", "format": "date"},
+        "deck_rules_effective_date": {"type": "string", "format": "date"},
+        "bo3_rules_effective_date": {"type": "string", "format": "date"}
+      }
+    },
+    "config": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "matches",
+        "format",
+        "max_games_per_match",
+        "wins_needed",
+        "turn_limit",
+        "max_actions",
+        "replays_per_result"
+      ],
+      "properties": {
+        "matches": {"type": "integer", "minimum": 1},
+        "format": {"enum": ["bo3", "bo1"]},
+        "max_games_per_match": {"enum": [1, 3]},
+        "wins_needed": {"enum": [1, 2]},
+        "turn_limit": {"type": "integer", "minimum": 1},
+        "max_actions": {"type": "integer", "minimum": 1},
+        "replays_per_result": {"type": "integer", "minimum": 0}
+      }
+    },
+    "seeds": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "master",
+        "prng",
+        "game_seed",
+        "agent_seed",
+        "dut_seat",
+        "game_one_chooser",
+        "later_game_chooser"
+      ],
+      "properties": {
+        "master": {"type": "integer", "minimum": 0},
+        "prng": {"const": "SplitMix64"},
+        "game_seed": {"type": "string"},
+        "agent_seed": {"type": "string"},
+        "dut_seat": {"type": "string"},
+        "game_one_chooser": {"type": "string"},
+        "later_game_chooser": {"type": "string"}
+      }
+    },
+    "ai": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["factory", "preset", "dut_agent", "bench_agent", "decision_log"],
+      "properties": {
+        "factory": {"type": "string", "minLength": 1},
+        "preset": {"enum": ["standard", "strong"]},
+        "dut_agent": {"type": "string"},
+        "bench_agent": {"type": "string"},
+        "decision_log": {"type": "boolean"}
+      }
+    },
+    "decks": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["deck_under_test", "benchmark"],
+      "properties": {
+        "deck_under_test": {"$ref": "#/$defs/deck"},
+        "benchmark": {"$ref": "#/$defs/deck"}
+      }
+    },
+    "results": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["matches", "games"],
+      "properties": {
+        "matches": {"$ref": "#/$defs/outcomes"},
+        "games": {"$ref": "#/$defs/outcomes"}
+      }
+    },
+    "splits": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["on_play", "on_draw", "by_game_number"],
+      "properties": {
+        "on_play": {"$ref": "#/$defs/outcomes"},
+        "on_draw": {"$ref": "#/$defs/outcomes"},
+        "by_game_number": {
+          "type": "object",
+          "propertyNames": {"enum": ["1", "2", "3"]},
+          "required": ["1"],
+          "additionalProperties": {"$ref": "#/$defs/outcomes"}
+        }
+      }
+    },
+    "game_length": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["turns", "by_result", "histogram"],
+      "properties": {
+        "turns": {"$ref": "#/$defs/distribution"},
+        "by_result": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["win", "loss", "draw"],
+          "properties": {
+            "win": {"$ref": "#/$defs/distribution"},
+            "loss": {"$ref": "#/$defs/distribution"},
+            "draw": {"$ref": "#/$defs/distribution"}
+          }
+        },
+        "histogram": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["turns", "games"],
+            "properties": {
+              "turns": {"type": "integer", "minimum": 0},
+              "games": {"type": "integer", "minimum": 1}
+            }
+          }
+        }
+      }
+    },
+    "end_reasons": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/outcome_counts",
+        "required": ["reason"],
+        "properties": {
+          "reason": {
+            "enum": ["battle_damage", "deck_out", "concede", "both_defeated", "turn_limit"]
+          }
+        },
+        "unevaluatedProperties": false
+      }
+    },
+    "draws": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["games", "both_defeated", "turn_limit", "scored_for_match_by_turn_player_rule"],
+      "properties": {
+        "games": {"$ref": "#/$defs/count"},
+        "both_defeated": {"$ref": "#/$defs/count"},
+        "turn_limit": {"$ref": "#/$defs/count"},
+        "scored_for_match_by_turn_player_rule": {"$ref": "#/$defs/count"}
+      }
+    },
+    "mulligan": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["dut", "bench"],
+      "properties": {
+        "dut": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["redraw_rate", "win_rate_after_redraw", "win_rate_after_keep"],
+          "properties": {
+            "redraw_rate": {"$ref": "#/$defs/rate"},
+            "win_rate_after_redraw": {"$ref": "#/$defs/rate"},
+            "win_rate_after_keep": {"$ref": "#/$defs/rate"}
+          }
+        },
+        "bench": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["redraw_rate"],
+          "properties": {"redraw_rate": {"$ref": "#/$defs/rate"}}
+        }
+      }
+    },
+    "cards": {"type": "array", "items": {"$ref": "#/$defs/card"}},
+    "benchmark_cards": {"type": "array", "items": {"$ref": "#/$defs/benchmark_card"}},
+    "hypotheses": {"type": "array", "items": {"$ref": "#/$defs/hypothesis"}},
+    "hypothesis_thresholds": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["min_games"],
+      "properties": {"min_games": {"type": "integer", "minimum": 1}}
+    },
+    "conflict_resolutions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["card_number", "name", "conflict_id", "decks", "decision", "fields", "changes_card_data"],
+        "properties": {
+          "card_number": {"type": "string"},
+          "name": {"type": "string"},
+          "conflict_id": {"type": "string"},
+          "decks": {
+            "type": "array",
+            "minItems": 1,
+            "items": {"enum": ["deck_under_test", "benchmark"]}
+          },
+          "decision": {"type": "string"},
+          "fields": {"type": "array", "items": {"type": "string"}},
+          "changes_card_data": {"type": "boolean"}
+        }
+      }
+    },
+    "replays": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["file", "result", "match_index", "game_number", "turns", "end_reason", "seed"],
+        "properties": {
+          "file": {"type": "string", "pattern": "^replays/(win|loss|draw)-m[0-9]{4,}-g[1-3]\\.json$"},
+          "result": {"enum": ["win", "loss", "draw"]},
+          "match_index": {"type": "integer", "minimum": 0},
+          "game_number": {"enum": [1, 2, 3]},
+          "turns": {"type": "integer", "minimum": 0},
+          "end_reason": {"type": "string"},
+          "seed": {"type": "integer", "minimum": 0}
+        }
+      }
+    },
+    "notes": {"type": "array", "items": {"type": "string"}}
+  },
+  "$defs": {
+    "count": {"type": "integer", "minimum": 0},
+    "probability": {"type": "number", "minimum": 0, "maximum": 1},
+    "nullable_probability": {
+      "oneOf": [{"type": "null"}, {"$ref": "#/$defs/probability"}]
+    },
+    "rate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["successes", "n", "rate", "ci95"],
+      "properties": {
+        "successes": {"$ref": "#/$defs/count"},
+        "n": {"$ref": "#/$defs/count"},
+        "rate": {"$ref": "#/$defs/nullable_probability"},
+        "ci95": {
+          "oneOf": [
+            {"type": "null"},
+            {
+              "type": "array",
+              "prefixItems": [{"$ref": "#/$defs/probability"}, {"$ref": "#/$defs/probability"}],
+              "minItems": 2,
+              "maxItems": 2
+            }
+          ]
+        }
+      }
+    },
+    "outcome_counts": {
+      "type": "object",
+      "required": ["n", "dut_wins", "bench_wins", "draws", "dut_win_rate"],
+      "properties": {
+        "n": {"$ref": "#/$defs/count"},
+        "dut_wins": {"$ref": "#/$defs/count"},
+        "bench_wins": {"$ref": "#/$defs/count"},
+        "draws": {"$ref": "#/$defs/count"},
+        "dut_win_rate": {"$ref": "#/$defs/rate"}
+      }
+    },
+    "outcomes": {"$ref": "#/$defs/outcome_counts", "unevaluatedProperties": false},
+    "distribution": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["n", "mean", "median", "min", "max", "p10", "p90"],
+      "properties": {
+        "n": {"$ref": "#/$defs/count"},
+        "mean": {"type": ["number", "null"]},
+        "median": {"type": ["integer", "null"]},
+        "min": {"type": ["integer", "null"]},
+        "max": {"type": ["integer", "null"]},
+        "p10": {"type": ["integer", "null"]},
+        "p90": {"type": ["integer", "null"]}
+      }
+    },
+    "deck_listing": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["card_number", "name", "count"],
+        "properties": {
+          "card_number": {"type": "string"},
+          "name": {"type": "string"},
+          "count": {"type": "integer", "minimum": 1}
+        }
+      }
+    },
+    "deck": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "digest", "main_count", "resource_count", "colors", "main", "resources"],
+      "properties": {
+        "name": {"type": "string"},
+        "digest": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "main_count": {"$ref": "#/$defs/count"},
+        "resource_count": {"$ref": "#/$defs/count"},
+        "colors": {"type": "array", "items": {"enum": ["Blue", "Green", "Red", "White", "Purple"]}},
+        "main": {"$ref": "#/$defs/deck_listing"},
+        "resources": {"$ref": "#/$defs/deck_listing"}
+      }
+    },
+    "card": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "card_number",
+        "name",
+        "card_type",
+        "level",
+        "cost",
+        "copies",
+        "drawn",
+        "opening_hand",
+        "played",
+        "win_rate_when_drawn",
+        "win_rate_when_not_drawn",
+        "win_rate_when_played",
+        "win_rate_when_drawn_not_played",
+        "held_never_played",
+        "mulligan"
+      ],
+      "properties": {
+        "card_number": {"type": "string"},
+        "name": {"type": "string"},
+        "card_type": {"type": "string"},
+        "level": {"type": "integer"},
+        "cost": {"type": "integer"},
+        "copies": {"type": "integer", "minimum": 1},
+        "drawn": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["games", "game_rate", "copies", "copies_per_game"],
+          "properties": {
+            "games": {"$ref": "#/$defs/count"},
+            "game_rate": {"$ref": "#/$defs/nullable_probability"},
+            "copies": {"$ref": "#/$defs/count"},
+            "copies_per_game": {"type": ["number", "null"], "minimum": 0}
+          }
+        },
+        "opening_hand": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["games", "game_rate"],
+          "properties": {
+            "games": {"$ref": "#/$defs/count"},
+            "game_rate": {"$ref": "#/$defs/nullable_probability"}
+          }
+        },
+        "played": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["games", "plays", "rate_when_drawn", "own_turn", "by_own_turn"],
+          "properties": {
+            "games": {"$ref": "#/$defs/count"},
+            "plays": {"$ref": "#/$defs/count"},
+            "rate_when_drawn": {"type": ["number", "null"], "minimum": 0},
+            "own_turn": {"$ref": "#/$defs/distribution"},
+            "by_own_turn": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["own_turn", "plays"],
+                "properties": {
+                  "own_turn": {"$ref": "#/$defs/count"},
+                  "plays": {"type": "integer", "minimum": 1}
+                }
+              }
+            }
+          }
+        },
+        "win_rate_when_drawn": {"$ref": "#/$defs/rate"},
+        "win_rate_when_not_drawn": {"$ref": "#/$defs/rate"},
+        "win_rate_when_played": {"$ref": "#/$defs/rate"},
+        "win_rate_when_drawn_not_played": {"$ref": "#/$defs/rate"},
+        "held_never_played": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["copies", "rate_of_drawn_copies", "games", "in_hand_at_end_copies"],
+          "properties": {
+            "copies": {"$ref": "#/$defs/count"},
+            "rate_of_drawn_copies": {"$ref": "#/$defs/nullable_probability"},
+            "games": {"$ref": "#/$defs/count"},
+            "in_hand_at_end_copies": {"$ref": "#/$defs/count"}
+          }
+        },
+        "mulligan": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["in_initial_hand_games", "redrawn_games", "rate"],
+          "properties": {
+            "in_initial_hand_games": {"$ref": "#/$defs/count"},
+            "redrawn_games": {"$ref": "#/$defs/count"},
+            "rate": {"$ref": "#/$defs/nullable_probability"}
+          }
+        }
+      }
+    },
+    "benchmark_card": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "card_number",
+        "name",
+        "card_type",
+        "copies",
+        "seen_games",
+        "seen_rate",
+        "dut_loss_rate_when_seen",
+        "dut_loss_rate_when_not_seen",
+        "loss_rate_lift",
+        "rank_eligible"
+      ],
+      "properties": {
+        "card_number": {"type": "string"},
+        "name": {"type": "string"},
+        "card_type": {"type": "string"},
+        "copies": {"type": "integer", "minimum": 1},
+        "seen_games": {"$ref": "#/$defs/count"},
+        "seen_rate": {"$ref": "#/$defs/nullable_probability"},
+        "dut_loss_rate_when_seen": {"$ref": "#/$defs/rate"},
+        "dut_loss_rate_when_not_seen": {"$ref": "#/$defs/rate"},
+        "loss_rate_lift": {"type": ["number", "null"], "minimum": -1, "maximum": 1},
+        "rank_eligible": {"type": "boolean"}
+      }
+    },
+    "hypothesis": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "kind", "label", "statement", "sample_size", "evidence"],
+      "properties": {
+        "id": {"type": "string"},
+        "kind": {
+          "enum": [
+            "card_drawn_win_rate",
+            "held_never_played",
+            "play_draw_split",
+            "redraw_outcome",
+            "benchmark_card_threat"
+          ]
+        },
+        "label": {"const": "hypothesis"},
+        "statement": {"type": "string", "minLength": 1},
+        "sample_size": {"type": "integer", "minimum": 1},
+        "evidence": {"type": "object"}
+      }
+    }
+  }
+}
