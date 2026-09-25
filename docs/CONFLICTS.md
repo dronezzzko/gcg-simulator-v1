@@ -15,7 +15,7 @@ in `overrides.json`, naming a policy, the decision and its rationale. Resolution
 uses) and `field_overrides` (field → value, applied to every printing of the listed
 `card_numbers` when the card database loads). Order of authority, highest first:
 
-1. **Official errata** — applied from the gcg-api snapshot, or through an `errata_supersedes_print` resolution's `field_overrides` when gcg-api lags the official notice (currently ST12-001); verified each run.
+1. **Official errata** — applied from the gcg-api snapshot, or through an `errata_supersedes_print` resolution's `field_overrides` when gcg-api lags the official notice (the `errata-unapplied:*` entries below); verified each run.
 2. **Official card rulings and rules-FAQ answers** — they override literal card text and fill
    gaps in the comprehensive rules; the engine implements the ruled behaviour and a test tagged
    `@pytest.mark.ruling` / `@pytest.mark.faq` pins it.
@@ -67,9 +67,9 @@ review records that no longer match anything are listed as orphaned so they can 
   - `gcgapi/manifest.json`: `175adb84d11098a81a504d386a9c3d29c5940dc29bb6664b03de9ce40ac6ec39`
   - `gcgapi/rules-faq.json`: `5c6dcfd44f83eb4a97f3be91cd7bad85a9a8431870a86ef7b0c2a884c9896e71`
   - `gcgapi/rulings.json`: `2da64f7ea88a96edd8b91399a3bd73b43ce1d766f3253474df2b1ca706bbc895`
-  - `official/banlist.json`: `d03313dc88a50a746e01ad7bf11b8abbaf4ce4060988c4b2fd9ade49ef66dac5`
+  - `official/banlist.json`: `76c4f4250f8a5a2ef1948a4a64915d43b8abc7e7daf20f8e89bee2f5c1b0e26a`
   - `official/rules_version.json`: `8d9caac3911e80ba3d6b9960c1b6fad69c0dbada75fc7607e392d0803edf48a5`
-  - `overrides.json`: `7b6aa9fd56bfc0c0bb6c7441f66ac63eddd6150b6eda791035abb8a9dcbff590`
+  - `overrides.json`: `9aef9ba32510f7eb40e0f431d68d8a94071deeeca5ed862d5fc2dee411da59a0`
   - `rules/gundam-card-game-comprehensive-rules.md`: `bf2f3d5c7a1a04d9860d97a38c316309da14707f5e7012f9241885b8635a50b6`
 
 ## Summary
@@ -849,7 +849,7 @@ Total: 395 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
 - Cards: —
 - The Comprehensive Rules (6-1-1-3) allow 4 copies of any card number and never mention the B&R list. The B&R list applies when 'there are occasions, such as official or sanctioned tournaments, when certain cards will be designated as banned or restricted'.
 - Sources: official banned/restricted list
-- **Resolution** (`banlist_most_defensible`): Enforce the B&R list by default, because benchmarks model tournament play. The lead may add an explicit flag to validate against the Comprehensive Rules only.
+- **Resolution** (`banlist_most_defensible`): Enforce the B&R list by default, because benchmarks model tournament play (the library call validate_deck(deck, banlist=False) checks the Comprehensive Rules only).
   - Rationale: Benchmarks model sanctioned tournament play, where the list applies (official rules page).
 
 ### `banlist:effective-date-and-region` — The July 2026 list took effect on 2026-07-24 in the US and 2026-07-25 in Asia. T

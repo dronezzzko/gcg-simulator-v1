@@ -203,7 +203,9 @@ Both entries are `applied`, and every affected printing reads the corrected text
 
 No printing still has the `before` text. The token definitions that create Hy-Gogg (GD03-024,
 GD03-108) already say `(Cyclops Team)`, and ruling GD04-067 Q277 ("can choose from my opponent's
-trash: Yes") matches the erratum. **No errata are missing from the current text.** Upstream notes
+trash: Yes") matches the erratum. **No errata listed in `errata.json` are missing from the current text.**
+(The ST12-001 erratum of 2026-09-04 is not in gcg-api at all; it is applied through
+`errata-unapplied:ST12-001:news-02_193` in `overrides.json`, see docs/CONFLICTS.md.) Upstream notes
 that Bandai does not update card pages for errata, so any future erratum has to go through
 `errata.json` or our `overrides.json`.
 

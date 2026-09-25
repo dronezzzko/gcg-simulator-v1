@@ -282,3 +282,12 @@ def test_an_activation_that_enables_an_attack_is_kept() -> None:
     activations = {key for key, a in moves if a.kind is ActionKind.ACTIVATE}
     assert activations
     assert not activations & without_effect(st, 0, st.pending, moves, seed=5)
+
+
+def test_a_cost_only_activation_is_recognised_while_other_units_can_still_attack() -> None:
+    st, moves = _jaburo(enemy_rested=True, attacker=True)
+    assert st.pending is not None
+    activations = {key for key, a in moves if a.kind is ActionKind.ACTIVATE}
+    assert activations
+    for seed in range(4):
+        assert activations <= without_effect(st, 0, st.pending, moves, seed=seed)

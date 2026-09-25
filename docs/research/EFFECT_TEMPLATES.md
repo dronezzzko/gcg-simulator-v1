@@ -46,7 +46,8 @@ plus 191 structural lines (keyword lines and 【Pilot】[Name] lines).
    used. Three card numbers have no such printing (`R-001`, `EXB-001`, `EXR-001`); for these the
    lowest `_pN` printing is used. They are rules-defined vanilla cards. 35 card numbers have
    printings with different raw text. Only 11 of them still differ after normalization
-   (section 7). The canonical printing always has the current (errata-applied) wording.
+   (section 7). The canonical printing has the current wording for every erratum that gcg-api
+   ships; the 2026-09-04 ST12-001 erratum is applied through `overrides.json` instead.
 2. **Normalization** (section 2): rules N01–N09 are applied in order. The same function is used
    for every printing, so divergent printings are compared on normalized text.
 3. **Parsing.** The normalized text is split on newlines. A line beginning with `■` is an option

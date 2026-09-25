@@ -59,7 +59,7 @@ reproducibility, and honest statistics come before speed.
 | 7b | Tactical puzzle suite solved: lethal, hold-for-combo, favorable trades, blocker & Burst awareness, pairing | `tests/ai/test_puzzles.py` |
 | 7c | Decisions invariant under permutation of hidden opponent info | `tests/ai/test_information_set.py` |
 | 8 | Reports validate against the published schema and contain every requirement-8 item | `tests/reports/test_reports.py` |
-| 9 | Refresh skill: dry run against pinned snapshot/rules/B&R changes nothing; synthetic new card in temp copy is detected, coverage gate fails, then passes once implemented; `claude plugin validate .claude/skills` | `tests/tools/test_refresh.py` (`test_dry_run_against_pinned_snapshot_changes_nothing`, `test_new_card_fails_the_coverage_gate_until_implemented`); live dry-run transcript in PROGRESS (Phase 6); `claude plugin validate --strict .claude` |
+| 9 | Refresh skill: dry run against pinned snapshot/rules/B&R changes nothing; synthetic new card in temp copy is detected, coverage gate fails, then passes once implemented; `claude plugin validate --strict .claude` | `tests/tools/test_refresh.py` (`test_dry_run_against_pinned_snapshot_changes_nothing`, `test_new_card_fails_the_coverage_gate_until_implemented`); live dry-run transcript in PROGRESS (Phase 6); `claude plugin validate --strict .claude` |
 | 10 | Every command shown in README, CLAUDE.md, docs/ runs successfully | `scripts/check_doc_commands.py` |
 | 11 | Fresh-context adversarial review of rules sample, ≥60 cards, replays, and deliverables vs prompt; all findings fixed and re-verified | Review workflow output recorded in `docs/PROGRESS.md` |
 

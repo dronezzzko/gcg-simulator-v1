@@ -1,20 +1,22 @@
 """Detect spending moves that change nothing.
 
-A Command play or an ability activation is "without effect" when, in one determinization of
-the player's information set, playing it and then continuing with the deterministic policy
-reaches the next turn in the same position as simply ending the main phase (or passing) at
-once, apart from the card and Resources it spent and any of the player's own cards it rested
-to pay for it. Such a move can only lose a card; for
-example AP-3 "during this turn" on an enemy Unit that cannot battle any more this turn, or
-"rest it" on Units that are already rested.
+A Command play or an ability activation is "without effect" when it changes nothing but what it
+spent. In one determinization of the player's information set, the move is played and
+resolved, and the deterministic policy continues to the next turn while its actions are
+recorded. The same actions are then replayed in the same world without the move. The move is
+without effect when every recorded action was also legal without it, and both lines end in the
+same position apart from the card and Resources spent and the player's own cards rested to pay
+for it (the line without the move passes the extra action steps it gets from still holding
+the card). Examples: AP-3 "during this turn" on an enemy Unit that battles no more this turn,
+"rest it" on a Unit that is already rested, or a cost paid for an effect that does nothing.
 """
 
 from __future__ import annotations
 
 from typing import Any
 
+from gcg_sim.ai import policy
 from gcg_sim.ai.actions import Key
-from gcg_sim.ai.playout import play_until_turn
 from gcg_sim.engine.game import apply
 from gcg_sim.engine.observe import determinize
 from gcg_sim.engine.state import Action, Decision, GameState
@@ -22,8 +24,9 @@ from gcg_sim.engine.types import ActionKind, DecisionKind, Zone
 
 A = ActionKind
 SPENDING = frozenset({A.PLAY_COMMAND, A.ACTIVATE})
-IDLE = {DecisionKind.MAIN: A.END_MAIN, DecisionKind.ACTION_STEP: A.PASS}
+TOP_LEVEL = frozenset({DecisionKind.MAIN, DecisionKind.ACTION_STEP})
 MAX_DECISIONS = 400
+PASS = Action(ActionKind.PASS)
 _SPENT_ZONES = frozenset({Zone.RESOURCE_AREA, Zone.OUTSIDE})
 
 
@@ -40,28 +43,73 @@ def _signature(st: GameState, spent: int) -> tuple[Any, ...]:
     return (st.winner, st.turn, st.active, cards, lasting, decks)
 
 
-def _after(world: GameState, action: Action) -> GameState:
-    s = world.clone()
-    apply(s, action, check=False)
-    play_until_turn(s, world.turn + 1, None, 0.0, MAX_DECISIONS)
-    return s
+def _policy_step(st: GameState) -> Action:
+    return policy.choose(st, None, 0.0)
+
+
+def _resolve(st: GameState, action: Action) -> None:
+    """Apply ``action`` and let the policy make the choices of its resolution (targets,
+    optional parts, triggered effects) until play is back at a top-level decision."""
+    apply(st, action, check=False)
+    n = 0
+    while (
+        st.winner is None
+        and st.pending is not None
+        and (st.frames or st.pending.kind not in TOP_LEVEL)
+        and n < MAX_DECISIONS
+    ):
+        apply(st, _policy_step(st), check=False)
+        n += 1
+
+
+def _continue(st: GameState, turn: int) -> list[Action]:
+    actions: list[Action] = []
+    while (st.winner is None and st.turn < turn and st.pending is not None) and len(
+        actions
+    ) < MAX_DECISIONS:
+        action = _policy_step(st)
+        apply(st, action, check=False)
+        actions.append(action)
+    return actions
+
+
+def _replay(st: GameState, actions: list[Action], turn: int) -> bool:
+    """Apply ``actions`` in order, passing extra action steps; False as soon as a recorded
+    action cannot be taken (the lines diverged)."""
+    queue = list(actions)
+    n = 0
+    while st.winner is None and st.turn < turn and st.pending is not None and n < MAX_DECISIONS:
+        n += 1
+        if queue and queue[0] in st.pending.options:
+            apply(st, queue.pop(0), check=False)
+        elif st.pending.kind is DecisionKind.ACTION_STEP and PASS in st.pending.options:
+            apply(st, PASS, check=False)
+        elif queue:
+            return False
+        else:
+            apply(st, _policy_step(st), check=False)
+    return not queue
 
 
 def without_effect(
     st: GameState, player: int, dec: Decision, moves: list[tuple[Key, Action]], seed: int
 ) -> set[Key]:
-    """Keys of the spending moves in ``moves`` that change nothing compared with idling."""
-    idle_kind = IDLE.get(dec.kind)
-    idle = next((a for _, a in moves if a.kind is idle_kind), None)
+    """Keys of the spending moves in ``moves`` that change nothing but what they spend."""
     spending = [(key, a) for key, a in moves if a.kind in SPENDING]
-    if idle is None or not spending:
+    if dec.kind not in TOP_LEVEL or not spending:
         return set()
     world = determinize(st, player, seed)
-    idled = _after(world, idle)
+    turn = world.turn + 1
     out: set[Key] = set()
     for key, action in spending:
+        played = world.clone()
+        _resolve(played, action)
+        actions = _continue(played, turn)
+        idled = world.clone()
+        if not _replay(idled, actions, turn):
+            continue
         spent = action.a if action.kind is A.PLAY_COMMAND else -1
-        if _only_costs_differ(_after(world, action), idled, spent, player):
+        if _only_costs_differ(played, idled, spent, player):
             out.add(key)
     return out
 

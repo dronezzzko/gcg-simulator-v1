@@ -3,7 +3,9 @@
 Every signal is a correlation between a card event and the game result in AI-vs-AI games;
 it suggests what to test next, not what caused a result. A comparison becomes a hypothesis
 only when a two-proportion z-test rejects "no difference" at family level ``ALPHA`` after a
-Holm correction over every comparison of its kind, so pure noise produces no signals.
+Holm correction over every comparison of its kind, so pure noise rarely produces one (at most
+``ALPHA`` per kind of comparison). "Never played" signals are descriptive: they need
+``MIN_GAMES`` drawn copies and a never-played rate of at least ``DEAD_CARD_RATE``.
 """
 
 from __future__ import annotations

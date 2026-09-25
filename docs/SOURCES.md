@@ -69,13 +69,13 @@ runs offline from the packaged copies.
 
 | file | sha256 |
 | --- | --- |
-| src/gcg_sim/data/official/banlist.json | `d03313dc88a50a74` |
+| src/gcg_sim/data/official/banlist.json | `76c4f4250f8a5a2e` |
 | src/gcg_sim/data/official/deck_construction.json | `4e087456d484cd17` |
 | src/gcg_sim/data/official/floor_rules.json | `50016061a385254a` |
 | src/gcg_sim/data/official/bo3_match_rules.json | `89258028820ccce2` |
 | src/gcg_sim/data/official/edition_language.json | `21f34da1226b27c7` |
 | src/gcg_sim/data/official/rules_version.json | `8d9caac3911e80ba` |
-| src/gcg_sim/data/overrides.json | `7b6aa9fd56bfc0c0` |
+| src/gcg_sim/data/overrides.json | `9aef9ba32510f7eb` |
 | src/gcg_sim/data/curated_conflicts.json | `a161be0db903fdd5` |
 | src/gcg_sim/data/rules/rules_index.json | `5c110f4631928b8a` |
 | src/gcg_sim/data/rules/rules_na.json | `50f594cfa13a00e4` |

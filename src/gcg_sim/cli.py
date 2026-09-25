@@ -210,7 +210,10 @@ def cmd_benchmark(args: argparse.Namespace, out: TextIO, err: TextIO) -> int:
     try:
         paths = write_reports(run, config.out_dir)
     except OSError as exc:
-        raise CliError(f"cannot write reports to {config.out_dir}: {exc.strerror or exc}") from exc
+        where = exc.filename or config.out_dir
+        raise CliError(
+            f"cannot write reports to {config.out_dir}: {where}: {exc.strerror or exc}"
+        ) from exc
     print(f"{dut.name} (deck under test) vs {bench.name} (benchmark)", file=out)
     print(_rate_line("matches", match_outcomes(run.matches)), file=out)
     print(_rate_line("games", game_outcomes(run.games)), file=out)
@@ -338,6 +341,10 @@ def cmd_replay(args: argparse.Namespace, out: TextIO) -> int:
     except OSError as exc:
         raise CliError(
             f"cannot read replay file {args.replay_json}: {exc.strerror or exc}"
+        ) from exc
+    except UnicodeDecodeError as exc:
+        raise CliError(
+            f"{args.replay_json}: not UTF-8 text ({exc.reason} at byte {exc.start})"
         ) from exc
     except json.JSONDecodeError as exc:
         raise CliError(f"{args.replay_json} is not valid JSON: {exc}") from exc

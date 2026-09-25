@@ -34,9 +34,10 @@ uv run python -m gcg_sim.tools.sources --check
 - **Cached sources are read-only.** Never hand-edit `src/gcg_sim/data/gcgapi/*`,
   `data/official_raw/*` or the Comprehensive Rules markdown
   (`src/gcg_sim/data/rules/gundam-card-game-comprehensive-rules.md` and its repo-root copy);
-  only `/gcg-refresh-data` replaces them, whole. The derived files `src/gcg_sim/data/official/*.json`
-  and `src/gcg_sim/data/rules/rules_na.json` are curated by hand with verbatim quotes, and
-  `rules_index.json` is generated (`python -m gcg_sim.rules.index --write`); re-hash with
+  only `/gcg-refresh-data` updates them (whole files, and the markdown from the official PDF).
+  Derived files are curated by hand: `src/gcg_sim/data/official/*.json` (with verbatim quotes)
+  and `src/gcg_sim/data/rules/rules_na.json` (N/A reasons; then regenerate `rules_index.json`
+  with `python -m gcg_sim.rules.index --write`). Re-hash with
   `python -m gcg_sim.tools.sources --write` after changing any of them. Resolve source
   disagreements in `src/gcg_sim/data/overrides.json` (plus `curated_conflicts.json` with
   verified quotes), then regenerate `docs/CONFLICTS.md` with `python -m gcg_sim.sources.conflicts`.

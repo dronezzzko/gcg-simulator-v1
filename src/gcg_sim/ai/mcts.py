@@ -2,7 +2,7 @@
 
 One tree is built from the deciding player's point of view. Every iteration picks a root
 move by UCB1 plus a progressive prior from the playout policy, then plays it in a
-determinization of the player's information set (hidden cards redrawn from the open
+determinization of the player's information set (hidden cards redrawn from the known
 decklists, the game RNG replaced). The n-th visit of every root move uses the same n-th
 determinization and rollout seed (common random numbers), so root moves are compared on
 identical worlds. Below the root the walk chooses among the moves legal in that world

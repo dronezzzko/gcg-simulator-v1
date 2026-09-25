@@ -49,12 +49,6 @@ class GameOutcome:
     first_player: int
     decisions: int
 
-    @property
-    def challenger_score(self) -> float:
-        if self.winner == self.challenger:
-            return 1.0
-        return 0.5 if self.winner == -1 else 0.0
-
 
 def run_game(
     agents: tuple[Agent, Agent],
@@ -115,14 +109,3 @@ def play_all(specs: Sequence[GameSpec], workers: int) -> list[GameOutcome]:
         return [play(s) for s in specs]
     with ProcessPoolExecutor(max_workers=workers, mp_context=get_context("spawn")) as pool:
         return list(pool.map(play, specs, chunksize=1))
-
-
-def wilson(successes: float, n: int, z: float = 1.96) -> tuple[float, float]:
-    """Wilson score interval for a proportion (draws count as half a success)."""
-    if n == 0:
-        return 0.0, 1.0
-    p = successes / n
-    denom = 1.0 + z * z / n
-    centre = (p + z * z / (2 * n)) / denom
-    half = z * ((p * (1 - p) / n + z * z / (4 * n * n)) ** 0.5) / denom
-    return max(0.0, centre - half), min(1.0, centre + half)

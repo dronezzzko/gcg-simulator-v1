@@ -258,3 +258,28 @@ def test_replay_rejects_invalid_files(
 def test_replay_missing_file(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
     assert main(["replay", str(tmp_path / "none.json")]) == 1
     assert "cannot read replay file" in capsys.readouterr().err
+
+
+def test_replay_rejects_a_file_that_is_not_utf8(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    bad = tmp_path / "latin1.json"
+    bad.write_bytes('{"caf\xe9": 1}'.encode("latin-1"))
+    assert main(["replay", str(bad)]) == 1
+    err = capsys.readouterr().err
+    assert err.startswith(f"error: {bad}: not UTF-8 text")
+    assert "Traceback" not in err
+
+
+@pytest.mark.usefixtures("random_agents")
+def test_a_report_write_failure_names_the_file(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    out_dir = tmp_path / "out"
+    out_dir.mkdir()
+    (out_dir / "replays").write_text("", encoding="utf-8")
+    argv = ["benchmark", str(ZEON), str(FEDERATION), "--matches", "2", "--out", str(out_dir)]
+    assert main(argv) == 1
+    err = capsys.readouterr().err
+    assert f"error: cannot write reports to {out_dir}: {out_dir / 'replays'}" in err
+    assert "Traceback" not in err

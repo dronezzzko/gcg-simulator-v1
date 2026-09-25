@@ -52,7 +52,7 @@ is either complete or absent.
 | `summary.md` | A readable view of `results.json` with a reproduce command. | yes |
 | `games.ndjson` | One `GameRecord` per line, in match and game order. | yes |
 | `replays/*.json` | Self-contained replays of representative games. | yes |
-| `timing.json` | Wall-clock times, workers, Python version and platform. | no; it is the only such file |
+| `timing.json` | Wall-clock times, the number of worker processes actually used (`min(--workers, matches)`, or 1 for a serial run), Python version and platform. | no; it is the only such file |
 
 ### results.json
 
@@ -66,7 +66,7 @@ is either complete or absent.
 
 | Key | Content |
 | --- | --- |
-| `versions` | Package version, `code_digest` (SHA-256 over every file of the installed package, so reports from different builds are distinguishable), results schema, gcg-api `dataset_version`, the dataset manifest's `data_source_commit` (the upstream card-data source; the gcg-api repository commit is pinned in `data/SOURCES.lock.json`) and build time, Comprehensive Rules version and date, B&R effective date, deck-rules and BO3-rules dates. |
+| `versions` | Package version, `code_digest` (SHA-256 over every file of the installed package, so reports from different builds are distinguishable), results schema, gcg-api `dataset_version`, the dataset manifest's `data_source_commit` (the gcg-api commit the dataset build ran from, the parent of the data commit pinned in `data/SOURCES.lock.json`) and build time, Comprehensive Rules version and date, B&R effective date, deck-rules and BO3-rules dates. |
 | `config`, `seeds`, `ai` | Match count, format, turn and decision caps, replays per result; the master seed and derivation formulas; the agent factory, preset, agent names and decision-log flag. |
 | `decks` | For each deck: name, sha256 digest of the card counts, colors, and the main and resource listings. |
 | `results` | Match and game outcomes: `n`, `dut_wins`, `bench_wins`, `draws`, and `dut_win_rate`. |
@@ -75,7 +75,7 @@ is either complete or absent.
 | `mulligan` | DUT redraw rate and win rate after redrawing or keeping; benchmark redraw rate. |
 | `cards` | Per-card statistics for the DUT main deck (see below). |
 | `benchmark_cards` | For each benchmark card: games in which it was seen in play, the DUT loss rate when it was seen and when it was not, and the difference (`loss_rate_lift`). Cards seen and unseen in at least `hypothesis_thresholds.min_games` games (`rank_eligible`) come first, ordered by lift. These are the benchmark cards most associated with DUT losses. |
-| `hypotheses` | Tuning signals. Each has `"label": "hypothesis"`, a statement, its `sample_size`, and the evidence behind it. A comparison becomes a hypothesis only with `hypothesis_thresholds.min_games` games on each side and a two-proportion z-test significant at `alpha` after a Holm correction over every comparison of its kind (`evidence.p_value`, `evidence.comparisons`), so pure noise yields no signals. |
+| `hypotheses` | Tuning signals. Each has `"label": "hypothesis"`, a statement, its `sample_size`, and the evidence behind it. A comparison becomes a hypothesis only with `hypothesis_thresholds.min_games` games on each side and a two-proportion z-test significant at `alpha` after a Holm correction over every comparison of its kind (`evidence.p_value`, `evidence.comparisons`), so pure noise rarely yields a comparison signal (at most `alpha` per kind). Redraw comparisons need 10 games per side. "Never played" signals are descriptive: at least `min_games` drawn copies, half or more never played. |
 | `conflict_resolutions` | Resolutions from `src/gcg_sim/data/overrides.json` that touch a card in either deck: card-data overrides (`changes_card_data: true`) and interpretations whose conflict names the card. |
 | `replays` | The saved replay files and the games they hold. |
 | `notes` | Caveats that apply to every run. |

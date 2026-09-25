@@ -173,12 +173,17 @@ def _hypotheses(res: dict[str, Any]) -> list[str]:
     ]
     t = res["hypothesis_thresholds"]
     gate = (
-        f"at least {t['min_games']} games per side and a two-proportion z-test significant at "
-        f"{t['alpha']} after a {t['multiple_comparisons'].capitalize()} correction"
+        f"a two-proportion z-test significant at {t['alpha']} after a "
+        f"{t['multiple_comparisons'].capitalize()} correction per kind of comparison, with at "
+        f"least {t['min_games']} games per side (10 for redraws)"
     )
     if not res["hypotheses"]:
-        return [*lines, f"No difference cleared the noise gate ({gate}). Run more games.", ""]
-    lines += [f"Signals shown cleared the noise gate ({gate}).", ""]
+        return [*lines, f"No signal cleared the noise gate ({gate}). Run more games.", ""]
+    lines += [
+        f"Comparison signals (win-rate differences) cleared the noise gate: {gate}. "
+        "'Never played' signals are descriptive.",
+        "",
+    ]
     lines += [f"- {h['statement']} {_evidence_note(h)}" for h in res["hypotheses"]]
     return [*lines, ""]
 
