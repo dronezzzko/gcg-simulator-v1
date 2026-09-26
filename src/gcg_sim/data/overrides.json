@@ -1,0 +1,2235 @@
+{
+  "schema_version": 1,
+  "description": "Reviewable resolutions for every conflict in data/conflicts.json. field_overrides (field -> value) apply to every printing of the listed card_numbers at card-database load time; canonical_product_id names the printing whose gameplay fields all printings of that card number use. Snapshot files are never modified.",
+  "policies": {
+    "canonical_printing": {
+      "summary": "When printings of one card number differ, every printing uses the gameplay fields of one canonical printing.",
+      "rationale": "Cards with the same card number are the same card (2-1-1). The base printing on the official card list carries Bandai's current wording: in this snapshot every printing whose gameplay wording differs from it is an Edition Beta, event/promotional, bonus-pack or same-set parallel print, while every later reprint (SC01 Deck Build Box, GD05 reprints, 2026 prize prints) matches it up to reminder text and line order. A later reworded reprint therefore supersedes the older wording."
+    },
+    "edition_beta_superseded": {
+      "summary": "Edition Beta printings whose stats or text deviate are superseded by the standard printing.",
+      "rationale": "Edition Beta was a pre-release product; its deviating records are superseded rewordings or data errors. Whether Edition Beta cards are tournament-legal is decided by the official tournament rules (see data/official), not here."
+    },
+    "token_stats_from_effect": {
+      "summary": "A token's stats come from the effect that creates it; token card records are informational.",
+      "rationale": "Effects specify tokens in full, e.g. [Gundam]((White Base Team)･AP3･HP3); the standard token cards match those specs while some Edition Beta token records do not."
+    },
+    "errata_supersedes_print": {
+      "summary": "Official errata replace the printed text: gcg-api applies most of them, a field_override applies any the snapshot lacks, and each run re-verifies both.",
+      "rationale": "Errata are Bandai's official corrections. gcg-api usually applies them to every printing; a field_override covers an erratum gcg-api has not shipped yet (errata-unapplied:*), and the detector fails loudly if a refresh loses one."
+    },
+    "ruling_overrides_text": {
+      "summary": "Official card rulings override or complete the literal card text and the comprehensive rules.",
+      "rationale": "Rulings are Bandai's authoritative answers for that card; the same reading is applied to identical wording on other cards. The engine implements the ruled behaviour and a test tagged @pytest.mark.ruling pins it."
+    },
+    "faq_clarifies_rules": {
+      "summary": "Official rules-FAQ answers clarify or fill gaps in the comprehensive rules and are followed as written.",
+      "rationale": "The rules FAQ is published with the rules by Bandai; tests tagged @pytest.mark.faq pin each answer."
+    },
+    "rules_xref_intended_target": {
+      "summary": "A wrong cross-reference in the rules is read as a reference to the section it obviously means.",
+      "rationale": "Cross-references carry no rules content of their own; the cited title (or topic) identifies the intended section unambiguously."
+    },
+    "rules_obvious_reading": {
+      "summary": "Typos and undefined wording in the rules take their obvious meaning, consistent with the rest of the rules.",
+      "rationale": "Another rule or an official FAQ states the same thing unambiguously."
+    },
+    "most_defensible_reading": {
+      "summary": "Genuinely ambiguous text gets the most defensible reading, with the reasoning recorded in the resolution.",
+      "rationale": "No official source settles the question; the chosen reading follows the closest rules, rulings and FAQ answers so that later official clarification is easy to adopt."
+    },
+    "null_stat_is_zero": {
+      "summary": "A stat the rules require but the card data leaves empty is 0.",
+      "rationale": "Every Unit and Base has AP (3-2-5, 3-5-4) and the official list shows no value for these cards; 0 is the only value consistent with a blank and with 1-3-6."
+    },
+    "engine_derives_markers": {
+      "summary": "keyword_effects/timing_markers are search aids; the engine derives keywords and timings from the effect text.",
+      "rationale": "gcg-api extracts them with a fixed vocabulary that drops 【Pilot】, <Development>, Pilot qualifications and the Activate･Main/Action pairing, and lists keywords a card merely mentions."
+    },
+    "text_format_correction": {
+      "summary": "Obvious formatting defects in the card text are corrected with field_overrides at load time.",
+      "rationale": "The defect would make a template compiler misread the card (missing keyword brackets, ASCII ':' as cost separator); the correction restores the standard template without changing meaning."
+    },
+    "banlist_most_defensible": {
+      "summary": "Ambiguities in the official banned/restricted list use the reading recorded by the official-sources review.",
+      "rationale": "The list's wording leaves these points open; the chosen reading is the conservative one for tournament-style validation and is reported in validation messages."
+    }
+  },
+  "resolutions": {
+    "divergent:EXB-001": {
+      "policy": "canonical_printing",
+      "decision": "Use EXB-001_p7. Only the reminder text differs; the EX Base is placed active in the base section at the start of the game (6-2-3).",
+      "rationale": "Reminder text has no game effect (2-11-4).",
+      "canonical_product_id": "EXB-001_p7"
+    },
+    "divergent:EXR-001": {
+      "policy": "canonical_printing",
+      "decision": "Use EXR-001_p7. Only the reminder text differs ('exile'/'remove', a missing 'active'); 6-2-4 and 5-17-3-2-3 govern the EX Resource.",
+      "rationale": "Reminder text has no game effect (2-11-4); see rules-internal:remove-exile-terminology.",
+      "canonical_product_id": "EXR-001_p7"
+    },
+    "divergent:GD01-005": {
+      "policy": "canonical_printing",
+      "decision": "Use GD01-005: '【During Link】【Destroyed】Return this Unit's paired Pilot to its owner's hand. Then, discard 1.' The older wordings ('【During Pair】【Destroyed】If this is a Link Unit, return …' on _p1/_p2 and the launch-event hybrid _p3) have the same effect.",
+      "rationale": "The base printing matches the latest reprint (SC01, GD01-005_p4).",
+      "canonical_product_id": "GD01-005"
+    },
+    "divergent:GD01-030": {
+      "policy": "canonical_printing",
+      "decision": "Use GD01-030. The printings differ only in parenthesized reminder text.",
+      "rationale": "Reminder text in parentheses has no game effect (2-11-4); cosmetic differences do not change the text's meaning.",
+      "canonical_product_id": "GD01-030"
+    },
+    "divergent:GD01-034": {
+      "policy": "canonical_printing",
+      "decision": "Use GD01-034. The printings differ only in parenthesized reminder text.",
+      "rationale": "Reminder text in parentheses has no game effect (2-11-4); cosmetic differences do not change the text's meaning.",
+      "canonical_product_id": "GD01-034"
+    },
+    "divergent:GD01-041": {
+      "policy": "canonical_printing",
+      "decision": "Use GD01-041. The printings differ only in parenthesized reminder text.",
+      "rationale": "Reminder text in parentheses has no game effect (2-11-4); cosmetic differences do not change the text's meaning.",
+      "canonical_product_id": "GD01-041"
+    },
+    "divergent:GD01-051": {
+      "policy": "canonical_printing",
+      "decision": "Use GD01-051: link condition '(Cyber-Newtype) Trait'. The Store Tournament Participant Pack 01 record GD01-051_p1 ('Trait [Enhanced Human]') is treated as a data error.",
+      "rationale": "The base printing, the Store Tournament Winner Pack 01 printing (_p2) and the SC01 reprint (_p3) all say (Cyber-Newtype); only one promotional record differs, in a malformed way.",
+      "canonical_product_id": "GD01-051"
+    },
+    "divergent:GD01-068": {
+      "policy": "canonical_printing",
+      "decision": "Use GD01-068. The printings differ only in spacing/apostrophes/letter case.",
+      "rationale": "Reminder text in parentheses has no game effect (2-11-4); cosmetic differences do not change the text's meaning.",
+      "canonical_product_id": "GD01-068"
+    },
+    "divergent:GD01-081": {
+      "policy": "canonical_printing",
+      "decision": "Use GD01-081. The printings differ only in spacing/apostrophes/letter case.",
+      "rationale": "Reminder text in parentheses has no game effect (2-11-4); cosmetic differences do not change the text's meaning.",
+      "canonical_product_id": "GD01-081"
+    },
+    "divergent:GD01-087": {
+      "policy": "canonical_printing",
+      "decision": "Use GD01-087. The printings differ only in parenthesized reminder text.",
+      "rationale": "Reminder text in parentheses has no game effect (2-11-4); cosmetic differences do not change the text's meaning.",
+      "canonical_product_id": "GD01-087"
+    },
+    "divergent:GD01-088": {
+      "policy": "canonical_printing",
+      "decision": "Use GD01-088: '【When Linked】Draw 1.' The Edition Beta wording '【When Paired】If this is a Link Unit, draw 1.' has the same effect.",
+      "rationale": "The base printing matches the SC01 reprint (_p4) and later prize printings.",
+      "canonical_product_id": "GD01-088"
+    },
+    "divergent:GD01-089": {
+      "policy": "canonical_printing",
+      "decision": "Use GD01-089: 'While this Unit has <Repair>, it gets AP+1.' The Edition Beta 'If' wording is the same constant effect.",
+      "rationale": "Rewording of Edition Beta text; the base printing is current.",
+      "canonical_product_id": "GD01-089"
+    },
+    "divergent:GD01-090": {
+      "policy": "canonical_printing",
+      "decision": "Use GD01-090: 'This Unit's AP can't be reduced by enemy effects.' The Store Tournament Participant Pack wording (_p2) means the same.",
+      "rationale": "The base printing matches the SC01 reprint (_p4).",
+      "canonical_product_id": "GD01-090"
+    },
+    "divergent:GD01-091": {
+      "policy": "canonical_printing",
+      "decision": "Use GD01-091: 'During your turn, while this Unit has <Breach>, …'. The Edition Beta 'if' wording is the same constant effect.",
+      "rationale": "Rewording of Edition Beta text; the base printing is current.",
+      "canonical_product_id": "GD01-091"
+    },
+    "divergent:GD03-027": {
+      "policy": "canonical_printing",
+      "decision": "Use GD03-027. The names differ only in the apostrophe (’ vs '); card-name matching treats them as the same character.",
+      "rationale": "Cosmetic difference.",
+      "canonical_product_id": "GD03-027"
+    },
+    "divergent:GD03-076": {
+      "policy": "canonical_printing",
+      "decision": "Use GD03-076. The printings differ only in spacing/apostrophes/letter case.",
+      "rationale": "Reminder text in parentheses has no game effect (2-11-4); cosmetic differences do not change the text's meaning.",
+      "canonical_product_id": "GD03-076"
+    },
+    "divergent:GD03-088": {
+      "policy": "canonical_printing",
+      "decision": "Use GD03-088. ap is 2 on both printings; the missing '+' in GD03-088_p1's ap_raw is cosmetic (Pilot values are modifiers, 3-3-8-1).",
+      "rationale": "Cosmetic difference.",
+      "canonical_product_id": "GD03-088"
+    },
+    "divergent:GD03-118": {
+      "policy": "canonical_printing",
+      "decision": "Use GD03-118. The printings differ only in spacing/apostrophes/letter case.",
+      "rationale": "Reminder text in parentheses has no game effect (2-11-4); cosmetic differences do not change the text's meaning.",
+      "canonical_product_id": "GD03-118"
+    },
+    "divergent:GD05-001": {
+      "policy": "canonical_printing",
+      "decision": "Use GD05-001. The printings differ only in parenthesized reminder text.",
+      "rationale": "Reminder text in parentheses has no game effect (2-11-4); cosmetic differences do not change the text's meaning.",
+      "canonical_product_id": "GD05-001"
+    },
+    "divergent:GD05-005": {
+      "policy": "canonical_printing",
+      "decision": "Use GD05-005. The printings differ only in parenthesized reminder text.",
+      "rationale": "Reminder text in parentheses has no game effect (2-11-4); cosmetic differences do not change the text's meaning.",
+      "canonical_product_id": "GD05-005"
+    },
+    "divergent:GD05-006": {
+      "policy": "canonical_printing",
+      "decision": "Use GD05-006. The printings differ only in parenthesized reminder text.",
+      "rationale": "Reminder text in parentheses has no game effect (2-11-4); cosmetic differences do not change the text's meaning.",
+      "canonical_product_id": "GD05-006"
+    },
+    "divergent:GD05-017": {
+      "policy": "canonical_printing",
+      "decision": "Use GD05-017. The printings differ only in parenthesized reminder text.",
+      "rationale": "Reminder text in parentheses has no game effect (2-11-4); cosmetic differences do not change the text's meaning.",
+      "canonical_product_id": "GD05-017"
+    },
+    "divergent:GD05-020": {
+      "policy": "canonical_printing",
+      "decision": "Use GD05-020. The printings differ only in parenthesized reminder text.",
+      "rationale": "Reminder text in parentheses has no game effect (2-11-4); cosmetic differences do not change the text's meaning.",
+      "canonical_product_id": "GD05-020"
+    },
+    "divergent:GD05-037": {
+      "policy": "canonical_printing",
+      "decision": "Use GD05-037. The printings differ only in parenthesized reminder text.",
+      "rationale": "Reminder text in parentheses has no game effect (2-11-4); cosmetic differences do not change the text's meaning.",
+      "canonical_product_id": "GD05-037"
+    },
+    "divergent:GD05-049": {
+      "policy": "canonical_printing",
+      "decision": "Use GD05-049. The printings differ only in parenthesized reminder text.",
+      "rationale": "Reminder text in parentheses has no game effect (2-11-4); cosmetic differences do not change the text's meaning.",
+      "canonical_product_id": "GD05-049"
+    },
+    "divergent:GD05-055": {
+      "policy": "canonical_printing",
+      "decision": "Use GD05-055. The printings differ only in parenthesized reminder text.",
+      "rationale": "Reminder text in parentheses has no game effect (2-11-4); cosmetic differences do not change the text's meaning.",
+      "canonical_product_id": "GD05-055"
+    },
+    "divergent:GD05-059": {
+      "policy": "canonical_printing",
+      "decision": "Use GD05-059. The printings differ only in parenthesized reminder text.",
+      "rationale": "Reminder text in parentheses has no game effect (2-11-4); cosmetic differences do not change the text's meaning.",
+      "canonical_product_id": "GD05-059"
+    },
+    "divergent:GD05-067": {
+      "policy": "canonical_printing",
+      "decision": "Use GD05-067. The printings differ only in parenthesized reminder text.",
+      "rationale": "Reminder text in parentheses has no game effect (2-11-4); cosmetic differences do not change the text's meaning.",
+      "canonical_product_id": "GD05-067"
+    },
+    "divergent:GD05-068": {
+      "policy": "canonical_printing",
+      "decision": "Use GD05-068. The printings differ only in parenthesized reminder text.",
+      "rationale": "Reminder text in parentheses has no game effect (2-11-4); cosmetic differences do not change the text's meaning.",
+      "canonical_product_id": "GD05-068"
+    },
+    "divergent:R-001": {
+      "policy": "edition_beta_superseded",
+      "decision": "Use R-001_p7: a Resource card has no AP or HP. The Edition Beta record R-001_p4 (AP3/HP1) is a data error.",
+      "rationale": "Resources have no AP/HP (3-6); every other printing agrees.",
+      "canonical_product_id": "R-001_p7"
+    },
+    "divergent:ST01-015": {
+      "policy": "canonical_printing",
+      "decision": "Use ST01-015 ('if you have no Units in play'); the '0 Units' wording of _p1/_p2 is identical in effect.",
+      "rationale": "The base printing is the current wording.",
+      "canonical_product_id": "ST01-015"
+    },
+    "divergent:ST02-001": {
+      "policy": "canonical_printing",
+      "decision": "Use ST02-001. The printings differ only in parenthesized reminder text.",
+      "rationale": "Reminder text in parentheses has no game effect (2-11-4); cosmetic differences do not change the text's meaning.",
+      "canonical_product_id": "ST02-001"
+    },
+    "divergent:ST02-010": {
+      "policy": "canonical_printing",
+      "decision": "Use ST02-010: '【During Link】This Unit gets AP+1 and HP+1.' The older 'while linked' wording (_p1, _p2) is the same effect.",
+      "rationale": "The base printing matches the SC01 reprint (_p6) and later printings.",
+      "canonical_product_id": "ST02-010"
+    },
+    "divergent:ST02-012": {
+      "policy": "canonical_printing",
+      "decision": "Use ST02-012. hp is 1 on all printings; the missing '+' in ST02-012_p1's hp_raw and the older <Breach> reminder are cosmetic.",
+      "rationale": "Cosmetic difference and reminder text (2-11-4).",
+      "canonical_product_id": "ST02-012"
+    },
+    "divergent:ST02-014": {
+      "policy": "canonical_printing",
+      "decision": "Use ST02-014. The printings differ only in spacing/apostrophes/letter case.",
+      "rationale": "Reminder text in parentheses has no game effect (2-11-4); cosmetic differences do not change the text's meaning.",
+      "canonical_product_id": "ST02-014"
+    },
+    "divergent:ST03-001": {
+      "policy": "canonical_printing",
+      "decision": "Use ST03-001. The SC01 reprint (_p2) lists the two effects in the other order, which changes nothing: they are separate effects (ruling Q164).",
+      "rationale": "Line order of independent effects has no game meaning.",
+      "canonical_product_id": "ST03-001"
+    },
+    "divergent:ST03-011": {
+      "policy": "canonical_printing",
+      "decision": "Use ST03-011: '【Attack】During this turn, this Unit gets AP+1 and, if it is a Link Unit, it gains <High-Maneuver>.' The bonus-pack wording (_p1) leaves the <High-Maneuver> duration unstated.",
+      "rationale": "Every other printing, including the GD05 reprint (_p4), uses the base wording.",
+      "canonical_product_id": "ST03-011"
+    },
+    "divergent:ST05-001": {
+      "policy": "canonical_printing",
+      "decision": "Use ST05-001. The SC01 reprint (_p3) lists the effects in the other order, which changes nothing.",
+      "rationale": "Line order of independent effects has no game meaning.",
+      "canonical_product_id": "ST05-001"
+    },
+    "divergent:ST07-010": {
+      "policy": "canonical_printing",
+      "decision": "Use ST07-010. The printings differ only in spacing/apostrophes/letter case.",
+      "rationale": "Reminder text in parentheses has no game effect (2-11-4); cosmetic differences do not change the text's meaning.",
+      "canonical_product_id": "ST07-010"
+    },
+    "divergent:T-001": {
+      "policy": "token_stats_from_effect",
+      "decision": "Use T-001 (AP3/HP3), matching '[Gundam]((White Base Team)･AP3･HP3)' on ST01-015; the Edition Beta token record has no stats.",
+      "rationale": "Tokens are created with the stats written in the creating effect.",
+      "canonical_product_id": "T-001"
+    },
+    "divergent:T-002": {
+      "policy": "token_stats_from_effect",
+      "decision": "Use T-002 (AP2/HP2), matching '[Guncannon]((White Base Team)･AP2･HP2)' on ST01-015; the Edition Beta record's AP3/HP3 is ignored.",
+      "rationale": "Tokens are created with the stats written in the creating effect.",
+      "canonical_product_id": "T-002"
+    },
+    "divergent:T-003": {
+      "policy": "token_stats_from_effect",
+      "decision": "Use T-003 (AP1/HP1), matching '[Guntank]((White Base Team)･AP1･HP1)' on ST01-015; the Edition Beta record's AP2/HP2 is ignored.",
+      "rationale": "Tokens are created with the stats written in the creating effect.",
+      "canonical_product_id": "T-003"
+    },
+    "divergent:T-006": {
+      "policy": "token_stats_from_effect",
+      "decision": "Use T-006 (AP3/HP1), matching '[Char's Zaku Ⅱ]((Zeon)･AP3･HP1)' on GD01-026 and ST03-016; the Edition Beta record's AP1 is ignored.",
+      "rationale": "Tokens are created with the stats written in the creating effect.",
+      "canonical_product_id": "T-006"
+    },
+    "errata:GD04-067": {
+      "policy": "errata_supersedes_print",
+      "decision": "Use the errata'd effect (\"from any player's trash\" instead of the printed 'from your trash'); the snapshot already contains it in every printing.",
+      "rationale": "Official errata of 2026-04-10 (https://www.gundam-gcg.com/en/news/02_157.html)."
+    },
+    "errata:T-013": {
+      "policy": "errata_supersedes_print",
+      "decision": "Use the errata'd trait ('(Cyclops Team)' instead of the printed '(Zeon)'); the snapshot already contains it in every printing.",
+      "rationale": "Official errata of 2026-01-30 (https://www.gundam-gcg.com/en/news/01_204.html)."
+    },
+    "banlist:banlist-scope": {
+      "policy": "banlist_most_defensible",
+      "decision": "Enforce the B&R list by default, because benchmarks model tournament play (the library call validate_deck(deck, banlist=False) checks the Comprehensive Rules only).",
+      "rationale": "Benchmarks model sanctioned tournament play, where the list applies (official rules page)."
+    },
+    "banlist:effective-date-and-region": {
+      "policy": "banlist_most_defensible",
+      "decision": "Use the current list with effective_date 2026-09-25. The simulator validates against one list, not by date.",
+      "rationale": "The simulator validates against a single current list, not by date or region."
+    },
+    "banlist:pair-sideboard-scope": {
+      "policy": "banlist_most_defensible",
+      "decision": "Not relevant: the simulator has no sideboard, so apply pairs to the main deck.",
+      "rationale": "The simulator has no sideboard."
+    },
+    "banlist:starter-deck-exceptions": {
+      "policy": "banlist_most_defensible",
+      "decision": "Do not apply either exception by default, so such decks fail as a restricted or banned-pair violation. Name the exception in the error message. Support the exception only if an official decklist is added to the data with provenance.",
+      "rationale": "The exemption depends on an official decklist that the offline data does not contain; failing closed with the exception named is safer than guessing."
+    },
+    "banlist:vanilla-enumeration-vs-predicate": {
+      "policy": "banlist_most_defensible",
+      "decision": "Enforce the predicate over card data and also check the enumerated list. Today they are identical (predicate_equals_enumeration). The data refresh should fail loudly if they ever diverge.",
+      "rationale": "The notice defines the pair by attributes and promises to add future matches, so both the predicate and the enumeration are authoritative; checking both catches either one lagging."
+    },
+    "banlist:vanilla-without-effects-definition": {
+      "policy": "banlist_most_defensible",
+      "decision": "Treat a card as having effects when its effect text is non-empty and not '-' (keywords count). A link requirement alone is not an effect. No Lv.2/cost 1/2 AP/2 HP Unit in the pinned data has effect text, so the choice changes nothing today.",
+      "rationale": "Keyword effects are effects (5-1-2); a link condition is card information (2-12), not an effect."
+    },
+    "markers-semantics:keyword-mentions": {
+      "policy": "engine_derives_markers",
+      "decision": "Keywords a Unit has come from its compiled effects (printed keywords, conditional and granted ones); keyword_effects is not used to decide which keywords a card has.",
+      "rationale": "The gcg-api extractor is lossy by design (fixed vocabulary, every <…> mention); see its src/normalize.js."
+    },
+    "markers-vocab:activate-split": {
+      "policy": "engine_derives_markers",
+      "decision": "Read 【Activate･Main】/【Activate･Action】 as single timings from the effect text; never infer them from timing_markers.",
+      "rationale": "The gcg-api extractor is lossy by design (fixed vocabulary, every <…> mention); see its src/normalize.js."
+    },
+    "markers-vocab:development": {
+      "policy": "engine_derives_markers",
+      "decision": "Parse 【<timing>・Development N】 from the effect text as the <Development N> keyword effect of 13-1-8.",
+      "rationale": "The gcg-api extractor is lossy by design (fixed vocabulary, every <…> mention); see its src/normalize.js."
+    },
+    "markers-vocab:pilot": {
+      "policy": "engine_derives_markers",
+      "decision": "Detect 【Pilot】[Name] sections from the effect text; the paired AP/HP modifiers are the card's ap/hp fields.",
+      "rationale": "The gcg-api extractor is lossy by design (fixed vocabulary, every <…> mention); see its src/normalize.js."
+    },
+    "markers-vocab:qualified-timing": {
+      "policy": "engine_derives_markers",
+      "decision": "Parse the Pilot qualification of 【When Paired･…】/【During Pair･…】 from the effect text (13-2-9-2, 13-2-10-2).",
+      "rationale": "The gcg-api extractor is lossy by design (fixed vocabulary, every <…> mention); see its src/normalize.js."
+    },
+    "markers:GD02-053:unbracketed-keyword": {
+      "policy": "text_format_correction",
+      "decision": "Read '[Suppression]' as the keyword <Suppression>: GD02-053 has <Suppression>.",
+      "rationale": "It is followed by the standard <Suppression> reminder text; square brackets otherwise name cards or Pilots and no card is named 'Suppression'.",
+      "card_numbers": [
+        "GD02-053"
+      ],
+      "field_overrides": {
+        "effect": "<Suppression> (Damage to Shields by an attack is dealt to the first 2 cards simultaneously.)\n【During Link】During your turn, while there are 7 or more cards in your trash, all your other (Vulture) Units get AP+2.",
+        "keyword_effects": [
+          {
+            "keyword": "Suppression",
+            "value": null
+          }
+        ],
+        "keywords_text": "suppression during link"
+      }
+    },
+    "markers:GD03-015:ascii-colon": {
+      "policy": "text_format_correction",
+      "decision": "Treat ':' as the cost separator '：'; the activation cost is 'Exile 3 (Titans) cards from your trash'.",
+      "rationale": "Every other activated effect uses '：'; the text before the colon has the form of a cost (10-1-7-2, 10-1-7-4).",
+      "card_numbers": [
+        "GD03-015"
+      ],
+      "field_overrides": {
+        "effect": "【Activate･Main】【Once per Turn】Exile 3 (Titans) cards from your trash：This Unit gains <Breach 4> during this turn.\n\n(When this Unit's attack destroys an enemy Unit, deal the specified amount of damage to the first card in that opponent's shield area.)"
+      }
+    },
+    "markers:GD03-035:ascii-colon": {
+      "policy": "text_format_correction",
+      "decision": "Treat ':' as the cost separator '：'; the activation cost is '①, exile 1 Pilot card from your trash'.",
+      "rationale": "Every other activated effect uses '：'; the text before the colon has the form of a cost (10-1-7-2, 10-1-7-4).",
+      "card_numbers": [
+        "GD03-035"
+      ],
+      "field_overrides": {
+        "effect": "【Activate･Main】【Once per Turn】①, exile 1 Pilot card from your trash：Deal 1 damage to all enemy Units.\n【When Linked】During this turn, this Unit may choose an active enemy Unit with AP equal to or less than this Unit as its attack target."
+      }
+    },
+    "data-null:BASE:ap": {
+      "policy": "null_stat_is_zero",
+      "decision": "Bases have no printed AP; treat AP as 0 (see rules-internal:base-ap).",
+      "rationale": "The rules give these cards an AP; the snapshot has none, and 0 is the only value consistent with that.",
+      "card_numbers": [
+        "EB01-085",
+        "EB01-086",
+        "EB01-087",
+        "EB01-088",
+        "EB01-089",
+        "EB01-090",
+        "GD01-123",
+        "GD01-124",
+        "GD01-125",
+        "GD01-126",
+        "GD01-127",
+        "GD01-128",
+        "GD01-129",
+        "GD01-130",
+        "GD02-121",
+        "GD02-122",
+        "GD02-123",
+        "GD02-124",
+        "GD02-125",
+        "GD02-126",
+        "GD02-127",
+        "GD02-128",
+        "GD02-129",
+        "GD02-130",
+        "GD03-123",
+        "GD03-124",
+        "GD03-125",
+        "GD03-126",
+        "GD03-127",
+        "GD03-128",
+        "GD03-129",
+        "GD03-130",
+        "GD03-131",
+        "GD03-132",
+        "GD04-121",
+        "GD04-122",
+        "GD04-123",
+        "GD04-124",
+        "GD04-125",
+        "GD04-126",
+        "GD04-127",
+        "GD04-128",
+        "GD04-129",
+        "GD04-130",
+        "GD05-123",
+        "GD05-124",
+        "GD05-125",
+        "GD05-126",
+        "GD05-127",
+        "GD05-128",
+        "GD05-129",
+        "GD05-130",
+        "ST01-015",
+        "ST01-016",
+        "ST02-015",
+        "ST02-016",
+        "ST03-015",
+        "ST03-016",
+        "ST04-015",
+        "ST04-016",
+        "ST05-015",
+        "ST06-014",
+        "ST06-015",
+        "ST07-015",
+        "ST08-014",
+        "ST08-015",
+        "ST09-010",
+        "ST10-016",
+        "ST11-016",
+        "ST12-016",
+        "ST13-016",
+        "ST14-016"
+      ],
+      "field_overrides": {
+        "ap": 0
+      }
+    },
+    "data-null:EX-BASE:ap": {
+      "policy": "null_stat_is_zero",
+      "decision": "EX Base AP is 0 (5-17-3-1-1).",
+      "rationale": "The rules give these cards an AP; the snapshot has none, and 0 is the only value consistent with that.",
+      "card_numbers": [
+        "EXB-001",
+        "EXB-002",
+        "EXB-003",
+        "EXBP-001",
+        "EXBP-002",
+        "EXBP-003",
+        "EXBP-004",
+        "EXBP-005",
+        "EXBP-006",
+        "EXBP-007",
+        "EXBP-008",
+        "EXBP-009",
+        "EXBP-010",
+        "EXBP-011",
+        "EXBP-019",
+        "EXBP-020",
+        "EXBP-021",
+        "EXBP-022",
+        "EXBP-023",
+        "EXBP-024",
+        "EXBP-025",
+        "EXBP-026",
+        "EXBP-027",
+        "EXBP-028",
+        "EXBP-029",
+        "EXBP-030",
+        "EXBP-031",
+        "EXBP-032",
+        "EXBP-034"
+      ],
+      "field_overrides": {
+        "ap": 0
+      }
+    },
+    "data-null:UNIT:ap": {
+      "policy": "null_stat_is_zero",
+      "decision": "These Units have no AP value; treat AP as 0 (they deal no battle damage, 5-5-5).",
+      "rationale": "The rules give these cards an AP; the snapshot has none, and 0 is the only value consistent with that.",
+      "card_numbers": [
+        "EB01-013",
+        "EB01-052",
+        "GD01-048",
+        "GD01-061",
+        "GD02-011",
+        "GD02-034",
+        "GD02-047",
+        "GD03-060",
+        "ST05-003",
+        "ST08-009"
+      ],
+      "field_overrides": {
+        "ap": 0
+      }
+    },
+    "rules-xref:2-7-1": {
+      "policy": "rules_xref_intended_target",
+      "decision": "Read the reference in 2-7-1 as §8 (Attacking and Battles).",
+      "rationale": "§8 is the only section titled 'Attacking and Battles' (or, for untitled references, the only section on the cited topic); the cited number is an off-by-one/renumbering slip."
+    },
+    "rules-xref:3-4-5": {
+      "policy": "rules_xref_intended_target",
+      "decision": "Read the reference in 3-4-5 as §13-2 (Keywords).",
+      "rationale": "§13-2 is the only section titled 'Keywords' (or, for untitled references, the only section on the cited topic); the cited number is an off-by-one/renumbering slip."
+    },
+    "rules-xref:3-4-7": {
+      "policy": "rules_xref_intended_target",
+      "decision": "Read the reference in 3-4-7 as §13-2-5 (【Burst】).",
+      "rationale": "§13-2-5 is the only section titled '【Burst】' (or, for untitled references, the only section on the cited topic); the cited number is an off-by-one/renumbering slip."
+    },
+    "rules-xref:5-5-1": {
+      "policy": "rules_xref_intended_target",
+      "decision": "Read the reference in 5-5-1 as §5-18 (Counter).",
+      "rationale": "§5-18 is the only section titled 'Counter' (or, for untitled references, the only section on the cited topic); the cited number is an off-by-one/renumbering slip."
+    },
+    "rules-xref:5-10-3": {
+      "policy": "rules_xref_intended_target",
+      "decision": "Read the reference in 5-10-3 as §13-2-5 (【Burst】).",
+      "rationale": "§13-2-5 is the only section titled '【Burst】' (or, for untitled references, the only section on the cited topic); the cited number is an off-by-one/renumbering slip."
+    },
+    "rules-xref:8-4-1": {
+      "policy": "rules_xref_intended_target",
+      "decision": "Read the reference in 8-4-1 as §9 (Action Steps).",
+      "rationale": "§9 is the only section titled 'Action Steps' (or, for untitled references, the only section on the cited topic); the cited number is an off-by-one/renumbering slip."
+    },
+    "rules-xref:8-5-2-3-1": {
+      "policy": "rules_xref_intended_target",
+      "decision": "Read the reference in 8-5-2-3-1 as §13-2-5 (【Burst】).",
+      "rationale": "§13-2-5 is the only section titled '【Burst】' (or, for untitled references, the only section on the cited topic); the cited number is an off-by-one/renumbering slip."
+    },
+    "rules-xref:8-5-2-4-2": {
+      "policy": "rules_xref_intended_target",
+      "decision": "Read the reference in 8-5-2-4-2 as §13-1-5 (<First Strike>).",
+      "rationale": "§13-1-5 is the only section titled '<First Strike>' (or, for untitled references, the only section on the cited topic); the cited number is an off-by-one/renumbering slip."
+    },
+    "rules-xref:8-6-2": {
+      "policy": "rules_xref_intended_target",
+      "decision": "Read the reference in 8-6-2 as §7-5 (Main Phase).",
+      "rationale": "§7-5 is the only section titled 'Main Phase' (or, for untitled references, the only section on the cited topic); the cited number is an off-by-one/renumbering slip."
+    },
+    "rules-xref:13-2-1-1": {
+      "policy": "rules_xref_intended_target",
+      "decision": "Read the reference in 13-2-1-1 as §10-1-7 (Activated Effects).",
+      "rationale": "§10-1-7 is the only section titled 'Activated Effects' (or, for untitled references, the only section on the cited topic); the cited number is an off-by-one/renumbering slip."
+    },
+    "rules-xref:13-2-2-1": {
+      "policy": "rules_xref_intended_target",
+      "decision": "Read the reference in 13-2-2-1 as §10-1-7 (Activated Effects).",
+      "rationale": "§10-1-7 is the only section titled 'Activated Effects' (or, for untitled references, the only section on the cited topic); the cited number is an off-by-one/renumbering slip."
+    },
+    "rules-internal:11-3-1": {
+      "policy": "rules_obvious_reading",
+      "decision": "Read 11-3-1 as 'becomes zero or less': destroyed when damage ≥ current HP.",
+      "rationale": "5-5-2 states the same rule unambiguously."
+    },
+    "rules-internal:base-ap": {
+      "policy": "most_defensible_reading",
+      "decision": "Bases have 0 AP and never deal battle damage; an attack on a player with a Base present deals the attacker's AP to the Base only (excess is lost, 5-5-6); <First Strike> changes nothing against a Base.",
+      "rationale": "Every printed Base lacks AP and 8-5-2-4 describes one-way damage; 13-1-5-2's mention of a Base dealing damage has no card that could use it."
+    },
+    "rules-internal:remove-exile-terminology": {
+      "policy": "most_defensible_reading",
+      "decision": "'Exile (from the game)', 'remove' and 'removed from the game' all mean: a card goes to its owner's removal area; a token (including EX Resources/EX Bases) instead leaves the game. An EX Resource used to pay a cost is 'exiled' for GD05-018's trigger.",
+      "rationale": "Card rulings Q194/Q211/Q213/Q220/Q226/Q229/Q232 place exiled cards in the removal area 'not including tokens', and 5-17-4 keeps tokens out of it."
+    },
+    "rules-internal:when-linked-set": {
+      "policy": "rules_obvious_reading",
+      "decision": "【When Linked】 triggers when a Pilot that satisfies the Unit's link condition is paired with it (by playing or by an effect, ruling Q184); it does not trigger when an existing pairing later starts to satisfy the condition.",
+      "rationale": "'Set' is the only placement verb used for Pilots here and pairing is the only way a Pilot is placed beneath a Unit."
+    },
+    "rules-internal:zero-ap-player-damage": {
+      "policy": "rules_obvious_reading",
+      "decision": "A Unit with 0 AP that attacks a player with no Base and no Shields deals no damage, so the player is not defeated.",
+      "rationale": "5-5-5 is general and FAQ Q35 applies the same logic to Shields (0 AP cannot destroy a Shield)."
+    },
+    "ruling:EB01-010:Q315": {
+      "policy": "ruling_overrides_text",
+      "decision": "The <Development> exile may be performed even if the following ■ effect has no legal target; then the ■ effect does nothing.",
+      "rationale": "Official card ruling Q315 (June 12, 2026) is authoritative for EB01-010; the same reading is applied to identical wording on other cards."
+    },
+    "ruling:EB01-059:Q322": {
+      "policy": "ruling_overrides_text",
+      "decision": "Targets may be chosen even when the action on them would be a no-op (already active, undamaged, already has the keyword); the no-op part is simply not performed.",
+      "rationale": "Official card ruling Q322 (June 12, 2026) is authoritative for EB01-059; the same reading is applied to identical wording on other cards."
+    },
+    "ruling:EB01-059:Q323": {
+      "policy": "ruling_overrides_text",
+      "decision": "EX Resources are Resources for 'your Resources' choices; choosing an active one does nothing.",
+      "rationale": "Official card ruling Q323 (June 12, 2026) is authoritative for EB01-059; the same reading is applied to identical wording on other cards."
+    },
+    "ruling:EB01-060:Q324": {
+      "policy": "ruling_overrides_text",
+      "decision": "The <Development> exile may be performed even if the following ■ effect has no legal target; then the ■ effect does nothing.",
+      "rationale": "Official card ruling Q324 (June 12, 2026) is authoritative for EB01-060; the same reading is applied to identical wording on other cards."
+    },
+    "ruling:EB01-072:Q327": {
+      "policy": "ruling_overrides_text",
+      "decision": "'Choose 1 X and 1 Y' activates (or the Command can be played) only if both targets can be chosen; it never resolves with just one.",
+      "rationale": "Official card ruling Q327 (June 12, 2026) is authoritative for EB01-072; the same reading is applied to identical wording on other cards."
+    },
+    "ruling:GD01-001:Q119": {
+      "policy": "ruling_overrides_text",
+      "decision": "'All your (X) Units' and 'when one of your (X) Units is deployed' include the source card itself; constant effects (including trait grants) apply before trigger conditions of the entering card are checked.",
+      "rationale": "Official card ruling Q119 (July 11, 2025) is authoritative for GD01-001; the same reading is applied to identical wording on other cards."
+    },
+    "ruling:GD01-003:Q121": {
+      "policy": "ruling_overrides_text",
+      "decision": "An effect that chooses N cards from a public location activates only if N valid cards can be chosen; no partial resolution.",
+      "rationale": "Official card ruling Q121 (July 10, 2026) is authoritative for GD01-003; the same reading is applied to identical wording on other cards."
+    },
+    "ruling:GD01-019:Q124": {
+      "policy": "ruling_overrides_text",
+      "decision": "Once <Blocker> has changed the attack target, the new target stays the attack target for the rest of the battle even if the blocker loses <Blocker>.",
+      "rationale": "Official card ruling Q124 (July 11, 2025) is authoritative for GD01-019; the same reading is applied to identical wording on other cards."
+    },
+    "ruling:GD01-023:Q125": {
+      "policy": "ruling_overrides_text",
+      "decision": "A card deployed, paired or activated by an effect pays no cost and needs no Lv. check unless the text says 'Pay its cost'; its own 【Deploy】/【When Paired】/【When Linked】 still trigger.",
+      "rationale": "Official card ruling Q125 (July 11, 2025) is authoritative for GD01-023; the same reading is applied to identical wording on other cards."
+    },
+    "ruling:GD01-023:Q162": {
+      "policy": "ruling_overrides_text",
+      "decision": "Outside the battle area a Command card with a 【Pilot】 effect is only a Command card: it never matches 'Pilot card' or 'Unit card' filters.",
+      "rationale": "Official card ruling Q162 (July 25, 2025) is authoritative for GD01-023; the same reading is applied to identical wording on other cards."
+    },
+    "ruling:GD01-025:Q127": {
+      "policy": "ruling_overrides_text",
+      "decision": "With no Resource left in the resource deck the 【When Paired】 effect still activates and 'Then, this Unit gains <First Strike>' still happens (5-20-2); this is the contrast case for Q175/Q233, where a leading condition or 'If you do' governs the 'Then' part.",
+      "rationale": "Official card ruling Q127 (July 11, 2025) is authoritative for GD01-025; the same reading is applied to identical wording on other cards."
+    },
+    "ruling:GD01-028:Q129": {
+      "policy": "ruling_overrides_text",
+      "decision": "A card deployed, paired or activated by an effect pays no cost and needs no Lv. check unless the text says 'Pay its cost'; its own 【Deploy】/【When Paired】/【When Linked】 still trigger.",
+      "rationale": "Official card ruling Q129 (July 11, 2025) is authoritative for GD01-028; the same reading is applied to identical wording on other cards."
+    },
+    "ruling:GD01-045:Q131": {
+      "policy": "ruling_overrides_text",
+      "decision": "A card deployed, paired or activated by an effect pays no cost and needs no Lv. check unless the text says 'Pay its cost'; its own 【Deploy】/【When Paired】/【When Linked】 still trigger.",
+      "rationale": "Official card ruling Q131 (July 11, 2025) is authoritative for GD01-045; the same reading is applied to identical wording on other cards."
+    },
+    "ruling:GD01-059:Q135": {
+      "policy": "ruling_overrides_text",
+      "decision": "Conditions and target restrictions of triggered/activated/command effects are evaluated once, when resolved; later changes neither undo the result nor retrigger it.",
+      "rationale": "Official card ruling Q135 (July 11, 2025) is authoritative for GD01-059; the same reading is applied to identical wording on other cards."
+    },
+    "ruling:GD01-081:Q141": {
+      "policy": "ruling_overrides_text",
+      "decision": "Once <Blocker> has changed the attack target, the new target stays the attack target for the rest of the battle even if the blocker loses <Blocker>.",
+      "rationale": "Official card ruling Q141 (July 11, 2025) is authoritative for GD01-081; the same reading is applied to identical wording on other cards."
+    },
+    "ruling:GD01-094:Q149": {
+      "policy": "ruling_overrides_text",
+      "decision": "Record the cause of every destruction (battle damage, effect damage, 'destroy' effect, rules). 'Destroyed by an effect' / 'can't be destroyed by effects' mean 'destroy' effects only; 'destroyed with damage' means battle or effect damage; 'with battle damage' means battle damage only.",
+      "rationale": "Official card ruling Q149 (July 11, 2025) is authoritative for GD01-094; the same reading is applied to identical wording on other cards."
+    },
+    "ruling:GD01-103:Q153": {
+      "policy": "ruling_overrides_text",
+      "decision": "'Choose 1 X and 1 Y' activates (or the Command can be played) only if both targets can be chosen; it never resolves with just one.",
+      "rationale": "Official card ruling Q153 (July 11, 2025) is authoritative for GD01-103; the same reading is applied to identical wording on other cards."
+    },
+    "ruling:GD01-109:Q161": {
+      "policy": "ruling_overrides_text",
+      "decision": "Outside the battle area a Command card with a 【Pilot】 effect is only a Command card: it never matches 'Pilot card' or 'Unit card' filters.",
+      "rationale": "Official card ruling Q161 (July 25, 2025) is authoritative for GD01-109; the same reading is applied to identical wording on other cards."
+    },
+    "ruling:GD01-125:Q157": {
+      "policy": "ruling_overrides_text",
+      "decision": "A card deployed, paired or activated by an effect pays no cost and needs no Lv. check unless the text says 'Pay its cost'; its own 【Deploy】/【When Paired】/【When Linked】 still trigger.",
+      "rationale": "Official card ruling Q157 (July 11, 2025) is authoritative for GD01-125; the same reading is applied to identical wording on other cards."
+    },
+    "ruling:GD02-002:Q197": {
+      "policy": "ruling_overrides_text",
+      "decision": "If a 【Once per Turn】 effect resolves without performing its action (e.g. setting an already-active Unit active), it does not count as activated for 【Once per Turn】 and may trigger again this turn.",
+      "rationale": "Official card ruling Q197 (January 09, 2026) is authoritative for GD02-002; the same reading is applied to identical wording on other cards."
+    },
+    "ruling:GD02-021:Q175": {
+      "policy": "ruling_overrides_text",
+      "decision": "A leading 'If <condition>,' or 'If you do,' governs every following sentence joined by 'Then' in the same effect; 'Then' only makes the next part independent of whether the immediately preceding action succeeded.",
+      "rationale": "Official card ruling Q175 (October 24, 2025) is authoritative for GD02-021; the same reading is applied to identical wording on other cards."
+    },
+    "ruling:GD02-038:Q178": {
+      "policy": "ruling_overrides_text",
+      "decision": "A card deployed, paired or activated by an effect pays no cost and needs no Lv. check unless the text says 'Pay its cost'; its own 【Deploy】/【When Paired】/【When Linked】 still trigger.",
+      "rationale": "Official card ruling Q178 (October 24, 2025) is authoritative for GD02-038; the same reading is applied to identical wording on other cards."
+    },
+    "ruling:GD02-071:Q183": {
+      "policy": "ruling_overrides_text",
+      "decision": "A card deployed, paired or activated by an effect pays no cost and needs no Lv. check unless the text says 'Pay its cost'; its own 【Deploy】/【When Paired】/【When Linked】 still trigger.",
+      "rationale": "Official card ruling Q183 (October 24, 2025) is authoritative for GD02-071; the same reading is applied to identical wording on other cards."
+    },
+    "ruling:GD02-076:Q186": {
+      "policy": "ruling_overrides_text",
+      "decision": "Once <Blocker> has changed the attack target, the new target stays the attack target for the rest of the battle even if the blocker loses <Blocker>.",
+      "rationale": "Official card ruling Q186 (October 24, 2025) is authoritative for GD02-076; the same reading is applied to identical wording on other cards."
+    },
+    "ruling:GD02-082:Q187": {
+      "policy": "ruling_overrides_text",
+      "decision": "Once <Blocker> has changed the attack target, the new target stays the attack target for the rest of the battle even if the blocker loses <Blocker>.",
+      "rationale": "Official card ruling Q187 (October 24, 2025) is authoritative for GD02-082; the same reading is applied to identical wording on other cards."
+    },
+    "ruling:GD02-093:Q190": {
+      "policy": "ruling_overrides_text",
+      "decision": "'When this Unit destroys an enemy … with (battle) damage' triggers even if this Unit is destroyed simultaneously; the pending trigger resolves after both Units are in the trash (parts that need this Unit on the field do nothing).",
+      "rationale": "Official card ruling Q190 (October 24, 2025) is authoritative for GD02-093; the same reading is applied to identical wording on other cards."
+    },
+    "ruling:GD02-106:Q192": {
+      "policy": "ruling_overrides_text",
+      "decision": "<Breach> damage, and any damage dealt by a Unit's own effects (including effects it has from its Pilot), is effect damage attributed to that Unit: 'battle damage' prevention and triggers ignore it; 'damage from enemy Units' prevention and effect-damage reduction apply to it; 'when this Unit destroys … with damage' counts it.",
+      "rationale": "Official card ruling Q192 (October 24, 2025) is authoritative for GD02-106; the same reading is applied to identical wording on other cards."
+    },
+    "ruling:GD02-111:Q194": {
+      "policy": "ruling_overrides_text",
+      "decision": "Exiled cards go to their owner's removal area (public, 4-7); an exiled token leaves the game instead (5-17-2-5).",
+      "rationale": "Official card ruling Q194 (October 24, 2025) is authoritative for GD02-111; the same reading is applied to identical wording on other cards."
+    },
+    "ruling:GD03-001:Q209": {
+      "policy": "ruling_overrides_text",
+      "decision": "'When this effect destroys an enemy Unit' is checked right after this effect's damage is dealt (rules management); later destruction does not count.",
+      "rationale": "Official card ruling Q209 (January 16, 2026) is authoritative for GD03-001; the same reading is applied to identical wording on other cards."
+    },
+    "ruling:GD03-009:Q211": {
+      "policy": "ruling_overrides_text",
+      "decision": "Exiled cards go to their owner's removal area (public, 4-7); an exiled token leaves the game instead (5-17-2-5).",
+      "rationale": "Official card ruling Q211 (January 16, 2026) is authoritative for GD03-009; the same reading is applied to identical wording on other cards."
+    },
+    "ruling:GD03-015:Q213": {
+      "policy": "ruling_overrides_text",
+      "decision": "Exiled cards go to their owner's removal area (public, 4-7); an exiled token leaves the game instead (5-17-2-5).",
+      "rationale": "Official card ruling Q213 (January 16, 2026) is authoritative for GD03-015; the same reading is applied to identical wording on other cards."
+    },
+    "ruling:GD03-019:Q214": {
+      "policy": "ruling_overrides_text",
+      "decision": "When declaring an attack: 'must choose that Unit' (GD04-107) outranks 'choose … if possible' attractors; with several eligible forced/attracting Units the attacker picks one; a forced Unit that is not a legal target (active without an active-target permission, or gone) imposes nothing; constraints apply at declaration only and never retarget an attack in progress.",
+      "rationale": "Official card ruling Q214 (January 16, 2026) is authoritative for GD03-019; the same reading is applied to identical wording on other cards."
+    },
+    "ruling:GD03-022:Q215": {
+      "policy": "ruling_overrides_text",
+      "decision": "'When this Unit destroys an enemy … with (battle) damage' triggers even if this Unit is destroyed simultaneously; the pending trigger resolves after both Units are in the trash (parts that need this Unit on the field do nothing).",
+      "rationale": "Official card ruling Q215 (January 16, 2026) is authoritative for GD03-022; the same reading is applied to identical wording on other cards."
+    },
+    "ruling:GD03-025:Q216": {
+      "policy": "ruling_overrides_text",
+      "decision": "When declaring an attack: 'must choose that Unit' (GD04-107) outranks 'choose … if possible' attractors; with several eligible forced/attracting Units the attacker picks one; a forced Unit that is not a legal target (active without an active-target permission, or gone) imposes nothing; constraints apply at declaration only and never retarget an attack in progress.",
+      "rationale": "Official card ruling Q216 (January 16, 2026) is authoritative for GD03-025; the same reading is applied to identical wording on other cards."
+    },
+    "ruling:GD03-029:Q217": {
+      "policy": "ruling_overrides_text",
+      "decision": "'When this Unit destroys an enemy … with (battle) damage' triggers even if this Unit is destroyed simultaneously; the pending trigger resolves after both Units are in the trash (parts that need this Unit on the field do nothing).",
+      "rationale": "Official card ruling Q217 (January 16, 2026) is authoritative for GD03-029; the same reading is applied to identical wording on other cards."
+    },
+    "ruling:GD03-035:Q220": {
+      "policy": "ruling_overrides_text",
+      "decision": "Exiled cards go to their owner's removal area (public, 4-7); an exiled token leaves the game instead (5-17-2-5).",
+      "rationale": "Official card ruling Q220 (January 16, 2026) is authoritative for GD03-035; the same reading is applied to identical wording on other cards."
+    },
+    "ruling:GD03-037:Q222": {
+      "policy": "ruling_overrides_text",
+      "decision": "An effect gated by 【During Pair】/【During Link】/'while …' is not possessed while the gate is closed (so it does not satisfy 'Unit with a 【Destroyed】 effect' or 'Unit card with <Keyword>'); each 【During Pair】 prefix governs only its own effect.",
+      "rationale": "Official card ruling Q222 (January 16, 2026) is authoritative for GD03-037; the same reading is applied to identical wording on other cards."
+    },
+    "ruling:GD03-039:Q223": {
+      "policy": "ruling_overrides_text",
+      "decision": "Triggered effects choose targets sentence by sentence: an available first target must be chosen (and the action performed) even if a later 'If you do' target does not exist. (Commands differ: 10-1-8-1-2.)",
+      "rationale": "Official card ruling Q223 (January 16, 2026) is authoritative for GD03-039; the same reading is applied to identical wording on other cards."
+    },
+    "ruling:GD03-049:Q224": {
+      "policy": "ruling_overrides_text",
+      "decision": "Every HP reference in card text (filters, 'lowest HP') uses current HP = modified HP minus damage.",
+      "rationale": "Official card ruling Q224 (January 16, 2026) is authoritative for GD03-049; the same reading is applied to identical wording on other cards."
+    },
+    "ruling:GD03-049:Q225": {
+      "policy": "ruling_overrides_text",
+      "decision": "'Choose 1 … with the highest/lowest X' lets the chooser pick any tied Unit; non-choosing wording ('Units with the lowest Lv.') affects all tied Units.",
+      "rationale": "Official card ruling Q225 (January 16, 2026) is authoritative for GD03-049; the same reading is applied to identical wording on other cards."
+    },
+    "ruling:GD03-050:Q226": {
+      "policy": "ruling_overrides_text",
+      "decision": "Exiled cards go to their owner's removal area (public, 4-7); an exiled token leaves the game instead (5-17-2-5).",
+      "rationale": "Official card ruling Q226 (January 16, 2026) is authoritative for GD03-050; the same reading is applied to identical wording on other cards."
+    },
+    "ruling:GD03-052:Q228": {
+      "policy": "ruling_overrides_text",
+      "decision": "Record the cause of every destruction (battle damage, effect damage, 'destroy' effect, rules). 'Destroyed by an effect' / 'can't be destroyed by effects' mean 'destroy' effects only; 'destroyed with damage' means battle or effect damage; 'with battle damage' means battle damage only.",
+      "rationale": "Official card ruling Q228 (January 16, 2026) is authoritative for GD03-052; the same reading is applied to identical wording on other cards."
+    },
+    "ruling:GD03-054:Q229": {
+      "policy": "ruling_overrides_text",
+      "decision": "Exiled cards go to their owner's removal area (public, 4-7); an exiled token leaves the game instead (5-17-2-5).",
+      "rationale": "Official card ruling Q229 (January 16, 2026) is authoritative for GD03-054; the same reading is applied to identical wording on other cards."
+    },
+    "ruling:GD03-056:Q230": {
+      "policy": "ruling_overrides_text",
+      "decision": "'Choose 1 X and 1 Y' activates (or the Command can be played) only if both targets can be chosen; it never resolves with just one.",
+      "rationale": "Official card ruling Q230 (January 16, 2026) is authoritative for GD03-056; the same reading is applied to identical wording on other cards."
+    },
+    "ruling:GD03-059:Q232": {
+      "policy": "ruling_overrides_text",
+      "decision": "Exiled cards go to their owner's removal area (public, 4-7); an exiled token leaves the game instead (5-17-2-5).",
+      "rationale": "Official card ruling Q232 (January 16, 2026) is authoritative for GD03-059; the same reading is applied to identical wording on other cards."
+    },
+    "ruling:GD03-072:Q233": {
+      "policy": "ruling_overrides_text",
+      "decision": "A leading 'If <condition>,' or 'If you do,' governs every following sentence joined by 'Then' in the same effect; 'Then' only makes the next part independent of whether the immediately preceding action succeeded.",
+      "rationale": "Official card ruling Q233 (January 16, 2026) is authoritative for GD03-072; the same reading is applied to identical wording on other cards."
+    },
+    "ruling:GD03-074:Q234": {
+      "policy": "ruling_overrides_text",
+      "decision": "When declaring an attack: 'must choose that Unit' (GD04-107) outranks 'choose … if possible' attractors; with several eligible forced/attracting Units the attacker picks one; a forced Unit that is not a legal target (active without an active-target permission, or gone) imposes nothing; constraints apply at declaration only and never retarget an attack in progress.",
+      "rationale": "Official card ruling Q234 (January 16, 2026) is authoritative for GD03-074; the same reading is applied to identical wording on other cards."
+    },
+    "ruling:GD03-076:Q235": {
+      "policy": "ruling_overrides_text",
+      "decision": "If the referenced Unit has left the field (e.g. destroyed by the same battle damage) the follow-up action on it does nothing.",
+      "rationale": "Official card ruling Q235 (January 16, 2026) is authoritative for GD03-076; the same reading is applied to identical wording on other cards."
+    },
+    "ruling:GD03-079:Q425": {
+      "policy": "ruling_overrides_text",
+      "decision": "'Rest X instead' may replace resting a Unit/Base only if that Unit/Base could have been rested, and replaces exactly one of them.",
+      "rationale": "Official card ruling Q425 (July 10, 2026) is authoritative for GD03-079; the same reading is applied to identical wording on other cards."
+    },
+    "ruling:GD03-081:Q236": {
+      "policy": "ruling_overrides_text",
+      "decision": "'All your (X) Units' and 'when one of your (X) Units is deployed' include the source card itself; constant effects (including trait grants) apply before trigger conditions of the entering card are checked.",
+      "rationale": "Official card ruling Q236 (January 16, 2026) is authoritative for GD03-081; the same reading is applied to identical wording on other cards."
+    },
+    "ruling:GD03-097:Q241": {
+      "policy": "ruling_overrides_text",
+      "decision": "'When this Unit destroys an enemy … with (battle) damage' triggers even if this Unit is destroyed simultaneously; the pending trigger resolves after both Units are in the trash (parts that need this Unit on the field do nothing).",
+      "rationale": "Official card ruling Q241 (January 16, 2026) is authoritative for GD03-097; the same reading is applied to identical wording on other cards."
+    },
+    "ruling:GD03-101:Q244": {
+      "policy": "ruling_overrides_text",
+      "decision": "While a Command resolves it is in no location; trash-count conditions on it count only cards already in the trash.",
+      "rationale": "Official card ruling Q244 (January 16, 2026) is authoritative for GD03-101; the same reading is applied to identical wording on other cards."
+    },
+    "ruling:GD03-103:Q245": {
+      "policy": "ruling_overrides_text",
+      "decision": "A Command whose effect starts with an unmet 'If <condition>,' cannot be played at all (like an unchoosable target, 10-1-8-1-1).",
+      "rationale": "Official card ruling Q245 (January 16, 2026) is authoritative for GD03-103; the same reading is applied to identical wording on other cards."
+    },
+    "ruling:GD03-109:Q247": {
+      "policy": "ruling_overrides_text",
+      "decision": "With the condition met, only the target filter is replaced (any enemy Unit); the 3 damage is still dealt.",
+      "rationale": "Official card ruling Q247 (January 16, 2026) is authoritative for GD03-109; the same reading is applied to identical wording on other cards."
+    },
+    "ruling:GD03-109:Q248": {
+      "policy": "ruling_overrides_text",
+      "decision": "While a Command resolves it is in no location; trash-count conditions on it count only cards already in the trash.",
+      "rationale": "Official card ruling Q248 (January 16, 2026) is authoritative for GD03-109; the same reading is applied to identical wording on other cards."
+    },
+    "ruling:GD03-110:Q249": {
+      "policy": "ruling_overrides_text",
+      "decision": "'Pilot paired with an enemy Unit that is Lv.5 or lower' filters on the Unit's Lv.; destroying the Pilot leaves the Unit in play, no longer a Link Unit, so a Unit deployed this turn can no longer declare an attack.",
+      "rationale": "Official card ruling Q249 (January 16, 2026) is authoritative for GD03-110; the same reading is applied to identical wording on other cards."
+    },
+    "ruling:GD03-110:Q426": {
+      "policy": "ruling_overrides_text",
+      "decision": "'Pilot paired with an enemy Unit that is Lv.5 or lower' filters on the Unit's Lv.; destroying the Pilot leaves the Unit in play, no longer a Link Unit, so a Unit deployed this turn can no longer declare an attack.",
+      "rationale": "Official card ruling Q426 (July 10, 2026) is authoritative for GD03-110; the same reading is applied to identical wording on other cards."
+    },
+    "ruling:GD03-114:Q251": {
+      "policy": "ruling_overrides_text",
+      "decision": "While a Command resolves it is in no location; trash-count conditions on it count only cards already in the trash.",
+      "rationale": "Official card ruling Q251 (January 16, 2026) is authoritative for GD03-114; the same reading is applied to identical wording on other cards."
+    },
+    "ruling:GD03-118:Q252": {
+      "policy": "ruling_overrides_text",
+      "decision": "While a Command resolves it is in no location; trash-count conditions on it count only cards already in the trash.",
+      "rationale": "Official card ruling Q252 (January 16, 2026) is authoritative for GD03-118; the same reading is applied to identical wording on other cards."
+    },
+    "ruling:GD03-121:Q253": {
+      "policy": "ruling_overrides_text",
+      "decision": "'Choose 1 X and 1 Y' activates (or the Command can be played) only if both targets can be chosen; it never resolves with just one.",
+      "rationale": "Official card ruling Q253 (January 16, 2026) is authoritative for GD03-121; the same reading is applied to identical wording on other cards."
+    },
+    "ruling:GD04-001:Q262": {
+      "policy": "ruling_overrides_text",
+      "decision": "Deploy-turn attack eligibility is checked only when the attack is declared; returning the Pilot later does not end the attack.",
+      "rationale": "Official card ruling Q262 (April 10, 2026) is authoritative for GD04-001; the same reading is applied to identical wording on other cards."
+    },
+    "ruling:GD04-013:Q264": {
+      "policy": "ruling_overrides_text",
+      "decision": "Once <Blocker> has changed the attack target, the new target stays the attack target for the rest of the battle even if the blocker loses <Blocker>.",
+      "rationale": "Official card ruling Q264 (April 10, 2026) is authoritative for GD04-013; the same reading is applied to identical wording on other cards."
+    },
+    "ruling:GD04-015:Q265": {
+      "policy": "ruling_overrides_text",
+      "decision": "'Choose 1 X and 1 Y' activates (or the Command can be played) only if both targets can be chosen; it never resolves with just one.",
+      "rationale": "Official card ruling Q265 (April 10, 2026) is authoritative for GD04-015; the same reading is applied to identical wording on other cards."
+    },
+    "ruling:GD04-021:Q267": {
+      "policy": "ruling_overrides_text",
+      "decision": "Resolve the Command's 【Main】, place it in the trash, then (as the last step of the same resolution) optionally pair it from the trash with an eligible Unit; pairing is free and triggers 【When Paired】/【When Linked】.",
+      "rationale": "Official card ruling Q267 (April 10, 2026) is authoritative for GD04-021; the same reading is applied to identical wording on other cards."
+    },
+    "ruling:GD04-033:Q269": {
+      "policy": "ruling_overrides_text",
+      "decision": "'All your (X) Units' and 'when one of your (X) Units is deployed' include the source card itself; constant effects (including trait grants) apply before trigger conditions of the entering card are checked.",
+      "rationale": "Official card ruling Q269 (April 10, 2026) is authoritative for GD04-033; the same reading is applied to identical wording on other cards."
+    },
+    "ruling:GD04-035:Q270": {
+      "policy": "ruling_overrides_text",
+      "decision": "'When this Unit destroys an enemy … with (battle) damage' triggers even if this Unit is destroyed simultaneously; the pending trigger resolves after both Units are in the trash (parts that need this Unit on the field do nothing).",
+      "rationale": "Official card ruling Q270 (April 10, 2026) is authoritative for GD04-035; the same reading is applied to identical wording on other cards."
+    },
+    "ruling:GD04-051:Q271": {
+      "policy": "ruling_overrides_text",
+      "decision": "'Unit with a keyword effect' means a Unit currently possessing one of the <> keywords of 13-1-1…13-1-7 (Repair, Breach, Support, Blocker, First Strike, High-Maneuver, Suppression); 【…・Development】 does not count.",
+      "rationale": "Official card ruling Q271 (April 10, 2026) is authoritative for GD04-051; the same reading is applied to identical wording on other cards."
+    },
+    "ruling:GD04-067:Q276": {
+      "policy": "ruling_overrides_text",
+      "decision": "An effect gated by 【During Pair】/【During Link】/'while …' is not possessed while the gate is closed (so it does not satisfy 'Unit with a 【Destroyed】 effect' or 'Unit card with <Keyword>'); each 【During Pair】 prefix governs only its own effect.",
+      "rationale": "Official card ruling Q276 (April 10, 2026) is authoritative for GD04-067; the same reading is applied to identical wording on other cards."
+    },
+    "ruling:GD04-067:Q277": {
+      "policy": "ruling_overrides_text",
+      "decision": "Use the errata'd text ('from any player's trash'), already present in the snapshot.",
+      "rationale": "Official card ruling Q277 (April 10, 2026) is authoritative for GD04-067; the same reading is applied to identical wording on other cards."
+    },
+    "ruling:GD04-070:Q279": {
+      "policy": "ruling_overrides_text",
+      "decision": "A card deployed, paired or activated by an effect pays no cost and needs no Lv. check unless the text says 'Pay its cost'; its own 【Deploy】/【When Paired】/【When Linked】 still trigger.",
+      "rationale": "Official card ruling Q279 (April 10, 2026) is authoritative for GD04-070; the same reading is applied to identical wording on other cards."
+    },
+    "ruling:GD04-087:Q280": {
+      "policy": "ruling_overrides_text",
+      "decision": "Battle damage redirected to another Unit by an 'instead' effect is still battle damage (for reductions, prevention and triggers).",
+      "rationale": "Official card ruling Q280 (April 10, 2026) is authoritative for GD04-087; the same reading is applied to identical wording on other cards."
+    },
+    "ruling:GD04-090:Q281": {
+      "policy": "ruling_overrides_text",
+      "decision": "'When this Unit destroys an enemy … with (battle) damage' triggers even if this Unit is destroyed simultaneously; the pending trigger resolves after both Units are in the trash (parts that need this Unit on the field do nothing).",
+      "rationale": "Official card ruling Q281 (April 10, 2026) is authoritative for GD04-090; the same reading is applied to identical wording on other cards."
+    },
+    "ruling:GD04-095:Q283": {
+      "policy": "ruling_overrides_text",
+      "decision": "Battle damage redirected to another Unit by an 'instead' effect is still battle damage (for reductions, prevention and triggers).",
+      "rationale": "Official card ruling Q283 (April 10, 2026) is authoritative for GD04-095; the same reading is applied to identical wording on other cards."
+    },
+    "ruling:GD04-100:Q286": {
+      "policy": "ruling_overrides_text",
+      "decision": "Any payment of ① or more made while resolving a Unit's effect (activation cost or 'Pay its cost to deploy it') satisfies 'when you pay ① or more for one of your Units' effects'.",
+      "rationale": "Official card ruling Q286 (April 10, 2026) is authoritative for GD04-100; the same reading is applied to identical wording on other cards."
+    },
+    "ruling:GD04-101:Q287": {
+      "policy": "ruling_overrides_text",
+      "decision": "Record the cause of every destruction (battle damage, effect damage, 'destroy' effect, rules). 'Destroyed by an effect' / 'can't be destroyed by effects' mean 'destroy' effects only; 'destroyed with damage' means battle or effect damage; 'with battle damage' means battle damage only.",
+      "rationale": "Official card ruling Q287 (April 10, 2026) is authoritative for GD04-101; the same reading is applied to identical wording on other cards."
+    },
+    "ruling:GD04-107:Q289": {
+      "policy": "ruling_overrides_text",
+      "decision": "When declaring an attack: 'must choose that Unit' (GD04-107) outranks 'choose … if possible' attractors; with several eligible forced/attracting Units the attacker picks one; a forced Unit that is not a legal target (active without an active-target permission, or gone) imposes nothing; constraints apply at declaration only and never retarget an attack in progress.",
+      "rationale": "Official card ruling Q289 (April 10, 2026) is authoritative for GD04-107; the same reading is applied to identical wording on other cards."
+    },
+    "ruling:GD04-107:Q290": {
+      "policy": "ruling_overrides_text",
+      "decision": "When declaring an attack: 'must choose that Unit' (GD04-107) outranks 'choose … if possible' attractors; with several eligible forced/attracting Units the attacker picks one; a forced Unit that is not a legal target (active without an active-target permission, or gone) imposes nothing; constraints apply at declaration only and never retarget an attack in progress.",
+      "rationale": "Official card ruling Q290 (April 10, 2026) is authoritative for GD04-107; the same reading is applied to identical wording on other cards."
+    },
+    "ruling:GD04-107:Q298": {
+      "policy": "ruling_overrides_text",
+      "decision": "When declaring an attack: 'must choose that Unit' (GD04-107) outranks 'choose … if possible' attractors; with several eligible forced/attracting Units the attacker picks one; a forced Unit that is not a legal target (active without an active-target permission, or gone) imposes nothing; constraints apply at declaration only and never retarget an attack in progress.",
+      "rationale": "Official card ruling Q298 (June 12, 2026) is authoritative for GD04-107; the same reading is applied to identical wording on other cards."
+    },
+    "ruling:GD04-107:Q299": {
+      "policy": "ruling_overrides_text",
+      "decision": "When declaring an attack: 'must choose that Unit' (GD04-107) outranks 'choose … if possible' attractors; with several eligible forced/attracting Units the attacker picks one; a forced Unit that is not a legal target (active without an active-target permission, or gone) imposes nothing; constraints apply at declaration only and never retarget an attack in progress.",
+      "rationale": "Official card ruling Q299 (June 12, 2026) is authoritative for GD04-107; the same reading is applied to identical wording on other cards."
+    },
+    "ruling:GD04-107:Q300": {
+      "policy": "ruling_overrides_text",
+      "decision": "When declaring an attack: 'must choose that Unit' (GD04-107) outranks 'choose … if possible' attractors; with several eligible forced/attracting Units the attacker picks one; a forced Unit that is not a legal target (active without an active-target permission, or gone) imposes nothing; constraints apply at declaration only and never retarget an attack in progress.",
+      "rationale": "Official card ruling Q300 (June 12, 2026) is authoritative for GD04-107; the same reading is applied to identical wording on other cards."
+    },
+    "ruling:GD04-107:Q301": {
+      "policy": "ruling_overrides_text",
+      "decision": "When declaring an attack: 'must choose that Unit' (GD04-107) outranks 'choose … if possible' attractors; with several eligible forced/attracting Units the attacker picks one; a forced Unit that is not a legal target (active without an active-target permission, or gone) imposes nothing; constraints apply at declaration only and never retarget an attack in progress.",
+      "rationale": "Official card ruling Q301 (June 12, 2026) is authoritative for GD04-107; the same reading is applied to identical wording on other cards."
+    },
+    "ruling:GD04-114:Q293": {
+      "policy": "ruling_overrides_text",
+      "decision": "'Choose 1 X and 1 Y' activates (or the Command can be played) only if both targets can be chosen; it never resolves with just one.",
+      "rationale": "Official card ruling Q293 (April 10, 2026) is authoritative for GD04-114; the same reading is applied to identical wording on other cards."
+    },
+    "ruling:GD04-123:Q295": {
+      "policy": "ruling_overrides_text",
+      "decision": "<Breach> damage, and any damage dealt by a Unit's own effects (including effects it has from its Pilot), is effect damage attributed to that Unit: 'battle damage' prevention and triggers ignore it; 'damage from enemy Units' prevention and effect-damage reduction apply to it; 'when this Unit destroys … with damage' counts it.",
+      "rationale": "Official card ruling Q295 (April 10, 2026) is authoritative for GD04-123; the same reading is applied to identical wording on other cards."
+    },
+    "ruling:GD04-126:Q296": {
+      "policy": "ruling_overrides_text",
+      "decision": "<Breach> damage, and any damage dealt by a Unit's own effects (including effects it has from its Pilot), is effect damage attributed to that Unit: 'battle damage' prevention and triggers ignore it; 'damage from enemy Units' prevention and effect-damage reduction apply to it; 'when this Unit destroys … with damage' counts it.",
+      "rationale": "Official card ruling Q296 (April 10, 2026) is authoritative for GD04-126; the same reading is applied to identical wording on other cards."
+    },
+    "ruling:GD04-129:Q297": {
+      "policy": "ruling_overrides_text",
+      "decision": "Any payment of ① or more made while resolving a Unit's effect (activation cost or 'Pay its cost to deploy it') satisfies 'when you pay ① or more for one of your Units' effects'.",
+      "rationale": "Official card ruling Q297 (April 10, 2026) is authoritative for GD04-129; the same reading is applied to identical wording on other cards."
+    },
+    "ruling:GD05-002:Q337": {
+      "policy": "ruling_overrides_text",
+      "decision": "'When this Unit destroys an enemy … with (battle) damage' triggers even if this Unit is destroyed simultaneously; the pending trigger resolves after both Units are in the trash (parts that need this Unit on the field do nothing).",
+      "rationale": "Official card ruling Q337 (July 10, 2026) is authoritative for GD05-002; the same reading is applied to identical wording on other cards."
+    },
+    "ruling:GD05-002:Q338": {
+      "policy": "ruling_overrides_text",
+      "decision": "'Choose 1 … with the highest/lowest X' lets the chooser pick any tied Unit; non-choosing wording ('Units with the lowest Lv.') affects all tied Units.",
+      "rationale": "Official card ruling Q338 (July 10, 2026) is authoritative for GD05-002; the same reading is applied to identical wording on other cards."
+    },
+    "ruling:GD05-003:Q340": {
+      "policy": "ruling_overrides_text",
+      "decision": "When a 【Destroyed】 effect checks 'you have an X in play', include the destroyed card and its paired Pilot as they were just before leaving the field; the paired Pilot is already in the trash when the effect resolves.",
+      "rationale": "Official card ruling Q340 (July 10, 2026) is authoritative for GD05-003; the same reading is applied to identical wording on other cards."
+    },
+    "ruling:GD05-006:Q343": {
+      "policy": "ruling_overrides_text",
+      "decision": "'When this Unit destroys an enemy … with (battle) damage' triggers even if this Unit is destroyed simultaneously; the pending trigger resolves after both Units are in the trash (parts that need this Unit on the field do nothing).",
+      "rationale": "Official card ruling Q343 (July 10, 2026) is authoritative for GD05-006; the same reading is applied to identical wording on other cards."
+    },
+    "ruling:GD05-016:Q344": {
+      "policy": "ruling_overrides_text",
+      "decision": "'All your (X) Units' and 'when one of your (X) Units is deployed' include the source card itself; constant effects (including trait grants) apply before trigger conditions of the entering card are checked.",
+      "rationale": "Official card ruling Q344 (July 10, 2026) is authoritative for GD05-016; the same reading is applied to identical wording on other cards."
+    },
+    "ruling:GD05-017:Q346": {
+      "policy": "ruling_overrides_text",
+      "decision": "A battle begun by an effect runs only the damage step and battle end step; 'battling'-conditioned effects and <First Strike> apply, destruction counts as destruction with battle damage (<Breach> etc.), only 【Attack】/'when … attacks' are skipped.",
+      "rationale": "Official card ruling Q346 (July 10, 2026) is authoritative for GD05-017; the same reading is applied to identical wording on other cards."
+    },
+    "ruling:GD05-017:Q347": {
+      "policy": "ruling_overrides_text",
+      "decision": "A battle begun by an effect runs only the damage step and battle end step; 'battling'-conditioned effects and <First Strike> apply, destruction counts as destruction with battle damage (<Breach> etc.), only 【Attack】/'when … attacks' are skipped.",
+      "rationale": "Official card ruling Q347 (July 10, 2026) is authoritative for GD05-017; the same reading is applied to identical wording on other cards."
+    },
+    "ruling:GD05-018:Q349": {
+      "policy": "ruling_overrides_text",
+      "decision": "A trigger caused by paying a cost waits: for a Unit/Pilot/Base it resolves together with that card's 【Deploy】/【When Paired】 triggers; for a Command or an activated effect it resolves after that effect finishes.",
+      "rationale": "Official card ruling Q349 (July 10, 2026) is authoritative for GD05-018; the same reading is applied to identical wording on other cards."
+    },
+    "ruling:GD05-024:Q353": {
+      "policy": "ruling_overrides_text",
+      "decision": "When a 【Destroyed】 effect checks 'you have an X in play', include the destroyed card and its paired Pilot as they were just before leaving the field; the paired Pilot is already in the trash when the effect resolves.",
+      "rationale": "Official card ruling Q353 (July 10, 2026) is authoritative for GD05-024; the same reading is applied to identical wording on other cards."
+    },
+    "ruling:GD05-026:Q354": {
+      "policy": "ruling_overrides_text",
+      "decision": "A Unit deployed rested never triggers 'when this Unit is rested by an effect'.",
+      "rationale": "Official card ruling Q354 (July 10, 2026) is authoritative for GD05-026; the same reading is applied to identical wording on other cards."
+    },
+    "ruling:GD05-030:Q355": {
+      "policy": "ruling_overrides_text",
+      "decision": "On its deploy turn (not linked) the Unit may attack only a rested enemy Unit; permissions to target active Units do not extend this exception.",
+      "rationale": "Official card ruling Q355 (July 10, 2026) is authoritative for GD05-030; the same reading is applied to identical wording on other cards."
+    },
+    "ruling:GD05-034:Q358": {
+      "policy": "ruling_overrides_text",
+      "decision": "A card deployed, paired or activated by an effect pays no cost and needs no Lv. check unless the text says 'Pay its cost'; its own 【Deploy】/【When Paired】/【When Linked】 still trigger.",
+      "rationale": "Official card ruling Q358 (July 10, 2026) is authoritative for GD05-034; the same reading is applied to identical wording on other cards."
+    },
+    "ruling:GD05-035:Q361": {
+      "policy": "ruling_overrides_text",
+      "decision": "<Breach> damage, and any damage dealt by a Unit's own effects (including effects it has from its Pilot), is effect damage attributed to that Unit: 'battle damage' prevention and triggers ignore it; 'damage from enemy Units' prevention and effect-damage reduction apply to it; 'when this Unit destroys … with damage' counts it.",
+      "rationale": "Official card ruling Q361 (July 10, 2026) is authoritative for GD05-035; the same reading is applied to identical wording on other cards."
+    },
+    "ruling:GD05-035:Q362": {
+      "policy": "ruling_overrides_text",
+      "decision": "Activating 【Main】 on a paired Command (or one discarded by GD05-097) costs nothing, counts as activating that Command's 【Main】 for other triggers, and the paired card stays paired.",
+      "rationale": "Official card ruling Q362 (July 10, 2026) is authoritative for GD05-035; the same reading is applied to identical wording on other cards."
+    },
+    "ruling:GD05-035:Q363": {
+      "policy": "ruling_overrides_text",
+      "decision": "Activating 【Main】 on a paired Command (or one discarded by GD05-097) costs nothing, counts as activating that Command's 【Main】 for other triggers, and the paired card stays paired.",
+      "rationale": "Official card ruling Q363 (July 10, 2026) is authoritative for GD05-035; the same reading is applied to identical wording on other cards."
+    },
+    "ruling:GD05-044:Q364": {
+      "policy": "ruling_overrides_text",
+      "decision": "Activating 【Main】 on a paired Command (or one discarded by GD05-097) costs nothing, counts as activating that Command's 【Main】 for other triggers, and the paired card stays paired.",
+      "rationale": "Official card ruling Q364 (July 10, 2026) is authoritative for GD05-044; the same reading is applied to identical wording on other cards."
+    },
+    "ruling:GD05-044:Q365": {
+      "policy": "ruling_overrides_text",
+      "decision": "Activating 【Main】 on a paired Command (or one discarded by GD05-097) costs nothing, counts as activating that Command's 【Main】 for other triggers, and the paired card stays paired.",
+      "rationale": "Official card ruling Q365 (July 10, 2026) is authoritative for GD05-044; the same reading is applied to identical wording on other cards."
+    },
+    "ruling:GD05-048:Q366": {
+      "policy": "ruling_overrides_text",
+      "decision": "On its deploy turn (not linked) the Unit may attack only a rested enemy Unit; permissions to target active Units do not extend this exception.",
+      "rationale": "Official card ruling Q366 (July 10, 2026) is authoritative for GD05-048; the same reading is applied to identical wording on other cards."
+    },
+    "ruling:GD05-054:Q368": {
+      "policy": "ruling_overrides_text",
+      "decision": "Record the cause of every destruction (battle damage, effect damage, 'destroy' effect, rules). 'Destroyed by an effect' / 'can't be destroyed by effects' mean 'destroy' effects only; 'destroyed with damage' means battle or effect damage; 'with battle damage' means battle damage only.",
+      "rationale": "Official card ruling Q368 (July 10, 2026) is authoritative for GD05-054; the same reading is applied to identical wording on other cards."
+    },
+    "ruling:GD05-057:Q371": {
+      "policy": "ruling_overrides_text",
+      "decision": "A leading 'If <condition>,' or 'If you do,' governs every following sentence joined by 'Then' in the same effect; 'Then' only makes the next part independent of whether the immediately preceding action succeeded.",
+      "rationale": "Official card ruling Q371 (July 10, 2026) is authoritative for GD05-057; the same reading is applied to identical wording on other cards."
+    },
+    "ruling:GD05-060:Q372": {
+      "policy": "ruling_overrides_text",
+      "decision": "'【A】/【B】' gives the effect both timings; each triggers independently (no shared once-per-turn).",
+      "rationale": "Official card ruling Q372 (July 10, 2026) is authoritative for GD05-060; the same reading is applied to identical wording on other cards."
+    },
+    "ruling:GD05-060:Q373": {
+      "policy": "ruling_overrides_text",
+      "decision": "'【A】/【B】' gives the effect both timings; each triggers independently (no shared once-per-turn).",
+      "rationale": "Official card ruling Q373 (July 10, 2026) is authoritative for GD05-060; the same reading is applied to identical wording on other cards."
+    },
+    "ruling:GD05-061:Q374": {
+      "policy": "ruling_overrides_text",
+      "decision": "Once <Blocker> has changed the attack target, the new target stays the attack target for the rest of the battle even if the blocker loses <Blocker>.",
+      "rationale": "Official card ruling Q374 (July 10, 2026) is authoritative for GD05-061; the same reading is applied to identical wording on other cards."
+    },
+    "ruling:GD05-068:Q376": {
+      "policy": "ruling_overrides_text",
+      "decision": "Activating 【Main】 on a paired Command (or one discarded by GD05-097) costs nothing, counts as activating that Command's 【Main】 for other triggers, and the paired card stays paired.",
+      "rationale": "Official card ruling Q376 (July 10, 2026) is authoritative for GD05-068; the same reading is applied to identical wording on other cards."
+    },
+    "ruling:GD05-069:Q377": {
+      "policy": "ruling_overrides_text",
+      "decision": "'When this Unit destroys an enemy … with (battle) damage' triggers even if this Unit is destroyed simultaneously; the pending trigger resolves after both Units are in the trash (parts that need this Unit on the field do nothing).",
+      "rationale": "Official card ruling Q377 (July 10, 2026) is authoritative for GD05-069; the same reading is applied to identical wording on other cards."
+    },
+    "ruling:GD05-069:Q378": {
+      "policy": "ruling_overrides_text",
+      "decision": "Activating 【Main】 on a paired Command (or one discarded by GD05-097) costs nothing, counts as activating that Command's 【Main】 for other triggers, and the paired card stays paired.",
+      "rationale": "Official card ruling Q378 (July 10, 2026) is authoritative for GD05-069; the same reading is applied to identical wording on other cards."
+    },
+    "ruling:GD05-069:Q379": {
+      "policy": "ruling_overrides_text",
+      "decision": "Activating 【Main】 on a paired Command (or one discarded by GD05-097) costs nothing, counts as activating that Command's 【Main】 for other triggers, and the paired card stays paired.",
+      "rationale": "Official card ruling Q379 (July 10, 2026) is authoritative for GD05-069; the same reading is applied to identical wording on other cards."
+    },
+    "ruling:GD05-076:Q383": {
+      "policy": "ruling_overrides_text",
+      "decision": "Activating 【Main】 on a paired Command (or one discarded by GD05-097) costs nothing, counts as activating that Command's 【Main】 for other triggers, and the paired card stays paired.",
+      "rationale": "Official card ruling Q383 (July 10, 2026) is authoritative for GD05-076; the same reading is applied to identical wording on other cards."
+    },
+    "ruling:GD05-076:Q384": {
+      "policy": "ruling_overrides_text",
+      "decision": "Activating 【Main】 on a paired Command (or one discarded by GD05-097) costs nothing, counts as activating that Command's 【Main】 for other triggers, and the paired card stays paired.",
+      "rationale": "Official card ruling Q384 (July 10, 2026) is authoritative for GD05-076; the same reading is applied to identical wording on other cards."
+    },
+    "ruling:GD05-078:Q385": {
+      "policy": "ruling_overrides_text",
+      "decision": "On its deploy turn (not linked) the Unit may attack only a rested enemy Unit; permissions to target active Units do not extend this exception.",
+      "rationale": "Official card ruling Q385 (July 10, 2026) is authoritative for GD05-078; the same reading is applied to identical wording on other cards."
+    },
+    "ruling:GD05-086:Q388": {
+      "policy": "ruling_overrides_text",
+      "decision": "When declaring an attack: 'must choose that Unit' (GD04-107) outranks 'choose … if possible' attractors; with several eligible forced/attracting Units the attacker picks one; a forced Unit that is not a legal target (active without an active-target permission, or gone) imposes nothing; constraints apply at declaration only and never retarget an attack in progress.",
+      "rationale": "Official card ruling Q388 (July 10, 2026) is authoritative for GD05-086; the same reading is applied to identical wording on other cards."
+    },
+    "ruling:GD05-089:Q389": {
+      "policy": "ruling_overrides_text",
+      "decision": "Deployed this way the card is a Unit with AP3/HP3 and Lv.6 (Q389) that can be paired with a Pilot (Q390); its other printed characteristics (name, colour, traits) are unchanged and it has no link condition.",
+      "rationale": "Official card ruling Q389 (July 10, 2026) is authoritative for GD05-089; the same reading is applied to identical wording on other cards."
+    },
+    "ruling:GD05-089:Q390": {
+      "policy": "ruling_overrides_text",
+      "decision": "Deployed this way the card is a Unit with AP3/HP3 and Lv.6 (Q389) that can be paired with a Pilot (Q390); its other printed characteristics (name, colour, traits) are unchanged and it has no link condition.",
+      "rationale": "Official card ruling Q390 (July 10, 2026) is authoritative for GD05-089; the same reading is applied to identical wording on other cards."
+    },
+    "ruling:GD05-089:Q391": {
+      "policy": "ruling_overrides_text",
+      "decision": "Activating 【Main】 on a paired Command (or one discarded by GD05-097) costs nothing, counts as activating that Command's 【Main】 for other triggers, and the paired card stays paired.",
+      "rationale": "Official card ruling Q391 (July 10, 2026) is authoritative for GD05-089; the same reading is applied to identical wording on other cards."
+    },
+    "ruling:GD05-092:Q392": {
+      "policy": "ruling_overrides_text",
+      "decision": "Conditions and target restrictions of triggered/activated/command effects are evaluated once, when resolved; later changes neither undo the result nor retrigger it.",
+      "rationale": "Official card ruling Q392 (July 10, 2026) is authoritative for GD05-092; the same reading is applied to identical wording on other cards."
+    },
+    "ruling:GD05-093:Q393": {
+      "policy": "ruling_overrides_text",
+      "decision": "A card deployed, paired or activated by an effect pays no cost and needs no Lv. check unless the text says 'Pay its cost'; its own 【Deploy】/【When Paired】/【When Linked】 still trigger.",
+      "rationale": "Official card ruling Q393 (July 10, 2026) is authoritative for GD05-093; the same reading is applied to identical wording on other cards."
+    },
+    "ruling:GD05-097:Q396": {
+      "policy": "ruling_overrides_text",
+      "decision": "Activating 【Main】 on a paired Command (or one discarded by GD05-097) costs nothing, counts as activating that Command's 【Main】 for other triggers, and the paired card stays paired.",
+      "rationale": "Official card ruling Q396 (July 10, 2026) is authoritative for GD05-097; the same reading is applied to identical wording on other cards."
+    },
+    "ruling:GD05-097:Q397": {
+      "policy": "ruling_overrides_text",
+      "decision": "Activating 【Main】 on a paired Command (or one discarded by GD05-097) costs nothing, counts as activating that Command's 【Main】 for other triggers, and the paired card stays paired.",
+      "rationale": "Official card ruling Q397 (July 10, 2026) is authoritative for GD05-097; the same reading is applied to identical wording on other cards."
+    },
+    "ruling:GD05-099:Q399": {
+      "policy": "ruling_overrides_text",
+      "decision": "'When this Unit destroys an enemy … with (battle) damage' triggers even if this Unit is destroyed simultaneously; the pending trigger resolves after both Units are in the trash (parts that need this Unit on the field do nothing).",
+      "rationale": "Official card ruling Q399 (July 10, 2026) is authoritative for GD05-099; the same reading is applied to identical wording on other cards."
+    },
+    "ruling:GD05-101:Q400": {
+      "policy": "ruling_overrides_text",
+      "decision": "Any payment of ① or more made while resolving a Unit's effect (activation cost or 'Pay its cost to deploy it') satisfies 'when you pay ① or more for one of your Units' effects'.",
+      "rationale": "Official card ruling Q400 (July 10, 2026) is authoritative for GD05-101; the same reading is applied to identical wording on other cards."
+    },
+    "ruling:GD05-102:Q401": {
+      "policy": "ruling_overrides_text",
+      "decision": "A modal Command is chosen and played only with a mode whose targets can all be chosen; if no mode is legal the card cannot be played.",
+      "rationale": "Official card ruling Q401 (July 10, 2026) is authoritative for GD05-102; the same reading is applied to identical wording on other cards."
+    },
+    "ruling:GD05-102:Q402": {
+      "policy": "ruling_overrides_text",
+      "decision": "A modal Command is chosen and played only with a mode whose targets can all be chosen; if no mode is legal the card cannot be played.",
+      "rationale": "Official card ruling Q402 (July 10, 2026) is authoritative for GD05-102; the same reading is applied to identical wording on other cards."
+    },
+    "ruling:GD05-103:Q403": {
+      "policy": "ruling_overrides_text",
+      "decision": "Targets may be chosen even when the action on them would be a no-op (already active, undamaged, already has the keyword); the no-op part is simply not performed.",
+      "rationale": "Official card ruling Q403 (July 10, 2026) is authoritative for GD05-103; the same reading is applied to identical wording on other cards."
+    },
+    "ruling:GD05-106:Q404": {
+      "policy": "ruling_overrides_text",
+      "decision": "A modal Command is chosen and played only with a mode whose targets can all be chosen; if no mode is legal the card cannot be played.",
+      "rationale": "Official card ruling Q404 (July 10, 2026) is authoritative for GD05-106; the same reading is applied to identical wording on other cards."
+    },
+    "ruling:GD05-107:Q405": {
+      "policy": "ruling_overrides_text",
+      "decision": "'The first 2 cards' are the Base (if any) then the top Shield(s); both are destroyed simultaneously, destroyed Shields are revealed together and their owner orders the 【Burst】 effects.",
+      "rationale": "Official card ruling Q405 (July 10, 2026) is authoritative for GD05-107; the same reading is applied to identical wording on other cards."
+    },
+    "ruling:GD05-107:Q406": {
+      "policy": "ruling_overrides_text",
+      "decision": "'The first 2 cards' are the Base (if any) then the top Shield(s); both are destroyed simultaneously, destroyed Shields are revealed together and their owner orders the 【Burst】 effects.",
+      "rationale": "Official card ruling Q406 (July 10, 2026) is authoritative for GD05-107; the same reading is applied to identical wording on other cards."
+    },
+    "ruling:GD05-107:Q407": {
+      "policy": "ruling_overrides_text",
+      "decision": "'The first 2 cards' are the Base (if any) then the top Shield(s); both are destroyed simultaneously, destroyed Shields are revealed together and their owner orders the 【Burst】 effects.",
+      "rationale": "Official card ruling Q407 (July 10, 2026) is authoritative for GD05-107; the same reading is applied to identical wording on other cards."
+    },
+    "ruling:GD05-112:Q409": {
+      "policy": "ruling_overrides_text",
+      "decision": "Resolve the Command's 【Main】, place it in the trash, then (as the last step of the same resolution) optionally pair it from the trash with an eligible Unit; pairing is free and triggers 【When Paired】/【When Linked】.",
+      "rationale": "Official card ruling Q409 (July 10, 2026) is authoritative for GD05-112; the same reading is applied to identical wording on other cards."
+    },
+    "ruling:GD05-113:Q410": {
+      "policy": "ruling_overrides_text",
+      "decision": "Resolve the Command's 【Main】, place it in the trash, then (as the last step of the same resolution) optionally pair it from the trash with an eligible Unit; pairing is free and triggers 【When Paired】/【When Linked】.",
+      "rationale": "Official card ruling Q410 (July 10, 2026) is authoritative for GD05-113; the same reading is applied to identical wording on other cards."
+    },
+    "ruling:GD05-117:Q412": {
+      "policy": "ruling_overrides_text",
+      "decision": "'Choose 1 X and 1 Y' activates (or the Command can be played) only if both targets can be chosen; it never resolves with just one.",
+      "rationale": "Official card ruling Q412 (July 10, 2026) is authoritative for GD05-117; the same reading is applied to identical wording on other cards."
+    },
+    "ruling:GD05-121:Q414": {
+      "policy": "ruling_overrides_text",
+      "decision": "Resolve the Command's 【Main】, place it in the trash, then (as the last step of the same resolution) optionally pair it from the trash with an eligible Unit; pairing is free and triggers 【When Paired】/【When Linked】.",
+      "rationale": "Official card ruling Q414 (July 10, 2026) is authoritative for GD05-121; the same reading is applied to identical wording on other cards."
+    },
+    "ruling:GD05-122:Q415": {
+      "policy": "ruling_overrides_text",
+      "decision": "Resolve the Command's 【Main】, place it in the trash, then (as the last step of the same resolution) optionally pair it from the trash with an eligible Unit; pairing is free and triggers 【When Paired】/【When Linked】.",
+      "rationale": "Official card ruling Q415 (July 10, 2026) is authoritative for GD05-122; the same reading is applied to identical wording on other cards."
+    },
+    "ruling:GD05-123:Q416": {
+      "policy": "ruling_overrides_text",
+      "decision": "Apply all damage reductions first, then 'can't receive N or less damage' to the reduced amount.",
+      "rationale": "Official card ruling Q416 (July 10, 2026) is authoritative for GD05-123; the same reading is applied to identical wording on other cards."
+    },
+    "ruling:GD05-124:Q417": {
+      "policy": "ruling_overrides_text",
+      "decision": "'Rest X instead' may replace resting a Unit/Base only if that Unit/Base could have been rested, and replaces exactly one of them.",
+      "rationale": "Official card ruling Q417 (July 10, 2026) is authoritative for GD05-124; the same reading is applied to identical wording on other cards."
+    },
+    "ruling:GD05-124:Q418": {
+      "policy": "ruling_overrides_text",
+      "decision": "'Rest X instead' may replace resting a Unit/Base only if that Unit/Base could have been rested, and replaces exactly one of them.",
+      "rationale": "Official card ruling Q418 (July 10, 2026) is authoritative for GD05-124; the same reading is applied to identical wording on other cards."
+    },
+    "ruling:GD05-129:Q421": {
+      "policy": "ruling_overrides_text",
+      "decision": "A card deployed, paired or activated by an effect pays no cost and needs no Lv. check unless the text says 'Pay its cost'; its own 【Deploy】/【When Paired】/【When Linked】 still trigger.",
+      "rationale": "Official card ruling Q421 (July 10, 2026) is authoritative for GD05-129; the same reading is applied to identical wording on other cards."
+    },
+    "ruling:GD05-130:Q423": {
+      "policy": "ruling_overrides_text",
+      "decision": "A card deployed, paired or activated by an effect pays no cost and needs no Lv. check unless the text says 'Pay its cost'; its own 【Deploy】/【When Paired】/【When Linked】 still trigger.",
+      "rationale": "Official card ruling Q423 (July 10, 2026) is authoritative for GD05-130; the same reading is applied to identical wording on other cards."
+    },
+    "ruling:ST01-001:Q113": {
+      "policy": "ruling_overrides_text",
+      "decision": "'All your (X) Units' and 'when one of your (X) Units is deployed' include the source card itself; constant effects (including trait grants) apply before trigger conditions of the entering card are checked.",
+      "rationale": "Official card ruling Q113 (July 04, 2025) is authoritative for ST01-001; the same reading is applied to identical wording on other cards."
+    },
+    "ruling:ST01-011:Q142": {
+      "policy": "ruling_overrides_text",
+      "decision": "Targets may be chosen even when the action on them would be a no-op (already active, undamaged, already has the keyword); the no-op part is simply not performed.",
+      "rationale": "Official card ruling Q142 (July 04, 2025) is authoritative for ST01-011; the same reading is applied to identical wording on other cards."
+    },
+    "ruling:ST01-011:Q143": {
+      "policy": "ruling_overrides_text",
+      "decision": "EX Resources are Resources for 'your Resources' choices.",
+      "rationale": "Official card ruling Q143 (July 04, 2025) is authoritative for ST01-011; the same reading is applied to identical wording on other cards."
+    },
+    "ruling:ST01-013:Q159": {
+      "policy": "ruling_overrides_text",
+      "decision": "Targets may be chosen even when the action on them would be a no-op (already active, undamaged, already has the keyword); the no-op part is simply not performed.",
+      "rationale": "Official card ruling Q159 (July 25, 2025) is authoritative for ST01-013; the same reading is applied to identical wording on other cards."
+    },
+    "ruling:ST02-003:Q115": {
+      "policy": "ruling_overrides_text",
+      "decision": "'When this Unit destroys an enemy … with (battle) damage' triggers even if this Unit is destroyed simultaneously; the pending trigger resolves after both Units are in the trash (parts that need this Unit on the field do nothing).",
+      "rationale": "Official card ruling Q115 (July 04, 2025) is authoritative for ST02-003; the same reading is applied to identical wording on other cards."
+    },
+    "ruling:ST02-011:Q144": {
+      "policy": "ruling_overrides_text",
+      "decision": "'When this Unit destroys an enemy … with (battle) damage' triggers even if this Unit is destroyed simultaneously; the pending trigger resolves after both Units are in the trash (parts that need this Unit on the field do nothing).",
+      "rationale": "Official card ruling Q144 (July 04, 2025) is authoritative for ST02-011; the same reading is applied to identical wording on other cards."
+    },
+    "ruling:ST02-013:Q151": {
+      "policy": "ruling_overrides_text",
+      "decision": "<Breach> damage, and any damage dealt by a Unit's own effects (including effects it has from its Pilot), is effect damage attributed to that Unit: 'battle damage' prevention and triggers ignore it; 'damage from enemy Units' prevention and effect-damage reduction apply to it; 'when this Unit destroys … with damage' counts it.",
+      "rationale": "Official card ruling Q151 (July 04, 2025) is authoritative for ST02-013; the same reading is applied to identical wording on other cards."
+    },
+    "ruling:ST03-001:Q164": {
+      "policy": "ruling_overrides_text",
+      "decision": "An effect gated by 【During Pair】/【During Link】/'while …' is not possessed while the gate is closed (so it does not satisfy 'Unit with a 【Destroyed】 effect' or 'Unit card with <Keyword>'); each 【During Pair】 prefix governs only its own effect.",
+      "rationale": "Official card ruling Q164 (August 22, 2025) is authoritative for ST03-001; the same reading is applied to identical wording on other cards."
+    },
+    "ruling:ST03-010:Q145": {
+      "policy": "ruling_overrides_text",
+      "decision": "A card deployed, paired or activated by an effect pays no cost and needs no Lv. check unless the text says 'Pay its cost'; its own 【Deploy】/【When Paired】/【When Linked】 still trigger.",
+      "rationale": "Official card ruling Q145 (July 04, 2025) is authoritative for ST03-010; the same reading is applied to identical wording on other cards."
+    },
+    "ruling:ST04-006:Q118": {
+      "policy": "ruling_overrides_text",
+      "decision": "Conditions and target restrictions of triggered/activated/command effects are evaluated once, when resolved; later changes neither undo the result nor retrigger it.",
+      "rationale": "Official card ruling Q118 (July 04, 2025) is authoritative for ST04-006; the same reading is applied to identical wording on other cards."
+    },
+    "ruling:ST05-010:Q168": {
+      "policy": "ruling_overrides_text",
+      "decision": "'Choose 1 X and 1 Y' activates (or the Command can be played) only if both targets can be chosen; it never resolves with just one.",
+      "rationale": "Official card ruling Q168 (September 26, 2025) is authoritative for ST05-010; the same reading is applied to identical wording on other cards."
+    },
+    "ruling:ST05-011:Q169": {
+      "policy": "ruling_overrides_text",
+      "decision": "'When this Unit destroys an enemy … with (battle) damage' triggers even if this Unit is destroyed simultaneously; the pending trigger resolves after both Units are in the trash (parts that need this Unit on the field do nothing).",
+      "rationale": "Official card ruling Q169 (September 26, 2025) is authoritative for ST05-011; the same reading is applied to identical wording on other cards."
+    },
+    "ruling:ST05-015:Q170": {
+      "policy": "ruling_overrides_text",
+      "decision": "Conditions and target restrictions of triggered/activated/command effects are evaluated once, when resolved; later changes neither undo the result nor retrigger it.",
+      "rationale": "Official card ruling Q170 (September 26, 2025) is authoritative for ST05-015; the same reading is applied to identical wording on other cards."
+    },
+    "ruling:ST07-001:Q198": {
+      "policy": "ruling_overrides_text",
+      "decision": "Targets may be chosen even when the action on them would be a no-op (already active, undamaged, already has the keyword); the no-op part is simply not performed.",
+      "rationale": "Official card ruling Q198 (January 09, 2026) is authoritative for ST07-001; the same reading is applied to identical wording on other cards."
+    },
+    "ruling:ST07-001:Q199": {
+      "policy": "ruling_overrides_text",
+      "decision": "EX Resources are Resources for 'your Resources' choices.",
+      "rationale": "Official card ruling Q199 (January 09, 2026) is authoritative for ST07-001; the same reading is applied to identical wording on other cards."
+    },
+    "ruling:ST07-004:Q200": {
+      "policy": "ruling_overrides_text",
+      "decision": "Once <Blocker> has changed the attack target, the new target stays the attack target for the rest of the battle even if the blocker loses <Blocker>.",
+      "rationale": "Official card ruling Q200 (January 09, 2026) is authoritative for ST07-004; the same reading is applied to identical wording on other cards."
+    },
+    "ruling:ST07-015:Q204": {
+      "policy": "ruling_overrides_text",
+      "decision": "<Breach> damage, and any damage dealt by a Unit's own effects (including effects it has from its Pilot), is effect damage attributed to that Unit: 'battle damage' prevention and triggers ignore it; 'damage from enemy Units' prevention and effect-damage reduction apply to it; 'when this Unit destroys … with damage' counts it.",
+      "rationale": "Official card ruling Q204 (January 09, 2026) is authoritative for ST07-015; the same reading is applied to identical wording on other cards."
+    },
+    "ruling:ST08-001:Q206": {
+      "policy": "ruling_overrides_text",
+      "decision": "'Choose 1 … with the highest/lowest X' lets the chooser pick any tied Unit; non-choosing wording ('Units with the lowest Lv.') affects all tied Units.",
+      "rationale": "Official card ruling Q206 (January 09, 2026) is authoritative for ST08-001; the same reading is applied to identical wording on other cards."
+    },
+    "ruling:ST08-008:Q207": {
+      "policy": "ruling_overrides_text",
+      "decision": "Once <Blocker> has changed the attack target, the new target stays the attack target for the rest of the battle even if the blocker loses <Blocker>.",
+      "rationale": "Official card ruling Q207 (January 09, 2026) is authoritative for ST08-008; the same reading is applied to identical wording on other cards."
+    },
+    "ruling:ST09-001:Q256": {
+      "policy": "ruling_overrides_text",
+      "decision": "A card deployed, paired or activated by an effect pays no cost and needs no Lv. check unless the text says 'Pay its cost'; its own 【Deploy】/【When Paired】/【When Linked】 still trigger.",
+      "rationale": "Official card ruling Q256 (March 13, 2026) is authoritative for ST09-001; the same reading is applied to identical wording on other cards."
+    },
+    "ruling:ST09-004:Q259": {
+      "policy": "ruling_overrides_text",
+      "decision": "Read as 'While a friendly Base is in play'; an EX Base satisfies it.",
+      "rationale": "Official card ruling Q259 (March 13, 2026) is authoritative for ST09-004; the same reading is applied to identical wording on other cards."
+    },
+    "ruling:ST09-008:Q260": {
+      "policy": "ruling_overrides_text",
+      "decision": "Targets may be chosen even when the action on them would be a no-op (already active, undamaged, already has the keyword); the no-op part is simply not performed.",
+      "rationale": "Official card ruling Q260 (March 13, 2026) is authoritative for ST09-008; the same reading is applied to identical wording on other cards."
+    },
+    "ruling:ST09-008:Q261": {
+      "policy": "ruling_overrides_text",
+      "decision": "EX Resources are Resources for 'your Resources' choices.",
+      "rationale": "Official card ruling Q261 (March 13, 2026) is authoritative for ST09-008; the same reading is applied to identical wording on other cards."
+    },
+    "ruling:ST10-002:Q303": {
+      "policy": "ruling_overrides_text",
+      "decision": "The <Development> exile may be performed even if the following ■ effect has no legal target; then the ■ effect does nothing.",
+      "rationale": "Official card ruling Q303 (June 12, 2026) is authoritative for ST10-002; the same reading is applied to identical wording on other cards."
+    },
+    "ruling:ST10-007:Q304": {
+      "policy": "ruling_overrides_text",
+      "decision": "The <Development> exile may be performed even if the following ■ effect has no legal target; then the ■ effect does nothing.",
+      "rationale": "Official card ruling Q304 (June 12, 2026) is authoritative for ST10-007; the same reading is applied to identical wording on other cards."
+    },
+    "ruling:ST11-003:Q428": {
+      "policy": "ruling_overrides_text",
+      "decision": "Once <Blocker> has changed the attack target, the new target stays the attack target for the rest of the battle even if the blocker loses <Blocker>.",
+      "rationale": "Official card ruling Q428 (September 11, 2026) is authoritative for ST11-003; the same reading is applied to identical wording on other cards."
+    },
+    "ruling:ST11-006:Q431": {
+      "policy": "ruling_overrides_text",
+      "decision": "<Breach> damage, and any damage dealt by a Unit's own effects (including effects it has from its Pilot), is effect damage attributed to that Unit: 'battle damage' prevention and triggers ignore it; 'damage from enemy Units' prevention and effect-damage reduction apply to it; 'when this Unit destroys … with damage' counts it.",
+      "rationale": "Official card ruling Q431 (September 11, 2026) is authoritative for ST11-006; the same reading is applied to identical wording on other cards."
+    },
+    "ruling:ST11-009:Q432": {
+      "policy": "ruling_overrides_text",
+      "decision": "When a 【Destroyed】 effect checks 'you have an X in play', include the destroyed card and its paired Pilot as they were just before leaving the field; the paired Pilot is already in the trash when the effect resolves.",
+      "rationale": "Official card ruling Q432 (September 11, 2026) is authoritative for ST11-009; the same reading is applied to identical wording on other cards."
+    },
+    "ruling:ST11-015:Q434": {
+      "policy": "ruling_overrides_text",
+      "decision": "A card deployed, paired or activated by an effect pays no cost and needs no Lv. check unless the text says 'Pay its cost'; its own 【Deploy】/【When Paired】/【When Linked】 still trigger.",
+      "rationale": "Official card ruling Q434 (September 11, 2026) is authoritative for ST11-015; the same reading is applied to identical wording on other cards."
+    },
+    "ruling:ST12-001:Q436": {
+      "policy": "ruling_overrides_text",
+      "decision": "'When this Unit destroys an enemy … with (battle) damage' triggers even if this Unit is destroyed simultaneously; the pending trigger resolves after both Units are in the trash (parts that need this Unit on the field do nothing).",
+      "rationale": "Official card ruling Q436 (September 11, 2026) is authoritative for ST12-001; the same reading is applied to identical wording on other cards."
+    },
+    "ruling:ST12-001:Q437": {
+      "policy": "ruling_overrides_text",
+      "decision": "<Breach> damage, and any damage dealt by a Unit's own effects (including effects it has from its Pilot), is effect damage attributed to that Unit: 'battle damage' prevention and triggers ignore it; 'damage from enemy Units' prevention and effect-damage reduction apply to it; 'when this Unit destroys … with damage' counts it.",
+      "rationale": "Official card ruling Q437 (September 11, 2026) is authoritative for ST12-001; the same reading is applied to identical wording on other cards."
+    },
+    "ruling:ST12-003:Q438": {
+      "policy": "ruling_overrides_text",
+      "decision": "'When this Unit destroys an enemy … with (battle) damage' triggers even if this Unit is destroyed simultaneously; the pending trigger resolves after both Units are in the trash (parts that need this Unit on the field do nothing).",
+      "rationale": "Official card ruling Q438 (September 11, 2026) is authoritative for ST12-003; the same reading is applied to identical wording on other cards."
+    },
+    "ruling:ST12-003:Q439": {
+      "policy": "ruling_overrides_text",
+      "decision": "<Breach> damage, and any damage dealt by a Unit's own effects (including effects it has from its Pilot), is effect damage attributed to that Unit: 'battle damage' prevention and triggers ignore it; 'damage from enemy Units' prevention and effect-damage reduction apply to it; 'when this Unit destroys … with damage' counts it.",
+      "rationale": "Official card ruling Q439 (September 11, 2026) is authoritative for ST12-003; the same reading is applied to identical wording on other cards."
+    },
+    "ruling:ST12-006:Q440": {
+      "policy": "ruling_overrides_text",
+      "decision": "The effect may be activated (costs paid) even if the Unit already has <First Strike>; no second copy is gained (13-1-5-3).",
+      "rationale": "Official card ruling Q440 (September 11, 2026) is authoritative for ST12-006; the same reading is applied to identical wording on other cards."
+    },
+    "ruling:ST12-006:Q441": {
+      "policy": "ruling_overrides_text",
+      "decision": "The effect may be activated (costs paid) even if the Unit already has <Suppression>; no second copy is gained (13-1-7-2).",
+      "rationale": "Official card ruling Q441 (September 11, 2026) is authoritative for ST12-006; the same reading is applied to identical wording on other cards."
+    },
+    "ruling:ST12-013:Q447": {
+      "policy": "ruling_overrides_text",
+      "decision": "A battle begun by an effect runs only the damage step and battle end step; 'battling'-conditioned effects and <First Strike> apply, destruction counts as destruction with battle damage (<Breach> etc.), only 【Attack】/'when … attacks' are skipped.",
+      "rationale": "Official card ruling Q447 (September 11, 2026) is authoritative for ST12-013; the same reading is applied to identical wording on other cards."
+    },
+    "ruling:ST12-013:Q448": {
+      "policy": "ruling_overrides_text",
+      "decision": "A battle begun by an effect runs only the damage step and battle end step; 'battling'-conditioned effects and <First Strike> apply, destruction counts as destruction with battle damage (<Breach> etc.), only 【Attack】/'when … attacks' are skipped.",
+      "rationale": "Official card ruling Q448 (September 11, 2026) is authoritative for ST12-013; the same reading is applied to identical wording on other cards."
+    },
+    "ruling:ST12-014:Q449": {
+      "policy": "ruling_overrides_text",
+      "decision": "'When this Unit destroys an enemy … with (battle) damage' triggers even if this Unit is destroyed simultaneously; the pending trigger resolves after both Units are in the trash (parts that need this Unit on the field do nothing).",
+      "rationale": "Official card ruling Q449 (September 11, 2026) is authoritative for ST12-014; the same reading is applied to identical wording on other cards."
+    },
+    "ruling:ST12-015:Q450": {
+      "policy": "ruling_overrides_text",
+      "decision": "A modal Command is chosen and played only with a mode whose targets can all be chosen; if no mode is legal the card cannot be played.",
+      "rationale": "Official card ruling Q450 (September 11, 2026) is authoritative for ST12-015; the same reading is applied to identical wording on other cards."
+    },
+    "ruling:ST12-015:Q451": {
+      "policy": "ruling_overrides_text",
+      "decision": "A modal Command is chosen and played only with a mode whose targets can all be chosen; if no mode is legal the card cannot be played.",
+      "rationale": "Official card ruling Q451 (September 11, 2026) is authoritative for ST12-015; the same reading is applied to identical wording on other cards."
+    },
+    "ruling:ST12-016:Q452": {
+      "policy": "ruling_overrides_text",
+      "decision": "Keep a per-turn event log of battle destructions with the destroying Unit's pairing state at that moment; the condition is met even if that Unit is gone, and not by pairing afterwards.",
+      "rationale": "Official card ruling Q452 (September 11, 2026) is authoritative for ST12-016; the same reading is applied to identical wording on other cards."
+    },
+    "ruling:ST12-016:Q453": {
+      "policy": "ruling_overrides_text",
+      "decision": "Keep a per-turn event log of battle destructions with the destroying Unit's pairing state at that moment; the condition is met even if that Unit is gone, and not by pairing afterwards.",
+      "rationale": "Official card ruling Q453 (September 11, 2026) is authoritative for ST12-016; the same reading is applied to identical wording on other cards."
+    },
+    "ruling:ST13-001:Q455": {
+      "policy": "ruling_overrides_text",
+      "decision": "A battle begun by an effect runs only the damage step and battle end step; 'battling'-conditioned effects and <First Strike> apply, destruction counts as destruction with battle damage (<Breach> etc.), only 【Attack】/'when … attacks' are skipped.",
+      "rationale": "Official card ruling Q455 (September 11, 2026) is authoritative for ST13-001; the same reading is applied to identical wording on other cards."
+    },
+    "ruling:ST13-001:Q456": {
+      "policy": "ruling_overrides_text",
+      "decision": "A battle begun by an effect runs only the damage step and battle end step; 'battling'-conditioned effects and <First Strike> apply, destruction counts as destruction with battle damage (<Breach> etc.), only 【Attack】/'when … attacks' are skipped.",
+      "rationale": "Official card ruling Q456 (September 11, 2026) is authoritative for ST13-001; the same reading is applied to identical wording on other cards."
+    },
+    "ruling:ST13-012:Q459": {
+      "policy": "ruling_overrides_text",
+      "decision": "Record the cause of every destruction (battle damage, effect damage, 'destroy' effect, rules). 'Destroyed by an effect' / 'can't be destroyed by effects' mean 'destroy' effects only; 'destroyed with damage' means battle or effect damage; 'with battle damage' means battle damage only.",
+      "rationale": "Official card ruling Q459 (September 11, 2026) is authoritative for ST13-012; the same reading is applied to identical wording on other cards."
+    },
+    "ruling:ST13-014:Q460": {
+      "policy": "ruling_overrides_text",
+      "decision": "A card deployed, paired or activated by an effect pays no cost and needs no Lv. check unless the text says 'Pay its cost'; its own 【Deploy】/【When Paired】/【When Linked】 still trigger.",
+      "rationale": "Official card ruling Q460 (September 11, 2026) is authoritative for ST13-014; the same reading is applied to identical wording on other cards."
+    },
+    "ruling:ST14-001:Q462": {
+      "policy": "ruling_overrides_text",
+      "decision": "'Choose 1 … with the highest/lowest X' lets the chooser pick any tied Unit; non-choosing wording ('Units with the lowest Lv.') affects all tied Units.",
+      "rationale": "Official card ruling Q462 (September 11, 2026) is authoritative for ST14-001; the same reading is applied to identical wording on other cards."
+    },
+    "ruling:ST14-005:Q466": {
+      "policy": "ruling_overrides_text",
+      "decision": "Conditions and target restrictions of triggered/activated/command effects are evaluated once, when resolved; later changes neither undo the result nor retrigger it.",
+      "rationale": "Official card ruling Q466 (September 11, 2026) is authoritative for ST14-005; the same reading is applied to identical wording on other cards."
+    },
+    "ruling:ST14-013:Q468": {
+      "policy": "ruling_overrides_text",
+      "decision": "A modal Command is chosen and played only with a mode whose targets can all be chosen; if no mode is legal the card cannot be played.",
+      "rationale": "Official card ruling Q468 (September 11, 2026) is authoritative for ST14-013; the same reading is applied to identical wording on other cards."
+    },
+    "ruling:ST14-013:Q469": {
+      "policy": "ruling_overrides_text",
+      "decision": "A modal Command is chosen and played only with a mode whose targets can all be chosen; if no mode is legal the card cannot be played.",
+      "rationale": "Official card ruling Q469 (September 11, 2026) is authoritative for ST14-013; the same reading is applied to identical wording on other cards."
+    },
+    "faq:Q8": {
+      "policy": "faq_clarifies_rules",
+      "decision": "Shields are a stack filled from the deck top: the deck's top card is the bottom Shield; the sixth card placed is the top ('first', 'topmost') Shield, damaged and taken first.",
+      "rationale": "Official rules FAQ Q8 (2025-07-04) clarifies the comprehensive rules and is followed as written."
+    },
+    "faq:Q15": {
+      "policy": "faq_clarifies_rules",
+      "decision": "No first-turn draw skip for Player One.",
+      "rationale": "Official rules FAQ Q15 (2025-07-04) clarifies the comprehensive rules and is followed as written."
+    },
+    "faq:Q19": {
+      "policy": "faq_clarifies_rules",
+      "decision": "At most 15 cards in the resource area including at most 5 EX Resources; a placement beyond either limit is not performed (1-3-2).",
+      "rationale": "Official rules FAQ Q19 (2025-07-04) clarifies the comprehensive rules and is followed as written."
+    },
+    "faq:Q30": {
+      "policy": "faq_clarifies_rules",
+      "decision": "A Unit deployed this turn may use 【Activate･Main】 effects, including rest costs such as <Support>.",
+      "rationale": "Official rules FAQ Q30 (2025-07-04) clarifies the comprehensive rules and is followed as written."
+    },
+    "faq:Q31": {
+      "policy": "faq_clarifies_rules",
+      "decision": "No first-turn attack ban; Units deployed on an earlier turn (none on turn 1) or Link Units may attack.",
+      "rationale": "Official rules FAQ Q31 (2025-07-04) clarifies the comprehensive rules and is followed as written."
+    },
+    "faq:Q84": {
+      "policy": "faq_clarifies_rules",
+      "decision": "In 1v1, 'friendly' and 'your' select the same cards.",
+      "rationale": "Official rules FAQ Q84 (2025-07-04) clarifies the comprehensive rules and is followed as written."
+    },
+    "faq:Q95": {
+      "policy": "faq_clarifies_rules",
+      "decision": "Sum all AP/HP modifiers onto the printed value and clamp the final result at 0; do not clamp intermediate results.",
+      "rationale": "Official rules FAQ Q95 (2025-07-04) clarifies the comprehensive rules and is followed as written."
+    },
+    "faq:Q96": {
+      "policy": "faq_clarifies_rules",
+      "decision": "HP filters and comparisons use current HP (modified HP minus damage counters).",
+      "rationale": "Official rules FAQ Q96 (2025-07-04) clarifies the comprehensive rules and is followed as written."
+    },
+    "faq:Q97": {
+      "policy": "faq_clarifies_rules",
+      "decision": "Battle damage is only the damage the damage step deals (including battles begun by effects and battle damage redirected by 'instead' effects); effect damage never becomes battle damage even when it equals a Unit's AP.",
+      "rationale": "Official rules FAQ Q97 (2025-07-04) clarifies the comprehensive rules and is followed as written."
+    },
+    "faq:Q98": {
+      "policy": "faq_clarifies_rules",
+      "decision": "'Damage' without a qualifier means battle or effect damage.",
+      "rationale": "Official rules FAQ Q98 (2025-07-04) clarifies the comprehensive rules and is followed as written."
+    },
+    "faq:Q99": {
+      "policy": "faq_clarifies_rules",
+      "decision": "Damage counters stay until recovered or the card leaves the field.",
+      "rationale": "Official rules FAQ Q99 (2025-07-04) clarifies the comprehensive rules and is followed as written."
+    },
+    "faq:Q105": {
+      "policy": "faq_clarifies_rules",
+      "decision": "An effect that resolves once and lasts for a duration fixes its affected set at resolution; constant effects (e.g. 【During Pair】 'all your Units get AP+1') keep applying to Units that arrive later.",
+      "rationale": "Official rules FAQ Q105 (2025-07-04) clarifies the comprehensive rules and is followed as written."
+    },
+    "faq:Q106": {
+      "policy": "faq_clarifies_rules",
+      "decision": "'During this turn/battle' effects last their full duration even if the card that created them leaves the field.",
+      "rationale": "Official rules FAQ Q106 (2025-07-04) clarifies the comprehensive rules and is followed as written."
+    },
+    "faq:Q109": {
+      "policy": "faq_clarifies_rules",
+      "decision": "New triggers that occur while a batch resolves form a nested batch resolved before the rest of the outer batch: the active player's new triggers first (in their chosen order), then the standby player's; 【Burst】 still goes first (10-1-6-8).",
+      "rationale": "Official rules FAQ Q109 (2025-07-04) clarifies the comprehensive rules and is followed as written."
+    },
+    "faq:Q195": {
+      "policy": "faq_clarifies_rules",
+      "decision": "Both Shields destroyed by <Suppression> leave the shield section at once (revealed, pending trash) before any 【Burst】 resolves; 'add 1 of your Shields' then takes the first Shield that was not destroyed.",
+      "rationale": "Official rules FAQ Q195 (2026-01-09) clarifies the comprehensive rules and is followed as written."
+    },
+    "faq:Q488": {
+      "policy": "faq_clarifies_rules",
+      "decision": "All applicable reductions are summed before damage is received (floor 0, 5-21-2).",
+      "rationale": "Official rules FAQ Q488 (2026-09-11) clarifies the comprehensive rules and is followed as written."
+    },
+    "ambiguous:GD02-011:battling-shield": {
+      "policy": "most_defensible_reading",
+      "decision": "While it attacks a player, the Unit is battling exactly the card that would receive its battle damage: the Base if one is present, otherwise the top Shield; only that card can be chosen (6 effect damage). After a block it battles no shield-area card (Q173).",
+      "rationale": "FAQ Q32 says the Base, else the first Shield, is what gets attacked."
+    },
+    "ambiguous:breach-reminder": {
+      "policy": "most_defensible_reading",
+      "decision": "Apply 13-1-2-1 for every card: <Breach> triggers when, during its controller's turn, the Unit destroys an enemy Unit with battle damage (including battles begun by effects, Q347); reminder wording is ignored.",
+      "rationale": "Reminder text has no rules force (2-11-4); newer printings already use the 13-1-2-1 wording."
+    },
+    "ambiguous:multiplayer-vocabulary": {
+      "policy": "most_defensible_reading",
+      "decision": "In 1v1: 'enemy player(s)', 'enemy team' and 'another player' mean the opponent; 'the number of enemy players' is 1, so 'if there are 2 or more enemy players' is never met; 'Choose 1 enemy player' chooses the opponent; 'all players each …' is both players, active player first and treated as simultaneous (1-3-4, Q319); ST10-001's 'same enemy player' means it cannot attack the opponent again this turn but may attack rested enemy Units.",
+      "rationale": "Direct specialisation of the multiplayer definitions (12-2-6, 12-3-10) to two players."
+    },
+    "ambiguous:pay-its-cost-to-deploy": {
+      "policy": "most_defensible_reading",
+      "decision": "Rest active Resources equal to the card's cost as modified where it is (e.g. GD03-058 'This card in your trash gets cost -1'); no Lv. check; if the cost cannot be paid the card is not deployed. The payment counts as paying for the Unit's effect (Q286/Q297/Q400) and the deployed card's 【Deploy】 triggers.",
+      "rationale": "Only playing requires the Lv. condition (2-9-1, 7-5-2-2-2); the text asks only for the cost; the level filter printed on each card already limits what can be deployed."
+    },
+    "ambiguous:suppression-with-base": {
+      "policy": "most_defensible_reading",
+      "decision": "With a Base in the shield area the attack damages only the Base (<Suppression> does nothing, excess is lost). Without a Base, <Suppression> deals the attacker's battle damage to the top two Shields simultaneously (one if only one remains, 13-1-7-3).",
+      "rationale": "Reminder text has no rules force (2-11-4); 13-1-7-1 and 8-5-2-4 are explicit."
+    },
+    "errata-unapplied:ST12-001:news-02_193": {
+      "policy": "errata_supersedes_print",
+      "decision": "Apply the official errata: the first ability is 【During Pair･Lv.5 or Higher Pilot】【Once per Turn】.",
+      "rationale": "Official errata (news 02_193, 2026-09-04) supersede the printed text; the snapshot lags the official site.",
+      "card_numbers": [
+        "ST12-001"
+      ],
+      "field_overrides": {
+        "effect": "【During Pair･Lv.5 or Higher Pilot】【Once per Turn】During your turn, when this Unit destroys an enemy Unit with damage, deal 2 damage to all enemy Units with 5 or less AP.\n【Deploy】Choose 1 enemy Base. Deal 5 damage to it."
+      }
+    },
+    "ambiguous:EB01-077:choose-rested-friendly-g": {
+      "policy": "most_defensible_reading",
+      "decision": "Only an enemy Unit that is attacking has an attack target, so the change happens only while an enemy Unit is attacking. During your own attack nothing changes. The Command stays playable because the only chosen target is the rested friendly Unit (10-1-8-1-1).",
+      "rationale": "An enemy Unit that is being attacked has no attack target; changing your own attacker's target would contradict 'enemy'."
+    },
+    "ambiguous:EB01-085:then-may-choose-active": {
+      "policy": "most_defensible_reading",
+      "decision": "The optional rest is offered only when both Units can be chosen. The enemy Unit may already be rested.",
+      "rationale": "The CONFLICTS resolution for ruling:EB01-072:Q327 applies the same both-targets reading to identical 'choose 1 X and 1 Y' wording."
+    },
+    "ambiguous:EB01-074:if-do-all-enemy": {
+      "policy": "most_defensible_reading",
+      "decision": "The opponent chooses one of their own active Units (Q329). That choice counts as targeting by the Command's controller, so Units that 'can't be chosen by enemy effects' are excluded.",
+      "rationale": "The effect is controlled by the Command's player, so it is an enemy effect for the opponent's Units."
+    },
+    "ambiguous:EB01-070:if-opponent-s-turn": {
+      "policy": "most_defensible_reading",
+      "decision": "Activated with no battle in progress (e.g. in the end-phase action step), the 'during this battle' effect has no effect.",
+      "rationale": "8-6-1 ends 'during this battle' effects when the battle ends; with no battle there is no period for the effect to apply (the same reading is used for every 'during this battle' effect, see resolution ambiguous:during-this-battle-without-battle)."
+    },
+    "ambiguous:EB01-050:if-placed-card-lv": {
+      "policy": "most_defensible_reading",
+      "decision": "Any card type with a printed Lv of 3 or more counts (Unit, Pilot, Command, Base).",
+      "rationale": "The text says 'a card', not 'a Unit card'."
+    },
+    "ambiguous:EB01-036:during-turn-all-other": {
+      "policy": "most_defensible_reading",
+      "decision": "Applies to other (G Generation) Lv.3 Units on both sides.",
+      "rationale": "The text says neither 'your' nor 'friendly', and 'all Units' covers both sides elsewhere in the set (EB01-003 ruling Q311, EB01-029)."
+    },
+    "ambiguous:EB01-028:once-per-turn-when": {
+      "policy": "most_defensible_reading",
+      "decision": "Triggers only for a friendly Unit other than Plutone that attacks an enemy Unit (not the player). The rested condition is checked when it triggers.",
+      "rationale": "'enemy Unit' is relative to Plutone's controller, so the attacker must be friendly. Checking at trigger time (rule 10-2-1) stops an attack made while Plutone is active from using up 【Once per Turn】."
+    },
+    "ambiguous:EB01-003:at-end-turn-if": {
+      "policy": "most_defensible_reading",
+      "decision": "The rested check happens at resolution. 'Rested by this effect' means Units that were active just before and are rested afterwards; Units already rested do not count.",
+      "rationale": "An 'If' condition is checked when the effect resolves. Resting an already-rested Unit does nothing (rule 1-3-2-1)."
+    },
+    "ambiguous:EB01-001:won-t-be-set": {
+      "policy": "most_defensible_reading",
+      "decision": "Only the untap and set-active effects during that start phase (active step and start-step triggers) are prevented. Set-active effects at any other time still work.",
+      "rationale": "The text limits the restriction to the start phase (compare rulings ST08-009:Q208 and GD04-102:Q288); a blanket 'can't be set as active' would be broader."
+    },
+    "ambiguous:EB01-009:all-enemy-players-each": {
+      "policy": "most_defensible_reading",
+      "decision": "The opponent makes the choice (Q313). A Unit that 'can't be chosen by enemy effects' cannot be chosen.",
+      "rationale": "The effect belongs to its controller, so for the opponent it is an enemy effect whoever does the choosing."
+    },
+    "ambiguous:EB01-023:all-players-each-look": {
+      "policy": "most_defensible_reading",
+      "decision": "The active player does the whole sequence (look, optional add, return top/bottom), then the standby player does the same. Each player learns only their own top card.",
+      "rationale": "Ruling Q319: players perform it in order starting with the active player, treated as simultaneous."
+    },
+    "ambiguous:EB01-017:player-who-destroyed-unit": {
+      "policy": "most_defensible_reading",
+      "decision": "With battle damage, the destroyer is always the opponent.",
+      "rationale": "In 1v1, battles are only between Units of opposing players."
+    },
+    "ambiguous:EB01-042:attack-units-are-lv": {
+      "policy": "most_defensible_reading",
+      "decision": "Applies to enemy Units only.",
+      "rationale": "During this Unit's attack only the defending player can block, so 'enemy Units' and 'all Units' are equivalent in 1v1."
+    },
+    "ambiguous:GD01-003:if-do-set-unit": {
+      "policy": "most_defensible_reading",
+      "decision": "'It' is this Unit, and both the set-active and the First Strike grant depend on 'If you do'",
+      "rationale": "Cards returned to the deck can't gain keywords, so this Unit is the only sensible antecedent. The follow-on sentence continues the 'If you do' result. In practice it is moot, because under Q121 the effect only resolves when all 12 cards are returned."
+    },
+    "ambiguous:GD01-058:choose-unit-lv-4": {
+      "policy": "most_defensible_reading",
+      "decision": "Activated with no battle in progress (e.g. in the end-phase action step), the 'during this battle' effect has no effect.",
+      "rationale": "8-6-1 ends 'during this battle' effects when the battle ends; with no battle there is no period for the effect to apply (the same reading is used for every 'during this battle' effect, see resolution ambiguous:during-this-battle-without-battle)."
+    },
+    "ambiguous:GD01-066:choose-triple-ship-alliance": {
+      "policy": "most_defensible_reading",
+      "decision": "The permission to attack on the turn it is deployed lasts this turn only.",
+      "rationale": "The permission can only matter on the token's deploy turn, so 'this turn' and 'while in play' give the same result."
+    },
+    "ambiguous:GD01-063:during-turn-while-unit": {
+      "policy": "most_defensible_reading",
+      "decision": "'Battling' is the current attacker/target pair of the ongoing battle (5-22-1, 5-22-2). A block changes the battling Unit, and the grant is re-evaluated continuously.",
+      "rationale": "Matches ruling Q136 (a block by a Lv4 Unit removes First Strike). Tokens count as Lv0 (5-17-2-4), so they qualify."
+    },
+    "ambiguous:GD01-097:activate-main-once-per": {
+      "policy": "most_defensible_reading",
+      "decision": "The can't-attack restriction applies only when the If holds. Activation is offered only while the opponent has 8 or more cards.",
+      "rationale": "'It' is the Unit set active by the conditional sentence. With the condition false the activation performs nothing, which under resolution ruling:GD02-002:Q197 does not use 【Once per Turn】, so not offering it changes no reachable outcome. Q150: the restriction outlasts the hand shrinking."
+    },
+    "ambiguous:GD01-098:activate-action-once-per": {
+      "policy": "most_defensible_reading",
+      "decision": "Offered only when an enemy Unit with AP<=1 exists and this Unit is damaged.",
+      "rationale": "Otherwise the activation performs nothing (recovering an undamaged Unit does nothing), which under resolution ruling:GD02-002:Q197 does not use 【Once per Turn】."
+    },
+    "ambiguous:GD01-112:main-choose-2-active": {
+      "policy": "most_defensible_reading",
+      "decision": "The Command can be played only if 2 legal targets exist. It never resolves with one.",
+      "rationale": "The CONFLICTS resolution of GD01-003:Q121 ('choose N' activates only if N can be chosen). The GD01-112 enemy target after 'If you do' is not required to play (10-1-8-1-2)."
+    },
+    "ambiguous:GD01-094:once-per-turn-when": {
+      "policy": "most_defensible_reading",
+      "decision": "'With damage' means battle damage or effect damage that brings the Unit to 0 HP; a 'destroy' effect does not count (Q149). 'Link Unit' uses the linked status at destruction (last known information). It also triggers when this Unit is destroyed in the same damage step, since at that moment it was attacking.",
+      "rationale": "Q149, FAQ Q98, and the GD02-093:Q190 resolution for simultaneous destruction (8-5-3-2-3, 10-1-6-4)."
+    },
+    "ambiguous:GD01-082:gets-ap-during-battle": {
+      "policy": "most_defensible_reading",
+      "decision": "Activated with no battle in progress (e.g. in the end-phase action step), the 'during this battle' effect has no effect.",
+      "rationale": "8-6-1 ends 'during this battle' effects when the battle ends; with no battle there is no period for the effect to apply (the same reading is used for every 'during this battle' effect, see resolution ambiguous:during-this-battle-without-battle)."
+    },
+    "ambiguous:GD01-110:main-action-choose-unit": {
+      "policy": "most_defensible_reading",
+      "decision": "A Unit on either side can be chosen, as printed.",
+      "rationale": "The text has no 'friendly'/'enemy' qualifier."
+    },
+    "ambiguous:GD01-130:activate-main-rest-base": {
+      "policy": "most_defensible_reading",
+      "decision": "With no (Academy) Unit, activation is still legal (the Base rests, nothing else happens). With an (Academy) Unit, an enemy Unit must exist to activate.",
+      "rationale": "The 'If' is part of the effect, not an activation condition (10-3-1-1). The target requirement applies only when the condition holds (10-2-2, FAQ Q100)."
+    },
+    "ambiguous:GD01-091:during-turn-if-unit": {
+      "policy": "most_defensible_reading",
+      "decision": "The source's AP is measured when the damage is dealt, and the source must be an enemy Unit.",
+      "rationale": "The prevention is a constant effect checked at the moment of damage (10-1-5-3)."
+    },
+    "ambiguous:GD02-118:choose-enemy-unit-4": {
+      "policy": "most_defensible_reading",
+      "decision": "Literal: any enemy Unit in the current battle whose opponent is a friendly Unit that currently has <Blocker>, whether that Unit blocked, was attacked, or is attacking. HP is current HP.",
+      "rationale": "The text says 'battling', not 'blocked by'. Rule 5-22-1 defines battling for both participants, and FAQ Q96 makes HP current HP."
+    },
+    "ambiguous:GD02-096:pay-its-cost-deploy": {
+      "policy": "most_defensible_reading",
+      "decision": "Rest Resources equal to the card's cost as modified in the trash (e.g. GD03-058 costs 1 there). No Lv. check, and player-level play-cost modifiers don't apply because deploying isn't playing. If it can't be paid, nothing is deployed. The payment records cost_paid and emits COST_PAID for the effect's host.",
+      "rationale": "Follows the ambiguous:pay-its-cost-to-deploy resolution and Q286; 5-7 vs 5-8 separate playing from deploying."
+    },
+    "ambiguous:GD02-104:return-remaining-cards-bottom": {
+      "policy": "most_defensible_reading",
+      "decision": "The owner picks the order of the bottomed cards, unlike the 'randomly' wording on other cards.",
+      "rationale": "Rules 4-1-6 / 4-1-7 and the ASSUMPTIONS entry on simultaneous placement."
+    },
+    "ambiguous:GD02-113:if-friendly-teiwaz-link": {
+      "policy": "most_defensible_reading",
+      "decision": "When the 'If' condition is false the Command can be played and does nothing; when it is true, the Command can be played only if its target can be chosen.",
+      "rationale": "Rule 10-1-8-1-1 requires the targets the effect will actually choose; a choice inside a false 'If' is never made."
+    },
+    "ambiguous:GD02-069:choose-active-friendly-base": {
+      "policy": "most_defensible_reading",
+      "decision": "The restriction is applied to this Unit inside the If you do branch, together with setting it active.",
+      "rationale": "The restriction is the price of the untap. Resting the chosen active Base always succeeds, so the branch only matters in theory."
+    },
+    "ambiguous:GD02-011:choose-enemy-base-enemy": {
+      "policy": "most_defensible_reading",
+      "decision": "6 effect damage goes to the first card of the enemy shield area (DamageShieldArea), so Base immunities and shield-area protections apply. It can be activated only while this Unit is the attacker, the attack targets the player, and the enemy shield area is not empty.",
+      "rationale": "Resolution ambiguous:GD02-011:battling-shield plus Q173. With no shield-area card there is no target (10-2-2)."
+    },
+    "ambiguous:GD02-071:may-pair-aeug-pilot": {
+      "policy": "most_defensible_reading",
+      "decision": "Only Pilot cards are eligible; a Command card with 【Pilot】 in the hand is not.",
+      "rationale": "The text says 'Pilot card'. In the hand, a Command card with 【Pilot】 is a Command card."
+    },
+    "ambiguous:GD02-009:when-unit-s-ap": {
+      "policy": "most_defensible_reading",
+      "decision": "Triggers only when the Unit's AP actually drops; an AP-3 effect on a Unit already at 0 AP does not trigger.",
+      "rationale": "Rule 1-3-2-1: an entity already in the target state is not changed."
+    },
+    "ambiguous:GD04-115:choose-units-when-deals": {
+      "policy": "most_defensible_reading",
+      "decision": "During this turn the effect triggers every time the Unit deals battle damage, not only the first time.",
+      "rationale": "'During this turn' sets how long the effect lasts; nothing limits it to one occurrence (10-1-6-1-1)."
+    },
+    "ambiguous:GD04-087:may-choose-academy-units": {
+      "policy": "most_defensible_reading",
+      "decision": "This Unit itself is also a legal choice (the text has no 'other'); choosing it is a no-op redirect.",
+      "rationale": "Literal selector; excluding it would add a restriction the text does not state."
+    },
+    "ambiguous:GD04-085:once-per-turn-when": {
+      "policy": "most_defensible_reading",
+      "decision": "The no-remaining-EX condition is an activation condition, checked when the trigger fires (so Once per Turn is not used up while EX Resources remain) and again at resolution.",
+      "rationale": "Rule 10-2-1: an effect whose conditions are not met does not activate."
+    },
+    "ambiguous:GD04-106:if-use-ex-resource": {
+      "policy": "most_defensible_reading",
+      "decision": "Choose 1 (required), then optionally 1 more distinct Unit when the most recent play of this card from the hand used at least one EX Resource.",
+      "rationale": "Same result as 'choose 1 to 2', and it keeps the required-target check of 10-1-8-1-1 on the first choice. Command frames lack an ex_used payload, so play history is used."
+    },
+    "ambiguous:GD04-024:may-reveal-academy-unit": {
+      "policy": "most_defensible_reading",
+      "decision": "The (Academy) trait applies to both the Unit card and the Command card.",
+      "rationale": "Ruling GD03-089:Q240 treats '(Cyclops Team) Pilot cards/Command cards' as '(Cyclops Team) cards', i.e. the trait qualifies every '/'-alternative."
+    },
+    "ambiguous:GD04-057:during-turn-reduce-its": {
+      "policy": "most_defensible_reading",
+      "decision": "X is counted once when the effect resolves and stays fixed for the turn.",
+      "rationale": "It is a one-shot instruction ('reduce ... by an amount equal to'), not a constant effect (10-1-5), so X is fixed when it resolves."
+    },
+    "ambiguous:GD04-041:once-per-turn-when": {
+      "policy": "most_defensible_reading",
+      "decision": "Triggers when an effect of either player rests this Unit, including resting it to pay an activation cost; attacking and being deployed rested (GD05-026:Q354) do not trigger it.",
+      "rationale": "Attacking rests a Unit by the rules, not by an effect; being deployed rested places the Unit in the rested state rather than resting it (Q354)."
+    },
+    "ambiguous:GD04-022:during-link-all-units": {
+      "policy": "most_defensible_reading",
+      "decision": "Covers both players' non-token Units of Lv.3 or lower, deployed from any location while this Unit is linked; they enter play rested.",
+      "rationale": "'All Units' has no side qualifier; 'deployed rested' places the Unit rested rather than resting it (GD05-026:Q354)."
+    },
+    "ambiguous:GD04-021:may-pair-card-from": {
+      "policy": "most_defensible_reading",
+      "decision": "Resolves after the Command's effect ends and it is in the trash (resolution Q267). Allowed only for Commands with 【Pilot】 and unpaired 'Gundam Lfrith' Units. Also allowed when the Command was played in an action step.",
+      "rationale": "Rule 13-2-4-2 restricts the player's pairing action during action steps, not pairing done by an effect."
+    },
+    "ambiguous:GD04-029:once-per-turn-if": {
+      "policy": "most_defensible_reading",
+      "decision": "Any of your paired Pilots with the CB trait counts, including Command cards paired as Pilots; it need not be paired with this Unit.",
+      "rationale": "'You have ... in play' is player-wide, as in GD04-037's identical wording."
+    },
+    "ambiguous:GD04-066:when-activate-command-s": {
+      "policy": "most_defensible_reading",
+      "decision": "Triggers for Commands whose 【Main】/【Action】 you activate from the hand or through an effect, on either player's turn; it resolves after the Command's effect.",
+      "rationale": "The text has no turn restriction; triggered effects wait until the current effect has resolved (10-1-6)."
+    },
+    "ambiguous:GD04-026:return-top-deck-place": {
+      "policy": "most_defensible_reading",
+      "decision": "An optional 'place it into your trash'; declining leaves it on top.",
+      "rationale": "The two choices are equivalent to a yes/no on trashing; the card never leaves the top otherwise."
+    },
+    "ambiguous:GD03-117:main-if-4-enemy": {
+      "policy": "most_defensible_reading",
+      "decision": "Applied the Q245 'unmet leading If means unplayable' policy to the two branches together: the Command is playable only with 1 or more enemy Units.",
+      "rationale": "Read literally ('starts with an unmet If'), the Command would be unplayable with 5+ enemy Units, which contradicts its second sentence. With 0 enemy Units the card does nothing, which is exactly the case Q245 forbids."
+    },
+    "ambiguous:GD03-120:main-during-turn-if": {
+      "policy": "most_defensible_reading",
+      "decision": "A triggered effect that lasts the turn and fires on every qualifying battle kill.",
+      "rationale": "Rule 10-1-6-1-1: a triggered effect without 【Once per Turn】 activates every time its condition is met."
+    },
+    "ambiguous:GD03-102:choose-titans-link-units": {
+      "policy": "most_defensible_reading",
+      "decision": "'Battling an enemy Unit' covers both attacking an enemy Unit and being the attack target (including by blocking). A Unit attacking the player or a Base does not qualify.",
+      "rationale": "A battle between Units exists in both directions. A player or Base target is not an enemy Unit."
+    },
+    "ambiguous:GD03-129:if-do-place-top": {
+      "policy": "most_defensible_reading",
+      "decision": "No prompt when the Base is already rested.",
+      "rationale": "A rested Base cannot be rested, so 'If you do' (5-20-1) could never succeed; asking would be a meaningless decision."
+    },
+    "ambiguous:GD03-130:may-choose-vagan-unit": {
+      "policy": "most_defensible_reading",
+      "decision": "Any matching card may be chosen; if its cost can't be paid it stays in the trash.",
+      "rationale": "The text does not limit the choice to payable cards, and the outcome equals not choosing."
+    },
+    "ambiguous:GD03-093:while-no-enemy-base": {
+      "policy": "most_defensible_reading",
+      "decision": "The enemy EX Base counts as an enemy Base.",
+      "rationale": "5-17-3-1-1: an EX Base is a Base token, and 5-17-2-1 says tokens are treated like real cards."
+    },
+    "ambiguous:GD03-038:during-turn-when-unit": {
+      "policy": "most_defensible_reading",
+      "decision": "Resting through its own <Support> (and other activation costs) counts as 'rested by an effect'. Resting by attacking or blocking does not.",
+      "rationale": "Rule 13-1-3-1 calls <Support> a keyword effect that activates when you rest the Unit, and this card's reminder text prints the rest as part of <Support>. Rule 10-1-7-2 could support the stricter reading (a cost is not the effect); an official ruling would decide."
+    },
+    "ambiguous:GD03-069:during-link-at-end": {
+      "policy": "most_defensible_reading",
+      "decision": "At the end of any turn in which this Unit became paired, set it as active, provided it is linked at that moment. Checked as: the Pilot now paired with it was paired this turn.",
+      "rationale": "The other reading ('at the end of each turn while paired') makes 'when this Unit is paired with a Pilot' redundant under 【During Link】. The text says 'the turn', not 'your turn'."
+    },
+    "ambiguous:GD03-071:for-each-aeug-unit": {
+      "policy": "most_defensible_reading",
+      "decision": "The count is taken once, when the effect resolves.",
+      "rationale": "A resolved effect keeps its result (ruling GD01-059:Q135; FAQ Q105 fixes the affected set at resolution). Only constant effects are continuously re-evaluated (10-1-5)."
+    },
+    "ambiguous:GD03-073:during-link-activate-action": {
+      "policy": "most_defensible_reading",
+      "decision": "The trash count is an activation condition, and a battling enemy target is required, so the ability can't be activated (or spend its Once per Turn) when it would do nothing.",
+      "rationale": "Same observable result as resolving and doing nothing, under the resolution ruling:GD02-002:Q197 (an effect that performs nothing is not used up). Rule 10-2-2 requires a target."
+    },
+    "ambiguous:GD03-051:may-choose-unit-card": {
+      "policy": "most_defensible_reading",
+      "decision": "Pay the card's cost as modified in the trash (GD03-058 -1). Resources are rested normal first, then EX, with no player choice. No Lv. check. If the cost can't be paid, the card is not deployed. The payment emits COST_PAID for GD03-051.",
+      "rationale": "Resolution ambiguous:pay-its-cost-to-deploy; rulings Q286/Q297/Q400. Custom steps must not ask for decisions, so the choice of which Resources to rest is fixed."
+    },
+    "ambiguous:GD03-076:once-per-turn-during": {
+      "policy": "most_defensible_reading",
+      "decision": "If the enemy Unit was destroyed by that damage there is no prompt and nothing happens (Q235), and 【Once per Turn】 is not used. Declining the 'you may' does not use it either.",
+      "rationale": "Rule 10-1-3: declining a 'you may' effect is choosing not to activate it; resolution ruling:GD02-002:Q197: an effect that performs nothing does not count for 【Once per Turn】."
+    },
+    "ambiguous:GD03-001:when-effect-destroys-enemy": {
+      "policy": "most_defensible_reading",
+      "decision": "Draw only if the chosen Unit was destroyed and is no longer in the battle area right after this effect's damage and rules management.",
+      "rationale": "Ruling Q209 / resolution ruling:GD03-001:Q209. Later destruction, or an earlier destruction of the same card this turn, does not count."
+    },
+    "ambiguous:GD05-101:once-per-turn-when": {
+      "policy": "most_defensible_reading",
+      "decision": "The Militia check is a trigger condition (Triggered.cond). A non-Militia host does not trigger, and the 【Once per Turn】 use is not spent.",
+      "rationale": "Rule 10-2-1: an effect whose required condition is not met does not activate."
+    },
+    "ambiguous:GD05-073:won-t-be-set": {
+      "policy": "most_defensible_reading",
+      "decision": "A marker is converted into CANT_BE_SET_ACTIVE at the end of the turn the 【Deploy】 resolved, and removed when the opponent's next turn starts (the controller's delayed trigger resolves after the active player's start-step triggers).",
+      "rationale": "Q381: only the start phase is restricted. Edge case: if Altron is deployed during the opponent's turn, the Unit also can't be set active by effects during your following turn."
+    },
+    "ambiguous:GD05-108:change-battling-enemy-unit": {
+      "policy": "most_defensible_reading",
+      "decision": "Playable whenever the Choose target exists (rule 10-1-8-1-1). The retarget happens only while an enemy Unit is attacking, so during your own attack it does nothing.",
+      "rationale": "'A battling enemy Unit's attack target' exists only when the enemy Unit is the attacker."
+    },
+    "ambiguous:GD05-124:when-would-rest-unit": {
+      "policy": "most_defensible_reading",
+      "decision": "Substitution applies to resting your own Units only; one Base replaces at most one Unit.",
+      "rationale": "Replacing the resting of an enemy Unit would only ever cost the player; Q417/Q418 concern own Units."
+    },
+    "ambiguous:GD05-102:choose-following-effects": {
+      "policy": "most_defensible_reading",
+      "decision": "The card can be played only if the targets of at least one mode can be chosen.",
+      "rationale": "Rulings Q401/Q402; the same rule as resolution ruling:ST12-015:Q450 for modal Commands."
+    },
+    "ambiguous:GD05-104:gains-following-effect-during": {
+      "policy": "most_defensible_reading",
+      "decision": "The granted ability is ability #1 of the Command card itself, gated 【During Link】. It never works on the Command card in hand, trash, or paired as [Helen Jackson] (gate needs the battle area); a Unit receives it only through AbilityGrant.",
+      "rationale": "AbilityGrant references (card_number, index), so the ability must live on the card."
+    },
+    "ambiguous:GD05-123:can-t-receive-2": {
+      "policy": "most_defensible_reading",
+      "decision": "During the opponent's turn, friendly (Orb) Units can't receive enemy effect damage of 2 or less; damage reduced to 2 or less is not received either (Q416).",
+      "rationale": "Literal text; Q416 applies the threshold after reductions."
+    },
+    "ambiguous:GD05-129:destroyed-by-one-neo": {
+      "policy": "most_defensible_reading",
+      "decision": "Counts a Unit of yours destroyed this turn by a 'destroy' effect of one of your (Neo Zeon) cards; destruction by effect damage does not count.",
+      "rationale": "Same reading as GD05-054:Q368 (destruction by an effect means 'destroy it' effects); the (Neo Zeon) card is the one whose effect destroyed the Unit."
+    },
+    "ambiguous:GD05-059:choose-active-gjallarhorn-units": {
+      "policy": "most_defensible_reading",
+      "decision": "Both the draw and <High-Maneuver> require the rest.",
+      "rationale": "Resolution GD05-057:Q371 says a leading 'If you do' governs the following sentences, and GD05-057 has the same sentence shape."
+    },
+    "ambiguous:GD05-002:during-pair-attack-may": {
+      "policy": "most_defensible_reading",
+      "decision": "The option is offered only with 2+ cards in hand; discarding 1 never satisfies 'If you do'.",
+      "rationale": "Consistent with resolution GD01-003:Q121 (no partial resolution of an N-card requirement) and rule 5-20-1."
+    },
+    "ambiguous:GD05-001:activate-main-once-per": {
+      "policy": "most_defensible_reading",
+      "decision": "The Unit itself may be one of the Units rested.",
+      "rationale": "Literal wording ('your Units', not 'other')."
+    },
+    "ambiguous:GD05-049:all-enemy-players-each": {
+      "policy": "most_defensible_reading",
+      "decision": "In 1v1 the opponent picks one of their Units other than the attack target; that Unit counts as chosen by an enemy effect, so 'can't be chosen by enemy effects' applies.",
+      "rationale": "The effect belongs to the enemy of the chosen Unit's owner (docs/ASSUMPTIONS.md 1v1 wording)."
+    },
+    "ambiguous:GD05-053:destroyed-by-one-neo": {
+      "policy": "most_defensible_reading",
+      "decision": "'Destroy' effects only (not damage). The destroying effect's controller must be you and its host card must have (Neo Zeon); for a Pilot-granted effect the host is the paired Unit.",
+      "rationale": "Resolution GD05-054:Q368. The source of a Pilot-granted effect is the paired Unit."
+    },
+    "ambiguous:GD05-026:equal-lower-than-number": {
+      "policy": "most_defensible_reading",
+      "decision": "Enemy Units whose Lv. is at most the count enter play rested; Unit tokens (Lv.0) always do.",
+      "rationale": "'Deployed rested' places the Unit rested rather than resting it (Q354); the count is taken when the Unit is deployed."
+    },
+    "ambiguous:T-014:unit-can-t-be": {
+      "policy": "most_defensible_reading",
+      "decision": "Two independent restrictions (distributive 'or'). Each is a separate constant rule grant, and 'can't' beats any permission (10-1-5-6).",
+      "rationale": "The only grammatical reading; it matches the separately printed single-restriction token T-022 ('can't be paired with a Pilot'), and 'can't' beats any permission (10-1-5-6)."
+    },
+    "ambiguous:ST02-015:look-at-top-2": {
+      "policy": "most_defensible_reading",
+      "decision": "The controller chooses which of the 2 looked cards goes to the bottom; the other stays on top. With only 1 card in the deck, that card is simply returned.",
+      "rationale": "The same as choosing the top card. It leaves every other card's order unchanged and needs only one decision."
+    },
+    "ambiguous:ST01-015:activate-main-once-per": {
+      "policy": "most_defensible_reading",
+      "decision": "Counts your Units in the battle area, Unit tokens included, when the effect resolves (after ② is paid). 'only 1' means exactly 1.",
+      "rationale": "Units in play are the Units in the battle area, and conditions are checked at resolution (resolution ruling:ST04-006:Q118). The _p1/_p2 '0 Units' wording is equivalent (divergent:ST01-015)."
+    },
+    "ambiguous:ST04-012:burst-if-have-no": {
+      "policy": "most_defensible_reading",
+      "decision": "A resolution-time condition, not a play restriction. The Command stays playable with an EA token in play and resolves with no effect. The same condition gates the Burst.",
+      "rationale": "10-1-8-1-1 restricts only effects that require targets. An 'If' clause in the body is checked when the card resolves."
+    },
+    "ambiguous:ST02-016:deploy-add-shields-hand": {
+      "policy": "most_defensible_reading",
+      "decision": "'instead' replaces the Tallgeese token with two Leo tokens; they are not deployed in addition. Only your trash is checked. When deployed by 【Burst】 on the opponent's turn, the card only adds a Shield to hand.",
+      "rationale": "EFFECT_TEMPLATES 6.1.6 classifies ST02-016's 'instead' as a conditional override of the previous step, not a rule 10-1-9 substitution."
+    },
+    "ambiguous:ST03-011:attack-during-turn-unit": {
+      "policy": "most_defensible_reading",
+      "decision": "The Link Unit check is made when the effect resolves. Both the AP+1 and the <High-Maneuver> last this turn.",
+      "rationale": "Canonical ST03-011 wording per divergent:ST03-011 ('During this turn' scopes both clauses). Conditions are evaluated at resolution."
+    },
+    "ambiguous:ST07-009:attack-unit-gets-ap": {
+      "policy": "most_defensible_reading",
+      "decision": "'instead' replaces the whole first sentence, keeping 'during this turn'. With 7+ CB cards, every friendly CB Unit gets AP+1 this turn, and a non-CB Unit paired with Setsuna gets nothing.",
+      "rationale": "10-1-9 style substitution of the preceding step (EFFECT_TEMPLATES 6.1.6). The literal target set of the replacement is 'all your (CB) Units'."
+    },
+    "ambiguous:ST07-013:action-choose-rested-friendly": {
+      "policy": "most_defensible_reading",
+      "decision": "'the battling enemy Unit' is the attacking enemy Unit. When no enemy Unit is attacking (e.g. your own attack), the command resolves with no redirect. It stays playable whenever a rested friendly CB Unit can be chosen.",
+      "rationale": "Only an attacking Unit has an attack target (5-22-1/5-22-2). 10-1-8-1-1 requires only the chosen target to exist."
+    },
+    "ambiguous:ST08-006:during-pair-attack-once": {
+      "policy": "most_defensible_reading",
+      "decision": "The 'If' is checked at resolution, so an attack on a Unit still uses the once-per-turn activation. The reveal is mandatory when possible (no 'you may'), and the draw is gated on the card reaching the deck (5-20-1).",
+      "rationale": "10-1-6-2: the trigger condition is the 【Attack】 event; an 'If' in the text is checked when the effect resolves."
+    },
+    "ambiguous:ST08-011:when-draw-effect-if": {
+      "policy": "most_defensible_reading",
+      "decision": "Any effect that makes you draw counts, including an opponent's. A multi-card draw from one instruction triggers it once. Colour is checked at resolution. Draw-phase draws do not count.",
+      "rationale": "10-1-6-3 (simultaneous events trigger once). 'with an effect' excludes the rule-based draw of 7-3-1."
+    },
+    "ambiguous:ST08-001:when-paired-choose-enemy": {
+      "policy": "most_defensible_reading",
+      "decision": "The highest Lv is computed over all enemy Units in play, including Units that can't be chosen. An unchoosable highest-Lv Unit does not make a lower-Lv Unit eligible. Ties let the chooser pick (Q206).",
+      "rationale": "'with the highest Lv.' describes the Unit, not the set of legal targets."
+    },
+    "ambiguous:ST10-001:can-t-choose-same": {
+      "policy": "most_defensible_reading",
+      "decision": "This Unit can't attack the player for the rest of the turn but may still attack rested enemy Units. Destroying a Base with battle damage also triggers the effect.",
+      "rationale": "Resolution ambiguous:multiplayer-vocabulary; 'shield area card' covers the Base (4-6)."
+    },
+    "ambiguous:ST11-006:if-another-friendly-marine": {
+      "policy": "most_defensible_reading",
+      "decision": "Checked at the start of the opponent's turn: if another friendly (Marine) Unit is in play, then for that whole turn enemy effect damage to each of your shield area cards (Base and Shields, including <Breach>) is reduced by 5, even if this Unit leaves play.",
+      "rationale": "'At the start of your opponent's turn' fixes when the condition is checked and 'during this turn' sets the duration (rulings Q430, Q431)."
+    },
+    "ambiguous:ST11-009:destroyed-if-opponent-s": {
+      "policy": "most_defensible_reading",
+      "decision": "Draw exactly when it is the opponent's turn.",
+      "rationale": "Q432 and resolution ruling:ST11-009:Q432: the destroyed Kapool, a printed Marine, counts by last-known information, so the Marine clause always holds."
+    },
+    "ambiguous:ST10-008:draw-number-cards-equal": {
+      "policy": "most_defensible_reading",
+      "decision": "Draw 1, then Discard 1 only if a card was actually drawn.",
+      "rationale": "1v1 resolution: the number of enemy players is 1. 'The same number you drew' is 0 if the draw failed."
+    },
+    "ambiguous:ST09-010:look-at-top-2": {
+      "policy": "most_defensible_reading",
+      "decision": "The player chooses 1 of the top 2 to keep, and the other card is moved to the trash (not a discard, no event).",
+      "rationale": "The kept card ends on top whichever position it came from. 'Place into your trash' is not a discard."
+    },
+    "ambiguous:ST11-001:return-bottom-its-owner": {
+      "policy": "most_defensible_reading",
+      "decision": "The Unit and its paired Pilot both go to the bottom of the owner's deck.",
+      "rationale": "Rule 3-3-6: the Pilot moves with its Unit; ruling GD05-002:Q339."
+    },
+    "ambiguous:ST11-012:when-receives-battle-damage": {
+      "policy": "most_defensible_reading",
+      "decision": "For this turn, battle damage from enemy Units to the chosen (Marine) Unit is reduced by 2.",
+      "rationale": "Only Units deal battle damage (Bases have 0 AP)."
+    },
+    "ambiguous:ST14-001:each-enemy-player-s": {
+      "policy": "most_defensible_reading",
+      "decision": "The lowest Lv. is taken among the enemy's rested Units, every tied Unit is affected, and it applies only during the enemy's start phase.",
+      "rationale": "The head noun is 'rested Units'. Q462 affects all tied Units, and Q463 limits the freeze to the start phase."
+    },
+    "ambiguous:ST14-011:reduce-its-ap-during": {
+      "policy": "most_defensible_reading",
+      "decision": "The number is counted once, when the effect resolves.",
+      "rationale": "Consistent with the policy in the resolution of GD01-059:Q135 (conditions and target restrictions are evaluated once, at resolution). A continuously re-counted amount would change after a Blocker rests."
+    },
+    "ambiguous:ST13-009:player-chooses-2-unit": {
+      "policy": "most_defensible_reading",
+      "decision": "With fewer than 2 Unit cards in that trash, nothing is exiled.",
+      "rationale": "Applies the resolution of GD01-003:Q121 (choosing N cards from a public location needs N) to identical wording."
+    },
+    "ambiguous:ST13-015:choose-3-unit-cards": {
+      "policy": "most_defensible_reading",
+      "decision": "Not playable with fewer than 3 Unit cards in the trash. The enemy Unit is not required to play it (10-1-8-1-2).",
+      "rationale": "Q121 policy plus 10-1-8-1-1/10-1-8-1-2."
+    },
+    "ambiguous:ST12-015:choose-friendly-unit-enemy": {
+      "policy": "most_defensible_reading",
+      "decision": "'Lv.5 or higher' applies only to the enemy Unit.",
+      "rationale": "Q451's wording ('no friendly Units or no enemy Units that are Lv.5 or higher') matches this reading."
+    },
+    "ambiguous:ST12-013:player-each-choose-own": {
+      "policy": "most_defensible_reading",
+      "decision": "You choose first, so your Unit is the attacking Unit (<First Strike> applies to it). Both choices must be possible to play the card.",
+      "rationale": "5-22-4 (the first chosen Unit attacks). Both choices precede any Then/If you do (10-1-8-1-1)."
+    },
+    "ambiguous:ST12-012:look-at-top-2": {
+      "policy": "most_defensible_reading",
+      "decision": "The player picks which of the 2 cards to keep and the other goes to the trash. The kept card goes to hand if the condition holds, otherwise it stays on top. 'A player' includes yourself and ignores Bases.",
+      "rationale": "Rulings Q444 and Q445. This is a 10-1-9 substitution of the destination of the kept card."
+    },
+    "ambiguous:ST14-015:choose-number-resources-equal": {
+      "policy": "most_defensible_reading",
+      "decision": "Sets 1 rested Resource active, normal Resources before EX Resources, without a player choice.",
+      "rationale": "In 1v1 the number of enemy players is 1. Choosing an already-active Resource does nothing, and a normal Resource is always the better pick."
+    },
+    "ambiguous:ST13-012:when-enemy-unit-destroyed": {
+      "policy": "most_defensible_reading",
+      "decision": "Counts only a destruction by rules management right after an effect's damage step, from any source. It excludes battle damage, 'destroy' effects (Q459) and HP-reduction destruction. 'Attacking' means the current battle's attacker is this Unit.",
+      "rationale": "Resolution of Q459: 'destroyed with damage' means battle or effect damage, and 'destroy' effects do not count."
+    },
+    "ambiguous:ST14-006:may-reveal-number-cards": {
+      "policy": "most_defensible_reading",
+      "decision": "May reveal and add exactly 1 card of any type.",
+      "rationale": "In 1v1 the number of enemy players is 1 (ambiguous:multiplayer-vocabulary resolution)."
+    },
+    "ambiguous:during-this-battle-without-battle": {
+      "policy": "most_defensible_reading",
+      "decision": "A 'during this battle' effect created while no battle is in progress has no effect; the rest of the effect still resolves.",
+      "rationale": "Such effects exist only between 8-2-3 and 8-6-1 of a battle; with no battle there is no period for them to apply, and no reading lets them outlast the turn."
+    },
+    "ambiguous:once-per-turn-declined-may": {
+      "policy": "most_defensible_reading",
+      "decision": "A 【Once per Turn】 triggered effect is used up only if it performs at least one action (including paying a cost). If its target can't be chosen, its 'If' fails, or the player declines its 'you may', it can trigger again this turn. Activated abilities are used up when activated.",
+      "rationale": "10-1-3 treats declining a 'you may' as choosing not to activate the effect, and Q197 treats an effect that performs nothing as not activated; 10-3-3-1: an effect whose target can't be chosen does not activate."
+    },
+    "ambiguous:ST13-013:deploy-1-to-2-tokens": {
+      "policy": "most_defensible_reading",
+      "decision": "The player chooses 1 or 2 first, then that many tokens are deployed simultaneously: with a full battle area, as many Units already in the battle area are trashed (11-4-2-2), and a 'when deployed' trigger fires once for the pair (10-1-6-3).",
+      "rationale": "One instruction deploys the tokens, so they enter together; deploying one and then optionally a second would let excess management trash the first token and double 'when deployed' triggers, results the rules cannot produce."
+    }
+  }
+}

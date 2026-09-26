@@ -1,0 +1,500 @@
+{
+ "ST09-001": {
+  "abilities": [
+   {
+    "_": "Activated",
+    "costs": [
+     {
+      "_": "PayResources",
+      "amount": 2
+     }
+    ],
+    "steps": [
+     {
+      "_": "ToDeck",
+      "ref": {
+       "_": "This"
+      }
+     },
+     {
+      "_": "Choose",
+      "sel": {
+       "_": "Sel",
+       "filters": [
+        {
+         "_": "IsKind",
+         "kinds": [
+          "unit"
+         ]
+        },
+        {
+         "_": "NameContains",
+         "parts": [
+          "Impulse Gundam"
+         ]
+        },
+        {
+         "_": "StatCmp",
+         "op": ">=",
+         "stat": "lv",
+         "value": 4
+        }
+       ],
+       "loc": "trash",
+       "side": "friendly"
+      },
+      "var": "t1"
+     },
+     {
+      "_": "DeployCard",
+      "ref": {
+       "_": "Var",
+       "name": "t1"
+      }
+     }
+    ],
+    "timing": "main"
+   }
+  ],
+  "binding": "wp_st09_11",
+  "name": "Impulse Gundam",
+  "source": "binding",
+  "text_hash": "9bf7fecf7ea3525e"
+ },
+ "ST09-002": {
+  "abilities": [
+   {
+    "_": "Triggered",
+    "steps": [
+     {
+      "_": "Choose",
+      "sel": {
+       "_": "Sel",
+       "filters": [
+        {
+         "_": "IsKind",
+         "kinds": [
+          "unit"
+         ]
+        },
+        {
+         "_": "HasTrait",
+         "traits": [
+          "Minerva Squad"
+         ]
+        },
+        {
+         "_": "Not",
+         "filter": {
+          "_": "NameContains",
+          "parts": [
+           "Force Impulse Gundam"
+          ]
+         }
+        }
+       ],
+       "loc": "trash",
+       "side": "friendly"
+      },
+      "var": "t1"
+     },
+     {
+      "_": "AddToHand",
+      "ref": {
+       "_": "Var",
+       "name": "t1"
+      }
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "event": "destroyed"
+    }
+   }
+  ],
+  "name": "Force Impulse Gundam",
+  "source": "compiled",
+  "text_hash": "1eb3f2b6b788721a"
+ },
+ "ST09-003": {
+  "abilities": [
+   {
+    "_": "Keyword",
+    "amount": 3,
+    "keyword": "Breach"
+   },
+   {
+    "_": "Triggered",
+    "steps": [
+     {
+      "_": "If",
+      "cond": {
+       "_": "Cmp",
+       "left": {
+        "_": "Count",
+        "sel": {
+         "_": "Sel",
+         "filters": [
+          {
+           "_": "HasColor",
+           "colors": [
+            "Purple"
+           ]
+          }
+         ],
+         "loc": "trash",
+         "side": "friendly"
+        }
+       },
+       "op": ">=",
+       "right": 5
+      },
+      "then": [
+       {
+        "_": "Damage",
+        "amount": 2,
+        "ref": {
+         "_": "All",
+         "sel": {
+          "_": "Sel",
+          "filters": [
+           {
+            "_": "IsKind",
+            "kinds": [
+             "unit"
+            ]
+           },
+           {
+            "_": "StatCmp",
+            "op": "<=",
+            "stat": "ap",
+            "value": 5
+           }
+          ],
+          "loc": "battle",
+          "side": "any"
+         }
+        }
+       }
+      ]
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "event": "linked"
+    }
+   }
+  ],
+  "name": "Saviour Gundam",
+  "source": "compiled",
+  "text_hash": "60ed92e487c0e3ff"
+ },
+ "ST09-004": {
+  "abilities": [
+   {
+    "_": "Keyword",
+    "keyword": "Blocker"
+   },
+   {
+    "_": "Constant",
+    "cond": {
+     "_": "Exists",
+     "sel": {
+      "_": "Sel",
+      "filters": [
+       {
+        "_": "IsKind",
+        "kinds": [
+         "base"
+        ]
+       }
+      ],
+      "loc": "base",
+      "side": "friendly"
+     }
+    },
+    "effects": [
+     {
+      "_": "KeywordGrant",
+      "keyword": "Suppression"
+     }
+    ]
+   }
+  ],
+  "name": "Freedom Gundam",
+  "source": "compiled",
+  "text_hash": "cd53c1f7d1b761dc"
+ },
+ "ST09-005": {
+  "abilities": [],
+  "name": "Zaku Warrior",
+  "source": "vanilla",
+  "text_hash": "3973e022e93220f9"
+ },
+ "ST09-006": {
+  "abilities": [
+   {
+    "_": "Triggered",
+    "steps": [
+     {
+      "_": "If",
+      "cond": {
+       "_": "EventFrom",
+       "loc": "trash"
+      },
+      "then": [
+       {
+        "_": "Choose",
+        "sel": {
+         "_": "Sel",
+         "filters": [
+          {
+           "_": "IsKind",
+           "kinds": [
+            "unit"
+           ]
+          },
+          {
+           "_": "StatCmp",
+           "op": "<=",
+           "stat": "lv",
+           "value": 3
+          }
+         ],
+         "loc": "battle",
+         "side": "enemy"
+        },
+        "var": "t1"
+       },
+       {
+        "_": "Destroy",
+        "ref": {
+         "_": "Var",
+         "name": "t1"
+        }
+       }
+      ]
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "event": "deployed"
+    }
+   }
+  ],
+  "name": "Sword Impulse Gundam",
+  "source": "compiled",
+  "text_hash": "cd3457b11ace2d27"
+ },
+ "ST09-007": {
+  "abilities": [
+   {
+    "_": "Keyword",
+    "keyword": "Blocker"
+   }
+  ],
+  "name": "Blast Impulse Gundam",
+  "source": "compiled",
+  "text_hash": "e90d3c6fa84291d7"
+ },
+ "ST09-008": {
+  "abilities": [
+   {
+    "_": "Burst",
+    "steps": [
+     {
+      "_": "AddToHand",
+      "ref": {
+       "_": "ThisCard"
+      }
+     }
+    ]
+   }
+  ],
+  "name": "Shinn Asuka",
+  "source": "compiled",
+  "text_hash": "eb56ff36275738ba",
+  "unit_abilities": [
+   {
+    "_": "Triggered",
+    "steps": [
+     {
+      "_": "If",
+      "cond": {
+       "_": "RefMatches",
+       "filters": [
+        {
+         "_": "IsKind",
+         "kinds": [
+          "unit"
+         ]
+        },
+        {
+         "_": "HasTrait",
+         "traits": [
+          "Minerva Squad"
+         ]
+        }
+       ],
+       "ref": {
+        "_": "This"
+       }
+      },
+      "then": [
+       {
+        "_": "Choose",
+        "sel": {
+         "_": "Sel",
+         "filters": [
+          {
+           "_": "IsKind",
+           "kinds": [
+            "resource"
+           ]
+          }
+         ],
+         "loc": "resource_area",
+         "side": "friendly"
+        },
+        "var": "t1"
+       },
+       {
+        "_": "SetActive",
+        "ref": {
+         "_": "Var",
+         "name": "t1"
+        }
+       }
+      ]
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "event": "attacks"
+    }
+   }
+  ]
+ },
+ "ST09-009": {
+  "abilities": [
+   {
+    "_": "Command",
+    "steps": [
+     {
+      "_": "Choose",
+      "sel": {
+       "_": "Sel",
+       "filters": [
+        {
+         "_": "IsKind",
+         "kinds": [
+          "unit"
+         ]
+        },
+        {
+         "_": "IsRested",
+         "rested": false
+        },
+        {
+         "_": "StatCmp",
+         "op": "<=",
+         "stat": "ap",
+         "value": 4
+        }
+       ],
+       "loc": "battle",
+       "side": "enemy"
+      },
+      "var": "t1"
+     },
+     {
+      "_": "Destroy",
+      "ref": {
+       "_": "Var",
+       "name": "t1"
+      }
+     }
+    ],
+    "timing": "main_or_action"
+   }
+  ],
+  "name": "Giant Killing",
+  "source": "compiled",
+  "text_hash": "564474066a01df0b"
+ },
+ "ST09-010": {
+  "abilities": [
+   {
+    "_": "Burst",
+    "steps": [
+     {
+      "_": "DeployCard",
+      "ref": {
+       "_": "ThisCard"
+      }
+     }
+    ]
+   },
+   {
+    "_": "Triggered",
+    "steps": [
+     {
+      "_": "ShieldToHand"
+     },
+     {
+      "_": "If",
+      "cond": {
+       "_": "IsTurn"
+      },
+      "then": [
+       {
+        "_": "LookTop",
+        "count": 2
+       },
+       {
+        "_": "Choose",
+        "sel": {
+         "_": "Sel",
+         "loc": "deck_top",
+         "side": "friendly",
+         "top_n": 2
+        },
+        "targeting": false,
+        "var": "keep"
+       },
+       {
+        "_": "ToTrash",
+        "ref": {
+         "_": "All",
+         "sel": {
+          "_": "Sel",
+          "filters": [
+           {
+            "_": "NotRef",
+            "ref": {
+             "_": "Var",
+             "name": "keep"
+            }
+           }
+          ],
+          "loc": "deck_top",
+          "side": "friendly",
+          "top_n": 2
+         }
+        }
+       }
+      ]
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "event": "deployed"
+    }
+   }
+  ],
+  "binding": "wp_st09_11",
+  "name": "Minerva",
+  "source": "binding",
+  "text_hash": "7fbe75d8cbeba383"
+ }
+}

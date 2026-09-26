@@ -1,0 +1,844 @@
+{
+ "ST10-001": {
+  "abilities": [
+   {
+    "_": "Triggered",
+    "steps": [
+     {
+      "_": "SetActive",
+      "ref": {
+       "_": "This"
+      }
+     },
+     {
+      "_": "Apply",
+      "effect": {
+       "_": "RuleGrant",
+       "rule": {
+        "_": "RuleMod",
+        "kind": "cant_attack_player"
+       }
+      },
+      "ref": {
+       "_": "This"
+      }
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "battle_only": true,
+     "event": "destroys_shield_card"
+    }
+   }
+  ],
+  "binding": "wp_st09_11",
+  "name": "Zeta Gundam (EX)",
+  "source": "binding",
+  "text_hash": "51ee8c20b181be3f"
+ },
+ "ST10-002": {
+  "abilities": [
+   {
+    "_": "Triggered",
+    "steps": [
+     {
+      "_": "If",
+      "cond": {
+       "_": "Exists",
+       "at_least": 2,
+       "sel": {
+        "_": "Sel",
+        "filters": [
+         {
+          "_": "HasTrait",
+          "traits": [
+           "G Generation"
+          ]
+         }
+        ],
+        "loc": "trash",
+        "side": "friendly"
+       }
+      },
+      "then": [
+       {
+        "_": "May",
+        "prompt": "Development 2: exile 2 (G Generation) cards?",
+        "steps": [
+         {
+          "_": "Choose",
+          "count": 2,
+          "sel": {
+           "_": "Sel",
+           "filters": [
+            {
+             "_": "HasTrait",
+             "traits": [
+              "G Generation"
+             ]
+            }
+           ],
+           "loc": "trash",
+           "side": "friendly"
+          },
+          "targeting": false,
+          "var": "development"
+         },
+         {
+          "_": "Exile",
+          "ref": {
+           "_": "Var",
+           "name": "development"
+          }
+         },
+         {
+          "_": "IfYouDo",
+          "steps": [
+           {
+            "_": "Choose",
+            "sel": {
+             "_": "Sel",
+             "filters": [
+              {
+               "_": "IsKind",
+               "kinds": [
+                "unit"
+               ]
+              },
+              {
+               "_": "StatCmp",
+               "op": "<=",
+               "stat": "remaining_hp",
+               "value": 4
+              }
+             ],
+             "loc": "battle",
+             "side": "enemy"
+            },
+            "var": "t1"
+           },
+           {
+            "_": "Rest",
+            "ref": {
+             "_": "Var",
+             "name": "t1"
+            }
+           }
+          ]
+         }
+        ]
+       }
+      ]
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "event": "deployed"
+    }
+   }
+  ],
+  "binding": "wp_st09_11",
+  "name": "Zeta Gundam",
+  "source": "binding",
+  "text_hash": "187bc67128ccc194"
+ },
+ "ST10-003": {
+  "abilities": [],
+  "name": "Gundam Mk-II (AEUG)",
+  "source": "vanilla",
+  "text_hash": "3973e022e93220f9"
+ },
+ "ST10-004": {
+  "abilities": [
+   {
+    "_": "Keyword",
+    "amount": 2,
+    "keyword": "Repair"
+   }
+  ],
+  "name": "Super Gundam",
+  "source": "compiled",
+  "text_hash": "08ca5d3ff66accf2"
+ },
+ "ST10-005": {
+  "abilities": [],
+  "name": "Nemo",
+  "source": "vanilla",
+  "text_hash": "3973e022e93220f9"
+ },
+ "ST10-006": {
+  "abilities": [
+   {
+    "_": "Triggered",
+    "gate": "paired",
+    "steps": [
+     {
+      "_": "Choose",
+      "sel": {
+       "_": "Sel",
+       "filters": [
+        {
+         "_": "IsKind",
+         "kinds": [
+          "unit"
+         ]
+        },
+        {
+         "_": "StatCmp",
+         "op": "<=",
+         "stat": "remaining_hp",
+         "value": 3
+        }
+       ],
+       "loc": "battle",
+       "side": "enemy"
+      },
+      "var": "t1"
+     },
+     {
+      "_": "ReturnToHand",
+      "ref": {
+       "_": "Var",
+       "name": "t1"
+      }
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "battle_only": true,
+     "event": "destroys_by_battle",
+     "target_filters": [
+      {
+       "_": "IsKind",
+       "kinds": [
+        "unit"
+       ]
+      }
+     ],
+     "whose_turn": "you"
+    }
+   }
+  ],
+  "binding": "wp_st09_11",
+  "name": "Phoenix Gundam (Power Unleashed) (EX)",
+  "source": "binding",
+  "text_hash": "1966211b1cbb71fa"
+ },
+ "ST10-007": {
+  "abilities": [
+   {
+    "_": "Triggered",
+    "steps": [
+     {
+      "_": "If",
+      "cond": {
+       "_": "Exists",
+       "at_least": 2,
+       "sel": {
+        "_": "Sel",
+        "filters": [
+         {
+          "_": "HasTrait",
+          "traits": [
+           "G Generation"
+          ]
+         }
+        ],
+        "loc": "trash",
+        "side": "friendly"
+       }
+      },
+      "then": [
+       {
+        "_": "May",
+        "prompt": "Development 2: exile 2 (G Generation) cards?",
+        "steps": [
+         {
+          "_": "Choose",
+          "count": 2,
+          "sel": {
+           "_": "Sel",
+           "filters": [
+            {
+             "_": "HasTrait",
+             "traits": [
+              "G Generation"
+             ]
+            }
+           ],
+           "loc": "trash",
+           "side": "friendly"
+          },
+          "targeting": false,
+          "var": "development"
+         },
+         {
+          "_": "Exile",
+          "ref": {
+           "_": "Var",
+           "name": "development"
+          }
+         },
+         {
+          "_": "IfYouDo",
+          "steps": [
+           {
+            "_": "Choose",
+            "sel": {
+             "_": "Sel",
+             "filters": [
+              {
+               "_": "IsKind",
+               "kinds": [
+                "command"
+               ]
+              },
+              {
+               "_": "StatCmp",
+               "op": "<=",
+               "stat": "lv",
+               "value": 4
+              }
+             ],
+             "loc": "trash",
+             "side": "friendly"
+            },
+            "var": "t1"
+           },
+           {
+            "_": "AddToHand",
+            "ref": {
+             "_": "Var",
+             "name": "t1"
+            }
+           }
+          ]
+         }
+        ]
+       }
+      ]
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "event": "linked"
+    }
+   }
+  ],
+  "binding": "wp_st09_11",
+  "name": "Gundam Barbatos 4th Form",
+  "source": "binding",
+  "text_hash": "ffa8cf64bedee23e"
+ },
+ "ST10-008": {
+  "abilities": [
+   {
+    "_": "Triggered",
+    "steps": [
+     {
+      "_": "If",
+      "cond": {
+       "_": "Exists",
+       "at_least": 2,
+       "sel": {
+        "_": "Sel",
+        "filters": [
+         {
+          "_": "HasTrait",
+          "traits": [
+           "G Generation"
+          ]
+         }
+        ],
+        "loc": "trash",
+        "side": "friendly"
+       }
+      },
+      "then": [
+       {
+        "_": "May",
+        "prompt": "Development 2: exile 2 (G Generation) cards?",
+        "steps": [
+         {
+          "_": "Choose",
+          "count": 2,
+          "sel": {
+           "_": "Sel",
+           "filters": [
+            {
+             "_": "HasTrait",
+             "traits": [
+              "G Generation"
+             ]
+            }
+           ],
+           "loc": "trash",
+           "side": "friendly"
+          },
+          "targeting": false,
+          "var": "development"
+         },
+         {
+          "_": "Exile",
+          "ref": {
+           "_": "Var",
+           "name": "development"
+          }
+         },
+         {
+          "_": "IfYouDo",
+          "steps": [
+           {
+            "_": "Draw"
+           },
+           {
+            "_": "If",
+            "cond": {
+             "_": "DidLast"
+            },
+            "then": [
+             {
+              "_": "Discard"
+             }
+            ]
+           }
+          ]
+         }
+        ]
+       }
+      ]
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "event": "deployed"
+    }
+   }
+  ],
+  "binding": "wp_st09_11",
+  "name": "Gundam Barbatos 1st Form",
+  "source": "binding",
+  "text_hash": "8f83d7e69ec2c0bf"
+ },
+ "ST10-009": {
+  "abilities": [
+   {
+    "_": "Keyword",
+    "keyword": "Blocker"
+   }
+  ],
+  "name": "Graze Duel Type",
+  "source": "compiled",
+  "text_hash": "e90d3c6fa84291d7"
+ },
+ "ST10-010": {
+  "abilities": [
+   {
+    "_": "Keyword",
+    "keyword": "Blocker"
+   }
+  ],
+  "name": "Mobile Worker (Tekkadan)",
+  "source": "compiled",
+  "text_hash": "e90d3c6fa84291d7"
+ },
+ "ST10-011": {
+  "abilities": [
+   {
+    "_": "Burst",
+    "steps": [
+     {
+      "_": "AddToHand",
+      "ref": {
+       "_": "ThisCard"
+      }
+     }
+    ]
+   }
+  ],
+  "name": "Kamille Bidan",
+  "source": "compiled",
+  "text_hash": "66867b18f1bc21a0",
+  "unit_abilities": [
+   {
+    "_": "Triggered",
+    "steps": [
+     {
+      "_": "If",
+      "cond": {
+       "_": "Cmp",
+       "left": {
+        "_": "Count",
+        "sel": {
+         "_": "Sel",
+         "filters": [
+          {
+           "_": "IsKind",
+           "kinds": [
+            "unit"
+           ]
+          },
+          {
+           "_": "IsRested"
+          }
+         ],
+         "loc": "battle",
+         "side": "any"
+        }
+       },
+       "op": ">=",
+       "right": 2
+      },
+      "then": [
+       {
+        "_": "Choose",
+        "sel": {
+         "_": "Sel",
+         "filters": [
+          {
+           "_": "IsKind",
+           "kinds": [
+            "unit"
+           ]
+          },
+          {
+           "_": "LevelCmpRef",
+           "op": "<=",
+           "ref": {
+            "_": "This"
+           },
+           "ref_stat": "lv",
+           "stat": "lv"
+          }
+         ],
+         "loc": "battle",
+         "side": "enemy"
+        },
+        "var": "t1"
+       },
+       {
+        "_": "Rest",
+        "ref": {
+         "_": "Var",
+         "name": "t1"
+        }
+       }
+      ]
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "event": "linked"
+    }
+   }
+  ]
+ },
+ "ST10-012": {
+  "abilities": [
+   {
+    "_": "Burst",
+    "steps": [
+     {
+      "_": "AddToHand",
+      "ref": {
+       "_": "ThisCard"
+      }
+     }
+    ]
+   }
+  ],
+  "name": "Mark Guilder",
+  "source": "compiled",
+  "text_hash": "1f4335d4abf8789e",
+  "unit_abilities": [
+   {
+    "_": "Triggered",
+    "steps": [
+     {
+      "_": "Choose",
+      "sel": {
+       "_": "Sel",
+       "filters": [
+        {
+         "_": "IsKind",
+         "kinds": [
+          "unit"
+         ]
+        },
+        {
+         "_": "StatCmp",
+         "op": "<=",
+         "stat": "lv",
+         "value": 5
+        }
+       ],
+       "loc": "battle",
+       "side": "enemy"
+      },
+      "var": "t1"
+     },
+     {
+      "_": "Apply",
+      "effect": {
+       "_": "StatMod",
+       "ap": -2
+      },
+      "ref": {
+       "_": "Var",
+       "name": "t1"
+      }
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "event": "paired"
+    }
+   }
+  ]
+ },
+ "ST10-013": {
+  "abilities": [
+   {
+    "_": "Burst",
+    "steps": [
+     {
+      "_": "AddToHand",
+      "ref": {
+       "_": "ThisCard"
+      }
+     }
+    ]
+   },
+   {
+    "_": "Command",
+    "steps": [
+     {
+      "_": "Choose",
+      "sel": {
+       "_": "Sel",
+       "filters": [
+        {
+         "_": "IsKind",
+         "kinds": [
+          "unit"
+         ]
+        },
+        {
+         "_": "HasTrait",
+         "traits": [
+          "G Generation"
+         ]
+        },
+        {
+         "_": "StatCmp",
+         "op": ">=",
+         "stat": "lv",
+         "value": 5
+        }
+       ],
+       "loc": "battle",
+       "side": "any"
+      },
+      "var": "t1"
+     },
+     {
+      "_": "Recover",
+      "amount": 2,
+      "ref": {
+       "_": "Var",
+       "name": "t1"
+      }
+     },
+     {
+      "_": "Apply",
+      "effect": {
+       "_": "StatMod",
+       "ap": 2
+      },
+      "ref": {
+       "_": "Var",
+       "name": "t1"
+      }
+     }
+    ],
+    "timing": "main_or_action"
+   }
+  ],
+  "name": "Tactical Training",
+  "source": "compiled",
+  "text_hash": "c55a070aa9a718bb"
+ },
+ "ST10-014": {
+  "abilities": [
+   {
+    "_": "PlayModifier",
+    "cost": 2,
+    "costs": [
+     {
+      "_": "DiscardCards",
+      "count": 1,
+      "sel": {
+       "_": "Sel",
+       "filters": [
+        {
+         "_": "IsKind",
+         "kinds": [
+          "unit"
+         ]
+        },
+        {
+         "_": "HasTrait",
+         "traits": [
+          "G Generation"
+         ]
+        }
+       ],
+       "loc": "hand",
+       "side": "friendly"
+      }
+     }
+    ],
+    "level": 2
+   },
+   {
+    "_": "Command",
+    "steps": [
+     {
+      "_": "Draw",
+      "count": 2
+     }
+    ],
+    "timing": "main"
+   }
+  ],
+  "binding": "wp_st09_11",
+  "name": "Unlocking the Development Diagram",
+  "source": "binding",
+  "text_hash": "87f947078d82749d"
+ },
+ "ST10-015": {
+  "abilities": [
+   {
+    "_": "Command",
+    "steps": [
+     {
+      "_": "If",
+      "cond": {
+       "_": "Exists",
+       "sel": {
+        "_": "Sel",
+        "filters": [
+         {
+          "_": "IsKind",
+          "kinds": [
+           "unit"
+          ]
+         },
+         {
+          "_": "HasTrait",
+          "traits": [
+           "G Generation"
+          ]
+         }
+        ],
+        "loc": "battle",
+        "side": "friendly"
+       }
+      },
+      "then": [
+       {
+        "_": "Choose",
+        "sel": {
+         "_": "Sel",
+         "filters": [
+          {
+           "_": "IsKind",
+           "kinds": [
+            "unit"
+           ]
+          }
+         ],
+         "loc": "battle",
+         "side": "enemy"
+        },
+        "var": "t1"
+       },
+       {
+        "_": "Apply",
+        "duration": "this_battle",
+        "effect": {
+         "_": "StatMod",
+         "ap": -3
+        },
+        "ref": {
+         "_": "Var",
+         "name": "t1"
+        }
+       }
+      ]
+     }
+    ],
+    "timing": "action"
+   }
+  ],
+  "name": "Diffuse Beam Cannon",
+  "source": "compiled",
+  "text_hash": "7c521ee6cc746900"
+ },
+ "ST10-016": {
+  "abilities": [
+   {
+    "_": "Burst",
+    "steps": [
+     {
+      "_": "DeployCard",
+      "ref": {
+       "_": "ThisCard"
+      }
+     }
+    ]
+   },
+   {
+    "_": "Triggered",
+    "steps": [
+     {
+      "_": "ShieldToHand"
+     },
+     {
+      "_": "Recover",
+      "amount": 1,
+      "ref": {
+       "_": "All",
+       "sel": {
+        "_": "Sel",
+        "filters": [
+         {
+          "_": "IsKind",
+          "kinds": [
+           "unit"
+          ]
+         },
+         {
+          "_": "HasTrait",
+          "traits": [
+           "G Generation"
+          ]
+         }
+        ],
+        "loc": "battle",
+        "side": "friendly"
+       }
+      }
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "event": "deployed"
+    }
+   }
+  ],
+  "name": "Luna Mana & Carry Base",
+  "source": "compiled",
+  "text_hash": "505ccd6f13f7f59a"
+ }
+}

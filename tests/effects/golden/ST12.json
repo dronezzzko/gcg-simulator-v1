@@ -1,0 +1,999 @@
+{
+ "ST12-001": {
+  "abilities": [
+   {
+    "_": "Triggered",
+    "gate": "paired",
+    "gate_filters": [
+     {
+      "_": "StatCmp",
+      "op": ">=",
+      "stat": "lv",
+      "value": 5
+     }
+    ],
+    "once_per_turn": true,
+    "steps": [
+     {
+      "_": "Damage",
+      "amount": 2,
+      "ref": {
+       "_": "All",
+       "sel": {
+        "_": "Sel",
+        "filters": [
+         {
+          "_": "IsKind",
+          "kinds": [
+           "unit"
+          ]
+         },
+         {
+          "_": "StatCmp",
+          "op": "<=",
+          "stat": "ap",
+          "value": 5
+         }
+        ],
+        "loc": "battle",
+        "side": "enemy"
+       }
+      }
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "event": "destroys_by_battle",
+     "target_filters": [
+      {
+       "_": "IsKind",
+       "kinds": [
+        "unit"
+       ]
+      }
+     ],
+     "whose_turn": "you"
+    }
+   },
+   {
+    "_": "Triggered",
+    "steps": [
+     {
+      "_": "Choose",
+      "sel": {
+       "_": "Sel",
+       "filters": [
+        {
+         "_": "IsKind",
+         "kinds": [
+          "base"
+         ]
+        }
+       ],
+       "loc": "base",
+       "side": "enemy"
+      },
+      "var": "t1"
+     },
+     {
+      "_": "Damage",
+      "amount": 5,
+      "ref": {
+       "_": "Var",
+       "name": "t1"
+      }
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "event": "deployed"
+    }
+   }
+  ],
+  "name": "Gundam Epyon",
+  "source": "compiled",
+  "text_hash": "25829dabc62c2457"
+ },
+ "ST12-002": {
+  "abilities": [
+   {
+    "_": "Triggered",
+    "steps": [
+     {
+      "_": "Choose",
+      "sel": {
+       "_": "Sel",
+       "filters": [
+        {
+         "_": "IsKind",
+         "kinds": [
+          "unit"
+         ]
+        },
+        {
+         "_": "StatCmp",
+         "op": ">=",
+         "stat": "ap",
+         "value": 5
+        }
+       ],
+       "loc": "battle",
+       "side": "friendly"
+      },
+      "var": "t1"
+     },
+     {
+      "_": "Apply",
+      "effect": {
+       "_": "KeywordGrant",
+       "amount": 3,
+       "keyword": "Breach"
+      },
+      "ref": {
+       "_": "Var",
+       "name": "t1"
+      }
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "event": "deployed"
+    }
+   }
+  ],
+  "name": "Shining Gundam",
+  "source": "compiled",
+  "text_hash": "de2e9948fe7d1b07"
+ },
+ "ST12-003": {
+  "abilities": [
+   {
+    "_": "Triggered",
+    "once_per_turn": true,
+    "steps": [
+     {
+      "_": "Damage",
+      "amount": 1,
+      "ref": {
+       "_": "All",
+       "sel": {
+        "_": "Sel",
+        "filters": [
+         {
+          "_": "IsKind",
+          "kinds": [
+           "unit"
+          ]
+         },
+         {
+          "_": "StatCmp",
+          "op": "<=",
+          "stat": "ap",
+          "value": 3
+         }
+        ],
+        "loc": "battle",
+        "side": "enemy"
+       }
+      }
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "event": "destroys_by_battle",
+     "target_filters": [
+      {
+       "_": "IsKind",
+       "kinds": [
+        "unit"
+       ]
+      }
+     ],
+     "whose_turn": "you"
+    }
+   }
+  ],
+  "name": "Tallgeese Ⅲ",
+  "source": "compiled",
+  "text_hash": "f423f298e7eb0eb4"
+ },
+ "ST12-004": {
+  "abilities": [
+   {
+    "_": "Keyword",
+    "amount": 3,
+    "keyword": "Breach"
+   }
+  ],
+  "name": "Gundam Exia",
+  "source": "compiled",
+  "text_hash": "6fb66bcde1116dac"
+ },
+ "ST12-005": {
+  "abilities": [
+   {
+    "_": "Triggered",
+    "steps": [
+     {
+      "_": "May",
+      "steps": [
+       {
+        "_": "Discard"
+       }
+      ]
+     },
+     {
+      "_": "IfYouDo",
+      "steps": [
+       {
+        "_": "Draw"
+       }
+      ]
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "event": "attacks"
+    }
+   }
+  ],
+  "name": "GQuuuuuuX (Omega Psycommu)",
+  "source": "compiled",
+  "text_hash": "342cc4af7876cd3b"
+ },
+ "ST12-006": {
+  "abilities": [
+   {
+    "_": "Activated",
+    "costs": [
+     {
+      "_": "ExileCards",
+      "count": 4,
+      "sel": {
+       "_": "Sel",
+       "loc": "trash",
+       "side": "friendly"
+      }
+     }
+    ],
+    "gate": "paired",
+    "steps": [
+     {
+      "_": "Apply",
+      "effect": {
+       "_": "KeywordGrant",
+       "keyword": "First Strike"
+      },
+      "ref": {
+       "_": "This"
+      }
+     }
+    ],
+    "timing": "main"
+   },
+   {
+    "_": "Activated",
+    "costs": [
+     {
+      "_": "ExileCards",
+      "count": 4,
+      "sel": {
+       "_": "Sel",
+       "loc": "trash",
+       "side": "friendly"
+      }
+     }
+    ],
+    "steps": [
+     {
+      "_": "Apply",
+      "duration": "this_battle",
+      "effect": {
+       "_": "KeywordGrant",
+       "keyword": "Suppression"
+      },
+      "ref": {
+       "_": "This"
+      }
+     }
+    ],
+    "timing": "action"
+   }
+  ],
+  "name": "Unicorn Gundam 02 Banshee (Destroy Mode)",
+  "source": "compiled",
+  "text_hash": "c1f18e97a2ed802b"
+ },
+ "ST12-007": {
+  "abilities": [
+   {
+    "_": "Triggered",
+    "steps": [
+     {
+      "_": "Apply",
+      "effect": {
+       "_": "KeywordGrant",
+       "keyword": "First Strike"
+      },
+      "ref": {
+       "_": "This"
+      }
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "event": "linked"
+    }
+   }
+  ],
+  "name": "Gyan",
+  "source": "compiled",
+  "text_hash": "2b29c5db876f069f"
+ },
+ "ST12-008": {
+  "abilities": [],
+  "name": "Efreet Schneid",
+  "source": "vanilla",
+  "text_hash": "3973e022e93220f9"
+ },
+ "ST12-009": {
+  "abilities": [
+   {
+    "_": "Triggered",
+    "steps": [
+     {
+      "_": "If",
+      "cond": {
+       "_": "Or",
+       "conds": [
+        {
+         "_": "Cmp",
+         "left": {
+          "_": "ShieldCount"
+         },
+         "op": "<=",
+         "right": 3
+        },
+        {
+         "_": "Cmp",
+         "left": {
+          "_": "ShieldCount",
+          "player": "opponent"
+         },
+         "op": "<=",
+         "right": 3
+        }
+       ]
+      },
+      "then": [
+       {
+        "_": "Choose",
+        "sel": {
+         "_": "Sel",
+         "filters": [
+          {
+           "_": "IsKind",
+           "kinds": [
+            "unit"
+           ]
+          },
+          {
+           "_": "StatCmp",
+           "op": ">=",
+           "stat": "lv",
+           "value": 6
+          }
+         ],
+         "loc": "trash",
+         "side": "friendly"
+        },
+        "var": "t1"
+       },
+       {
+        "_": "AddToHand",
+        "ref": {
+         "_": "Var",
+         "name": "t1"
+        }
+       },
+       {
+        "_": "IfYouDo",
+        "steps": [
+         {
+          "_": "Discard"
+         }
+        ]
+       }
+      ]
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "event": "destroyed"
+    }
+   }
+  ],
+  "binding": "wp_st12_14",
+  "name": "Unicorn Gundam 02 Banshee (Unicorn Mode)",
+  "source": "binding",
+  "text_hash": "c3cd14a67e2069bf"
+ },
+ "ST12-010": {
+  "abilities": [],
+  "name": "Slash Zaku Phantom",
+  "source": "vanilla",
+  "text_hash": "3973e022e93220f9"
+ },
+ "ST12-011": {
+  "abilities": [
+   {
+    "_": "NameAlias",
+    "names": [
+     "Zechs Merquise"
+    ]
+   },
+   {
+    "_": "Burst",
+    "steps": [
+     {
+      "_": "AddToHand",
+      "ref": {
+       "_": "ThisCard"
+      }
+     }
+    ]
+   }
+  ],
+  "binding": "wp_st12_14",
+  "name": "Milliardo Peacecraft",
+  "source": "binding",
+  "text_hash": "17cf5ea9987b9eae",
+  "unit_abilities": [
+   {
+    "_": "Activated",
+    "costs": [],
+    "once_per_turn": true,
+    "steps": [
+     {
+      "_": "Choose",
+      "sel": {
+       "_": "Sel",
+       "filters": [
+        {
+         "_": "IsKind",
+         "kinds": [
+          "unit"
+         ]
+        },
+        {
+         "_": "IsDamaged"
+        },
+        {
+         "_": "IsRef",
+         "ref": {
+          "_": "BattlingWith",
+          "ref": {
+           "_": "This"
+          }
+         }
+        }
+       ],
+       "loc": "battle",
+       "side": "enemy"
+      },
+      "var": "t1"
+     },
+     {
+      "_": "Damage",
+      "amount": 2,
+      "ref": {
+       "_": "Var",
+       "name": "t1"
+      }
+     }
+    ],
+    "timing": "action"
+   }
+  ]
+ },
+ "ST12-012": {
+  "abilities": [
+   {
+    "_": "NameAlias",
+    "names": [
+     "Marida Cruz"
+    ]
+   },
+   {
+    "_": "Burst",
+    "steps": [
+     {
+      "_": "AddToHand",
+      "ref": {
+       "_": "ThisCard"
+      }
+     }
+    ]
+   }
+  ],
+  "binding": "wp_st12_14",
+  "name": "Ple-Twelve",
+  "source": "binding",
+  "text_hash": "f80d7f78fbd47004",
+  "unit_abilities": [
+   {
+    "_": "Triggered",
+    "steps": [
+     {
+      "_": "LookTop",
+      "count": 2
+     },
+     {
+      "_": "Choose",
+      "sel": {
+       "_": "Sel",
+       "filters": [
+        {
+         "_": "IsRef",
+         "ref": {
+          "_": "Var",
+          "name": "looked"
+         }
+        }
+       ],
+       "loc": "deck",
+       "side": "friendly"
+      },
+      "targeting": false,
+      "var": "kept"
+     },
+     {
+      "_": "ToTrash",
+      "ref": {
+       "_": "All",
+       "sel": {
+        "_": "Sel",
+        "filters": [
+         {
+          "_": "IsRef",
+          "ref": {
+           "_": "Var",
+           "name": "looked"
+          }
+         },
+         {
+          "_": "NotRef",
+          "ref": {
+           "_": "Var",
+           "name": "kept"
+          }
+         }
+        ],
+        "loc": "deck",
+        "side": "friendly"
+       }
+      }
+     },
+     {
+      "_": "If",
+      "cond": {
+       "_": "Or",
+       "conds": [
+        {
+         "_": "Cmp",
+         "left": {
+          "_": "ShieldCount"
+         },
+         "op": "<=",
+         "right": 3
+        },
+        {
+         "_": "Cmp",
+         "left": {
+          "_": "ShieldCount",
+          "player": "opponent"
+         },
+         "op": "<=",
+         "right": 3
+        }
+       ]
+      },
+      "then": [
+       {
+        "_": "AddToHand",
+        "ref": {
+         "_": "Var",
+         "name": "kept"
+        }
+       }
+      ]
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "event": "linked"
+    }
+   }
+  ]
+ },
+ "ST12-013": {
+  "abilities": [
+   {
+    "_": "Burst",
+    "steps": [
+     {
+      "_": "Choose",
+      "sel": {
+       "_": "Sel",
+       "filters": [
+        {
+         "_": "IsKind",
+         "kinds": [
+          "unit"
+         ]
+        }
+       ],
+       "loc": "battle",
+       "side": "enemy"
+      },
+      "var": "t1"
+     },
+     {
+      "_": "Damage",
+      "amount": 1,
+      "ref": {
+       "_": "Var",
+       "name": "t1"
+      }
+     }
+    ]
+   },
+   {
+    "_": "Command",
+    "steps": [
+     {
+      "_": "Choose",
+      "sel": {
+       "_": "Sel",
+       "filters": [
+        {
+         "_": "IsKind",
+         "kinds": [
+          "unit"
+         ]
+        }
+       ],
+       "loc": "battle",
+       "side": "friendly"
+      },
+      "var": "mine"
+     },
+     {
+      "_": "Choose",
+      "chooser": "opponent",
+      "sel": {
+       "_": "Sel",
+       "filters": [
+        {
+         "_": "IsKind",
+         "kinds": [
+          "unit"
+         ]
+        }
+       ],
+       "loc": "battle",
+       "side": "enemy"
+      },
+      "var": "theirs"
+     },
+     {
+      "_": "StartBattle",
+      "attacker": {
+       "_": "Var",
+       "name": "mine"
+      },
+      "target": {
+       "_": "Var",
+       "name": "theirs"
+      }
+     }
+    ],
+    "timing": "main"
+   }
+  ],
+  "binding": "wp_st12_14",
+  "name": "The Final Victor",
+  "source": "binding",
+  "text_hash": "80fa8c5dfe99733d"
+ },
+ "ST12-014": {
+  "abilities": [
+   {
+    "_": "Command",
+    "steps": [
+     {
+      "_": "Choose",
+      "sel": {
+       "_": "Sel",
+       "filters": [
+        {
+         "_": "IsKind",
+         "kinds": [
+          "unit"
+         ]
+        }
+       ],
+       "loc": "battle",
+       "side": "friendly"
+      },
+      "var": "t1"
+     },
+     {
+      "_": "Apply",
+      "duration": "this_battle",
+      "effect": {
+       "_": "AbilityGrant",
+       "ability_index": 1,
+       "card_number": "ST12-014"
+      },
+      "ref": {
+       "_": "Var",
+       "name": "t1"
+      }
+     }
+    ],
+    "timing": "action"
+   },
+   {
+    "_": "Triggered",
+    "steps": [
+     {
+      "_": "Choose",
+      "sel": {
+       "_": "Sel",
+       "filters": [
+        {
+         "_": "IsKind",
+         "kinds": [
+          "unit"
+         ]
+        },
+        {
+         "_": "StatCmp",
+         "op": "<=",
+         "stat": "ap",
+         "value": 2
+        }
+       ],
+       "loc": "battle",
+       "side": "enemy"
+      },
+      "var": "t1"
+     },
+     {
+      "_": "Destroy",
+      "ref": {
+       "_": "Var",
+       "name": "t1"
+      }
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "battle_only": true,
+     "event": "destroys_by_battle",
+     "target_filters": [
+      {
+       "_": "IsKind",
+       "kinds": [
+        "unit"
+       ]
+      }
+     ]
+    }
+   }
+  ],
+  "binding": "wp_st12_14",
+  "name": "Wise Leader's Pride",
+  "source": "binding",
+  "text_hash": "d08473292c52d75f"
+ },
+ "ST12-015": {
+  "abilities": [
+   {
+    "_": "Command",
+    "steps": [
+     {
+      "_": "ChooseMode",
+      "options": [
+       [
+        "destroy_enemy_lv2_or_lower",
+        [
+         {
+          "_": "Choose",
+          "sel": {
+           "_": "Sel",
+           "filters": [
+            {
+             "_": "IsKind",
+             "kinds": [
+              "unit"
+             ]
+            },
+            {
+             "_": "StatCmp",
+             "op": "<=",
+             "stat": "lv",
+             "value": 2
+            }
+           ],
+           "loc": "battle",
+           "side": "enemy"
+          },
+          "var": "t1"
+         },
+         {
+          "_": "Destroy",
+          "ref": {
+           "_": "Var",
+           "name": "t1"
+          }
+         }
+        ]
+       ],
+       [
+        "damage_friendly_and_enemy_lv5_or_higher",
+        [
+         {
+          "_": "Choose",
+          "sel": {
+           "_": "Sel",
+           "filters": [
+            {
+             "_": "IsKind",
+             "kinds": [
+              "unit"
+             ]
+            }
+           ],
+           "loc": "battle",
+           "side": "friendly"
+          },
+          "var": "t1"
+         },
+         {
+          "_": "Choose",
+          "sel": {
+           "_": "Sel",
+           "filters": [
+            {
+             "_": "IsKind",
+             "kinds": [
+              "unit"
+             ]
+            },
+            {
+             "_": "StatCmp",
+             "op": ">=",
+             "stat": "lv",
+             "value": 5
+            }
+           ],
+           "loc": "battle",
+           "side": "enemy"
+          },
+          "var": "t2"
+         },
+         {
+          "_": "Damage",
+          "amount": 2,
+          "ref": {
+           "_": "Union",
+           "refs": [
+            {
+             "_": "Var",
+             "name": "t1"
+            },
+            {
+             "_": "Var",
+             "name": "t2"
+            }
+           ]
+          }
+         }
+        ]
+       ]
+      ]
+     }
+    ],
+    "timing": "action"
+   }
+  ],
+  "binding": "wp_st12_14",
+  "name": "Two Unicorns",
+  "source": "binding",
+  "text_hash": "433cfc72d2b2edd6"
+ },
+ "ST12-016": {
+  "abilities": [
+   {
+    "_": "Burst",
+    "steps": [
+     {
+      "_": "DeployCard",
+      "ref": {
+       "_": "ThisCard"
+      }
+     }
+    ]
+   },
+   {
+    "_": "Triggered",
+    "steps": [
+     {
+      "_": "ShieldToHand"
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "event": "deployed"
+    }
+   },
+   {
+    "_": "Activated",
+    "costs": [
+     {
+      "_": "RestSelf"
+     }
+    ],
+    "steps": [
+     {
+      "_": "If",
+      "cond": {
+       "_": "HappenedThisTurn",
+       "kind": "destroys_by_battle_paired"
+      },
+      "then": [
+       {
+        "_": "Choose",
+        "sel": {
+         "_": "Sel",
+         "filters": [
+          {
+           "_": "IsKind",
+           "kinds": [
+            "unit"
+           ]
+          },
+          {
+           "_": "StatCmp",
+           "op": "<=",
+           "stat": "lv",
+           "value": 4
+          }
+         ],
+         "loc": "battle",
+         "side": "enemy"
+        },
+        "var": "t1"
+       },
+       {
+        "_": "Damage",
+        "amount": 1,
+        "ref": {
+         "_": "Var",
+         "name": "t1"
+        }
+       }
+      ]
+     }
+    ],
+    "timing": "main"
+   }
+  ],
+  "binding": "wp_st12_14",
+  "name": "Libra",
+  "source": "binding",
+  "text_hash": "9b38acfbfccf410b"
+ }
+}

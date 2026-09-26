@@ -1,0 +1,1043 @@
+{
+ "ST14-001": {
+  "abilities": [
+   {
+    "_": "Keyword",
+    "keyword": "Suppression"
+   },
+   {
+    "_": "Constant",
+    "cond": {
+     "_": "IsTurn",
+     "player": "opponent"
+    },
+    "effects": [
+     {
+      "_": "RuleGrant",
+      "rule": {
+       "_": "RuleMod",
+       "kind": "stays_rested_in_start_phase"
+      }
+     }
+    ],
+    "scope": {
+     "_": "All",
+     "sel": {
+      "_": "Sel",
+      "filters": [
+       {
+        "_": "IsKind",
+        "kinds": [
+         "unit"
+        ]
+       },
+       {
+        "_": "IsRested"
+       },
+       {
+        "_": "StatCmp",
+        "op": "<=",
+        "stat": "lv",
+        "value": {
+         "_": "CustomValue",
+         "name": "wp_st12_14_lowest_rested_enemy_lv"
+        }
+       }
+      ],
+      "loc": "battle",
+      "side": "enemy"
+     }
+    }
+   }
+  ],
+  "binding": "wp_st12_14",
+  "name": "The-O",
+  "source": "binding",
+  "text_hash": "d3916d2b48fdc701"
+ },
+ "ST14-002": {
+  "abilities": [
+   {
+    "_": "Keyword",
+    "keyword": "Blocker"
+   }
+  ],
+  "name": "Gundam NT-1 Full Armor",
+  "source": "compiled",
+  "text_hash": "e90d3c6fa84291d7"
+ },
+ "ST14-003": {
+  "abilities": [
+   {
+    "_": "Triggered",
+    "steps": [
+     {
+      "_": "If",
+      "cond": {
+       "_": "Cmp",
+       "left": {
+        "_": "Count",
+        "sel": {
+         "_": "Sel",
+         "filters": [
+          {
+           "_": "IsKind",
+           "kinds": [
+            "unit"
+           ]
+          }
+         ],
+         "loc": "trash",
+         "side": "enemy"
+        }
+       },
+       "op": ">=",
+       "right": 2
+      },
+      "then": [
+       {
+        "_": "Choose",
+        "chooser": "opponent",
+        "count": 2,
+        "sel": {
+         "_": "Sel",
+         "filters": [
+          {
+           "_": "IsKind",
+           "kinds": [
+            "unit"
+           ]
+          }
+         ],
+         "loc": "trash",
+         "side": "enemy"
+        },
+        "targeting": false,
+        "var": "t1"
+       },
+       {
+        "_": "Exile",
+        "ref": {
+         "_": "Var",
+         "name": "t1"
+        }
+       }
+      ]
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "event": "deployed"
+    }
+   }
+  ],
+  "binding": "wp_st12_14",
+  "name": "Palace Athene",
+  "source": "binding",
+  "text_hash": "60fa2d6e6e560179"
+ },
+ "ST14-004": {
+  "abilities": [
+   {
+    "_": "Keyword",
+    "keyword": "Blocker"
+   },
+   {
+    "_": "Constant",
+    "effects": [
+     {
+      "_": "RuleGrant",
+      "rule": {
+       "_": "RuleMod",
+       "kind": "cant_attack_player"
+      }
+     }
+    ]
+   }
+  ],
+  "name": "Geara Doga (Heavy Armed Type)",
+  "source": "compiled",
+  "text_hash": "9cee64f0246e763e"
+ },
+ "ST14-005": {
+  "abilities": [
+   {
+    "_": "Triggered",
+    "steps": [
+     {
+      "_": "Choose",
+      "sel": {
+       "_": "Sel",
+       "filters": [
+        {
+         "_": "IsKind",
+         "kinds": [
+          "unit"
+         ]
+        },
+        {
+         "_": "StatCmp",
+         "op": "<=",
+         "stat": "lv",
+         "value": 6
+        }
+       ],
+       "loc": "battle",
+       "side": "enemy"
+      },
+      "var": "t1"
+     },
+     {
+      "_": "Rest",
+      "ref": {
+       "_": "Var",
+       "name": "t1"
+      }
+     },
+     {
+      "_": "If",
+      "cond": {
+       "_": "Cmp",
+       "left": {
+        "_": "Count",
+        "sel": {
+         "_": "Sel",
+         "loc": "trash",
+         "side": "friendly"
+        }
+       },
+       "op": ">=",
+       "right": 7
+      },
+      "then": [
+       {
+        "_": "Apply",
+        "effect": {
+         "_": "StatMod",
+         "ap": -2
+        },
+        "ref": {
+         "_": "Var",
+         "name": "t1"
+        }
+       }
+      ]
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "event": "deployed"
+    }
+   }
+  ],
+  "name": "G-Falcon DX",
+  "source": "compiled",
+  "text_hash": "f85d0c065f2604df"
+ },
+ "ST14-006": {
+  "abilities": [
+   {
+    "_": "Triggered",
+    "steps": [
+     {
+      "_": "LookTop",
+      "count": 3
+     },
+     {
+      "_": "May",
+      "steps": [
+       {
+        "_": "Choose",
+        "sel": {
+         "_": "Sel",
+         "filters": [
+          {
+           "_": "IsRef",
+           "ref": {
+            "_": "Var",
+            "name": "looked"
+           }
+          }
+         ],
+         "loc": "deck",
+         "side": "friendly"
+        },
+        "targeting": false,
+        "var": "t1"
+       },
+       {
+        "_": "AddToHand",
+        "ref": {
+         "_": "Var",
+         "name": "t1"
+        },
+        "reveal": true
+       }
+      ]
+     },
+     {
+      "_": "CustomStep",
+      "name": "return_looked_bottom"
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "event": "deployed"
+    }
+   },
+   {
+    "_": "Constant",
+    "effects": [
+     {
+      "_": "RuleGrant",
+      "rule": {
+       "_": "RuleMod",
+       "damage_kind": "battle",
+       "kind": "cant_receive_damage",
+       "once_per_turn": true,
+       "source_filters": [
+        {
+         "_": "IsKind",
+         "kinds": [
+          "unit"
+         ]
+        },
+        {
+         "_": "LevelCmpRef",
+         "op": "<=",
+         "ref": {
+          "_": "This"
+         },
+         "ref_stat": "ap",
+         "stat": "ap"
+        }
+       ],
+       "source_side": "enemy"
+      }
+     }
+    ],
+    "gate": "paired"
+   }
+  ],
+  "binding": "wp_st12_14",
+  "name": "Full Armor Unicorn Gundam (Destroy Mode)",
+  "source": "binding",
+  "text_hash": "492e71bc78b8f945"
+ },
+ "ST14-007": {
+  "abilities": [
+   {
+    "_": "Keyword",
+    "amount": 3,
+    "keyword": "Breach"
+   }
+  ],
+  "name": "Full Armor Unicorn Gundam (Unicorn Mode)",
+  "source": "compiled",
+  "text_hash": "6fb66bcde1116dac"
+ },
+ "ST14-008": {
+  "abilities": [],
+  "name": "Gundam Heavyarms Custom (EW)",
+  "source": "vanilla",
+  "text_hash": "3973e022e93220f9"
+ },
+ "ST14-009": {
+  "abilities": [
+   {
+    "_": "Triggered",
+    "steps": [
+     {
+      "_": "PlaceExResource"
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "event": "destroyed"
+    }
+   }
+  ],
+  "name": "Duel Gundam (Assault Shroud)",
+  "source": "compiled",
+  "text_hash": "2f269507f039a815"
+ },
+ "ST14-010": {
+  "abilities": [],
+  "name": "Perfect Strike Gundam",
+  "source": "vanilla",
+  "text_hash": "3973e022e93220f9"
+ },
+ "ST14-011": {
+  "abilities": [
+   {
+    "_": "Burst",
+    "steps": [
+     {
+      "_": "AddToHand",
+      "ref": {
+       "_": "ThisCard"
+      }
+     }
+    ]
+   }
+  ],
+  "binding": "wp_st12_14",
+  "name": "Paptimus Scirocco",
+  "source": "binding",
+  "text_hash": "43a0a3bfe20b47dc",
+  "unit_abilities": [
+   {
+    "_": "Triggered",
+    "steps": [
+     {
+      "_": "Choose",
+      "sel": {
+       "_": "Sel",
+       "filters": [
+        {
+         "_": "IsKind",
+         "kinds": [
+          "unit"
+         ]
+        }
+       ],
+       "loc": "battle",
+       "side": "enemy"
+      },
+      "var": "t1"
+     },
+     {
+      "_": "BindVar",
+      "ref": {
+       "_": "All",
+       "sel": {
+        "_": "Sel",
+        "filters": [
+         {
+          "_": "IsKind",
+          "kinds": [
+           "unit"
+          ]
+         },
+         {
+          "_": "IsRested"
+         }
+        ],
+        "loc": "battle",
+        "side": "enemy"
+       }
+      },
+      "var": "rested"
+     },
+     {
+      "_": "If",
+      "cond": {
+       "_": "Cmp",
+       "left": {
+        "_": "VarSize",
+        "var": "rested"
+       },
+       "op": "==",
+       "right": 1
+      },
+      "then": [
+       {
+        "_": "Apply",
+        "duration": "this_battle",
+        "effect": {
+         "_": "StatMod",
+         "ap": -1
+        },
+        "ref": {
+         "_": "Var",
+         "name": "t1"
+        }
+       }
+      ]
+     },
+     {
+      "_": "If",
+      "cond": {
+       "_": "Cmp",
+       "left": {
+        "_": "VarSize",
+        "var": "rested"
+       },
+       "op": "==",
+       "right": 2
+      },
+      "then": [
+       {
+        "_": "Apply",
+        "duration": "this_battle",
+        "effect": {
+         "_": "StatMod",
+         "ap": -2
+        },
+        "ref": {
+         "_": "Var",
+         "name": "t1"
+        }
+       }
+      ]
+     },
+     {
+      "_": "If",
+      "cond": {
+       "_": "Cmp",
+       "left": {
+        "_": "VarSize",
+        "var": "rested"
+       },
+       "op": "==",
+       "right": 3
+      },
+      "then": [
+       {
+        "_": "Apply",
+        "duration": "this_battle",
+        "effect": {
+         "_": "StatMod",
+         "ap": -3
+        },
+        "ref": {
+         "_": "Var",
+         "name": "t1"
+        }
+       }
+      ]
+     },
+     {
+      "_": "If",
+      "cond": {
+       "_": "Cmp",
+       "left": {
+        "_": "VarSize",
+        "var": "rested"
+       },
+       "op": "==",
+       "right": 4
+      },
+      "then": [
+       {
+        "_": "Apply",
+        "duration": "this_battle",
+        "effect": {
+         "_": "StatMod",
+         "ap": -4
+        },
+        "ref": {
+         "_": "Var",
+         "name": "t1"
+        }
+       }
+      ]
+     },
+     {
+      "_": "If",
+      "cond": {
+       "_": "Cmp",
+       "left": {
+        "_": "VarSize",
+        "var": "rested"
+       },
+       "op": "==",
+       "right": 5
+      },
+      "then": [
+       {
+        "_": "Apply",
+        "duration": "this_battle",
+        "effect": {
+         "_": "StatMod",
+         "ap": -5
+        },
+        "ref": {
+         "_": "Var",
+         "name": "t1"
+        }
+       }
+      ]
+     },
+     {
+      "_": "If",
+      "cond": {
+       "_": "Cmp",
+       "left": {
+        "_": "VarSize",
+        "var": "rested"
+       },
+       "op": "==",
+       "right": 6
+      },
+      "then": [
+       {
+        "_": "Apply",
+        "duration": "this_battle",
+        "effect": {
+         "_": "StatMod",
+         "ap": -6
+        },
+        "ref": {
+         "_": "Var",
+         "name": "t1"
+        }
+       }
+      ]
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "event": "attacks"
+    }
+   }
+  ]
+ },
+ "ST14-012": {
+  "abilities": [
+   {
+    "_": "Burst",
+    "steps": [
+     {
+      "_": "AddToHand",
+      "ref": {
+       "_": "ThisCard"
+      }
+     }
+    ]
+   }
+  ],
+  "name": "Banagher Links",
+  "source": "compiled",
+  "text_hash": "d98c273b3cadd437",
+  "unit_abilities": [
+   {
+    "_": "Triggered",
+    "steps": [
+     {
+      "_": "Choose",
+      "sel": {
+       "_": "Sel",
+       "filters": [
+        {
+         "_": "IsKind",
+         "kinds": [
+          "unit"
+         ]
+        },
+        {
+         "_": "StatCmp",
+         "op": ">=",
+         "stat": "lv",
+         "value": 5
+        }
+       ],
+       "loc": "battle",
+       "side": "friendly"
+      },
+      "var": "t1"
+     },
+     {
+      "_": "Apply",
+      "effect": {
+       "_": "RuleGrant",
+       "rule": {
+        "_": "RuleMod",
+        "kind": "may_attack_active",
+        "source_filters": [
+         {
+          "_": "IsKind",
+          "kinds": [
+           "unit"
+          ]
+         },
+         {
+          "_": "IsRested",
+          "rested": false
+         },
+         {
+          "_": "StatCmp",
+          "op": "<=",
+          "stat": "ap",
+          "value": 5
+         }
+        ]
+       }
+      },
+      "ref": {
+       "_": "Var",
+       "name": "t1"
+      }
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "event": "paired"
+    }
+   }
+  ]
+ },
+ "ST14-013": {
+  "abilities": [
+   {
+    "_": "Burst",
+    "steps": [
+     {
+      "_": "Choose",
+      "sel": {
+       "_": "Sel",
+       "filters": [
+        {
+         "_": "IsKind",
+         "kinds": [
+          "unit"
+         ]
+        }
+       ],
+       "loc": "battle",
+       "side": "enemy"
+      },
+      "var": "t1"
+     },
+     {
+      "_": "Apply",
+      "effect": {
+       "_": "StatMod",
+       "ap": -3
+      },
+      "ref": {
+       "_": "Var",
+       "name": "t1"
+      }
+     }
+    ]
+   },
+   {
+    "_": "Command",
+    "steps": [
+     {
+      "_": "ChooseMode",
+      "options": [
+       [
+        "rest_1_to_2_enemy_units_with_3_or_less_hp",
+        [
+         {
+          "_": "Choose",
+          "count": 2,
+          "min_count": 1,
+          "sel": {
+           "_": "Sel",
+           "filters": [
+            {
+             "_": "IsKind",
+             "kinds": [
+              "unit"
+             ]
+            },
+            {
+             "_": "StatCmp",
+             "op": "<=",
+             "stat": "hp",
+             "value": 3
+            }
+           ],
+           "loc": "battle",
+           "side": "enemy"
+          },
+          "var": "t1"
+         },
+         {
+          "_": "Rest",
+          "ref": {
+           "_": "Var",
+           "name": "t1"
+          }
+         }
+        ]
+       ],
+       [
+        "enemy_unit_ap_minus_3",
+        [
+         {
+          "_": "Choose",
+          "sel": {
+           "_": "Sel",
+           "filters": [
+            {
+             "_": "IsKind",
+             "kinds": [
+              "unit"
+             ]
+            }
+           ],
+           "loc": "battle",
+           "side": "enemy"
+          },
+          "var": "t1"
+         },
+         {
+          "_": "Apply",
+          "effect": {
+           "_": "StatMod",
+           "ap": -3
+          },
+          "ref": {
+           "_": "Var",
+           "name": "t1"
+          }
+         }
+        ]
+       ]
+      ]
+     }
+    ],
+    "timing": "main_or_action"
+   }
+  ],
+  "binding": "wp_st12_14",
+  "name": "Natural Talent",
+  "source": "binding",
+  "text_hash": "b453a3159bc0c4e3"
+ },
+ "ST14-014": {
+  "abilities": [
+   {
+    "_": "Command",
+    "steps": [
+     {
+      "_": "Choose",
+      "sel": {
+       "_": "Sel",
+       "filters": [
+        {
+         "_": "IsKind",
+         "kinds": [
+          "unit"
+         ]
+        },
+        {
+         "_": "StatCmp",
+         "op": "<=",
+         "stat": "lv",
+         "value": {
+          "_": "Sum",
+          "terms": [
+           5,
+           {
+            "_": "Times",
+            "factor": 100,
+            "value": {
+             "_": "Sum",
+             "terms": [
+              {
+               "_": "MinOf",
+               "terms": [
+                {
+                 "_": "Count",
+                 "sel": {
+                  "_": "Sel",
+                  "filters": [
+                   {
+                    "_": "IsKind",
+                    "kinds": [
+                     "command"
+                    ]
+                   }
+                  ],
+                  "loc": "trash",
+                  "side": "friendly"
+                 }
+                },
+                4
+               ]
+              },
+              {
+               "_": "Times",
+               "factor": -1,
+               "value": {
+                "_": "MinOf",
+                "terms": [
+                 {
+                  "_": "Count",
+                  "sel": {
+                   "_": "Sel",
+                   "filters": [
+                    {
+                     "_": "IsKind",
+                     "kinds": [
+                      "command"
+                     ]
+                    }
+                   ],
+                   "loc": "trash",
+                   "side": "friendly"
+                  }
+                 },
+                 3
+                ]
+               }
+              }
+             ]
+            }
+           }
+          ]
+         }
+        }
+       ],
+       "loc": "battle",
+       "side": "enemy"
+      },
+      "var": "t1"
+     },
+     {
+      "_": "Apply",
+      "effect": {
+       "_": "StatMod",
+       "ap": -3
+      },
+      "ref": {
+       "_": "Var",
+       "name": "t1"
+      }
+     }
+    ],
+    "timing": "main_or_action"
+   }
+  ],
+  "binding": "wp_st12_14",
+  "name": "Blazing Mobile Suit Rider",
+  "source": "binding",
+  "text_hash": "afba30ed477e71ac"
+ },
+ "ST14-015": {
+  "abilities": [
+   {
+    "_": "Burst",
+    "steps": [
+     {
+      "_": "PlaceExResource"
+     }
+    ]
+   },
+   {
+    "_": "Command",
+    "steps": [
+     {
+      "_": "PlaceResource",
+      "rested": true
+     },
+     {
+      "_": "If",
+      "cond": {
+       "_": "NotC",
+       "cond": {
+        "_": "HappenedThisTurn",
+        "by": "you",
+        "kind": "resource_set_active"
+       }
+      },
+      "then": [
+       {
+        "_": "SetResourcesActive"
+       }
+      ]
+     }
+    ],
+    "timing": "main"
+   }
+  ],
+  "binding": "wp_st12_14",
+  "name": "Battlefield Emotions",
+  "source": "binding",
+  "text_hash": "2e7032316618f8b2"
+ },
+ "ST14-016": {
+  "abilities": [
+   {
+    "_": "Burst",
+    "steps": [
+     {
+      "_": "DeployCard",
+      "ref": {
+       "_": "ThisCard"
+      }
+     }
+    ]
+   },
+   {
+    "_": "Triggered",
+    "steps": [
+     {
+      "_": "ShieldToHand"
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "event": "deployed"
+    }
+   },
+   {
+    "_": "Triggered",
+    "once_per_turn": true,
+    "steps": [
+     {
+      "_": "Choose",
+      "sel": {
+       "_": "Sel",
+       "filters": [
+        {
+         "_": "IsKind",
+         "kinds": [
+          "unit"
+         ]
+        },
+        {
+         "_": "StatCmp",
+         "op": "<=",
+         "stat": "lv",
+         "value": 5
+        }
+       ],
+       "loc": "battle",
+       "side": "enemy"
+      },
+      "var": "t1"
+     },
+     {
+      "_": "Apply",
+      "effect": {
+       "_": "StatMod",
+       "ap": -1
+      },
+      "ref": {
+       "_": "Var",
+       "name": "t1"
+      }
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "event": "linked",
+     "self_only": false,
+     "subject": {
+      "_": "Sel",
+      "filters": [
+       {
+        "_": "IsKind",
+        "kinds": [
+         "unit"
+        ]
+       }
+      ],
+      "loc": "battle",
+      "side": "friendly"
+     },
+     "whose_turn": "you"
+    }
+   }
+  ],
+  "name": "Gryphios 2",
+  "source": "compiled",
+  "text_hash": "e184164c7a37f7c2"
+ }
+}

@@ -1,0 +1,5635 @@
+{
+ "GD01-001": {
+  "abilities": [
+   {
+    "_": "Constant",
+    "effects": [
+     {
+      "_": "KeywordGrant",
+      "amount": 1,
+      "keyword": "Repair"
+     }
+    ],
+    "scope": {
+     "_": "All",
+     "sel": {
+      "_": "Sel",
+      "filters": [
+       {
+        "_": "IsKind",
+        "kinds": [
+         "unit"
+        ]
+       },
+       {
+        "_": "HasTrait",
+        "traits": [
+         "White Base Team"
+        ]
+       }
+      ],
+      "loc": "battle",
+      "side": "friendly"
+     }
+    }
+   },
+   {
+    "_": "Triggered",
+    "steps": [
+     {
+      "_": "If",
+      "cond": {
+       "_": "Cmp",
+       "left": {
+        "_": "Count",
+        "sel": {
+         "_": "Sel",
+         "filters": [
+          {
+           "_": "IsKind",
+           "kinds": [
+            "unit"
+           ]
+          },
+          {
+           "_": "NotRef",
+           "ref": {
+            "_": "This"
+           }
+          }
+         ],
+         "loc": "battle",
+         "side": "friendly"
+        }
+       },
+       "op": ">=",
+       "right": 2
+      },
+      "then": [
+       {
+        "_": "Draw"
+       }
+      ]
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "event": "paired"
+    }
+   }
+  ],
+  "name": "Gundam",
+  "source": "compiled",
+  "text_hash": "147909a76464556c"
+ },
+ "GD01-002": {
+  "abilities": [
+   {
+    "_": "PlayModifier",
+    "cost": 0,
+    "costs": [
+     {
+      "_": "DestroyCards",
+      "count": 1,
+      "sel": {
+       "_": "Sel",
+       "filters": [
+        {
+         "_": "IsKind",
+         "kinds": [
+          "link_unit"
+         ]
+        },
+        {
+         "_": "NameContains",
+         "parts": [
+          "Unicorn Mode"
+         ]
+        },
+        {
+         "_": "StatCmp",
+         "op": "==",
+         "stat": "lv",
+         "value": 5
+        }
+       ],
+       "loc": "battle",
+       "side": "friendly"
+      }
+     }
+    ],
+    "level": 0
+   },
+   {
+    "_": "Triggered",
+    "steps": [
+     {
+      "_": "Choose",
+      "sel": {
+       "_": "Sel",
+       "filters": [
+        {
+         "_": "IsKind",
+         "kinds": [
+          "unit"
+         ]
+        }
+       ],
+       "loc": "battle",
+       "side": "enemy"
+      },
+      "var": "t1"
+     },
+     {
+      "_": "Rest",
+      "ref": {
+       "_": "Var",
+       "name": "t1"
+      }
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "event": "attacks"
+    }
+   }
+  ],
+  "binding": "wp_gd01_a",
+  "name": "Unicorn Gundam (Destroy Mode)",
+  "source": "binding",
+  "text_hash": "f124a6c4ef85b1ab"
+ },
+ "GD01-003": {
+  "abilities": [
+   {
+    "_": "Triggered",
+    "gate": "linked",
+    "steps": [
+     {
+      "_": "If",
+      "cond": {
+       "_": "Cmp",
+       "left": {
+        "_": "Count",
+        "sel": {
+         "_": "Sel",
+         "loc": "trash",
+         "side": "friendly"
+        }
+       },
+       "op": ">=",
+       "right": 12
+      },
+      "then": [
+       {
+        "_": "Choose",
+        "count": 12,
+        "sel": {
+         "_": "Sel",
+         "loc": "trash",
+         "side": "friendly"
+        },
+        "var": "t1"
+       },
+       {
+        "_": "ToDeck",
+        "ref": {
+         "_": "Var",
+         "name": "t1"
+        },
+        "shuffle": true
+       },
+       {
+        "_": "IfYouDo",
+        "steps": [
+         {
+          "_": "SetActive",
+          "ref": {
+           "_": "This"
+          }
+         },
+         {
+          "_": "Apply",
+          "effect": {
+           "_": "KeywordGrant",
+           "keyword": "First Strike"
+          },
+          "ref": {
+           "_": "This"
+          }
+         }
+        ]
+       }
+      ]
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "event": "attacks"
+    }
+   }
+  ],
+  "binding": "wp_gd01_a",
+  "name": "Unicorn Gundam 02 Banshee (Destroy Mode)",
+  "source": "binding",
+  "text_hash": "ba7c34d6b2b423d1"
+ },
+ "GD01-004": {
+  "abilities": [
+   {
+    "_": "Keyword",
+    "amount": 1,
+    "keyword": "Repair"
+   },
+   {
+    "_": "Triggered",
+    "steps": [
+     {
+      "_": "Choose",
+      "sel": {
+       "_": "Sel",
+       "filters": [
+        {
+         "_": "IsKind",
+         "kinds": [
+          "unit"
+         ]
+        },
+        {
+         "_": "StatCmp",
+         "op": "<=",
+         "stat": "remaining_hp",
+         "value": 2
+        }
+       ],
+       "loc": "battle",
+       "side": "enemy"
+      },
+      "var": "t1"
+     },
+     {
+      "_": "Rest",
+      "ref": {
+       "_": "Var",
+       "name": "t1"
+      }
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "event": "paired"
+    }
+   }
+  ],
+  "binding": "wp_gd01_a",
+  "name": "Guncannon",
+  "source": "binding",
+  "text_hash": "07dcc2c0d3253b9b"
+ },
+ "GD01-005": {
+  "abilities": [
+   {
+    "_": "Triggered",
+    "gate": "linked",
+    "steps": [
+     {
+      "_": "ReturnToHand",
+      "ref": {
+       "_": "EventCard",
+       "key": "pilot"
+      }
+     },
+     {
+      "_": "Discard"
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "event": "destroyed"
+    }
+   }
+  ],
+  "binding": "wp_gd01_a",
+  "name": "Unicorn Gundam (Unicorn Mode)",
+  "source": "binding",
+  "text_hash": "fa10fe091112cfcc"
+ },
+ "GD01-006": {
+  "abilities": [
+   {
+    "_": "Keyword",
+    "amount": 1,
+    "keyword": "Repair"
+   },
+   {
+    "_": "Constant",
+    "effects": [
+     {
+      "_": "StatMod",
+      "hp": 1
+     }
+    ],
+    "gate": "linked"
+   }
+  ],
+  "name": "Delta Plus",
+  "source": "compiled",
+  "text_hash": "3ddfd072cd90c277"
+ },
+ "GD01-007": {
+  "abilities": [
+   {
+    "_": "Triggered",
+    "steps": [
+     {
+      "_": "If",
+      "cond": {
+       "_": "Exists",
+       "sel": {
+        "_": "Sel",
+        "filters": [
+         {
+          "_": "IsKind",
+          "kinds": [
+           "unit"
+          ]
+         },
+         {
+          "_": "NotRef",
+          "ref": {
+           "_": "This"
+          }
+         },
+         {
+          "_": "HasTrait",
+          "traits": [
+           "OZ"
+          ]
+         }
+        ],
+        "loc": "battle",
+        "side": "friendly"
+       }
+      },
+      "then": [
+       {
+        "_": "Draw"
+       }
+      ]
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "event": "destroyed"
+    }
+   }
+  ],
+  "name": "Noin's Aries",
+  "source": "compiled",
+  "text_hash": "de7be6059810bb21"
+ },
+ "GD01-008": {
+  "abilities": [
+   {
+    "_": "Triggered",
+    "steps": [
+     {
+      "_": "Choose",
+      "sel": {
+       "_": "Sel",
+       "filters": [
+        {
+         "_": "IsKind",
+         "kinds": [
+          "unit"
+         ]
+        },
+        {
+         "_": "IsRested"
+        }
+       ],
+       "loc": "battle",
+       "side": "enemy"
+      },
+      "var": "t1"
+     },
+     {
+      "_": "Damage",
+      "amount": 1,
+      "ref": {
+       "_": "Var",
+       "name": "t1"
+      }
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "event": "deployed"
+    }
+   }
+  ],
+  "name": "Guntank",
+  "source": "compiled",
+  "text_hash": "a3e85b5f86a63810"
+ },
+ "GD01-009": {
+  "abilities": [
+   {
+    "_": "Triggered",
+    "steps": [
+     {
+      "_": "Choose",
+      "sel": {
+       "_": "Sel",
+       "filters": [
+        {
+         "_": "IsKind",
+         "kinds": [
+          "unit"
+         ]
+        },
+        {
+         "_": "HasTrait",
+         "traits": [
+          "White Base Team"
+         ]
+        }
+       ],
+       "loc": "battle",
+       "side": "friendly"
+      },
+      "var": "t1"
+     },
+     {
+      "_": "Apply",
+      "effect": {
+       "_": "KeywordGrant",
+       "keyword": "High-Maneuver"
+      },
+      "ref": {
+       "_": "Var",
+       "name": "t1"
+      }
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "event": "deployed"
+    }
+   }
+  ],
+  "name": "G-Fighter",
+  "source": "compiled",
+  "text_hash": "5ce26acba61c4a03"
+ },
+ "GD01-010": {
+  "abilities": [
+   {
+    "_": "Triggered",
+    "steps": [
+     {
+      "_": "Choose",
+      "sel": {
+       "_": "Sel",
+       "filters": [
+        {
+         "_": "IsKind",
+         "kinds": [
+          "unit"
+         ]
+        },
+        {
+         "_": "StatCmp",
+         "op": "<=",
+         "stat": "remaining_hp",
+         "value": 3
+        }
+       ],
+       "loc": "battle",
+       "side": "enemy"
+      },
+      "var": "t1"
+     },
+     {
+      "_": "Rest",
+      "ref": {
+       "_": "Var",
+       "name": "t1"
+      }
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "event": "paired"
+    }
+   }
+  ],
+  "binding": "wp_gd01_a",
+  "name": "Unicorn Gundam 02 Banshee (Unicorn Mode)",
+  "source": "binding",
+  "text_hash": "73a5c7c646fcc1c5"
+ },
+ "GD01-011": {
+  "abilities": [],
+  "name": "Loto",
+  "source": "vanilla",
+  "text_hash": "3973e022e93220f9"
+ },
+ "GD01-012": {
+  "abilities": [
+   {
+    "_": "Triggered",
+    "steps": [
+     {
+      "_": "Choose",
+      "sel": {
+       "_": "Sel",
+       "filters": [
+        {
+         "_": "IsKind",
+         "kinds": [
+          "unit"
+         ]
+        },
+        {
+         "_": "StatCmp",
+         "op": "<=",
+         "stat": "remaining_hp",
+         "value": 3
+        }
+       ],
+       "loc": "battle",
+       "side": "enemy"
+      },
+      "var": "t1"
+     },
+     {
+      "_": "Rest",
+      "ref": {
+       "_": "Var",
+       "name": "t1"
+      }
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "event": "paired"
+    }
+   }
+  ],
+  "binding": "wp_gd01_a",
+  "name": "Zechs' Leo",
+  "source": "binding",
+  "text_hash": "73a5c7c646fcc1c5"
+ },
+ "GD01-013": {
+  "abilities": [],
+  "name": "Gundam",
+  "source": "vanilla",
+  "text_hash": "3973e022e93220f9"
+ },
+ "GD01-014": {
+  "abilities": [
+   {
+    "_": "Activated",
+    "costs": [],
+    "gate": "linked",
+    "once_per_turn": true,
+    "steps": [
+     {
+      "_": "Choose",
+      "sel": {
+       "_": "Sel",
+       "filters": [
+        {
+         "_": "IsKind",
+         "kinds": [
+          "unit"
+         ]
+        }
+       ],
+       "loc": "battle",
+       "side": "any"
+      },
+      "var": "t1"
+     },
+     {
+      "_": "Recover",
+      "amount": 1,
+      "ref": {
+       "_": "Var",
+       "name": "t1"
+      }
+     }
+    ],
+    "timing": "action"
+   }
+  ],
+  "name": "G-Sky Easy",
+  "source": "compiled",
+  "text_hash": "b0d536977c97b1c3"
+ },
+ "GD01-015": {
+  "abilities": [
+   {
+    "_": "Triggered",
+    "steps": [
+     {
+      "_": "Choose",
+      "sel": {
+       "_": "Sel",
+       "filters": [
+        {
+         "_": "IsKind",
+         "kinds": [
+          "unit"
+         ]
+        }
+       ],
+       "loc": "battle",
+       "side": "friendly"
+      },
+      "var": "t1"
+     },
+     {
+      "_": "Recover",
+      "amount": 1,
+      "ref": {
+       "_": "Var",
+       "name": "t1"
+      }
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "event": "attacks"
+    }
+   }
+  ],
+  "name": "Ball",
+  "source": "compiled",
+  "text_hash": "28cc5331d236e21b"
+ },
+ "GD01-016": {
+  "abilities": [
+   {
+    "_": "Constant",
+    "cond": {
+     "_": "Cmp",
+     "left": {
+      "_": "Count",
+      "sel": {
+       "_": "Sel",
+       "filters": [
+        {
+         "_": "IsKind",
+         "kinds": [
+          "unit"
+         ]
+        },
+        {
+         "_": "HasTrait",
+         "traits": [
+          "Earth Federation"
+         ]
+        }
+       ],
+       "loc": "battle",
+       "side": "friendly"
+      }
+     },
+     "op": ">=",
+     "right": 2
+    },
+    "effects": [
+     {
+      "_": "CostMod",
+      "cost": -1
+     }
+    ],
+    "where": "hand"
+   }
+  ],
+  "name": "Jegan",
+  "source": "compiled",
+  "text_hash": "dc1cf4636f5efe16"
+ },
+ "GD01-017": {
+  "abilities": [
+   {
+    "_": "Keyword",
+    "amount": 1,
+    "keyword": "Repair"
+   }
+  ],
+  "name": "Stark Jegan",
+  "source": "compiled",
+  "text_hash": "ab3768dabcb1a51f"
+ },
+ "GD01-018": {
+  "abilities": [],
+  "name": "ReZEL",
+  "source": "vanilla",
+  "text_hash": "3973e022e93220f9"
+ },
+ "GD01-019": {
+  "abilities": [
+   {
+    "_": "Constant",
+    "cond": {
+     "_": "Cmp",
+     "left": {
+      "_": "Count",
+      "sel": {
+       "_": "Sel",
+       "filters": [
+        {
+         "_": "IsKind",
+         "kinds": [
+          "unit"
+         ]
+        }
+       ],
+       "loc": "battle",
+       "side": "enemy"
+      }
+     },
+     "op": ">=",
+     "right": 4
+    },
+    "effects": [
+     {
+      "_": "KeywordGrant",
+      "keyword": "Blocker"
+     }
+    ]
+   }
+  ],
+  "name": "Byarlant Custom",
+  "source": "compiled",
+  "text_hash": "5f8f2b3f41504f22"
+ },
+ "GD01-020": {
+  "abilities": [
+   {
+    "_": "Triggered",
+    "steps": [
+     {
+      "_": "Choose",
+      "sel": {
+       "_": "Sel",
+       "filters": [
+        {
+         "_": "IsKind",
+         "kinds": [
+          "unit"
+         ]
+        },
+        {
+         "_": "IsRested"
+        }
+       ],
+       "loc": "battle",
+       "side": "enemy"
+      },
+      "var": "t1"
+     },
+     {
+      "_": "Damage",
+      "amount": 1,
+      "ref": {
+       "_": "Var",
+       "name": "t1"
+      }
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "event": "deployed"
+    }
+   }
+  ],
+  "name": "Anksha",
+  "source": "compiled",
+  "text_hash": "a3e85b5f86a63810"
+ },
+ "GD01-021": {
+  "abilities": [],
+  "name": "Pisces",
+  "source": "vanilla",
+  "text_hash": "3973e022e93220f9"
+ },
+ "GD01-022": {
+  "abilities": [],
+  "name": "Cancer",
+  "source": "vanilla",
+  "text_hash": "3973e022e93220f9"
+ },
+ "GD01-023": {
+  "abilities": [
+   {
+    "_": "Activated",
+    "costs": [
+     {
+      "_": "DiscardCards",
+      "count": 1,
+      "sel": {
+       "_": "Sel",
+       "filters": [
+        {
+         "_": "IsKind",
+         "kinds": [
+          "unit"
+         ]
+        },
+        {
+         "_": "HasTrait",
+         "traits": [
+          "Zeon",
+          "Neo Zeon"
+         ]
+        }
+       ],
+       "loc": "hand",
+       "side": "friendly"
+      }
+     }
+    ],
+    "steps": [
+     {
+      "_": "If",
+      "cond": {
+       "_": "RefMatches",
+       "filters": [
+        {
+         "_": "IsPaired",
+         "paired": false
+        }
+       ],
+       "ref": {
+        "_": "This"
+       }
+      },
+      "then": [
+       {
+        "_": "Choose",
+        "sel": {
+         "_": "Sel",
+         "filters": [
+          {
+           "_": "IsKind",
+           "kinds": [
+            "pilot"
+           ]
+          },
+          {
+           "_": "HasTrait",
+           "traits": [
+            "Newtype"
+           ]
+          },
+          {
+           "_": "StatCmp",
+           "op": "<=",
+           "stat": "lv",
+           "value": 3
+          }
+         ],
+         "loc": "trash",
+         "side": "friendly"
+        },
+        "var": "t1"
+       },
+       {
+        "_": "Pair",
+        "pilot": {
+         "_": "Var",
+         "name": "t1"
+        },
+        "unit": {
+         "_": "This"
+        }
+       }
+      ]
+     }
+    ],
+    "timing": "main"
+   }
+  ],
+  "name": "Char's Gelgoog",
+  "source": "compiled",
+  "text_hash": "8bdd7692b5905490"
+ },
+ "GD01-024": {
+  "abilities": [
+   {
+    "_": "Keyword",
+    "keyword": "High-Maneuver"
+   },
+   {
+    "_": "Triggered",
+    "steps": [
+     {
+      "_": "Damage",
+      "amount": 3,
+      "ref": {
+       "_": "All",
+       "sel": {
+        "_": "Sel",
+        "filters": [
+         {
+          "_": "IsKind",
+          "kinds": [
+           "unit"
+          ]
+         },
+         {
+          "_": "StatCmp",
+          "op": "<=",
+          "stat": "lv",
+          "value": 5
+         }
+        ],
+        "loc": "battle",
+        "side": "any"
+       }
+      }
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "event": "deployed"
+    }
+   }
+  ],
+  "name": "Wing Gundam Zero",
+  "source": "compiled",
+  "text_hash": "f6cd9b55d4081e98"
+ },
+ "GD01-025": {
+  "abilities": [
+   {
+    "_": "Triggered",
+    "steps": [
+     {
+      "_": "PlaceResource",
+      "rested": true
+     },
+     {
+      "_": "Apply",
+      "effect": {
+       "_": "KeywordGrant",
+       "keyword": "First Strike"
+      },
+      "ref": {
+       "_": "This"
+      }
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "event": "paired",
+     "pilot_filters": [
+      {
+       "_": "HasTrait",
+       "traits": [
+        "Operation Meteor"
+       ]
+      }
+     ]
+    }
+   }
+  ],
+  "name": "Gundam Deathscythe",
+  "source": "compiled",
+  "text_hash": "827fd504232f4309"
+ },
+ "GD01-026": {
+  "abilities": [
+   {
+    "_": "Triggered",
+    "gate": "paired",
+    "steps": [
+     {
+      "_": "DeployToken",
+      "rested": true,
+      "token_key": "Char's Zaku Ⅱ|Zeon|3|1|"
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "event": "destroyed"
+    }
+   }
+  ],
+  "binding": "wp_gd01_a",
+  "name": "Char's Zaku Ⅱ",
+  "source": "binding",
+  "text_hash": "8c387ba5f3fcfbf2"
+ },
+ "GD01-027": {
+  "abilities": [
+   {
+    "_": "Keyword",
+    "amount": 4,
+    "keyword": "Breach"
+   },
+   {
+    "_": "Triggered",
+    "steps": [
+     {
+      "_": "If",
+      "cond": {
+       "_": "Cmp",
+       "left": {
+        "_": "Count",
+        "sel": {
+         "_": "Sel",
+         "filters": [
+          {
+           "_": "IsKind",
+           "kinds": [
+            "unit"
+           ]
+          },
+          {
+           "_": "HasTrait",
+           "traits": [
+            "Zeon",
+            "Neo Zeon"
+           ]
+          }
+         ],
+         "loc": "trash",
+         "side": "friendly"
+        }
+       },
+       "op": ">=",
+       "right": 10
+      },
+      "then": [
+       {
+        "_": "Damage",
+        "amount": 4,
+        "ref": {
+         "_": "All",
+         "sel": {
+          "_": "Sel",
+          "filters": [
+           {
+            "_": "IsKind",
+            "kinds": [
+             "unit"
+            ]
+           },
+           {
+            "_": "HasKeyword",
+            "keyword": "Blocker"
+           }
+          ],
+          "loc": "battle",
+          "side": "any"
+         }
+        }
+       }
+      ]
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "event": "deployed"
+    }
+   }
+  ],
+  "name": "Big Zam",
+  "source": "compiled",
+  "text_hash": "19a2033f148daffc"
+ },
+ "GD01-028": {
+  "abilities": [
+   {
+    "_": "Triggered",
+    "steps": [
+     {
+      "_": "May",
+      "steps": [
+       {
+        "_": "Choose",
+        "sel": {
+         "_": "Sel",
+         "filters": [
+          {
+           "_": "IsKind",
+           "kinds": [
+            "unit"
+           ]
+          },
+          {
+           "_": "HasTrait",
+           "traits": [
+            "Maganac Corps"
+           ]
+          }
+         ],
+         "loc": "hand",
+         "side": "friendly"
+        },
+        "targeting": false,
+        "var": "t1"
+       },
+       {
+        "_": "DeployCard",
+        "ref": {
+         "_": "Var",
+         "name": "t1"
+        }
+       }
+      ]
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "event": "deployed"
+    }
+   }
+  ],
+  "name": "Gundam Sandrock",
+  "source": "compiled",
+  "text_hash": "fcdbbdec6e348b65"
+ },
+ "GD01-029": {
+  "abilities": [
+   {
+    "_": "Keyword",
+    "amount": 4,
+    "keyword": "Breach"
+   },
+   {
+    "_": "Triggered",
+    "steps": [
+     {
+      "_": "Choose",
+      "sel": {
+       "_": "Sel",
+       "filters": [
+        {
+         "_": "IsKind",
+         "kinds": [
+          "unit"
+         ]
+        },
+        {
+         "_": "HasKeyword",
+         "keyword": "Blocker"
+        },
+        {
+         "_": "StatCmp",
+         "op": "<=",
+         "stat": "lv",
+         "value": 3
+        }
+       ],
+       "loc": "battle",
+       "side": "enemy"
+      },
+      "var": "t1"
+     },
+     {
+      "_": "Destroy",
+      "ref": {
+       "_": "Var",
+       "name": "t1"
+      }
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "event": "attacks"
+    }
+   }
+  ],
+  "name": "Shenlong Gundam",
+  "source": "compiled",
+  "text_hash": "2906424dcfeb21dd"
+ },
+ "GD01-030": {
+  "abilities": [
+   {
+    "_": "Keyword",
+    "amount": 2,
+    "keyword": "Breach"
+   }
+  ],
+  "name": "Rick Dom",
+  "source": "compiled",
+  "text_hash": "03ba402240e99a5d"
+ },
+ "GD01-031": {
+  "abilities": [],
+  "name": "Gelgoog",
+  "source": "vanilla",
+  "text_hash": "3973e022e93220f9"
+ },
+ "GD01-032": {
+  "abilities": [
+   {
+    "_": "Triggered",
+    "steps": [
+     {
+      "_": "Choose",
+      "sel": {
+       "_": "Sel",
+       "filters": [
+        {
+         "_": "IsKind",
+         "kinds": [
+          "unit"
+         ]
+        },
+        {
+         "_": "HasKeyword",
+         "keyword": "Blocker"
+        },
+        {
+         "_": "StatCmp",
+         "op": "<=",
+         "stat": "lv",
+         "value": 2
+        }
+       ],
+       "loc": "battle",
+       "side": "enemy"
+      },
+      "var": "t1"
+     },
+     {
+      "_": "Destroy",
+      "ref": {
+       "_": "Var",
+       "name": "t1"
+      }
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "event": "paired",
+     "pilot_filters": [
+      {
+       "_": "HasTrait",
+       "traits": [
+        "Zeon"
+       ]
+      }
+     ]
+    }
+   }
+  ],
+  "name": "Gyan",
+  "source": "compiled",
+  "text_hash": "524cec9ed54ac05f"
+ },
+ "GD01-033": {
+  "abilities": [
+   {
+    "_": "Keyword",
+    "amount": 1,
+    "keyword": "Repair"
+   }
+  ],
+  "name": "Gundam Deathscythe",
+  "source": "compiled",
+  "text_hash": "ab3768dabcb1a51f"
+ },
+ "GD01-034": {
+  "abilities": [
+   {
+    "_": "Constant",
+    "effects": [
+     {
+      "_": "KeywordGrant",
+      "amount": 3,
+      "keyword": "Breach"
+     }
+    ],
+    "gate": "paired"
+   }
+  ],
+  "name": "Gundam Heavyarms",
+  "source": "compiled",
+  "text_hash": "99e194c5e20b374e"
+ },
+ "GD01-035": {
+  "abilities": [],
+  "name": "Zaku Ⅱ",
+  "source": "vanilla",
+  "text_hash": "3973e022e93220f9"
+ },
+ "GD01-036": {
+  "abilities": [],
+  "name": "Gouf",
+  "source": "vanilla",
+  "text_hash": "3973e022e93220f9"
+ },
+ "GD01-037": {
+  "abilities": [],
+  "name": "Gogg",
+  "source": "vanilla",
+  "text_hash": "3973e022e93220f9"
+ },
+ "GD01-038": {
+  "abilities": [
+   {
+    "_": "Triggered",
+    "steps": [
+     {
+      "_": "If",
+      "cond": {
+       "_": "Cmp",
+       "left": {
+        "_": "Count",
+        "sel": {
+         "_": "Sel",
+         "filters": [
+          {
+           "_": "IsKind",
+           "kinds": [
+            "unit"
+           ]
+          }
+         ],
+         "loc": "battle",
+         "side": "enemy"
+        }
+       },
+       "op": ">=",
+       "right": 5
+      },
+      "then": [
+       {
+        "_": "Damage",
+        "amount": 1,
+        "ref": {
+         "_": "All",
+         "sel": {
+          "_": "Sel",
+          "filters": [
+           {
+            "_": "IsKind",
+            "kinds": [
+             "unit"
+            ]
+           }
+          ],
+          "loc": "battle",
+          "side": "enemy"
+         }
+        }
+       }
+      ]
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "event": "deployed"
+    }
+   }
+  ],
+  "name": "Adzam",
+  "source": "compiled",
+  "text_hash": "9e85249a8787d46e"
+ },
+ "GD01-039": {
+  "abilities": [
+   {
+    "_": "Triggered",
+    "steps": [
+     {
+      "_": "LookTop",
+      "count": 1
+     },
+     {
+      "_": "Arrange",
+      "mode": "top_or_bottom",
+      "ref": {
+       "_": "Var",
+       "name": "looked"
+      }
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "event": "deployed"
+    }
+   }
+  ],
+  "name": "Dopp",
+  "source": "compiled",
+  "text_hash": "6f27211000a49355"
+ },
+ "GD01-040": {
+  "abilities": [],
+  "name": "Wing Gundam",
+  "source": "vanilla",
+  "text_hash": "3973e022e93220f9"
+ },
+ "GD01-041": {
+  "abilities": [
+   {
+    "_": "Keyword",
+    "amount": 3,
+    "keyword": "Breach"
+   }
+  ],
+  "name": "Shenlong Gundam",
+  "source": "compiled",
+  "text_hash": "6fb66bcde1116dac"
+ },
+ "GD01-042": {
+  "abilities": [
+   {
+    "_": "Constant",
+    "effects": [
+     {
+      "_": "RuleGrant",
+      "rule": {
+       "_": "RuleMod",
+       "kind": "may_attack_active",
+       "source_filters": [
+        {
+         "_": "IsKind",
+         "kinds": [
+          "unit"
+         ]
+        },
+        {
+         "_": "IsRested",
+         "rested": false
+        },
+        {
+         "_": "StatCmp",
+         "op": "<=",
+         "stat": "lv",
+         "value": 2
+        }
+       ]
+      }
+     }
+    ]
+   }
+  ],
+  "name": "Duo's Leo",
+  "source": "compiled",
+  "text_hash": "2fd61ae2ad0ada55"
+ },
+ "GD01-043": {
+  "abilities": [
+   {
+    "_": "Triggered",
+    "steps": [
+     {
+      "_": "Choose",
+      "sel": {
+       "_": "Sel",
+       "filters": [
+        {
+         "_": "IsKind",
+         "kinds": [
+          "unit"
+         ]
+        },
+        {
+         "_": "HasColor",
+         "colors": [
+          "Green"
+         ]
+        }
+       ],
+       "loc": "battle",
+       "side": "friendly"
+      },
+      "var": "t1"
+     },
+     {
+      "_": "Apply",
+      "effect": {
+       "_": "RuleGrant",
+       "rule": {
+        "_": "RuleMod",
+        "kind": "may_attack_active",
+        "source_filters": [
+         {
+          "_": "IsKind",
+          "kinds": [
+           "unit"
+          ]
+         },
+         {
+          "_": "IsRested",
+          "rested": false
+         },
+         {
+          "_": "StatCmp",
+          "op": "<=",
+          "stat": "ap",
+          "value": 4
+         }
+        ]
+       }
+      },
+      "ref": {
+       "_": "Var",
+       "name": "t1"
+      }
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "event": "deployed"
+    }
+   }
+  ],
+  "name": "Rasid's Maganac",
+  "source": "compiled",
+  "text_hash": "c61146b47dea74d2"
+ },
+ "GD01-044": {
+  "abilities": [
+   {
+    "_": "Triggered",
+    "steps": [
+     {
+      "_": "Choose",
+      "count": 2,
+      "min_count": 1,
+      "sel": {
+       "_": "Sel",
+       "filters": [
+        {
+         "_": "IsKind",
+         "kinds": [
+          "unit"
+         ]
+        }
+       ],
+       "loc": "battle",
+       "side": "enemy"
+      },
+      "var": "t1"
+     },
+     {
+      "_": "Damage",
+      "amount": 1,
+      "ref": {
+       "_": "Var",
+       "name": "t1"
+      }
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "event": "paired",
+     "pilot_filters": [
+      {
+       "_": "HasTrait",
+       "traits": [
+        "Cyber-Newtype",
+        "Newtype"
+       ]
+      }
+     ]
+    }
+   }
+  ],
+  "name": "Kshatriya",
+  "source": "compiled",
+  "text_hash": "5a3d8c35b64015ab"
+ },
+ "GD01-045": {
+  "abilities": [
+   {
+    "_": "Triggered",
+    "steps": [
+     {
+      "_": "LookTop",
+      "count": 3
+     },
+     {
+      "_": "May",
+      "steps": [
+       {
+        "_": "Choose",
+        "sel": {
+         "_": "Sel",
+         "filters": [
+          {
+           "_": "IsKind",
+           "kinds": [
+            "unit"
+           ]
+          },
+          {
+           "_": "HasTrait",
+           "traits": [
+            "ZAFT"
+           ]
+          },
+          {
+           "_": "StatCmp",
+           "op": "<=",
+           "stat": "lv",
+           "value": 4
+          },
+          {
+           "_": "IsRef",
+           "ref": {
+            "_": "Var",
+            "name": "looked"
+           }
+          }
+         ],
+         "loc": "deck",
+         "side": "friendly"
+        },
+        "targeting": false,
+        "var": "t1"
+       },
+       {
+        "_": "DeployCard",
+        "ref": {
+         "_": "Var",
+         "name": "t1"
+        }
+       }
+      ]
+     },
+     {
+      "_": "CustomStep",
+      "name": "return_looked_bottom"
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "event": "paired"
+    }
+   }
+  ],
+  "name": "Duel Gundam (Assault Shroud)",
+  "source": "compiled",
+  "text_hash": "68002fd702f6a5ab"
+ },
+ "GD01-046": {
+  "abilities": [
+   {
+    "_": "Keyword",
+    "amount": 3,
+    "keyword": "Support"
+   },
+   {
+    "_": "Triggered",
+    "gate": "paired",
+    "gate_filters": [
+     {
+      "_": "HasTrait",
+      "traits": [
+       "Coordinator"
+      ]
+     }
+    ],
+    "once_per_turn": true,
+    "steps": [
+     {
+      "_": "SetActive",
+      "ref": {
+       "_": "This"
+      }
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "event": "support_used",
+     "target_filters": [
+      {
+       "_": "IsKind",
+       "kinds": [
+        "unit"
+       ]
+      },
+      {
+       "_": "HasTrait",
+       "traits": [
+        "ZAFT"
+       ]
+      }
+     ]
+    }
+   }
+  ],
+  "binding": "wp_gd01_a",
+  "name": "Buster Gundam",
+  "source": "binding",
+  "text_hash": "fe7b53440366661d"
+ },
+ "GD01-047": {
+  "abilities": [
+   {
+    "_": "Triggered",
+    "steps": [
+     {
+      "_": "If",
+      "cond": {
+       "_": "Cmp",
+       "left": {
+        "_": "Count",
+        "sel": {
+         "_": "Sel",
+         "filters": [
+          {
+           "_": "IsKind",
+           "kinds": [
+            "unit"
+           ]
+          },
+          {
+           "_": "NotRef",
+           "ref": {
+            "_": "This"
+           }
+          },
+          {
+           "_": "IsRested"
+          }
+         ],
+         "loc": "battle",
+         "side": "friendly"
+        }
+       },
+       "op": ">=",
+       "right": 2
+      },
+      "then": [
+       {
+        "_": "Choose",
+        "sel": {
+         "_": "Sel",
+         "filters": [
+          {
+           "_": "IsKind",
+           "kinds": [
+            "unit"
+           ]
+          }
+         ],
+         "loc": "battle",
+         "side": "enemy"
+        },
+        "var": "t1"
+       },
+       {
+        "_": "Damage",
+        "amount": 3,
+        "ref": {
+         "_": "Var",
+         "name": "t1"
+        }
+       }
+      ]
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "event": "attacks"
+    }
+   }
+  ],
+  "name": "Shamblo",
+  "source": "compiled",
+  "text_hash": "02129363c0fdcd0e"
+ },
+ "GD01-048": {
+  "abilities": [
+   {
+    "_": "Keyword",
+    "amount": 1,
+    "keyword": "Support"
+   },
+   {
+    "_": "Triggered",
+    "steps": [
+     {
+      "_": "LookTop",
+      "count": 1
+     },
+     {
+      "_": "Choose",
+      "optional": true,
+      "sel": {
+       "_": "Sel",
+       "filters": [
+        {
+         "_": "IsKind",
+         "kinds": [
+          "unit"
+         ]
+        },
+        {
+         "_": "HasTrait",
+         "traits": [
+          "Zeon",
+          "Neo Zeon"
+         ]
+        },
+        {
+         "_": "IsRef",
+         "ref": {
+          "_": "Var",
+          "name": "looked"
+         }
+        }
+       ],
+       "loc": "deck",
+       "side": "friendly"
+      },
+      "targeting": false,
+      "var": "t1"
+     },
+     {
+      "_": "AddToHand",
+      "ref": {
+       "_": "Var",
+       "name": "t1"
+      },
+      "reveal": true
+     },
+     {
+      "_": "CustomStep",
+      "name": "return_looked_bottom"
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "event": "deployed"
+    }
+   }
+  ],
+  "name": "Zaku I Sniper Type",
+  "source": "compiled",
+  "text_hash": "5f1b03b46d160603"
+ },
+ "GD01-049": {
+  "abilities": [
+   {
+    "_": "Triggered",
+    "steps": [
+     {
+      "_": "Choose",
+      "sel": {
+       "_": "Sel",
+       "filters": [
+        {
+         "_": "IsKind",
+         "kinds": [
+          "unit"
+         ]
+        },
+        {
+         "_": "HasTrait",
+         "traits": [
+          "ZAFT"
+         ]
+        },
+        {
+         "_": "StatCmp",
+         "op": ">=",
+         "stat": "ap",
+         "value": 5
+        }
+       ],
+       "loc": "battle",
+       "side": "friendly"
+      },
+      "var": "t1"
+     },
+     {
+      "_": "Apply",
+      "effect": {
+       "_": "KeywordGrant",
+       "keyword": "First Strike"
+      },
+      "ref": {
+       "_": "Var",
+       "name": "t1"
+      }
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "event": "deployed"
+    }
+   }
+  ],
+  "name": "Blitz Gundam",
+  "source": "compiled",
+  "text_hash": "ae26be163d41adc4"
+ },
+ "GD01-050": {
+  "abilities": [
+   {
+    "_": "Triggered",
+    "steps": [
+     {
+      "_": "If",
+      "cond": {
+       "_": "And",
+       "conds": [
+        {
+         "_": "RefMatches",
+         "filters": [
+          {
+           "_": "StatCmp",
+           "op": ">=",
+           "stat": "ap",
+           "value": 5
+          }
+         ],
+         "ref": {
+          "_": "This"
+         }
+        },
+        {
+         "_": "AttackTargetIs",
+         "kind": "unit"
+        }
+       ]
+      },
+      "then": [
+       {
+        "_": "Choose",
+        "sel": {
+         "_": "Sel",
+         "filters": [
+          {
+           "_": "IsKind",
+           "kinds": [
+            "unit"
+           ]
+          }
+         ],
+         "loc": "battle",
+         "side": "enemy"
+        },
+        "var": "t1"
+       },
+       {
+        "_": "Damage",
+        "amount": 2,
+        "ref": {
+         "_": "Var",
+         "name": "t1"
+        }
+       }
+      ]
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "event": "attacks"
+    }
+   }
+  ],
+  "name": "LaGOWE",
+  "source": "compiled",
+  "text_hash": "4fbf5a630d1cd6be"
+ },
+ "GD01-051": {
+  "abilities": [],
+  "name": "Kshatriya",
+  "source": "vanilla",
+  "text_hash": "3973e022e93220f9"
+ },
+ "GD01-052": {
+  "abilities": [
+   {
+    "_": "Triggered",
+    "steps": [
+     {
+      "_": "Choose",
+      "sel": {
+       "_": "Sel",
+       "filters": [
+        {
+         "_": "IsKind",
+         "kinds": [
+          "unit"
+         ]
+        }
+       ],
+       "loc": "battle",
+       "side": "enemy"
+      },
+      "var": "t1"
+     },
+     {
+      "_": "Damage",
+      "amount": 1,
+      "ref": {
+       "_": "Var",
+       "name": "t1"
+      }
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "event": "deployed"
+    }
+   }
+  ],
+  "name": "Geara Zulu (Guards Type)",
+  "source": "compiled",
+  "text_hash": "8136cf2bcaa306f6"
+ },
+ "GD01-053": {
+  "abilities": [
+   {
+    "_": "Activated",
+    "costs": [
+     {
+      "_": "PayResources",
+      "amount": 1
+     }
+    ],
+    "once_per_turn": true,
+    "steps": [
+     {
+      "_": "Choose",
+      "sel": {
+       "_": "Sel",
+       "filters": [
+        {
+         "_": "IsKind",
+         "kinds": [
+          "unit"
+         ]
+        },
+        {
+         "_": "StatCmp",
+         "op": "<=",
+         "stat": "ap",
+         "value": 2
+        }
+       ],
+       "loc": "battle",
+       "side": "enemy"
+      },
+      "var": "t1"
+     },
+     {
+      "_": "Damage",
+      "amount": 1,
+      "ref": {
+       "_": "Var",
+       "name": "t1"
+      }
+     }
+    ],
+    "timing": "main"
+   }
+  ],
+  "name": "Geara Doga (Heavy Armed Type)",
+  "source": "compiled",
+  "text_hash": "468cd9d15d35d59c"
+ },
+ "GD01-054": {
+  "abilities": [
+   {
+    "_": "Constant",
+    "cond": {
+     "_": "RefMatches",
+     "filters": [
+      {
+       "_": "StatCmp",
+       "op": ">=",
+       "stat": "ap",
+       "value": 5
+      }
+     ],
+     "ref": {
+      "_": "This"
+     }
+    },
+    "effects": [
+     {
+      "_": "KeywordGrant",
+      "amount": 3,
+      "keyword": "Breach"
+     }
+    ]
+   }
+  ],
+  "name": "Duel Gundam",
+  "source": "compiled",
+  "text_hash": "57edd4c981777851"
+ },
+ "GD01-055": {
+  "abilities": [
+   {
+    "_": "Keyword",
+    "amount": 2,
+    "keyword": "Support"
+   }
+  ],
+  "name": "BuCUE",
+  "source": "compiled",
+  "text_hash": "6de6e3251b1fc029"
+ },
+ "GD01-056": {
+  "abilities": [
+   {
+    "_": "Triggered",
+    "steps": [
+     {
+      "_": "Choose",
+      "sel": {
+       "_": "Sel",
+       "filters": [
+        {
+         "_": "IsKind",
+         "kinds": [
+          "unit"
+         ]
+        },
+        {
+         "_": "StatCmp",
+         "op": "<=",
+         "stat": "ap",
+         "value": 5
+        }
+       ],
+       "loc": "battle",
+       "side": "enemy"
+      },
+      "var": "t1"
+     },
+     {
+      "_": "Damage",
+      "amount": 1,
+      "ref": {
+       "_": "Var",
+       "name": "t1"
+      }
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "event": "destroyed"
+    }
+   }
+  ],
+  "name": "Geara Doga (Sleeves)",
+  "source": "compiled",
+  "text_hash": "5a82253ad056d80d"
+ },
+ "GD01-057": {
+  "abilities": [],
+  "name": "Dreissen (Sleeves)",
+  "source": "vanilla",
+  "text_hash": "3973e022e93220f9"
+ },
+ "GD01-058": {
+  "abilities": [
+   {
+    "_": "Activated",
+    "costs": [
+     {
+      "_": "PayResources",
+      "amount": 1
+     }
+    ],
+    "once_per_turn": true,
+    "steps": [
+     {
+      "_": "Choose",
+      "sel": {
+       "_": "Sel",
+       "filters": [
+        {
+         "_": "IsKind",
+         "kinds": [
+          "unit"
+         ]
+        },
+        {
+         "_": "StatCmp",
+         "op": ">=",
+         "stat": "lv",
+         "value": 4
+        }
+       ],
+       "loc": "battle",
+       "side": "any"
+      },
+      "var": "t1"
+     },
+     {
+      "_": "Apply",
+      "duration": "this_battle",
+      "effect": {
+       "_": "StatMod",
+       "ap": 1
+      },
+      "ref": {
+       "_": "Var",
+       "name": "t1"
+      }
+     }
+    ],
+    "timing": "action"
+   }
+  ],
+  "name": "Galluss-K",
+  "source": "compiled",
+  "text_hash": "7190dfc7cb9399e8"
+ },
+ "GD01-059": {
+  "abilities": [
+   {
+    "_": "Triggered",
+    "steps": [
+     {
+      "_": "If",
+      "cond": {
+       "_": "AttackTargetIs",
+       "kind": "player"
+      },
+      "then": [
+       {
+        "_": "Apply",
+        "duration": "this_battle",
+        "effect": {
+         "_": "StatMod",
+         "ap": 2
+        },
+        "ref": {
+         "_": "This"
+        }
+       }
+      ]
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "event": "attacks"
+    }
+   }
+  ],
+  "name": "Zee Zulu",
+  "source": "compiled",
+  "text_hash": "bf290c5597f27645"
+ },
+ "GD01-060": {
+  "abilities": [],
+  "name": "Zaku Mariner",
+  "source": "vanilla",
+  "text_hash": "3973e022e93220f9"
+ },
+ "GD01-061": {
+  "abilities": [
+   {
+    "_": "Keyword",
+    "amount": 1,
+    "keyword": "Support"
+   }
+  ],
+  "name": "ZuOOT",
+  "source": "compiled",
+  "text_hash": "4d9ea6362fb6720e"
+ },
+ "GD01-062": {
+  "abilities": [],
+  "name": "GOOhN",
+  "source": "vanilla",
+  "text_hash": "3973e022e93220f9"
+ },
+ "GD01-063": {
+  "abilities": [
+   {
+    "_": "Constant",
+    "cond": {
+     "_": "And",
+     "conds": [
+      {
+       "_": "IsTurn"
+      },
+      {
+       "_": "Exists",
+       "sel": {
+        "_": "Sel",
+        "filters": [
+         {
+          "_": "IsKind",
+          "kinds": [
+           "unit"
+          ]
+         },
+         {
+          "_": "StatCmp",
+          "op": "<=",
+          "stat": "lv",
+          "value": 2
+         },
+         {
+          "_": "IsRef",
+          "ref": {
+           "_": "BattlingWith",
+           "ref": {
+            "_": "This"
+           }
+          }
+         }
+        ],
+        "loc": "battle",
+        "side": "enemy"
+       }
+      }
+     ]
+    },
+    "effects": [
+     {
+      "_": "KeywordGrant",
+      "keyword": "First Strike"
+     }
+    ]
+   }
+  ],
+  "binding": "wp_gd01_a",
+  "name": "ZnO",
+  "source": "binding",
+  "text_hash": "78133c7dae115596"
+ },
+ "GD01-064": {
+  "abilities": [],
+  "name": "DINN",
+  "source": "vanilla",
+  "text_hash": "3973e022e93220f9"
+ },
+ "GD01-065": {
+  "abilities": [
+   {
+    "_": "Keyword",
+    "keyword": "Blocker"
+   },
+   {
+    "_": "Triggered",
+    "gate": "paired",
+    "once_per_turn": true,
+    "steps": [
+     {
+      "_": "Choose",
+      "sel": {
+       "_": "Sel",
+       "filters": [
+        {
+         "_": "IsKind",
+         "kinds": [
+          "unit"
+         ]
+        }
+       ],
+       "loc": "battle",
+       "side": "enemy"
+      },
+      "var": "t1"
+     },
+     {
+      "_": "Apply",
+      "effect": {
+       "_": "StatMod",
+       "ap": -2
+      },
+      "ref": {
+       "_": "Var",
+       "name": "t1"
+      }
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "event": "paired",
+     "self_only": false,
+     "subject": {
+      "_": "Sel",
+      "filters": [
+       {
+        "_": "IsKind",
+        "kinds": [
+         "unit"
+        ]
+       },
+       {
+        "_": "HasColor",
+        "colors": [
+         "White"
+        ]
+       }
+      ],
+      "loc": "battle",
+      "side": "friendly"
+     }
+    }
+   }
+  ],
+  "name": "Freedom Gundam",
+  "source": "compiled",
+  "text_hash": "e1d05e29c1ec9bdd"
+ },
+ "GD01-066": {
+  "abilities": [
+   {
+    "_": "Triggered",
+    "steps": [
+     {
+      "_": "DeployToken",
+      "token_key": "Fatum-00|Triple Ship Alliance|2|2|<Blocker>."
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "event": "deployed"
+    }
+   },
+   {
+    "_": "Triggered",
+    "gate": "paired",
+    "steps": [
+     {
+      "_": "Choose",
+      "sel": {
+       "_": "Sel",
+       "filters": [
+        {
+         "_": "IsKind",
+         "kinds": [
+          "unit_token"
+         ]
+        },
+        {
+         "_": "HasTrait",
+         "traits": [
+          "Triple Ship Alliance"
+         ]
+        }
+       ],
+       "loc": "battle",
+       "side": "friendly"
+      },
+      "var": "t1"
+     },
+     {
+      "_": "Apply",
+      "effect": {
+       "_": "RuleGrant",
+       "rule": {
+        "_": "RuleMod",
+        "kind": "attack_on_deploy_turn"
+       }
+      },
+      "ref": {
+       "_": "Var",
+       "name": "t1"
+      }
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "event": "attacks"
+    }
+   }
+  ],
+  "binding": "wp_gd01_a",
+  "name": "Justice Gundam",
+  "source": "binding",
+  "text_hash": "8d0897004d9eff63"
+ },
+ "GD01-067": {
+  "abilities": [
+   {
+    "_": "Triggered",
+    "steps": [
+     {
+      "_": "Choose",
+      "sel": {
+       "_": "Sel",
+       "filters": [
+        {
+         "_": "IsKind",
+         "kinds": [
+          "command"
+         ]
+        },
+        {
+         "_": "StatCmp",
+         "op": "<=",
+         "stat": "lv",
+         "value": 5
+        }
+       ],
+       "loc": "trash",
+       "side": "friendly"
+      },
+      "var": "t1"
+     },
+     {
+      "_": "AddToHand",
+      "ref": {
+       "_": "Var",
+       "name": "t1"
+      }
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "event": "paired"
+    }
+   }
+  ],
+  "name": "Gundam Aerial Rebuild",
+  "source": "compiled",
+  "text_hash": "9901756305ea0d18"
+ },
+ "GD01-068": {
+  "abilities": [
+   {
+    "_": "Keyword",
+    "keyword": "Blocker"
+   },
+   {
+    "_": "Triggered",
+    "steps": [
+     {
+      "_": "Choose",
+      "sel": {
+       "_": "Sel",
+       "filters": [
+        {
+         "_": "IsKind",
+         "kinds": [
+          "unit"
+         ]
+        },
+        {
+         "_": "StatCmp",
+         "op": "==",
+         "stat": "remaining_hp",
+         "value": 1
+        }
+       ],
+       "loc": "battle",
+       "side": "enemy"
+      },
+      "var": "t1"
+     },
+     {
+      "_": "ReturnToHand",
+      "ref": {
+       "_": "Var",
+       "name": "t1"
+      }
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "event": "deployed"
+    }
+   }
+  ],
+  "binding": "wp_gd01_a",
+  "name": "Perfect Strike Gundam",
+  "source": "binding",
+  "text_hash": "fb577679d6d0ec59"
+ },
+ "GD01-069": {
+  "abilities": [
+   {
+    "_": "Activated",
+    "costs": [
+     {
+      "_": "PayResources",
+      "amount": 1
+     }
+    ],
+    "once_per_turn": true,
+    "steps": [
+     {
+      "_": "Choose",
+      "sel": {
+       "_": "Sel",
+       "filters": [
+        {
+         "_": "IsKind",
+         "kinds": [
+          "unit"
+         ]
+        },
+        {
+         "_": "IsRested"
+        },
+        {
+         "_": "HasColor",
+         "colors": [
+          "White"
+         ]
+        },
+        {
+         "_": "HasKeyword",
+         "keyword": "Blocker"
+        }
+       ],
+       "loc": "battle",
+       "side": "friendly"
+      },
+      "var": "t1"
+     },
+     {
+      "_": "SetActive",
+      "ref": {
+       "_": "Var",
+       "name": "t1"
+      }
+     },
+     {
+      "_": "Apply",
+      "effect": {
+       "_": "RuleGrant",
+       "rule": {
+        "_": "RuleMod",
+        "kind": "cant_attack"
+       }
+      },
+      "ref": {
+       "_": "Var",
+       "name": "t1"
+      }
+     }
+    ],
+    "timing": "main"
+   }
+  ],
+  "name": "Strike Rouge",
+  "source": "compiled",
+  "text_hash": "7d17909ae6ce7533"
+ },
+ "GD01-070": {
+  "abilities": [
+   {
+    "_": "Constant",
+    "cond": {
+     "_": "Cmp",
+     "left": {
+      "_": "Count",
+      "sel": {
+       "_": "Sel",
+       "filters": [
+        {
+         "_": "IsKind",
+         "kinds": [
+          "command"
+         ]
+        }
+       ],
+       "loc": "trash",
+       "side": "friendly"
+      }
+     },
+     "op": ">=",
+     "right": 4
+    },
+    "effects": [
+     {
+      "_": "CostMod",
+      "cost": -2
+     }
+    ],
+    "where": "hand"
+   }
+  ],
+  "name": "Gundam Aerial",
+  "source": "compiled",
+  "text_hash": "929951d109cb8ff6"
+ },
+ "GD01-071": {
+  "abilities": [
+   {
+    "_": "Triggered",
+    "gate": "linked",
+    "steps": [
+     {
+      "_": "Choose",
+      "sel": {
+       "_": "Sel",
+       "filters": [
+        {
+         "_": "IsKind",
+         "kinds": [
+          "unit"
+         ]
+        }
+       ],
+       "loc": "battle",
+       "side": "enemy"
+      },
+      "var": "t1"
+     },
+     {
+      "_": "Apply",
+      "duration": "this_battle",
+      "effect": {
+       "_": "StatMod",
+       "ap": -2
+      },
+      "ref": {
+       "_": "Var",
+       "name": "t1"
+      }
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "event": "attacks"
+    }
+   }
+  ],
+  "name": "Gundam Pharact",
+  "source": "compiled",
+  "text_hash": "a3d74ce47a4e4e28"
+ },
+ "GD01-072": {
+  "abilities": [
+   {
+    "_": "Keyword",
+    "keyword": "Blocker"
+   }
+  ],
+  "name": "Launcher Strike Gundam",
+  "source": "compiled",
+  "text_hash": "e90d3c6fa84291d7"
+ },
+ "GD01-073": {
+  "abilities": [
+   {
+    "_": "Triggered",
+    "gate": "linked",
+    "steps": [
+     {
+      "_": "Choose",
+      "sel": {
+       "_": "Sel",
+       "filters": [
+        {
+         "_": "IsKind",
+         "kinds": [
+          "unit"
+         ]
+        },
+        {
+         "_": "StatCmp",
+         "op": "<=",
+         "stat": "remaining_hp",
+         "value": 2
+        }
+       ],
+       "loc": "battle",
+       "side": "enemy"
+      },
+      "var": "t1"
+     },
+     {
+      "_": "ReturnToHand",
+      "ref": {
+       "_": "Var",
+       "name": "t1"
+      }
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "event": "attacks"
+    }
+   }
+  ],
+  "binding": "wp_gd01_b",
+  "name": "Sword Strike Gundam",
+  "source": "binding",
+  "text_hash": "f18984968f81eed6"
+ },
+ "GD01-074": {
+  "abilities": [
+   {
+    "_": "Triggered",
+    "steps": [
+     {
+      "_": "Draw"
+     },
+     {
+      "_": "Discard"
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "event": "attacks"
+    }
+   }
+  ],
+  "name": "Chuchu's Demi Trainer",
+  "source": "compiled",
+  "text_hash": "9d3a9f9b1f793b1c"
+ },
+ "GD01-075": {
+  "abilities": [
+   {
+    "_": "Triggered",
+    "steps": [
+     {
+      "_": "Choose",
+      "sel": {
+       "_": "Sel",
+       "filters": [
+        {
+         "_": "IsKind",
+         "kinds": [
+          "unit"
+         ]
+        },
+        {
+         "_": "StatCmp",
+         "op": "==",
+         "stat": "remaining_hp",
+         "value": 1
+        }
+       ],
+       "loc": "battle",
+       "side": "enemy"
+      },
+      "var": "t1"
+     },
+     {
+      "_": "ReturnToHand",
+      "ref": {
+       "_": "Var",
+       "name": "t1"
+      }
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "event": "deployed"
+    }
+   }
+  ],
+  "binding": "wp_gd01_b",
+  "name": "Darilbalde",
+  "source": "binding",
+  "text_hash": "b5836d57ea081c2d"
+ },
+ "GD01-076": {
+  "abilities": [
+   {
+    "_": "Constant",
+    "cond": {
+     "_": "Cmp",
+     "left": {
+      "_": "Count",
+      "sel": {
+       "_": "Sel",
+       "filters": [
+        {
+         "_": "IsKind",
+         "kinds": [
+          "command"
+         ]
+        }
+       ],
+       "loc": "trash",
+       "side": "friendly"
+      }
+     },
+     "op": ">=",
+     "right": 4
+    },
+    "effects": [
+     {
+      "_": "StatMod",
+      "ap": 1,
+      "hp": 1
+     }
+    ]
+   }
+  ],
+  "name": "Michaelis",
+  "source": "compiled",
+  "text_hash": "f6a778eb1f13447b"
+ },
+ "GD01-077": {
+  "abilities": [],
+  "name": "Strike Gundam",
+  "source": "vanilla",
+  "text_hash": "3973e022e93220f9"
+ },
+ "GD01-078": {
+  "abilities": [
+   {
+    "_": "Triggered",
+    "steps": [
+     {
+      "_": "Choose",
+      "sel": {
+       "_": "Sel",
+       "filters": [
+        {
+         "_": "IsKind",
+         "kinds": [
+          "unit"
+         ]
+        }
+       ],
+       "loc": "battle",
+       "side": "enemy"
+      },
+      "var": "t1"
+     },
+     {
+      "_": "Apply",
+      "effect": {
+       "_": "StatMod",
+       "ap": -1
+      },
+      "ref": {
+       "_": "Var",
+       "name": "t1"
+      }
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "event": "deployed"
+    }
+   }
+  ],
+  "name": "Mistral",
+  "source": "compiled",
+  "text_hash": "d734931007e9795c"
+ },
+ "GD01-079": {
+  "abilities": [],
+  "name": "Skygrasper",
+  "source": "vanilla",
+  "text_hash": "3973e022e93220f9"
+ },
+ "GD01-080": {
+  "abilities": [
+   {
+    "_": "Triggered",
+    "steps": [
+     {
+      "_": "Choose",
+      "sel": {
+       "_": "Sel",
+       "filters": [
+        {
+         "_": "IsKind",
+         "kinds": [
+          "unit"
+         ]
+        },
+        {
+         "_": "StatCmp",
+         "op": "<=",
+         "stat": "lv",
+         "value": 2
+        }
+       ],
+       "loc": "battle",
+       "side": "enemy"
+      },
+      "var": "t1"
+     },
+     {
+      "_": "ReturnToHand",
+      "ref": {
+       "_": "Var",
+       "name": "t1"
+      }
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "event": "destroyed"
+    }
+   }
+  ],
+  "name": "Cagalli's Skygrasper",
+  "source": "compiled",
+  "text_hash": "5b79336c84c04307"
+ },
+ "GD01-081": {
+  "abilities": [
+   {
+    "_": "Constant",
+    "cond": {
+     "_": "Exists",
+     "sel": {
+      "_": "Sel",
+      "filters": [
+       {
+        "_": "IsKind",
+        "kinds": [
+         "unit"
+        ]
+       },
+       {
+        "_": "NotRef",
+        "ref": {
+         "_": "This"
+        }
+       },
+       {
+        "_": "HasTrait",
+        "traits": [
+         "Triple Ship Alliance"
+        ]
+       }
+      ],
+      "loc": "battle",
+      "side": "friendly"
+     }
+    },
+    "effects": [
+     {
+      "_": "StatMod",
+      "ap": 1
+     },
+     {
+      "_": "KeywordGrant",
+      "keyword": "Blocker"
+     }
+    ]
+   }
+  ],
+  "name": "M1 Astray",
+  "source": "compiled",
+  "text_hash": "b04f4a78ac18c969"
+ },
+ "GD01-082": {
+  "abilities": [
+   {
+    "_": "Activated",
+    "costs": [
+     {
+      "_": "PayResources",
+      "amount": 2
+     }
+    ],
+    "gate": "paired",
+    "once_per_turn": true,
+    "steps": [
+     {
+      "_": "Choose",
+      "sel": {
+       "_": "Sel",
+       "filters": [
+        {
+         "_": "IsKind",
+         "kinds": [
+          "unit"
+         ]
+        }
+       ],
+       "loc": "battle",
+       "side": "enemy"
+      },
+      "var": "t1"
+     },
+     {
+      "_": "Apply",
+      "duration": "this_battle",
+      "effect": {
+       "_": "StatMod",
+       "ap": -1
+      },
+      "ref": {
+       "_": "Var",
+       "name": "t1"
+      }
+     }
+    ],
+    "timing": "action"
+   }
+  ],
+  "name": "Gundam Aerial (Mirasoul Flight Unit)",
+  "source": "compiled",
+  "text_hash": "e9b82b9aed320fee"
+ },
+ "GD01-083": {
+  "abilities": [],
+  "name": "Guel's Dilanza",
+  "source": "vanilla",
+  "text_hash": "3973e022e93220f9"
+ },
+ "GD01-084": {
+  "abilities": [],
+  "name": "Beguir-Pente",
+  "source": "vanilla",
+  "text_hash": "3973e022e93220f9"
+ },
+ "GD01-085": {
+  "abilities": [],
+  "name": "Demi Garrison",
+  "source": "vanilla",
+  "text_hash": "3973e022e93220f9"
+ },
+ "GD01-086": {
+  "abilities": [
+   {
+    "_": "Keyword",
+    "keyword": "Blocker"
+   }
+  ],
+  "name": "Gundam Lfrith",
+  "source": "compiled",
+  "text_hash": "e90d3c6fa84291d7"
+ },
+ "GD01-087": {
+  "abilities": [
+   {
+    "_": "Burst",
+    "steps": [
+     {
+      "_": "AddToHand",
+      "ref": {
+       "_": "ThisCard"
+      }
+     }
+    ]
+   }
+  ],
+  "name": "Sayla Mass",
+  "source": "compiled",
+  "text_hash": "75aa4b0cc6a35ad7",
+  "unit_abilities": [
+   {
+    "_": "Constant",
+    "cond": {
+     "_": "RefMatches",
+     "filters": [
+      {
+       "_": "HasColor",
+       "colors": [
+        "Blue"
+       ]
+      }
+     ],
+     "ref": {
+      "_": "This"
+     }
+    },
+    "effects": [
+     {
+      "_": "KeywordGrant",
+      "amount": 1,
+      "keyword": "Repair"
+     }
+    ]
+   }
+  ]
+ },
+ "GD01-088": {
+  "abilities": [
+   {
+    "_": "Burst",
+    "steps": [
+     {
+      "_": "AddToHand",
+      "ref": {
+       "_": "ThisCard"
+      }
+     }
+    ]
+   }
+  ],
+  "name": "Banagher Links",
+  "source": "compiled",
+  "text_hash": "71f6c95621bbbf95",
+  "unit_abilities": [
+   {
+    "_": "Triggered",
+    "steps": [
+     {
+      "_": "Draw"
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "event": "linked"
+    }
+   }
+  ]
+ },
+ "GD01-089": {
+  "abilities": [
+   {
+    "_": "Burst",
+    "steps": [
+     {
+      "_": "AddToHand",
+      "ref": {
+       "_": "ThisCard"
+      }
+     }
+    ]
+   }
+  ],
+  "name": "Riddhe Marcenas",
+  "source": "compiled",
+  "text_hash": "b065654ae51adf10",
+  "unit_abilities": [
+   {
+    "_": "Constant",
+    "cond": {
+     "_": "RefMatches",
+     "filters": [
+      {
+       "_": "HasKeyword",
+       "keyword": "Repair"
+      }
+     ],
+     "ref": {
+      "_": "This"
+     }
+    },
+    "effects": [
+     {
+      "_": "StatMod",
+      "ap": 1
+     }
+    ]
+   }
+  ]
+ },
+ "GD01-090": {
+  "abilities": [
+   {
+    "_": "Burst",
+    "steps": [
+     {
+      "_": "AddToHand",
+      "ref": {
+       "_": "ThisCard"
+      }
+     }
+    ]
+   }
+  ],
+  "binding": "wp_gd01_b",
+  "name": "Duo Maxwell",
+  "source": "binding",
+  "text_hash": "f884b5f88e348012",
+  "unit_abilities": [
+   {
+    "_": "Constant",
+    "effects": [
+     {
+      "_": "RuleGrant",
+      "rule": {
+       "_": "RuleMod",
+       "kind": "ap_cant_be_reduced"
+      }
+     }
+    ],
+    "gate": "linked"
+   }
+  ]
+ },
+ "GD01-091": {
+  "abilities": [
+   {
+    "_": "Burst",
+    "steps": [
+     {
+      "_": "AddToHand",
+      "ref": {
+       "_": "ThisCard"
+      }
+     }
+    ]
+   }
+  ],
+  "binding": "wp_gd01_b",
+  "name": "Chang Wufei",
+  "source": "binding",
+  "text_hash": "88cc9cf9bbc5c164",
+  "unit_abilities": [
+   {
+    "_": "Constant",
+    "cond": {
+     "_": "And",
+     "conds": [
+      {
+       "_": "IsTurn"
+      },
+      {
+       "_": "RefMatches",
+       "filters": [
+        {
+         "_": "HasKeyword",
+         "keyword": "Breach"
+        }
+       ],
+       "ref": {
+        "_": "This"
+       }
+      }
+     ]
+    },
+    "effects": [
+     {
+      "_": "RuleGrant",
+      "rule": {
+       "_": "RuleMod",
+       "damage_kind": "battle",
+       "kind": "cant_receive_damage",
+       "source_filters": [
+        {
+         "_": "IsKind",
+         "kinds": [
+          "unit"
+         ]
+        },
+        {
+         "_": "StatCmp",
+         "op": "<=",
+         "stat": "ap",
+         "value": 3
+        }
+       ],
+       "source_side": "enemy"
+      }
+     }
+    ]
+   }
+  ]
+ },
+ "GD01-092": {
+  "abilities": [
+   {
+    "_": "Burst",
+    "steps": [
+     {
+      "_": "AddToHand",
+      "ref": {
+       "_": "ThisCard"
+      }
+     }
+    ]
+   }
+  ],
+  "name": "M'Quve",
+  "source": "compiled",
+  "text_hash": "2d14c773a701aad4",
+  "unit_abilities": [
+   {
+    "_": "Constant",
+    "cond": {
+     "_": "RefMatches",
+     "filters": [
+      {
+       "_": "HasTrait",
+       "traits": [
+        "Zeon"
+       ]
+      }
+     ],
+     "ref": {
+      "_": "This"
+     }
+    },
+    "effects": [
+     {
+      "_": "KeywordGrant",
+      "amount": 1,
+      "keyword": "Breach"
+     }
+    ]
+   }
+  ]
+ },
+ "GD01-093": {
+  "abilities": [
+   {
+    "_": "Burst",
+    "steps": [
+     {
+      "_": "AddToHand",
+      "ref": {
+       "_": "ThisCard"
+      }
+     }
+    ]
+   }
+  ],
+  "name": "Marida Cruz",
+  "source": "compiled",
+  "text_hash": "2271dedec0b1835b",
+  "unit_abilities": [
+   {
+    "_": "Triggered",
+    "gate": "linked",
+    "steps": [
+     {
+      "_": "Choose",
+      "sel": {
+       "_": "Sel",
+       "filters": [
+        {
+         "_": "IsKind",
+         "kinds": [
+          "unit"
+         ]
+        },
+        {
+         "_": "LevelCmpRef",
+         "op": "<=",
+         "ref": {
+          "_": "This"
+         },
+         "ref_stat": "lv",
+         "stat": "lv"
+        }
+       ],
+       "loc": "battle",
+       "side": "enemy"
+      },
+      "var": "t1"
+     },
+     {
+      "_": "Damage",
+      "amount": 1,
+      "ref": {
+       "_": "Var",
+       "name": "t1"
+      }
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "event": "attacks"
+    }
+   }
+  ]
+ },
+ "GD01-094": {
+  "abilities": [
+   {
+    "_": "Burst",
+    "steps": [
+     {
+      "_": "AddToHand",
+      "ref": {
+       "_": "ThisCard"
+      }
+     }
+    ]
+   }
+  ],
+  "binding": "wp_gd01_b",
+  "name": "Yzak Jule",
+  "source": "binding",
+  "text_hash": "873d4bd3905c8254",
+  "unit_abilities": [
+   {
+    "_": "Triggered",
+    "cond": {
+     "_": "And",
+     "conds": [
+      {
+       "_": "EventFlag",
+       "key": "linked"
+      },
+      {
+       "_": "RefMatches",
+       "filters": [
+        {
+         "_": "IsAttacking"
+        }
+       ],
+       "ref": {
+        "_": "This"
+       }
+      },
+      {
+       "_": "CustomCond",
+       "name": "wp_gd01_b_destroyed_with_damage"
+      }
+     ]
+    },
+    "once_per_turn": true,
+    "steps": [
+     {
+      "_": "Draw"
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "event": "destroyed",
+     "self_only": false,
+     "subject": {
+      "_": "Sel",
+      "loc": "battle",
+      "side": "enemy"
+     }
+    }
+   }
+  ]
+ },
+ "GD01-095": {
+  "abilities": [
+   {
+    "_": "Burst",
+    "steps": [
+     {
+      "_": "AddToHand",
+      "ref": {
+       "_": "ThisCard"
+      }
+     }
+    ]
+   }
+  ],
+  "name": "Dearka Elthman",
+  "source": "compiled",
+  "text_hash": "232244c9c9cdf467",
+  "unit_abilities": [
+   {
+    "_": "Triggered",
+    "steps": [
+     {
+      "_": "Discard"
+     },
+     {
+      "_": "IfYouDo",
+      "steps": [
+       {
+        "_": "Draw"
+       }
+      ]
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "event": "linked"
+    }
+   }
+  ]
+ },
+ "GD01-096": {
+  "abilities": [
+   {
+    "_": "Burst",
+    "steps": [
+     {
+      "_": "AddToHand",
+      "ref": {
+       "_": "ThisCard"
+      }
+     }
+    ]
+   }
+  ],
+  "name": "Cagalli Yula Athha",
+  "source": "compiled",
+  "text_hash": "c512d5f249f1cf5a",
+  "unit_abilities": [
+   {
+    "_": "Constant",
+    "cond": {
+     "_": "RefMatches",
+     "filters": [
+      {
+       "_": "HasColor",
+       "colors": [
+        "White"
+       ]
+      }
+     ],
+     "ref": {
+      "_": "This"
+     }
+    },
+    "effects": [
+     {
+      "_": "KeywordGrant",
+      "keyword": "Blocker"
+     }
+    ]
+   }
+  ]
+ },
+ "GD01-097": {
+  "abilities": [
+   {
+    "_": "Burst",
+    "steps": [
+     {
+      "_": "AddToHand",
+      "ref": {
+       "_": "ThisCard"
+      }
+     }
+    ]
+   }
+  ],
+  "binding": "wp_gd01_b",
+  "name": "Guel Jeturk",
+  "source": "binding",
+  "text_hash": "046bee4e55b32959",
+  "unit_abilities": [
+   {
+    "_": "Activated",
+    "cond": {
+     "_": "Cmp",
+     "left": {
+      "_": "HandSize",
+      "player": "opponent"
+     },
+     "op": ">=",
+     "right": 8
+    },
+    "costs": [],
+    "once_per_turn": true,
+    "steps": [
+     {
+      "_": "If",
+      "cond": {
+       "_": "Cmp",
+       "left": {
+        "_": "HandSize",
+        "player": "opponent"
+       },
+       "op": ">=",
+       "right": 8
+      },
+      "then": [
+       {
+        "_": "SetActive",
+        "ref": {
+         "_": "This"
+        }
+       },
+       {
+        "_": "Apply",
+        "effect": {
+         "_": "RuleGrant",
+         "rule": {
+          "_": "RuleMod",
+          "kind": "cant_attack"
+         }
+        },
+        "ref": {
+         "_": "This"
+        }
+       }
+      ]
+     }
+    ],
+    "timing": "main"
+   }
+  ]
+ },
+ "GD01-098": {
+  "abilities": [
+   {
+    "_": "Burst",
+    "steps": [
+     {
+      "_": "AddToHand",
+      "ref": {
+       "_": "ThisCard"
+      }
+     }
+    ]
+   }
+  ],
+  "binding": "wp_gd01_b",
+  "name": "Elan Ceres (Enhanced Person Number 4)",
+  "source": "binding",
+  "text_hash": "1f08b48e59a508d5",
+  "unit_abilities": [
+   {
+    "_": "Activated",
+    "cond": {
+     "_": "And",
+     "conds": [
+      {
+       "_": "Exists",
+       "sel": {
+        "_": "Sel",
+        "filters": [
+         {
+          "_": "IsKind",
+          "kinds": [
+           "unit"
+          ]
+         },
+         {
+          "_": "StatCmp",
+          "op": "<=",
+          "stat": "ap",
+          "value": 1
+         }
+        ],
+        "loc": "battle",
+        "side": "enemy"
+       }
+      },
+      {
+       "_": "RefMatches",
+       "filters": [
+        {
+         "_": "IsDamaged"
+        }
+       ],
+       "ref": {
+        "_": "This"
+       }
+      }
+     ]
+    },
+    "costs": [],
+    "once_per_turn": true,
+    "steps": [
+     {
+      "_": "If",
+      "cond": {
+       "_": "Exists",
+       "sel": {
+        "_": "Sel",
+        "filters": [
+         {
+          "_": "IsKind",
+          "kinds": [
+           "unit"
+          ]
+         },
+         {
+          "_": "StatCmp",
+          "op": "<=",
+          "stat": "ap",
+          "value": 1
+         }
+        ],
+        "loc": "battle",
+        "side": "enemy"
+       }
+      },
+      "then": [
+       {
+        "_": "Recover",
+        "amount": 1,
+        "ref": {
+         "_": "This"
+        }
+       }
+      ]
+     }
+    ],
+    "timing": "action"
+   }
+  ]
+ },
+ "GD01-099": {
+  "abilities": [
+   {
+    "_": "Burst",
+    "steps": [
+     {
+      "_": "Choose",
+      "sel": {
+       "_": "Sel",
+       "filters": [
+        {
+         "_": "IsKind",
+         "kinds": [
+          "unit"
+         ]
+        },
+        {
+         "_": "StatCmp",
+         "op": "<=",
+         "stat": "remaining_hp",
+         "value": 5
+        }
+       ],
+       "loc": "battle",
+       "side": "enemy"
+      },
+      "var": "t1"
+     },
+     {
+      "_": "Rest",
+      "ref": {
+       "_": "Var",
+       "name": "t1"
+      }
+     }
+    ]
+   },
+   {
+    "_": "Command",
+    "steps": [
+     {
+      "_": "Choose",
+      "count": 2,
+      "min_count": 1,
+      "sel": {
+       "_": "Sel",
+       "filters": [
+        {
+         "_": "IsKind",
+         "kinds": [
+          "unit"
+         ]
+        },
+        {
+         "_": "StatCmp",
+         "op": "<=",
+         "stat": "remaining_hp",
+         "value": 3
+        }
+       ],
+       "loc": "battle",
+       "side": "enemy"
+      },
+      "var": "t1"
+     },
+     {
+      "_": "Rest",
+      "ref": {
+       "_": "Var",
+       "name": "t1"
+      }
+     }
+    ],
+    "timing": "main_or_action"
+   }
+  ],
+  "binding": "wp_gd01_b",
+  "name": "Intercept Orders",
+  "source": "binding",
+  "text_hash": "a56816eec117a589"
+ },
+ "GD01-100": {
+  "abilities": [
+   {
+    "_": "Command",
+    "steps": [
+     {
+      "_": "Draw",
+      "count": 2
+     }
+    ],
+    "timing": "main"
+   }
+  ],
+  "name": "A Show of Resolve",
+  "source": "compiled",
+  "text_hash": "02ac2046933eaa7a"
+ },
+ "GD01-101": {
+  "abilities": [
+   {
+    "_": "Command",
+    "steps": [
+     {
+      "_": "Choose",
+      "sel": {
+       "_": "Sel",
+       "filters": [
+        {
+         "_": "IsKind",
+         "kinds": [
+          "unit"
+         ]
+        },
+        {
+         "_": "IsLinked"
+        }
+       ],
+       "loc": "battle",
+       "side": "friendly"
+      },
+      "var": "t1"
+     },
+     {
+      "_": "Recover",
+      "amount": 3,
+      "ref": {
+       "_": "Var",
+       "name": "t1"
+      }
+     }
+    ],
+    "timing": "main_or_action"
+   }
+  ],
+  "name": "Deep Devotion",
+  "source": "compiled",
+  "text_hash": "aae28f9ee89f678b"
+ },
+ "GD01-102": {
+  "abilities": [
+   {
+    "_": "Command",
+    "steps": [
+     {
+      "_": "Recover",
+      "amount": 2,
+      "ref": {
+       "_": "All",
+       "sel": {
+        "_": "Sel",
+        "filters": [
+         {
+          "_": "IsKind",
+          "kinds": [
+           "unit"
+          ]
+         },
+         {
+          "_": "StatCmp",
+          "op": "<=",
+          "stat": "lv",
+          "value": 4
+         }
+        ],
+        "loc": "battle",
+        "side": "friendly"
+       }
+      }
+     }
+    ],
+    "timing": "main"
+   }
+  ],
+  "name": "Securing the Supply Line",
+  "source": "compiled",
+  "text_hash": "56ab41685988f28b"
+ },
+ "GD01-103": {
+  "abilities": [
+   {
+    "_": "Command",
+    "steps": [
+     {
+      "_": "Choose",
+      "sel": {
+       "_": "Sel",
+       "filters": [
+        {
+         "_": "IsKind",
+         "kinds": [
+          "unit"
+         ]
+        },
+        {
+         "_": "IsRested",
+         "rested": false
+        },
+        {
+         "_": "HasTrait",
+         "traits": [
+          "Earth Federation"
+         ]
+        }
+       ],
+       "loc": "battle",
+       "side": "friendly"
+      },
+      "var": "t1"
+     },
+     {
+      "_": "Choose",
+      "distinct_from": [
+       "t1"
+      ],
+      "sel": {
+       "_": "Sel",
+       "filters": [
+        {
+         "_": "IsKind",
+         "kinds": [
+          "unit"
+         ]
+        },
+        {
+         "_": "IsRested",
+         "rested": false
+        }
+       ],
+       "loc": "battle",
+       "side": "enemy"
+      },
+      "var": "t2"
+     },
+     {
+      "_": "Rest",
+      "ref": {
+       "_": "Union",
+       "refs": [
+        {
+         "_": "Var",
+         "name": "t1"
+        },
+        {
+         "_": "Var",
+         "name": "t2"
+        }
+       ]
+      }
+     }
+    ],
+    "timing": "main"
+   }
+  ],
+  "name": "The Stubborn Cog",
+  "source": "compiled",
+  "text_hash": "0b071b793d9567bb"
+ },
+ "GD01-104": {
+  "abilities": [
+   {
+    "_": "Burst",
+    "steps": [
+     {
+      "_": "Draw"
+     }
+    ]
+   },
+   {
+    "_": "Command",
+    "steps": [
+     {
+      "_": "Choose",
+      "sel": {
+       "_": "Sel",
+       "filters": [
+        {
+         "_": "IsKind",
+         "kinds": [
+          "unit"
+         ]
+        },
+        {
+         "_": "IsRested"
+        }
+       ],
+       "loc": "battle",
+       "side": "enemy"
+      },
+      "var": "t1"
+     },
+     {
+      "_": "Damage",
+      "amount": 2,
+      "ref": {
+       "_": "Var",
+       "name": "t1"
+      }
+     }
+    ],
+    "timing": "main"
+   }
+  ],
+  "name": "Signs of a Revolution",
+  "source": "compiled",
+  "text_hash": "22b9b0564e6361ca"
+ },
+ "GD01-105": {
+  "abilities": [
+   {
+    "_": "Burst",
+    "steps": [
+     {
+      "_": "AddToHand",
+      "ref": {
+       "_": "ThisCard"
+      }
+     }
+    ]
+   },
+   {
+    "_": "Command",
+    "steps": [
+     {
+      "_": "Apply",
+      "effect": {
+       "_": "StatMod",
+       "ap": 2
+      },
+      "ref": {
+       "_": "All",
+       "sel": {
+        "_": "Sel",
+        "filters": [
+         {
+          "_": "IsKind",
+          "kinds": [
+           "unit"
+          ]
+         }
+        ],
+        "loc": "battle",
+        "side": "friendly"
+       }
+      }
+     }
+    ],
+    "timing": "main"
+   }
+  ],
+  "name": "Citizens, Take a Stand!",
+  "source": "compiled",
+  "text_hash": "1a0ea7eca82dca42"
+ },
+ "GD01-106": {
+  "abilities": [
+   {
+    "_": "Command",
+    "steps": [
+     {
+      "_": "DeployToken",
+      "count": 2,
+      "token_key": "Zaku Ⅱ|Zeon|1|1|"
+     }
+    ],
+    "timing": "main"
+   }
+  ],
+  "binding": "wp_gd01_b",
+  "name": "Fortress Defense",
+  "source": "binding",
+  "text_hash": "cd458d036fe8029b"
+ },
+ "GD01-107": {
+  "abilities": [
+   {
+    "_": "Burst",
+    "steps": [
+     {
+      "_": "PlaceExResource"
+     }
+    ]
+   },
+   {
+    "_": "Command",
+    "steps": [
+     {
+      "_": "PlaceResource",
+      "rested": true
+     }
+    ],
+    "timing": "main"
+   }
+  ],
+  "name": "First Contact",
+  "source": "compiled",
+  "text_hash": "376ba2b0f758e3a8"
+ },
+ "GD01-108": {
+  "abilities": [
+   {
+    "_": "Command",
+    "steps": [
+     {
+      "_": "Damage",
+      "amount": 2,
+      "ref": {
+       "_": "All",
+       "sel": {
+        "_": "Sel",
+        "filters": [
+         {
+          "_": "IsKind",
+          "kinds": [
+           "unit"
+          ]
+         },
+         {
+          "_": "HasKeyword",
+          "keyword": "Blocker"
+         }
+        ],
+        "loc": "battle",
+        "side": "any"
+       }
+      }
+     }
+    ],
+    "timing": "main"
+   }
+  ],
+  "name": "Strategic Arms",
+  "source": "compiled",
+  "text_hash": "420cba6ff3d03ec0"
+ },
+ "GD01-109": {
+  "abilities": [
+   {
+    "_": "Command",
+    "steps": [
+     {
+      "_": "LookTop",
+      "count": 5
+     },
+     {
+      "_": "May",
+      "steps": [
+       {
+        "_": "Choose",
+        "sel": {
+         "_": "Sel",
+         "filters": [
+          {
+           "_": "IsKind",
+           "kinds": [
+            "unit",
+            "pilot"
+           ]
+          },
+          {
+           "_": "HasTrait",
+           "traits": [
+            "Operation Meteor",
+            "G Team"
+           ]
+          },
+          {
+           "_": "IsRef",
+           "ref": {
+            "_": "Var",
+            "name": "looked"
+           }
+          }
+         ],
+         "loc": "deck",
+         "side": "friendly"
+        },
+        "targeting": false,
+        "var": "t1"
+       },
+       {
+        "_": "AddToHand",
+        "ref": {
+         "_": "Var",
+         "name": "t1"
+        },
+        "reveal": true
+       }
+      ]
+     },
+     {
+      "_": "CustomStep",
+      "name": "return_looked_bottom"
+     }
+    ],
+    "timing": "main"
+   }
+  ],
+  "name": "The Path to Victory or Defeat",
+  "source": "compiled",
+  "text_hash": "f9b57a70be310f3b"
+ },
+ "GD01-110": {
+  "abilities": [
+   {
+    "_": "Command",
+    "steps": [
+     {
+      "_": "Choose",
+      "sel": {
+       "_": "Sel",
+       "filters": [
+        {
+         "_": "IsKind",
+         "kinds": [
+          "unit"
+         ]
+        },
+        {
+         "_": "StatCmp",
+         "op": ">=",
+         "stat": "lv",
+         "value": 4
+        }
+       ],
+       "loc": "battle",
+       "side": "any"
+      },
+      "var": "t1"
+     },
+     {
+      "_": "Apply",
+      "effect": {
+       "_": "RuleGrant",
+       "rule": {
+        "_": "RuleMod",
+        "kind": "may_attack_active",
+        "source_filters": [
+         {
+          "_": "IsKind",
+          "kinds": [
+           "unit"
+          ]
+         },
+         {
+          "_": "IsRested",
+          "rested": false
+         },
+         {
+          "_": "StatCmp",
+          "op": "<=",
+          "stat": "ap",
+          "value": 6
+         }
+        ]
+       }
+      },
+      "ref": {
+       "_": "Var",
+       "name": "t1"
+      }
+     }
+    ],
+    "timing": "main_or_action"
+   }
+  ],
+  "name": "Rasid's Orders",
+  "source": "compiled",
+  "text_hash": "09d8d39e8ccf75ea"
+ },
+ "GD01-111": {
+  "abilities": [
+   {
+    "_": "Burst",
+    "steps": [
+     {
+      "_": "Choose",
+      "sel": {
+       "_": "Sel",
+       "filters": [
+        {
+         "_": "IsKind",
+         "kinds": [
+          "unit"
+         ]
+        }
+       ],
+       "loc": "battle",
+       "side": "enemy"
+      },
+      "var": "t1"
+     },
+     {
+      "_": "Damage",
+      "amount": 2,
+      "ref": {
+       "_": "Var",
+       "name": "t1"
+      }
+     }
+    ]
+   },
+   {
+    "_": "Command",
+    "steps": [
+     {
+      "_": "Choose",
+      "sel": {
+       "_": "Sel",
+       "filters": [
+        {
+         "_": "IsKind",
+         "kinds": [
+          "unit"
+         ]
+        },
+        {
+         "_": "IsDamaged"
+        }
+       ],
+       "loc": "battle",
+       "side": "enemy"
+      },
+      "var": "t1"
+     },
+     {
+      "_": "Damage",
+      "amount": 3,
+      "ref": {
+       "_": "Var",
+       "name": "t1"
+      }
+     }
+    ],
+    "timing": "main_or_action"
+   }
+  ],
+  "name": "Battle of Aces",
+  "source": "compiled",
+  "text_hash": "7c986ef7c65fd4a2"
+ },
+ "GD01-112": {
+  "abilities": [
+   {
+    "_": "Command",
+    "cond": {
+     "_": "Cmp",
+     "left": {
+      "_": "Count",
+      "sel": {
+       "_": "Sel",
+       "filters": [
+        {
+         "_": "IsKind",
+         "kinds": [
+          "unit"
+         ]
+        },
+        {
+         "_": "IsRested",
+         "rested": false
+        }
+       ],
+       "loc": "battle",
+       "side": "friendly"
+      }
+     },
+     "op": ">=",
+     "right": 2
+    },
+    "steps": [
+     {
+      "_": "Choose",
+      "count": 2,
+      "sel": {
+       "_": "Sel",
+       "filters": [
+        {
+         "_": "IsKind",
+         "kinds": [
+          "unit"
+         ]
+        },
+        {
+         "_": "IsRested",
+         "rested": false
+        }
+       ],
+       "loc": "battle",
+       "side": "friendly"
+      },
+      "var": "t1"
+     },
+     {
+      "_": "Rest",
+      "ref": {
+       "_": "Var",
+       "name": "t1"
+      }
+     },
+     {
+      "_": "IfYouDo",
+      "steps": [
+       {
+        "_": "Choose",
+        "sel": {
+         "_": "Sel",
+         "filters": [
+          {
+           "_": "IsKind",
+           "kinds": [
+            "unit"
+           ]
+          }
+         ],
+         "loc": "battle",
+         "side": "enemy"
+        },
+        "var": "t2"
+       },
+       {
+        "_": "Damage",
+        "amount": 3,
+        "ref": {
+         "_": "Var",
+         "name": "t2"
+        }
+       }
+      ]
+     }
+    ],
+    "timing": "main"
+   }
+  ],
+  "binding": "wp_gd01_b",
+  "name": "Extreme Hatred",
+  "source": "binding",
+  "text_hash": "ff31cb6b9943b8d1"
+ },
+ "GD01-113": {
+  "abilities": [
+   {
+    "_": "Command",
+    "steps": [
+     {
+      "_": "Choose",
+      "sel": {
+       "_": "Sel",
+       "filters": [
+        {
+         "_": "IsKind",
+         "kinds": [
+          "unit"
+         ]
+        },
+        {
+         "_": "HasTrait",
+         "traits": [
+          "ZAFT"
+         ]
+        }
+       ],
+       "loc": "battle",
+       "side": "friendly"
+      },
+      "var": "t1"
+     },
+     {
+      "_": "Apply",
+      "effect": {
+       "_": "StatMod",
+       "ap": 3
+      },
+      "ref": {
+       "_": "Var",
+       "name": "t1"
+      }
+     }
+    ],
+    "timing": "main_or_action"
+   }
+  ],
+  "name": "The Desert Tiger",
+  "source": "compiled",
+  "text_hash": "4be01915a3605c3e"
+ },
+ "GD01-114": {
+  "abilities": [
+   {
+    "_": "Command",
+    "cond": {
+     "_": "Cmp",
+     "left": {
+      "_": "Count",
+      "sel": {
+       "_": "Sel",
+       "filters": [
+        {
+         "_": "IsKind",
+         "kinds": [
+          "unit"
+         ]
+        }
+       ],
+       "loc": "battle",
+       "side": "friendly"
+      }
+     },
+     "op": ">=",
+     "right": 2
+    },
+    "steps": [
+     {
+      "_": "Choose",
+      "count": 2,
+      "sel": {
+       "_": "Sel",
+       "filters": [
+        {
+         "_": "IsKind",
+         "kinds": [
+          "unit"
+         ]
+        }
+       ],
+       "loc": "battle",
+       "side": "friendly"
+      },
+      "var": "t1"
+     },
+     {
+      "_": "Apply",
+      "effect": {
+       "_": "StatMod",
+       "ap": 1
+      },
+      "ref": {
+       "_": "Var",
+       "name": "t1"
+      }
+     }
+    ],
+    "timing": "action"
+   }
+  ],
+  "binding": "wp_gd01_b",
+  "name": "Assault on Torrington Base",
+  "source": "binding",
+  "text_hash": "4bf0f3adc49ad0c4"
+ },
+ "GD01-115": {
+  "abilities": [
+   {
+    "_": "Command",
+    "steps": [
+     {
+      "_": "Choose",
+      "sel": {
+       "_": "Sel",
+       "filters": [
+        {
+         "_": "IsKind",
+         "kinds": [
+          "unit"
+         ]
+        }
+       ],
+       "loc": "battle",
+       "side": "enemy"
+      },
+      "var": "t1"
+     },
+     {
+      "_": "Damage",
+      "amount": 1,
+      "ref": {
+       "_": "Var",
+       "name": "t1"
+      }
+     }
+    ],
+    "timing": "main_or_action"
+   }
+  ],
+  "name": "Zeon Remnant Forces",
+  "source": "compiled",
+  "text_hash": "1daf203a9830eeaa"
+ },
+ "GD01-116": {
+  "abilities": [
+   {
+    "_": "Command",
+    "steps": [
+     {
+      "_": "Choose",
+      "sel": {
+       "_": "Sel",
+       "filters": [
+        {
+         "_": "IsKind",
+         "kinds": [
+          "unit"
+         ]
+        },
+        {
+         "_": "StatCmp",
+         "op": "<=",
+         "stat": "ap",
+         "value": 2
+        }
+       ],
+       "loc": "battle",
+       "side": "enemy"
+      },
+      "var": "t1"
+     },
+     {
+      "_": "Damage",
+      "amount": 2,
+      "ref": {
+       "_": "Var",
+       "name": "t1"
+      }
+     }
+    ],
+    "timing": "main_or_action"
+   }
+  ],
+  "name": "Stealth Stratagem",
+  "source": "compiled",
+  "text_hash": "465ea2b4e1fc570c"
+ },
+ "GD01-117": {
+  "abilities": [
+   {
+    "_": "Burst",
+    "steps": [
+     {
+      "_": "ActivateMain"
+     }
+    ]
+   },
+   {
+    "_": "Command",
+    "steps": [
+     {
+      "_": "Choose",
+      "sel": {
+       "_": "Sel",
+       "filters": [
+        {
+         "_": "IsKind",
+         "kinds": [
+          "unit"
+         ]
+        },
+        {
+         "_": "StatCmp",
+         "op": "<=",
+         "stat": "remaining_hp",
+         "value": 5
+        }
+       ],
+       "loc": "battle",
+       "side": "enemy"
+      },
+      "var": "t1"
+     },
+     {
+      "_": "ReturnToHand",
+      "ref": {
+       "_": "Var",
+       "name": "t1"
+      }
+     }
+    ],
+    "timing": "main_or_action"
+   }
+  ],
+  "binding": "wp_gd01_b",
+  "name": "The Witch and the Bride",
+  "source": "binding",
+  "text_hash": "a4c07a552f6818ce"
+ },
+ "GD01-118": {
+  "abilities": [
+   {
+    "_": "Command",
+    "steps": [
+     {
+      "_": "Draw",
+      "count": 2
+     },
+     {
+      "_": "Discard"
+     }
+    ],
+    "timing": "main"
+   }
+  ],
+  "name": "Overflowing Affection",
+  "source": "compiled",
+  "text_hash": "fa5a0a5d6e7ca571"
+ },
+ "GD01-119": {
+  "abilities": [
+   {
+    "_": "Command",
+    "steps": [
+     {
+      "_": "Choose",
+      "sel": {
+       "_": "Sel",
+       "filters": [
+        {
+         "_": "IsKind",
+         "kinds": [
+          "unit"
+         ]
+        },
+        {
+         "_": "StatCmp",
+         "op": "<=",
+         "stat": "lv",
+         "value": 4
+        }
+       ],
+       "loc": "battle",
+       "side": "enemy"
+      },
+      "var": "t1"
+     },
+     {
+      "_": "Apply",
+      "effect": {
+       "_": "StatMod",
+       "ap": -2
+      },
+      "ref": {
+       "_": "Var",
+       "name": "t1"
+      }
+     }
+    ],
+    "timing": "main_or_action"
+   }
+  ],
+  "name": "Iron-Fisted Discipline",
+  "source": "compiled",
+  "text_hash": "473d6551406237a5"
+ },
+ "GD01-120": {
+  "abilities": [
+   {
+    "_": "Burst",
+    "steps": [
+     {
+      "_": "Choose",
+      "sel": {
+       "_": "Sel",
+       "filters": [
+        {
+         "_": "IsKind",
+         "kinds": [
+          "unit"
+         ]
+        }
+       ],
+       "loc": "battle",
+       "side": "enemy"
+      },
+      "var": "t1"
+     },
+     {
+      "_": "Apply",
+      "effect": {
+       "_": "StatMod",
+       "ap": -3
+      },
+      "ref": {
+       "_": "Var",
+       "name": "t1"
+      }
+     }
+    ]
+   },
+   {
+    "_": "Command",
+    "steps": [
+     {
+      "_": "Choose",
+      "sel": {
+       "_": "Sel",
+       "filters": [
+        {
+         "_": "IsKind",
+         "kinds": [
+          "unit"
+         ]
+        },
+        {
+         "_": "HasKeyword",
+         "keyword": "Blocker"
+        }
+       ],
+       "loc": "battle",
+       "side": "friendly"
+      },
+      "var": "t1"
+     },
+     {
+      "_": "Apply",
+      "effect": {
+       "_": "StatMod",
+       "ap": 3
+      },
+      "ref": {
+       "_": "Var",
+       "name": "t1"
+      }
+     }
+    ],
+    "timing": "action"
+   }
+  ],
+  "name": "Naval Bombardment",
+  "source": "compiled",
+  "text_hash": "1e6fd0d4f9fca908"
+ },
+ "GD01-121": {
+  "abilities": [
+   {
+    "_": "Burst",
+    "steps": [
+     {
+      "_": "ActivateMain"
+     }
+    ]
+   },
+   {
+    "_": "Command",
+    "steps": [
+     {
+      "_": "Choose",
+      "sel": {
+       "_": "Sel",
+       "filters": [
+        {
+         "_": "IsKind",
+         "kinds": [
+          "unit"
+         ]
+        },
+        {
+         "_": "IsRested"
+        },
+        {
+         "_": "HasKeyword",
+         "keyword": "Blocker"
+        }
+       ],
+       "loc": "battle",
+       "side": "any"
+      },
+      "var": "t1"
+     },
+     {
+      "_": "SetActive",
+      "ref": {
+       "_": "Var",
+       "name": "t1"
+      }
+     },
+     {
+      "_": "Apply",
+      "effect": {
+       "_": "RuleGrant",
+       "rule": {
+        "_": "RuleMod",
+        "kind": "cant_attack"
+       }
+      },
+      "ref": {
+       "_": "Var",
+       "name": "t1"
+      }
+     }
+    ],
+    "timing": "main"
+   }
+  ],
+  "name": "Midair Modifications",
+  "source": "compiled",
+  "text_hash": "bdea04029f76c129"
+ },
+ "GD01-122": {
+  "abilities": [
+   {
+    "_": "Command",
+    "steps": [
+     {
+      "_": "Choose",
+      "sel": {
+       "_": "Sel",
+       "filters": [
+        {
+         "_": "IsKind",
+         "kinds": [
+          "unit"
+         ]
+        },
+        {
+         "_": "StatCmp",
+         "op": "<=",
+         "stat": "remaining_hp",
+         "value": {
+          "_": "Sum",
+          "terms": [
+           2,
+           {
+            "_": "Times",
+            "factor": 2,
+            "value": {
+             "_": "MinOf",
+             "terms": [
+              {
+               "_": "Count",
+               "sel": {
+                "_": "Sel",
+                "filters": [
+                 {
+                  "_": "IsKind",
+                  "kinds": [
+                   "unit"
+                  ]
+                 },
+                 {
+                  "_": "IsLinked"
+                 }
+                ],
+                "loc": "battle",
+                "side": "friendly"
+               }
+              },
+              1
+             ]
+            }
+           }
+          ]
+         }
+        }
+       ],
+       "loc": "battle",
+       "side": "enemy"
+      },
+      "var": "t1"
+     },
+     {
+      "_": "ReturnToHand",
+      "ref": {
+       "_": "Var",
+       "name": "t1"
+      }
+     }
+    ],
+    "timing": "main"
+   }
+  ],
+  "binding": "wp_gd01_b",
+  "name": "Covert Operative",
+  "source": "binding",
+  "text_hash": "7f4332bfa5dedb07"
+ },
+ "GD01-123": {
+  "abilities": [
+   {
+    "_": "Burst",
+    "steps": [
+     {
+      "_": "DeployCard",
+      "ref": {
+       "_": "ThisCard"
+      }
+     }
+    ]
+   },
+   {
+    "_": "Triggered",
+    "steps": [
+     {
+      "_": "ShieldToHand"
+     },
+     {
+      "_": "Choose",
+      "after_then": true,
+      "sel": {
+       "_": "Sel",
+       "filters": [
+        {
+         "_": "IsKind",
+         "kinds": [
+          "unit"
+         ]
+        },
+        {
+         "_": "StatCmp",
+         "op": "<=",
+         "stat": "remaining_hp",
+         "value": 3
+        }
+       ],
+       "loc": "battle",
+       "side": "enemy"
+      },
+      "var": "t1"
+     },
+     {
+      "_": "Rest",
+      "ref": {
+       "_": "Var",
+       "name": "t1"
+      }
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "event": "deployed"
+    }
+   }
+  ],
+  "binding": "wp_gd01_b",
+  "name": "Nahel Argama",
+  "source": "binding",
+  "text_hash": "138897b2364757c7"
+ },
+ "GD01-124": {
+  "abilities": [
+   {
+    "_": "Burst",
+    "steps": [
+     {
+      "_": "DeployCard",
+      "ref": {
+       "_": "ThisCard"
+      }
+     }
+    ]
+   },
+   {
+    "_": "Triggered",
+    "steps": [
+     {
+      "_": "ShieldToHand"
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "event": "deployed"
+    }
+   },
+   {
+    "_": "Activated",
+    "costs": [
+     {
+      "_": "RestSelf"
+     }
+    ],
+    "steps": [
+     {
+      "_": "Choose",
+      "sel": {
+       "_": "Sel",
+       "filters": [
+        {
+         "_": "IsKind",
+         "kinds": [
+          "unit"
+         ]
+        }
+       ],
+       "loc": "battle",
+       "side": "friendly"
+      },
+      "var": "t1"
+     },
+     {
+      "_": "Recover",
+      "amount": 1,
+      "ref": {
+       "_": "Var",
+       "name": "t1"
+      }
+     }
+    ],
+    "timing": "main"
+   }
+  ],
+  "name": "Side 7",
+  "source": "compiled",
+  "text_hash": "8670c79583a444bf"
+ },
+ "GD01-125": {
+  "abilities": [
+   {
+    "_": "Burst",
+    "steps": [
+     {
+      "_": "DeployCard",
+      "ref": {
+       "_": "ThisCard"
+      }
+     }
+    ]
+   },
+   {
+    "_": "Triggered",
+    "steps": [
+     {
+      "_": "ShieldToHand"
+     },
+     {
+      "_": "If",
+      "cond": {
+       "_": "IsTurn"
+      },
+      "then": [
+       {
+        "_": "May",
+        "steps": [
+         {
+          "_": "Choose",
+          "sel": {
+           "_": "Sel",
+           "filters": [
+            {
+             "_": "IsKind",
+             "kinds": [
+              "unit"
+             ]
+            },
+            {
+             "_": "HasTrait",
+             "traits": [
+              "Zeon"
+             ]
+            },
+            {
+             "_": "StatCmp",
+             "op": "<=",
+             "stat": "lv",
+             "value": 4
+            }
+           ],
+           "loc": "hand",
+           "side": "friendly"
+          },
+          "targeting": false,
+          "var": "t1"
+         },
+         {
+          "_": "DeployCard",
+          "ref": {
+           "_": "Var",
+           "name": "t1"
+          }
+         }
+        ]
+       }
+      ]
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "event": "deployed"
+    }
+   }
+  ],
+  "name": "Zanzibar",
+  "source": "compiled",
+  "text_hash": "1d741c1c4db76b67"
+ },
+ "GD01-126": {
+  "abilities": [
+   {
+    "_": "Burst",
+    "steps": [
+     {
+      "_": "DeployCard",
+      "ref": {
+       "_": "ThisCard"
+      }
+     }
+    ]
+   },
+   {
+    "_": "Triggered",
+    "steps": [
+     {
+      "_": "ShieldToHand"
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "event": "deployed"
+    }
+   }
+  ],
+  "name": "Underground Desert Base",
+  "source": "compiled",
+  "text_hash": "74992463f35caac9"
+ },
+ "GD01-127": {
+  "abilities": [
+   {
+    "_": "Burst",
+    "steps": [
+     {
+      "_": "DeployCard",
+      "ref": {
+       "_": "ThisCard"
+      }
+     }
+    ]
+   },
+   {
+    "_": "Triggered",
+    "steps": [
+     {
+      "_": "ShieldToHand"
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "event": "deployed"
+    }
+   },
+   {
+    "_": "Activated",
+    "costs": [
+     {
+      "_": "RestSelf"
+     }
+    ],
+    "steps": [
+     {
+      "_": "Choose",
+      "sel": {
+       "_": "Sel",
+       "filters": [
+        {
+         "_": "IsKind",
+         "kinds": [
+          "unit"
+         ]
+        },
+        {
+         "_": "HasTrait",
+         "traits": [
+          "ZAFT"
+         ]
+        },
+        {
+         "_": "StatCmp",
+         "op": ">=",
+         "stat": "ap",
+         "value": 5
+        }
+       ],
+       "loc": "battle",
+       "side": "friendly"
+      },
+      "var": "t1"
+     },
+     {
+      "_": "Apply",
+      "duration": "this_battle",
+      "effect": {
+       "_": "KeywordGrant",
+       "amount": 3,
+       "keyword": "Breach"
+      },
+      "ref": {
+       "_": "Var",
+       "name": "t1"
+      }
+     }
+    ],
+    "timing": "action"
+   }
+  ],
+  "name": "Gamow",
+  "source": "compiled",
+  "text_hash": "59a3411dac78fc07"
+ },
+ "GD01-128": {
+  "abilities": [
+   {
+    "_": "Burst",
+    "steps": [
+     {
+      "_": "DeployCard",
+      "ref": {
+       "_": "ThisCard"
+      }
+     }
+    ]
+   },
+   {
+    "_": "Triggered",
+    "steps": [
+     {
+      "_": "ShieldToHand"
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "event": "deployed"
+    }
+   }
+  ],
+  "name": "Mining Asteroid Palau",
+  "source": "compiled",
+  "text_hash": "74992463f35caac9"
+ },
+ "GD01-129": {
+  "abilities": [
+   {
+    "_": "Burst",
+    "steps": [
+     {
+      "_": "DeployCard",
+      "ref": {
+       "_": "ThisCard"
+      }
+     }
+    ]
+   },
+   {
+    "_": "Triggered",
+    "steps": [
+     {
+      "_": "ShieldToHand"
+     },
+     {
+      "_": "Choose",
+      "after_then": true,
+      "sel": {
+       "_": "Sel",
+       "filters": [
+        {
+         "_": "IsKind",
+         "kinds": [
+          "unit"
+         ]
+        },
+        {
+         "_": "StatCmp",
+         "op": "<=",
+         "stat": "remaining_hp",
+         "value": 3
+        }
+       ],
+       "loc": "battle",
+       "side": "enemy"
+      },
+      "var": "t1"
+     },
+     {
+      "_": "ReturnToHand",
+      "ref": {
+       "_": "Var",
+       "name": "t1"
+      }
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "event": "deployed"
+    }
+   }
+  ],
+  "binding": "wp_gd01_b",
+  "name": "Kusanagi",
+  "source": "binding",
+  "text_hash": "91e8ba12847b7f9f"
+ },
+ "GD01-130": {
+  "abilities": [
+   {
+    "_": "Burst",
+    "steps": [
+     {
+      "_": "DeployCard",
+      "ref": {
+       "_": "ThisCard"
+      }
+     }
+    ]
+   },
+   {
+    "_": "Triggered",
+    "steps": [
+     {
+      "_": "ShieldToHand"
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "event": "deployed"
+    }
+   },
+   {
+    "_": "Activated",
+    "cond": {
+     "_": "Or",
+     "conds": [
+      {
+       "_": "NotC",
+       "cond": {
+        "_": "Exists",
+        "sel": {
+         "_": "Sel",
+         "filters": [
+          {
+           "_": "IsKind",
+           "kinds": [
+            "unit"
+           ]
+          },
+          {
+           "_": "HasTrait",
+           "traits": [
+            "Academy"
+           ]
+          }
+         ],
+         "loc": "battle",
+         "side": "friendly"
+        }
+       }
+      },
+      {
+       "_": "Exists",
+       "sel": {
+        "_": "Sel",
+        "filters": [
+         {
+          "_": "IsKind",
+          "kinds": [
+           "unit"
+          ]
+         }
+        ],
+        "loc": "battle",
+        "side": "enemy"
+       }
+      }
+     ]
+    },
+    "costs": [
+     {
+      "_": "RestSelf"
+     }
+    ],
+    "steps": [
+     {
+      "_": "If",
+      "cond": {
+       "_": "Exists",
+       "sel": {
+        "_": "Sel",
+        "filters": [
+         {
+          "_": "IsKind",
+          "kinds": [
+           "unit"
+          ]
+         },
+         {
+          "_": "HasTrait",
+          "traits": [
+           "Academy"
+          ]
+         }
+        ],
+        "loc": "battle",
+        "side": "friendly"
+       }
+      },
+      "then": [
+       {
+        "_": "Choose",
+        "sel": {
+         "_": "Sel",
+         "filters": [
+          {
+           "_": "IsKind",
+           "kinds": [
+            "unit"
+           ]
+          }
+         ],
+         "loc": "battle",
+         "side": "enemy"
+        },
+        "var": "t1"
+       },
+       {
+        "_": "Apply",
+        "effect": {
+         "_": "StatMod",
+         "ap": -1
+        },
+        "ref": {
+         "_": "Var",
+         "name": "t1"
+        }
+       }
+      ]
+     }
+    ],
+    "timing": "main"
+   }
+  ],
+  "binding": "wp_gd01_b",
+  "name": "13th Tactical Testing Sector",
+  "source": "binding",
+  "text_hash": "a2a02bdee38aa4b5"
+ }
+}

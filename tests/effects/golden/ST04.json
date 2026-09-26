@@ -1,0 +1,709 @@
+{
+ "ST04-001": {
+  "abilities": [
+   {
+    "_": "Keyword",
+    "keyword": "Blocker"
+   },
+   {
+    "_": "Triggered",
+    "steps": [
+     {
+      "_": "Choose",
+      "sel": {
+       "_": "Sel",
+       "filters": [
+        {
+         "_": "IsKind",
+         "kinds": [
+          "unit"
+         ]
+        },
+        {
+         "_": "StatCmp",
+         "op": "<=",
+         "stat": "remaining_hp",
+         "value": 4
+        }
+       ],
+       "loc": "battle",
+       "side": "enemy"
+      },
+      "var": "t1"
+     },
+     {
+      "_": "ReturnToHand",
+      "ref": {
+       "_": "Var",
+       "name": "t1"
+      }
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "event": "paired",
+     "pilot_filters": [
+      {
+       "_": "StatCmp",
+       "op": ">=",
+       "stat": "lv",
+       "value": 4
+      }
+     ]
+    }
+   }
+  ],
+  "binding": "wp_st01_04",
+  "name": "Aile Strike Gundam",
+  "source": "binding",
+  "text_hash": "9e07be17d65dddd3"
+ },
+ "ST04-002": {
+  "abilities": [
+   {
+    "_": "Triggered",
+    "steps": [
+     {
+      "_": "Draw"
+     },
+     {
+      "_": "Discard"
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "event": "deployed"
+    }
+   }
+  ],
+  "name": "Strike Gundam",
+  "source": "compiled",
+  "text_hash": "9b14774fda6b6753"
+ },
+ "ST04-003": {
+  "abilities": [],
+  "name": "Moebius Zero",
+  "source": "vanilla",
+  "text_hash": "3973e022e93220f9"
+ },
+ "ST04-004": {
+  "abilities": [
+   {
+    "_": "Keyword",
+    "keyword": "Blocker"
+   }
+  ],
+  "name": "Moebius",
+  "source": "compiled",
+  "text_hash": "e90d3c6fa84291d7"
+ },
+ "ST04-005": {
+  "abilities": [],
+  "name": "Strike Dagger",
+  "source": "vanilla",
+  "text_hash": "3973e022e93220f9"
+ },
+ "ST04-006": {
+  "abilities": [
+   {
+    "_": "Triggered",
+    "steps": [
+     {
+      "_": "If",
+      "cond": {
+       "_": "RefMatches",
+       "filters": [
+        {
+         "_": "StatCmp",
+         "op": ">=",
+         "stat": "ap",
+         "value": 5
+        }
+       ],
+       "ref": {
+        "_": "This"
+       }
+      },
+      "then": [
+       {
+        "_": "Choose",
+        "sel": {
+         "_": "Sel",
+         "filters": [
+          {
+           "_": "IsKind",
+           "kinds": [
+            "unit"
+           ]
+          },
+          {
+           "_": "StatCmp",
+           "op": ">=",
+           "stat": "lv",
+           "value": 5
+          }
+         ],
+         "loc": "battle",
+         "side": "enemy"
+        },
+        "var": "t1"
+       },
+       {
+        "_": "Damage",
+        "amount": 3,
+        "ref": {
+         "_": "Var",
+         "name": "t1"
+        }
+       }
+      ]
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "event": "attacks"
+    }
+   }
+  ],
+  "name": "Aegis Gundam",
+  "source": "compiled",
+  "text_hash": "b204fbfbecc8e953"
+ },
+ "ST04-007": {
+  "abilities": [
+   {
+    "_": "Keyword",
+    "amount": 3,
+    "keyword": "Breach"
+   }
+  ],
+  "name": "Aegis Gundam (MA Mode)",
+  "source": "compiled",
+  "text_hash": "6fb66bcde1116dac"
+ },
+ "ST04-008": {
+  "abilities": [],
+  "name": "Ginn",
+  "source": "vanilla",
+  "text_hash": "3973e022e93220f9"
+ },
+ "ST04-009": {
+  "abilities": [
+   {
+    "_": "Triggered",
+    "gate": "paired",
+    "steps": [
+     {
+      "_": "If",
+      "cond": {
+       "_": "Exists",
+       "sel": {
+        "_": "Sel",
+        "filters": [
+         {
+          "_": "IsKind",
+          "kinds": [
+           "unit"
+          ]
+         },
+         {
+          "_": "NotRef",
+          "ref": {
+           "_": "This"
+          }
+         },
+         {
+          "_": "IsLinked"
+         }
+        ],
+        "loc": "battle",
+        "side": "friendly"
+       }
+      },
+      "then": [
+       {
+        "_": "Draw"
+       }
+      ]
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "event": "destroyed"
+    }
+   }
+  ],
+  "name": "Miguel's Ginn",
+  "source": "compiled",
+  "text_hash": "4bca0582de43ad61"
+ },
+ "ST04-010": {
+  "abilities": [
+   {
+    "_": "Burst",
+    "steps": [
+     {
+      "_": "AddToHand",
+      "ref": {
+       "_": "ThisCard"
+      }
+     }
+    ]
+   }
+  ],
+  "name": "Kira Yamato",
+  "source": "compiled",
+  "text_hash": "2db0e46288a1b9ed",
+  "unit_abilities": [
+   {
+    "_": "Triggered",
+    "steps": [
+     {
+      "_": "Choose",
+      "sel": {
+       "_": "Sel",
+       "filters": [
+        {
+         "_": "IsKind",
+         "kinds": [
+          "unit"
+         ]
+        }
+       ],
+       "loc": "battle",
+       "side": "enemy"
+      },
+      "var": "t1"
+     },
+     {
+      "_": "Apply",
+      "duration": "this_battle",
+      "effect": {
+       "_": "StatMod",
+       "ap": -2
+      },
+      "ref": {
+       "_": "Var",
+       "name": "t1"
+      }
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "event": "attacks"
+    }
+   }
+  ]
+ },
+ "ST04-011": {
+  "abilities": [
+   {
+    "_": "Burst",
+    "steps": [
+     {
+      "_": "AddToHand",
+      "ref": {
+       "_": "ThisCard"
+      }
+     }
+    ]
+   }
+  ],
+  "name": "Athrun Zala",
+  "source": "compiled",
+  "text_hash": "4e7cec563ed2ed47",
+  "unit_abilities": [
+   {
+    "_": "Triggered",
+    "steps": [
+     {
+      "_": "Apply",
+      "effect": {
+       "_": "RuleGrant",
+       "rule": {
+        "_": "RuleMod",
+        "kind": "may_attack_active",
+        "source_filters": [
+         {
+          "_": "IsKind",
+          "kinds": [
+           "unit"
+          ]
+         },
+         {
+          "_": "IsRested",
+          "rested": false
+         },
+         {
+          "_": "StatCmp",
+          "op": "<=",
+          "stat": "lv",
+          "value": 5
+         }
+        ]
+       }
+      },
+      "ref": {
+       "_": "This"
+      }
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "event": "linked"
+    }
+   }
+  ]
+ },
+ "ST04-012": {
+  "abilities": [
+   {
+    "_": "Burst",
+    "steps": [
+     {
+      "_": "If",
+      "cond": {
+       "_": "NotC",
+       "cond": {
+        "_": "Exists",
+        "sel": {
+         "_": "Sel",
+         "filters": [
+          {
+           "_": "IsKind",
+           "kinds": [
+            "unit_token"
+           ]
+          },
+          {
+           "_": "HasTrait",
+           "traits": [
+            "Earth Alliance"
+           ]
+          }
+         ],
+         "loc": "battle",
+         "side": "friendly"
+        }
+       }
+      },
+      "then": [
+       {
+        "_": "DeployToken",
+        "token_key": "Aile Strike Gundam|Earth Alliance|3|3|<Blocker>."
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "_": "Command",
+    "steps": [
+     {
+      "_": "If",
+      "cond": {
+       "_": "NotC",
+       "cond": {
+        "_": "Exists",
+        "sel": {
+         "_": "Sel",
+         "filters": [
+          {
+           "_": "IsKind",
+           "kinds": [
+            "unit_token"
+           ]
+          },
+          {
+           "_": "HasTrait",
+           "traits": [
+            "Earth Alliance"
+           ]
+          }
+         ],
+         "loc": "battle",
+         "side": "friendly"
+        }
+       }
+      },
+      "then": [
+       {
+        "_": "ChooseMode",
+        "options": [
+         [
+          "Sword Strike Gundam",
+          [
+           {
+            "_": "DeployToken",
+            "token_key": "Sword Strike Gundam|Earth Alliance|4|2|<Blocker>."
+           }
+          ]
+         ],
+         [
+          "Launcher Strike Gundam",
+          [
+           {
+            "_": "DeployToken",
+            "token_key": "Launcher Strike Gundam|Earth Alliance|2|4|<Blocker>."
+           }
+          ]
+         ]
+        ]
+       }
+      ]
+     }
+    ],
+    "timing": "main"
+   }
+  ],
+  "binding": "wp_st01_04",
+  "name": "Striker Pack",
+  "source": "binding",
+  "text_hash": "6f634d9ffeafaf1a"
+ },
+ "ST04-013": {
+  "abilities": [
+   {
+    "_": "Command",
+    "steps": [
+     {
+      "_": "Choose",
+      "sel": {
+       "_": "Sel",
+       "filters": [
+        {
+         "_": "IsKind",
+         "kinds": [
+          "unit"
+         ]
+        },
+        {
+         "_": "StatCmp",
+         "op": "<=",
+         "stat": "remaining_hp",
+         "value": 3
+        }
+       ],
+       "loc": "battle",
+       "side": "enemy"
+      },
+      "var": "t1"
+     },
+     {
+      "_": "ReturnToHand",
+      "ref": {
+       "_": "Var",
+       "name": "t1"
+      }
+     }
+    ],
+    "timing": "main_or_action"
+   }
+  ],
+  "binding": "wp_st01_04",
+  "name": "Hawk of Endymion",
+  "source": "binding",
+  "text_hash": "9cd2a46f15fccfeb"
+ },
+ "ST04-014": {
+  "abilities": [
+   {
+    "_": "Command",
+    "steps": [
+     {
+      "_": "Choose",
+      "sel": {
+       "_": "Sel",
+       "filters": [
+        {
+         "_": "IsKind",
+         "kinds": [
+          "unit"
+         ]
+        },
+        {
+         "_": "StatCmp",
+         "op": "<=",
+         "stat": "lv",
+         "value": 2
+        }
+       ],
+       "loc": "battle",
+       "side": "friendly"
+      },
+      "var": "t1"
+     },
+     {
+      "_": "Apply",
+      "effect": {
+       "_": "KeywordGrant",
+       "keyword": "First Strike"
+      },
+      "ref": {
+       "_": "Var",
+       "name": "t1"
+      }
+     }
+    ],
+    "timing": "main_or_action"
+   }
+  ],
+  "name": "The Magic Bullet of Dusk",
+  "source": "compiled",
+  "text_hash": "9e543659861db62d"
+ },
+ "ST04-015": {
+  "abilities": [
+   {
+    "_": "Burst",
+    "steps": [
+     {
+      "_": "DeployCard",
+      "ref": {
+       "_": "ThisCard"
+      }
+     }
+    ]
+   },
+   {
+    "_": "Triggered",
+    "steps": [
+     {
+      "_": "ShieldToHand"
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "event": "deployed"
+    }
+   },
+   {
+    "_": "Activated",
+    "costs": [
+     {
+      "_": "PayResources",
+      "amount": 2
+     }
+    ],
+    "once_per_turn": true,
+    "steps": [
+     {
+      "_": "Choose",
+      "sel": {
+       "_": "Sel",
+       "filters": [
+        {
+         "_": "IsKind",
+         "kinds": [
+          "unit"
+         ]
+        },
+        {
+         "_": "HasKeyword",
+         "keyword": "Blocker"
+        }
+       ],
+       "loc": "battle",
+       "side": "friendly"
+      },
+      "var": "t1"
+     },
+     {
+      "_": "SetActive",
+      "ref": {
+       "_": "Var",
+       "name": "t1"
+      }
+     },
+     {
+      "_": "Apply",
+      "effect": {
+       "_": "RuleGrant",
+       "rule": {
+        "_": "RuleMod",
+        "kind": "cant_attack"
+       }
+      },
+      "ref": {
+       "_": "Var",
+       "name": "t1"
+      }
+     }
+    ],
+    "timing": "main"
+   }
+  ],
+  "name": "Archangel",
+  "source": "compiled",
+  "text_hash": "b936f9723049f6dd"
+ },
+ "ST04-016": {
+  "abilities": [
+   {
+    "_": "Burst",
+    "steps": [
+     {
+      "_": "DeployCard",
+      "ref": {
+       "_": "ThisCard"
+      }
+     }
+    ]
+   },
+   {
+    "_": "Triggered",
+    "steps": [
+     {
+      "_": "ShieldToHand"
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "event": "deployed"
+    }
+   },
+   {
+    "_": "Activated",
+    "costs": [
+     {
+      "_": "RestSelf"
+     }
+    ],
+    "steps": [
+     {
+      "_": "Choose",
+      "sel": {
+       "_": "Sel",
+       "filters": [
+        {
+         "_": "IsKind",
+         "kinds": [
+          "unit"
+         ]
+        }
+       ],
+       "loc": "battle",
+       "side": "friendly"
+      },
+      "var": "t1"
+     },
+     {
+      "_": "Apply",
+      "effect": {
+       "_": "StatMod",
+       "ap": 1
+      },
+      "ref": {
+       "_": "Var",
+       "name": "t1"
+      }
+     }
+    ],
+    "timing": "main"
+   }
+  ],
+  "name": "Vesalius",
+  "source": "compiled",
+  "text_hash": "d7bd881f6f5c6fdd"
+ }
+}

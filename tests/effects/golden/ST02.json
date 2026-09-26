@@ -1,0 +1,522 @@
+{
+ "ST02-001": {
+  "abilities": [
+   {
+    "_": "Keyword",
+    "amount": 5,
+    "keyword": "Breach"
+   },
+   {
+    "_": "Constant",
+    "effects": [
+     {
+      "_": "RuleGrant",
+      "rule": {
+       "_": "RuleMod",
+       "kind": "may_attack_active",
+       "source_filters": [
+        {
+         "_": "IsKind",
+         "kinds": [
+          "unit"
+         ]
+        },
+        {
+         "_": "IsRested",
+         "rested": false
+        },
+        {
+         "_": "StatCmp",
+         "op": "<=",
+         "stat": "lv",
+         "value": 4
+        }
+       ]
+      }
+     }
+    ]
+   }
+  ],
+  "name": "Wing Gundam",
+  "source": "compiled",
+  "text_hash": "510acb80073da8d1"
+ },
+ "ST02-002": {
+  "abilities": [
+   {
+    "_": "Triggered",
+    "steps": [
+     {
+      "_": "PlaceExResource"
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "event": "deployed"
+    }
+   }
+  ],
+  "name": "Wing Gundam (Bird Mode)",
+  "source": "compiled",
+  "text_hash": "9c59dbb844dc79bd"
+ },
+ "ST02-003": {
+  "abilities": [
+   {
+    "_": "Triggered",
+    "gate": "paired",
+    "steps": [
+     {
+      "_": "Damage",
+      "amount": 1,
+      "ref": {
+       "_": "All",
+       "sel": {
+        "_": "Sel",
+        "filters": [
+         {
+          "_": "IsKind",
+          "kinds": [
+           "unit"
+          ]
+         },
+         {
+          "_": "StatCmp",
+          "op": "<=",
+          "stat": "lv",
+          "value": 3
+         }
+        ],
+        "loc": "battle",
+        "side": "enemy"
+       }
+      }
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "battle_only": true,
+     "event": "destroys_by_battle",
+     "target_filters": [
+      {
+       "_": "IsKind",
+       "kinds": [
+        "unit"
+       ]
+      }
+     ],
+     "whose_turn": "you"
+    }
+   }
+  ],
+  "name": "Gundam Heavyarms",
+  "source": "compiled",
+  "text_hash": "ec5f83652e520d1e"
+ },
+ "ST02-004": {
+  "abilities": [],
+  "name": "Gundam Sandrock",
+  "source": "vanilla",
+  "text_hash": "3973e022e93220f9"
+ },
+ "ST02-005": {
+  "abilities": [],
+  "name": "Maganac",
+  "source": "vanilla",
+  "text_hash": "3973e022e93220f9"
+ },
+ "ST02-006": {
+  "abilities": [
+   {
+    "_": "Activated",
+    "costs": [
+     {
+      "_": "PayResources",
+      "amount": 4
+     }
+    ],
+    "once_per_turn": true,
+    "steps": [
+     {
+      "_": "SetActive",
+      "ref": {
+       "_": "This"
+      }
+     }
+    ],
+    "timing": "main"
+   }
+  ],
+  "name": "Tallgeese",
+  "source": "compiled",
+  "text_hash": "0c5d84ac24dcbe7f"
+ },
+ "ST02-007": {
+  "abilities": [],
+  "name": "Leo",
+  "source": "vanilla",
+  "text_hash": "3973e022e93220f9"
+ },
+ "ST02-008": {
+  "abilities": [
+   {
+    "_": "Keyword",
+    "keyword": "Blocker"
+   }
+  ],
+  "name": "Aries",
+  "source": "compiled",
+  "text_hash": "e90d3c6fa84291d7"
+ },
+ "ST02-009": {
+  "abilities": [
+   {
+    "_": "Keyword",
+    "keyword": "Blocker"
+   }
+  ],
+  "name": "Tragos",
+  "source": "compiled",
+  "text_hash": "e90d3c6fa84291d7"
+ },
+ "ST02-010": {
+  "abilities": [
+   {
+    "_": "Burst",
+    "steps": [
+     {
+      "_": "AddToHand",
+      "ref": {
+       "_": "ThisCard"
+      }
+     }
+    ]
+   }
+  ],
+  "name": "Heero Yuy",
+  "source": "compiled",
+  "text_hash": "91e22b29d9e568f0",
+  "unit_abilities": [
+   {
+    "_": "Constant",
+    "effects": [
+     {
+      "_": "StatMod",
+      "ap": 1,
+      "hp": 1
+     }
+    ],
+    "gate": "linked"
+   }
+  ]
+ },
+ "ST02-011": {
+  "abilities": [
+   {
+    "_": "Burst",
+    "steps": [
+     {
+      "_": "AddToHand",
+      "ref": {
+       "_": "ThisCard"
+      }
+     }
+    ]
+   }
+  ],
+  "name": "Zechs Merquise",
+  "source": "compiled",
+  "text_hash": "9ef5e2098eb3e719",
+  "unit_abilities": [
+   {
+    "_": "Triggered",
+    "gate": "linked",
+    "steps": [
+     {
+      "_": "Draw"
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "battle_only": true,
+     "event": "destroys_by_battle",
+     "target_filters": [
+      {
+       "_": "IsKind",
+       "kinds": [
+        "unit"
+       ]
+      }
+     ],
+     "whose_turn": "you"
+    }
+   }
+  ]
+ },
+ "ST02-012": {
+  "abilities": [
+   {
+    "_": "Command",
+    "steps": [
+     {
+      "_": "Choose",
+      "sel": {
+       "_": "Sel",
+       "filters": [
+        {
+         "_": "IsKind",
+         "kinds": [
+          "unit"
+         ]
+        }
+       ],
+       "loc": "battle",
+       "side": "friendly"
+      },
+      "var": "t1"
+     },
+     {
+      "_": "Apply",
+      "effect": {
+       "_": "KeywordGrant",
+       "amount": 3,
+       "keyword": "Breach"
+      },
+      "ref": {
+       "_": "Var",
+       "name": "t1"
+      }
+     }
+    ],
+    "timing": "main"
+   }
+  ],
+  "name": "Simultaneous Fire",
+  "source": "compiled",
+  "text_hash": "a70d0528fd81a114"
+ },
+ "ST02-013": {
+  "abilities": [
+   {
+    "_": "Command",
+    "steps": [
+     {
+      "_": "ApplyPlayer",
+      "duration": "this_battle",
+      "effect": {
+       "_": "RuleGrant",
+       "rule": {
+        "_": "RuleMod",
+        "kind": "shield_area_protection",
+        "source_filters": [
+         {
+          "_": "IsKind",
+          "kinds": [
+           "unit"
+          ]
+         },
+         {
+          "_": "StatCmp",
+          "op": "<=",
+          "stat": "lv",
+          "value": 4
+         }
+        ],
+        "source_side": "enemy"
+       }
+      },
+      "player": "you"
+     }
+    ],
+    "timing": "action"
+   }
+  ],
+  "name": "Peaceful Timbre",
+  "source": "compiled",
+  "text_hash": "27e6161febbf66be"
+ },
+ "ST02-014": {
+  "abilities": [
+   {
+    "_": "Burst",
+    "steps": [
+     {
+      "_": "ActivateMain"
+     }
+    ]
+   },
+   {
+    "_": "Command",
+    "steps": [
+     {
+      "_": "Choose",
+      "sel": {
+       "_": "Sel",
+       "filters": [
+        {
+         "_": "IsKind",
+         "kinds": [
+          "unit"
+         ]
+        },
+        {
+         "_": "StatCmp",
+         "op": "<=",
+         "stat": "remaining_hp",
+         "value": 5
+        }
+       ],
+       "loc": "battle",
+       "side": "enemy"
+      },
+      "var": "t1"
+     },
+     {
+      "_": "Rest",
+      "ref": {
+       "_": "Var",
+       "name": "t1"
+      }
+     }
+    ],
+    "timing": "main_or_action"
+   }
+  ],
+  "binding": "wp_st01_04",
+  "name": "Siege Ploy",
+  "source": "binding",
+  "text_hash": "be09a347e391c23b"
+ },
+ "ST02-015": {
+  "abilities": [
+   {
+    "_": "Burst",
+    "steps": [
+     {
+      "_": "DeployCard",
+      "ref": {
+       "_": "ThisCard"
+      }
+     }
+    ]
+   },
+   {
+    "_": "Triggered",
+    "steps": [
+     {
+      "_": "ShieldToHand"
+     },
+     {
+      "_": "LookTop",
+      "count": 2
+     },
+     {
+      "_": "Choose",
+      "sel": {
+       "_": "Sel",
+       "filters": [
+        {
+         "_": "IsRef",
+         "ref": {
+          "_": "Var",
+          "name": "looked"
+         }
+        }
+       ],
+       "loc": "deck",
+       "side": "friendly"
+      },
+      "targeting": false,
+      "var": "bottom"
+     },
+     {
+      "_": "ToDeck",
+      "ref": {
+       "_": "Var",
+       "name": "bottom"
+      }
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "event": "deployed"
+    }
+   }
+  ],
+  "binding": "wp_st01_04",
+  "name": "Saint Gabriel Institute",
+  "source": "binding",
+  "text_hash": "5297a2d9c7f68309"
+ },
+ "ST02-016": {
+  "abilities": [
+   {
+    "_": "Burst",
+    "steps": [
+     {
+      "_": "DeployCard",
+      "ref": {
+       "_": "ThisCard"
+      }
+     }
+    ]
+   },
+   {
+    "_": "Triggered",
+    "steps": [
+     {
+      "_": "ShieldToHand"
+     },
+     {
+      "_": "If",
+      "cond": {
+       "_": "IsTurn"
+      },
+      "then": [
+       {
+        "_": "If",
+        "cond": {
+         "_": "Exists",
+         "sel": {
+          "_": "Sel",
+          "filters": [
+           {
+            "_": "NameContains",
+            "parts": [
+             "Corsica Base"
+            ]
+           }
+          ],
+          "loc": "trash",
+          "side": "friendly"
+         }
+        },
+        "otherwise": [
+         {
+          "_": "DeployToken",
+          "token_key": "Tallgeese|OZ|4|2|"
+         }
+        ],
+        "then": [
+         {
+          "_": "DeployToken",
+          "count": 2,
+          "token_key": "Leo|OZ|1|1|"
+         }
+        ]
+       }
+      ]
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "event": "deployed"
+    }
+   }
+  ],
+  "binding": "wp_st01_04",
+  "name": "Corsica Base",
+  "source": "binding",
+  "text_hash": "528f0b5a12a8da59"
+ }
+}

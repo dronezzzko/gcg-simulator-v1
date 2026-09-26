@@ -1,0 +1,640 @@
+{
+ "ST01-001": {
+  "abilities": [
+   {
+    "_": "Keyword",
+    "amount": 2,
+    "keyword": "Repair"
+   },
+   {
+    "_": "Constant",
+    "cond": {
+     "_": "IsTurn"
+    },
+    "effects": [
+     {
+      "_": "StatMod",
+      "ap": 1
+     }
+    ],
+    "gate": "paired",
+    "scope": {
+     "_": "All",
+     "sel": {
+      "_": "Sel",
+      "filters": [
+       {
+        "_": "IsKind",
+        "kinds": [
+         "unit"
+        ]
+       }
+      ],
+      "loc": "battle",
+      "side": "friendly"
+     }
+    }
+   }
+  ],
+  "name": "Gundam",
+  "source": "compiled",
+  "text_hash": "ab3701f356c1a4a2"
+ },
+ "ST01-002": {
+  "abilities": [
+   {
+    "_": "Triggered",
+    "steps": [
+     {
+      "_": "Draw"
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "event": "paired",
+     "pilot_filters": [
+      {
+       "_": "HasTrait",
+       "traits": [
+        "White Base Team"
+       ]
+      }
+     ]
+    }
+   }
+  ],
+  "name": "Gundam (MA Form)",
+  "source": "compiled",
+  "text_hash": "03ab93356c2348e8"
+ },
+ "ST01-003": {
+  "abilities": [],
+  "name": "Guncannon",
+  "source": "vanilla",
+  "text_hash": "3973e022e93220f9"
+ },
+ "ST01-004": {
+  "abilities": [
+   {
+    "_": "Triggered",
+    "steps": [
+     {
+      "_": "Choose",
+      "sel": {
+       "_": "Sel",
+       "filters": [
+        {
+         "_": "IsKind",
+         "kinds": [
+          "unit"
+         ]
+        },
+        {
+         "_": "StatCmp",
+         "op": "<=",
+         "stat": "remaining_hp",
+         "value": 2
+        }
+       ],
+       "loc": "battle",
+       "side": "enemy"
+      },
+      "var": "t1"
+     },
+     {
+      "_": "Rest",
+      "ref": {
+       "_": "Var",
+       "name": "t1"
+      }
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "event": "deployed"
+    }
+   }
+  ],
+  "binding": "wp_st01_04",
+  "name": "Guntank",
+  "source": "binding",
+  "text_hash": "705e3adedf6e18f2"
+ },
+ "ST01-005": {
+  "abilities": [],
+  "name": "GM",
+  "source": "vanilla",
+  "text_hash": "3973e022e93220f9"
+ },
+ "ST01-006": {
+  "abilities": [
+   {
+    "_": "Triggered",
+    "steps": [
+     {
+      "_": "Choose",
+      "sel": {
+       "_": "Sel",
+       "filters": [
+        {
+         "_": "IsKind",
+         "kinds": [
+          "unit"
+         ]
+        },
+        {
+         "_": "StatCmp",
+         "op": "<=",
+         "stat": "lv",
+         "value": 5
+        }
+       ],
+       "loc": "battle",
+       "side": "enemy"
+      },
+      "var": "t1"
+     },
+     {
+      "_": "Apply",
+      "effect": {
+       "_": "StatMod",
+       "ap": -3
+      },
+      "ref": {
+       "_": "Var",
+       "name": "t1"
+      }
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "event": "paired"
+    }
+   }
+  ],
+  "name": "Gundam Aerial (Permet Score Six)",
+  "source": "compiled",
+  "text_hash": "f0b019ebc647b882"
+ },
+ "ST01-007": {
+  "abilities": [],
+  "name": "Gundam Aerial (Bit on Form)",
+  "source": "vanilla",
+  "text_hash": "3973e022e93220f9"
+ },
+ "ST01-008": {
+  "abilities": [
+   {
+    "_": "Keyword",
+    "keyword": "Blocker"
+   }
+  ],
+  "name": "Demi Trainer",
+  "source": "compiled",
+  "text_hash": "e90d3c6fa84291d7"
+ },
+ "ST01-009": {
+  "abilities": [
+   {
+    "_": "Keyword",
+    "keyword": "Blocker"
+   },
+   {
+    "_": "Constant",
+    "effects": [
+     {
+      "_": "RuleGrant",
+      "rule": {
+       "_": "RuleMod",
+       "kind": "cant_attack_player"
+      }
+     }
+    ]
+   }
+  ],
+  "name": "Zowort",
+  "source": "compiled",
+  "text_hash": "9cee64f0246e763e"
+ },
+ "ST01-010": {
+  "abilities": [
+   {
+    "_": "Burst",
+    "steps": [
+     {
+      "_": "AddToHand",
+      "ref": {
+       "_": "ThisCard"
+      }
+     }
+    ]
+   }
+  ],
+  "binding": "wp_st01_04",
+  "name": "Amuro Ray",
+  "source": "binding",
+  "text_hash": "8e34f604d532cd25",
+  "unit_abilities": [
+   {
+    "_": "Triggered",
+    "steps": [
+     {
+      "_": "Choose",
+      "sel": {
+       "_": "Sel",
+       "filters": [
+        {
+         "_": "IsKind",
+         "kinds": [
+          "unit"
+         ]
+        },
+        {
+         "_": "StatCmp",
+         "op": "<=",
+         "stat": "remaining_hp",
+         "value": 5
+        }
+       ],
+       "loc": "battle",
+       "side": "enemy"
+      },
+      "var": "t1"
+     },
+     {
+      "_": "Rest",
+      "ref": {
+       "_": "Var",
+       "name": "t1"
+      }
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "event": "paired"
+    }
+   }
+  ]
+ },
+ "ST01-011": {
+  "abilities": [
+   {
+    "_": "Burst",
+    "steps": [
+     {
+      "_": "AddToHand",
+      "ref": {
+       "_": "ThisCard"
+      }
+     }
+    ]
+   }
+  ],
+  "name": "Suletta Mercury",
+  "source": "compiled",
+  "text_hash": "74526af8c4d5ea55",
+  "unit_abilities": [
+   {
+    "_": "Triggered",
+    "once_per_turn": true,
+    "steps": [
+     {
+      "_": "Choose",
+      "sel": {
+       "_": "Sel",
+       "filters": [
+        {
+         "_": "IsKind",
+         "kinds": [
+          "resource"
+         ]
+        }
+       ],
+       "loc": "resource_area",
+       "side": "friendly"
+      },
+      "var": "t1"
+     },
+     {
+      "_": "SetActive",
+      "ref": {
+       "_": "Var",
+       "name": "t1"
+      }
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "event": "attacks"
+    }
+   }
+  ]
+ },
+ "ST01-012": {
+  "abilities": [
+   {
+    "_": "Command",
+    "steps": [
+     {
+      "_": "Choose",
+      "sel": {
+       "_": "Sel",
+       "filters": [
+        {
+         "_": "IsKind",
+         "kinds": [
+          "unit"
+         ]
+        },
+        {
+         "_": "IsRested"
+        }
+       ],
+       "loc": "battle",
+       "side": "enemy"
+      },
+      "var": "t1"
+     },
+     {
+      "_": "Damage",
+      "amount": 1,
+      "ref": {
+       "_": "Var",
+       "name": "t1"
+      }
+     }
+    ],
+    "timing": "main"
+   }
+  ],
+  "name": "Thoroughly Damaged",
+  "source": "compiled",
+  "text_hash": "dbafc232498d587f"
+ },
+ "ST01-013": {
+  "abilities": [
+   {
+    "_": "Command",
+    "steps": [
+     {
+      "_": "Choose",
+      "sel": {
+       "_": "Sel",
+       "filters": [
+        {
+         "_": "IsKind",
+         "kinds": [
+          "unit"
+         ]
+        }
+       ],
+       "loc": "battle",
+       "side": "friendly"
+      },
+      "var": "t1"
+     },
+     {
+      "_": "Recover",
+      "amount": 3,
+      "ref": {
+       "_": "Var",
+       "name": "t1"
+      }
+     }
+    ],
+    "timing": "main"
+   }
+  ],
+  "name": "Kai's Resolve",
+  "source": "compiled",
+  "text_hash": "edc4de819d0f91e1"
+ },
+ "ST01-014": {
+  "abilities": [
+   {
+    "_": "Burst",
+    "steps": [
+     {
+      "_": "ActivateMain"
+     }
+    ]
+   },
+   {
+    "_": "Command",
+    "steps": [
+     {
+      "_": "Choose",
+      "sel": {
+       "_": "Sel",
+       "filters": [
+        {
+         "_": "IsKind",
+         "kinds": [
+          "unit"
+         ]
+        }
+       ],
+       "loc": "battle",
+       "side": "enemy"
+      },
+      "var": "t1"
+     },
+     {
+      "_": "Apply",
+      "effect": {
+       "_": "StatMod",
+       "ap": -3
+      },
+      "ref": {
+       "_": "Var",
+       "name": "t1"
+      }
+     }
+    ],
+    "timing": "main_or_action"
+   }
+  ],
+  "name": "Unforeseen Incident",
+  "source": "compiled",
+  "text_hash": "71c7bf6f9b556d0a"
+ },
+ "ST01-015": {
+  "abilities": [
+   {
+    "_": "Burst",
+    "steps": [
+     {
+      "_": "DeployCard",
+      "ref": {
+       "_": "ThisCard"
+      }
+     }
+    ]
+   },
+   {
+    "_": "Triggered",
+    "steps": [
+     {
+      "_": "ShieldToHand"
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "event": "deployed"
+    }
+   },
+   {
+    "_": "Activated",
+    "costs": [
+     {
+      "_": "PayResources",
+      "amount": 2
+     }
+    ],
+    "once_per_turn": true,
+    "steps": [
+     {
+      "_": "If",
+      "cond": {
+       "_": "Cmp",
+       "left": {
+        "_": "Count",
+        "sel": {
+         "_": "Sel",
+         "filters": [
+          {
+           "_": "IsKind",
+           "kinds": [
+            "unit"
+           ]
+          }
+         ],
+         "loc": "battle",
+         "side": "friendly"
+        }
+       },
+       "op": "==",
+       "right": 0
+      },
+      "otherwise": [
+       {
+        "_": "If",
+        "cond": {
+         "_": "Cmp",
+         "left": {
+          "_": "Count",
+          "sel": {
+           "_": "Sel",
+           "filters": [
+            {
+             "_": "IsKind",
+             "kinds": [
+              "unit"
+             ]
+            }
+           ],
+           "loc": "battle",
+           "side": "friendly"
+          }
+         },
+         "op": "==",
+         "right": 1
+        },
+        "otherwise": [
+         {
+          "_": "DeployToken",
+          "token_key": "Guntank|White Base Team|1|1|"
+         }
+        ],
+        "then": [
+         {
+          "_": "DeployToken",
+          "token_key": "Guncannon|White Base Team|2|2|"
+         }
+        ]
+       }
+      ],
+      "then": [
+       {
+        "_": "DeployToken",
+        "token_key": "Gundam|White Base Team|3|3|"
+       }
+      ]
+     }
+    ],
+    "timing": "main"
+   }
+  ],
+  "binding": "wp_st01_04",
+  "name": "White Base",
+  "source": "binding",
+  "text_hash": "6c6d9b9911ffa785"
+ },
+ "ST01-016": {
+  "abilities": [
+   {
+    "_": "Burst",
+    "steps": [
+     {
+      "_": "DeployCard",
+      "ref": {
+       "_": "ThisCard"
+      }
+     }
+    ]
+   },
+   {
+    "_": "Triggered",
+    "steps": [
+     {
+      "_": "ShieldToHand"
+     }
+    ],
+    "trigger": {
+     "_": "Trigger",
+     "event": "deployed"
+    }
+   },
+   {
+    "_": "Activated",
+    "costs": [
+     {
+      "_": "RestSelf"
+     }
+    ],
+    "steps": [
+     {
+      "_": "Apply",
+      "effect": {
+       "_": "StatMod",
+       "ap": 1
+      },
+      "ref": {
+       "_": "All",
+       "sel": {
+        "_": "Sel",
+        "filters": [
+         {
+          "_": "IsKind",
+          "kinds": [
+           "unit"
+          ]
+         },
+         {
+          "_": "IsLinked"
+         }
+        ],
+        "loc": "battle",
+        "side": "friendly"
+       }
+      }
+     }
+    ],
+    "timing": "main"
+   }
+  ],
+  "name": "Asticassia School of Technology, Earth House",
+  "source": "compiled",
+  "text_hash": "144149fe26d3a260"
+ }
+}

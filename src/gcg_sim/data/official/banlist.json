@@ -1,0 +1,525 @@
+{
+  "ambiguities": [
+    {
+      "description": "The vanilla banned-pair rule is defined both by description and by an enumerated list (22 cards today). The July 2026 notice says future matching cards are added 'at the time of their release', so the list can lag a new set.",
+      "id": "vanilla-enumeration-vs-predicate",
+      "resolution_suggestion": "Enforce the predicate over card data and also check the enumerated list. Today they are identical (predicate_equals_enumeration). The data refresh should fail loudly if they ever diverge."
+    },
+    {
+      "description": "'without effects' is not defined. It could exclude only cards with ability text, or also cards with keyword effects or link requirements.",
+      "id": "vanilla-without-effects-definition",
+      "resolution_suggestion": "Treat a card as having effects when its effect text is non-empty and not '-' (keywords count). A link requirement alone is not an effect. No Lv.2/cost 1/2 AP/2 HP Unit in the pinned data has effect text, so the choice changes nothing today."
+    },
+    {
+      "description": "Two exceptions exempt unmodified starter decks: ST02 (3x ST02-016 Corsica Base) and ST05 (ST05-004 + ST05-009). Neither the official pages nor the pinned gcg-api data contain the starter decklists, so the simulator cannot tell whether a deck is an unmodified starter deck. The current-list page (01_279) does not restate the exceptions, but no notice revokes them.",
+      "id": "starter-deck-exceptions",
+      "resolution_suggestion": "Do not apply either exception by default, so such decks fail as a restricted or banned-pair violation. Name the exception in the error message. Support the exception only if an official decklist is added to the data with provenance."
+    },
+    {
+      "description": "The July 2026 list took effect on 2026-07-24 in the US and 2026-07-25 in Asia. The current-list page (01_279) is dated 2026-09-25 and gives no effective date. Its only changes are ST11-008 and ST12-010, added to the vanilla list (ST11/ST12 release 2026-09-25).",
+      "id": "effective-date-and-region",
+      "resolution_suggestion": "Use the current list with effective_date 2026-09-25. The simulator validates against one list, not by date."
+    },
+    {
+      "description": "The Comprehensive Rules (6-1-1-3) allow 4 copies of any card number and never mention the B&R list. The B&R list applies when 'there are occasions, such as official or sanctioned tournaments, when certain cards will be designated as banned or restricted'.",
+      "id": "banlist-scope",
+      "resolution_suggestion": "Enforce the B&R list by default, because benchmarks model tournament play (the library call validate_deck(deck, banlist=False) checks the Comprehensive Rules only)."
+    },
+    {
+      "description": "Banned and restricted cards explicitly cover deck + sideboard. Banned pairs say only 'cannot be used at the same time' / 'in the same deck'.",
+      "id": "pair-sideboard-scope",
+      "resolution_suggestion": "Not relevant: the simulator has no sideboard, so apply pairs to the main deck."
+    }
+  ],
+  "applies_to": "deck and sideboard combined (the simulator uses the main deck only; no sideboard)",
+  "attribute_pair_rules": [
+    {
+      "description": "Any two different card numbers that are both 'a Unit card that is Lv.2 with cost 1, 2 AP, and 2 HP, and without effects' form a banned pair. Net effect: a deck may contain at most one such card number, so at most 4 copies in total.",
+      "enumerated_members": [
+        {
+          "card_number": "GD01-035",
+          "name": "Zaku Ⅱ"
+        },
+        {
+          "card_number": "GD01-060",
+          "name": "Zaku Mariner"
+        },
+        {
+          "card_number": "GD01-085",
+          "name": "Demi Garrison"
+        },
+        {
+          "card_number": "GD02-013",
+          "name": "Hizack"
+        },
+        {
+          "card_number": "GD02-080",
+          "name": "Nemo"
+        },
+        {
+          "card_number": "GD03-032",
+          "name": "Zaku (Four Snake Eyes') [YETI] (GQ)"
+        },
+        {
+          "card_number": "GD03-063",
+          "name": "0 Gundam"
+        },
+        {
+          "card_number": "GD04-078",
+          "name": "Borjarnon"
+        },
+        {
+          "card_number": "GD05-014",
+          "name": "Javelin"
+        },
+        {
+          "card_number": "GD05-027",
+          "name": "Jegan"
+        },
+        {
+          "card_number": "GD05-042",
+          "name": "Shining Gundam"
+        },
+        {
+          "card_number": "GD05-062",
+          "name": "Hobby Hizack"
+        },
+        {
+          "card_number": "GD05-077",
+          "name": "Leo"
+        },
+        {
+          "card_number": "ST01-005",
+          "name": "GM"
+        },
+        {
+          "card_number": "ST04-008",
+          "name": "Ginn"
+        },
+        {
+          "card_number": "ST05-004",
+          "name": "Graze Custom"
+        },
+        {
+          "card_number": "ST05-009",
+          "name": "Graze"
+        },
+        {
+          "card_number": "ST06-004",
+          "name": "Gelgoog (GQ)"
+        },
+        {
+          "card_number": "ST09-005",
+          "name": "Zaku Warrior"
+        },
+        {
+          "card_number": "ST10-005",
+          "name": "Nemo"
+        },
+        {
+          "card_number": "ST11-008",
+          "name": "Daughseat"
+        },
+        {
+          "card_number": "ST12-010",
+          "name": "Slash Zaku Phantom"
+        }
+      ],
+      "enumerated_members_added_after_2026_07_10": [
+        "ST11-008",
+        "ST12-010"
+      ],
+      "enumerated_members_source_url": "https://www.gundam-gcg.com/en/news/01_279.html",
+      "exceptions": [
+        {
+          "condition": {
+            "deck_equals_official_product_decklist": "ST05"
+          },
+          "description": "ST05-004 Graze Custom and ST05-009 Graze both match and both appear in the Iron Bloom [ST05] starter deck; the unmodified ST05 deck stays usable.",
+          "id": "st05-unmodified-starter-deck",
+          "offline_resolvable": false,
+          "source_text": "We recognize that two cards matching the description are included in the Iron Bloom [ST05] starter deck, and players will still be able to use this deck in official and sanctioned tournaments so long as no changes are made to its lineup.",
+          "source_url": "https://www.gundam-gcg.com/en/news/01_277.html"
+        }
+      ],
+      "future_cards_policy": "Additionally, matching cards printed in GD05 and after will also be added to the above banned pair listing at the time of their release.",
+      "id": "vanilla-lv2-cost1-ap2-hp2",
+      "if_deck_contains": {
+        "all_of": [
+          {
+            "card_type": "UNIT"
+          },
+          {
+            "level": 2
+          },
+          {
+            "cost": 1
+          },
+          {
+            "ap": 2
+          },
+          {
+            "hp": 2
+          },
+          {
+            "has_effect": false
+          }
+        ]
+      },
+      "max_total_copies_of_matching_cards": 4,
+      "member_predicate": {
+        "all_of": [
+          {
+            "card_type": "UNIT"
+          },
+          {
+            "level": 2
+          },
+          {
+            "cost": 1
+          },
+          {
+            "ap": 2
+          },
+          {
+            "hp": 2
+          },
+          {
+            "has_effect": false
+          }
+        ]
+      },
+      "predicate_equals_enumeration": true,
+      "predicate_matches_in_card_data": [
+        "GD01-035",
+        "GD01-060",
+        "GD01-085",
+        "GD02-013",
+        "GD02-080",
+        "GD03-032",
+        "GD03-063",
+        "GD04-078",
+        "GD05-014",
+        "GD05-027",
+        "GD05-042",
+        "GD05-062",
+        "GD05-077",
+        "ST01-005",
+        "ST04-008",
+        "ST05-004",
+        "ST05-009",
+        "ST06-004",
+        "ST09-005",
+        "ST10-005",
+        "ST11-008",
+        "ST12-010"
+      ],
+      "printings_disagreeing_with_canonical_printing": [],
+      "since": "2026-07-24",
+      "source_text": "All combinations of cards that match the above description \"a Unit card that is Lv.2 with cost 1, 2 AP, and 2 HP, and without effects\" are included as banned pairs, and no more than four copies of one card matching this description can be used in a deck.",
+      "source_url": "https://www.gundam-gcg.com/en/news/01_279.html",
+      "then_forbidden": {
+        "all_of": [
+          {
+            "all_of": [
+              {
+                "card_type": "UNIT"
+              },
+              {
+                "level": 2
+              },
+              {
+                "cost": 1
+              },
+              {
+                "ap": 2
+              },
+              {
+                "hp": 2
+              },
+              {
+                "has_effect": false
+              }
+            ]
+          },
+          {
+            "not": {
+              "card_number": "$matched"
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "banned": [
+    {
+      "card_number": "GD01-020",
+      "name": "Anksha",
+      "note": "Banned: no copies in deck or sideboard. Announced 2026-07-10, effective 2026-07-24 (US) / 2026-07-25 (Asia).",
+      "since": "2026-07-24",
+      "source_url": "https://www.gundam-gcg.com/en/news/01_277.html"
+    }
+  ],
+  "banned_pairs": [
+    {
+      "cards": [
+        "ST01-010",
+        "ST05-010"
+      ],
+      "id": "pair-ST01-010-ST05-010",
+      "names": [
+        "Amuro Ray",
+        "Mikazuki Augus"
+      ],
+      "note": "Banned pair (A: ST01-010 Amuro Ray, B: ST05-010 Mikazuki Augus): both cannot be in the same deck. Since 2026-07-24.",
+      "since": "2026-07-24",
+      "source_url": "https://www.gundam-gcg.com/en/news/01_277.html"
+    },
+    {
+      "cards": [
+        "GD01-008",
+        "GD05-015"
+      ],
+      "id": "pair-GD01-008-GD05-015",
+      "names": [
+        "Guntank",
+        "M1 Astray Shrike"
+      ],
+      "note": "Banned pair (A: GD01-008 Guntank, B: GD05-015 M1 Astray Shrike): both cannot be in the same deck. Since 2026-07-24. On the current-list page the vanilla list follows this pair without a heading; it is a separate rule (see attribute_pair_rules).",
+      "since": "2026-07-24",
+      "source_url": "https://www.gundam-gcg.com/en/news/01_277.html"
+    }
+  ],
+  "copy_identity": "card_number",
+  "copy_identity_source_text": "Cards with the same card number and different illustrations are still considered the same card.",
+  "effective_date": "2026-09-25",
+  "effective_date_notes": "01_279 is dated 2026-09-25 and gives no separate effective date. Banned, restricted and card-specific pair entries have applied since 2026-07-24 (US; 2026-07-25 Asia). ST02-016 has been restricted since 2026-04-01. ST11-008 and ST12-010 joined the vanilla list at the ST11/ST12 release (2026-09-25).",
+  "format": "standard constructed (official and sanctioned tournaments)",
+  "predicate_language": {
+    "description": "Card predicates evaluated against one card's canonical data (printed values after errata/overrides). A deck violates an attribute pair rule when it contains a card X matching if_deck_contains and a card Y matching then_forbidden with $matched bound to X's card_number, unless an exception applies.",
+    "operators": {
+      "all_of": "list of predicates; all must hold",
+      "any_of": "list of predicates; at least one must hold",
+      "ap": "extension: printed AP equals the integer",
+      "card_number": "exact card number; the value \"$matched\" means the card number of the card that satisfied if_deck_contains",
+      "card_type": "exact card_type (UNIT, PILOT, COMMAND, BASE, RESOURCE, UNIT TOKEN, EX BASE, EX RESOURCE)",
+      "color": "exact color (Blue, Green, Red, White, Purple)",
+      "cost": "extension: printed cost equals the integer",
+      "has_effect": "extension: false means the card has no effect text (gcg-api effect is \"-\" or empty); keywords such as <Blocker> count as effects",
+      "hp": "extension: printed HP equals the integer",
+      "level": "extension: printed Lv. equals the integer",
+      "name_contains": "substring of the card name",
+      "not": "predicate; must not hold",
+      "trait": "trait is in the card's traits[]"
+    }
+  },
+  "region": "en-US; the English (Asia) current list has identical contents",
+  "restricted": [
+    {
+      "card_number": "ST02-016",
+      "exceptions": [
+        {
+          "condition": {
+            "deck_equals_official_product_decklist": "ST02"
+          },
+          "description": "The unmodified Wings of Advance [ST02] starter deck (3x ST02-016) remains usable in official and sanctioned tournaments.",
+          "id": "st02-unmodified-starter-deck",
+          "offline_resolvable": false,
+          "source_text": "We recognize that three copies of ST02-016 Corsica Base are included in the Wings of Advance [ST02] starter deck, and players will still be able to use this deck in official and sanctioned tournaments so long as no changes are made to its contents.",
+          "source_url": "https://www.gundam-gcg.com/en/news/01_234.html"
+        }
+      ],
+      "max_copies": 2,
+      "name": "Corsica Base",
+      "note": "Restricted (2) since 2026-04-01 (announced 2026-03-27); kept by the July 2026 and current lists. Count is deck + sideboard combined; all printings of ST02-016 count.",
+      "since": "2026-04-01",
+      "source_url": "https://www.gundam-gcg.com/en/news/01_234.html"
+    }
+  ],
+  "retrieved_at": "2026-09-25T12:46:57Z",
+  "schema_version": 1,
+  "source_urls": [
+    "https://www.gundam-gcg.com/asia-en/news/01_279.html",
+    "https://www.gundam-gcg.com/en/news/01_234.html",
+    "https://www.gundam-gcg.com/en/news/01_277.html",
+    "https://www.gundam-gcg.com/en/news/01_279.html",
+    "https://www.gundam-gcg.com/en/rules/"
+  ],
+  "verification": {
+    "all_found": true,
+    "all_names_match": true,
+    "card_data": "src/gcg_sim/data/gcgapi/cards.ndjson",
+    "checked": [
+      {
+        "card_number": "GD01-008",
+        "data_name": "Guntank",
+        "official_name": "Guntank",
+        "status": "match"
+      },
+      {
+        "card_number": "GD01-020",
+        "data_name": "Anksha",
+        "official_name": "Anksha",
+        "status": "match"
+      },
+      {
+        "card_number": "GD01-035",
+        "data_name": "Zaku Ⅱ",
+        "official_name": "Zaku Ⅱ",
+        "status": "match"
+      },
+      {
+        "card_number": "GD01-060",
+        "data_name": "Zaku Mariner",
+        "official_name": "Zaku Mariner",
+        "status": "match"
+      },
+      {
+        "card_number": "GD01-085",
+        "data_name": "Demi Garrison",
+        "official_name": "Demi Garrison",
+        "status": "match"
+      },
+      {
+        "card_number": "GD02-013",
+        "data_name": "Hizack",
+        "official_name": "Hizack",
+        "status": "match"
+      },
+      {
+        "card_number": "GD02-080",
+        "data_name": "Nemo",
+        "official_name": "Nemo",
+        "status": "match"
+      },
+      {
+        "card_number": "GD03-032",
+        "data_name": "Zaku (Four Snake Eyes') [YETI] (GQ)",
+        "official_name": "Zaku (Four Snake Eyes') [YETI] (GQ)",
+        "status": "match"
+      },
+      {
+        "card_number": "GD03-063",
+        "data_name": "0 Gundam",
+        "official_name": "0 Gundam",
+        "status": "match"
+      },
+      {
+        "card_number": "GD04-078",
+        "data_name": "Borjarnon",
+        "official_name": "Borjarnon",
+        "status": "match"
+      },
+      {
+        "card_number": "GD05-014",
+        "data_name": "Javelin",
+        "official_name": "Javelin",
+        "status": "match"
+      },
+      {
+        "card_number": "GD05-015",
+        "data_name": "M1 Astray Shrike",
+        "official_name": "M1 Astray Shrike",
+        "status": "match"
+      },
+      {
+        "card_number": "GD05-027",
+        "data_name": "Jegan",
+        "official_name": "Jegan",
+        "status": "match"
+      },
+      {
+        "card_number": "GD05-042",
+        "data_name": "Shining Gundam",
+        "official_name": "Shining Gundam",
+        "status": "match"
+      },
+      {
+        "card_number": "GD05-062",
+        "data_name": "Hobby Hizack",
+        "official_name": "Hobby Hizack",
+        "status": "match"
+      },
+      {
+        "card_number": "GD05-077",
+        "data_name": "Leo",
+        "official_name": "Leo",
+        "status": "match"
+      },
+      {
+        "card_number": "ST01-005",
+        "data_name": "GM",
+        "official_name": "GM",
+        "status": "match"
+      },
+      {
+        "card_number": "ST01-010",
+        "data_name": "Amuro Ray",
+        "official_name": "Amuro Ray",
+        "status": "match"
+      },
+      {
+        "card_number": "ST02-016",
+        "data_name": "Corsica Base",
+        "official_name": "Corsica Base",
+        "status": "match"
+      },
+      {
+        "card_number": "ST04-008",
+        "data_name": "Ginn",
+        "official_name": "Ginn",
+        "status": "match"
+      },
+      {
+        "card_number": "ST05-004",
+        "data_name": "Graze Custom",
+        "official_name": "Graze Custom",
+        "status": "match"
+      },
+      {
+        "card_number": "ST05-009",
+        "data_name": "Graze",
+        "official_name": "Graze",
+        "status": "match"
+      },
+      {
+        "card_number": "ST05-010",
+        "data_name": "Mikazuki Augus",
+        "official_name": "Mikazuki Augus",
+        "status": "match"
+      },
+      {
+        "card_number": "ST06-004",
+        "data_name": "Gelgoog (GQ)",
+        "official_name": "Gelgoog (GQ)",
+        "status": "match"
+      },
+      {
+        "card_number": "ST09-005",
+        "data_name": "Zaku Warrior",
+        "official_name": "Zaku Warrior",
+        "status": "match"
+      },
+      {
+        "card_number": "ST10-005",
+        "data_name": "Nemo",
+        "official_name": "Nemo",
+        "status": "match"
+      },
+      {
+        "card_number": "ST11-008",
+        "data_name": "Daughseat",
+        "official_name": "Daughseat",
+        "status": "match"
+      },
+      {
+        "card_number": "ST12-010",
+        "data_name": "Slash Zaku Phantom",
+        "official_name": "Slash Zaku Phantom",
+        "status": "match"
+      }
+    ],
+    "dataset_version": "25-676f1bf3b752718dab59923a855819aad85ec361",
+    "mismatches": []
+  }
+}

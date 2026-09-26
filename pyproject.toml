@@ -1,0 +1,62 @@
+[project]
+name = "gcg-sim"
+version = "0.1.0"
+description = "Rules-faithful Gundam Card Game (English) deck benchmarking simulator with search-based AI"
+readme = "README.md"
+authors = [
+    { name = "Andrei Gadiukov", email = "andrey.gadyukov@gmail.com" }
+]
+requires-python = ">=3.12"
+dependencies = [
+    "jsonschema>=4.26.0",
+]
+
+[project.scripts]
+gcg-sim = "gcg_sim.cli:main"
+
+[build-system]
+requires = ["uv_build>=0.12.5,<0.13.0"]
+build-backend = "uv_build"
+
+[dependency-groups]
+dev = [
+    "hypothesis>=6.168.1",
+    "mypy>=2.3.1",
+    "pytest>=9.1.1",
+    "pytest-xdist>=3.8.0",
+    "ruff>=0.16.9",
+    "types-jsonschema>=4.26.0.20260518",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+src = ["src", "tests"]
+extend-exclude = ["*.md", ".claude/worktrees"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP", "SIM", "RUF", "PL", "C4", "PIE", "PT"]
+ignore = [
+    "PLR0911", "PLR0912", "PLR0913", "PLR0915", "PLR0917", "PLR2004", "PLW2901", "PLC0415",
+    "RUF001", "RUF002", "RUF003", "E501",
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["PLR", "S", "PT018", "PT011"]
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+files = ["src"]
+warn_unreachable = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-ra --strict-markers --import-mode=importlib"
+markers = [
+    "rule(id): comprehensive-rules number(s) this test verifies",
+    "card(number): card number(s) whose behaviour this test verifies",
+    "faq(num): rules-FAQ entry number(s) this test verifies",
+    "ruling(card_num): card ruling id(s) (CARD:Qnum, e.g. GD01-001:Q100) this test verifies",
+    "slow: long-running suite (robustness, AI strength, throughput)",
+]
