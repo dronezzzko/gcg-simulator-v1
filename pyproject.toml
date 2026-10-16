@@ -6,7 +6,7 @@ readme = "README.md"
 authors = [
     { name = "Andrei Gadiukov", email = "andrey.gadyukov@gmail.com" }
 ]
-requires-python = ">=3.12"
+requires-python = ">=3.15"
 dependencies = [
     "jsonschema>=4.26.0",
 ]
@@ -15,22 +15,22 @@ dependencies = [
 gcg-sim = "gcg_sim.cli:main"
 
 [build-system]
-requires = ["uv_build>=0.12.5,<0.13.0"]
+requires = ["uv_build>=0.13.1,<0.14.0"]
 build-backend = "uv_build"
 
 [dependency-groups]
 dev = [
-    "hypothesis>=6.168.1",
-    "mypy>=2.3.1",
+    "hypothesis>=6.170.0",
+    "mypy>=2.4.0",
     "pytest>=9.1.1",
     "pytest-xdist>=3.8.0",
-    "ruff>=0.16.9",
-    "types-jsonschema>=4.26.0.20260518",
+    "ruff>=0.17.1",
+    "types-jsonschema>=4.26.0.20261006",
 ]
 
 [tool.ruff]
 line-length = 100
-target-version = "py312"
+target-version = "py315"
 src = ["src", "tests"]
 extend-exclude = ["*.md", ".claude/worktrees"]
 
@@ -45,7 +45,7 @@ ignore = [
 "tests/**" = ["PLR", "S", "PT018", "PT011"]
 
 [tool.mypy]
-python_version = "3.12"
+python_version = "3.15"
 strict = true
 files = ["src"]
 warn_unreachable = true

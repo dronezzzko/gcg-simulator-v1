@@ -13,7 +13,7 @@ with honest error bars, which you can use to tune the deck.
 
 ## Install
 
-Requires [uv](https://docs.astral.sh/uv/) and Python 3.12 or later (uv installs it if needed).
+Requires [uv](https://docs.astral.sh/uv/) and Python 3.15 or later (uv installs it if needed).
 
 ```bash
 uv sync --locked

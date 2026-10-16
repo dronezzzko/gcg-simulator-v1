@@ -127,7 +127,7 @@ def play_game(
         observer = GameObserver(st, dut)
         log: list[dict[str, Any]] | None = [] if config.decision_log else None
         actions = _drive(st, agents, observer, log)
-    except (GameFailure, AgentUnavailableError):
+    except GameFailure, AgentUnavailableError:
         raise
     except Exception as exc:
         raise GameFailure(
