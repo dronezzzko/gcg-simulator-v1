@@ -54,7 +54,7 @@ def test_versions_seeds_and_ai_settings(written: ReportPaths, run: BenchmarkRun)
     r = load(written.results)
     v = r["versions"]
     assert v["package"] == "0.1.0"
-    assert v["dataset_version"].startswith("25-676f1bf")
+    assert v["dataset_version"].startswith("28-ad9da1b")
     assert v["rules_version"] == "1.9.0"
     assert v["banlist_effective_date"] == "2026-09-25"
     assert r["seeds"]["master"] == 3

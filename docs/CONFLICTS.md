@@ -56,27 +56,27 @@ review records that no longer match anything are listed as orphaned so they can 
 
 ## Inputs
 
-- gcg-api dataset `25-676f1bf3b752718dab59923a855819aad85ec361` (built 2026-09-21T12:11:55.812Z)
+- gcg-api dataset `28-ad9da1b22fc2abd56c1176a5e64b12e6ce21ea42` (built 2026-10-12T14:37:38.154Z)
 - Comprehensive Rules Ver. 1.9.0 (updated 2026-09-11)
 - Official latest rules: Ver. 1.9.0 (updated 2026-09-11) — https://www.gundam-gcg.com/en/pdf/comprehensiverules_en.pdf
-- 1912 printings / 1148 card numbers, 368 card rulings, 119 rules-FAQ entries, 2 errata
+- 2011 printings / 1152 card numbers, 368 card rulings, 119 rules-FAQ entries, 2 errata
 - SHA-256 of every input:
   - `curated_conflicts.json`: `a161be0db903fdd5213c2e750d110d9c6788437c4fd6829857a05e1cd094f611`
-  - `gcgapi/cards.ndjson`: `ad52f9add3593965c46bb82950f1374d0a37d0242a439ef8e5eba27f5b8e496f`
+  - `gcgapi/cards.ndjson`: `9a5517eddcc947ff55fe4cc248a6cc79942ccee521ff235cc6c7285b9e0dd682`
   - `gcgapi/errata.json`: `243081dd30022b3cc2745f09cad218743b20654a4c386d490d7159a9faf8e6d9`
-  - `gcgapi/manifest.json`: `175adb84d11098a81a504d386a9c3d29c5940dc29bb6664b03de9ce40ac6ec39`
+  - `gcgapi/manifest.json`: `c8f9043d10ca0107cd860f98cb5934a445960c14845f6e5911627f6278eb8525`
   - `gcgapi/rules-faq.json`: `5c6dcfd44f83eb4a97f3be91cd7bad85a9a8431870a86ef7b0c2a884c9896e71`
   - `gcgapi/rulings.json`: `2da64f7ea88a96edd8b91399a3bd73b43ce1d766f3253474df2b1ca706bbc895`
-  - `official/banlist.json`: `76c4f4250f8a5a2ef1948a4a64915d43b8abc7e7daf20f8e89bee2f5c1b0e26a`
-  - `official/rules_version.json`: `8d9caac3911e80ba3d6b9960c1b6fad69c0dbada75fc7607e392d0803edf48a5`
-  - `overrides.json`: `9aef9ba32510f7eb40e0f431d68d8a94071deeeca5ed862d5fc2dee411da59a0`
+  - `official/banlist.json`: `6aaaf882e26575334f037b284f23154e34066d2579d1baa41011444a8f5edc4d`
+  - `official/rules_version.json`: `8260fe0ace764ed958be3fb626e89e990cb89c56f636f0fe4d73180b8028ca93`
+  - `overrides.json`: `fc9c37e1e6c5ad22219e27278bf322bcf15087313e48ed3a32c766602f2c5478`
   - `rules/gundam-card-game-comprehensive-rules.md`: `bf2f3d5c7a1a04d9860d97a38c316309da14707f5e7012f9241885b8635a50b6`
 
 ## Summary
 
 | Kind | info | minor | major |
 | --- | ---: | ---: | ---: |
-| Divergent printings | 27 | 15 | 1 |
+| Divergent printings | 34 | 16 | 0 |
 | Errata | 2 | 0 | 1 |
 | Banned/restricted list ambiguities | 0 | 6 | 0 |
 | Keyword and timing markers vs effect text | 5 | 2 | 1 |
@@ -87,9 +87,9 @@ review records that no longer match anything are listed as orphaned so they can 
 | Rules FAQ vs rules | 9 | 7 | 0 |
 | Ambiguous card text | 2 | 106 | 0 |
 
-Total: 395 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entries: 0; orphaned resolutions: 0.
+Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entries: 0; orphaned resolutions: 0.
 
-## Divergent printings (43)
+## Divergent printings (50)
 
 ### `divergent:EXB-001` — EXB-001 EX Base: printings differ in effect
 
@@ -189,24 +189,6 @@ Total: 395 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
 - **Resolution** (`canonical_printing`): Use GD01-041. The printings differ only in parenthesized reminder text.
   - Rationale: Reminder text in parentheses has no game effect (2-11-4); cosmetic differences do not change the text's meaning.
   - Canonical printing: `GD01-041`
-
-### `divergent:GD01-051` — GD01-051 Kshatriya: printings differ in link, link_refs
-
-- severity **major**; origin detected
-- Cards: GD01-051
-- 4 printings of GD01-051 disagree on link, link_refs (substantive). Printings deviating from GD01-051 in gameplay terms: GD01-051_p1.
-- Suggested canonical printing: `GD01-051`
-- Field differences:
-  - `link` (substantive):
-    - `GD01-051`, `GD01-051_p2`, `GD01-051_p3`: `"(Cyber-Newtype) Trait"`
-    - `GD01-051_p1`: `"Trait [Enhanced Human]"`
-  - `link_refs` (substantive):
-    - `GD01-051`, `GD01-051_p2`, `GD01-051_p3`: `["Cyber-Newtype"]`
-    - `GD01-051_p1`: `["Enhanced Human"]`
-- Sources: gcg-api card GD01-051 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD01-051; gcg-api card GD01-051_p1 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD01-051_p1; gcg-api card GD01-051_p2 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD01-051_p2; gcg-api card GD01-051_p3 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD01-051_p3
-- **Resolution** (`canonical_printing`): Use GD01-051: link condition '(Cyber-Newtype) Trait'. The Store Tournament Participant Pack 01 record GD01-051_p1 ('Trait [Enhanced Human]') is treated as a data error.
-  - Rationale: The base printing, the Store Tournament Winner Pack 01 printing (_p2) and the SC01 reprint (_p3) all say (Cyber-Newtype); only one promotional record differs, in a malformed way.
-  - Canonical printing: `GD01-051`
 
 ### `divergent:GD01-068` — GD01-068 Perfect Strike Gundam: printings differ in effect
 
@@ -568,6 +550,21 @@ Total: 395 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
   - Rationale: Resources have no AP/HP (3-6); every other printing agrees.
   - Canonical printing: `R-001_p7`
 
+### `divergent:RP-068` — RP-068 Resource: printings differ in effect
+
+- severity **minor**; origin detected
+- Cards: RP-068
+- 2 printings of RP-068 disagree on effect (substantive). Printings deviating from RP-068 in gameplay terms: RP-068_p1.
+- Suggested canonical printing: `RP-068`
+- Field differences:
+  - `effect` (substantive):
+    - `RP-068`: `"(Rest a Resource when paying a cost.)"`
+    - `RP-068_p1`: `"-"`
+- Sources: gcg-api card RP-068 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=RP-068; gcg-api card RP-068_p1 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=RP-068_p1
+- **Resolution** (`canonical_printing`): Use RP-068. The base printing's only text is the Resource reminder '(Rest a Resource when paying a cost.)'; the RP-068_p1 record has none ('-').
+  - Rationale: Reminder text in parentheses has no game effect (2-11-4) and a Resource has no effect of its own (3-6), so both printings play identically.
+  - Canonical printing: `RP-068`
+
 ### `divergent:ST01-015` — ST01-015 White Base: printings differ in effect
 
 - severity **minor**; origin detected
@@ -656,13 +653,13 @@ Total: 395 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
 
 - severity **minor**; origin detected
 - Cards: ST03-001
-- 3 printings of ST03-001 disagree on effect (substantive). Printings deviating from ST03-001 in gameplay terms: ST03-001_p2.
+- 4 printings of ST03-001 disagree on effect (substantive). Printings deviating from ST03-001 in gameplay terms: ST03-001_p2, ST03-001_p3.
 - Suggested canonical printing: `ST03-001`
 - Field differences:
   - `effect` (substantive):
     - `ST03-001`, `ST03-001_p1`: `"【During Pair】This Unit gains <High-Maneuver>.\n\n(This Unit can't be blocked.)\nDuring your turn, when this Unit destroys an enemy shield area card with battle damage, choose 1 enemy Unit. Deal 2 damage to it."`
-    - `ST03-001_p2`: `"During your turn, when this Unit destroys an enemy shield area card with battle damage, choose 1 enemy Unit. Deal 2 damage to it.\n【During Pair】This Unit gains <High-Maneuver>.\n\n(This Unit can't be blocked.)"`
-- Sources: gcg-api card ST03-001 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST03-001; gcg-api card ST03-001_p1 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST03-001_p1; gcg-api card ST03-001_p2 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST03-001_p2
+    - `ST03-001_p2`, `ST03-001_p3`: `"During your turn, when this Unit destroys an enemy shield area card with battle damage, choose 1 enemy Unit. Deal 2 damage to it.\n【During Pair】This Unit gains <High-Maneuver>.\n\n(This Unit can't be blocked.)"`
+- Sources: gcg-api card ST03-001 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST03-001; gcg-api card ST03-001_p1 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST03-001_p1; gcg-api card ST03-001_p2 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST03-001_p2; gcg-api card ST03-001_p3 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST03-001_p3
 - **Resolution** (`canonical_printing`): Use ST03-001. The SC01 reprint (_p2) lists the two effects in the other order, which changes nothing: they are separate effects (ruling Q164).
   - Rationale: Line order of independent effects has no game meaning.
   - Canonical printing: `ST03-001`
@@ -711,6 +708,111 @@ Total: 395 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
 - **Resolution** (`canonical_printing`): Use ST07-010. The printings differ only in spacing/apostrophes/letter case.
   - Rationale: Reminder text in parentheses has no game effect (2-11-4); cosmetic differences do not change the text's meaning.
   - Canonical printing: `ST07-010`
+
+### `divergent:ST12-002` — ST12-002 Shining Gundam: printings differ in effect
+
+- severity **info**; origin detected
+- Cards: ST12-002
+- 2 printings of ST12-002 disagree on effect (reminder_only). The differences are cosmetic or confined to reminder text.
+- Suggested canonical printing: `ST12-002`
+- Field differences:
+  - `effect` (reminder_only):
+    - `ST12-002`: `"【Deploy】Choose 1 friendly Unit with 5 or more AP. It gains <Breach 3> during this turn.\n\n(During your turn, when this Unit destroys an enemy Unit with battle damage, deal the specified amount of damage to the first card in that opponent's shield area.)"`
+    - `ST12-002_p1`: `"【Deploy】Choose 1 friendly Unit with 5 or more AP. It gains <Breach 3> during this turn."`
+- Sources: gcg-api card ST12-002 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST12-002; gcg-api card ST12-002_p1 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST12-002_p1
+- **Resolution** (`canonical_printing`): Use ST12-002. The printings differ only in parenthesized reminder text.
+  - Rationale: Reminder text in parentheses has no game effect (2-11-4); cosmetic differences do not change the text's meaning.
+  - Canonical printing: `ST12-002`
+
+### `divergent:ST12-004` — ST12-004 Gundam Exia: printings differ in effect
+
+- severity **info**; origin detected
+- Cards: ST12-004
+- 2 printings of ST12-004 disagree on effect (reminder_only). The differences are cosmetic or confined to reminder text.
+- Suggested canonical printing: `ST12-004`
+- Field differences:
+  - `effect` (reminder_only):
+    - `ST12-004`: `"<Breach 3> (During your turn, when this Unit destroys an enemy Unit with battle damage, deal the specified amount of damage to the first card in that opponent's shield area.)"`
+    - `ST12-004_p1`: `"<Breach 3>"`
+- Sources: gcg-api card ST12-004 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST12-004; gcg-api card ST12-004_p1 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST12-004_p1
+- **Resolution** (`canonical_printing`): Use ST12-004. The printings differ only in parenthesized reminder text.
+  - Rationale: Reminder text in parentheses has no game effect (2-11-4); cosmetic differences do not change the text's meaning.
+  - Canonical printing: `ST12-004`
+
+### `divergent:ST12-006` — ST12-006 Unicorn Gundam 02 Banshee (Destroy Mode): printings differ in effect
+
+- severity **info**; origin detected
+- Cards: ST12-006
+- 2 printings of ST12-006 disagree on effect (reminder_only). The differences are cosmetic or confined to reminder text.
+- Suggested canonical printing: `ST12-006`
+- Field differences:
+  - `effect` (reminder_only):
+    - `ST12-006`: `"【During Pair】【Activate･Main】Exile 4 cards in your trash from the game：This Unit gains <First Strike> during this turn.\n\n(While this Unit is attacking, it deals damage before the enemy Unit.)\n【Activate･Action】Exile 4 cards in your trash from the game：This Unit gains <Suppression> during this battle.\n\n(Damage to Shields by an attack is dealt to the first 2 cards simultaneously.)"`
+    - `ST12-006_p1`: `"【During Pair】【Activate･Main】Exile 4 cards in your trash from the game：This Unit gains <First Strike> during this turn.\n【Activate･Action】Exile 4 cards in your trash from the game：This Unit gains <Suppression> during this battle."`
+- Sources: gcg-api card ST12-006 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST12-006; gcg-api card ST12-006_p1 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST12-006_p1
+- **Resolution** (`canonical_printing`): Use ST12-006. The printings differ only in parenthesized reminder text.
+  - Rationale: Reminder text in parentheses has no game effect (2-11-4); cosmetic differences do not change the text's meaning.
+  - Canonical printing: `ST12-006`
+
+### `divergent:ST12-007` — ST12-007 Gyan: printings differ in effect
+
+- severity **info**; origin detected
+- Cards: ST12-007
+- 2 printings of ST12-007 disagree on effect (reminder_only). The differences are cosmetic or confined to reminder text.
+- Suggested canonical printing: `ST12-007`
+- Field differences:
+  - `effect` (reminder_only):
+    - `ST12-007`: `"【When Linked】This Unit gains <First Strike> during this turn.\n\n(While this Unit is attacking, it deals damage before the enemy Unit.)"`
+    - `ST12-007_p1`: `"【When Linked】This Unit gains <First Strike> during this turn."`
+- Sources: gcg-api card ST12-007 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST12-007; gcg-api card ST12-007_p1 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST12-007_p1
+- **Resolution** (`canonical_printing`): Use ST12-007. The printings differ only in parenthesized reminder text.
+  - Rationale: Reminder text in parentheses has no game effect (2-11-4); cosmetic differences do not change the text's meaning.
+  - Canonical printing: `ST12-007`
+
+### `divergent:ST12-013` — ST12-013 The Final Victor: printings differ in effect
+
+- severity **info**; origin detected
+- Cards: ST12-013
+- 2 printings of ST12-013 disagree on effect (reminder_only). The differences are cosmetic or confined to reminder text.
+- Suggested canonical printing: `ST12-013`
+- Field differences:
+  - `effect` (reminder_only):
+    - `ST12-013`: `"【Burst】Choose 1 enemy Unit. Deal 1 damage to it.\n【Main】Choose 1 enemy player. You and that player each choose 1 of your own Units. Begin a battle between them and only perform the damage step.\n\n(You choose first, then your opponent.)"`
+    - `ST12-013_p1`: `"【Burst】Choose 1 enemy Unit. Deal 1 damage to it.\n【Main】Choose 1 enemy player. You and that player each choose 1 of your own Units. Begin a battle between them and only perform the damage step."`
+- Sources: gcg-api card ST12-013 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST12-013; gcg-api card ST12-013_p1 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST12-013_p1
+- **Resolution** (`canonical_printing`): Use ST12-013. The printings differ only in parenthesized reminder text.
+  - Rationale: Reminder text in parentheses has no game effect (2-11-4); cosmetic differences do not change the text's meaning.
+  - Canonical printing: `ST12-013`
+
+### `divergent:ST13-007` — ST13-007 Gyunei's Jagd Doga: printings differ in effect
+
+- severity **info**; origin detected
+- Cards: ST13-007
+- 2 printings of ST13-007 disagree on effect (reminder_only). The differences are cosmetic or confined to reminder text.
+- Suggested canonical printing: `ST13-007`
+- Field differences:
+  - `effect` (reminder_only):
+    - `ST13-007`: `"【Activate･Main】<Support 1> (Rest this Unit. 1 other friendly Unit gets AP+(specified amount) during this turn.)"`
+    - `ST13-007_p1`: `"【Activate･Main】<Support 1>"`
+- Sources: gcg-api card ST13-007 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST13-007; gcg-api card ST13-007_p1 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST13-007_p1
+- **Resolution** (`canonical_printing`): Use ST13-007. The printings differ only in parenthesized reminder text.
+  - Rationale: Reminder text in parentheses has no game effect (2-11-4); cosmetic differences do not change the text's meaning.
+  - Canonical printing: `ST13-007`
+
+### `divergent:ST13-010` — ST13-010 Red Gundam (0079): printings differ in effect
+
+- severity **info**; origin detected
+- Cards: ST13-010
+- 2 printings of ST13-010 disagree on effect (reminder_only). The differences are cosmetic or confined to reminder text.
+- Suggested canonical printing: `ST13-010`
+- Field differences:
+  - `effect` (reminder_only):
+    - `ST13-010`: `"【Activate･Main】【Once per Turn】Destroy 1 friendly Unit token：This Unit gains <Breach 3> during this turn.\n\n(During your turn, when this Unit destroys an enemy Unit with battle damage, deal the specified amount of damage to the first card in that opponent's shield area.)"`
+    - `ST13-010_p1`: `"【Activate･Main】【Once per Turn】Destroy 1 friendly Unit token：This Unit gains <Breach 3> during this turn."`
+- Sources: gcg-api card ST13-010 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST13-010; gcg-api card ST13-010_p1 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST13-010_p1
+- **Resolution** (`canonical_printing`): Use ST13-010. The printings differ only in parenthesized reminder text.
+  - Rationale: Reminder text in parentheses has no game effect (2-11-4); cosmetic differences do not change the text's meaning.
+  - Canonical printing: `ST13-010`
 
 ### `divergent:T-001` — T-001 Gundam: printings differ in ap, hp, ap_raw, hp_raw
 
@@ -990,7 +1092,7 @@ Total: 395 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
 
 - severity **info**; origin detected
 - Cards: EB01-085, EB01-086, EB01-087, EB01-088, EB01-089, EB01-090, GD01-123, GD01-124, GD01-125, GD01-126, GD01-127, GD01-128, GD01-129, GD01-130, GD02-121, GD02-122, GD02-123, GD02-124, GD02-125, GD02-126, GD02-127, GD02-128, GD02-129, GD02-130, GD03-123, GD03-124, GD03-125, GD03-126, GD03-127, GD03-128, GD03-129, GD03-130, GD03-131, GD03-132, GD04-121, GD04-122, GD04-123, GD04-124, GD04-125, GD04-126, GD04-127, GD04-128, GD04-129, GD04-130, GD05-123, GD05-124, GD05-125, GD05-126, GD05-127, GD05-128, GD05-129, GD05-130, ST01-015, ST01-016, ST02-015, ST02-016, ST03-015, ST03-016, ST04-015, ST04-016, ST05-015, ST06-014, ST06-015, ST07-015, ST08-014, ST08-015, ST09-010, ST10-016, ST11-016, ST12-016, ST13-016, ST14-016
-- 105 BASE printing(s) have no ap value although the rules give every such card one (rule 3-5-4 (Bases have AP and HP), 2-4-2, 2-9-2, 2-10-2).
+- 109 BASE printing(s) have no ap value although the rules give every such card one (rule 3-5-4 (Bases have AP and HP), 2-4-2, 2-9-2, 2-10-2).
 - Sources: gcg-api cards.ndjson
 - **Resolution** (`null_stat_is_zero`): Bases have no printed AP; treat AP as 0 (see rules-internal:base-ap).
   - Rationale: The rules give these cards an AP; the snapshot has none, and 0 is the only value consistent with that.
@@ -999,8 +1101,8 @@ Total: 395 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
 ### `data-null:EX-BASE:ap` — EX BASE records with null ap
 
 - severity **info**; origin detected
-- Cards: EXB-001, EXB-002, EXB-003, EXBP-001, EXBP-002, EXBP-003, EXBP-004, EXBP-005, EXBP-006, EXBP-007, EXBP-008, EXBP-009, EXBP-010, EXBP-011, EXBP-019, EXBP-020, EXBP-021, EXBP-022, EXBP-023, EXBP-024, EXBP-025, EXBP-026, EXBP-027, EXBP-028, EXBP-029, EXBP-030, EXBP-031, EXBP-032, EXBP-034
-- 32 EX BASE printing(s) have no ap value although the rules give every such card one (rule 5-17-3-1-1 (an EX Base is a Base token with 0 AP and 3 HP)).
+- Cards: EXB-001, EXB-002, EXB-003, EXBP-001, EXBP-002, EXBP-003, EXBP-004, EXBP-005, EXBP-006, EXBP-007, EXBP-008, EXBP-009, EXBP-010, EXBP-011, EXBP-019, EXBP-020, EXBP-021, EXBP-022, EXBP-023, EXBP-024, EXBP-025, EXBP-026, EXBP-027, EXBP-028, EXBP-029, EXBP-030, EXBP-031, EXBP-032, EXBP-034, EXBP-035
+- 33 EX BASE printing(s) have no ap value although the rules give every such card one (rule 5-17-3-1-1 (an EX Base is a Base token with 0 AP and 3 HP)).
 - Sources: gcg-api cards.ndjson
 - **Resolution** (`null_stat_is_zero`): EX Base AP is 0 (5-17-3-1-1).
   - Rationale: The rules give these cards an AP; the snapshot has none, and 0 is the only value consistent with that.
