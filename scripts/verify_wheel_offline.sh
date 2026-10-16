@@ -23,7 +23,7 @@ offline() {
   fi
 }
 
-uv venv --quiet --python 3.12 "$work/venv"
+uv venv --quiet --python 3.15 "$work/venv"
 uv pip install --quiet --offline --python "$work/venv/bin/python" "$wheel"
 cp "$repo"/examples/decks/*.txt "$work/"
 cd "$work"

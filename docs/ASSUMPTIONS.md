@@ -69,3 +69,14 @@ Every decision made without asking the user is recorded here with its rationale.
 | Modal Commands | Playable only if the targets of at least one mode can all be chosen; a triggered modal effect with no legal mode does nothing. | Rulings Q450, Q451, Q469. |
 | Attack target constraints | "Must choose that Unit" (GD04-107) outranks "if possible" attractors; with several, the attacker picks one; a forced Unit that is not a legal target imposes nothing. | Rulings Q289–Q301, Q388. |
 | "Deploy it as an (APx･HPy) Unit" | While in the battle area the card is a Unit with that AP/HP and its printed Lv., cost, name and traits, and no text; anywhere else it is the printed card. | Rulings GD05-089:Q389, Q390. |
+
+## Toolchain bump (2026-10-16)
+
+- Python 3.12 → 3.15 (`.python-version`, `requires-python = ">=3.15"`, ruff `py315`, mypy
+  `3.15`, the offline wheel check's venv): 3.15.0 is the newest stable CPython uv offers
+  (3.16.0a1 is an alpha). Raising the floor rather than only the pinned interpreter keeps the
+  tested version and the supported range the same.
+- uv 0.12.5 → 0.13.1 (installed with pipx; `uv_build>=0.13.1,<0.14.0`), and every dependency
+  floor at its latest release (`uv lock --upgrade`; `uv tree --outdated` lists nothing).
+- With a py314+ target, ruff 0.17 formats multi-exception handlers without parentheses
+  (PEP 758, `except A, B:`); it catches both types, exactly as the parenthesized form did.
