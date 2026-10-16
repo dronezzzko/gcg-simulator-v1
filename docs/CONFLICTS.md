@@ -69,7 +69,7 @@ review records that no longer match anything are listed as orphaned so they can 
   - `gcgapi/rulings.json`: `2da64f7ea88a96edd8b91399a3bd73b43ce1d766f3253474df2b1ca706bbc895`
   - `official/banlist.json`: `6aaaf882e26575334f037b284f23154e34066d2579d1baa41011444a8f5edc4d`
   - `official/rules_version.json`: `8260fe0ace764ed958be3fb626e89e990cb89c56f636f0fe4d73180b8028ca93`
-  - `overrides.json`: `fc9c37e1e6c5ad22219e27278bf322bcf15087313e48ed3a32c766602f2c5478`
+  - `overrides.json`: `2b6da981b70dc5442d7ccd192275c62b0b80e616cdbc775661b36e580ae4f54e`
   - `rules/gundam-card-game-comprehensive-rules.md`: `bf2f3d5c7a1a04d9860d97a38c316309da14707f5e7012f9241885b8635a50b6`
 
 ## Summary
@@ -562,7 +562,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
     - `RP-068_p1`: `"-"`
 - Sources: gcg-api card RP-068 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=RP-068; gcg-api card RP-068_p1 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=RP-068_p1
 - **Resolution** (`canonical_printing`): Use RP-068. The base printing's only text is the Resource reminder '(Rest a Resource when paying a cost.)'; the RP-068_p1 record has none ('-').
-  - Rationale: Reminder text in parentheses has no game effect (2-11-4) and a Resource has no effect of its own (3-6), so both printings play identically.
+  - Rationale: Reminder text in parentheses has no game effect (2-11-4), so neither printing has effect text and both play identically.
   - Canonical printing: `RP-068`
 
 ### `divergent:ST01-015` — ST01-015 White Base: printings differ in effect

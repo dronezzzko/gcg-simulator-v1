@@ -28,10 +28,10 @@ Every decision made without asking the user is recorded here with its rationale.
 ## Data refresh (2026-10-15)
 
 - gcg-api `f57b7c0` → `39c85b5` (dataset `28-ad9da1b…`, built 2026-10-12): 1,152 card numbers,
-  2,011 printings, 368 rulings, 119 rules-FAQ entries, 2 errata. New card numbers are tokens
-  only (EXBP-035, EXRP-017, EXRP-020, RP-068), all vanilla; 99 new printings, mostly the
-  ST11–ST14 release prints. Comprehensive Rules (1.9.0) and the B&R list (2026-09-25) are
-  unchanged.
+  2,011 printings, 368 rulings, 119 rules-FAQ entries, 2 errata. New card numbers are the EX
+  tokens EXBP-035, EXRP-017 and EXRP-020 and the Resource RP-068, all vanilla; 99 new
+  printings, mostly the ST11–ST14 release prints. Comprehensive Rules (1.9.0) and the B&R list
+  (2026-09-25) are unchanged.
 - Official pages whose only change was the site-wide copyright footer were re-cached anyway,
   so the cache mirrors the live pages and later `compare` runs show only real changes.
 - New printing divergences resolve to the base printing (`canonical_printing`): seven ST12/ST13
