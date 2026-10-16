@@ -5,7 +5,7 @@ plays many matches between two search-based AI players under a deterministic imp
 the Comprehensive Rules (Ver. 1.9.0, 2026-09-11). It then writes reproducible matchup reports
 with honest error bars, which you can use to tune the deck.
 
-- Every card in the packaged card data is implemented (1148/1148 card numbers), and each
+- Every card in the packaged card data is implemented (1152/1152 card numbers), and each
   non-vanilla card has a behaviour test.
 - Every 1v1 rule is covered by a tagged test or has a written N/A reason
   ([`docs/RULES_TRACEABILITY.md`](docs/RULES_TRACEABILITY.md)).
@@ -123,9 +123,9 @@ engine's interpretation decisions.
 | Source | Version |
 | --- | --- |
 | Comprehensive Rules | Ver. 1.9.0, updated 2026-09-11 |
-| Card data | [gcg-api](https://github.com/yzRobo/gcg-api) data files at commit `f57b7c0`, dataset `25-676f1bf`, built 2026-09-21 |
+| Card data | [gcg-api](https://github.com/yzRobo/gcg-api) data files at commit `39c85b5`, dataset `28-ad9da1b`, built 2026-10-12 |
 | Banned & restricted list | effective 2026-09-25 |
-| BO3 match rules, deck construction, floor rules | gundam-gcg.com/en pages retrieved 2026-09-25 |
+| BO3 match rules, deck construction, floor rules | gundam-gcg.com/en pages, last checked 2026-10-15 |
 
 Every source's URL, version, retrieval time and SHA-256 is locked in `data/SOURCES.lock.json` and
 summarized in [`docs/SOURCES.md`](docs/SOURCES.md). Cached source files are never edited. To

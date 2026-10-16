@@ -111,9 +111,9 @@ def _resolution_count() -> int:
 def test_data_status_text(capsys: pytest.CaptureFixture[str]) -> None:
     assert main(["data", "status"]) == 0
     out = capsys.readouterr().out
-    assert "card data: gcg-api dataset 25-676f1bf3b752718dab59923a855819aad85ec361" in out
-    assert "built 2026-09-21T12:11:55.812Z" in out
-    assert "1148 card numbers" in out
+    assert "card data: gcg-api dataset 28-ad9da1b22fc2abd56c1176a5e64b12e6ce21ea42" in out
+    assert "built 2026-10-12T14:37:38.154Z" in out
+    assert "1152 card numbers" in out
     assert "rules: Comprehensive Rules Ver. 1.9.0 (effective 2026-09-11)" in out
     assert "banned & restricted list: effective 2026-09-25 (1 banned, 1 restricted" in out
     assert "implementation coverage: " in out
@@ -123,11 +123,11 @@ def test_data_status_text(capsys: pytest.CaptureFixture[str]) -> None:
 def test_data_status_json(capsys: pytest.CaptureFixture[str]) -> None:
     assert main(["data", "status", "--json"]) == 0
     status = json.loads(capsys.readouterr().out)
-    assert status["snapshot"]["dataset_version"].startswith("25-676f1bf")
+    assert status["snapshot"]["dataset_version"].startswith("28-ad9da1b")
     assert status["versions"]["rules_version"] == "1.9.0"
     assert status["banlist"]["banned"] == ["GD01-020"]
     coverage = status["coverage"]
-    assert coverage["implemented"] == coverage["card_numbers"] == 1148
+    assert coverage["implemented"] == coverage["card_numbers"] == 1152
     assert status["conflicts"]["resolutions"] == _resolution_count()
 
 

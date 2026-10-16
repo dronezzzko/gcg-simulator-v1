@@ -26,7 +26,7 @@ OUT_DIR = REPO / "docs" / "research"
 TEMPLATES_JSON = OUT_DIR / "effect_templates.json"
 PACKAGES_JSON = OUT_DIR / "work_packages.json"
 MARKDOWN = OUT_DIR / "EFFECT_TEMPLATES.md"
-GCG_API_COMMIT = "f57b7c0b0ebc4c13d359649de19750c793ecbefc"
+GCG_API_COMMIT = "39c85b5032a72b035935b6ca29b326b297908f06"
 
 REGULAR_MIN_CARDS = 2
 COVERAGE_KS = (1, 2, 3, 4, 5, 6, 8, 10, 15, 20, 30, 50)
