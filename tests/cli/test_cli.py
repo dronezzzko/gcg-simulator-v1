@@ -107,7 +107,7 @@ def test_benchmark_accepts_every_ai_preset(preset: str) -> None:
     assert build_parser().parse_args(argv).ai_preset == preset
 
 
-def test_benchmark_help_lists_presets_from_cheapest_to_strongest(
+def test_benchmark_help_lists_presets_from_smallest_to_largest_budget(
     capsys: pytest.CaptureFixture[str],
 ) -> None:
     assert main(["benchmark", "--help"]) == 0

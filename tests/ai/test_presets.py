@@ -15,27 +15,27 @@ from gcg_sim.runner import BenchmarkConfig, run_benchmark
 from gcg_sim.runner.config import AI_PRESETS, DEFAULT_TURN_LIMIT
 
 EXAMPLES = Path(__file__).resolve().parents[2] / "examples" / "decks"
-BY_STRENGTH = ["fast", "standard", "strong", "expert"]
+BY_BUDGET = ["fast", "standard", "strong", "expert"]
 
 
-def test_presets_are_listed_from_cheapest_to_strongest() -> None:
-    assert list(PRESETS) == BY_STRENGTH
-    assert list(AI_PRESETS) == BY_STRENGTH
-    assert list(PRESET_SUMMARIES) == BY_STRENGTH
+def test_presets_are_listed_from_smallest_to_largest_budget() -> None:
+    assert list(PRESETS) == BY_BUDGET
+    assert list(AI_PRESETS) == BY_BUDGET
+    assert list(PRESET_SUMMARIES) == BY_BUDGET
     for name, config in PRESETS.items():
         assert config.name == name
         assert make_agent("mcts", preset=name).name == f"mcts-{name}"
 
 
 @pytest.mark.parametrize("n_options", range(1, 41))
-def test_budgets_grow_strictly_with_strength(n_options: int) -> None:
-    budgets = [PRESETS[p].budget(n_options) for p in BY_STRENGTH]
+def test_budgets_grow_strictly_from_preset_to_preset(n_options: int) -> None:
+    budgets = [PRESETS[p].budget(n_options) for p in BY_BUDGET]
     assert budgets == sorted(set(budgets))
 
 
-def test_pre_game_samples_do_not_shrink_with_strength() -> None:
+def test_pre_game_samples_do_not_shrink_from_preset_to_preset() -> None:
     for field in ("first_player_games", "mulligan_samples"):
-        values = [getattr(PRESETS[p], field) for p in BY_STRENGTH]
+        values = [getattr(PRESETS[p], field) for p in BY_BUDGET]
         assert values == sorted(values), field
 
 

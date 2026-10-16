@@ -83,3 +83,22 @@ records what was done, evidence, and what remains.
     `refresh coverage`: 1148 card numbers, nothing unimplemented, changed or untested.
   - `git status --short` after: empty.
 
+
+## AI presets `fast` and `expert` (branch `feat/ai-presets-fast-expert`)
+- Two presets built only from `SearchConfig` knobs: `fast` for screening deck variants and
+  `expert` with twice `strong`'s search. `standard` stays the default; `standard` and `strong`
+  are unchanged, and fixed-seed benchmarks under them reproduce the base commit's
+  `games.ndjson` byte for byte. Results schema 1.1.0 (new `ai.preset` values).
+- Calibration harness `scripts/ai_calibrate.py`. Candidates were screened on the tuning decks
+  and confirmed on held-out decks with fresh, pre-registered seeds (`docs/AI.md`,
+  "Calibrating the presets").
+- `fast`: 3.74× `standard`'s games per core-minute (idle machine, 48 games per run); against
+  greedy 255/400 (Wilson 95% [0.589, 0.683]); matchup estimates on the three example
+  pairings within −0.038, −0.010 and −0.038 of `standard`'s (400 paired BO1 games each, every
+  95% interval contains 0).
+- `expert`: against `strong` 605/1200 = 0.504 [0.476, 0.532] on held-out decks, so not
+  measurably stronger; 1.7× `strong`'s cost per game; solves every puzzle.
+- Analysis of the AI and the benchmark statistics: `docs/research/AI_IMPROVEMENT_PROPOSALS.md`.
+  It reports one correctness bug, not fixed here: `determinize` writes sampled card identities
+  into the true game's history, so some recorded `final_state_sha256` values fail
+  `gcg-sim replay`.

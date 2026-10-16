@@ -14,7 +14,7 @@ uv run gcg-sim benchmark examples/decks/red-green-zeon.txt examples/decks/blue-w
 | `--seed S` | 0 | Master seed. Every game and agent seed is derived from it. |
 | `--workers W` | 1 | Worker processes. The results do not depend on it. |
 | `--format bo3\|bo1` | bo3 | Best-of-three matches or single games. |
-| `--ai-preset fast\|standard\|strong\|expert` | standard | Search budget of the AI that plays both seats, cheapest to strongest: `fast` for screening, `standard`, `strong`, `expert` for final confirmation (see `docs/AI.md`). Compare runs only under the same preset. |
+| `--ai-preset fast\|standard\|strong\|expert` | standard | Search budget of the AI that plays both seats, smallest to largest: `fast` for screening, `standard`, `strong` for confirmation, `expert` (twice `strong`'s search, not measurably stronger) to check that a result holds with more search (see `docs/AI.md`). Compare runs only under the same preset. |
 | `--out DIR` | `gcg-sim-out` | Report directory. It is created if needed, and existing report files are replaced. |
 | `--decision-log` | off | Record the AI's decision log in `games.ndjson` and in the replays. This makes them large. |
 | `--replays K` | 3 | Representative wins and losses to save, K of each, plus one draw if any. |
