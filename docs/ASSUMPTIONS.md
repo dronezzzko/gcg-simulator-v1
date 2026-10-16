@@ -20,10 +20,32 @@ Every decision made without asking the user is recorded here with its rationale.
   `LICENSE-DATA`, `schema.sql`. `cards.json` and `cards/en/*.json` hold the same records as
   `cards.ndjson` (equivalence checked by the ingestion step) and are omitted from the package to
   keep the wheel small; their hashes are still recorded in `data/SOURCES.lock.json`.
-- Figures re-verified at the pinned commit: 1,148 card numbers, 1,912 printings, 368 rulings,
-  119 rules-FAQ entries, 2 errata (both `applied`). The prompt's "780 distinct effect texts"
-  measures 817 raw distinct `effect` strings (see ingestion report for normalized counts); the
-  prompt's "about 40" divergent card numbers measures 43.
+- Figures re-verified at the original pin `f57b7c0`: 1,148 card numbers, 1,912 printings, 368
+  rulings, 119 rules-FAQ entries, 2 errata (both `applied`). The prompt's "780 distinct effect
+  texts" measures 817 raw distinct `effect` strings (see ingestion report for normalized
+  counts); the prompt's "about 40" divergent card numbers measures 43.
+
+## Data refresh (2026-10-15)
+
+- gcg-api `f57b7c0` → `39c85b5` (dataset `28-ad9da1b…`, built 2026-10-12): 1,152 card numbers,
+  2,011 printings, 368 rulings, 119 rules-FAQ entries, 2 errata. New card numbers are the EX
+  tokens EXBP-035, EXRP-017 and EXRP-020 and the Resource RP-068, all vanilla; 99 new
+  printings, mostly the ST11–ST14 release prints. Comprehensive Rules (1.9.0) and the B&R list
+  (2026-09-25) are unchanged.
+- Official pages whose only change was the site-wide copyright footer were re-cached anyway,
+  so the cache mirrors the live pages and later `compare` runs show only real changes.
+- New printing divergences resolve to the base printing (`canonical_printing`): seven ST12/ST13
+  release prints that omit reminder text, and RP-068_p1 whose effect is `-` instead of the
+  Resource reminder (2-11-4). EXBP-035 joins `data-null:EX-BASE:ap`. `divergent:GD01-051` was
+  removed because gcg-api fixed the promo's Link.
+- `banlist.json`'s verification block now records the new dataset, after `refresh banlist`
+  re-verified all 28 names and the 22 vanilla-pair matches against it.
+- `docs/research/data_profile.json` and `DATA_INGESTION.md` stay a profile of `f57b7c0`, the
+  snapshot the card model was frozen on; `ingest_profile.py`'s normalization contract still
+  holds on `39c85b5`. The effect-template research is regenerated at `39c85b5` because the
+  documented-command gate rebuilds it from the packaged data.
+- `fetch_official.py` verifies TLS with certifi's CA bundle: the macOS bundle that uv-managed
+  Pythons read lacks GlobalSign Root R46, which gundam-gcg.com chains to.
 
 ## Rules interpretation (engine)
 

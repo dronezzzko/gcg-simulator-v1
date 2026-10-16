@@ -72,7 +72,7 @@ gcg-api commit and dataset_version, Comprehensive Rules version, and B&R list UR
 ## 2. Fetch the official English pages
 
 ```bash
-uv run --no-project --with pypdf python .claude/skills/gcg-refresh-data/scripts/fetch_official.py fetch --out $SCRATCH/official
+uv run --no-project --with pypdf --with certifi python .claude/skills/gcg-refresh-data/scripts/fetch_official.py fetch --out $SCRATCH/official
 uv run --no-project python .claude/skills/gcg-refresh-data/scripts/fetch_official.py compare --fetched $SCRATCH/official --json $SCRATCH/official-compare.json
 uv run --no-project python .claude/skills/gcg-refresh-data/scripts/fetch_official.py news --fetched $SCRATCH/official
 ```

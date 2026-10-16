@@ -6,12 +6,13 @@ announcements, BO3/language/deck-building pages, errata notices, rules PDFs, new
 extra pages of the US news listing. Requests go one at a time with a pause and a descriptive
 User-Agent; nothing in the repository is modified.
 
-    uv run --no-project --with pypdf python fetch_official.py fetch --out DIR
+    uv run --no-project --with pypdf --with certifi python fetch_official.py fetch --out DIR
     uv run --no-project python fetch_official.py compare --fetched DIR [--json OUT]
     uv run --no-project python fetch_official.py news --fetched DIR [--since YYYY-MM-DD]
 
 ``fetch`` writes ``<slug>.html|pdf``, a ``<slug>.txt`` extraction (PDF text needs pypdf, hence
-``--with pypdf``) and ``fetch_manifest.json``. ``compare`` reports, per page, whether the bytes
+``--with pypdf``) and ``fetch_manifest.json``. TLS is verified against certifi's CA bundle
+(``--with certifi``) when it is installed, otherwise against the system default. ``compare`` reports, per page, whether the bytes
 or at least the extracted text are unchanged, shows text diffs, and checks the Comprehensive
 Rules version and the banned/restricted links. ``news`` lists news entries that are not cached
 yet (possible new B&R lists, errata or rule updates).
@@ -25,6 +26,7 @@ import difflib
 import hashlib
 import json
 import re
+import ssl
 import sys
 import time
 import urllib.error
@@ -95,12 +97,22 @@ def load_sources(root: Path) -> list[dict[str, Any]]:
     return rows
 
 
-def _get(url: str) -> dict[str, Any]:
+def _tls_context() -> ssl.SSLContext:
+    # macOS's /etc/ssl/cert.pem, which uv-managed Pythons read, lacks newer roots such as the
+    # GlobalSign Root R46 that gundam-gcg.com chains to; certifi's bundle has them.
+    try:
+        import certifi
+    except ImportError:
+        return ssl.create_default_context()
+    return ssl.create_default_context(cafile=certifi.where())
+
+
+def _get(url: str, context: ssl.SSLContext) -> dict[str, Any]:
     req = urllib.request.Request(
         url, headers={"User-Agent": USER_AGENT, "Accept-Language": "en-US,en;q=0.8"}
     )
     try:
-        with urllib.request.urlopen(req, timeout=60) as resp:
+        with urllib.request.urlopen(req, timeout=60, context=context) as resp:
             body = resp.read()
             return {
                 "status": resp.status,
@@ -146,10 +158,11 @@ def cmd_fetch(args: argparse.Namespace) -> int:
         if manifest_path.is_file()
         else {"started_at": _utc_now(), "user_agent": USER_AGENT, "sources": {}}
     )
+    context = _tls_context()
     for i, row in enumerate(rows):
         if i:
             time.sleep(args.delay)
-        res = _get(row["url"])
+        res = _get(row["url"], context)
         rec: dict[str, Any] = {"id": row["id"], "url": row["url"], "kind": row["kind"]}
         rec["retrieved_at"] = _utc_now()
         if "error" in res:
