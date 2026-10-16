@@ -17,6 +17,7 @@ from collections.abc import Sequence
 from pathlib import Path
 from typing import Any, TextIO
 
+from gcg_sim.ai.config import PRESET_SUMMARIES
 from gcg_sim.cards.db import get_card_db, load_overrides, read_data_text
 from gcg_sim.deck import Deck, DeckError, load_deck, validate_deck
 from gcg_sim.deck.official import banlist
@@ -77,7 +78,12 @@ def build_parser() -> argparse.ArgumentParser:
     bench.add_argument("--seed", type=_seed, default=0, help="master seed (default 0)")
     bench.add_argument("--workers", type=_positive_int, default=1, help="worker processes")
     bench.add_argument("--format", choices=FORMATS, default="bo3", help="match format")
-    bench.add_argument("--ai-preset", choices=AI_PRESETS, default="standard", help="AI strength")
+    bench.add_argument(
+        "--ai-preset",
+        choices=AI_PRESETS,
+        default="standard",
+        help="AI strength: " + "; ".join(f"{k}: {v}" for k, v in PRESET_SUMMARIES.items()),
+    )
     bench.add_argument("--out", type=Path, default=Path("gcg-sim-out"), help="report directory")
     bench.add_argument("--decision-log", action="store_true", help="record AI decision logs")
     bench.add_argument(

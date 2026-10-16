@@ -100,9 +100,10 @@ AGENT_KINDS = ("random", "greedy", "mcts")
 
 def make_agent(kind: str, *, preset: str = "standard", seed: int = 0, log: bool = False) -> Agent:
     """Build an agent: ``kind`` is "random", "greedy", or "mcts"; ``preset`` selects the MCTS
-    budget ("standard" or "strong") and is ignored by the baselines."""
+    budget ("fast", "standard", "strong" or "expert", cheapest to strongest) and is ignored by
+    the baselines."""
     if preset not in PRESETS:
-        raise ValueError(f"unknown AI preset {preset!r}; choose from {sorted(PRESETS)}")
+        raise ValueError(f"unknown AI preset {preset!r}; choose from {list(PRESETS)}")
     if kind == "random":
         return RandomAgent(seed, log=log)
     if kind == "greedy":

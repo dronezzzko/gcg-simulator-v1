@@ -8,7 +8,7 @@ from pathlib import Path
 import pytest
 
 from gcg_sim.cards.db import load_overrides
-from gcg_sim.cli import main
+from gcg_sim.cli import build_parser, main
 from gcg_sim.reports import validate_results
 from gcg_sim.runner import agents as agents_module
 
@@ -99,6 +99,22 @@ def test_help_exits_0(capsys: pytest.CaptureFixture[str]) -> None:
     out = capsys.readouterr().out
     for command in ("benchmark", "validate", "data", "replay"):
         assert command in out
+
+
+@pytest.mark.parametrize("preset", ["fast", "standard", "strong", "expert"])
+def test_benchmark_accepts_every_ai_preset(preset: str) -> None:
+    argv = ["benchmark", str(FEDERATION), str(ZEON), "--matches", "2", "--ai-preset", preset]
+    assert build_parser().parse_args(argv).ai_preset == preset
+
+
+def test_benchmark_help_lists_presets_from_cheapest_to_strongest(
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    assert main(["benchmark", "--help"]) == 0
+    out = " ".join(capsys.readouterr().out.split())
+    assert "{fast,standard,strong,expert}" in out
+    positions = [out.index(f"{name}: ") for name in ("fast", "standard", "strong", "expert")]
+    assert positions == sorted(positions)
 
 
 # --- data status --------------------------------------------------------------------------

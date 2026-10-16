@@ -50,7 +50,7 @@ def measure(
 
 def main(argv: Sequence[str] | None = None) -> None:
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
-    ap.add_argument("--preset", default="standard", choices=sorted(PRESETS))
+    ap.add_argument("--preset", default="standard", choices=list(PRESETS))
     ap.add_argument("--games", type=int, default=8)
     ap.add_argument("--workers", type=int, default=1)
     ap.add_argument("--seed", type=int, default=0)

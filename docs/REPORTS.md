@@ -14,7 +14,7 @@ uv run gcg-sim benchmark examples/decks/red-green-zeon.txt examples/decks/blue-w
 | `--seed S` | 0 | Master seed. Every game and agent seed is derived from it. |
 | `--workers W` | 1 | Worker processes. The results do not depend on it. |
 | `--format bo3\|bo1` | bo3 | Best-of-three matches or single games. |
-| `--ai-preset standard\|strong` | standard | Search budget of the AI that plays both seats (see `docs/AI.md`). |
+| `--ai-preset fast\|standard\|strong\|expert` | standard | Search budget of the AI that plays both seats, cheapest to strongest: `fast` for screening, `standard`, `strong`, `expert` for final confirmation (see `docs/AI.md`). Compare runs only under the same preset. |
 | `--out DIR` | `gcg-sim-out` | Report directory. It is created if needed, and existing report files are replaced. |
 | `--decision-log` | off | Record the AI's decision log in `games.ndjson` and in the replays. This makes them large. |
 | `--replays K` | 3 | Representative wins and losses to save, K of each, plus one draw if any. |
@@ -57,8 +57,10 @@ is either complete or absent.
 ### results.json
 
 - **Schema.** The schema is `src/gcg_sim/reports/schema/results.v1.schema.json`, with `$id`
-  `urn:gcg-sim:schema:results:1.0.0`. Every document repeats the id in `schema` and the version
-  in `schema_version`. Load the schema with `gcg_sim.reports.load_schema()` and check a document
+  `urn:gcg-sim:schema:results:1.1.0`. Every document repeats the id in `schema` and the version
+  in `schema_version`. Version 1.1.0 adds the `fast` and `expert` presets to `ai.preset` and is
+  otherwise identical to 1.0.0; a 1.0.0 consumer would reject a document that uses a new preset,
+  so the minor version changed. Load the schema with `gcg_sim.reports.load_schema()` and check a document
   with `gcg_sim.reports.validate_results(obj)`.
 - **Win rates.** All rates are from the DUT's point of view. A rate block is
   `{"successes", "n", "rate", "ci95"}`. `ci95` is a 95% Wilson score interval, and `rate` and

@@ -344,7 +344,7 @@ def main(argv: Sequence[str] | None = None) -> None:
     ap.add_argument("--seed", type=int, default=2026)
     ap.add_argument("--workers", type=int, default=1)
     ap.add_argument("--validate", type=int, default=0, help="head-to-head games (multiple of 4)")
-    ap.add_argument("--validate-preset", default="tuning", choices=["tuning", *sorted(PRESETS)])
+    ap.add_argument("--validate-preset", default="tuning", choices=["tuning", *PRESETS])
     args = ap.parse_args(argv)
     report = tune(args.games, args.rounds, args.seed, args.workers)
     if args.validate:

@@ -56,7 +56,7 @@ def test_choose_rejects_wrong_player() -> None:
 
 
 def test_make_agent_validates_arguments() -> None:
-    assert set(PRESETS) == {"standard", "strong"}
+    assert set(PRESETS) == {"fast", "standard", "strong", "expert"}
     assert isinstance(PRESETS["standard"], SearchConfig)
     assert PRESETS["strong"].max_iterations > PRESETS["standard"].max_iterations
     with pytest.raises(ValueError, match="unknown agent kind"):

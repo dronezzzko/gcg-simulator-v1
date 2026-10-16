@@ -1,8 +1,8 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "urn:gcg-sim:schema:results:1.0.0",
+  "$id": "urn:gcg-sim:schema:results:1.1.0",
   "title": "gcg-sim benchmark results",
-  "description": "results.json written by `gcg-sim benchmark`. Version 1.0.0. Every value is deterministic for a given configuration and seed; wall-clock data lives only in timing.json.",
+  "description": "results.json written by `gcg-sim benchmark`. Version 1.1.0. Every value is deterministic for a given configuration and seed; wall-clock data lives only in timing.json.",
   "type": "object",
   "additionalProperties": false,
   "required": [
@@ -28,8 +28,8 @@
     "notes"
   ],
   "properties": {
-    "schema": {"const": "urn:gcg-sim:schema:results:1.0.0"},
-    "schema_version": {"const": "1.0.0"},
+    "schema": {"const": "urn:gcg-sim:schema:results:1.1.0"},
+    "schema_version": {"const": "1.1.0"},
     "versions": {
       "type": "object",
       "additionalProperties": false,
@@ -53,7 +53,7 @@
           "pattern": "^[0-9a-f]{64}$",
           "description": "SHA-256 over every file of the installed gcg_sim package (code, bindings, packaged data, overrides)"
         },
-        "results_schema": {"const": "1.0.0"},
+        "results_schema": {"const": "1.1.0"},
         "dataset_version": {"type": "string", "minLength": 1},
         "data_source_commit": {
           "type": "string",
@@ -118,7 +118,7 @@
       "required": ["factory", "preset", "dut_agent", "bench_agent", "decision_log"],
       "properties": {
         "factory": {"type": "string", "minLength": 1},
-        "preset": {"enum": ["standard", "strong"]},
+        "preset": {"enum": ["fast", "standard", "strong", "expert"]},
         "dut_agent": {"type": "string"},
         "bench_agent": {"type": "string"},
         "decision_log": {"type": "boolean"}

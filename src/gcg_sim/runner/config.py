@@ -5,13 +5,14 @@ from __future__ import annotations
 from dataclasses import dataclass
 from pathlib import Path
 
+from gcg_sim.ai.config import PRESETS
 from gcg_sim.deck.model import Deck
 from gcg_sim.deck.parse import to_decklist
 from gcg_sim.engine.game import MAX_ACTIONS_DEFAULT, DeckList
 from gcg_sim.rng import derive_seed
 
 FORMATS = ("bo3", "bo1")
-AI_PRESETS = ("standard", "strong")
+AI_PRESETS = tuple(PRESETS)
 DEFAULT_TURN_LIMIT = 200
 
 

@@ -50,13 +50,21 @@ def test_format_rules(config: BenchmarkConfig) -> None:
     assert (bo1.games_per_match, bo1.wins_needed) == (1, 1)
 
 
+@pytest.mark.parametrize("preset", ["fast", "standard", "strong", "expert"])
+def test_every_ai_preset_is_accepted(config: BenchmarkConfig, preset: str) -> None:
+    assert dataclasses.replace(config, ai_preset=preset).ai_preset == preset
+
+
 @pytest.mark.parametrize(
     ("change", "message"),
     [
         ({"matches": 0}, "matches must be at least 1 (got 0)"),
         ({"workers": 0}, "workers must be at least 1 (got 0)"),
         ({"fmt": "bo5"}, "format must be one of bo3, bo1 (got 'bo5')"),
-        ({"ai_preset": "max"}, "AI preset must be one of standard, strong (got 'max')"),
+        (
+            {"ai_preset": "max"},
+            "AI preset must be one of fast, standard, strong, expert (got 'max')",
+        ),
         ({"replays": -1}, "replays must be 0 or more (got -1)"),
         ({"seed": -1}, "seed must be in [0, 2**64) (got -1)"),
         ({"turn_limit": 0}, "turn limit must be at least 1 (got 0)"),

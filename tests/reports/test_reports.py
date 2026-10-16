@@ -36,8 +36,15 @@ def test_results_validate_against_the_versioned_schema(written: ReportPaths) -> 
     results = load(written.results)
     validate_results(results)
     schema = load_schema()
-    assert schema["$id"] == results["schema"] == "urn:gcg-sim:schema:results:1.0.0"
-    assert results["schema_version"] == results["versions"]["results_schema"] == "1.0.0"
+    assert schema["$id"] == results["schema"] == "urn:gcg-sim:schema:results:1.1.0"
+    assert results["schema_version"] == results["versions"]["results_schema"] == "1.1.0"
+
+
+@pytest.mark.parametrize("preset", ["fast", "standard", "strong", "expert"])
+def test_schema_accepts_every_ai_preset(written: ReportPaths, preset: str) -> None:
+    results = copy.deepcopy(load(written.results))
+    results["ai"]["preset"] = preset
+    validate_results(results)
 
 
 def test_every_report_file_is_written(written: ReportPaths) -> None:
@@ -243,6 +250,7 @@ def test_summary_lists_the_key_sections(written: ReportPaths, run: BenchmarkRun)
             }
         ),
         lambda r: r["config"].update(format="bo5"),
+        lambda r: r["ai"].update(preset="max"),
     ],
 )
 def test_schema_rejects_invalid_results(written: ReportPaths, mutate: Any) -> None:

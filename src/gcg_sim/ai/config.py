@@ -38,6 +38,14 @@ class SearchConfig:
 
 PRESETS: Mapping[str, SearchConfig] = MappingProxyType(
     {
+        "fast": SearchConfig(
+            name="fast",
+            max_iterations=80,
+            min_iterations=20,
+            iterations_per_option=8,
+            exploration=0.15,
+            rollout_temperature=0.3,
+        ),
         "standard": SearchConfig(
             name="standard", max_iterations=320, min_iterations=80, iterations_per_option=32
         ),
@@ -51,5 +59,25 @@ PRESETS: Mapping[str, SearchConfig] = MappingProxyType(
             first_player_games=48,
             mulligan_samples=192,
         ),
+        "expert": SearchConfig(
+            name="expert",
+            max_iterations=2560,
+            min_iterations=640,
+            iterations_per_option=256,
+            exploration=0.15,
+            rollout_temperature=0.3,
+            first_player_games=96,
+            mulligan_samples=384,
+        ),
+    }
+)
+"""Presets from cheapest to strongest; measured costs and strength are in docs/AI.md."""
+
+PRESET_SUMMARIES: Mapping[str, str] = MappingProxyType(
+    {
+        "fast": "screening deck variants, several times cheaper than standard",
+        "standard": "default",
+        "strong": "about 5x standard's cost, stronger",
+        "expert": "strongest, for final confirmation runs",
     }
 )
