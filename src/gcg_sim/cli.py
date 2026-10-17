@@ -17,7 +17,6 @@ from collections.abc import Sequence
 from pathlib import Path
 from typing import Any, TextIO
 
-from gcg_sim.ai.config import PRESET_SUMMARIES
 from gcg_sim.cards.db import get_card_db, load_overrides, read_data_text
 from gcg_sim.deck import Deck, DeckError, load_deck, validate_deck
 from gcg_sim.deck.official import banlist
@@ -27,7 +26,7 @@ from gcg_sim.reports.aggregate import game_outcomes, match_outcomes
 from gcg_sim.reports.versions import manifest, versions
 from gcg_sim.runner import BenchmarkConfig, FactoryRef, GameFailure, run_benchmark
 from gcg_sim.runner.agents import AgentFactory, AgentUnavailableError
-from gcg_sim.runner.config import AI_PRESETS, FORMATS
+from gcg_sim.runner.config import AI_PRESET_SUMMARIES, AI_PRESETS, FORMATS
 from gcg_sim.runner.replayfile import ReplayError, check_replay
 
 AGENT_FACTORY_ENV = "GCG_SIM_AGENT_FACTORY"
@@ -82,7 +81,7 @@ def build_parser() -> argparse.ArgumentParser:
         "--ai-preset",
         choices=AI_PRESETS,
         default="standard",
-        help="AI strength: " + "; ".join(f"{k}: {v}" for k, v in PRESET_SUMMARIES.items()),
+        help="AI strength: " + "; ".join(f"{k}: {v}" for k, v in AI_PRESET_SUMMARIES.items()),
     )
     bench.add_argument("--out", type=Path, default=Path("gcg-sim-out"), help="report directory")
     bench.add_argument("--decision-log", action="store_true", help="record AI decision logs")

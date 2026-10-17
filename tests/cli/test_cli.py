@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 import json
+import subprocess
+import sys
 from pathlib import Path
 
 import pytest
@@ -206,6 +208,40 @@ def test_benchmark_without_the_ai_package_fails_clearly(
     assert capsys.readouterr().err == (
         "error: the AI package 'gcg_sim._no_such_ai_module' is not available; the benchmark "
         "needs the search AI\n"
+    )
+    assert not out_dir.exists()
+
+
+HIDE_AI = """
+import importlib.abc, sys
+
+class HideAi(importlib.abc.MetaPathFinder):
+    def find_spec(self, name, path, target=None):
+        if name == "gcg_sim.ai" or name.startswith("gcg_sim.ai."):
+            raise ModuleNotFoundError(f"No module named {name!r}", name=name)
+        return None
+
+sys.meta_path.insert(0, HideAi())
+from gcg_sim.cli import main
+sys.exit(main(sys.argv[1:]))
+"""
+
+
+def run_without_ai(*argv: str) -> subprocess.CompletedProcess[str]:
+    cmd = [sys.executable, "-c", HIDE_AI, *argv]
+    return subprocess.run(cmd, capture_output=True, text=True, cwd=ROOT, check=False)
+
+
+def test_cli_starts_and_fails_clearly_when_the_ai_package_is_missing(tmp_path: Path) -> None:
+    validate = run_without_ai("validate", str(FEDERATION))
+    assert (validate.returncode, validate.stderr) == (0, "")
+    out_dir = tmp_path / "out"
+    bench = run_without_ai(
+        "benchmark", str(FEDERATION), str(ZEON), "--matches", "1", "--out", str(out_dir)
+    )
+    assert bench.returncode == 1
+    assert bench.stderr == (
+        "error: the AI package 'gcg_sim.ai' is not available; the benchmark needs the search AI\n"
     )
     assert not out_dir.exists()
 

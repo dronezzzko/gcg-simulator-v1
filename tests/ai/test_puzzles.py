@@ -1,5 +1,5 @@
 """Tactical puzzles with known best play, solved by the default MCTS preset (criterion 7b)
-and by the strongest one.
+and by the largest-budget one, ``expert``.
 
 Each puzzle is a position built with the testkit. The agent under test plays one side with
 the ``standard`` or the ``expert`` preset; the other side is played by the same kind of agent,

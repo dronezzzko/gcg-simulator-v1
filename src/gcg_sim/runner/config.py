@@ -2,17 +2,28 @@
 
 from __future__ import annotations
 
+from collections.abc import Mapping
 from dataclasses import dataclass
 from pathlib import Path
+from types import MappingProxyType
 
-from gcg_sim.ai.config import PRESETS
 from gcg_sim.deck.model import Deck
 from gcg_sim.deck.parse import to_decklist
 from gcg_sim.engine.game import MAX_ACTIONS_DEFAULT, DeckList
 from gcg_sim.rng import derive_seed
 
 FORMATS = ("bo3", "bo1")
-AI_PRESETS = tuple(PRESETS)
+AI_PRESET_SUMMARIES: Mapping[str, str] = MappingProxyType(
+    {
+        "fast": "screening deck variants, about 3.7x standard's games per core-minute",
+        "standard": "default",
+        "strong": "about 3x standard's cost per game, stronger",
+        "expert": "about 1.7x strong's cost, not measurably stronger than strong",
+    }
+)
+"""The names of `gcg_sim.ai.config.PRESETS`, smallest search budget first, with the summaries
+the CLI shows. Listed here so the runner and CLI do not import the AI package at import time."""
+AI_PRESETS = tuple(AI_PRESET_SUMMARIES)
 DEFAULT_TURN_LIMIT = 200
 
 

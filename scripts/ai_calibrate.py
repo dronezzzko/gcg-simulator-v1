@@ -164,8 +164,8 @@ def _summary(outcomes: Sequence[GameOutcome]) -> dict[str, Any]:
 
 
 def cmd_match(args: argparse.Namespace) -> dict[str, Any]:
-    if args.games % 4:
-        raise SystemExit("--games must be a multiple of 4 (mirrored blocks)")
+    if args.games <= 0 or args.games % 4:
+        raise SystemExit("--games must be a positive multiple of 4 (mirrored blocks)")
     challenger, opponent = _agent_spec(args.challenger), _agent_spec(args.opponent)
     decks = _pairings()
     items: list[tuple[str, GameSpec]] = []
@@ -258,7 +258,9 @@ def main(argv: Sequence[str] | None = None) -> None:
     m.add_argument("--challenger", required=True)
     m.add_argument("--opponent", required=True)
     m.add_argument("--pairings", nargs="+", default=["tuning"])
-    m.add_argument("--games", type=int, default=8, help="games per pairing (multiple of 4)")
+    m.add_argument(
+        "--games", type=int, default=8, help="games per pairing (positive multiple of 4)"
+    )
     m.add_argument("--seed", type=int, default=0)
     m.add_argument("--workers", type=int, default=1)
     m.add_argument("--out", help="directory for games.ndjson and summary.json")

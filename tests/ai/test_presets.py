@@ -7,12 +7,12 @@ from pathlib import Path
 
 import pytest
 
-from gcg_sim.ai import PRESET_SUMMARIES, PRESETS, SearchConfig, make_agent
+from gcg_sim.ai import PRESETS, make_agent
 from gcg_sim.deck import load_deck
 from gcg_sim.reports import build_results
 from gcg_sim.reports.writer import to_json_text
 from gcg_sim.runner import BenchmarkConfig, run_benchmark
-from gcg_sim.runner.config import AI_PRESETS, DEFAULT_TURN_LIMIT
+from gcg_sim.runner.config import AI_PRESET_SUMMARIES, AI_PRESETS, DEFAULT_TURN_LIMIT
 
 EXAMPLES = Path(__file__).resolve().parents[2] / "examples" / "decks"
 BY_BUDGET = ["fast", "standard", "strong", "expert"]
@@ -21,7 +21,7 @@ BY_BUDGET = ["fast", "standard", "strong", "expert"]
 def test_presets_are_listed_from_smallest_to_largest_budget() -> None:
     assert list(PRESETS) == BY_BUDGET
     assert list(AI_PRESETS) == BY_BUDGET
-    assert list(PRESET_SUMMARIES) == BY_BUDGET
+    assert list(AI_PRESET_SUMMARIES) == BY_BUDGET
     for name, config in PRESETS.items():
         assert config.name == name
         assert make_agent("mcts", preset=name).name == f"mcts-{name}"
@@ -40,19 +40,35 @@ def test_pre_game_samples_do_not_shrink_from_preset_to_preset() -> None:
 
 
 def test_standard_and_strong_are_unchanged() -> None:
-    assert PRESETS["standard"] == SearchConfig(
-        name="standard", max_iterations=320, min_iterations=80, iterations_per_option=32
-    )
-    assert PRESETS["strong"] == SearchConfig(
-        name="strong",
-        max_iterations=1280,
-        min_iterations=320,
-        iterations_per_option=128,
-        exploration=0.15,
-        rollout_temperature=0.3,
-        first_player_games=48,
-        mulligan_samples=192,
-    )
+    shared = {
+        "prior_weight": 0.5,
+        "prior_temperature": 1.5,
+        "horizon_turns": 2,
+        "value_scale": 2.0,
+        "max_rollout_decisions": 250,
+    }
+    assert dataclasses.asdict(PRESETS["standard"]) == {
+        "name": "standard",
+        "max_iterations": 320,
+        "min_iterations": 80,
+        "iterations_per_option": 32,
+        "exploration": 0.3,
+        "rollout_temperature": 0.5,
+        "first_player_games": 24,
+        "mulligan_samples": 96,
+        **shared,
+    }
+    assert dataclasses.asdict(PRESETS["strong"]) == {
+        "name": "strong",
+        "max_iterations": 1280,
+        "min_iterations": 320,
+        "iterations_per_option": 128,
+        "exploration": 0.15,
+        "rollout_temperature": 0.3,
+        "first_player_games": 48,
+        "mulligan_samples": 192,
+        **shared,
+    }
 
 
 @pytest.mark.parametrize(("preset", "turn_limit"), [("fast", DEFAULT_TURN_LIMIT), ("expert", 5)])

@@ -9,10 +9,11 @@ strategy fusion, rollout horizon; seed dispersion, `fast` decision quality and s
 decklist knowledge) produced the findings. Two independent skeptics re-checked each finding
 of the six lenses and of the second follow-up round, and each first-round finding that has a
 skeptic verdict says so (the first round's evaluation and strategy-fusion findings were not
-re-checked; they are listed separately). Code references are to commit 6be0ea8; the engine,
-search, policy and runner files cited are unchanged since 5c90b83, where the experiments ran.
-Evidence paths point into `build/ai-presets/phase1/`, which is local and untracked; each
-folder holds the scripts and a `commands.txt` with the exact commands.
+re-checked; they are listed separately). Code and documentation line references are to
+commit 6be0ea8; the engine, search, policy and runner files cited are unchanged since 5c90b83,
+where the experiments ran. Evidence paths point into `build/ai-presets/phase1/`, which is
+local and untracked; each folder holds the scripts and a `commands.txt` with the exact
+commands.
 
 Labels: **MEASURED** means a command was run and its output is quoted. **HYPOTHESIZED** means
 it was not measured. Scores are the skeptics' averaged impact × confidence / effort, on 1–5
@@ -243,9 +244,10 @@ impact.
     | 0.606 | 0.58 | 0.86 | 0.92 | 0.99 |
     | 0.58 | 0.37 | 0.63 | 0.72 | 0.89 |
 
-    At 0.55 it fires about half the time at any n.
-  - It fired in 4 of the 5 BO1 runs of this study; 3 of those were correlated arms on the same
-    deals.
+    | 0.55 | 0.18 | 0.30 | 0.35 | 0.50 |
+
+  - It fired in 16 of the 17 BO1 runs of 100 or more games in this study, including all six
+    400-match `fast`/`standard` fidelity runs.
 - **Change.** Remove the `play_draw_split` kind, or reword it as descriptive ("Player One won
   X% [CI] of games; the gap is shared by both decks"). Keep the enum value in
   `reports/schema/results.v1.schema.json:505` so old files still validate. Update
@@ -267,8 +269,8 @@ impact.
   chooses. `fast` keeps `standard`'s 24 pairs.
 - **Evidence (MEASURED).**
   - Cost: about 0.40 CPU-s per game (sd 0.04). That is 11.5% of a `fast` game on the tuning
-    decks (30 games), 9.4% on the example decks, about 2.7% (2–4%) of `standard`, 1.3% of
-    `strong`, and about 1% of `expert` (96 pairs, about 1.6 s).
+    decks (30 games), 9.4% on the example decks, about 2.7% (2–4%) of `standard`, and about 2% of
+    both `strong` (48 pairs, about 0.6–0.8 s) and `expert` (96 pairs, about 1.2–1.6 s).
   - It never chose to go second: 0/80 calls at `standard`, 0/9 at `strong`, 0/30 at `fast`,
     0/75 stability calls (15 ordered pairings × 5 seeds, at 8 and at 24 pairs), and 0/40 on
     the test decks. Pooled first-minus-second is +0.238 (SE 0.013), with z ≥ 3.16 in every
@@ -295,7 +297,7 @@ impact.
 - **Risk.** None for reproducibility. The play/draw decision-log entry changes. About 0.25% of
   play/draw calls can flip, so the 1600 confirmation games of commit 988cd15 are expected to
   reproduce except for about 4. Re-label or re-run them.
-  `tests/ai/test_presets.py::test_pre_game_samples_do_not_shrink_with_strength` still passes
+  `tests/ai/test_presets.py::test_pre_game_samples_do_not_shrink_from_preset_to_preset` still passes
   (8 ≤ 24).
 - **Validation.** A fixed-seed `fast` benchmark before and after the change: actions and
   winners identical except in flipped calls. Measure the `CHOOSE_FIRST` process time directly
@@ -577,7 +579,7 @@ impact.
     - +0.6–0.9% iterations.
 - **Change.** None at `standard`. For `fast`, an optional knob candidate (0.125, or the
   untested 0.25), only after a larger pre-registered position study.
-- **Expected impact.** Under 1–2 points against greedy; a match cannot detect it.
+- **Expected impact.** HYPOTHESIZED under 1–2 points against greedy; a match cannot detect it.
 - **Effort.** S knob, plus 1–1.5 core-hours to re-confirm `fast`.
 - **Risk.** None: config only.
 - **Validation.** A position study of 3,000+ decisions against a reference. The fidelity re-run
@@ -606,7 +608,8 @@ impact.
   - For battle-scoped protections, prefer the friendly Unit in the current battle, or have
     the no-effect check try every legal target.
   - Keep start-phase locks out of `command_harms_enemy_units`.
-- **Expected impact.** Correct heuristics for user decks with these cards; under 1 point.
+- **Expected impact.** Correct heuristics for user decks with these cards; HYPOTHESIZED under
+  1 point.
 - **Effort.** S–M.
 - **Risk.** None.
 - **Validation.**
@@ -727,6 +730,9 @@ impact.
     relate to MCTS strength is untested.
 - **Change.** Add a `policy` subcommand with a variant registry and a frozen base scorer.
   Report paired and unpaired estimates. Use it as a sanity and bug screen, not a gate.
+- **Expected impact.** A policy variant is screened at about 0.01 CPU-s per game (8000 games
+  in about 80 CPU-s) instead of 10.7–18.2 core-s per MCTS game; a bug and sanity screen only,
+  since its link to MCTS strength is untested.
 - **Effort.** S–M.
 - **Risk.** None.
 - **Validation.** A dose-response check: about 4 variants, including degradations, at about 800
@@ -747,8 +753,12 @@ impact.
 - **Change.** Use it only for null-type questions (belief or information changes). Include a
   matched placebo arm, 30+ game clusters and cluster-robust intervals. Consolidate with
   `phase1/gap-2/decision_impact.py`.
+- **Expected impact.** A cheap screen for null-type questions (belief or information
+  changes); it cannot rank knob variants.
 - **Effort.** S–M.
 - **Risk.** None.
+- **Validation.** Re-run the stealth and Aces swaps with the matched placebo arm and 30+ game
+  clusters; a real arm counts only if its cluster-robust interval separates from the placebo's.
 
 ### 24. search-6: exploration at standard
 
@@ -766,6 +776,8 @@ impact.
   - At the `fast` budget, c 0.15 minus c 0.3 is +0.047 ± 0.029 (paired).
 - **Change.** None now. If `standard` is re-calibrated, c of 0.15–0.2 is a speed-only option
   (3–6% fewer iterations).
+- **Expected impact.** Speed only: 3–6% fewer iterations at c 0.15–0.2; no measured
+  strength change.
 - **Effort.** S plus re-validation.
 - **Risk.** None.
 - **Validation.** Offline screen. A strength claim would need about 4,900 mirrored games.
@@ -783,7 +795,7 @@ impact.
     games.
 - **Change.** A condition-aware boost helper at the MAIN-phase call sites only, not inside
   `fight()`. It must evaluate If conditions, link gates and the paired Pilot's triggers.
-- **Expected impact.** Under 0.5 point.
+- **Expected impact.** HYPOTHESIZED under 0.5 point.
 - **Effort.** S.
 - **Risk.** None (a behaviour change for all presets).
 - **Validation.** Unit tests (Zaku II against a 3-HP Unit; Zee Zulu gets no boost against a
@@ -837,8 +849,12 @@ impact.
 - **Change.** Record the null result and its bounds in `docs/ASSUMPTIONS.md`. Ship
   `--dut-belief` only if a paired `standard` run on a trick-heavy swap shows a bias of at
   least 0.03. It needs a leak-free displacement rule and a decklist-invariance test.
+- **Expected impact.** Documentation now; `--dut-belief` only if a bias of at least 0.03 is
+  shown.
 - **Effort.** M.
 - **Risk.** Low.
+- **Validation.** The gating run itself: a paired `standard` run on a trick-heavy swap, plus
+  the decklist-invariance test.
 
 ### 29. fast-quality-3: puzzles for `fast`
 
@@ -856,8 +872,12 @@ impact.
   - Add one compact Hawk-style puzzle with a documented `fast` floor (about 0.5) and a
     `standard` threshold of at least 7/8, checked over 160+ seeds.
   - Exclude `expert` from the new puzzle or give it its own floor.
+- **Expected impact.** Puzzle coverage for `fast`, and a floor that catches a weakening of
+  `fast` (it solves the Hawk position 126/200).
 - **Effort.** S.
 - **Risk.** None.
+- **Validation.** The new puzzle's `fast` floor and `standard` threshold, checked over 160+
+  seeds before they are pinned.
 
 ### 30. fast-quality-4: wide decisions at `fast` (record negative results)
 
@@ -901,6 +921,8 @@ impact.
 - **Effort.** L.
 - **Risk.** A missed dependency gives a stale view: reproducible but wrong. Do item 6's paranoid
   mode first.
+- **Validation.** Item 6's identity harness and paranoid derived-cache mode: identical
+  fingerprints and no stale views on the example and tuning decks.
 
 ### 33. search-4: keyed rollout noise (do not pursue)
 
@@ -983,8 +1005,8 @@ Score 6.0 (impact 3, confidence 4, effort 2), downgraded; it would rank next to 
 - **Evidence (MEASURED by the analyst).** No predictive signal within any deck pool, and
   dropping it improves out-of-sample calibration on unseen decks. Evidence: `gap-2/`.
 - **Change.** Drop the feature and refit, as part of one evaluation retune (with item C).
-- **Expected impact.** Robustness on unseen decks; strength effect about zero. All presets
-  change and need re-calibration.
+- **Expected impact.** Robustness on unseen decks; strength effect HYPOTHESIZED about zero.
+- **Risk.** Changes every preset; re-calibrate (with items C–E).
 - **Effort.** S, plus the re-calibration.
 - **Validation.** Held-out log-loss on decks outside the tuning pool; the strength tables.
 
@@ -997,6 +1019,10 @@ Score 6.0 (impact 3, confidence 4, effort 2), downgraded; it would rank next to 
   pooled cross-validation but are not better at `standard`. Evidence: `gap-2/`.
 - **Change.** Report held-out log-loss and calibration per preset in `tuning.py`, and validate
   any retune at `standard` (and at `fast` and `expert` if they are to use it).
+- **Expected impact.** No play change by itself; it stops a retune that looks better in pooled
+  cross-validation but is worse at `standard`.
+- **Validation.** Per-preset held-out log-loss and calibration slope, then the strength tables
+  at `standard`.
 - **Effort.** S. **Risk.** None.
 
 ### D. fusion-3: one tree node can mix main-phase and action-step decisions (not re-checked)
@@ -1024,6 +1050,10 @@ Score 6.0 (impact 3, confidence 4, effort 2), downgraded; it would rank next to 
   static evaluation. Evidence: `gap-3/`.
 - **Change.** A feature for castable action-step Commands held with enough resources, fitted
   by the tuning procedure (with items B and C).
+- **Expected impact.** HYPOTHESIZED; today holding a trick lowers the searched root value by
+  0.046–0.054.
+- **Validation.** Held-out log-loss and the `gap-3/` root-value probe, then the re-calibration
+  strength tables (with items B and C).
 - **Effort.** M. **Risk.** Changes every preset; re-calibrate.
 
 ## Corrections to `docs/AI.md` found along the way
@@ -1141,7 +1171,7 @@ Open, HYPOTHESIZED only:
   temperature 0.3 without c 0.15: fast-e shifted a self-play matchup by +0.167.
 - **`fast`, do not raise `max_iterations` or add a visit minimum.** fast-b was already tested,
   and the wide-turn gap closes only at about 4× the budget (item 30).
-- **`expert`, leave `first_player_games=96` and `mulligan_samples=384`.** They cost about 1%
+- **`expert`, leave `first_player_games=96` and `mulligan_samples=384`.** They cost about 2%
   and 0.01% of a game; lowering them buys almost nothing and changes the just-calibrated
   preset's logs.
 - **`expert`, no larger budget.** Four times `strong`'s budget was no better than twice on the

@@ -302,13 +302,20 @@ hand of uncastable cards and keep a hand with early plays; go first.
 the same for every preset, and `standard` and `strong` are unchanged (the same seeds give
 identical games). Candidates were screened on the tuning decks
 (`gcg_sim.ai.tuning.TUNING_DECKS`) and confirmed on held-out decks (the test decks in
-`tests/ai/decks.py` and the three `examples/decks`) with fresh seeds, under a plan written
-before the first confirmation game. The harness is `scripts/ai_calibrate.py`: `match` plays
-mirrored blocks of four games between two agents (each deal with each agent on each deck and
-in each seat), and `paired` compares two BO1 `gcg-sim benchmark` runs played on the same
-deals. Every run's command and raw output is kept with the run; costs measured during
-screening were taken on a loaded machine and only rank the candidates, while the throughput
-table below was measured on an idle one.
+`tests/ai/decks.py` and the three `examples/decks`) with fresh seeds, under a plan fixed in
+advance: the `fast` part before the first confirmation game, and the `expert` part (written
+after `expert`'s screening and the `fast` confirmation) before the first `expert`
+confirmation game. No held-out deck is a tuning deck, but red-green-zeon and
+purple-white-tekkadan share 27 and 29 of their 50 main-deck cards with the Zeon and Tekkadan
+tuning decks, while the test decks share at most 2; the test-deck runs are the fully
+independent confirmations. The harness is `scripts/ai_calibrate.py`: `match` plays mirrored
+blocks of four games between two agents (each deal with each agent on each deck and in each
+seat), and `paired` compares two BO1 `gcg-sim benchmark` runs played on the same deals. The
+raw outputs and the exact command of every run are kept locally under `build/ai-presets/`
+(git-ignored, not part of the repository). Costs measured during screening were taken on a
+loaded machine and only rank the candidates; the table in
+[Presets and measured throughput](#presets-and-measured-throughput) was measured on an idle
+one.
 
 ### fast
 
@@ -332,7 +339,8 @@ game pairs and 48 mulligan samples.
 `fast` is fast-d with `standard`'s pre-game sample counts (24 play/draw game pairs, 96
 mulligan samples), and that is the configuration confirmed below. The mulligan takes 2–10 ms,
 but the play/draw simulation takes about 0.4 s, about 11% of a `fast` game. With 8 pairs
-`fast` would be about 8% cheaper, and the answer ("go first") was the same in every call
+`fast` would play about 8% more games per core-minute, and the answer ("go first") was the
+same in every call
 measured; that change is proposal 5 in
 [`research/AI_IMPROVEMENT_PROPOSALS.md`](research/AI_IMPROVEMENT_PROPOSALS.md).
 
@@ -380,7 +388,7 @@ against `strong`):
 
 | Pairing | `expert` wins | Wilson 95% |
 | --- | ---: | --- |
-| test decks: Federation vs SEED | 149/300 = 0.497 | [0.441, 0.553] |
+| test decks: Federation vs SEED | 149/300 = 0.497 | [0.440, 0.553] |
 | blue-white-federation vs purple-white-tekkadan | 153/300 = 0.510 | [0.454, 0.566] |
 | blue-white-federation vs red-green-zeon | 152/300 = 0.507 | [0.450, 0.563] |
 | purple-white-tekkadan vs red-green-zeon | 151/300 = 0.503 | [0.447, 0.560] |
@@ -389,17 +397,19 @@ against `strong`):
 `expert` meets the required bar but is **not measurably stronger** than `strong`: the
 interval allows anything from 2.4 points worse to 3.2 points better. Two and four times
 `strong`'s budget bought little on the tuning decks too. This matches the slow budget scaling
-under [Known weaknesses](#known-weaknesses): above `strong`, the playout policy, the
-evaluation and the two-turn horizon limit play more than the iteration count does, and no
-`SearchConfig` setting screened here moved that limit. Use `strong` for confirmation runs, and
+under [Known weaknesses](#known-weaknesses): above `strong`, more iterations no longer buy
+measurable strength, and no `SearchConfig` setting screened here (budget, exploration, rollout
+temperature) changed that. The playout policy and the evaluation are the likely limits, but
+their effect on search strength is unmeasured, and a three-turn horizon at 2× did not help
+either (see [Strength](#strength)). Use `strong` for confirmation runs, and
 `expert` to check that a conclusion does not change with twice the search. `expert` solves
 every puzzle in `tests/ai/test_puzzles.py`, which runs each puzzle with `standard` and with
 `expert`.
 
 ### Ideas that did not help
 
-- Fewer iterations than clamp(8·n, 20, 80) (fast-c): clearly weaker than `standard` and up to
-  10 points off its matchup estimates.
+- Fewer iterations than clamp(8·n, 20, 80) (fast-c): clearly weaker than `standard`
+  (76/192 = 0.396, Wilson 95% upper bound 0.466).
 - A lower rollout temperature alone at the `fast` budget (fast-e): it needs the lower
   exploration constant as well (fast-d), as `strong` does.
 - Four times `strong`'s budget (expert-c): no better than twice (49/96 against 50/96), at
@@ -407,12 +417,15 @@ every puzzle in `tests/ai/test_puzzles.py`, which runs each puzzle with `standar
 
 ### Reproducing the calibration
 
-Each run's exact command is stored next to its output. The screening and confirmation runs
+Each run's exact command is stored next to its output under `build/ai-presets/` (local and
+untracked). The screening and confirmation runs
 use `scripts/ai_calibrate.py match` with a challenger such as
 `mcts:strong:name=expert-b,iterations_per_option=256,min_iterations=640,max_iterations=2560,first_player_games=96,mulligan_samples=384,exploration=0.1,rollout_temperature=0.2`
 (a preset with fields replaced; the `name` seeds its decisions). The `expert` confirmation is
-`scripts/ai_calibrate.py match --challenger mcts:expert --opponent mcts:strong --pairings test example --games 300 --seed 9101 --workers 12`,
-and the `fast` fidelity check runs `gcg-sim benchmark` twice and compares the two runs with
+`scripts/ai_calibrate.py match --challenger mcts:expert --opponent mcts:strong --pairings test example --games 300 --seed 9101 --workers 10 --out DIR`
+(run as four single-pairing invocations, which play the same games: each pairing's seed is
+derived from `--seed` and the pairing's name, and no result depends on `--workers`), and the
+`fast` fidelity check runs `gcg-sim benchmark` twice and compares the two runs with
 `scripts/ai_calibrate.py paired`. A four-game smoke test of the harness:
 
 ```bash

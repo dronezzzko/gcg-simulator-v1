@@ -72,12 +72,3 @@ PRESETS: Mapping[str, SearchConfig] = MappingProxyType(
     }
 )
 """Presets from the smallest search budget to the largest; costs and strength in docs/AI.md."""
-
-PRESET_SUMMARIES: Mapping[str, str] = MappingProxyType(
-    {
-        "fast": "screening deck variants, about 3.7x standard's games per core-minute",
-        "standard": "default",
-        "strong": "about 3x standard's cost per game, stronger",
-        "expert": "about 1.7x strong's cost, not measurably stronger than strong",
-    }
-)
