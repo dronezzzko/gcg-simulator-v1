@@ -211,13 +211,13 @@ def override_script(reg: Registry, cdef: CardDef, script: d.CardScript) -> CardE
     text); returns the previous entry so the caller can restore it with ``restore_entry``."""
     previous = reg.cards[cdef.def_id]
     reg.cards[cdef.def_id] = _build_entry(reg, cdef, script, None)
-    _index_triggers(reg)
+    _index_events(reg)
     return previous
 
 
 def restore_entry(reg: Registry, entry: CardEntry) -> None:
     reg.cards[entry.def_id] = entry
-    _index_triggers(reg)
+    _index_events(reg)
 
 
 def _build_entry(
@@ -354,33 +354,28 @@ def _walk_nodes(x: object) -> list[object]:
 
 
 def _index_events(reg: Registry) -> None:
-    """Per-card listened events (so the engine can skip trigger scans no card needs) and whether
-    any effect can lower HP (so rules management can skip the lethal-damage scan)."""
-    _index_triggers(reg)
-    for entry in reg.cards:
-        if entry.script is None:
-            continue
-        for node in _walk_nodes((entry.script.abilities, entry.script.unit_abilities)):
-            if isinstance(node, d.StatMod) and not (isinstance(node.hp, int) and node.hp >= 0):
-                reg.hp_reduction_possible = True
-
-
-def _index_triggers(reg: Registry) -> None:
-    """Events each card's triggered abilities, and the abilities its text can grant, listen
-    for; every game listens for the events of tokens, delayed triggers and keyword effects."""
+    """The events each card's triggered abilities, and the abilities its text can grant, listen
+    for (so the engine can skip trigger scans no card needs; every game listens for the events
+    of tokens, delayed triggers and keyword effects), and whether any effect can lower HP (so
+    rules management can skip the lethal-damage scan). Script overrides re-run it."""
     always: set[d.Ev] = {d.Ev.TURN_END, d.Ev.DESTROYS_BY_BATTLE}
     events_by_def: dict[int, frozenset[d.Ev]] = {}
+    hp_reduction_possible = False
     for entry in reg.cards:
         if entry.script is None:
             continue
         nodes = _walk_nodes((entry.script.abilities, entry.script.unit_abilities))
         always.update(n.trigger.event for n in nodes if isinstance(n, d.DelayedTrigger))
+        hp_reduction_possible = hp_reduction_possible or any(
+            isinstance(n, d.StatMod) and not (isinstance(n.hp, int) and n.hp >= 0) for n in nodes
+        )
         events = _trigger_events(reg, nodes)
         if reg.db.by_id(entry.def_id).is_token:
             always.update(events)
         events_by_def[entry.def_id] = events
     reg.events_by_def = events_by_def
     reg.always_events = frozenset(always)
+    reg.hp_reduction_possible = hp_reduction_possible
 
 
 def _trigger_events(reg: Registry, nodes: list[object]) -> frozenset[d.Ev]:
