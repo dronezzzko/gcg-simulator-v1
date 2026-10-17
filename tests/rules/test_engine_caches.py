@@ -12,9 +12,14 @@ from tests.paranoid import CacheChecker
 from gcg_sim.ai import make_agent
 from gcg_sim.ai.selfplay import run_game
 from gcg_sim.ai.tuning import TUNING_DECKS
+from gcg_sim.engine.types import Zone
+from gcg_sim.testkit import Scenario, play, select_if_asked
 from gcg_sim.tools import fuzz
 
 FUZZ_GAMES = 16
+ZEON_REMNANT = "GD01-115"  # 【Main】/【Action】Choose 1 enemy Unit. Deal 1 damage to it.
+RAIDER = "GD02-010"  # 4/4, 【Once per Turn】When this Unit receives enemy effect damage, draw 1.
+ZAKU_MARINER = "GD01-060"  # vanilla 2/2
 
 
 def play_games() -> None:
@@ -41,3 +46,19 @@ def test_engine_caches_and_shortcuts_match_a_full_computation(
     assert checker.checks["unchanged state"] > 1_000
     assert checker.checks["view-free reference"] > 1_000
     assert not checker.stale, checker.stale[:5]
+
+
+@pytest.mark.rule("10-1-6-1")
+def test_a_unit_added_after_a_scenario_starts_still_triggers() -> None:
+    """The engine skips events no card in the game's decklists can trigger on, so a card added
+    after the scenario starts joins its decklists."""
+    sc = Scenario()
+    sc.resources(0, 2)
+    zeon_remnant = sc.add(0, ZEON_REMNANT, Zone.HAND)
+    sc.add(1, ZAKU_MARINER)
+    st = sc.start()
+    raider = sc.add(1, RAIDER)
+    play(st, zeon_remnant)
+    select_if_asked(st, raider)
+    assert st.cards[raider].damage == 1
+    assert len(st.zones[1][Zone.HAND]) == 1

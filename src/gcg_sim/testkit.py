@@ -46,6 +46,7 @@ class Scenario:
         self._deck_size = deck_size
         self._decks: list[list[str]] = [[], []]
         self._custom_deck = [False, False]
+        self._started = False
 
     # -- building ---------------------------------------------------------------------------
     def add(
@@ -60,7 +61,8 @@ class Scenario:
         deployed_this_turn: bool = False,
         known: bool = True,
     ) -> int:
-        """Put a card into a zone. ``pilot`` pairs a Pilot card (by number) with a Unit."""
+        """Put a card into a zone. ``pilot`` pairs a Pilot card (by number) with a Unit. After
+        :meth:`start`, the card also joins its owner's decklist."""
         cdef = self.db[number]
         get_registry().require(cdef.def_id)
         uid = core.new_card(self.st, cdef.def_id, player, zone, rested=rested)
@@ -75,6 +77,8 @@ class Scenario:
             self.st.cards[p].pair = uid
             c.pair = p
         self.st.touch()
+        if self._started:
+            self._record_decklists()
         return uid
 
     def hand(self, player: int, *numbers: str) -> list[int]:
@@ -126,6 +130,11 @@ class Scenario:
             for n in numbers:
                 uid = core.new_card(self.st, self.db[n].def_id, p, Zone.DECK)
                 self.st.cards[uid].known = 0
+        self._record_decklists()
+
+    def _record_decklists(self) -> None:
+        """Every card but tokens is in its owner's decklists (the engine listens only for the
+        events the cards of the decklists can trigger on)."""
         decks: list[list[int]] = [[], []]
         res: list[list[int]] = [[], []]
         for c in self.st.cards:
@@ -143,6 +152,7 @@ class Scenario:
         """Begin at ``step`` of the active player's turn (default: main phase) and advance to
         the first decision."""
         self._build_decks()
+        self._started = True
         st = self.st
         st.phase = {
             Step.ACTIVE_STEP: Phase.START,

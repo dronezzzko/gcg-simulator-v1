@@ -424,7 +424,7 @@ Summary: 395 rules tested, 184 N/A with reasons, 0 missing.
 | 10-1-5-6 | tested (7) | `test_effects.py::test_cant_effect_takes_precedence_over_a_granted_keyword`, `test_faq.py::test_q112_cant_effects_take_priority`, `test_wp_gd01_b.py::test_gd01_090_linked_ap_cannot_be_reduced_by_enemy_effects`, `test_wp_tokens.py::test_t014_cannot_be_paired_with_a_pilot_or_pilot_command` (+3) |
 | 10-1-5-7 | tested (1) | `test_effects.py::test_constant_effect_applies_the_moment_a_matching_target_appears` |
 | 10-1-6 | N/A | grouping heading; covered by children 10-1-6-1..10-1-6-8 |
-| 10-1-6-1 | tested (1) | `test_effects.py::test_triggered_effects_activate_automatically` |
+| 10-1-6-1 | tested (2) | `test_effects.py::test_triggered_effects_activate_automatically`, `test_engine_caches.py::test_a_unit_added_after_a_scenario_starts_still_triggers` |
 | 10-1-6-1-1 | tested (7) | `test_effects.py::test_triggered_effect_activates_every_time_unless_once_per_turn`, `test_wp_gd03_b.py::test_gd03_120_applies_to_every_battle_kill_this_turn`, `test_wp_gd04_a.py::test_gd04_002_delayed_effect_fires_for_every_destruction_this_turn`, `test_wp_st12_14.py::test_st12_001_once_per_turn` (+3) |
 | 10-1-6-2 | tested (1) | `test_effects.py::test_trigger_needs_its_condition` |
 | 10-1-6-3 | tested (2) | `test_effects.py::test_simultaneous_events_trigger_an_effect_only_once`, `test_wp_gd05_a.py::test_gd05_018_two_ex_resources_exiled_at_once_trigger_once` |
