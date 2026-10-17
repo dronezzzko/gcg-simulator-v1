@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import dataclasses
 import json
 from collections.abc import Callable
 
@@ -293,3 +294,11 @@ def test_a_cost_only_activation_is_recognised_while_other_units_can_still_attack
     assert activations
     for seed in range(4):
         assert activations <= without_effect(st, 0, st.pending, moves, seed=seed)
+
+
+def test_a_search_horizon_must_keep_wins_above_every_estimate() -> None:
+    """A win is shaded by 0.01 per turn and an estimate is at least 0.05 from a certain result,
+    so the horizon must stay under five turns for a win to outrank every evaluated position."""
+    assert dataclasses.replace(PRESETS["standard"], horizon_turns=4).horizon_turns == 4
+    with pytest.raises(ValueError, match="horizon_turns=5 is too long"):
+        dataclasses.replace(PRESETS["standard"], horizon_turns=5)

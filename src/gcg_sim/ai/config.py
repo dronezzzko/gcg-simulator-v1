@@ -6,6 +6,9 @@ from collections.abc import Mapping
 from dataclasses import dataclass, replace
 from types import MappingProxyType
 
+WIN_DECAY = 0.01
+LEAF_FLOOR = 0.05
+
 
 @dataclass(frozen=True, slots=True)
 class SearchConfig:
@@ -41,6 +44,13 @@ class SearchConfig:
     target_extension_z: float = 2.0
     policy_rule_polarity_table: bool = False
     policy_zero_ap_face: bool = False
+
+    def __post_init__(self) -> None:
+        if WIN_DECAY * self.horizon_turns >= LEAF_FLOOR:
+            raise ValueError(
+                f"horizon_turns={self.horizon_turns} is too long: a win at the horizon would "
+                "not outrank every evaluated position (WIN_DECAY * horizon_turns < LEAF_FLOOR)"
+            )
 
     def budget(self, n_options: int) -> int:
         wanted = self.iterations_per_option * n_options

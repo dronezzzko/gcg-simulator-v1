@@ -26,7 +26,7 @@ from dataclasses import dataclass, field
 from gcg_sim.ai import policy
 from gcg_sim.ai.actions import Key, canonical, merge_equivalent, prune_dominated
 from gcg_sim.ai.base import Alternative, uid_argument
-from gcg_sim.ai.config import SearchConfig
+from gcg_sim.ai.config import LEAF_FLOOR, WIN_DECAY, SearchConfig
 from gcg_sim.ai.evaluation import Weights, burst_density, logistic, score
 from gcg_sim.ai.noop import SPENDING, without_effect
 from gcg_sim.ai.playout import play_until_turn
@@ -38,8 +38,6 @@ from gcg_sim.engine.types import ActionKind, DecisionKind
 from gcg_sim.rng import SplitMix64
 
 ChildKey = tuple[int, str, Key]
-WIN_DECAY = 0.01
-LEAF_FLOOR = 0.05
 TIE_TOLERANCE = 1e-9
 _TARGET_KINDS = frozenset(
     {DecisionKind.SELECT, DecisionKind.EXCESS, DecisionKind.DISCARD, DecisionKind.ARRANGE}
