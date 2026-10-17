@@ -106,3 +106,16 @@ head-to-head against the pre-change AI, tactical puzzles, blinded replay audits,
   (`python -m gcg_sim.ai.compare baseline-strong baseline-standard --games 400 --seed 8401`).
 - Baseline audit replays: `build/aiq2/audit/gen.sh` on the `main` worktree, 5 BO1 games per
   example pairing, seeds 90031–90033, decision logs (15 replays).
+- Investigation (workflow, 9 lenses + 9 skeptics + synthesis; raw reports in
+  `build/aiq2/investigation/`): root allocation is near-optimal at equal budget (regret
+  0.0019 per decision; every allocation rule null within ±0.0004); 2x budget lowers regret by
+  0.00065 ± 0.00031 (replicated); leaf timing is already consistent with the evaluation fit;
+  can_kill leaves (10.8%) are converted by rollouts only 46% of the time; interaction features
+  add nothing to log-loss; correctness bugs in root pruning (no-effect check plays only the
+  policy's target; 0-AP attack prune accepts triggers of other cards and unaffordable tricks;
+  Rest on already-rested targets 27 per 100 games); opponent auto-pass splits searcher nodes.
+- Implementation workflow (5 worktrees from ed2cedc): ws/ai-root (pruning correctness),
+  ws/ai-policy (kill-aware targeting, Burst margin, polarity, 0-AP face), ws/ai-threat
+  (lethal extension, symmetric push, Blocker guard), ws/ai-search (close-target extension,
+  target prior weight, observation keys), ws/ai-eval (refit at the serving budget).
+  Engine speed in ws/engine-perf; `fast` wiring in ws/fast-wiring.
