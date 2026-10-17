@@ -1,8 +1,9 @@
 """Paranoid checks of the engine's caches and shortcuts: every cached derived view that
 ``view.derived`` hands out is compared with a fresh computation, every event that ``emit``
 skips as unlistened is shown to have no trigger candidate, every rules-management check
-skipped because no damage reaches printed HP is shown to destroy nothing, and every reference
-resolved without the view resolves the same with it. Used by
+skipped because no damage reaches printed HP, or because the state has not changed since such a
+check, is shown to change nothing, and every reference resolved without the view resolves the
+same with it. Used by
 ``tests/rules/test_engine_caches.py`` and, for the whole suite, by setting
 ``GCG_SIM_PARANOID_VIEW=1`` (see ``tests/conftest.py``)."""
 
@@ -17,7 +18,7 @@ from gcg_sim.effects import dsl as d
 from gcg_sim.engine import core
 from gcg_sim.engine import view as V
 from gcg_sim.engine.state import GameState
-from gcg_sim.engine.types import NO_ARG, Zone
+from gcg_sim.engine.types import NO_ARG, Phase, Zone
 
 
 def view_signature(dv: V.Derived) -> tuple[object, ...]:
@@ -43,9 +44,10 @@ def index_signature(idx: dict[d.Ev, list[tuple[int, V.AbilityEntry]]]) -> dict[d
 
 
 class CacheChecker:
-    """Wraps ``view.derived``, ``core.emit``, ``core._damage_scan`` and ``view.resolve_ref``;
-    ``checks`` counts what was verified and ``stale`` records every cached view, trigger index,
-    skipped event, skipped destruction check or view-free reference that was wrong."""
+    """Wraps ``view.derived``, ``core.emit``, ``core._damage_scan``,
+    ``core.rules_management`` and ``view.resolve_ref``; ``checks`` counts what was verified and
+    ``stale`` records every cached view, trigger index, skipped event, skipped rules check or
+    view-free reference that was wrong."""
 
     def __init__(self) -> None:
         self.checks: Counter[str] = Counter()
@@ -53,12 +55,14 @@ class CacheChecker:
         self._derived: Callable[[GameState], V.Derived] = V.derived
         self._emit = core.emit
         self._damage_scan = core._damage_scan
+        self._rules_management = core.rules_management
         self._resolve_ref = V.resolve_ref
 
     def install(self, monkeypatch: pytest.MonkeyPatch) -> None:
         monkeypatch.setattr(V, "derived", self.derived)
         monkeypatch.setattr(core, "emit", self.emit)
         monkeypatch.setattr(core, "_damage_scan", self.damage_scan)
+        monkeypatch.setattr(core, "rules_management", self.rules_management)
         monkeypatch.setattr(V, "resolve_ref", self.resolve_ref)
 
     def derived(self, st: GameState) -> V.Derived:
@@ -103,6 +107,21 @@ class CacheChecker:
                         if st.cards[uid].damage >= V.hp_of(st, dv, uid):
                             self.stale.append(f"{uid} destroyed by rules, turn {st.turn}")
         return damaged, lethal
+
+    def rules_management(self, st: GameState) -> None:
+        if st.winner is None and st.phase is not Phase.SETUP and st._rules_checked == st.version:
+            self.checks["unchanged state"] += 1
+            full = st.clone()
+            full._rules_checked = -1
+            self._rules_management(full)
+            if (full.winner, full.version, full.effect_hits, len(full.pending_triggers)) != (
+                st.winner,
+                st.version,
+                st.effect_hits,
+                len(st.pending_triggers),
+            ):
+                self.stale.append(f"rules management skipped a change, turn {st.turn}")
+        self._rules_management(st)
 
     def resolve_ref(self, st: GameState, ctx: V.Ctx, ref: d.Ref) -> tuple[int, ...]:
         got = self._resolve_ref(st, ctx, ref)

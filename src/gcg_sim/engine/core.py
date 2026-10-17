@@ -854,8 +854,9 @@ def set_winner(st: GameState, losers: set[int], reason: EndReason) -> None:
 
 def rules_management(st: GameState) -> None:
     """Rule 11: defeat check (11-2), then destruction of cards whose damage reached their HP
-    (11-3), repeated until nothing changes."""
-    if st.winner is not None or st.phase is Phase.SETUP:
+    (11-3), repeated until nothing changes. Once a check finds no damage reaching printed HP,
+    the state is not checked again until it changes (``st.touch()``)."""
+    if st.winner is not None or st.phase is Phase.SETUP or st._rules_checked == st.version:
         return
     while True:
         losers = {p for p in (0, 1) if not st.zones[p][Zone.DECK]}
@@ -865,9 +866,11 @@ def rules_management(st: GameState) -> None:
         if not V.reg().hp_reduction_possible:
             damaged, lethal = _damage_scan(st)
             if not damaged:
+                st._rules_checked = st.version
                 return
             if not lethal:
                 st.effect_hits.clear()
+                st._rules_checked = st.version
                 return
         dv = V.derived(st)
         doomed = []

@@ -435,6 +435,7 @@ class GameState:
 
     __slots__ = (
         "_derived",
+        "_rules_checked",
         "action_count",
         "active",
         "batches",
@@ -507,6 +508,7 @@ class GameState:
         self.max_actions = 20000
         self.version = 0
         self._derived: Any = None
+        self._rules_checked = -1
 
     # -- basic accessors -------------------------------------------------------------------
     def zone(self, player: int, zone: Zone) -> list[int]:
@@ -566,6 +568,7 @@ class GameState:
         s.max_actions = self.max_actions
         s.version = self.version
         s._derived = self._derived
+        s._rules_checked = self._rules_checked
         return s
 
     # -- serialization -------------------------------------------------------------------------
