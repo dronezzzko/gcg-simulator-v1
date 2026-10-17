@@ -51,7 +51,7 @@ uv run gcg-sim benchmark examples/decks/red-green-zeon.txt examples/decks/blue-w
 | `--seed S` | 0 | Master seed; the same seed gives byte-identical `results.json` whatever `--workers` is. |
 | `--workers W` | 1 | Worker processes. |
 | `--format bo3\|bo1` | `bo3` | Best-of-three (official BO3 match rules, no sideboarding, no clock) or single games. |
-| `--ai-preset standard\|strong` | `standard` | AI search budget ([`docs/AI.md`](docs/AI.md)). |
+| `--ai-preset fast\|standard\|strong` | `standard` | AI search budget ([`docs/AI.md`](docs/AI.md)); `fast` screens deck variants, `strong` confirms. |
 | `--out DIR` | `gcg-sim-out` | Report directory. |
 | `--decision-log` | off | Record the AI's per-decision search statistics. |
 | `--replays K` | 3 | Representative wins and losses to save. |

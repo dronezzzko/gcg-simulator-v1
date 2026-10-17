@@ -56,14 +56,16 @@ def test_choose_rejects_wrong_player() -> None:
 
 
 def test_make_agent_validates_arguments() -> None:
-    assert set(PRESETS) == {"standard", "strong"}
+    assert set(PRESETS) == {"fast", "standard", "strong"}
     assert isinstance(PRESETS["standard"], SearchConfig)
     assert PRESETS["strong"].max_iterations > PRESETS["standard"].max_iterations
+    assert PRESETS["fast"].max_iterations < PRESETS["standard"].max_iterations
     with pytest.raises(ValueError, match="unknown agent kind"):
         make_agent("minimax")
     with pytest.raises(ValueError, match="unknown AI preset"):
         make_agent("mcts", preset="weak")
     assert make_agent("mcts", preset="strong").name == "mcts-strong"
+    assert make_agent("mcts", preset="fast").name == "mcts-fast"
 
 
 def _choices(kind: str, seed: int, decisions: int) -> list[Action]:

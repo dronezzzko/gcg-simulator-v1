@@ -13,7 +13,7 @@ from typing import Any
 from gcg_sim.cards.db import get_card_db, load_overrides, read_data_text
 
 PACKAGE = "gcg-sim"
-SCHEMA_VERSION = "1.0.0"
+SCHEMA_VERSION = "1.1.0"
 SCHEMA_ID = f"urn:gcg-sim:schema:results:{SCHEMA_VERSION}"
 
 

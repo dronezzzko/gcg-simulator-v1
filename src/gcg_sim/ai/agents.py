@@ -111,7 +111,7 @@ def make_agent(
     weights: Weights | None = None,
 ) -> Agent:
     """Build an agent: ``kind`` is "random", "greedy", or "mcts"; ``preset`` selects the MCTS
-    budget ("standard" or "strong") and is ignored by the baselines. ``config`` replaces the
+    budget ("fast", "standard" or "strong") and is ignored by the baselines. ``config`` replaces the
     preset's search settings and ``weights`` the evaluation weights (greedy and MCTS), so two
     versions of the AI can play each other in one process."""
     if preset not in PRESETS:

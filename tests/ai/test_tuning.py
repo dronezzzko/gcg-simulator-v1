@@ -105,3 +105,11 @@ def test_cli_prints_a_json_report(capsys: pytest.CaptureFixture[str]) -> None:
     report = json.loads(capsys.readouterr().out)
     assert report["features"] == list(FEATURES)
     assert len(report["weights"]) == N_FEATURES
+
+
+def test_cli_validates_with_a_preset(capsys: pytest.CaptureFixture[str]) -> None:
+    args = ["--games", "1", "--rounds", "1", "--seed", "9"]
+    main([*args, "--validate", "4", "--validate-preset", "fast"])
+    report = json.loads(capsys.readouterr().out)
+    assert report["validation"]["preset"] == "fast"
+    assert report["validation"]["games"] == 4

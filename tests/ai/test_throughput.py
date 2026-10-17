@@ -21,3 +21,10 @@ def test_measure_reports_speed_for_a_preset() -> None:
 def test_cli_prints_json(capsys: pytest.CaptureFixture[str]) -> None:
     main(["--preset", "standard", "--games", "1"])
     assert json.loads(capsys.readouterr().out)["preset"] == "standard"
+
+
+@pytest.mark.slow
+def test_measure_accepts_the_fast_preset() -> None:
+    report = measure("fast", games=1, workers=1, seed=3)
+    assert report["preset"] == "fast"
+    assert report["games_per_core_minute"] > 0

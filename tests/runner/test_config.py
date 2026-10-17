@@ -12,7 +12,7 @@ from hypothesis import strategies as st
 from gcg_sim.deck import Deck, to_decklist
 from gcg_sim.rng import derive_seed
 from gcg_sim.runner import BenchmarkConfig, agent_seed, dut_seat, game_seed
-from gcg_sim.runner.config import own_turn, seat_decks
+from gcg_sim.runner.config import AI_PRESETS, own_turn, seat_decks
 
 U64 = st.integers(0, 2**64 - 1)
 
@@ -56,7 +56,7 @@ def test_format_rules(config: BenchmarkConfig) -> None:
         ({"matches": 0}, "matches must be at least 1 (got 0)"),
         ({"workers": 0}, "workers must be at least 1 (got 0)"),
         ({"fmt": "bo5"}, "format must be one of bo3, bo1 (got 'bo5')"),
-        ({"ai_preset": "max"}, "AI preset must be one of standard, strong (got 'max')"),
+        ({"ai_preset": "max"}, "AI preset must be one of fast, standard, strong (got 'max')"),
         ({"replays": -1}, "replays must be 0 or more (got -1)"),
         ({"seed": -1}, "seed must be in [0, 2**64) (got -1)"),
         ({"turn_limit": 0}, "turn limit must be at least 1 (got 0)"),
@@ -67,3 +67,9 @@ def test_invalid_config_is_rejected_with_a_specific_message(
 ) -> None:
     with pytest.raises(ValueError, match="^" + re.escape(message)):
         dataclasses.replace(config, **change)  # type: ignore[arg-type]
+
+
+def test_runner_presets_are_the_ai_presets() -> None:
+    from gcg_sim.ai import PRESETS
+
+    assert tuple(PRESETS) == AI_PRESETS

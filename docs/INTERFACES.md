@@ -79,8 +79,11 @@ class Agent(Protocol):
     def choose(self, st: GameState, player: int) -> Action: ...     # st.pending.player == player
     def decision_log(self) -> list[dict[str, Any]]: ...              # [] unless logging enabled
 
-def make_agent(kind: str, *, preset: str = "standard", seed: int = 0, log: bool = False) -> Agent
-    # kind: "random" | "greedy" | "mcts";  preset: "standard" | "strong"
+def make_agent(kind: str, *, preset: str = "standard", seed: int = 0, log: bool = False,
+               config: SearchConfig | None = None, weights: Weights | None = None) -> Agent
+    # kind: "random" | "greedy" | "mcts";  preset: "fast" | "standard" | "strong"
+    # config / weights (optional, added later): replace the preset's search settings and the
+    # evaluation weights, e.g. to replay the pre-change AI (gcg_sim.ai.baseline) in A/B games
 PRESETS: Mapping[str, SearchConfig]   # node-count budgets etc.; documented in docs/AI.md
 ```
 
@@ -139,7 +142,7 @@ version), `summary.md`, `games.ndjson`, `replays/*.json`, and `timing.json` (wal
 
 ```
 gcg-sim benchmark DECK_UNDER_TEST BENCHMARK_DECK --matches N [--seed S] [--workers W]
-        [--format bo3|bo1] [--ai-preset standard|strong] [--out DIR] [--decision-log] [--replays K]
+        [--format bo3|bo1] [--ai-preset fast|standard|strong] [--out DIR] [--decision-log] [--replays K]
 gcg-sim validate DECK
 gcg-sim data status
 gcg-sim replay REPLAY_JSON

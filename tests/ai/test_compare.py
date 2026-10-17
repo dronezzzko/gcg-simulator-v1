@@ -40,6 +40,7 @@ def test_make_agent_accepts_a_config_and_weights() -> None:
 def test_parse_agent_presets_baselines_and_overrides() -> None:
     assert parse_agent("random") == AgentSpec("random")
     assert parse_agent("standard") == AgentSpec("mcts", config=PRESETS["standard"])
+    assert parse_agent("fast") == AgentSpec("mcts", config=PRESETS["fast"])
     assert parse_agent("baseline-standard") == AgentSpec(
         "mcts", config=BASELINE_PRESETS["standard"], weights=BASELINE_WEIGHTS
     )
