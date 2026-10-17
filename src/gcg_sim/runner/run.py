@@ -11,9 +11,11 @@ from __future__ import annotations
 import datetime as dt
 import multiprocessing
 import signal
+import threading
 import time
 from collections.abc import Callable
 from concurrent.futures import FIRST_COMPLETED, Future, ProcessPoolExecutor, wait
+from typing import cast
 
 from gcg_sim.runner.agents import AgentFactory, default_agent_factory, describe_factory
 from gcg_sim.runner.config import BenchmarkConfig
@@ -52,12 +54,14 @@ def _run_serial(
 
 
 def _terminate(executor: ProcessPoolExecutor) -> None:
-    processes = list(executor._processes.values())
-    executor.shutdown(wait=False, cancel_futures=True)
-    for p in processes:
-        p.terminate()
-    for p in processes:
-        p.join(TERMINATE_TIMEOUT_S)
+    """Terminate the workers and wait until the executor's manager thread has reaped them.
+
+    The manager thread joins every worker itself; joining them from this thread as well races
+    it for ``waitpid``, and the loser keeps reporting a dead worker as alive."""
+    manager = cast(threading.Thread | None, executor._executor_manager_thread)
+    executor.terminate_workers()
+    if manager is not None:
+        manager.join(TERMINATE_TIMEOUT_S)
 
 
 def _collect(
