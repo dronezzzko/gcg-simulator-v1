@@ -1,10 +1,11 @@
-"""Engine caches never change a game: every cached derived view equals a fresh computation, so
-where and how often the view is computed cannot change any result."""
+"""Engine caches and shortcuts never change a game: every cached derived view equals a fresh
+computation, so where and how often the view is computed cannot change any result, and every
+event skipped as unlistened has no trigger candidate."""
 
 from __future__ import annotations
 
 import pytest
-from tests.paranoid import ViewChecker
+from tests.paranoid import CacheChecker
 
 from gcg_sim.ai import make_agent
 from gcg_sim.ai.selfplay import run_game
@@ -25,12 +26,13 @@ def play_games() -> None:
         assert st.winner is not None
 
 
-@pytest.mark.rule("10-1-5")
-def test_every_cached_derived_view_equals_a_fresh_computation(
+@pytest.mark.rule("10-1-5", "10-1-6")
+def test_engine_caches_and_shortcuts_match_a_full_computation(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    checker = ViewChecker()
+    checker = CacheChecker()
     checker.install(monkeypatch)
     play_games()
-    assert checker.hits > 10_000
+    assert checker.checks["cached view"] > 10_000
+    assert checker.checks["unlistened event"] > 1_000
     assert not checker.stale, checker.stale[:5]

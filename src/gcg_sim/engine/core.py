@@ -282,7 +282,8 @@ def queue_trigger(
     )
 
 
-_LISTEN_CACHE: dict[tuple[tuple[int, ...], tuple[int, ...]], frozenset[d.Ev]] = {}
+Decklists = tuple[tuple[int, ...], tuple[int, ...]]
+_LISTEN_CACHE: dict[tuple[Decklists, Decklists], frozenset[d.Ev]] = {}
 
 
 def clear_listen_cache() -> None:
@@ -290,15 +291,19 @@ def clear_listen_cache() -> None:
 
 
 def listened_events(st: GameState) -> frozenset[d.Ev]:
-    """Events any card in this game (both decklists, tokens, delayed triggers) can trigger on."""
-    key = st.decklists
+    """Events any card in this game (both decks and resource decks, their Unit variants,
+    tokens, delayed triggers) can trigger on."""
+    key = (st.decklists, st.resource_decklists)
     got = _LISTEN_CACHE.get(key)
     if got is None:
         R = V.reg()
         evs: set[d.Ev] = set(R.always_events)
-        for dl in key:
+        for dl in (*st.decklists, *st.resource_decklists):
             for def_id in set(dl):
                 evs.update(R.events_by_def.get(def_id, ()))
+                variant = R.db.unit_variant(def_id)
+                if variant is not None:
+                    evs.update(R.events_by_def.get(variant.def_id, ()))
         got = frozenset(evs)
         if len(_LISTEN_CACHE) > 256:
             _LISTEN_CACHE.clear()
