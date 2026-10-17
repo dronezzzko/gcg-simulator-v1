@@ -36,6 +36,9 @@ class SearchConfig:
     strict_attack_prune: bool = False
     prune_noop_rest_targets: bool = False
     merge_equivalent_moves: bool = False
+    observation_keys: bool = False
+    target_extension: float = 1.0
+    target_extension_z: float = 2.0
 
     def budget(self, n_options: int) -> int:
         wanted = self.iterations_per_option * n_options
