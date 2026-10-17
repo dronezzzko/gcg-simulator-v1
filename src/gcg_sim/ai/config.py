@@ -6,6 +6,11 @@ from collections.abc import Mapping
 from dataclasses import dataclass
 from types import MappingProxyType
 
+WIN_DECAY = 0.01
+LEAF_FLOOR = 0.05
+EXTENSION_TRIGGERS = ("can_kill", "threat", "opponent")
+PUSH_MODES = ("off", "extension", "all")
+
 
 @dataclass(frozen=True, slots=True)
 class SearchConfig:
@@ -14,7 +19,10 @@ class SearchConfig:
     A decision with ``n`` distinct candidate moves gets
     ``clamp(iterations_per_option * n, min_iterations, max_iterations)`` iterations; each
     iteration plays a root move in a determinization, descends the tree, and plays the
-    rollout policy until ``horizon_turns`` turn boundaries have passed.
+    rollout policy until ``horizon_turns`` turn boundaries have passed. With
+    ``lethal_extension_turns`` > 0, a rollout whose horizon position is a lethal threat by
+    ``extension_trigger`` plays that many more turns. ``rollout_push`` and ``rollout_guard``
+    switch on the policy's lethal push and Blocker guard (``policy.PolicyKnobs``).
     """
 
     name: str
@@ -39,6 +47,21 @@ class SearchConfig:
     observation_keys: bool = False
     target_extension: float = 1.0
     target_extension_z: float = 2.0
+    lethal_extension_turns: int = 0
+    extension_trigger: str = "can_kill"
+    rollout_push: str = "off"
+    rollout_guard: bool = False
+
+    def __post_init__(self) -> None:
+        if self.extension_trigger not in EXTENSION_TRIGGERS:
+            raise ValueError(f"extension_trigger must be one of {EXTENSION_TRIGGERS}")
+        if self.rollout_push not in PUSH_MODES:
+            raise ValueError(f"rollout_push must be one of {PUSH_MODES}")
+        if WIN_DECAY * (self.horizon_turns + self.lethal_extension_turns) >= LEAF_FLOOR:
+            raise ValueError(
+                "horizon_turns + lethal_extension_turns is too long: a win at the end of it "
+                "would not outrank every evaluated position"
+            )
 
     def budget(self, n_options: int) -> int:
         wanted = self.iterations_per_option * n_options

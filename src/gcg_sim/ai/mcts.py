@@ -21,16 +21,24 @@ engine passing for an opponent without options.
 from __future__ import annotations
 
 import math
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
+from functools import cache
 
 from gcg_sim.ai import policy
 from gcg_sim.ai.actions import Key, canonical, merge_equivalent, prune_dominated
 from gcg_sim.ai.base import Alternative, uid_argument
-from gcg_sim.ai.config import SearchConfig
-from gcg_sim.ai.evaluation import Weights, burst_density, logistic, score
+from gcg_sim.ai.config import LEAF_FLOOR, WIN_DECAY, SearchConfig
+from gcg_sim.ai.evaluation import (
+    Weights,
+    burst_density,
+    can_kill_to_move,
+    logistic,
+    score,
+    threat_to_move,
+)
 from gcg_sim.ai.noop import SPENDING, without_effect
 from gcg_sim.ai.playout import play_until_turn
-from gcg_sim.ai.policy import knobs_for
+from gcg_sim.ai.policy import PolicyKnobs, knobs_for
 from gcg_sim.engine.game import apply
 from gcg_sim.engine.observe import determinize
 from gcg_sim.engine.state import Action, Decision, GameState
@@ -38,8 +46,6 @@ from gcg_sim.engine.types import ActionKind, DecisionKind
 from gcg_sim.rng import SplitMix64
 
 ChildKey = tuple[int, str, Key]
-WIN_DECAY = 0.01
-LEAF_FLOOR = 0.05
 TIE_TOLERANCE = 1e-9
 _TARGET_KINDS = frozenset(
     {DecisionKind.SELECT, DecisionKind.EXCESS, DecisionKind.DISCARD, DecisionKind.ARRANGE}
@@ -198,13 +204,49 @@ def _iterate(ctx: _Search, first: _Child, fresh: bool, s: GameState, rng: SplitM
     if not fresh:
         _descend(ctx, _node_of(first), s, path)
     cfg = ctx.config
-    play_until_turn(
+    played = play_until_turn(
         s, ctx.horizon, rng, cfg.rollout_temperature, cfg.max_rollout_decisions, knobs_for(cfg)
     )
+    if cfg.lethal_extension_turns:
+        _extend_rollout(ctx, s, rng, cfg.max_rollout_decisions - played)
     value = _leaf_value(s, ctx)
     for child in path:
         child.visits += 1
         child.total += value if child.mover == ctx.player else 1.0 - value
+
+
+def _extend_rollout(ctx: _Search, s: GameState, rng: SplitMix64, budget: int) -> None:
+    """Play ``lethal_extension_turns`` more turns, within the ``budget`` left of the rollout's
+    decisions, when the rollout reached the horizon in a lethal-threat position (by
+    ``extension_trigger``), so the leaf value sees whether the attack lands."""
+    cfg = ctx.config
+    if s.winner is not None or s.turn < ctx.horizon or budget <= 0:
+        return
+    if not _lethal_threat(ctx, s):
+        return
+    play_until_turn(
+        s,
+        ctx.horizon + cfg.lethal_extension_turns,
+        rng,
+        cfg.rollout_temperature,
+        budget,
+        _extension_knobs(cfg),
+    )
+
+
+def _lethal_threat(ctx: _Search, s: GameState) -> bool:
+    trigger = ctx.config.extension_trigger
+    if trigger == "threat":
+        return threat_to_move(s)
+    if trigger == "opponent" and s.active == ctx.player:
+        return False
+    return can_kill_to_move(s)
+
+
+@cache
+def _extension_knobs(cfg: SearchConfig) -> PolicyKnobs:
+    knobs = knobs_for(cfg)
+    return replace(knobs, push=True) if cfg.rollout_push == "extension" else knobs
 
 
 def _descend(ctx: _Search, node: _Node, s: GameState, path: list[_Child]) -> None:

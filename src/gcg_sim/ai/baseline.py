@@ -40,6 +40,10 @@ BASELINE_PRESETS: Mapping[str, SearchConfig] = MappingProxyType(
             observation_keys=False,
             target_extension=1.0,
             target_extension_z=2.0,
+            lethal_extension_turns=0,
+            extension_trigger="can_kill",
+            rollout_push="off",
+            rollout_guard=False,
         ),
         "strong": SearchConfig(
             name="strong",
@@ -64,6 +68,10 @@ BASELINE_PRESETS: Mapping[str, SearchConfig] = MappingProxyType(
             observation_keys=False,
             target_extension=1.0,
             target_extension_z=2.0,
+            lethal_extension_turns=0,
+            extension_trigger="can_kill",
+            rollout_push="off",
+            rollout_guard=False,
         ),
     }
 )

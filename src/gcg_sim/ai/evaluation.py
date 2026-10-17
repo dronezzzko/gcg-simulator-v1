@@ -212,3 +212,49 @@ def evaluate(st: GameState, player: int, weights: Weights, density: tuple[float,
             return 1.0
         return 0.0 if st.winner == 1 - player else 0.5
     return logistic(score(st, player, weights, density))
+
+
+def can_kill_to_move(st: GameState) -> bool:
+    """The ``can_kill`` feature of the turn player: its attack step this turn has enough
+    attackers to break every Shield and the Base and then hit the opponent."""
+    dv = V.derived(st)
+    me = st.active
+    return _can_kill(_side(st, dv, me), _side(st, dv, 1 - me), True) > 0.0
+
+
+def threat_to_move(st: GameState) -> bool:
+    """The turn player's Units, less the opponent's active Blockers, are enough to break every
+    Shield and the Base and then hit the opponent (removal in hand is not counted)."""
+    dv = V.derived(st)
+    me = _side(st, dv, st.active)
+    opp = _side(st, dv, 1 - st.active)
+    return me.units - opp.blockers >= opp.shields + (1 if opp.has_base else 0) + 1
+
+
+def threatened(
+    st: GameState, player: int, spare: int = -1, *, now: bool = False, removed: int = -1
+) -> bool:
+    """The enemy's Units other than ``removed`` (all of them, active again in its next attack
+    step; with ``now``, only its active ones) could break every Shield and the Base of
+    ``player`` and hit them, with only ``player``'s active Blockers other than ``spare`` to stop
+    them (the ``can_kill`` count)."""
+    dv = V.derived(st)
+    me = _side(st, dv, player)
+    enemy = _side(st, dv, 1 - player)
+    if spare >= 0 and _ready_blocker(st, dv, player, spare):
+        me.blockers -= 1
+    if removed >= 0:
+        enemy.units -= 1
+        if not st.cards[removed].rested:
+            enemy.ready -= 1
+    return _can_kill(enemy, me, now) > 0.0
+
+
+def _ready_blocker(st: GameState, dv: V.Derived, player: int, uid: int) -> bool:
+    c = st.cards[uid]
+    return (
+        c.owner == player
+        and c.zone is Zone.BATTLE
+        and not c.rested
+        and d.Kw.BLOCKER in dv.kw.get(uid, ())
+    )
