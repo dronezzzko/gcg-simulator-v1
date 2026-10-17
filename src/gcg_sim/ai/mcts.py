@@ -79,7 +79,17 @@ def search(
     assert dec.player == player
     root_moves = prune_dominated(st, dec, canonical(st, dec))
     if any(a.kind in SPENDING for _, a in root_moves):
-        idle = without_effect(st, player, dec, root_moves, rng.next_u64(), knobs_for(config))
+        idle = without_effect(
+            st,
+            player,
+            dec,
+            root_moves,
+            rng.next_u64(),
+            knobs_for(config),
+            branch_choices=config.noop_branch_choices,
+            resource_aware=config.noop_resource_aware,
+            weights=weights,
+        )
         root_moves = [m for m in root_moves if m[0] not in idle] or root_moves
     if len(root_moves) == 1:
         return SearchResult(root_moves[0][1], [], 0)
