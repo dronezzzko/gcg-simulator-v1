@@ -123,3 +123,14 @@ head-to-head against the pre-change AI, tactical puzzles, blinded replay audits,
   --preset standard --games 24 --workers 6 --seed 11`, two alternating rounds: main 4.544 and
   4.527 games per core-minute, ws/engine-perf 5.717 and 5.712 (×1.26); mean turns 15.4 and
   decisions 79.8 identical. Raw: `build/aiq2/timing/engine_*.json`.
+- Engine speed integrated (4be24da..87d8a72, cherry-picked from ws/engine-perf as 11 commits;
+  the branch's add-then-revert pair was folded and no commit touches
+  `tests/ai/test_information_set.py`). Criterion 6 identity at 87d8a72: the fixed-seed benchmark
+  (`--matches 6 --seed 20261017 --workers 3 --format bo3 --decision-log --replays 2`, red-green-zeon
+  vs blue-white-federation) gives byte-identical `games.ndjson` and replays, and `results.json`
+  identical apart from `versions.code_digest`. Regular suite 3776 passed; golden check and
+  `tools.fuzz --games 500` pass. Single-process CPU per standard game ×1.28–1.30 (cProfile: calls
+  −34%, view recomputations −40%). CB-1 (`determinize` wrote sampled identities into the true
+  game's shared history) fixed in 65d6e1d: on a 63-game benchmark 2 games' final digests change
+  to the values an agent-free replay reproduces; actions and winners unchanged.
+- `fast` wiring cherry-picked (results schema 1.1.0); values still provisional.
