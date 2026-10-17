@@ -369,11 +369,14 @@ def _resources(st: GameState, p: int) -> tuple[int, int]:
     return normal, ex
 
 
-def payment_choices(st: GameState, p: int, cost: int) -> list[int]:
-    """Numbers of EX Resources that can be used to pay ``cost`` (rules 2-10-1, 5-17-3-2-3)."""
+def payment_choices(
+    st: GameState, p: int, cost: int, resources: tuple[int, int] | None = None
+) -> list[int]:
+    """Numbers of EX Resources that can be used to pay ``cost`` (rules 2-10-1, 5-17-3-2-3).
+    ``resources`` is ``_resources(st, p)`` when the caller has it."""
     if cost <= 0:
         return [0]
-    normal, ex = _resources(st, p)
+    normal, ex = resources if resources is not None else _resources(st, p)
     lo = max(0, cost - normal)
     hi = min(cost, ex)
     return list(range(lo, hi + 1)) if lo <= hi else []
@@ -544,10 +547,15 @@ def main_options(st: GameState) -> list[Action]:
     R = V.reg()
     out: list[Action] = []
     my_units = [u for u in st.zones[p][Zone.BATTLE] if I.can_pair(st, dv, u)]
+    resources = _resources(st, p)
     for uid in st.zones[p][Zone.HAND]:
         cd = R.db.by_id(st.cards[uid].def_id)
         alternatives = _alt_play_options(st, dv, p, uid, my_units)
-        pays = payment_choices(st, p, V.play_cost(st, dv, uid)) if _level_ok(st, dv, p, uid) else []
+        pays = (
+            payment_choices(st, p, V.play_cost(st, dv, uid), resources)
+            if _level_ok(st, dv, p, uid)
+            else []
+        )
         if not pays:
             out.extend(alternatives)
             continue
@@ -567,7 +575,9 @@ def main_options(st: GameState) -> list[Action]:
                     out.extend(Action(A.PAIR, uid, u, c) for c in pays)
         out.extend(alternatives)
     for host, aid, cost in _activated_list(st, p, d.Timing.MAIN):
-        out.extend(Action(A.ACTIVATE, host, aid, c) for c in payment_choices(st, p, cost))
+        out.extend(
+            Action(A.ACTIVATE, host, aid, c) for c in payment_choices(st, p, cost, resources)
+        )
     out.extend(_attack_options(st, p))
     out.append(Action(A.END_MAIN))
     return out
