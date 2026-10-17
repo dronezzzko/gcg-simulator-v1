@@ -1,7 +1,6 @@
-"""Observation-keyed tree nodes (``observation_keys``, off in the presets): the searcher's
-nodes no longer split on whether the opponent had an action-step option, one node keeps a
-player's main-phase and action-step decisions apart, and decisions stay inside the
-information set.
+"""Search settings that the presets leave off: more iterations for close effect-target calls and
+observation-keyed tree nodes. Each one changes the search only where it says it does, keeps
+decisions inside the information set, and (for the tree keys) fixes the split it targets.
 """
 
 from __future__ import annotations
@@ -16,6 +15,7 @@ from tests.ai.test_information_set import (
     STATES_PER_GAME,
     midgame_states,
 )
+from tests.ai.test_puzzles_targets import PUZZLES
 
 from gcg_sim.ai import make_agent, mcts
 from gcg_sim.ai.actions import Key, canonical
@@ -25,16 +25,76 @@ from gcg_sim.engine.observe import permute_hidden
 from gcg_sim.engine.state import Action, GameState
 from gcg_sim.engine.types import ActionKind, DecisionKind, Zone
 from gcg_sim.rng import SplitMix64
-from gcg_sim.testkit import Scenario, attack
+from gcg_sim.testkit import Scenario, attack, play
 
 BASELINE = BASELINE_PRESETS["standard"]
+EXTENDED = dataclasses.replace(BASELINE, target_extension=3.0)
 OBSERVED = dataclasses.replace(BASELINE, observation_keys=True)
+ALL_ON = dataclasses.replace(BASELINE, target_extension=3.0, observation_keys=True)
 SEARCHER, OPPONENT = 0, 1
 
 
 def _search(st: GameState, config: SearchConfig, seed: int) -> mcts.SearchResult:
     assert st.pending is not None
     return mcts.search(st, st.pending.player, config, BASELINE_WEIGHTS, SplitMix64(seed))
+
+
+def _target_positions() -> list[GameState]:
+    return [build()[0] for build, _, _ in PUZZLES.values()]
+
+
+def kill_the_damaged_unit() -> GameState:
+    """Zeon Remnant Forces deals 1 damage to an enemy Unit: it destroys the rested Demi Trainer
+    (1/1) and only scratches the Gundam (3/4). Both decks are filler, so every world agrees and
+    the search tells the targets apart within the baseline budget."""
+    sc = Scenario()
+    sc.resources(SEARCHER, 2)
+    card = sc.add(SEARCHER, "GD01-115", Zone.HAND)
+    sc.add(OPPONENT, "GD01-013")
+    sc.add(OPPONENT, "ST01-008", rested=True)
+    sc.shields(SEARCHER, *["GD01-060"] * 5)
+    sc.shields(OPPONENT, *["GD01-060"] * 5)
+    st = sc.start()
+    play(st, card)
+    return st
+
+
+# ---------------------------------------------------------------------------------------------
+# target extension
+
+
+def test_extension_leaves_other_decisions_unchanged() -> None:
+    checked = 0
+    for index, st in enumerate(midgame_states()[:8]):
+        assert st.pending is not None
+        if mcts.is_target_decision(st.pending):
+            continue
+        seed = AGENT_SEEDS[index % len(AGENT_SEEDS)]
+        assert _search(st, EXTENDED, seed) == _search(st, BASELINE, seed)
+        checked += 1
+    assert checked > 0
+
+
+def test_extension_only_adds_iterations_after_the_baseline_budget() -> None:
+    """The extra worlds and rollout seeds are drawn after the baseline's, so a search that
+    is not a close call at the end of the budget is the baseline search, bit for bit."""
+    extended = unchanged = 0
+    for st in [*_target_positions(), kill_the_damaged_unit()]:
+        assert st.pending is not None and mcts.is_target_decision(st.pending)
+        for seed in range(1, 9):
+            base, ext = _search(st, BASELINE, seed), _search(st, EXTENDED, seed)
+            budget = BASELINE.budget(len(base.alternatives))
+            if ext.iterations == base.iterations:
+                assert ext == base
+                unchanged += 1
+            else:
+                assert base.iterations < ext.iterations <= 3 * budget
+                extended += 1
+    assert extended > 0 and unchanged > 0
+
+
+# ---------------------------------------------------------------------------------------------
+# observation keys
 
 
 def opponent_may_hold_a_trick() -> GameState:
@@ -155,6 +215,10 @@ def test_observation_keys_keep_main_and_action_step_plays_apart() -> None:
     assert _command_children(OBSERVED) == 2
 
 
+# ---------------------------------------------------------------------------------------------
+# information set
+
+
 def _decision(config: SearchConfig, seed: int, st: GameState) -> tuple[object, object]:
     agent = make_agent("mcts", seed=seed, log=True, config=config, weights=BASELINE_WEIGHTS)
     assert st.pending is not None
@@ -163,15 +227,15 @@ def _decision(config: SearchConfig, seed: int, st: GameState) -> tuple[object, o
 
 
 def _invariance_states() -> list[GameState]:
-    return [*midgame_states(), opponent_may_hold_a_trick()]
+    return [*midgame_states(), *_target_positions(), opponent_may_hold_a_trick()]
 
 
-@pytest.mark.parametrize("index", range(len(GAME_SEEDS) * STATES_PER_GAME + 1))
-def test_observation_keys_keep_decisions_inside_the_information_set(index: int) -> None:
+@pytest.mark.parametrize("index", range(len(GAME_SEEDS) * STATES_PER_GAME + len(PUZZLES) + 1))
+def test_settings_keep_decisions_inside_the_information_set(index: int) -> None:
     st = _invariance_states()[index]
     assert st.pending is not None
     p = st.pending.player
     seed = AGENT_SEEDS[index % len(AGENT_SEEDS)]
-    expected = _decision(OBSERVED, seed, st)
+    expected = _decision(ALL_ON, seed, st)
     for s in PERMUTATION_SEEDS:
-        assert _decision(OBSERVED, seed, permute_hidden(st, p, s)) == expected
+        assert _decision(ALL_ON, seed, permute_hidden(st, p, s)) == expected

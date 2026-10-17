@@ -11,9 +11,11 @@ node, plays the heuristic policy until ``horizon_turns`` turn boundaries have pa
 backs up the evaluation. Only the true state's pending options and the player's own
 knowledge are read directly.
 
-A setting that is off in the presets: ``observation_keys`` keys children by decision kind and
-keeps the walk in the same node after an opponent's action-step pass, which the searcher cannot
-tell apart from the engine passing for an opponent without options.
+Settings that are off in the presets: ``target_extension`` lets an effect target decision search
+on, one budget at a time, while the move to play is within ``target_extension_z`` paired standard
+errors of another; ``observation_keys`` keys children by decision kind and keeps the walk in the
+same node after an opponent's action-step pass, which the searcher cannot tell apart from the
+engine passing for an opponent without options.
 """
 
 from __future__ import annotations
@@ -23,7 +25,7 @@ from dataclasses import dataclass, field
 
 from gcg_sim.ai import policy
 from gcg_sim.ai.actions import Key, canonical, prune_dominated
-from gcg_sim.ai.base import Alternative
+from gcg_sim.ai.base import Alternative, uid_argument
 from gcg_sim.ai.config import SearchConfig
 from gcg_sim.ai.evaluation import Weights, burst_density, logistic, score
 from gcg_sim.ai.noop import SPENDING, without_effect
@@ -38,6 +40,10 @@ from gcg_sim.rng import SplitMix64
 ChildKey = tuple[int, str, Key]
 WIN_DECAY = 0.01
 LEAF_FLOOR = 0.05
+TIE_TOLERANCE = 1e-9
+_TARGET_KINDS = frozenset(
+    {DecisionKind.SELECT, DecisionKind.EXCESS, DecisionKind.DISCARD, DecisionKind.ARRANGE}
+)
 
 
 @dataclass(slots=True)
@@ -99,21 +105,73 @@ def search(
     budget = config.budget(len(root_moves))
     world_seeds = [rng.next_u64() for _ in range(budget)]
     rollout_seeds = [rng.next_u64() for _ in range(budget)]
+    cap = _iteration_cap(config, dec, budget)
+    world_seeds += [rng.next_u64() for _ in range(cap - budget)]
+    rollout_seeds += [rng.next_u64() for _ in range(cap - budget)]
     root = _Node()
     first_world = determinize(st, player, world_seeds[0])
     _add_children(root, first_world, dec, root_moves, config)
     keys = [_child_key(dec, key, config) for key, _ in root_moves]
+    children = [root.children[key] for key in keys]
+    slot = {id(child): i for i, child in enumerate(children)}
+    per_visit: list[list[float]] = [[] for _ in children]
+    limit = budget
     done = 0
-    while done < budget:
+    while done < limit:
         child, action, fresh = _select(root, first_world, dec, root_moves, config)
         k = child.visits
         world = determinize(st, player, world_seeds[k])
         apply(world, action, check=False)
+        before = child.total
         _iterate(ctx, child, fresh, world, SplitMix64(rollout_seeds[k]))
+        if cap > budget:
+            per_visit[slot[id(child)]].append(child.total - before)
         done += 1
-        if _settled(root, keys, budget - done):
-            break
+        if done == limit or _settled(root, keys, limit - done):
+            if limit == cap or not _close_call(children, per_visit, config.target_extension_z):
+                break
+            limit = min(cap, limit + budget)
     return _result(root, keys, root_moves, done)
+
+
+def is_target_decision(dec: Decision) -> bool:
+    """True when ``dec`` chooses the cards an effect acts on (targets, cards to trash or
+    discard, the order of cards put on a deck), not a mode or a card to rest in place of a
+    protected one."""
+    return dec.kind in _TARGET_KINDS and uid_argument(dec) and dec.ctx("rest_sub") < 0
+
+
+def _iteration_cap(config: SearchConfig, dec: Decision, budget: int) -> int:
+    """Most iterations the root may spend: the budget, or for an effect target decision up to
+    ``target_extension`` times it, added one budget at a time while the move to play is a close
+    call (``_close_call``)."""
+    if not is_target_decision(dec):
+        return budget
+    return max(budget, round(budget * config.target_extension))
+
+
+def _close_call(children: list[_Child], per_visit: list[list[float]], z: float) -> bool:
+    """True when the move the search would play is not ``z`` paired standard errors better
+    than some other visited move. The k-th visit of every root move was played in the k-th
+    world with the k-th rollout seed, so the values of the visits two moves share are pairs.
+    Two moves that scored the same in every shared world are a tie that more iterations would
+    not break, and do not count."""
+    leader = max(range(len(children)), key=lambda i: (children[i].visits, children[i].mean()))
+    lead = per_visit[leader]
+    for i, other in enumerate(per_visit):
+        if i == leader or not other:
+            continue
+        n = min(len(lead), len(other))
+        if n < 2:
+            return True
+        diffs = [lead[j] - other[j] for j in range(n)]
+        if max(abs(x) for x in diffs) <= TIE_TOLERANCE:
+            continue
+        mean = sum(diffs) / n
+        var = sum((x - mean) ** 2 for x in diffs) / (n - 1)
+        if mean <= z * math.sqrt(var / n):
+            return True
+    return False
 
 
 def _iterate(ctx: _Search, first: _Child, fresh: bool, s: GameState, rng: SplitMix64) -> None:

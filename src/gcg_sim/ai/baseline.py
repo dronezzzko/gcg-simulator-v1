@@ -33,6 +33,8 @@ BASELINE_PRESETS: Mapping[str, SearchConfig] = MappingProxyType(
             mulligan_samples=96,
             policy_burst_yes_score=1.0,
             observation_keys=False,
+            target_extension=1.0,
+            target_extension_z=2.0,
         ),
         "strong": SearchConfig(
             name="strong",
@@ -50,6 +52,8 @@ BASELINE_PRESETS: Mapping[str, SearchConfig] = MappingProxyType(
             mulligan_samples=192,
             policy_burst_yes_score=1.0,
             observation_keys=False,
+            target_extension=1.0,
+            target_extension_z=2.0,
         ),
     }
 )
