@@ -137,7 +137,7 @@ head-to-head against the pre-change AI, tactical puzzles, blinded replay audits,
 - Workstreams integrated, each reviewed by a fresh agent (accept), all settings default off so
   `baseline-standard` still replays the recorded game: root pruning (9684f29), search settings
   (8eb9e8a), threat-aware rollouts (a339080), evaluation feature sets (3351b78), policy settings
-  (39c5643, squashed). 400-game harm guards vs baseline-standard (test decks): root 0.50x,
+  (39c5643, squashed). 400-game harm guards vs baseline-standard (test decks): root 208/400,
   policy 199/400, threat 199/400, search 207/400, roles 214/400; 2x budget alone 211/400;
   `value_scale=1.0` alone 210/400 (seed 36002); root+search+threat at 1x 397/800 (seed 36003).
   Rejected with measurements: kill-aware damage targeting, damaged-payoff targeting, a fixed
