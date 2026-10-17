@@ -32,6 +32,10 @@ BASELINE_PRESETS: Mapping[str, SearchConfig] = MappingProxyType(
             first_player_games=24,
             mulligan_samples=96,
             policy_burst_yes_score=1.0,
+            lethal_extension_turns=0,
+            extension_trigger="can_kill",
+            rollout_push="off",
+            rollout_guard=False,
         ),
         "strong": SearchConfig(
             name="strong",
@@ -48,6 +52,10 @@ BASELINE_PRESETS: Mapping[str, SearchConfig] = MappingProxyType(
             first_player_games=48,
             mulligan_samples=192,
             policy_burst_yes_score=1.0,
+            lethal_extension_turns=0,
+            extension_trigger="can_kill",
+            rollout_push="off",
+            rollout_guard=False,
         ),
     }
 )

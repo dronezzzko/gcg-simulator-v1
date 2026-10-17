@@ -17,6 +17,7 @@ from functools import cache
 from gcg_sim.ai import targeting
 from gcg_sim.ai.actions import ex_used
 from gcg_sim.ai.config import SearchConfig
+from gcg_sim.ai.evaluation import can_kill_to_move, threatened
 from gcg_sim.ai.values import (
     card_worth,
     exposed,
@@ -44,14 +45,23 @@ LETHAL = 60.0
 CLEAR_THE_WAY = 8.0
 MUST_BLOCK = 100.0
 KEEPABLE_TOP = 2.0
+GUARD = 6.0
 
 
 @dataclass(frozen=True, slots=True)
 class PolicyKnobs:
     """Policy settings a search configuration can change (``SearchConfig.policy_*``). The
-    defaults are the policy the presets were first calibrated with; greedy always uses them."""
+    defaults are the policy the presets were first calibrated with; greedy always uses them.
+
+    ``push`` (``rollout_push="all"``): while the attacking side can kill this turn (the
+    evaluation's ``can_kill``) and the enemy still has Shields or a Base, a face attack scores
+    at least ``LETHAL / 2``. ``guard`` (``rollout_guard``): while a side would be open to
+    lethal without one of its <Blocker> Units, that Blocker's attacks and its blocks that spend
+    it on a non-lethal attack lose ``GUARD``."""
 
     burst_yes_score: float = 1.0
+    push: bool = False
+    guard: bool = False
 
 
 BASELINE_KNOBS = PolicyKnobs()
@@ -59,7 +69,11 @@ BASELINE_KNOBS = PolicyKnobs()
 
 @cache
 def knobs_for(config: SearchConfig) -> PolicyKnobs:
-    return PolicyKnobs(burst_yes_score=config.policy_burst_yes_score)
+    return PolicyKnobs(
+        burst_yes_score=config.policy_burst_yes_score,
+        push=config.rollout_push == "all",
+        guard=config.rollout_guard,
+    )
 
 
 def choose(
@@ -141,15 +155,18 @@ def _board(st: GameState, dv: V.Derived, dec: Decision) -> _Board:
 def _main(st: GameState, dec: Decision, knobs: PolicyKnobs) -> list[float]:
     dv = V.derived(st)
     board = _board(st, dv, dec)
-    return [_main_option(st, dv, board, o) for o in dec.options]
+    push = knobs.push and board.attackers > 0 and not board.enemy_exposed and can_kill_to_move(st)
+    return [_main_option(st, dv, board, o, push, knobs.guard) for o in dec.options]
 
 
-def _main_option(st: GameState, dv: V.Derived, b: _Board, o: Action) -> float:
+def _main_option(
+    st: GameState, dv: V.Derived, b: _Board, o: Action, push: bool, guard: bool
+) -> float:
     k = o.kind
     if k is A.END_MAIN:
         return 0.0
     if k is A.ATTACK:
-        return _attack(st, dv, b, o.a, o.b)
+        return _threat_adjust(st, dv, b, o.a, o.b, _attack(st, dv, b, o.a, o.b), push, guard)
     cost = EX_PENALTY * ex_used(o)
     if k is A.PLAY_UNIT:
         return _play_unit(st, b, o.a) - cost
@@ -231,6 +248,31 @@ def _attack(st: GameState, dv: V.Derived, b: _Board, attacker: int, target: int)
     return s - risk
 
 
+def _threat_adjust(
+    st: GameState,
+    dv: V.Derived,
+    b: _Board,
+    attacker: int,
+    target: int,
+    s: float,
+    push: bool,
+    guard: bool,
+) -> float:
+    """The lethal push and the Blocker guard (``PolicyKnobs``) on an attack scored ``s``. A
+    lethal attempt is never guarded, nor is an attack that destroys its target: it removes an
+    enemy attacker for the Blocker it spends."""
+    if target == PLAYER_TARGET and (push or b.enemy_exposed):
+        return max(s, LETHAL / 2) if push else s
+    if (
+        guard
+        and d.Kw.BLOCKER in dv.kw.get(attacker, ())
+        and (target == PLAYER_TARGET or not fight(st, dv, attacker, target).kills)
+        and threatened(st, b.player, spare=attacker)
+    ):
+        return s - GUARD
+    return s
+
+
 # ---------------------------------------------------------------------------------------------
 # battle decisions
 
@@ -263,7 +305,27 @@ def _block(st: GameState, dec: Decision, knobs: PolicyKnobs) -> list[float]:
         if f.dies:
             s += 1.0 + 0.5 * unit_value(st, dv, attacker)
         scores.append(s)
+    if knobs.guard and saved < MUST_BLOCK:
+        _guard_blocks(st, dv, dec, attacker, scores)
     return scores
+
+
+def _guard_blocks(
+    st: GameState, dv: V.Derived, dec: Decision, attacker: int, scores: list[float]
+) -> None:
+    """Blocker guard on a non-lethal attack: a block loses ``GUARD`` when the blocking side
+    would be open to lethal without that Blocker and the block spends it: the fight destroys
+    it, or another enemy Unit is still active this turn."""
+    p = dec.player
+    others_ready = any(
+        u != attacker and not st.cards[u].rested for u in st.zones[1 - p][Zone.BATTLE]
+    )
+    for i, o in enumerate(dec.options):
+        if o.kind is not A.BLOCK:
+            continue
+        spent = others_ready or fight(st, dv, attacker, o.a).kills
+        if spent and threatened(st, p, spare=o.a):
+            scores[i] -= GUARD
 
 
 def _action_step(st: GameState, dec: Decision, knobs: PolicyKnobs) -> list[float]:
