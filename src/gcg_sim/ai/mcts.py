@@ -125,7 +125,8 @@ def search(
     world_seeds += [rng.next_u64() for _ in range(cap - budget)]
     rollout_seeds += [rng.next_u64() for _ in range(cap - budget)]
     root = _Node()
-    first_world = determinize(st, player, world_seeds[0])
+    worlds = {0: determinize(st, player, world_seeds[0])}
+    first_world = worlds[0]
     _add_children(root, first_world, dec, root_moves, config)
     keys = [_child_key(dec, key, config) for key, _ in root_moves]
     children = [root.children[key] for key in keys]
@@ -136,7 +137,7 @@ def search(
     while done < limit:
         child, action, fresh = _select(root, first_world, dec, root_moves, config)
         k = child.visits
-        world = determinize(st, player, world_seeds[k])
+        world = _world(worlds, st, player, world_seeds, k)
         apply(world, action, check=False)
         before = child.total
         _iterate(ctx, child, fresh, world, SplitMix64(rollout_seeds[k]))
@@ -148,6 +149,17 @@ def search(
                 break
             limit = min(cap, limit + budget)
     return _result(root, keys, root_moves, done)
+
+
+def _world(
+    worlds: dict[int, GameState], st: GameState, player: int, seeds: list[int], k: int
+) -> GameState:
+    """A copy of the k-th determinization, which is made once per search: the k-th visit of
+    every root move plays in it."""
+    base = worlds.get(k)
+    if base is None:
+        base = worlds[k] = determinize(st, player, seeds[k])
+    return base.clone()
 
 
 def is_target_decision(dec: Decision) -> bool:
