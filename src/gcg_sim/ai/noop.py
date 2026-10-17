@@ -9,14 +9,22 @@ same position apart from the card and Resources spent and the player's own cards
 for it (the line without the move passes the extra action steps it gets from still holding
 the card). Examples: AP-3 "during this turn" on an enemy Unit that battles no more this turn,
 "rest it" on a Unit that is already rested, or a cost paid for an effect that does nothing.
+
+The deterministic policy makes the choices inside the move's resolution, so a move can look
+idle only because the policy picked an idle target (resting a rested Unit while an active one
+is legal). With ``branch_choices`` a flagged move is re-checked once per option of the
+player's first choice inside its resolution, and kept when some option leads to a different
+position that the evaluation scores above idling.
 """
 
 from __future__ import annotations
 
+from dataclasses import dataclass
 from typing import Any
 
 from gcg_sim.ai import policy
 from gcg_sim.ai.actions import Key
+from gcg_sim.ai.evaluation import DEFAULT_WEIGHTS, Weights, burst_density, evaluate
 from gcg_sim.ai.policy import BASELINE_KNOBS, PolicyKnobs
 from gcg_sim.engine.game import apply
 from gcg_sim.engine.observe import determinize
@@ -48,19 +56,44 @@ def _policy_step(st: GameState, knobs: PolicyKnobs) -> Action:
     return policy.choose(st, None, 0.0, knobs)
 
 
+def _resolving(st: GameState) -> bool:
+    return (
+        st.winner is None
+        and st.pending is not None
+        and (bool(st.frames) or st.pending.kind not in TOP_LEVEL)
+    )
+
+
 def _resolve(st: GameState, action: Action, knobs: PolicyKnobs) -> None:
     """Apply ``action`` and let the policy make the choices of its resolution (targets,
     optional parts, triggered effects) until play is back at a top-level decision."""
     apply(st, action, check=False)
     n = 0
-    while (
-        st.winner is None
-        and st.pending is not None
-        and (st.frames or st.pending.kind not in TOP_LEVEL)
-        and n < MAX_DECISIONS
-    ):
+    while _resolving(st) and n < MAX_DECISIONS:
         apply(st, _policy_step(st, knobs), check=False)
         n += 1
+
+
+def _branches(world: GameState, action: Action, player: int, knobs: PolicyKnobs) -> list[GameState]:
+    """``action`` resolved once per option of the player's first choice between several
+    targets or modes inside its resolution (the policy makes every other choice); empty when
+    the resolution asks no such choice."""
+    st = world.clone()
+    apply(st, action, check=False)
+    n = 0
+    while _resolving(st) and n < MAX_DECISIONS:
+        dec = st.pending
+        assert dec is not None
+        if dec.kind is DecisionKind.SELECT and dec.player == player and len(dec.options) > 1:
+            out = []
+            for option in dec.options:
+                branch = st.clone()
+                _resolve(branch, option, knobs)
+                out.append(branch)
+            return out
+        apply(st, _policy_step(st, knobs), check=False)
+        n += 1
+    return []
 
 
 def _continue(st: GameState, turn: int, knobs: PolicyKnobs) -> list[Action]:
@@ -99,25 +132,82 @@ def without_effect(
     moves: list[tuple[Key, Action]],
     seed: int,
     knobs: PolicyKnobs = BASELINE_KNOBS,
+    *,
+    branch_choices: bool = False,
+    resource_aware: bool = False,
+    weights: Weights = DEFAULT_WEIGHTS,
 ) -> set[Key]:
-    """Keys of the spending moves in ``moves`` that change nothing but what they spend."""
+    """Keys of the spending moves in ``moves`` that change nothing but what they spend.
+
+    ``branch_choices`` keeps a move when some option of its first choice reaches a different
+    position that ``weights`` score above idling (see the module docstring).
+    ``resource_aware`` also compares the resource areas: the move's line may only have paid
+    (own Resources gone or rested), so placing an EX Resource or setting Resources active,
+    or touching the opponent's Resources, counts as an effect."""
     spending = [(key, a) for key, a in moves if a.kind in SPENDING]
     if dec.kind not in TOP_LEVEL or not spending:
         return set()
     world = determinize(st, player, seed)
-    turn = world.turn + 1
+    lines = _Lines(world, player, world.turn + 1, knobs, resource_aware)
     out: set[Key] = set()
+    density: tuple[float, float] | None = None
     for key, action in spending:
         played = world.clone()
         _resolve(played, action, knobs)
-        actions = _continue(played, turn, knobs)
-        idled = world.clone()
-        if not _replay(idled, actions, turn, knobs):
-            continue
         spent = action.a if action.kind is A.PLAY_COMMAND else -1
-        if _only_costs_differ(played, idled, spent, player):
-            out.add(key)
+        if lines.idle_line(played, spent) is None:
+            continue
+        if branch_choices:
+            if density is None:
+                density = burst_density(st, player)
+            if _a_branch_beats_idling(lines, action, spent, weights, density):
+                continue
+        out.add(key)
     return out
+
+
+@dataclass(frozen=True, slots=True)
+class _Lines:
+    """Compares a line in which the move was played with idling in the same world."""
+
+    world: GameState
+    player: int
+    turn: int
+    knobs: PolicyKnobs
+    resource_aware: bool
+
+    def continue_and_replay(self, line: GameState) -> GameState | None:
+        """Continue ``line`` to the next turn; the world without the move with the same
+        actions replayed, or None when they cannot all be taken (the lines diverged)."""
+        actions = _continue(line, self.turn, self.knobs)
+        idled = self.world.clone()
+        return idled if _replay(idled, actions, self.turn, self.knobs) else None
+
+    def same(self, line: GameState, idled: GameState, spent: int) -> bool:
+        return _only_costs_differ(line, idled, spent, self.player) and (
+            not self.resource_aware or _resources_only_paid(line, idled, self.player)
+        )
+
+    def idle_line(self, line: GameState, spent: int) -> GameState | None:
+        """The idle line when ``line`` ends in the same position apart from costs."""
+        idled = self.continue_and_replay(line)
+        return idled if idled is not None and self.same(line, idled, spent) else None
+
+
+def _a_branch_beats_idling(
+    lines: _Lines, action: Action, spent: int, weights: Weights, density: tuple[float, float]
+) -> bool:
+    player = lines.player
+    for line in _branches(lines.world, action, player, lines.knobs):
+        idled = lines.continue_and_replay(line)
+        if idled is None:
+            idled = lines.world.clone()
+            _continue(idled, lines.turn, lines.knobs)
+        elif lines.same(line, idled, spent):
+            continue
+        if evaluate(line, player, weights, density) > evaluate(idled, player, weights, density):
+            return True
+    return False
 
 
 def _only_costs_differ(played: GameState, idled: GameState, spent: int, player: int) -> bool:
@@ -135,3 +225,16 @@ def _only_costs_differ(played: GameState, idled: GameState, spent: int, player: 
         if played.cards[uid].owner != player or not rested or y[2]:
             return False
     return True
+
+
+def _resources(st: GameState, player: int) -> tuple[frozenset[int], int]:
+    area = st.zones[player][Zone.RESOURCE_AREA]
+    return frozenset(area), sum(1 for uid in area if not st.cards[uid].rested)
+
+
+def _resources_only_paid(played: GameState, idled: GameState, player: int) -> bool:
+    """The move's line has no Resource the idle line lacks and no more active ones, and the
+    opponent's resource area is unchanged."""
+    mine, mine_idle = _resources(played, player), _resources(idled, player)
+    theirs, theirs_idle = _resources(played, 1 - player), _resources(idled, 1 - player)
+    return mine[0] <= mine_idle[0] and mine[1] <= mine_idle[1] and theirs == theirs_idle

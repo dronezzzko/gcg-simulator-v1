@@ -31,6 +31,11 @@ class SearchConfig:
     first_player_games: int = 24
     mulligan_samples: int = 96
     policy_burst_yes_score: float = 1.0
+    noop_branch_choices: bool = False
+    noop_resource_aware: bool = False
+    strict_attack_prune: bool = False
+    prune_noop_rest_targets: bool = False
+    merge_equivalent_moves: bool = False
 
     def budget(self, n_options: int) -> int:
         wanted = self.iterations_per_option * n_options

@@ -32,6 +32,11 @@ BASELINE_PRESETS: Mapping[str, SearchConfig] = MappingProxyType(
             first_player_games=24,
             mulligan_samples=96,
             policy_burst_yes_score=1.0,
+            noop_branch_choices=False,
+            noop_resource_aware=False,
+            strict_attack_prune=False,
+            prune_noop_rest_targets=False,
+            merge_equivalent_moves=False,
         ),
         "strong": SearchConfig(
             name="strong",
@@ -48,6 +53,11 @@ BASELINE_PRESETS: Mapping[str, SearchConfig] = MappingProxyType(
             first_player_games=48,
             mulligan_samples=192,
             policy_burst_yes_score=1.0,
+            noop_branch_choices=False,
+            noop_resource_aware=False,
+            strict_attack_prune=False,
+            prune_noop_rest_targets=False,
+            merge_equivalent_moves=False,
         ),
     }
 )
