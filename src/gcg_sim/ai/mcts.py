@@ -77,7 +77,13 @@ def search(
     dec = st.pending
     assert dec is not None
     assert dec.player == player
-    root_moves = prune_dominated(st, dec, canonical(st, dec))
+    root_moves = prune_dominated(
+        st,
+        dec,
+        canonical(st, dec),
+        strict_attacks=config.strict_attack_prune,
+        rest_targets=config.prune_noop_rest_targets,
+    )
     if any(a.kind in SPENDING for _, a in root_moves):
         idle = without_effect(
             st,
