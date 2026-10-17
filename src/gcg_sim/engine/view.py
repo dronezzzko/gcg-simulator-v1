@@ -820,6 +820,25 @@ def resolve(st: GameState, dv: Derived, ctx: Ctx, ref: d.Ref) -> tuple[int, ...]
     return tuple(seen)
 
 
+def selects(ref: d.Ref) -> bool:
+    """Whether resolving ``ref`` selects cards; only selections read the derived view."""
+    if isinstance(ref, (d.This, d.ThisCard, d.Var, d.EventCard)):
+        return False
+    if isinstance(ref, (d.PairedPilotOf, d.PairedUnitOf, d.BattlingWith)):
+        return selects(ref.ref)
+    if isinstance(ref, d.Union):
+        return any(selects(r) for r in ref.refs)
+    return True
+
+
+_UNREAD = Derived()
+
+
+def resolve_ref(st: GameState, ctx: Ctx, ref: d.Ref) -> tuple[int, ...]:
+    """:func:`resolve` that computes the derived view only for references that select cards."""
+    return resolve(st, derived(st) if selects(ref) else _UNREAD, ctx, ref)
+
+
 def value(st: GameState, dv: Derived, ctx: Ctx, v: d.Value) -> int:
     if isinstance(v, int):
         return v

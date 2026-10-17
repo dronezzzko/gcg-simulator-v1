@@ -1,7 +1,8 @@
 """Paranoid checks of the engine's caches and shortcuts: every cached derived view that
 ``view.derived`` hands out is compared with a fresh computation, every event that ``emit``
-skips as unlistened is shown to have no trigger candidate, and every rules-management check
-skipped because no damage reaches printed HP is shown to destroy nothing. Used by
+skips as unlistened is shown to have no trigger candidate, every rules-management check
+skipped because no damage reaches printed HP is shown to destroy nothing, and every reference
+resolved without the view resolves the same with it. Used by
 ``tests/rules/test_engine_caches.py`` and, for the whole suite, by setting
 ``GCG_SIM_PARANOID_VIEW=1`` (see ``tests/conftest.py``)."""
 
@@ -42,9 +43,9 @@ def index_signature(idx: dict[d.Ev, list[tuple[int, V.AbilityEntry]]]) -> dict[d
 
 
 class CacheChecker:
-    """Wraps ``view.derived``, ``core.emit`` and ``core._damage_scan``; ``checks`` counts what
-    was verified and ``stale`` records every cached view, trigger index, skipped event or
-    skipped destruction check that was wrong."""
+    """Wraps ``view.derived``, ``core.emit``, ``core._damage_scan`` and ``view.resolve_ref``;
+    ``checks`` counts what was verified and ``stale`` records every cached view, trigger index,
+    skipped event, skipped destruction check or view-free reference that was wrong."""
 
     def __init__(self) -> None:
         self.checks: Counter[str] = Counter()
@@ -52,11 +53,13 @@ class CacheChecker:
         self._derived: Callable[[GameState], V.Derived] = V.derived
         self._emit = core.emit
         self._damage_scan = core._damage_scan
+        self._resolve_ref = V.resolve_ref
 
     def install(self, monkeypatch: pytest.MonkeyPatch) -> None:
         monkeypatch.setattr(V, "derived", self.derived)
         monkeypatch.setattr(core, "emit", self.emit)
         monkeypatch.setattr(core, "_damage_scan", self.damage_scan)
+        monkeypatch.setattr(V, "resolve_ref", self.resolve_ref)
 
     def derived(self, st: GameState) -> V.Derived:
         before = st._derived
@@ -100,3 +103,11 @@ class CacheChecker:
                         if st.cards[uid].damage >= V.hp_of(st, dv, uid):
                             self.stale.append(f"{uid} destroyed by rules, turn {st.turn}")
         return damaged, lethal
+
+    def resolve_ref(self, st: GameState, ctx: V.Ctx, ref: d.Ref) -> tuple[int, ...]:
+        got = self._resolve_ref(st, ctx, ref)
+        if not V.selects(ref):
+            self.checks["view-free reference"] += 1
+            if V.resolve(st, V.derived(st), ctx, ref) != got:
+                self.stale.append(f"reference {ref} resolved without the view, turn {st.turn}")
+        return got

@@ -479,7 +479,7 @@ def _in_play(st: GameState, uids: tuple[int, ...]) -> list[int]:
 
 
 def _refs(st: GameState, f: Frame, ref: d.Ref) -> tuple[int, ...]:
-    return V.resolve(st, V.derived(st), ctx_of(f), ref)
+    return V.resolve_ref(st, ctx_of(f), ref)
 
 
 def _val(st: GameState, f: Frame, v: d.Value) -> int:

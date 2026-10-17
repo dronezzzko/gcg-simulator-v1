@@ -1,7 +1,8 @@
 """Engine caches and shortcuts never change a game: every cached derived view equals a fresh
 computation, so where and how often the view is computed cannot change any result; every
-event skipped as unlistened has no trigger candidate; and rules management destroys nothing
-whenever it skips the check because no damage reaches printed HP."""
+event skipped as unlistened has no trigger candidate; rules management destroys nothing
+whenever it skips the check because no damage reaches printed HP; and references resolved
+without the view resolve the same with it."""
 
 from __future__ import annotations
 
@@ -37,4 +38,5 @@ def test_engine_caches_and_shortcuts_match_a_full_computation(
     assert checker.checks["cached view"] > 10_000
     assert checker.checks["unlistened event"] > 1_000
     assert checker.checks["no printed lethal damage"] > 1_000
+    assert checker.checks["view-free reference"] > 1_000
     assert not checker.stale, checker.stale[:5]
