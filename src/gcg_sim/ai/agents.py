@@ -8,6 +8,7 @@ from gcg_sim.ai.config import PRESETS, SearchConfig
 from gcg_sim.ai.evaluation import DEFAULT_WEIGHTS, Weights, burst_density, evaluate
 from gcg_sim.ai.mcts import search
 from gcg_sim.ai.playout import play_until_turn
+from gcg_sim.ai.policy import knobs_for
 from gcg_sim.ai.setup import first_player_choice, mulligan_choice
 from gcg_sim.engine.game import apply
 from gcg_sim.engine.observe import determinize
@@ -89,7 +90,9 @@ class MctsAgent(AgentCore):
             action, stats = mulligan_choice(st, player, self.config.mulligan_samples, rng)
             return self._finish(st, player, action, stats)
         if dec.kind is DecisionKind.CHOOSE_FIRST:
-            action, stats = first_player_choice(st, player, self.config.first_player_games, rng)
+            action, stats = first_player_choice(
+                st, player, self.config.first_player_games, rng, knobs_for(self.config)
+            )
             return self._finish(st, player, action, stats)
         result = search(st, player, self.config, self.weights, rng)
         return self._finish(st, player, result.action, result.alternatives)

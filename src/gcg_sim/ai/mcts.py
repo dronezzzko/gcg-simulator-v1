@@ -24,6 +24,7 @@ from gcg_sim.ai.config import SearchConfig
 from gcg_sim.ai.evaluation import Weights, burst_density, logistic, score
 from gcg_sim.ai.noop import SPENDING, without_effect
 from gcg_sim.ai.playout import play_until_turn
+from gcg_sim.ai.policy import knobs_for
 from gcg_sim.engine.game import apply
 from gcg_sim.engine.observe import determinize
 from gcg_sim.engine.state import Action, Decision, GameState
@@ -78,7 +79,7 @@ def search(
     assert dec.player == player
     root_moves = prune_dominated(st, dec, canonical(st, dec))
     if any(a.kind in SPENDING for _, a in root_moves):
-        idle = without_effect(st, player, dec, root_moves, rng.next_u64())
+        idle = without_effect(st, player, dec, root_moves, rng.next_u64(), knobs_for(config))
         root_moves = [m for m in root_moves if m[0] not in idle] or root_moves
     if len(root_moves) == 1:
         return SearchResult(root_moves[0][1], [], 0)
@@ -115,7 +116,9 @@ def _iterate(ctx: _Search, first: _Child, fresh: bool, s: GameState, rng: SplitM
     if not fresh:
         _descend(ctx, _node_of(first), s, path)
     cfg = ctx.config
-    play_until_turn(s, ctx.horizon, rng, cfg.rollout_temperature, cfg.max_rollout_decisions)
+    play_until_turn(
+        s, ctx.horizon, rng, cfg.rollout_temperature, cfg.max_rollout_decisions, knobs_for(cfg)
+    )
     value = _leaf_value(s, ctx)
     for child in path:
         child.visits += 1
@@ -195,7 +198,9 @@ def _add_children(
     node: _Node, s: GameState, dec: Decision, moves: list[tuple[Key, Action]], cfg: SearchConfig
 ) -> None:
     scores = policy.option_scores(
-        s, Decision(dec.player, dec.kind, tuple(a for _, a in moves), dec.prompt, dec.context)
+        s,
+        Decision(dec.player, dec.kind, tuple(a for _, a in moves), dec.prompt, dec.context),
+        knobs_for(cfg),
     )
     top = max(scores)
     weights = [math.exp((x - top) / cfg.prior_temperature) for x in scores]

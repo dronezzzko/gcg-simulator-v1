@@ -17,6 +17,7 @@ from typing import Any
 
 from gcg_sim.ai import policy
 from gcg_sim.ai.actions import Key
+from gcg_sim.ai.policy import BASELINE_KNOBS, PolicyKnobs
 from gcg_sim.engine.game import apply
 from gcg_sim.engine.observe import determinize
 from gcg_sim.engine.state import Action, Decision, GameState
@@ -43,11 +44,11 @@ def _signature(st: GameState, spent: int) -> tuple[Any, ...]:
     return (st.winner, st.turn, st.active, cards, lasting, decks)
 
 
-def _policy_step(st: GameState) -> Action:
-    return policy.choose(st, None, 0.0)
+def _policy_step(st: GameState, knobs: PolicyKnobs) -> Action:
+    return policy.choose(st, None, 0.0, knobs)
 
 
-def _resolve(st: GameState, action: Action) -> None:
+def _resolve(st: GameState, action: Action, knobs: PolicyKnobs) -> None:
     """Apply ``action`` and let the policy make the choices of its resolution (targets,
     optional parts, triggered effects) until play is back at a top-level decision."""
     apply(st, action, check=False)
@@ -58,22 +59,22 @@ def _resolve(st: GameState, action: Action) -> None:
         and (st.frames or st.pending.kind not in TOP_LEVEL)
         and n < MAX_DECISIONS
     ):
-        apply(st, _policy_step(st), check=False)
+        apply(st, _policy_step(st, knobs), check=False)
         n += 1
 
 
-def _continue(st: GameState, turn: int) -> list[Action]:
+def _continue(st: GameState, turn: int, knobs: PolicyKnobs) -> list[Action]:
     actions: list[Action] = []
     while (st.winner is None and st.turn < turn and st.pending is not None) and len(
         actions
     ) < MAX_DECISIONS:
-        action = _policy_step(st)
+        action = _policy_step(st, knobs)
         apply(st, action, check=False)
         actions.append(action)
     return actions
 
 
-def _replay(st: GameState, actions: list[Action], turn: int) -> bool:
+def _replay(st: GameState, actions: list[Action], turn: int, knobs: PolicyKnobs) -> bool:
     """Apply ``actions`` in order, passing extra action steps; False as soon as a recorded
     action cannot be taken (the lines diverged)."""
     queue = list(actions)
@@ -87,12 +88,17 @@ def _replay(st: GameState, actions: list[Action], turn: int) -> bool:
         elif queue:
             return False
         else:
-            apply(st, _policy_step(st), check=False)
+            apply(st, _policy_step(st, knobs), check=False)
     return not queue
 
 
 def without_effect(
-    st: GameState, player: int, dec: Decision, moves: list[tuple[Key, Action]], seed: int
+    st: GameState,
+    player: int,
+    dec: Decision,
+    moves: list[tuple[Key, Action]],
+    seed: int,
+    knobs: PolicyKnobs = BASELINE_KNOBS,
 ) -> set[Key]:
     """Keys of the spending moves in ``moves`` that change nothing but what they spend."""
     spending = [(key, a) for key, a in moves if a.kind in SPENDING]
@@ -103,10 +109,10 @@ def without_effect(
     out: set[Key] = set()
     for key, action in spending:
         played = world.clone()
-        _resolve(played, action)
-        actions = _continue(played, turn)
+        _resolve(played, action, knobs)
+        actions = _continue(played, turn, knobs)
         idled = world.clone()
-        if not _replay(idled, actions, turn):
+        if not _replay(idled, actions, turn, knobs):
             continue
         spent = action.a if action.kind is A.PLAY_COMMAND else -1
         if _only_costs_differ(played, idled, spent, player):

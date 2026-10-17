@@ -12,9 +12,11 @@ from __future__ import annotations
 import math
 from collections.abc import Callable, Sequence
 from dataclasses import dataclass
+from functools import cache
 
 from gcg_sim.ai import targeting
 from gcg_sim.ai.actions import ex_used
+from gcg_sim.ai.config import SearchConfig
 from gcg_sim.ai.values import (
     card_worth,
     exposed,
@@ -44,13 +46,34 @@ MUST_BLOCK = 100.0
 KEEPABLE_TOP = 2.0
 
 
-def choose(st: GameState, rng: SplitMix64 | None, temperature: float) -> Action:
+@dataclass(frozen=True, slots=True)
+class PolicyKnobs:
+    """Policy settings a search configuration can change (``SearchConfig.policy_*``). The
+    defaults are the policy the presets were first calibrated with; greedy always uses them."""
+
+    burst_yes_score: float = 1.0
+
+
+BASELINE_KNOBS = PolicyKnobs()
+
+
+@cache
+def knobs_for(config: SearchConfig) -> PolicyKnobs:
+    return PolicyKnobs(burst_yes_score=config.policy_burst_yes_score)
+
+
+def choose(
+    st: GameState,
+    rng: SplitMix64 | None,
+    temperature: float,
+    knobs: PolicyKnobs = BASELINE_KNOBS,
+) -> Action:
     """The policy's move: the best-scoring option, or a softmax sample when ``rng`` is given."""
     dec = st.pending
     assert dec is not None
     if len(dec.options) == 1:
         return dec.options[0]
-    return pick(dec.options, option_scores(st, dec), rng, temperature)
+    return pick(dec.options, option_scores(st, dec, knobs), rng, temperature)
 
 
 def pick(
@@ -71,11 +94,11 @@ def pick(
     return options[best_i]
 
 
-def option_scores(st: GameState, dec: Decision) -> list[float]:
+def option_scores(st: GameState, dec: Decision, knobs: PolicyKnobs = BASELINE_KNOBS) -> list[float]:
     scorer = _SCORERS.get(dec.kind)
     if scorer is None:
         return [0.0] * len(dec.options)
-    return scorer(st, dec)
+    return scorer(st, dec, knobs)
 
 
 # ---------------------------------------------------------------------------------------------
@@ -115,7 +138,7 @@ def _board(st: GameState, dv: V.Derived, dec: Decision) -> _Board:
     )
 
 
-def _main(st: GameState, dec: Decision) -> list[float]:
+def _main(st: GameState, dec: Decision, knobs: PolicyKnobs) -> list[float]:
     dv = V.derived(st)
     board = _board(st, dv, dec)
     return [_main_option(st, dv, board, o) for o in dec.options]
@@ -212,7 +235,7 @@ def _attack(st: GameState, dv: V.Derived, b: _Board, attacker: int, target: int)
 # battle decisions
 
 
-def _block(st: GameState, dec: Decision) -> list[float]:
+def _block(st: GameState, dec: Decision, knobs: PolicyKnobs) -> list[float]:
     battle = st.battle
     assert battle is not None
     dv = V.derived(st)
@@ -243,7 +266,7 @@ def _block(st: GameState, dec: Decision) -> list[float]:
     return scores
 
 
-def _action_step(st: GameState, dec: Decision) -> list[float]:
+def _action_step(st: GameState, dec: Decision, knobs: PolicyKnobs) -> list[float]:
     in_battle = bool(st.battles)
     scores = []
     for o in dec.options:
@@ -260,24 +283,28 @@ def _action_step(st: GameState, dec: Decision) -> list[float]:
 # choices inside effects
 
 
-def _yes(st: GameState, dec: Decision) -> list[float]:
+def _yes(st: GameState, dec: Decision, knobs: PolicyKnobs) -> list[float]:
     return [1.0 if o.kind is A.YES else 0.0 for o in dec.options]
 
 
-def _choose_first(st: GameState, dec: Decision) -> list[float]:
+def _burst(st: GameState, dec: Decision, knobs: PolicyKnobs) -> list[float]:
+    return [knobs.burst_yes_score if o.kind is A.YES else 0.0 for o in dec.options]
+
+
+def _choose_first(st: GameState, dec: Decision, knobs: PolicyKnobs) -> list[float]:
     return [1.0 if o.a == dec.player else 0.0 for o in dec.options]
 
 
-def _keep(st: GameState, dec: Decision) -> list[float]:
+def _keep(st: GameState, dec: Decision, knobs: PolicyKnobs) -> list[float]:
     return [1.0 if o.kind is A.KEEP else 0.0 for o in dec.options]
 
 
-def _excess(st: GameState, dec: Decision) -> list[float]:
+def _excess(st: GameState, dec: Decision, knobs: PolicyKnobs) -> list[float]:
     dv = V.derived(st)
     return [-pile_value(st, dv, o.a) for o in dec.options]
 
 
-def _discard(st: GameState, dec: Decision) -> list[float]:
+def _discard(st: GameState, dec: Decision, knobs: PolicyKnobs) -> list[float]:
     out = []
     for o in dec.options:
         worth = card_worth(V.cdef(st, o.a))
@@ -285,7 +312,7 @@ def _discard(st: GameState, dec: Decision) -> list[float]:
     return out
 
 
-def _arrange(st: GameState, dec: Decision) -> list[float]:
+def _arrange(st: GameState, dec: Decision, knobs: PolicyKnobs) -> list[float]:
     if dec.ctx("order") == 1:
         return [_deck_worth(st, o.a, dec.player) for o in dec.options]
     card = dec.ctx("card")
@@ -300,7 +327,7 @@ def _deck_worth(st: GameState, uid: int, chooser: int) -> float:
     return worth if st.cards[uid].owner == chooser else -worth
 
 
-def _select(st: GameState, dec: Decision) -> list[float]:
+def _select(st: GameState, dec: Decision, knobs: PolicyKnobs) -> list[float]:
     if dec.ctx("mode") == 1:
         return [0.0] * len(dec.options)
     dv = V.derived(st)
@@ -332,11 +359,11 @@ def _done_score(st: GameState, dec: Decision, polarity: int) -> float:
     return 1.0 if unwanted else -0.25
 
 
-_SCORERS: dict[DecisionKind, Callable[[GameState, Decision], list[float]]] = {
+_SCORERS: dict[DecisionKind, Callable[[GameState, Decision, PolicyKnobs], list[float]]] = {
     K.MAIN: _main,
     K.BLOCK: _block,
     K.ACTION_STEP: _action_step,
-    K.BURST: _yes,
+    K.BURST: _burst,
     K.YES_NO: _yes,
     K.CHOOSE_FIRST: _choose_first,
     K.REDRAW: _keep,

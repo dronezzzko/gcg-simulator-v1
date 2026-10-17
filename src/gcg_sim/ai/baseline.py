@@ -31,6 +31,7 @@ BASELINE_PRESETS: Mapping[str, SearchConfig] = MappingProxyType(
             max_rollout_decisions=250,
             first_player_games=24,
             mulligan_samples=96,
+            policy_burst_yes_score=1.0,
         ),
         "strong": SearchConfig(
             name="strong",
@@ -46,6 +47,7 @@ BASELINE_PRESETS: Mapping[str, SearchConfig] = MappingProxyType(
             max_rollout_decisions=250,
             first_player_games=48,
             mulligan_samples=192,
+            policy_burst_yes_score=1.0,
         ),
     }
 )
