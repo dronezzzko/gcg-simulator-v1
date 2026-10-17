@@ -101,3 +101,8 @@ head-to-head against the pre-change AI, tactical puzzles, blinded replay audits,
 - Seed plan: investigations 20000–29999; implementation screening 30000–39999; `strong` vs
   `standard` 8401 (baseline and final, same deals); held-out final confirmations 90001+
   (run once each). Raw outputs under `build/aiq2/` (gitignored).
+- Baseline `strong` vs `standard` (both pre-change, test decks, 400 mirrored games, seed 8401):
+  230/400 = 0.575, Wilson 95% [0.526, 0.623]
+  (`python -m gcg_sim.ai.compare baseline-strong baseline-standard --games 400 --seed 8401`).
+- Baseline audit replays: `build/aiq2/audit/gen.sh` on the `main` worktree, 5 BO1 games per
+  example pairing, seeds 90031–90033, decision logs (15 replays).
