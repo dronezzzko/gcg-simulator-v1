@@ -101,7 +101,6 @@ TUNED_WEIGHTS = Weights(
         0.5532,
     )
 )
-DEFAULT_WEIGHTS = TUNED_WEIGHTS
 # Fitted by `python -m gcg_sim.ai.tuning --preset standard --start tuned --feature-set roles
 # --games 540 --rounds 1 --seed 35001`: standard-preset self-play with TUNED_WEIGHTS.
 ROLE_WEIGHTS = Weights(
@@ -126,6 +125,7 @@ ROLE_WEIGHTS = Weights(
     ),
     "roles",
 )
+DEFAULT_WEIGHTS = ROLE_WEIGHTS
 
 
 def burst_density(st: GameState, observer: int) -> tuple[float, float]:

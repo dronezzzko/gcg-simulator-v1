@@ -20,12 +20,13 @@ from tests.ai.test_information_set import (
 )
 
 from gcg_sim.ai import make_agent
-from gcg_sim.ai.config import PRESETS, SearchConfig
+from gcg_sim.ai.baseline import BASELINE_PRESETS
+from gcg_sim.ai.config import SearchConfig
 from gcg_sim.engine.observe import permute_hidden
 from gcg_sim.engine.state import GameState
 
 POLICY_OPTIONS = dataclasses.replace(
-    PRESETS["standard"],
+    BASELINE_PRESETS["standard"],
     policy_burst_yes_score=4.0,
     policy_rule_polarity_table=True,
     policy_zero_ap_face=True,
@@ -56,11 +57,12 @@ def test_decision_with_policy_options_invariant_under_hidden_permutation(index: 
 
 
 def test_policy_options_change_the_search() -> None:
-    """The options are exercised: on some states the statistics differ from the standard
-    preset's with the same seed."""
+    """The options are exercised: on some states the statistics differ from those of the
+    baseline configuration without them, with the same seed."""
     states = midgame_states()
     changed = sum(
-        _with_options(i) != _decision(PRESETS["standard"], AGENT_SEEDS[i % len(AGENT_SEEDS)], st)
+        _with_options(i)
+        != _decision(BASELINE_PRESETS["standard"], AGENT_SEEDS[i % len(AGENT_SEEDS)], st)
         for i, st in enumerate(states)
     )
     print(f"\npolicy options changed the search on {changed} of {len(states)} states")

@@ -14,6 +14,7 @@ from gcg_sim.ai.evaluation import (
     FEATURES,
     HAND_WEIGHTS,
     N_FEATURES,
+    ROLE_WEIGHTS,
     TUNED_WEIGHTS,
     logistic,
 )
@@ -67,7 +68,7 @@ def test_solve_linear_system() -> None:
 
 def test_weights_cover_every_feature() -> None:
     assert len(FEATURES) == N_FEATURES == len(HAND_WEIGHTS.values) == len(TUNED_WEIGHTS.values)
-    assert DEFAULT_WEIGHTS == TUNED_WEIGHTS
+    assert DEFAULT_WEIGHTS == ROLE_WEIGHTS
     with pytest.raises(ValueError, match="expected"):
         type(HAND_WEIGHTS)((1.0,))
 

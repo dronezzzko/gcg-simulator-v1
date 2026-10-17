@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from collections.abc import Mapping
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from types import MappingProxyType
 
 
@@ -47,30 +47,55 @@ class SearchConfig:
         return max(self.min_iterations, min(self.max_iterations, wanted))
 
 
+def _adopted(config: SearchConfig) -> SearchConfig:
+    """``config`` with the settings adopted after the 2026-10 measurements (docs/AI.md):
+    root pruning and no-effect fixes, policy fixes, close target extension, observation keys
+    and the calibrated leaf value."""
+    return replace(
+        config,
+        value_scale=1.0,
+        policy_burst_yes_score=4.0,
+        noop_branch_choices=True,
+        noop_resource_aware=True,
+        strict_attack_prune=True,
+        prune_noop_rest_targets=True,
+        merge_equivalent_moves=True,
+        observation_keys=True,
+        target_extension=3.0,
+        policy_rule_polarity_table=True,
+        policy_zero_ap_face=True,
+    )
+
+
 PRESETS: Mapping[str, SearchConfig] = MappingProxyType(
     {
-        "fast": SearchConfig(
-            name="fast",
-            max_iterations=80,
-            min_iterations=20,
-            iterations_per_option=8,
-            exploration=0.15,
-            rollout_temperature=0.3,
-            first_player_games=8,
-            mulligan_samples=32,
+        "fast": _adopted(
+            SearchConfig(
+                name="fast",
+                max_iterations=64,
+                min_iterations=16,
+                iterations_per_option=7,
+                exploration=0.15,
+                rollout_temperature=0.3,
+                first_player_games=8,
+            )
         ),
-        "standard": SearchConfig(
-            name="standard", max_iterations=320, min_iterations=80, iterations_per_option=32
+        "standard": _adopted(
+            SearchConfig(
+                name="standard", max_iterations=640, min_iterations=160, iterations_per_option=64
+            )
         ),
-        "strong": SearchConfig(
-            name="strong",
-            max_iterations=1280,
-            min_iterations=320,
-            iterations_per_option=128,
-            exploration=0.15,
-            rollout_temperature=0.3,
-            first_player_games=48,
-            mulligan_samples=192,
+        "strong": _adopted(
+            SearchConfig(
+                name="strong",
+                max_iterations=1280,
+                min_iterations=320,
+                iterations_per_option=128,
+                exploration=0.15,
+                rollout_temperature=0.3,
+                first_player_games=48,
+                mulligan_samples=192,
+            )
         ),
     }
 )
