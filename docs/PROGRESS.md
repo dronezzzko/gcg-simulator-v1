@@ -119,3 +119,7 @@ head-to-head against the pre-change AI, tactical puzzles, blinded replay audits,
   (lethal extension, symmetric push, Blocker guard), ws/ai-search (close-target extension,
   target prior weight, observation keys), ws/ai-eval (refit at the serving budget).
   Engine speed in ws/engine-perf; `fast` wiring in ws/fast-wiring.
+- Engine speed (ws/engine-perf, 8 commits so far), idle machine, `gcg_sim.ai.throughput
+  --preset standard --games 24 --workers 6 --seed 11`, two alternating rounds: main 4.544 and
+  4.527 games per core-minute, ws/engine-perf 5.717 and 5.712 (×1.26); mean turns 15.4 and
+  decisions 79.8 identical. Raw: `build/aiq2/timing/engine_*.json`.
