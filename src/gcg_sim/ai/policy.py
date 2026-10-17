@@ -313,18 +313,20 @@ def _block(st: GameState, dec: Decision, knobs: PolicyKnobs) -> list[float]:
 def _guard_blocks(
     st: GameState, dv: V.Derived, dec: Decision, attacker: int, scores: list[float]
 ) -> None:
-    """Blocker guard on a non-lethal attack: a block loses ``GUARD`` when the blocking side
-    would be open to lethal without that Blocker and the block spends it: the fight destroys
-    it, or another enemy Unit is still active this turn."""
+    """Blocker guard on a non-lethal attack: a block loses ``GUARD`` when it leaves the
+    blocking side open to lethal. A Blocker the fight destroys is missing on the enemy's next
+    turn (as is the attacker, if it dies too); one that survives is rested only for the enemy
+    Units still active this turn."""
     p = dec.player
-    others_ready = any(
-        u != attacker and not st.cards[u].rested for u in st.zones[1 - p][Zone.BATTLE]
-    )
     for i, o in enumerate(dec.options):
         if o.kind is not A.BLOCK:
             continue
-        spent = others_ready or fight(st, dv, attacker, o.a).kills
-        if spent and threatened(st, p, spare=o.a):
+        f = fight(st, dv, attacker, o.a)
+        if f.kills:
+            open_to_lethal = threatened(st, p, spare=o.a, removed=attacker if f.dies else -1)
+        else:
+            open_to_lethal = threatened(st, p, spare=o.a, now=True)
+        if open_to_lethal:
             scores[i] -= GUARD
 
 

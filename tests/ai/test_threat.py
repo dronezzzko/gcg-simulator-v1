@@ -234,6 +234,57 @@ def test_guard_never_declines_the_block_that_prevents_the_loss() -> None:
     assert best(st, GUARDED).kind is A.BLOCK
 
 
+def test_guard_counts_the_attacker_a_trade_destroys() -> None:
+    """Shiden Custom and MA Form destroy each other; the one enemy Unit left cannot break the
+    last Shield and hit Player 0, so the trade is not guarded."""
+    sc = Scenario(active=1)
+    shiden = sc.add(0, "GD05-058")
+    target = sc.add(0, "ST01-005", rested=True)
+    ma_form = sc.add(1, "ST01-002")
+    sc.add(1, "GD01-004", rested=True)
+    sc.shields(0, FILLER)
+    sc.shields(1, *[FILLER] * 4)
+    st = sc.start()
+    attack(st, ma_form, target)
+    assert threatened(st, 0, spare=shiden)
+    assert not threatened(st, 0, spare=shiden, removed=ma_form)
+    assert scores(st, GUARDED) == scores(st, BASELINE_KNOBS)
+    assert best(st, GUARDED).kind is A.BLOCK
+
+
+def _block_survived(*, shields: int) -> tuple[GameState, int]:
+    """Player 1's GM attacks a rested Unit of Player 0, whose only <Blocker> (Shiden Custom 4/3)
+    destroys it and survives; Player 1 also has an active Guncannon and a rested GM."""
+    sc = Scenario(active=1)
+    shiden = sc.add(0, "GD05-058")
+    target = sc.add(0, "ST01-005", rested=True)
+    gm = sc.add(1, "ST01-005")
+    sc.add(1, "GD01-004")
+    sc.add(1, "ST01-005", rested=True)
+    sc.shields(0, *[FILLER] * shields)
+    sc.shields(1, *[FILLER] * 4)
+    st = sc.start()
+    attack(st, gm, target)
+    return st, shiden
+
+
+def test_guard_counts_only_this_turns_attackers_for_a_blocker_that_survives() -> None:
+    """The Blocker is active again on Player 1's next turn; this turn only the Guncannon can
+    still attack, which the last Shield absorbs."""
+    st, shiden = _block_survived(shields=1)
+    assert threatened(st, 0, spare=shiden)
+    assert not threatened(st, 0, spare=shiden, now=True)
+    assert scores(st, GUARDED) == scores(st, BASELINE_KNOBS)
+    assert best(st, GUARDED).kind is A.BLOCK
+
+
+def test_guard_declines_a_block_that_lets_another_attacker_through_this_turn() -> None:
+    st, shiden = _block_survived(shields=0)
+    assert threatened(st, 0, spare=shiden, now=True)
+    assert best(st, BASELINE_KNOBS).kind is A.BLOCK
+    assert best(st, GUARDED).kind is A.NO_BLOCK
+
+
 # ---------------------------------------------------------------------------------------------
 # lethal extension
 

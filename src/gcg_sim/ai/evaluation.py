@@ -231,15 +231,23 @@ def threat_to_move(st: GameState) -> bool:
     return me.units - opp.blockers >= opp.shields + (1 if opp.has_base else 0) + 1
 
 
-def threatened(st: GameState, player: int, spare: int = -1) -> bool:
-    """The enemy's Units, all active again in its next attack step, could break every Shield
-    and the Base of ``player`` and hit them, with only ``player``'s active Blockers other than
-    ``spare`` to stop them (the ``can_kill`` count)."""
+def threatened(
+    st: GameState, player: int, spare: int = -1, *, now: bool = False, removed: int = -1
+) -> bool:
+    """The enemy's Units other than ``removed`` (all of them, active again in its next attack
+    step; with ``now``, only its active ones) could break every Shield and the Base of
+    ``player`` and hit them, with only ``player``'s active Blockers other than ``spare`` to stop
+    them (the ``can_kill`` count)."""
     dv = V.derived(st)
     me = _side(st, dv, player)
+    enemy = _side(st, dv, 1 - player)
     if spare >= 0 and _ready_blocker(st, dv, player, spare):
         me.blockers -= 1
-    return _can_kill(_side(st, dv, 1 - player), me, False) > 0.0
+    if removed >= 0:
+        enemy.units -= 1
+        if not st.cards[removed].rested:
+            enemy.ready -= 1
+    return _can_kill(enemy, me, now) > 0.0
 
 
 def _ready_blocker(st: GameState, dv: V.Derived, player: int, uid: int) -> bool:
