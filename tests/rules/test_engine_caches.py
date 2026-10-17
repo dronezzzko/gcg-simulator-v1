@@ -1,6 +1,7 @@
 """Engine caches and shortcuts never change a game: every cached derived view equals a fresh
-computation, so where and how often the view is computed cannot change any result, and every
-event skipped as unlistened has no trigger candidate."""
+computation, so where and how often the view is computed cannot change any result; every
+event skipped as unlistened has no trigger candidate; and rules management destroys nothing
+whenever it skips the check because no damage reaches printed HP."""
 
 from __future__ import annotations
 
@@ -26,7 +27,7 @@ def play_games() -> None:
         assert st.winner is not None
 
 
-@pytest.mark.rule("10-1-5", "10-1-6")
+@pytest.mark.rule("10-1-5", "10-1-6", "11-3")
 def test_engine_caches_and_shortcuts_match_a_full_computation(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
@@ -35,4 +36,5 @@ def test_engine_caches_and_shortcuts_match_a_full_computation(
     play_games()
     assert checker.checks["cached view"] > 10_000
     assert checker.checks["unlistened event"] > 1_000
+    assert checker.checks["no printed lethal damage"] > 1_000
     assert not checker.stale, checker.stale[:5]

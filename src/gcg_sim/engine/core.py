@@ -862,8 +862,13 @@ def rules_management(st: GameState) -> None:
         if losers:
             set_winner(st, losers, EndReason.DECK_OUT)
             return
-        if not V.reg().hp_reduction_possible and not _any_damaged_or_zero_hp(st):
-            return
+        if not V.reg().hp_reduction_possible:
+            damaged, lethal = _damage_scan(st)
+            if not damaged:
+                return
+            if not lethal:
+                st.effect_hits.clear()
+                return
         dv = V.derived(st)
         doomed = []
         for p in (st.active, 1 - st.active):
@@ -904,15 +909,27 @@ def _emit_destroys_with_effect_damage(
         emit(st, ev, src, player=st.cards[src].owner, lki=src_lki, target=u, battle=0, group=group)
 
 
-def _any_damaged_or_zero_hp(st: GameState) -> bool:
+def _damage_scan(st: GameState) -> tuple[bool, bool]:
+    """(some Unit or Base is damaged or has printed HP 0 or less, some Unit or Base has damage
+    reaching its printed HP plus its paired Pilot's). Without HP-lowering effects a card's HP
+    is never below that printed total, so no card is destroyed while nothing reaches it."""
     db = V.reg().db
+    cards = st.cards
+    damaged = lethal = False
     for p in (0, 1):
         for z in (Zone.BATTLE, Zone.BASE):
             for uid in st.zones[p][z]:
-                c = st.cards[uid]
-                if c.damage > 0 or db.by_id(c.def_id).hp <= 0:
-                    return True
-    return False
+                c = cards[uid]
+                hp = db.by_id(c.def_id).hp
+                if c.damage > 0 or hp <= 0:
+                    damaged = True
+                if z is Zone.BATTLE and c.pair >= 0:
+                    hp += db.by_id(cards[c.pair].def_id).hp
+                if c.damage >= hp:
+                    lethal = True
+                if damaged and lethal:
+                    return True, True
+    return damaged, lethal
 
 
 def over(st: GameState) -> bool:
