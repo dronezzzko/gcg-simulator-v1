@@ -5,12 +5,19 @@ determinized states, so the composition of the opponent's hand is a sample from 
 searching player's information set, never the true hand. The expected number of 【Burst】
 cards among each side's Shields is estimated from the known decklists. The model returns the
 estimated probability that ``player`` wins. Weights are fitted by :mod:`gcg_sim.ai.tuning`.
+
+Weights carry their feature set. ``base`` (:data:`FEATURES`) is antisymmetric in the two
+players. ``roles`` (:data:`ROLE_FEATURES`) is computed from the turn player's point of view and
+keeps the threat terms of the turn player and the other player apart; the other player's
+log-odds are the negation, so the two estimates still add up to 1.
 """
 
 from __future__ import annotations
 
 import math
+from collections.abc import Mapping
 from dataclasses import dataclass
+from types import MappingProxyType
 
 from gcg_sim.ai.targeting import command_harms_enemy_units
 from gcg_sim.cards.model import CardType
@@ -37,22 +44,39 @@ FEATURES: tuple[str, ...] = (
     "bursts",
 )
 N_FEATURES = len(FEATURES)
+ROLE_FEATURES: tuple[str, ...] = (
+    *(name for name in FEATURES if name != "can_kill"),
+    "can_kill_turn_player",
+    "can_kill_other",
+    "inv_race_turn_player",
+    "inv_race_other",
+)
+FEATURE_SETS: Mapping[str, tuple[str, ...]] = MappingProxyType(
+    {"base": FEATURES, "roles": ROLE_FEATURES}
+)
 BASE_LIFE_HP = 3.0
 DANGER_LIFE = 3.0
+RACE_CAP = 6
 
 
 @dataclass(frozen=True, slots=True)
 class Weights:
-    """One weight per entry of :data:`FEATURES`."""
+    """One weight per feature of ``feature_set`` (see :data:`FEATURE_SETS`)."""
 
     values: tuple[float, ...]
+    feature_set: str = "base"
 
     def __post_init__(self) -> None:
-        if len(self.values) != N_FEATURES:
-            raise ValueError(f"expected {N_FEATURES} weights, got {len(self.values)}")
+        names = FEATURE_SETS.get(self.feature_set)
+        if names is None:
+            raise ValueError(
+                f"unknown feature set {self.feature_set!r}; choose from {sorted(FEATURE_SETS)}"
+            )
+        if len(self.values) != len(names):
+            raise ValueError(f"expected {len(names)} weights, got {len(self.values)}")
 
     def as_dict(self) -> dict[str, float]:
-        return dict(zip(FEATURES, self.values, strict=True))
+        return dict(zip(FEATURE_SETS[self.feature_set], self.values, strict=True))
 
 
 HAND_WEIGHTS = Weights(
@@ -192,6 +216,65 @@ def features(st: GameState, player: int, density: tuple[float, float]) -> list[f
     return out
 
 
+def _race(st: GameState, dv: V.Derived, attacker: int, defender: int) -> int:
+    """Turns ``attacker`` needs to win if both boards stayed as they are: every Unit with AP
+    that may attack the player does so each turn, each of the defender's Blockers stops one
+    blockable attack (the largest), the Base absorbs hits at the connecting attacks' mean AP,
+    then every Shield and one more hit; capped at :data:`RACE_CAP`."""
+    blockers = sum(
+        1
+        for u in st.zones[defender][Zone.BATTLE]
+        if d.Kw.BLOCKER in dv.kw.get(u, ()) and not V.rules_of(dv, u, d.RuleKind.CANT_BLOCK)
+    )
+    unblockable: list[int] = []
+    blockable: list[int] = []
+    for u in st.zones[attacker][Zone.BATTLE]:
+        ap = V.ap_of(st, dv, u)
+        if (
+            ap <= 0
+            or V.rules_of(dv, u, d.RuleKind.CANT_ATTACK)
+            or V.rules_of(dv, u, d.RuleKind.CANT_ATTACK_PLAYER)
+        ):
+            continue
+        if d.Kw.HIGH_MANEUVER in dv.kw.get(u, ()) or V.rules_of(dv, u, d.RuleKind.CANT_BE_BLOCKED):
+            unblockable.append(ap)
+        else:
+            blockable.append(ap)
+    blockable.sort(reverse=True)
+    through = unblockable + blockable[blockers:]
+    if not through:
+        return RACE_CAP
+    zones = st.zones[defender]
+    base_hp = sum(max(0, V.hp_of(st, dv, u) - st.cards[u].damage) for u in zones[Zone.BASE])
+    mean_ap = sum(through) / len(through)
+    base_hits = math.ceil(base_hp / mean_ap) if zones[Zone.BASE] else 0
+    hits = base_hits + len(zones[Zone.SHIELD]) + 1
+    return min(RACE_CAP, math.ceil(hits / len(through)))
+
+
+def role_features(st: GameState, density: tuple[float, float]) -> list[float]:
+    """:data:`ROLE_FEATURES` from the turn player's point of view: the ``base`` differences
+    without ``can_kill``, then ``can_kill`` of the turn player and of the other player, and
+    1 / :func:`_race` of each."""
+    dv = V.derived(st)
+    turn_player = st.active
+    other = 1 - turn_player
+    me = _side(st, dv, turn_player)
+    opp = _side(st, dv, other)
+    a = _vector(me, opp, True, density[turn_player])
+    b = _vector(opp, me, False, density[other])
+    diff = [x - y for x, y in zip(a, b, strict=True)]
+    return [
+        1.0,
+        *diff[1:3],
+        *diff[4:],
+        a[3],
+        b[3],
+        1.0 / _race(st, dv, turn_player, other),
+        1.0 / _race(st, dv, other, turn_player),
+    ]
+
+
 def logistic(z: float) -> float:
     if z >= 0:
         return 1.0 / (1.0 + math.exp(-z))
@@ -201,6 +284,10 @@ def logistic(z: float) -> float:
 
 def score(st: GameState, player: int, weights: Weights, density: tuple[float, float]) -> float:
     """The model's log-odds that ``player`` wins an unfinished game."""
+    if weights.feature_set == "roles":
+        r = role_features(st, density)
+        z = sum(w * x for w, x in zip(weights.values, r, strict=True))
+        return z if player == st.active else -z
     f = features(st, player, density)
     return sum(w * x for w, x in zip(weights.values, f, strict=True))
 

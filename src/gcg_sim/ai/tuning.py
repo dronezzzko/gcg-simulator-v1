@@ -8,7 +8,10 @@ method on the even-indexed games (pooled over rounds) gives the next round's wei
 round's odd-indexed games measure held-out log-loss. The final weights are fitted on every
 position of every round; a mirrored head-to-head match then compares them with the hand-set
 weights. Every seed derives from ``--seed``, so a run is repeatable bit for bit for any
-worker count.
+worker count. ``--preset`` plays the self-play games with a preset's search settings instead of
+the small tuning budget (``standard`` is the budget the evaluation serves), ``--start`` picks
+the weights the first round plays with, and ``--feature-set`` the feature set that is recorded
+and fitted (see :data:`gcg_sim.ai.evaluation.FEATURE_SETS`).
 
 Run: ``uv run python -m gcg_sim.ai.tuning --games 540 --rounds 2 --validate 216 --workers 13``
 """
@@ -18,22 +21,24 @@ from __future__ import annotations
 import argparse
 import json
 import math
-from collections.abc import Sequence
+from collections.abc import Mapping, Sequence
 from concurrent.futures import ProcessPoolExecutor
 from dataclasses import dataclass
 from multiprocessing import get_context
+from types import MappingProxyType
 from typing import Any
 
 from gcg_sim.ai.agents import MctsAgent
 from gcg_sim.ai.config import PRESETS, SearchConfig
 from gcg_sim.ai.evaluation import (
-    FEATURES,
+    FEATURE_SETS,
     HAND_WEIGHTS,
-    N_FEATURES,
+    TUNED_WEIGHTS,
     Weights,
     burst_density,
     features,
     logistic,
+    role_features,
 )
 from gcg_sim.ai.selfplay import MIRROR_BLOCK, run_game
 from gcg_sim.engine.game import DeckList
@@ -48,6 +53,9 @@ TUNING_CONFIG = SearchConfig(
     iterations_per_option=6,
     first_player_games=8,
     mulligan_samples=32,
+)
+START_WEIGHTS: Mapping[str, Weights] = MappingProxyType(
+    {"hand": HAND_WEIGHTS, "tuned": TUNED_WEIGHTS}
 )
 L2 = 1.0
 NEWTON_STEPS = 30
@@ -97,10 +105,15 @@ class TuningGame:
     decks: tuple[DeckList, DeckList]
     weights: tuple[Weights, Weights]
     config: SearchConfig = TUNING_CONFIG
+    feature_set: str = "base"
 
 
 def tuning_games(
-    games: int, master: int, weights: Weights, config: SearchConfig = TUNING_CONFIG
+    games: int,
+    master: int,
+    weights: Weights,
+    config: SearchConfig = TUNING_CONFIG,
+    feature_set: str = "base",
 ) -> list[TuningGame]:
     out = []
     for i in range(games):
@@ -116,6 +129,7 @@ def tuning_games(
                 decks=(TUNING_DECKS[a], TUNING_DECKS[b]),
                 weights=(weights, weights),
                 config=config,
+                feature_set=feature_set,
             )
         )
     return out
@@ -136,7 +150,10 @@ def collect(game: TuningGame) -> list[Sample]:
             return
         last_turn[0] = st.turn
         density = burst_density(st, st.active)
-        seen.append((st.active, tuple(features(st, st.active, density))))
+        if game.feature_set == "roles":
+            seen.append((st.active, tuple(role_features(st, density))))
+        else:
+            seen.append((st.active, tuple(features(st, st.active, density))))
 
     st, _ = run_game(agents, game.decks, game.seed, observe)
     if st.winner not in (0, 1):
@@ -163,9 +180,14 @@ def log_loss(samples: Sequence[Sample], w: Sequence[float]) -> float:
     return total / max(1, len(samples))
 
 
-def fit_logistic(samples: Sequence[Sample], l2: float = L2, steps: int = NEWTON_STEPS) -> Weights:
+def fit_logistic(
+    samples: Sequence[Sample],
+    l2: float = L2,
+    steps: int = NEWTON_STEPS,
+    feature_set: str = "base",
+) -> Weights:
     """L2-regularised maximum likelihood by Newton's method (deterministic, pure Python)."""
-    n = N_FEATURES
+    n = len(FEATURE_SETS[feature_set])
     w = [0.0] * n
     for _ in range(steps):
         grad = [l2 * wi for wi in w]
@@ -187,7 +209,7 @@ def fit_logistic(samples: Sequence[Sample], l2: float = L2, steps: int = NEWTON_
         w = [wi - si for wi, si in zip(w, step, strict=True)]
         if max(abs(si) for si in step) < 1e-9:
             break
-    return Weights(tuple(round(wi, 4) for wi in w))
+    return Weights(tuple(round(wi, 4) for wi in w), feature_set)
 
 
 def _solve(a: list[list[float]], b: list[float]) -> list[float]:
@@ -284,35 +306,38 @@ def tune(
     workers: int,
     start: Weights = HAND_WEIGHTS,
     config: SearchConfig = TUNING_CONFIG,
+    feature_set: str = "base",
 ) -> dict[str, Any]:
     """Run the tuning rounds; returns a JSON-serialisable report including the final weights.
 
-    Round ``r`` plays ``games`` self-play games with the current weights, fits on the
-    even-indexed games of rounds ``0..r`` pooled, and reports log-loss on the odd-indexed
-    games of round ``r`` before and after. The final weights are fitted on every position.
+    Round ``r`` plays ``games`` self-play games with the current weights, fits weights of
+    ``feature_set`` on the even-indexed games of rounds ``0..r`` pooled, and reports log-loss on
+    the odd-indexed games of round ``r`` before (``None`` while the current weights belong to
+    another feature set) and after. The final weights are fitted on every position.
     """
     weights = start
     report: dict[str, Any] = {"seed": seed, "games": games, "rounds": []}
     pooled_train: list[Sample] = []
     pooled_all: list[Sample] = []
     for r in range(rounds):
-        specs = tuning_games(games, derive_seed(seed, "round", r), weights, config)
+        specs = tuning_games(games, derive_seed(seed, "round", r), weights, config, feature_set)
         per_game = play_games(specs, workers)
         pooled_train += [s for i, g in enumerate(per_game) if i % 2 == 0 for s in g]
         test = [s for i, g in enumerate(per_game) if i % 2 == 1 for s in g]
         pooled_all += [s for g in per_game for s in g]
-        fitted = fit_logistic(pooled_train)
+        fitted = fit_logistic(pooled_train, feature_set=feature_set)
+        before = log_loss(test, weights.values) if weights.feature_set == feature_set else None
         report["rounds"].append(
             {
                 "round": r,
                 "positions": sum(len(g) for g in per_game),
-                "heldout_logloss_before": round(log_loss(test, weights.values), 4),
+                "heldout_logloss_before": None if before is None else round(before, 4),
                 "heldout_logloss_after": round(log_loss(test, fitted.values), 4),
                 "weights": fitted.as_dict(),
             }
         )
         weights = fitted
-    final = fit_logistic(pooled_all) if pooled_all else weights
+    final = fit_logistic(pooled_all, feature_set=feature_set) if pooled_all else weights
     report["positions"] = len(pooled_all)
     report["weights"] = list(final.values)
     return report
@@ -345,15 +370,20 @@ def main(argv: Sequence[str] | None = None) -> None:
     ap.add_argument("--workers", type=int, default=1)
     ap.add_argument("--validate", type=int, default=0, help="head-to-head games (multiple of 4)")
     ap.add_argument("--validate-preset", default="tuning", choices=["tuning", *sorted(PRESETS)])
+    ap.add_argument("--preset", default="tuning", choices=["tuning", *sorted(PRESETS)])
+    ap.add_argument("--start", default="hand", choices=sorted(START_WEIGHTS))
+    ap.add_argument("--feature-set", default="base", choices=sorted(FEATURE_SETS))
     args = ap.parse_args(argv)
-    report = tune(args.games, args.rounds, args.seed, args.workers)
+    config = PRESETS.get(args.preset, TUNING_CONFIG)
+    start = START_WEIGHTS[args.start]
+    report = tune(args.games, args.rounds, args.seed, args.workers, start, config, args.feature_set)
     if args.validate:
-        tuned = Weights(tuple(report["weights"]))
+        tuned = Weights(tuple(report["weights"]), args.feature_set)
         preset = PRESETS.get(args.validate_preset, TUNING_CONFIG)
         report["validation"] = validate(
             args.validate, args.seed, args.workers, tuned, HAND_WEIGHTS, preset
         )
-    report["features"] = list(FEATURES)
+    report["features"] = list(FEATURE_SETS[args.feature_set])
     print(json.dumps(report, indent=2))
 
 
