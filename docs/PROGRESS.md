@@ -83,3 +83,21 @@ records what was done, evidence, and what remains.
     `refresh coverage`: 1148 card numbers, nothing unimplemented, changed or untested.
   - `git status --short` after: empty.
 
+
+## Phase 7 — AI quality and the `fast` preset (in progress, branch `feat/ai-quality`)
+
+Goal: measured AI improvements against every known weakness in `docs/AI.md`, a `fast`
+screening preset, output-identical engine speedups. Proxies for "closer to skilled human play":
+head-to-head against the pre-change AI, tactical puzzles, blinded replay audits, budget scaling.
+
+- Baseline on `main` (bc38ab4): ruff, format, mypy clean; regular suite 3754 passed, 1 failed:
+  `tests/runner/test_pool.py::test_interrupt_terminates_workers_and_returns_nothing` is flaky
+  (5 failures in 80 isolated runs). Root cause: the caller and the executor's manager thread
+  both joined the terminated workers and raced for `waitpid`; fixed in daf73c5 (0 in 80).
+- A/B harness (c27e523): `make_agent(..., config=, weights=)`, `AgentSpec.config/weights`,
+  `gcg_sim.ai.baseline` (`baseline-standard` replays a game recorded on bc38ab4, decision logs
+  included: `tests/ai/test_baseline.py`; 24 mirrored games vs greedy on seed 31337 are
+  identical to `main`'s), `python -m gcg_sim.ai.compare A B --games N --seed S`.
+- Seed plan: investigations 20000–29999; implementation screening 30000–39999; `strong` vs
+  `standard` 8401 (baseline and final, same deals); held-out final confirmations 90001+
+  (run once each). Raw outputs under `build/aiq2/` (gitignored).
