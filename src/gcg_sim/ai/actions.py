@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import dataclasses
 from collections.abc import Callable
+from typing import Any
 
 from gcg_sim.ai.base import uid_argument
 from gcg_sim.effects import dsl as d
@@ -252,3 +253,114 @@ def prune_dominated(
     else:
         return moves
     return kept or moves
+
+
+_FIELD = frozenset({Zone.BATTLE, Zone.BASE})
+_SELF = -(1 << 40)
+
+
+def _in_flight(st: GameState, uid: int) -> bool:
+    """A battle, a resolving effect or a waiting trigger names the card."""
+    if any(uid in (b.attacker, b.target) for b in st.battles):
+        return True
+    for f in st.frames:
+        if uid in (f.host, f.card_uid) or uid in f.buf or any(v == uid for _, v in f.event):
+            return True
+        if any(uid in chosen for chosen in f.vars.values()):
+            return True
+    triggers = [*st.pending_triggers, *(t for batch in st.batches for t in batch)]
+    return any(uid in (t.host, t.card_uid) or any(v == uid for _, v in t.event) for t in triggers)
+
+
+def _references(st: GameState, uid: int) -> tuple[Any, ...]:
+    """What this turn's history, once-per-turn records and lasting or delayed effects say
+    about the card, with the card itself written as ``_SELF``."""
+    history = tuple(
+        (e.kind, e.player, e.by, e.uid == uid, e.source == uid)
+        for e in st.history
+        if uid in (e.uid, e.source)
+    )
+    once = tuple(
+        sorted(tuple(_SELF if x == uid else x for x in key) for key in st.once_used if uid in key)
+    )
+    seq = st.cards[uid].zone_seq
+    lasting = tuple(
+        sorted(
+            (
+                le.effect_key,
+                le.controller,
+                le.duration,
+                le.created_turn,
+                le.battle_id,
+                le.player,
+                le.uses,
+                le.filters_key,
+                le.aux,
+                (uid, seq) in le.targets,
+                le.source_uid == uid,
+            )
+            for le in (*st.lasting, *st.delayed)
+            if (uid, seq) in le.targets or le.source_uid == uid
+        )
+    )
+    return history, once, lasting
+
+
+def _fingerprint(st: GameState, dv: V.Derived, uid: int) -> tuple[Any, ...]:
+    """The public state of a field card, without its instance number: two copies of a Unit
+    with equal fingerprints are interchangeable. Any other card stays itself."""
+    if not 0 <= uid < len(st.cards):
+        return ("arg", uid)
+    c = st.cards[uid]
+    pilot = c.pair
+    if c.zone not in _FIELD or _in_flight(st, uid) or (pilot >= 0 and _in_flight(st, pilot)):
+        return ("card", uid)
+    paired = (st.cards[pilot].def_id, _references(st, pilot)) if pilot >= 0 else ()
+    return (
+        "field",
+        c.owner,
+        c.def_id,
+        c.zone,
+        c.rested,
+        c.damage,
+        c.entered_turn == st.turn,
+        V.ap_of(st, dv, uid),
+        V.hp_of(st, dv, uid),
+        tuple(sorted((k.value, n) for k, n in dv.kw.get(uid, {}).items())),
+        tuple(sorted(dv.traits.get(uid, ()))),
+        uid in dv.linked,
+        tuple(sorted(a.aid for a in dv.abilities.get(uid, ()))),
+        tuple(sorted((repr(r.rule), r.controller, r.source == uid) for r in dv.rules.get(uid, ()))),
+        _references(st, uid),
+        paired,
+    )
+
+
+def _public_move(st: GameState, dv: V.Derived, dec: Decision, key: Key, action: Action) -> Any:
+    k = action.kind
+    if k is A.ATTACK:
+        return (k.value, _fingerprint(st, dv, action.a), _fingerprint(st, dv, action.b))
+    if k is A.BLOCK:
+        return (k.value, _fingerprint(st, dv, action.a), action.b)
+    if k is A.SELECT and uid_argument(dec):
+        return (k.value, _fingerprint(st, dv, action.a), action.b)
+    if k is A.PAIR:
+        return (k.value, key[1], _fingerprint(st, dv, action.b), key[3])
+    return key
+
+
+def merge_equivalent(
+    st: GameState, dec: Decision, moves: list[tuple[Key, Action]]
+) -> list[tuple[Key, Action]]:
+    """Keep the first of every group of moves that differ only in which of two
+    interchangeable field cards (equal :func:`_fingerprint`) they attack with, attack, block
+    with, choose or pair onto, so the search does not split its visits between them."""
+    dv = V.derived(st)
+    seen: set[Any] = set()
+    out: list[tuple[Key, Action]] = []
+    for key, action in moves:
+        public = _public_move(st, dv, dec, key, action)
+        if public not in seen:
+            seen.add(public)
+            out.append((key, action))
+    return out

@@ -21,7 +21,7 @@ from tests.ai.test_information_set import (
 )
 
 from gcg_sim.ai import make_agent, noop
-from gcg_sim.ai.actions import Key, canonical, prune_dominated
+from gcg_sim.ai.actions import Key, canonical, merge_equivalent, prune_dominated
 from gcg_sim.ai.baseline import BASELINE_PRESETS, BASELINE_WEIGHTS
 from gcg_sim.ai.config import SearchConfig
 from gcg_sim.effects import dsl as d
@@ -30,8 +30,8 @@ from gcg_sim.engine import core
 from gcg_sim.engine.game import apply
 from gcg_sim.engine.observe import information_set_key, permute_hidden
 from gcg_sim.engine.state import Action, GameState
-from gcg_sim.engine.types import ActionKind, DecisionKind, Zone
-from gcg_sim.testkit import Scenario, card_text, play
+from gcg_sim.engine.types import PLAYER_TARGET, ActionKind, DecisionKind, Zone
+from gcg_sim.testkit import Scenario, activate, card_text, has_action, play, select_if_asked
 
 A = ActionKind
 FILLER = "GD01-060"
@@ -372,6 +372,64 @@ def test_resource_aware_check_still_prunes_removal_that_should_wait() -> None:
 
 
 # ---------------------------------------------------------------------------------------------
+# merge_equivalent_moves: interchangeable field cards give one root move
+
+
+def merged(st: GameState) -> list[Action]:
+    dec = st.pending
+    assert dec is not None
+    return [a for _, a in merge_equivalent(st, dec, canonical(st, dec))]
+
+
+def attacks(moves: list[Action]) -> list[tuple[int, int]]:
+    return [(a.a, a.b) for a in moves if a.kind is A.ATTACK]
+
+
+def identical_attackers(*, hidden: int = 0) -> tuple[GameState, int, int, int, int]:
+    """Two GMs facing two rested Strike Daggers."""
+    sc = Scenario()
+    gm1 = sc.add(0, "ST01-005")
+    gm2 = sc.add(0, "ST01-005")
+    dagger1 = sc.add(1, "ST04-005", rested=True)
+    dagger2 = sc.add(1, "ST04-005", rested=True)
+    hide_enemy_cards(sc, hidden)
+    sc.shields(1, FILLER, FILLER, FILLER)
+    return sc.start(), gm1, gm2, dagger1, dagger2
+
+
+def test_two_identical_attackers_give_one_attack_move() -> None:
+    st, gm1, gm2, dagger1, dagger2 = identical_attackers()
+    dec = st.pending
+    assert dec is not None
+    every = [(gm, target) for gm in (gm1, gm2) for target in (PLAYER_TARGET, dagger1, dagger2)]
+    assert sorted(attacks([a for _, a in canonical(st, dec)])) == sorted(every)
+    assert attacks(merged(st)) == [(gm1, PLAYER_TARGET), (gm1, dagger1)]
+
+
+def test_a_uid_specific_difference_keeps_both_attackers() -> None:
+    """Two Gundam Heavyarms Custom (EW), one of which used its 【Once per Turn】 ability."""
+    sc = Scenario()
+    used = sc.add(0, "GD05-079")
+    fresh = sc.add(0, "GD05-079")
+    target = sc.add(1, "ST04-005", rested=True)
+    sc.shields(1, FILLER, FILLER, FILLER)
+    st = sc.start()
+    activate(st, used)
+    select_if_asked(st, target)
+    assert has_action(st, A.ACTIVATE, fresh) and not has_action(st, A.ACTIVATE, used)
+    assert {a for a, b in attacks(merged(st)) if b == PLAYER_TARGET} == {used, fresh}
+
+
+def test_merging_keeps_both_moves_on_different_cards() -> None:
+    sc = Scenario()
+    sc.add(0, "ST01-005")
+    sc.add(0, "ST01-005", damage=1)
+    sc.shields(1, FILLER, FILLER, FILLER)
+    st = sc.start()
+    assert len(attacks(merged(st))) == 2
+
+
+# ---------------------------------------------------------------------------------------------
 # information-set honesty
 
 
@@ -380,6 +438,7 @@ ROOT_SETTINGS = config(
     noop_resource_aware=True,
     strict_attack_prune=True,
     prune_noop_rest_targets=True,
+    merge_equivalent_moves=True,
 )
 
 
@@ -395,6 +454,7 @@ SETTING_SCENARIOS: dict[str, Callable[[], GameState]] = {
     "noop_resource_aware": lambda: age_device(hidden=4),
     "strict_attack_prune": lambda: zero_ap_scenario(active_resources=2, hidden=4)[0],
     "prune_noop_rest_targets": lambda: amuro_rests(hidden=4)[0],
+    "merge_equivalent_moves": lambda: identical_attackers(hidden=4)[0],
 }
 
 

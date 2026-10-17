@@ -36,6 +36,7 @@ BASELINE_PRESETS: Mapping[str, SearchConfig] = MappingProxyType(
             noop_resource_aware=False,
             strict_attack_prune=False,
             prune_noop_rest_targets=False,
+            merge_equivalent_moves=False,
         ),
         "strong": SearchConfig(
             name="strong",
@@ -56,6 +57,7 @@ BASELINE_PRESETS: Mapping[str, SearchConfig] = MappingProxyType(
             noop_resource_aware=False,
             strict_attack_prune=False,
             prune_noop_rest_targets=False,
+            merge_equivalent_moves=False,
         ),
     }
 )

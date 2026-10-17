@@ -18,7 +18,7 @@ import math
 from dataclasses import dataclass, field
 
 from gcg_sim.ai import policy
-from gcg_sim.ai.actions import Key, canonical, prune_dominated
+from gcg_sim.ai.actions import Key, canonical, merge_equivalent, prune_dominated
 from gcg_sim.ai.base import Alternative
 from gcg_sim.ai.config import SearchConfig
 from gcg_sim.ai.evaluation import Weights, burst_density, logistic, score
@@ -97,6 +97,8 @@ def search(
             weights=weights,
         )
         root_moves = [m for m in root_moves if m[0] not in idle] or root_moves
+    if config.merge_equivalent_moves:
+        root_moves = merge_equivalent(st, dec, root_moves)
     if len(root_moves) == 1:
         return SearchResult(root_moves[0][1], [], 0)
     ctx = _Search(

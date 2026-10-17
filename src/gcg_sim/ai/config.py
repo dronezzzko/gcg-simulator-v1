@@ -35,6 +35,7 @@ class SearchConfig:
     noop_resource_aware: bool = False
     strict_attack_prune: bool = False
     prune_noop_rest_targets: bool = False
+    merge_equivalent_moves: bool = False
 
     def budget(self, n_options: int) -> int:
         wanted = self.iterations_per_option * n_options
