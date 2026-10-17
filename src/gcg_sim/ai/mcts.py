@@ -10,6 +10,10 @@ identical worlds. Below the root the walk chooses among the moves legal in that 
 node, plays the heuristic policy until ``horizon_turns`` turn boundaries have passed, and
 backs up the evaluation. Only the true state's pending options and the player's own
 knowledge are read directly.
+
+A setting that is off in the presets: ``observation_keys`` keys children by decision kind and
+keeps the walk in the same node after an opponent's action-step pass, which the searcher cannot
+tell apart from the engine passing for an opponent without options.
 """
 
 from __future__ import annotations
@@ -28,9 +32,10 @@ from gcg_sim.ai.policy import knobs_for
 from gcg_sim.engine.game import apply
 from gcg_sim.engine.observe import determinize
 from gcg_sim.engine.state import Action, Decision, GameState
+from gcg_sim.engine.types import ActionKind, DecisionKind
 from gcg_sim.rng import SplitMix64
 
-ChildKey = tuple[int, Key]
+ChildKey = tuple[int, str, Key]
 WIN_DECAY = 0.01
 LEAF_FLOOR = 0.05
 
@@ -97,6 +102,7 @@ def search(
     root = _Node()
     first_world = determinize(st, player, world_seeds[0])
     _add_children(root, first_world, dec, root_moves, config)
+    keys = [_child_key(dec, key, config) for key, _ in root_moves]
     done = 0
     while done < budget:
         child, action, fresh = _select(root, first_world, dec, root_moves, config)
@@ -105,9 +111,9 @@ def search(
         apply(world, action, check=False)
         _iterate(ctx, child, fresh, world, SplitMix64(rollout_seeds[k]))
         done += 1
-        if _settled(root, player, root_moves, budget - done):
+        if _settled(root, keys, budget - done):
             break
-    return _result(root, player, root_moves, done)
+    return _result(root, keys, root_moves, done)
 
 
 def _iterate(ctx: _Search, first: _Child, fresh: bool, s: GameState, rng: SplitMix64) -> None:
@@ -138,7 +144,19 @@ def _descend(ctx: _Search, node: _Node, s: GameState, path: list[_Child]) -> Non
         path.append(child)
         if fresh:
             return
+        if ctx.config.observation_keys and _unobserved_pass(dec, action, ctx.player):
+            continue
         node = _node_of(child)
+
+
+def _unobserved_pass(dec: Decision, action: Action, player: int) -> bool:
+    """An opponent's pass in an action step looks to ``player`` the same as the engine passing
+    for an opponent without options, which happens without a decision."""
+    return (
+        dec.player != player
+        and dec.kind is DecisionKind.ACTION_STEP
+        and action.kind is ActionKind.PASS
+    )
 
 
 def _node_of(child: _Child) -> _Node:
@@ -160,6 +178,10 @@ def _leaf_value(s: GameState, ctx: _Search) -> float:
     return LEAF_FLOOR + (1.0 - 2.0 * LEAF_FLOOR) * logistic(z)
 
 
+def _child_key(dec: Decision, key: Key, cfg: SearchConfig) -> ChildKey:
+    return (dec.player, dec.kind.value if cfg.observation_keys else "", key)
+
+
 def _select(
     node: _Node,
     s: GameState,
@@ -168,11 +190,11 @@ def _select(
     cfg: SearchConfig,
 ) -> tuple[_Child, Action, bool]:
     """Pick a child by UCB1 + progressive prior; unvisited moves go first, best prior first."""
-    mover = dec.player
     children = node.children
-    if any((mover, key) not in children for key, _ in moves):
+    keys = [_child_key(dec, key, cfg) for key, _ in moves]
+    if any(key not in children for key in keys):
         _add_children(node, s, dec, moves, cfg)
-    avail = [(children[(mover, key)], action) for key, action in moves]
+    avail = [(children[key], action) for key, (_, action) in zip(keys, moves, strict=True)]
     for child, _ in avail:
         child.avail += 1
     unvisited = [(c, a) for c, a in avail if c.visits == 0]
@@ -206,26 +228,26 @@ def _add_children(
     weights = [math.exp((x - top) / cfg.prior_temperature) for x in scores]
     total = sum(weights)
     for (key, _), wgt in zip(moves, weights, strict=True):
-        node.children.setdefault((dec.player, key), _Child(dec.player, wgt / total))
+        node.children.setdefault(_child_key(dec, key, cfg), _Child(dec.player, wgt / total))
 
 
-def _settled(root: _Node, player: int, moves: list[tuple[Key, Action]], remaining: int) -> bool:
+def _settled(root: _Node, keys: list[ChildKey], remaining: int) -> bool:
     """True when the most-visited move can no longer be overtaken in the remaining budget."""
     visits = sorted(
-        (ch.visits for key, _ in moves if (ch := root.children.get((player, key))) is not None),
+        (ch.visits for key in keys if (ch := root.children.get(key)) is not None),
         reverse=True,
     )
-    if len(visits) < len(moves):
+    if len(visits) < len(keys):
         return False
     return visits[0] - visits[1] > remaining
 
 
 def _result(
-    root: _Node, player: int, moves: list[tuple[Key, Action]], iterations: int
+    root: _Node, keys: list[ChildKey], moves: list[tuple[Key, Action]], iterations: int
 ) -> SearchResult:
     stats: list[Alternative] = []
-    for key, action in moves:
-        ch = root.children.get((player, key))
+    for key, (_, action) in zip(keys, moves, strict=True):
+        ch = root.children.get(key)
         stats.append(Alternative(action, ch.mean() if ch else 0.0, ch.visits if ch else 0))
     best = max(range(len(stats)), key=lambda i: (stats[i].visits, stats[i].value))
     return SearchResult(stats[best].action, stats, iterations)

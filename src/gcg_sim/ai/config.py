@@ -31,6 +31,7 @@ class SearchConfig:
     first_player_games: int = 24
     mulligan_samples: int = 96
     policy_burst_yes_score: float = 1.0
+    observation_keys: bool = False
 
     def budget(self, n_options: int) -> int:
         wanted = self.iterations_per_option * n_options
