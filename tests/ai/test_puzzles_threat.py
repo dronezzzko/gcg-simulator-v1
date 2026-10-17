@@ -64,7 +64,17 @@ def no_blocks(config: SearchConfig) -> int:
     return count
 
 
-@pytest.mark.parametrize("config", [GUARD_AND_EXTENSION, ALL_ON], ids=["guard+ext", "all"])
+@pytest.mark.parametrize(
+    "config",
+    [
+        GUARD_AND_EXTENSION,
+        dataclasses.replace(GUARD_AND_EXTENSION, extension_trigger="threat"),
+        dataclasses.replace(GUARD_AND_EXTENSION, extension_trigger="opponent"),
+        dataclasses.replace(GUARD_AND_EXTENSION, rollout_push="extension"),
+        ALL_ON,
+    ],
+    ids=["guard+ext", "trigger-threat", "trigger-opponent", "push-extension", "all"],
+)
 def test_keeps_the_last_blocker_for_the_lethal_turn(config: SearchConfig) -> None:
     assert no_blocks(config) >= 7
 
