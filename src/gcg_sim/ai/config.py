@@ -63,6 +63,9 @@ class SearchConfig:
                 "would not outrank every evaluated position"
             )
 
+    policy_rule_polarity_table: bool = False
+    policy_zero_ap_face: bool = False
+
     def budget(self, n_options: int) -> int:
         wanted = self.iterations_per_option * n_options
         return max(self.min_iterations, min(self.max_iterations, wanted))

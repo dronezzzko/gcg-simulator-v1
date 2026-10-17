@@ -15,7 +15,7 @@ from dataclasses import dataclass
 from functools import cache
 
 from gcg_sim.ai import targeting
-from gcg_sim.ai.actions import ex_used
+from gcg_sim.ai.actions import _attack_can_matter, ex_used
 from gcg_sim.ai.config import SearchConfig
 from gcg_sim.ai.evaluation import can_kill_to_move, threatened
 from gcg_sim.ai.values import (
@@ -46,6 +46,7 @@ CLEAR_THE_WAY = 8.0
 MUST_BLOCK = 100.0
 KEEPABLE_TOP = 2.0
 GUARD = 6.0
+IDLE_ATTACK = -1.0
 
 
 @dataclass(frozen=True, slots=True)
@@ -62,6 +63,8 @@ class PolicyKnobs:
     burst_yes_score: float = 1.0
     push: bool = False
     guard: bool = False
+    rule_polarity_table: bool = False
+    zero_ap_face: bool = False
 
 
 BASELINE_KNOBS = PolicyKnobs()
@@ -73,6 +76,8 @@ def knobs_for(config: SearchConfig) -> PolicyKnobs:
         burst_yes_score=config.policy_burst_yes_score,
         push=config.rollout_push == "all",
         guard=config.rollout_guard,
+        rule_polarity_table=config.policy_rule_polarity_table,
+        zero_ap_face=config.policy_zero_ap_face,
     )
 
 
@@ -129,6 +134,7 @@ class _Board:
     my_base_is_weak: bool
     enemy_max_ap: int
     attackers: int
+    knobs: PolicyKnobs = BASELINE_KNOBS
 
     @property
     def blocked_from_lethal(self) -> bool:
@@ -136,7 +142,9 @@ class _Board:
         return self.enemy_exposed and 0 < self.attackers <= len(self.enemy_blockers)
 
 
-def _board(st: GameState, dv: V.Derived, dec: Decision) -> _Board:
+def _board(
+    st: GameState, dv: V.Derived, dec: Decision, knobs: PolicyKnobs = BASELINE_KNOBS
+) -> _Board:
     p = dec.player
     enemy = 1 - p
     my_base = st.zones[p][Zone.BASE]
@@ -148,13 +156,20 @@ def _board(st: GameState, dv: V.Derived, dec: Decision) -> _Board:
         enemy_has_base=bool(st.zones[enemy][Zone.BASE]),
         my_base_is_weak=not my_base or V.cdef(st, my_base[0]).card_type is CardType.EX_BASE,
         enemy_max_ap=max((V.ap_of(st, dv, u) for u in st.zones[enemy][Zone.BATTLE]), default=0),
-        attackers=len({o.a for o in dec.options if o.kind is A.ATTACK}),
+        attackers=len(
+            {
+                o.a
+                for o in dec.options
+                if o.kind is A.ATTACK and (not knobs.zero_ap_face or _attack_can_matter(st, p, o.a))
+            }
+        ),
+        knobs=knobs,
     )
 
 
 def _main(st: GameState, dec: Decision, knobs: PolicyKnobs) -> list[float]:
     dv = V.derived(st)
-    board = _board(st, dv, dec)
+    board = _board(st, dv, dec, knobs)
     push = knobs.push and board.attackers > 0 and not board.enemy_exposed and can_kill_to_move(st)
     return [_main_option(st, dv, board, o, push, knobs.guard) for o in dec.options]
 
@@ -230,6 +245,8 @@ def _block_risk(st: GameState, dv: V.Derived, b: _Board, attacker: int, target: 
 def _attack(st: GameState, dv: V.Derived, b: _Board, attacker: int, target: int) -> float:
     risk = _block_risk(st, dv, b, attacker, target)
     if target == PLAYER_TARGET:
+        if b.knobs.zero_ap_face and not _attack_can_matter(st, b.player, attacker):
+            return IDLE_ATTACK
         if b.enemy_exposed:
             if _unblockable(dv, attacker) or not b.enemy_blockers:
                 return LETHAL
@@ -401,7 +418,11 @@ def _select(st: GameState, dec: Decision, knobs: PolicyKnobs) -> list[float]:
         return [
             0.0 if o.kind is A.DONE else keep - pile_value(st, dv, o.a) - 0.5 for o in dec.options
         ]
-    polarity = targeting.choice_polarity(st)
+    polarity = targeting.choice_polarity(st, knobs.rule_polarity_table)
+    battling = None
+    if knobs.rule_polarity_table and targeting.choice_rule_lasts_this_battle(st):
+        battle = st.battle
+        battling = () if battle is None else (battle.attacker, battle.target)
     scores = []
     for o in dec.options:
         if o.kind is not A.SELECT or not 0 <= o.a < len(st.cards):
@@ -412,7 +433,10 @@ def _select(st: GameState, dec: Decision, knobs: PolicyKnobs) -> list[float]:
         wants = polarity == targeting.HELPS if mine else polarity != targeting.HELPS
         if mine and polarity == targeting.UNKNOWN:
             wants = True
-        scores.append(worth if wants else -worth)
+        if battling is not None and mine and o.a not in battling:
+            scores.append(-worth)
+        else:
+            scores.append(worth if wants else -worth)
     return scores
 
 
