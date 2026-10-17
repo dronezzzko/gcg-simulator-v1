@@ -40,11 +40,12 @@ def unknown_pools(st: GameState, observer: int, owner: int) -> tuple[list[int], 
     """(main-deck pool, resource pool): def ids the hidden instances of ``owner`` can be."""
     main = Counter(st.decklists[owner])
     res = Counter(st.resource_decklists[owner])
-    db = V.reg().db
+    base_def_id = V.reg().db.base_def_id
+    bit = 1 << observer
     for c in st.cards:
-        if c.owner != owner or is_hidden_from(st, c.uid, observer):
+        if c.owner != owner or (c.zone in HIDDEN_ZONES and not c.known & bit):
             continue
-        def_id = db.base_def_id(c.def_id)
+        def_id = base_def_id(c.def_id)
         if main[def_id] > 0:
             main[def_id] -= 1
         elif res[def_id] > 0:
