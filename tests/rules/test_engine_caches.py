@@ -49,15 +49,17 @@ def test_engine_caches_and_shortcuts_match_a_full_computation(
 
 
 @pytest.mark.rule("10-1-6-1")
-def test_a_unit_added_after_a_scenario_starts_still_triggers() -> None:
+@pytest.mark.parametrize("raw", [False, True])
+def test_a_unit_added_after_a_scenario_starts_still_triggers(raw: bool) -> None:
     """The engine skips events no card in the game's decklists can trigger on, so a card added
-    after the scenario starts joins its decklists."""
+    after the scenario starts joins its decklists, also when added without requiring its
+    script."""
     sc = Scenario()
     sc.resources(0, 2)
     zeon_remnant = sc.add(0, ZEON_REMNANT, Zone.HAND)
     sc.add(1, ZAKU_MARINER)
     st = sc.start()
-    raider = sc.add(1, RAIDER)
+    raider = sc.add_raw(1, RAIDER, Zone.BATTLE) if raw else sc.add(1, RAIDER)
     play(st, zeon_remnant)
     select_if_asked(st, raider)
     assert st.cards[raider].damage == 1

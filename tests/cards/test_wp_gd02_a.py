@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import pytest
 
-from gcg_sim.engine import core
 from gcg_sim.engine import view as V
 from gcg_sim.engine.state import GameState
 from gcg_sim.engine.types import PLAYER_TARGET, ActionKind, DecisionKind, Zone
@@ -73,7 +72,7 @@ def settle(st: GameState) -> None:
 def pair_unchecked(sc: Scenario, player: int, unit: int, pilot_number: str) -> int:
     """Pair a Pilot card whose own text is not implemented in this package (only its name and
     stats matter to the test)."""
-    pilot = core.new_card(sc.st, sc.db[pilot_number].def_id, player, Zone.PAIRED)
+    pilot = sc.add_raw(player, pilot_number, Zone.PAIRED)
     sc.st.cards[pilot].pair = unit
     sc.st.cards[unit].pair = pilot
     sc.st.touch()

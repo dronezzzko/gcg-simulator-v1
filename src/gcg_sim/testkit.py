@@ -81,6 +81,15 @@ class Scenario:
             self._record_decklists()
         return uid
 
+    def add_raw(self, player: int, number: str, zone: Zone) -> int:
+        """Put a card into a zone as a newly created card, without requiring its script (for
+        cards whose text is not implemented and only their name and stats matter). After
+        :meth:`start`, the card also joins its owner's decklist."""
+        uid = core.new_card(self.st, self.db[number].def_id, player, zone)
+        if self._started:
+            self._record_decklists()
+        return uid
+
     def hand(self, player: int, *numbers: str) -> list[int]:
         return [self.add(player, n, Zone.HAND) for n in numbers]
 

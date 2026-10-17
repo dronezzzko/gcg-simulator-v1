@@ -117,6 +117,8 @@ def remove_from_game(st: GameState, uid: int) -> None:
 
 
 def new_card(st: GameState, def_id: int, owner: int, zone: Zone, *, rested: bool = False) -> int:
+    """Create a card. Unless it is a token, it must be in its owner's decklists, since
+    :func:`emit` skips the events none of their cards can trigger on (:func:`listened_events`)."""
     uid = len(st.cards)
     c = CardInstance(uid, def_id, owner, Zone.OUTSIDE)
     c.known = BOTH_KNOW
