@@ -24,7 +24,7 @@ from gcg_sim.engine.state import GameState
 GAME_SEEDS = (33031, 33032, 33033, 33034, 33035)
 FIRST_TURN = 11
 STATES_PER_GAME = 4
-AGENT_SEED = 17
+AGENT_SEED = 33036
 CONFIGS = (
     dataclasses.replace(
         PRESETS["standard"], lethal_extension_turns=1, rollout_push="all", rollout_guard=True
