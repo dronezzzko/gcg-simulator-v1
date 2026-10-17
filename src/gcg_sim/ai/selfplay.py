@@ -13,6 +13,8 @@ from multiprocessing import get_context
 
 from gcg_sim.ai.agents import make_agent
 from gcg_sim.ai.base import Agent
+from gcg_sim.ai.config import SearchConfig
+from gcg_sim.ai.evaluation import Weights
 from gcg_sim.engine.game import DeckList, apply, new_game
 from gcg_sim.engine.state import GameState
 from gcg_sim.rng import derive_seed
@@ -23,8 +25,13 @@ MIRROR_BLOCK = 4
 
 @dataclass(frozen=True, slots=True)
 class AgentSpec:
+    """An agent kind and preset; ``config`` and ``weights``, when given, replace the preset's
+    search settings and the evaluation weights (see :func:`gcg_sim.ai.make_agent`)."""
+
     kind: str
     preset: str = "standard"
+    config: SearchConfig | None = None
+    weights: Weights | None = None
 
 
 @dataclass(frozen=True, slots=True)
@@ -70,7 +77,7 @@ def run_game(
 
 def play(spec: GameSpec) -> GameOutcome:
     a0, a1 = (
-        make_agent(a.kind, preset=a.preset, seed=s)
+        make_agent(a.kind, preset=a.preset, seed=s, config=a.config, weights=a.weights)
         for a, s in zip(spec.agents, spec.agent_seeds, strict=True)
     )
     st, decisions = run_game((a0, a1), spec.decks, spec.game_seed)

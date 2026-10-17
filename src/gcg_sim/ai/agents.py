@@ -98,15 +98,27 @@ class MctsAgent(AgentCore):
 AGENT_KINDS = ("random", "greedy", "mcts")
 
 
-def make_agent(kind: str, *, preset: str = "standard", seed: int = 0, log: bool = False) -> Agent:
+def make_agent(
+    kind: str,
+    *,
+    preset: str = "standard",
+    seed: int = 0,
+    log: bool = False,
+    config: SearchConfig | None = None,
+    weights: Weights | None = None,
+) -> Agent:
     """Build an agent: ``kind`` is "random", "greedy", or "mcts"; ``preset`` selects the MCTS
-    budget ("standard" or "strong") and is ignored by the baselines."""
+    budget ("standard" or "strong") and is ignored by the baselines. ``config`` replaces the
+    preset's search settings and ``weights`` the evaluation weights (greedy and MCTS), so two
+    versions of the AI can play each other in one process."""
     if preset not in PRESETS:
         raise ValueError(f"unknown AI preset {preset!r}; choose from {sorted(PRESETS)}")
+    chosen_weights = DEFAULT_WEIGHTS if weights is None else weights
     if kind == "random":
         return RandomAgent(seed, log=log)
     if kind == "greedy":
-        return GreedyAgent(seed, log=log)
+        return GreedyAgent(seed, log=log, weights=chosen_weights)
     if kind == "mcts":
-        return MctsAgent(seed, config=PRESETS[preset], log=log)
+        chosen = PRESETS[preset] if config is None else config
+        return MctsAgent(seed, config=chosen, log=log, weights=chosen_weights)
     raise ValueError(f"unknown agent kind {kind!r}; choose from {list(AGENT_KINDS)}")
