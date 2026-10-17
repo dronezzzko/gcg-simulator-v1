@@ -7,9 +7,9 @@ reports, and the win rate carries a Wilson 95% interval.
 An agent is ``random``, ``greedy``, a preset (``standard``, ``strong``, ...), or a baseline
 preset (``baseline-standard``: the AI as released before the 2026-10 changes, see
 :mod:`gcg_sim.ai.baseline`), optionally followed by ``:field=value,...`` to replace
-``SearchConfig`` fields, or ``weights=<name>`` (``default``, ``hand``, ``baseline``) to replace
-the evaluation weights. The configuration's ``name`` seeds the agent's decisions, so variants of
-one preset keep the same per-decision seeds.
+``SearchConfig`` fields, or ``weights=<name>`` (``default``, ``hand``, ``baseline``, ``roles``)
+to replace the evaluation weights. The configuration's ``name`` seeds the agent's decisions, so
+variants of one preset keep the same per-decision seeds.
 
 Decks: ``tests`` (``tests/ai/decks.py``, run from the repository root), ``tuning`` (the three
 tuning decks), ``examples`` (``examples/decks/*.txt``), a comma-separated list of deck files,
@@ -33,7 +33,7 @@ from typing import Any
 
 from gcg_sim.ai.baseline import BASELINE_PRESETS, BASELINE_WEIGHTS
 from gcg_sim.ai.config import PRESETS, SearchConfig
-from gcg_sim.ai.evaluation import DEFAULT_WEIGHTS, HAND_WEIGHTS, Weights
+from gcg_sim.ai.evaluation import DEFAULT_WEIGHTS, HAND_WEIGHTS, ROLE_WEIGHTS, Weights
 from gcg_sim.ai.selfplay import (
     MIRROR_BLOCK,
     AgentSpec,
@@ -53,6 +53,7 @@ WEIGHTS: dict[str, Weights] = {
     "default": DEFAULT_WEIGHTS,
     "hand": HAND_WEIGHTS,
     "baseline": BASELINE_WEIGHTS,
+    "roles": ROLE_WEIGHTS,
 }
 DECK_SETS = {"tests": "tests.ai.decks:DECKS", "tuning": "gcg_sim.ai.tuning:TUNING_DECKS"}
 EXAMPLES = Path("examples") / "decks"
