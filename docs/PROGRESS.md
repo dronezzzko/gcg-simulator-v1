@@ -152,3 +152,11 @@ head-to-head against the pre-change AI, tactical puzzles, blinded replay audits,
   0.541 [0.507, 0.576]. Paired: 2x-new vs 1x-new 126:89, 2x-new vs 2x-baseline 135:96.
 - Presets adopted (a32d212): standard = clamp(64n, 160, 640) + all adopted settings +
   value_scale 1.0 + ROLE_WEIGHTS (now DEFAULT_WEIGHTS); strong and fast get the same settings.
+- World cache (fc29d5f): each search world determinized once (determinize calls in a standard
+  game 28,134 -> 7,627); one full new-standard game has the same digest with and without it.
+  Horizon guard (4d8bd95) rejects a horizon at which a win would not outrank estimates.
+- Blinded replay audit (workflow: 10 auditors on 30 anonymized transcripts with boards and all
+  options but no search statistics, `build/aiq2/audit/tools/blind.py`; every flagged play checked
+  by a second agent): 15 baseline games from the `main` worktree and 15 new-standard games, same
+  seeds (90031–90033, 5 BO1 games per example pairing). Confirmed implausible plays: baseline 22
+  (31 flagged), new 19 (22 flagged). Classified list: `build/aiq2/audit/classified.md`.
