@@ -1,4 +1,5 @@
-"""The ``roles`` feature set of the evaluation and the tuning options that fit it."""
+"""The ``roles`` feature set of the evaluation, its fitted weights and the tuning options that
+fit it."""
 
 from __future__ import annotations
 
@@ -9,11 +10,13 @@ from typing import Any
 import pytest
 
 from gcg_sim.ai import tuning
+from gcg_sim.ai.compare import parse_agent
 from gcg_sim.ai.config import PRESETS, SearchConfig
 from gcg_sim.ai.evaluation import (
     FEATURES,
     HAND_WEIGHTS,
     ROLE_FEATURES,
+    ROLE_WEIGHTS,
     TUNED_WEIGHTS,
     Weights,
     burst_density,
@@ -22,6 +25,7 @@ from gcg_sim.ai.evaluation import (
     role_features,
     score,
 )
+from gcg_sim.ai.selfplay import AgentSpec
 from gcg_sim.engine.state import GameState
 from gcg_sim.testkit import Scenario
 
@@ -67,6 +71,15 @@ def test_role_features_keep_each_players_threats_apart() -> None:
     assert roles["inv_race_other"] == 1.0
 
 
+def test_role_weights_value_the_turn_players_lethal_over_the_others() -> None:
+    """Player 0 wins this turn: the opponent's lethal on board does not matter. The base
+    features cancel the two threats, so the tuned weights rate it far lower."""
+    st = both_can_kill(defender_base=False)
+    density = burst_density(st, 0)
+    assert evaluate(st, 0, ROLE_WEIGHTS, density) > 0.9
+    assert evaluate(st, 0, TUNED_WEIGHTS, density) < 0.8
+
+
 def test_role_score_is_from_the_turn_players_point_of_view() -> None:
     st = both_can_kill(defender_base=False)
     density = burst_density(st, 0)
@@ -80,12 +93,17 @@ def test_role_score_is_from_the_turn_players_point_of_view() -> None:
 def test_weights_check_their_feature_set() -> None:
     assert TUNED_WEIGHTS.feature_set == "base"
     assert Weights(TUNED_WEIGHTS.values) == TUNED_WEIGHTS
-    roles = Weights((0.0,) * len(ROLE_FEATURES), "roles")
-    assert list(roles.as_dict()) == list(ROLE_FEATURES)
+    assert ROLE_WEIGHTS.feature_set == "roles"
+    assert list(ROLE_WEIGHTS.as_dict()) == list(ROLE_FEATURES)
     with pytest.raises(ValueError, match="expected 17 weights"):
         Weights(TUNED_WEIGHTS.values, "roles")
     with pytest.raises(ValueError, match="unknown feature set"):
         Weights(TUNED_WEIGHTS.values, "other")
+
+
+def test_compare_selects_the_role_weights() -> None:
+    spec = parse_agent("standard:weights=roles")
+    assert spec == AgentSpec("mcts", config=PRESETS["standard"], weights=ROLE_WEIGHTS)
 
 
 def test_tuning_fits_the_role_feature_set_reproducibly() -> None:
