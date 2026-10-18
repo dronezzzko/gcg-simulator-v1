@@ -66,8 +66,12 @@ Single-observer information-set MCTS (SO-ISMCTS) over *moves*:
    interchangeable field cards they use become one move, so the search does not split its visits
    between them. Two cards are interchangeable when their public fingerprints match:
    definition, state, derived stats, and the same this-turn history, once-per-turn records and
-   lasting effects, with the card itself written as "self"; a card that a battle, a resolving
-   effect or a waiting trigger names is never merged (`merge_equivalent_moves`).
+   lasting or delayed effects (for a paired Unit, its Pilot's too), with the card itself written
+   as "self"; a card that a battle, a resolving effect or a waiting trigger names is never
+   merged (`merge_equivalent_moves`). Both checks compare raw numbers conservatively: a
+   once-per-turn record or an event value that merely equals a card's instance number also
+   keeps the two cards apart, so whether copies merge can depend on their instance numbers, but
+   two different cards are never merged.
 2. **Dominated moves.** Before searching, the root drops moves that can only be worse than
    another legal move (`actions.prune_dominated`):
    - declining a free "【Burst】Add this card to your hand";
@@ -77,8 +81,9 @@ Single-observer information-set MCTS (SO-ISMCTS) over *moves*:
      that battle (`strict_attack_prune`; greedy keeps the older, looser test);
    - choosing an already-rested enemy Unit for an effect whose only use of the choice is to
      rest it, unless something reacts to a Unit being rested, a delayed effect is armed, an
-     "If you do" step follows, or a once-per-turn effect has not acted yet
-     (`prune_noop_rest_targets`).
+     "If you do" step follows, a once-per-turn effect has not acted yet, or resting one of the
+     active Units on offer would switch an effect on ("while this Unit is rested …"; checked
+     by comparing the derived view in a determinization) (`prune_noop_rest_targets`).
 
    It also drops Command plays and ability activations without effect
    (`noop.without_effect`): in one determinization, the move and "end the main phase / pass"
@@ -205,7 +210,7 @@ Candidate features were compared by five-fold cross-validated log-loss (folds by
   the hand by card type lowered log-loss from 0.515 to 0.491; features that did not help (Unit
   count, Blocker count, EX Resources, deck size, exposed flag, maximum AP, trash size, a
   continuous attack margin) were dropped.
-- For the role set (2026-10), on 7,941 positions from 540 standard-preset self-play games on
+- For the role set (2026-10), on 7,941 positions from 540 self-play games of the pre-change standard search on
   the tuning decks: −0.0090 nats against `TUNED_WEIGHTS` out of fold (fold SE about 0.0035),
   −0.0074 on positions from test-deck games (never in the fit; cluster SE 0.017) and +0.0030
   (SE 0.003, slightly worse) on example-deck games; at the tuning budget a role-feature agent
@@ -340,7 +345,8 @@ roughly add up. After these measurements the final review found that the no-op R
 prune ignored "while this Unit is rested" effects; the fix (5a6f226) adds a check that never
 fired in 32 games on the test and example decks, which hold no such card, so it does not change
 the games behind these numbers. Settings that were measured and not adopted are listed under
-[Known weaknesses](#known-weaknesses).
+[Known weaknesses](#known-weaknesses), except the standard-budget refit of the base weights
+(under [Feature selection](#feature-selection)).
 
 Acceptance test `tests/slow/test_ai_strength.py` (default preset, test decks Federation
 blue/white and SEED red/white from `tests/ai/decks.py`, 400 mirrored games per opponent):
@@ -378,6 +384,9 @@ bigger enemy Unit is already rested (the no-effect check used to prune the remov
 at a Unit that keeps the damage rather than one whose <Repair> heals it and at the active
 rather than the rested Unit with hidden hands (close target extension: 11/24 → 18/24 and
 12/16 → 16/16), and protect the attacked Unit with a battle-scoped protection (0/8 → 8/8).
+`tests/ai/test_puzzles_shipped.py` plays these with the shipped `standard` preset, except the
+<Repair> ping, which the shipped preset solves only about a third of the time (see
+[Known weaknesses](#known-weaknesses), "Target choice").
 
 Blinded replay audit (30 games: 15 from the pre-change AI generated on bc38ab4 and 15 from
 the new `standard`, the same seeds 90031–90033, five BO1 games per example pairing; ten
@@ -457,9 +466,11 @@ replaced by weak same-colour cards), 200 BO1 matches against the original (seed 
   different cards (0.84–0.89 distinct hands per visit), so a multiple-observer search would
   have almost no visits per opponent node at these budgets; the measured fusion effect at
   opponent nodes is small (+0.021 at a large budget). Known limit of the observation keys: when
-  the opponent passes in a battle's action step and again in the end phase with no searcher
-  decision between them, both passes map to one child, which that iteration then counts twice
-  (9 of 11,402 measured iterations).
+  the opponent passes in a battle's action step and again in the end phase's action step of the
+  same turn, and no decision with more than one move by either player comes between them (on
+  the searcher's turn: its main phase has nothing left but ending it), both passes map to one
+  child, which that iteration then counts twice (9 of 11,402 iterations in instrumented `fast`
+  self-play, all on the searcher's turn).
 - **Linear evaluation.** The model is still linear. Interaction terms gained nothing
   (±0.001 nats); the role features replace the forced antisymmetry, which was the measured
   misspecification. The weights are fitted to self-play of the pre-change standard search;
@@ -476,8 +487,8 @@ replaced by weak same-colour cards), 200 BO1 matches against the original (seed 
   no-op Rest targets are pruned. Choosing the less useful of two targets is still possible
   when their values stay within noise after the extension. One target puzzle (ping a Unit that
   keeps the damage rather than one whose <Repair> heals it) is solved by the extension in the
-  pre-change configuration (11/24 → 18/24 agent seeds on its test) but only about 7 of 24 times
-  by the shipped `standard`: with the calibrated leaf value the two targets score closer (with
+  pre-change configuration (11/24 → 18/24 agent seeds on its test) but only about a third of
+  the time by the shipped `standard` (7 of 24 and 62 of 168 agent seeds in two reviews): with the calibrated leaf value the two targets score closer (with
   `value_scale` 2 the same preset solves it about 20 of 24 times). Not adopted: a heuristic
   tie-break toward the policy's preferred target (worse), a fixed target budget multiplier at
   the same cost (−0.00036 ± 0.00019 against −0.00090 ± 0.00023 for the extension), and a

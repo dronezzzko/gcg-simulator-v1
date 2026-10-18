@@ -282,7 +282,8 @@ _SELF = -(1 << 40)
 
 
 def _in_flight(st: GameState, uid: int) -> bool:
-    """A battle, a resolving effect or a waiting trigger names the card."""
+    """A battle, a resolving effect or a waiting trigger may name the card (any of their event
+    values equal to its instance number counts)."""
     if any(uid in (b.attacker, b.target) for b in st.battles):
         return True
     for f in st.frames:
@@ -331,9 +332,10 @@ def _references(st: GameState, uid: int) -> tuple[Any, ...]:
 
 
 def _fingerprint(st: GameState, dv: V.Derived, uid: int) -> tuple[Any, ...]:
-    """The public state of a field card, without its instance number: two copies of a Unit
-    with equal fingerprints are interchangeable. Any other card, and a card a battle, resolving
-    effect or waiting trigger names (checked conservatively), stays itself."""
+    """The public state of a field card: two copies of a Unit with equal fingerprints are
+    interchangeable. Any other card, and a card a battle, resolving effect or waiting trigger
+    names, stays itself. The record and event checks compare raw numbers, so a number that only
+    happens to equal the card's instance number can keep two copies apart (never the reverse)."""
     if not 0 <= uid < len(st.cards):
         return ("arg", uid)
     c = st.cards[uid]

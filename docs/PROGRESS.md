@@ -143,8 +143,9 @@ head-to-head against the pre-change AI, tactical puzzles, blinded replay audits,
   Rejected with measurements: kill-aware damage targeting, damaged-payoff targeting, a fixed
   target budget multiplier, a separate target prior weight, a standard-budget refit of the 14
   base weights.
-- Threat-aware rollouts removed (d79ea78): with every other setting at 2x, adding them won
-  449/800 vs 448/800 without (seed 36004, 56:55 discordant); continuation outcomes favoured the
+- Threat-aware rollouts removed (d79ea78): with the root, search and evaluation settings at 2x
+  (no policy settings; arms in `build/aiq2/screens/arms_36004.txt`), adding them won 449/800 vs
+  448/800 without (seed 36004, 56:55 discordant); continuation outcomes favoured the
   old move 36:23.
 - Ablation on development seed 36005 (800 mirrored games each vs baseline-standard, test decks;
   arms in `build/aiq2/screens/arms_36005.txt`): new settings at 2x budget 472/800 = 0.590

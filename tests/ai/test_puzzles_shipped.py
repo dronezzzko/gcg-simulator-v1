@@ -1,4 +1,6 @@
-"""The puzzles added with the 2026-10 settings, played by the shipped standard preset.
+"""The puzzles added with the 2026-10 settings, played by the shipped standard preset (all but
+the <Repair> ping of ``test_puzzles_targets.py``, which it solves only about a third of the time;
+docs/AI.md, "Known weaknesses").
 
 The setting-level tests (``test_root_moves.py``, ``test_policy_knobs.py``,
 ``test_puzzles_targets.py``) switch one setting on in the pre-change configuration. These
