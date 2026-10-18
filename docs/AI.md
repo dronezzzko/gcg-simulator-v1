@@ -390,7 +390,8 @@ rather than the rested Unit with hidden hands (close target extension: 11/24 →
 
 Blinded replay audit (30 games: 15 from the pre-change AI generated on bc38ab4 and 15 from
 the new `standard`, the same seeds 90031–90033, five BO1 games per example pairing; ten
-auditors read anonymized transcripts with boards and every option but no search statistics,
+auditors read anonymized transcripts with boards and every option but no search statistics
+(`scripts/blind_transcripts.py`),
 and a second agent checked every flagged play): confirmed implausible plays 22 for the old AI
 and 19 for the new one. Wasted effects fell from 6 to 4 and bad targets from 5 to 2;
 passivity (5 → 6), questionable attacks (3 → 4) and two missed lethals in the new games show

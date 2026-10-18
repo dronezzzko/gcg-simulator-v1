@@ -157,7 +157,7 @@ head-to-head against the pre-change AI, tactical puzzles, blinded replay audits,
   game 28,134 -> 7,627); one full new-standard game has the same digest with and without it.
   Horizon guard (4d8bd95) rejects a horizon at which a win would not outrank estimates.
 - Blinded replay audit (workflow: 10 auditors on 30 anonymized transcripts with boards and all
-  options but no search statistics, `build/aiq2/audit/tools/blind.py`; every flagged play checked
+  options but no search statistics, `scripts/blind_transcripts.py`; every flagged play checked
   by a second agent): 15 baseline games from the `main` worktree and 15 new-standard games, same
   seeds (90031–90033, 5 BO1 games per example pairing). Confirmed implausible plays: baseline 22
   (31 flagged), new 19 (22 flagged). Classified list: `build/aiq2/audit/classified.md`.
