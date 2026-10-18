@@ -14,6 +14,7 @@ from gcg_sim.ai.evaluation import (
     FEATURES,
     HAND_WEIGHTS,
     N_FEATURES,
+    ROLE_WEIGHTS,
     TUNED_WEIGHTS,
     logistic,
 )
@@ -67,7 +68,7 @@ def test_solve_linear_system() -> None:
 
 def test_weights_cover_every_feature() -> None:
     assert len(FEATURES) == N_FEATURES == len(HAND_WEIGHTS.values) == len(TUNED_WEIGHTS.values)
-    assert DEFAULT_WEIGHTS == TUNED_WEIGHTS
+    assert DEFAULT_WEIGHTS == ROLE_WEIGHTS
     with pytest.raises(ValueError, match="expected"):
         type(HAND_WEIGHTS)((1.0,))
 
@@ -105,3 +106,11 @@ def test_cli_prints_a_json_report(capsys: pytest.CaptureFixture[str]) -> None:
     report = json.loads(capsys.readouterr().out)
     assert report["features"] == list(FEATURES)
     assert len(report["weights"]) == N_FEATURES
+
+
+def test_cli_validates_with_a_preset(capsys: pytest.CaptureFixture[str]) -> None:
+    args = ["--games", "1", "--rounds", "1", "--seed", "9"]
+    main([*args, "--validate", "4", "--validate-preset", "fast"])
+    report = json.loads(capsys.readouterr().out)
+    assert report["validation"]["preset"] == "fast"
+    assert report["validation"]["games"] == 4

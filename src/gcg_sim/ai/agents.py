@@ -8,6 +8,7 @@ from gcg_sim.ai.config import PRESETS, SearchConfig
 from gcg_sim.ai.evaluation import DEFAULT_WEIGHTS, Weights, burst_density, evaluate
 from gcg_sim.ai.mcts import search
 from gcg_sim.ai.playout import play_until_turn
+from gcg_sim.ai.policy import knobs_for
 from gcg_sim.ai.setup import first_player_choice, mulligan_choice
 from gcg_sim.engine.game import apply
 from gcg_sim.engine.observe import determinize
@@ -89,7 +90,9 @@ class MctsAgent(AgentCore):
             action, stats = mulligan_choice(st, player, self.config.mulligan_samples, rng)
             return self._finish(st, player, action, stats)
         if dec.kind is DecisionKind.CHOOSE_FIRST:
-            action, stats = first_player_choice(st, player, self.config.first_player_games, rng)
+            action, stats = first_player_choice(
+                st, player, self.config.first_player_games, rng, knobs_for(self.config)
+            )
             return self._finish(st, player, action, stats)
         result = search(st, player, self.config, self.weights, rng)
         return self._finish(st, player, result.action, result.alternatives)
@@ -98,15 +101,27 @@ class MctsAgent(AgentCore):
 AGENT_KINDS = ("random", "greedy", "mcts")
 
 
-def make_agent(kind: str, *, preset: str = "standard", seed: int = 0, log: bool = False) -> Agent:
+def make_agent(
+    kind: str,
+    *,
+    preset: str = "standard",
+    seed: int = 0,
+    log: bool = False,
+    config: SearchConfig | None = None,
+    weights: Weights | None = None,
+) -> Agent:
     """Build an agent: ``kind`` is "random", "greedy", or "mcts"; ``preset`` selects the MCTS
-    budget ("standard" or "strong") and is ignored by the baselines."""
+    budget ("fast", "standard" or "strong") and is ignored by the baselines. ``config`` replaces the
+    preset's search settings and ``weights`` the evaluation weights (greedy and MCTS), so two
+    versions of the AI can play each other in one process."""
     if preset not in PRESETS:
         raise ValueError(f"unknown AI preset {preset!r}; choose from {sorted(PRESETS)}")
+    chosen_weights = DEFAULT_WEIGHTS if weights is None else weights
     if kind == "random":
         return RandomAgent(seed, log=log)
     if kind == "greedy":
-        return GreedyAgent(seed, log=log)
+        return GreedyAgent(seed, log=log, weights=chosen_weights)
     if kind == "mcts":
-        return MctsAgent(seed, config=PRESETS[preset], log=log)
+        chosen = PRESETS[preset] if config is None else config
+        return MctsAgent(seed, config=chosen, log=log, weights=chosen_weights)
     raise ValueError(f"unknown agent kind {kind!r}; choose from {list(AGENT_KINDS)}")

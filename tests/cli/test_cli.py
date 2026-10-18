@@ -283,3 +283,19 @@ def test_a_report_write_failure_names_the_file(
     err = capsys.readouterr().err
     assert f"error: cannot write reports to {out_dir}: {out_dir / 'replays'}" in err
     assert "Traceback" not in err
+
+
+def test_benchmark_with_the_fast_preset_is_the_same_for_any_worker_count(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.delenv("GCG_SIM_AGENT_FACTORY", raising=False)
+    base = ["benchmark", str(ZEON), str(FEDERATION), "--matches", "2", "--format", "bo1"]
+    base += ["--seed", "5", "--ai-preset", "fast"]
+    assert main([*base, "--workers", "1", "--out", str(tmp_path / "w1")]) == 0
+    assert main([*base, "--workers", "2", "--out", str(tmp_path / "w2")]) == 0
+    for name in ("results.json", "games.ndjson", "summary.md"):
+        assert (tmp_path / "w1" / name).read_bytes() == (tmp_path / "w2" / name).read_bytes()
+    results = json.loads((tmp_path / "w1" / "results.json").read_text(encoding="utf-8"))
+    validate_results(results)
+    assert results["ai"]["preset"] == "fast"
+    assert results["ai"]["dut_agent"] == results["ai"]["bench_agent"] == "mcts-fast"

@@ -211,28 +211,13 @@ def override_script(reg: Registry, cdef: CardDef, script: d.CardScript) -> CardE
     text); returns the previous entry so the caller can restore it with ``restore_entry``."""
     previous = reg.cards[cdef.def_id]
     reg.cards[cdef.def_id] = _build_entry(reg, cdef, script, None)
-    reg.events_by_def[cdef.def_id] = _card_events(reg, reg.cards[cdef.def_id])
-    reg.always_events = reg.always_events | _delayed_events(reg.cards[cdef.def_id])
+    _index_events(reg)
     return previous
 
 
 def restore_entry(reg: Registry, entry: CardEntry) -> None:
     reg.cards[entry.def_id] = entry
-    reg.events_by_def[entry.def_id] = _card_events(reg, entry)
-
-
-def _card_events(reg: Registry, entry: CardEntry) -> frozenset[d.Ev]:
-    if entry.script is None:
-        return frozenset()
-    nodes = _walk_nodes((entry.script.abilities, entry.script.unit_abilities))
-    return frozenset(n.event for n in nodes if isinstance(n, d.Trigger))
-
-
-def _delayed_events(entry: CardEntry) -> frozenset[d.Ev]:
-    if entry.script is None:
-        return frozenset()
-    nodes = _walk_nodes((entry.script.abilities, entry.script.unit_abilities))
-    return frozenset(n.trigger.event for n in nodes if isinstance(n, d.DelayedTrigger))
+    _index_events(reg)
 
 
 def _build_entry(
@@ -369,26 +354,47 @@ def _walk_nodes(x: object) -> list[object]:
 
 
 def _index_events(reg: Registry) -> None:
-    """Per-card listened events (so the engine can skip trigger scans no card needs) and whether
-    any effect can lower HP (so rules management can skip the lethal-damage scan)."""
+    """The events each card's triggered abilities, and the abilities its text can grant, listen
+    for (so the engine can skip trigger scans no card needs; every game listens for the events
+    of tokens, delayed triggers and keyword effects), and whether any effect can lower HP (so
+    rules management can skip the lethal-damage scan). Script overrides re-run it."""
     always: set[d.Ev] = {d.Ev.TURN_END, d.Ev.DESTROYS_BY_BATTLE}
+    events_by_def: dict[int, frozenset[d.Ev]] = {}
+    hp_reduction_possible = False
     for entry in reg.cards:
         if entry.script is None:
             continue
-        events: set[d.Ev] = set()
-        for node in _walk_nodes((entry.script.abilities, entry.script.unit_abilities)):
-            if isinstance(node, d.Trigger):
-                events.add(node.event)
-            elif isinstance(node, d.DelayedTrigger):
-                always.add(node.trigger.event)
-            elif isinstance(node, d.AbilityGrant):
-                always.update(d.Ev)
-            elif isinstance(node, d.StatMod) and not (isinstance(node.hp, int) and node.hp >= 0):
-                reg.hp_reduction_possible = True
+        nodes = _walk_nodes((entry.script.abilities, entry.script.unit_abilities))
+        always.update(n.trigger.event for n in nodes if isinstance(n, d.DelayedTrigger))
+        hp_reduction_possible = hp_reduction_possible or any(
+            isinstance(n, d.StatMod) and not (isinstance(n.hp, int) and n.hp >= 0) for n in nodes
+        )
+        events = _trigger_events(reg, nodes)
         if reg.db.by_id(entry.def_id).is_token:
             always.update(events)
-        reg.events_by_def[entry.def_id] = frozenset(events)
+        events_by_def[entry.def_id] = events
+    reg.events_by_def = events_by_def
     reg.always_events = frozenset(always)
+    reg.hp_reduction_possible = hp_reduction_possible
+
+
+def _trigger_events(reg: Registry, nodes: list[object]) -> frozenset[d.Ev]:
+    """Events the triggers among ``nodes`` listen for, plus those of every card whose
+    abilities an ``AbilityGrant`` among them (or among the granted abilities) can grant."""
+    events: set[d.Ev] = set()
+    granted: set[str] = set()
+    pending = [nodes]
+    while pending:
+        for node in pending.pop():
+            if isinstance(node, d.Trigger):
+                events.add(node.event)
+            elif isinstance(node, d.AbilityGrant) and node.card_number not in granted:
+                granted.add(node.card_number)
+                cdef = reg.db.get(node.card_number)
+                script = reg.cards[cdef.def_id].script if cdef is not None else None
+                if script is not None:
+                    pending.append(_walk_nodes((script.abilities, script.unit_abilities)))
+    return frozenset(events)
 
 
 @cache

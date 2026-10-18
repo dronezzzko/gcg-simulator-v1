@@ -51,7 +51,7 @@ uv run gcg-sim benchmark examples/decks/red-green-zeon.txt examples/decks/blue-w
 | `--seed S` | 0 | Master seed; the same seed gives byte-identical `results.json` whatever `--workers` is. |
 | `--workers W` | 1 | Worker processes. |
 | `--format bo3\|bo1` | `bo3` | Best-of-three (official BO3 match rules, no sideboarding, no clock) or single games. |
-| `--ai-preset standard\|strong` | `standard` | AI search budget ([`docs/AI.md`](docs/AI.md)). |
+| `--ai-preset fast\|standard\|strong` | `standard` | AI search budget ([`docs/AI.md`](docs/AI.md)); `fast` screens deck variants, `strong` confirms. |
 | `--out DIR` | `gcg-sim-out` | Report directory. |
 | `--decision-log` | off | Record the AI's per-decision search statistics. |
 | `--replays K` | 3 | Representative wins and losses to save. |
@@ -105,11 +105,15 @@ tuning workflow with adequate sample sizes.
 - **Card effects.** Card text is compiled into a typed effect DSL. Irregular cards use per-card
   bindings.
 - **AI.** Information-set Monte Carlo tree search (determinized, with fixed node budgets) plus
-  random and greedy baselines.
+  random and greedy baselines. Presets: `fast` for screening deck variants, `standard` (the
+  default) and `strong` for confirmation.
 - **Runner.** A process pool that derives every seed from the master seed. With the
-  `standard` preset, 100 BO3 matches of the example decks take about 6–11 minutes on 8 cores
-  (measurements in [`docs/AI.md`](docs/AI.md)). Against a random player the AI won 400/400
-  games, and against the greedy baseline 289/400 (Wilson 95% [0.677, 0.764]).
+  `standard` preset, 100 BO3 matches of red-green-zeon against blue-white-federation took
+  about 13 minutes on 8 cores;
+  `fast` plays about ten times as many games per core-minute (measurements in
+  [`docs/AI.md`](docs/AI.md)). The October 2026 AI beat the previous version in 925 of 1,600
+  games (Wilson 95% [0.554, 0.602]); against a random player it won 400/400 games, and against
+  the greedy baseline 292/400 (Wilson 95% [0.684, 0.771]).
 
 Details: [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) and [`docs/AI.md`](docs/AI.md).
 

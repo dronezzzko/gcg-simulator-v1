@@ -29,6 +29,7 @@ from gcg_sim.testkit import (
     activate,
     ap,
     attack,
+    card_text,
     has_action,
     hp,
     keywords,
@@ -86,6 +87,7 @@ DUEL_ASSAULT = "ST14-009"  # 【Destroyed】Place 1 EX Resource.
 NT1 = "GD03-001"  # 【When Paired】1 damage to a rested enemy; draw if it destroyed it
 WHITE_BASE_GUNDAM = "GD01-001"  # All your (White Base Team) Units gain <Repair 1>.
 TOKEN_ZAKU_DEPLOYER = "GD01-106"  # 【Main】Deploy 2 [Zaku Ⅱ]((Zeon)･AP1･HP1) Unit tokens.
+DINN = "GD01-064"  # vanilla red Lv2 cost2 3/2 that receives test-only text
 
 GUNDAM_TOKEN = "T-001"  # Unit token [Gundam] (White Base Team) 3/3
 ZAKU_TOKEN = "T-007"  # Unit token [Zaku Ⅱ] (Zeon) 1/1
@@ -778,6 +780,24 @@ def test_damage_exceeding_hp_destroys_a_unit_and_a_base_into_the_trash() -> None
     attack(st, zaku)
     pass_all(st)
     assert zone_of(st, side_7) is Zone.TRASH
+
+
+@pytest.mark.rule("11-3-1")
+def test_a_unit_whose_hp_an_effect_lowers_to_its_damage_is_destroyed() -> None:
+    """No printed card lowers HP, so DINN gets the text for this test; while it has the text,
+    rules management cannot assume that damage below printed HP is safe."""
+    reg = get_registry()
+    printed = reg.hp_reduction_possible
+    with card_text(DINN, "【Deploy】Choose 1 enemy Unit. It gets HP-1 during this turn."):
+        sc = Scenario()
+        sc.resources(0, 2)
+        dinn = sc.add(0, DINN, Zone.HAND)
+        zaku = sc.add(1, VANILLA_2_2, damage=1)
+        st = sc.start()
+        play(st, dinn)
+        select_if_asked(st, zaku)
+        assert zone_of(st, zaku) is Zone.TRASH
+    assert reg.hp_reduction_possible is printed
 
 
 @pytest.mark.rule("11-3-1-1")

@@ -36,8 +36,8 @@ def test_results_validate_against_the_versioned_schema(written: ReportPaths) -> 
     results = load(written.results)
     validate_results(results)
     schema = load_schema()
-    assert schema["$id"] == results["schema"] == "urn:gcg-sim:schema:results:1.0.0"
-    assert results["schema_version"] == results["versions"]["results_schema"] == "1.0.0"
+    assert schema["$id"] == results["schema"] == "urn:gcg-sim:schema:results:1.1.0"
+    assert results["schema_version"] == results["versions"]["results_schema"] == "1.1.0"
 
 
 def test_every_report_file_is_written(written: ReportPaths) -> None:

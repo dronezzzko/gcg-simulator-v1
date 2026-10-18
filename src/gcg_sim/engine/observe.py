@@ -9,9 +9,10 @@ the cards whose identity the player knows.
 from __future__ import annotations
 
 from collections import Counter
+from dataclasses import replace
 
 from gcg_sim.engine import view as V
-from gcg_sim.engine.state import GameState
+from gcg_sim.engine.state import GameState, HistoryEvent
 from gcg_sim.engine.types import Zone
 from gcg_sim.rng import SplitMix64, derive_seed
 
@@ -39,11 +40,12 @@ def unknown_pools(st: GameState, observer: int, owner: int) -> tuple[list[int], 
     """(main-deck pool, resource pool): def ids the hidden instances of ``owner`` can be."""
     main = Counter(st.decklists[owner])
     res = Counter(st.resource_decklists[owner])
-    db = V.reg().db
+    base_def_id = V.reg().db.base_def_id
+    bit = 1 << observer
     for c in st.cards:
-        if c.owner != owner or is_hidden_from(st, c.uid, observer):
+        if c.owner != owner or (c.zone in HIDDEN_ZONES and not c.known & bit):
             continue
-        def_id = db.base_def_id(c.def_id)
+        def_id = base_def_id(c.def_id)
         if main[def_id] > 0:
             main[def_id] -= 1
         elif res[def_id] > 0:
@@ -75,12 +77,22 @@ def determinize(st: GameState, observer: int, seed: int) -> GameState:
             s.cards[uid].def_id = def_id
         for uid, def_id in zip(res_slots, res_pool, strict=True):
             s.cards[uid].def_id = def_id
-    for h in s.history:
-        if h.uid >= 0:
-            h.def_id = s.cards[h.uid].def_id
+    s.history = _own_history(s)
     s.rng = SplitMix64(derive_seed(seed, "hidden-rng"))
     s.touch()
     return s
+
+
+def _own_history(s: GameState) -> list[HistoryEvent]:
+    """``s.history`` with every entry naming the copy's identity of its card. ``clone`` shares
+    the entries with the original state, so a changed entry is a new object."""
+    cards = s.cards
+    return [
+        h
+        if h.uid < 0 or h.def_id == cards[h.uid].def_id
+        else replace(h, def_id=cards[h.uid].def_id)
+        for h in s.history
+    ]
 
 
 def _fit(pool: list[int], n: int) -> list[int]:
@@ -113,9 +125,7 @@ def permute_hidden(st: GameState, observer: int, seed: int) -> GameState:
         rng.shuffle(ids)
         for uid, def_id in zip(slots, ids, strict=True):
             s.cards[uid].def_id = def_id
-    for h in s.history:
-        if h.uid >= 0:
-            h.def_id = s.cards[h.uid].def_id
+    s.history = _own_history(s)
     s.rng = SplitMix64(derive_seed(seed, "permuted-rng"))
     s.touch()
     return s

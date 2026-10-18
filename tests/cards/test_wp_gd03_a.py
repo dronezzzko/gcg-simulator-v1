@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import pytest
 
-from gcg_sim.engine import core
 from gcg_sim.engine import view as V
 from gcg_sim.engine.game import SUPPORT_AID
 from gcg_sim.engine.state import GameState
@@ -44,7 +43,7 @@ def pair_raw(sc: Scenario, unit: int, number: str) -> int:
     """Pair a pilot-capable card beneath ``unit`` without requiring its script (some linking
     Pilots belong to other work packages)."""
     st = sc.st
-    uid = core.new_card(st, sc.db[number].def_id, st.cards[unit].owner, Zone.PAIRED)
+    uid = sc.add_raw(st.cards[unit].owner, number, Zone.PAIRED)
     st.cards[uid].pair = unit
     st.cards[unit].pair = uid
     st.touch()
@@ -53,7 +52,7 @@ def pair_raw(sc: Scenario, unit: int, number: str) -> int:
 
 def raw_hand(sc: Scenario, player: int, number: str) -> int:
     """Put a card in hand without requiring its script."""
-    return core.new_card(sc.st, sc.db[number].def_id, player, Zone.HAND)
+    return sc.add_raw(player, number, Zone.HAND)
 
 
 def resolve_orders(st: GameState) -> None:

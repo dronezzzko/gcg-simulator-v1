@@ -17,9 +17,7 @@ from gcg_sim.effects.registry import AbilityEntry, Registry, get_registry
 from gcg_sim.engine.state import CardInstance, GameState
 from gcg_sim.engine.types import NO_ARG, PLAYER_TARGET, Zone
 
-
-def reg() -> Registry:
-    return get_registry()
+reg: Callable[[], Registry] = get_registry
 
 
 def cdef(st: GameState, uid: int) -> CardDef:
@@ -246,57 +244,70 @@ _HOST_ZONES = (Zone.BATTLE, Zone.BASE, Zone.PAIRED, Zone.HAND, Zone.TRASH)
 
 def _base_view(st: GameState, granted: dict[int, list[int]], prev: Derived | None) -> Derived:
     R = reg()
-    db = R.db
-    cards = R.cards
+    by_id = R.db.by_id
+    entries = R.cards
+    cards = st.cards
     dv = Derived()
+    aps, hps, traits, kws, linked, abilities = (
+        dv.ap,
+        dv.hp,
+        dv.traits,
+        dv.kw,
+        dv.linked,
+        dv.abilities,
+    )
     for p in (0, 1):
-        for uid in st.zones[p][Zone.BATTLE]:
-            c = st.cards[uid]
-            u = db.by_id(c.def_id)
+        zp = st.zones[p]
+        for uid in zp[Zone.BATTLE]:
+            c = cards[uid]
+            u = by_id(c.def_id)
             ap, hp = u.ap, u.hp
             if c.pair >= 0:
-                pd = db.by_id(st.cards[c.pair].def_id)
+                pd = by_id(cards[c.pair].def_id)
                 ap += pd.ap
                 hp += pd.hp
                 if link_satisfied(u, pd):
-                    dv.linked.add(uid)
-            dv.ap[uid] = ap
-            dv.hp[uid] = hp
-            dv.traits[uid] = u.traits
-            dv.kw[uid] = {}
-        for uid in st.zones[p][Zone.BASE]:
-            b = db.by_id(st.cards[uid].def_id)
-            dv.ap[uid] = b.ap
-            dv.hp[uid] = b.hp
-            dv.traits[uid] = b.traits
-            dv.kw[uid] = {}
+                    linked.add(uid)
+            aps[uid] = ap
+            hps[uid] = hp
+            traits[uid] = u.traits
+            kws[uid] = {}
+        for uid in zp[Zone.BASE]:
+            b = by_id(cards[uid].def_id)
+            aps[uid] = b.ap
+            hps[uid] = b.hp
+            traits[uid] = b.traits
+            kws[uid] = {}
     gate_view = prev if prev is not None else dv
     for p in (0, 1):
         zp = st.zones[p]
-        for z in (Zone.BATTLE, Zone.BASE):
-            for uid in zp[z]:
+        for uid in (*zp[Zone.BATTLE], *zp[Zone.BASE]):
+            abil = _host_abilities(st, gate_view, uid, granted)
+            if abil:
+                abilities[uid] = abil
+                card_kws = kws[uid]
+                for a in abil:
+                    ab = a.ability
+                    if isinstance(ab, d.Keyword):
+                        if ab.keyword in d.STACKING_KEYWORDS:
+                            card_kws[ab.keyword] = card_kws.get(ab.keyword, 0) + ab.amount
+                        else:
+                            card_kws[ab.keyword] = 1
+        for uid in zp[Zone.PAIRED]:
+            if entries[cards[uid].def_id].paired_entries or uid in granted:
                 abil = _host_abilities(st, gate_view, uid, granted)
                 if abil:
-                    dv.abilities[uid] = abil
-                    kws = dv.kw[uid]
-                    for a in abil:
-                        ab = a.ability
-                        if isinstance(ab, d.Keyword):
-                            if ab.keyword in d.STACKING_KEYWORDS:
-                                kws[ab.keyword] = kws.get(ab.keyword, 0) + ab.amount
-                            else:
-                                kws[ab.keyword] = 1
-        for z, attr in (
-            (Zone.PAIRED, "paired_entries"),
-            (Zone.HAND, "hand_entries"),
-            (Zone.TRASH, "trash_entries"),
-        ):
-            for uid in zp[z]:
-                if not getattr(cards[st.cards[uid].def_id], attr) and uid not in granted:
-                    continue
+                    abilities[uid] = abil
+        for uid in zp[Zone.HAND]:
+            if entries[cards[uid].def_id].hand_entries or uid in granted:
                 abil = _host_abilities(st, gate_view, uid, granted)
                 if abil:
-                    dv.abilities[uid] = abil
+                    abilities[uid] = abil
+        for uid in zp[Zone.TRASH]:
+            if entries[cards[uid].def_id].trash_entries or uid in granted:
+                abil = _host_abilities(st, gate_view, uid, granted)
+                if abil:
+                    abilities[uid] = abil
     return dv
 
 
@@ -818,6 +829,25 @@ def resolve(st: GameState, dv: Derived, ctx: Ctx, ref: d.Ref) -> tuple[int, ...]
             if u not in seen:
                 seen.append(u)
     return tuple(seen)
+
+
+def selects(ref: d.Ref) -> bool:
+    """Whether resolving ``ref`` selects cards; only selections read the derived view."""
+    if isinstance(ref, (d.This, d.ThisCard, d.Var, d.EventCard)):
+        return False
+    if isinstance(ref, (d.PairedPilotOf, d.PairedUnitOf, d.BattlingWith)):
+        return selects(ref.ref)
+    if isinstance(ref, d.Union):
+        return any(selects(r) for r in ref.refs)
+    return True
+
+
+_UNREAD = Derived()
+
+
+def resolve_ref(st: GameState, ctx: Ctx, ref: d.Ref) -> tuple[int, ...]:
+    """:func:`resolve` that computes the derived view only for references that select cards."""
+    return resolve(st, derived(st) if selects(ref) else _UNREAD, ctx, ref)
 
 
 def value(st: GameState, dv: Derived, ctx: Ctx, v: d.Value) -> int:

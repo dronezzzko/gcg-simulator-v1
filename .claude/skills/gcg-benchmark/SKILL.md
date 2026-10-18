@@ -36,8 +36,9 @@ to your core count, and keep each run's `--out` directory (e.g. `runs/<dut>-vs-<
   plays single games. A game costs the same in either format, but a BO3 match averages about 2.5
   games, so BO1 gives about 2.5× more match results per minute, each from an independent game;
   use it for quick screening.
-- `--ai-preset standard` (default) or `strong` (slower, stronger). Compare variants only under the
-  same preset.
+- `--ai-preset fast` (screening), `standard` (default) or `strong` (slower, stronger). Compare
+  variants only under the same preset, and never pool results across presets: the AI level
+  shifts measured matchup rates by a few points.
 - Same `--seed` ⇒ byte-identical `results.json` regardless of `--workers`.
 - Throughput and preset costs are measured in `docs/AI.md`.
 
@@ -82,10 +83,23 @@ Sample sizes (95% confidence, win rate near 50%):
 | Detect a 10-point difference between two variants (80% power) | ~390 games per variant |
 | Detect a 5-point difference between two variants | ~1,570 games per variant |
 
-A BO3 match yields ~2.5 games; the report gives both match-level and game-level rates. Screen
-variants with `--format bo1` and several hundred games, then confirm the winner with BO3 at the
-same sample size. Use different seeds for the confirmation run so you do not overfit one
-schedule (`--seed 1`, `--seed 2`, …), and pool results only across runs with identical settings.
+A BO3 match yields ~2.5 games; the report gives both match-level and game-level rates.
+
+Screening funnel for many variants (sub-variants, hypothetical builds):
+
+1. **Screen** every variant with `--ai-preset fast --format bo1`, the same benchmark deck and the
+   same seed schedule, a few hundred games each. `fast` costs a fraction of `standard`
+   (`docs/AI.md`, "Presets") and ranks clearly better and worse builds the same way, but its
+   rates are a few points off `standard`'s, so use it only to discard variants.
+2. **Confirm** the survivors, and the current list as the baseline, with `--ai-preset standard`
+   (BO3, the default) on **different seeds** from the screen (`--seed 2`, `--seed 3`, …).
+3. **Never compare or pool across presets**: a `fast` rate and a `standard` rate are different
+   measurements. Pool only runs with identical settings.
+
+Reports from before the October 2026 AI update (results schema 1.0.0, or `versions.code_digest`
+from an older build) are not comparable with new ones: the AI plays differently (the new
+`standard` beats the old one 58% of the time), so matchup rates can move. Re-run the
+baseline list with the current version before comparing.
 
 Workflow for a card swap:
 1. Baseline: run the current list (e.g. 400 BO1 games) and record the game win rate interval.

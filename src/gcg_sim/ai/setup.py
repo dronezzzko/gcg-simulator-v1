@@ -8,6 +8,7 @@ from collections.abc import Sequence
 
 from gcg_sim.ai.base import Alternative
 from gcg_sim.ai.playout import play_to_end
+from gcg_sim.ai.policy import BASELINE_KNOBS, PolicyKnobs
 from gcg_sim.cards.model import CardDef, CardType
 from gcg_sim.engine import view as V
 from gcg_sim.engine.game import apply
@@ -83,7 +84,11 @@ def mulligan_choice(
 
 
 def first_player_choice(
-    st: GameState, player: int, games: int, rng: SplitMix64
+    st: GameState,
+    player: int,
+    games: int,
+    rng: SplitMix64,
+    knobs: PolicyKnobs = BASELINE_KNOBS,
 ) -> tuple[Action, list[Alternative]]:
     """Play policy-vs-policy games from both choices on the same determinizations (common
     random numbers) and go second only if that is significantly better; otherwise go first.
@@ -91,8 +96,8 @@ def first_player_choice(
     first = Action(A.GO_FIRST, player)
     second = Action(A.GO_FIRST, 1 - player)
     seeds = [rng.next_u64() for _ in range(games)]
-    as_first = [_result(st, player, first, s) for s in seeds]
-    as_second = [_result(st, player, second, s) for s in seeds]
+    as_first = [_result(st, player, first, s, knobs) for s in seeds]
+    as_second = [_result(st, player, second, s, knobs) for s in seeds]
     stats = [
         Alternative(first, sum(as_first) / max(1, games), games),
         Alternative(second, sum(as_second) / max(1, games), games),
@@ -106,10 +111,10 @@ def first_player_choice(
     return (second if mean < 0 and -mean > SIGNIFICANCE * se else first), stats
 
 
-def _result(st: GameState, player: int, choice: Action, seed: int) -> float:
+def _result(st: GameState, player: int, choice: Action, seed: int, knobs: PolicyKnobs) -> float:
     det = determinize(st, player, seed)
     apply(det, choice)
-    play_to_end(det, SplitMix64(seed), FIRST_PLAYER_TEMPERATURE, MAX_GAME_DECISIONS)
+    play_to_end(det, SplitMix64(seed), FIRST_PLAYER_TEMPERATURE, MAX_GAME_DECISIONS, knobs)
     if det.winner == player:
         return 1.0
     return 0.5 if det.winner == -1 or det.winner is None else 0.0

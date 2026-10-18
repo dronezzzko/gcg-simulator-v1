@@ -11,7 +11,7 @@ from gcg_sim.engine.game import MAX_ACTIONS_DEFAULT, DeckList
 from gcg_sim.rng import derive_seed
 
 FORMATS = ("bo3", "bo1")
-AI_PRESETS = ("standard", "strong")
+AI_PRESETS = ("fast", "standard", "strong")
 DEFAULT_TURN_LIMIT = 200
 
 

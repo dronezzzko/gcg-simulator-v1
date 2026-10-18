@@ -424,7 +424,7 @@ Summary: 395 rules tested, 184 N/A with reasons, 0 missing.
 | 10-1-5-6 | tested (7) | `test_effects.py::test_cant_effect_takes_precedence_over_a_granted_keyword`, `test_faq.py::test_q112_cant_effects_take_priority`, `test_wp_gd01_b.py::test_gd01_090_linked_ap_cannot_be_reduced_by_enemy_effects`, `test_wp_tokens.py::test_t014_cannot_be_paired_with_a_pilot_or_pilot_command` (+3) |
 | 10-1-5-7 | tested (1) | `test_effects.py::test_constant_effect_applies_the_moment_a_matching_target_appears` |
 | 10-1-6 | N/A | grouping heading; covered by children 10-1-6-1..10-1-6-8 |
-| 10-1-6-1 | tested (1) | `test_effects.py::test_triggered_effects_activate_automatically` |
+| 10-1-6-1 | tested (2) | `test_effects.py::test_triggered_effects_activate_automatically`, `test_engine_caches.py::test_a_unit_added_after_a_scenario_starts_still_triggers` |
 | 10-1-6-1-1 | tested (7) | `test_effects.py::test_triggered_effect_activates_every_time_unless_once_per_turn`, `test_wp_gd03_b.py::test_gd03_120_applies_to_every_battle_kill_this_turn`, `test_wp_gd04_a.py::test_gd04_002_delayed_effect_fires_for_every_destruction_this_turn`, `test_wp_st12_14.py::test_st12_001_once_per_turn` (+3) |
 | 10-1-6-2 | tested (1) | `test_effects.py::test_trigger_needs_its_condition` |
 | 10-1-6-3 | tested (2) | `test_effects.py::test_simultaneous_events_trigger_an_effect_only_once`, `test_wp_gd05_a.py::test_gd05_018_two_ex_resources_exiled_at_once_trigger_once` |
@@ -472,7 +472,7 @@ Summary: 395 rules tested, 184 N/A with reasons, 0 missing.
 | 11-2-1-1 | tested (2) | `test_damage.py::test_battle_damage_defeats_a_player_only_once_their_shield_area_is_empty`, `test_lead_examples.py::test_battle_damage_with_empty_shield_area_wins` |
 | 11-2-1-2 | tested (3) | `test_damage.py::test_a_symmetric_draw_that_empties_both_decks_defeats_both_players`, `test_damage.py::test_drawing_the_last_card_of_the_deck_defeats_that_player_at_once`, `test_faq.py::test_q17_drawing_the_last_card_loses_immediately` |
 | 11-3 | N/A | grouping heading; covered by child 11-3-1 |
-| 11-3-1 | tested (6) | `test_damage.py::test_damage_equal_to_hp_destroys_through_rules_management`, `test_damage.py::test_damage_exceeding_hp_destroys_a_unit_and_a_base_into_the_trash`, `test_damage.py::test_effect_damage_to_the_base_is_not_carried_over_to_shields`, `test_damage.py::test_excess_battle_damage_to_a_base_is_not_dealt_to_a_shield` (+2) |
+| 11-3-1 | tested (7) | `test_damage.py::test_a_unit_whose_hp_an_effect_lowers_to_its_damage_is_destroyed`, `test_damage.py::test_damage_equal_to_hp_destroys_through_rules_management`, `test_damage.py::test_damage_exceeding_hp_destroys_a_unit_and_a_base_into_the_trash`, `test_damage.py::test_effect_damage_to_the_base_is_not_carried_over_to_shields` (+3) |
 | 11-3-1-1 | tested (5) | `test_damage.py::test_each_shield_is_treated_as_having_one_hp`, `test_damage.py::test_effect_damage_to_a_shield_destroys_only_that_shield`, `test_damage.py::test_excess_battle_damage_to_a_shield_is_not_dealt_to_the_next_shield`, `test_damage.py::test_zero_ap_attack_does_not_destroy_a_shield` (+1) |
 | 11-4 | N/A | grouping heading; covered by children 11-4-1..11-4-2 |
 | 11-4-1 | tested (3) | `test_damage.py::test_playing_a_unit_into_a_full_battle_area_trashes_a_chosen_unit_undestroyed`, `test_damage.py::test_unit_tokens_count_toward_the_battle_area_limit`, `test_faq.py::test_q26_battle_area_holds_at_most_six_units` |

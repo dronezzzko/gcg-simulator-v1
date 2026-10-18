@@ -1,7 +1,7 @@
 {
  "schema_version": 1,
- "updated": "2026-09-25",
- "phase": "done",
+ "updated": "2026-10-18",
+ "phase": "done (phase 7: AI quality and the fast preset)",
  "criteria": {
   "1": "pass: scripts/verify_all.sh on a clean clone (see PROGRESS for the final commit)",
   "2": "pass: tests/runner/test_pool.py, tests/cli/test_console_script.py (byte-identical results.json for 1 vs 2 workers, replays verify in a fresh process); offline wheel check compares 1 vs 2 workers",
@@ -9,10 +9,10 @@
   "4": "pass: RULES_TRACEABILITY 395 tested / 184 N/A / 0 missing; tests/test_faq_ruling_coverage.py",
   "5": "pass: tests/effects/test_card_coverage.py, tests/test_no_placeholders.py",
   "6": "pass: tests/slow/test_robustness.py (10,000 games)",
-  "7": "pass: tests/slow/test_ai_strength.py on 15ae2eb: 400/400 vs random, 289/400 vs greedy (wins only, Wilson 95% [0.677, 0.764]); tests/ai/test_puzzles.py; tests/ai/test_information_set.py incl. negative control",
+  "7": "pass: tests/slow/test_ai_strength.py on the phase-7 code: 400/400 vs random, 292/400 vs greedy (Wilson 95% [0.684, 0.771]); tests/ai/test_puzzles.py; tests/ai/test_information_set.py incl. negative control (unchanged)",
   "8": "pass: tests/reports (schema-validated results with every item)",
   "9": "pass: tests/tools/test_refresh.py; live dry run recorded in PROGRESS (git status unchanged); claude plugin validate --strict .claude",
-  "10": "pass: scripts/check_doc_commands.py (18 run, 1 skipped with reason)",
+  "10": "pass: scripts/check_doc_commands.py (19 run, 1 skipped with reason)",
   "11": "pass: reviews of rules/cards (14 findings), replays (7), deliverables (28) fixed; fresh-context recheck found 2 open items, both fixed in 15ae2eb"
  },
  "card_coverage": {
@@ -30,5 +30,27 @@
  "conflicts": {
   "total": 395,
   "unresolved": 0
+ },
+ "ai_quality": {
+  "strength_vs_pre_change_standard": "925/1600 = 0.578, Wilson 95% [0.554, 0.602], held-out seed 90001",
+  "ablation_seed_36005": {
+   "new_2x": "472/800 = 0.590",
+   "new_1x": "435/800 = 0.544",
+   "old_2x": "433/800 = 0.541"
+  },
+  "strong_vs_standard": "209/400 = 0.523 [0.474, 0.571] (pre-change 230/400 = 0.575)",
+  "blinded_audit_confirmed_implausible_plays": {
+   "pre_change": 22,
+   "new": 19,
+   "games_each": 15
+  },
+  "fast": {
+   "games_per_core_minute_vs_standard": "28.2 vs 2.90 (9.7x)",
+   "vs_random": "399/400",
+   "vs_greedy": "251/400",
+   "vs_standard": "156/400",
+   "weakened_deck": "141/200 (standard 139/200)"
+  },
+  "engine_identity": "fixed-seed benchmark with decision logs byte-identical to main (games.ndjson, replays; results.json apart from code_digest)"
  }
 }

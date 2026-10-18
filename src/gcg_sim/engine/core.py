@@ -117,6 +117,8 @@ def remove_from_game(st: GameState, uid: int) -> None:
 
 
 def new_card(st: GameState, def_id: int, owner: int, zone: Zone, *, rested: bool = False) -> int:
+    """Create a card. Unless it is a token, it must be in its owner's decklists, since
+    :func:`emit` skips the events none of their cards can trigger on (:func:`listened_events`)."""
     uid = len(st.cards)
     c = CardInstance(uid, def_id, owner, Zone.OUTSIDE)
     c.known = BOTH_KNOW
@@ -282,7 +284,8 @@ def queue_trigger(
     )
 
 
-_LISTEN_CACHE: dict[tuple[tuple[int, ...], tuple[int, ...]], frozenset[d.Ev]] = {}
+Decklists = tuple[tuple[int, ...], tuple[int, ...]]
+_LISTEN_CACHE: dict[tuple[Decklists, Decklists], frozenset[d.Ev]] = {}
 
 
 def clear_listen_cache() -> None:
@@ -290,15 +293,19 @@ def clear_listen_cache() -> None:
 
 
 def listened_events(st: GameState) -> frozenset[d.Ev]:
-    """Events any card in this game (both decklists, tokens, delayed triggers) can trigger on."""
-    key = st.decklists
+    """Events any card in this game (both decks and resource decks, their Unit variants,
+    tokens, delayed triggers) can trigger on."""
+    key = (st.decklists, st.resource_decklists)
     got = _LISTEN_CACHE.get(key)
     if got is None:
         R = V.reg()
         evs: set[d.Ev] = set(R.always_events)
-        for dl in key:
+        for dl in (*st.decklists, *st.resource_decklists):
             for def_id in set(dl):
                 evs.update(R.events_by_def.get(def_id, ()))
+                variant = R.db.unit_variant(def_id)
+                if variant is not None:
+                    evs.update(R.events_by_def.get(variant.def_id, ()))
         got = frozenset(evs)
         if len(_LISTEN_CACHE) > 256:
             _LISTEN_CACHE.clear()
@@ -849,16 +856,24 @@ def set_winner(st: GameState, losers: set[int], reason: EndReason) -> None:
 
 def rules_management(st: GameState) -> None:
     """Rule 11: defeat check (11-2), then destruction of cards whose damage reached their HP
-    (11-3), repeated until nothing changes."""
-    if st.winner is not None or st.phase is Phase.SETUP:
+    (11-3), repeated until nothing changes. Once a check finds no damage reaching printed HP,
+    the state is not checked again until it changes (``st.touch()``)."""
+    if st.winner is not None or st.phase is Phase.SETUP or st._rules_checked == st.version:
         return
     while True:
         losers = {p for p in (0, 1) if not st.zones[p][Zone.DECK]}
         if losers:
             set_winner(st, losers, EndReason.DECK_OUT)
             return
-        if not V.reg().hp_reduction_possible and not _any_damaged_or_zero_hp(st):
-            return
+        if not V.reg().hp_reduction_possible:
+            damaged, lethal = _damage_scan(st)
+            if not damaged:
+                st._rules_checked = st.version
+                return
+            if not lethal:
+                st.effect_hits.clear()
+                st._rules_checked = st.version
+                return
         dv = V.derived(st)
         doomed = []
         for p in (st.active, 1 - st.active):
@@ -899,15 +914,27 @@ def _emit_destroys_with_effect_damage(
         emit(st, ev, src, player=st.cards[src].owner, lki=src_lki, target=u, battle=0, group=group)
 
 
-def _any_damaged_or_zero_hp(st: GameState) -> bool:
+def _damage_scan(st: GameState) -> tuple[bool, bool]:
+    """(some Unit or Base is damaged or has printed HP 0 or less, some Unit or Base has damage
+    reaching its printed HP plus its paired Pilot's). Without HP-lowering effects a card's HP
+    is never below that printed total, so no card is destroyed while nothing reaches it."""
     db = V.reg().db
+    cards = st.cards
+    damaged = lethal = False
     for p in (0, 1):
         for z in (Zone.BATTLE, Zone.BASE):
             for uid in st.zones[p][z]:
-                c = st.cards[uid]
-                if c.damage > 0 or db.by_id(c.def_id).hp <= 0:
-                    return True
-    return False
+                c = cards[uid]
+                hp = db.by_id(c.def_id).hp
+                if c.damage > 0 or hp <= 0:
+                    damaged = True
+                if z is Zone.BATTLE and c.pair >= 0:
+                    hp += db.by_id(cards[c.pair].def_id).hp
+                if c.damage >= hp:
+                    lethal = True
+                if damaged and lethal:
+                    return True, True
+    return damaged, lethal
 
 
 def over(st: GameState) -> bool:
