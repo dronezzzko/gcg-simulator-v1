@@ -63,9 +63,11 @@ Single-observer information-set MCTS (SO-ISMCTS) over *moves*:
    representative spends the fewest EX Resources, which are single-use). A move key is
    `(kind, card, target, play-variant)` with hand/trash/deck cards named by definition. At the
    root, attacks, blocks, choices and pairings that differ only in which of two
-   interchangeable field cards they use (same public fingerprint: definition, state, derived
-   stats, and no history, once-per-turn record or lasting effect naming one of them) become
-   one move, so the search does not split its visits between them (`merge_equivalent_moves`).
+   interchangeable field cards they use become one move, so the search does not split its visits
+   between them. Two cards are interchangeable when their public fingerprints match:
+   definition, state, derived stats, and the same this-turn history, once-per-turn records and
+   lasting effects, with the card itself written as "self"; a card that a battle, a resolving
+   effect or a waiting trigger names is never merged (`merge_equivalent_moves`).
 2. **Dominated moves.** Before searching, the root drops moves that can only be worse than
    another legal move (`actions.prune_dominated`):
    - declining a free "【Burst】Add this card to your hand";
@@ -204,8 +206,11 @@ Candidate features were compared by five-fold cross-validated log-loss (folds by
   count, Blocker count, EX Resources, deck size, exposed flag, maximum AP, trash size, a
   continuous attack margin) were dropped.
 - For the role set (2026-10), on 7,941 positions from 540 standard-preset self-play games on
-  the tuning decks: −0.0090 nats against `TUNED_WEIGHTS` out of fold (fold SE about 0.0035)
-  and −0.0074 on positions from test-deck games (never in the fit); a refit of the 14 base
+  the tuning decks: −0.0090 nats against `TUNED_WEIGHTS` out of fold (fold SE about 0.0035),
+  −0.0074 on positions from test-deck games (never in the fit; cluster SE 0.017) and +0.0030
+  (SE 0.003, slightly worse) on example-deck games; at the tuning budget a role-feature agent
+  scored 384/800 = 0.480 [0.446, 0.515] against a base refit, so the game-level evidence is the
+  bundle measurement under "Strength"; a refit of the 14 base
   weights on the same data was worse out of fold (+0.0025) and did not ship. Interaction terms
   (life × enemy threat), a sharper lethal estimate, a held-trick feature and dropping
   `bursts` were measured and gained nothing (within ±0.001).
@@ -241,8 +246,9 @@ original procedure byte for byte. The base weights `TUNED_WEIGHTS` came from
 
 Final fit on 16,562 positions. Validation, standard preset, 216 mirrored games: tuned 112,
 hand-set 104 (51.9%, Wilson 95% [0.452, 0.584]). `ROLE_WEIGHTS` came from
-`python -m gcg_sim.ai.tuning --preset standard --start tuned --feature-set roles --games 540 --rounds 1 --seed 35001`
-(self-play with the pre-change standard search and `TUNED_WEIGHTS`).
+`python -m gcg_sim.ai.tuning --preset baseline-standard --start tuned --feature-set roles --games 540 --rounds 1 --seed 35001`
+(self-play with the pre-change standard search and `TUNED_WEIGHTS`; `--preset` takes the
+presets, `tuning`, and the pre-change `baseline-<preset>`).
 
 A small version of the procedure runs in the test suite
 (`tests/ai/test_tuning.py`: three games, one round, run twice and compared bit for bit), and
@@ -318,7 +324,7 @@ means blocks of four games per deal (each agent on each deck in each seat).
 **New `standard` against the pre-change `standard`** (`compare standard baseline-standard`,
 test decks, held-out seed 90001, run once): **925 of 1,600 = 0.578, Wilson 95% [0.554,
 0.602]**. On the example decks (240 games, three pairings, seed 90005):
-132 of 240 = 0.550 [0.487, 0.612] (80 per pairing: 0.550, 0.413, 0.688).
+132 of 240 = 0.550 [0.487, 0.612] (80 games per pairing: blue-white-federation and purple-white-tekkadan 45, blue-white-federation and red-green-zeon 46, purple-white-tekkadan and red-green-zeon 41).
 
 Where the gain comes from (development seed 36005, 800 mirrored games each against
 `baseline-standard`, same deals):
@@ -330,7 +336,10 @@ Where the gain comes from (development seed 36005, 800 mirrored games each again
 | old settings at twice the iterations | 433 / 800 | 0.541 | [0.507, 0.576] |
 
 So better search and more iterations contribute about equally (about 4 points each) and
-roughly add up. Settings that were measured and not adopted are listed under
+roughly add up. After these measurements the final review found that the no-op Rest-target
+prune ignored "while this Unit is rested" effects; the fix (5a6f226) adds a check that never
+fired in 32 games on the test and example decks, which hold no such card, so it does not change
+the games behind these numbers. Settings that were measured and not adopted are listed under
 [Known weaknesses](#known-weaknesses).
 
 Acceptance test `tests/slow/test_ai_strength.py` (default preset, test decks Federation
@@ -382,10 +391,11 @@ what remains.
 
 `fast` is for screening many deck variants, sub-variants and hypothetical builds; confirm the
 survivors with `standard` on different seeds and never compare or pool rates across presets
-(see the gcg-benchmark skill). Its budget is the cheapest the investigation screened whose decisions still
-agreed with `strong` on 173 confident positions about as often as a clamp(8·n, 20, 80) budget
-(0.744 against 0.733; `standard` 0.808); clamp(6·n, 16, 64) agreed less (0.721) and its lower
-bound against greedy fell below 0.5.
+(see the gcg-benchmark skill). Its budget is the cheapest the investigation screened (with the pre-change
+search settings) whose decisions still agreed with the pre-change `strong` on 173 confident
+positions about as often as a clamp(8·n, 20, 80) budget (0.744 against 0.733; the pre-change
+`standard` 0.808); clamp(6·n, 16, 64) agreed less (0.721) and its lower bound against greedy
+fell below 0.5.
 
 | Check (held-out seeds, each run once) | Result |
 | --- | --- |
@@ -425,8 +435,9 @@ replaced by weak same-colour cards), 200 BO1 matches against the original (seed 
   (calibrated `value_scale` and the role features' separate can-kill and race terms; part of
   the measured gain above). A lethal extension that played one more turn when the horizon
   position threatened lethal, with a face-first push and a Blocker guard, was built and
-  measured: it fixed an audited defence position, but with the other settings it won 449/800
-  against 448/800 without it on the same deals, and on 100 decisions where it changed the move
+  measured: it fixed an audited defence position, but with the root, search and evaluation
+  settings at twice the budget (before the policy settings were merged) it won 449/800 against
+  448/800 without it on the same deals, and on 100 decisions where it changed the move
   the old move did better in play-outs (36 to 23), so it was removed. A three-turn horizon
   costs about 43% more per iteration and is deferred for `strong`.
 - **Policy bias.** Rollouts and priors come from a hand-written policy. Measured: rollouts
@@ -445,7 +456,10 @@ replaced by weak same-colour cards), 200 BO1 matches against the original (seed 
   causes remain). Opponent nodes pool statistics across worlds where the opponent holds
   different cards (0.84–0.89 distinct hands per visit), so a multiple-observer search would
   have almost no visits per opponent node at these budgets; the measured fusion effect at
-  opponent nodes is small (+0.021 at a large budget).
+  opponent nodes is small (+0.021 at a large budget). Known limit of the observation keys: when
+  the opponent passes in a battle's action step and again in the end phase with no searcher
+  decision between them, both passes map to one child, which that iteration then counts twice
+  (9 of 11,402 measured iterations).
 - **Linear evaluation.** The model is still linear. Interaction terms gained nothing
   (±0.001 nats); the role features replace the forced antisymmetry, which was the measured
   misspecification. The weights are fitted to self-play of the pre-change standard search;
@@ -460,8 +474,14 @@ replaced by weak same-colour cards), 200 BO1 matches against the original (seed 
 - **Target choice.** Close target choices now get up to three budgets (regret −0.00090 ±
   0.00023 per target decision on 683 decisions, 32 changed choices better and 6 worse), and
   no-op Rest targets are pruned. Choosing the less useful of two targets is still possible
-  when their values stay within noise after the extension; a heuristic tie-break toward the
-  policy's preferred target measured worse and was not adopted.
+  when their values stay within noise after the extension. One target puzzle (ping a Unit that
+  keeps the damage rather than one whose <Repair> heals it) is solved by the extension in the
+  pre-change configuration (11/24 → 18/24 agent seeds on its test) but only about 7 of 24 times
+  by the shipped `standard`: with the calibrated leaf value the two targets score closer (with
+  `value_scale` 2 the same preset solves it about 20 of 24 times). Not adopted: a heuristic
+  tie-break toward the policy's preferred target (worse), a fixed target budget multiplier at
+  the same cost (−0.00036 ± 0.00019 against −0.00090 ± 0.00023 for the extension), and a
+  separate root prior weight for target decisions (z −1.4 and −1.0).
 - **Engine-bound speed.** Most search time is inside the engine's `apply` (80–83% before the
   2026-10 speedups). The output-identical speedups cut function calls per game by about a third (derived-view
   recomputations −40%, listened-events fast path, rules-management skips) and the world cache

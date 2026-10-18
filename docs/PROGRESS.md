@@ -84,7 +84,7 @@ records what was done, evidence, and what remains.
   - `git status --short` after: empty.
 
 
-## Phase 7 — AI quality and the `fast` preset (in progress, branch `feat/ai-quality`)
+## Phase 7 — AI quality and the `fast` preset (done, branch `feat/ai-quality`)
 
 Goal: measured AI improvements against every known weakness in `docs/AI.md`, a `fast`
 screening preset, output-identical engine speedups. Proxies for "closer to skilled human play":
