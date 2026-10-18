@@ -80,3 +80,19 @@ Every decision made without asking the user is recorded here with its rationale.
   floor at its latest release (`uv lock --upgrade`; `uv tree --outdated` lists nothing).
 - With a py314+ target, ruff 0.17 formats multi-exception handlers without parentheses
   (PEP 758, `except A, B:`); it catches both types, exactly as the parenthesized form did.
+
+## AI quality work and the `fast` preset (2026-10-17)
+
+| Topic | Decision | Basis |
+| --- | --- | --- |
+| Scope | "The AI" is `src/gcg_sim/ai/`. Engine changes are performance only and output-identical; one engine-side bug fix (`determinize` writing sampled identities into the true game's shared history) changes only final-state digests, never play. | Request defaults. |
+| What "closer to skilled play" means without tournament data | Head-to-head strength against the pre-change AI (`baseline-standard`), tactical puzzles, a blinded replay audit, decision-level regret against higher-budget searches, and strength against budget. No real-world win rates were fetched or invented; calibrating against real results is a deferred proposal that needs data. | Request defaults. |
+| Decklist knowledge | Kept: both players know both exact decklists. | Request defaults; `docs/ASSUMPTIONS.md` above. |
+| Reproducing the old AI | `gcg_sim.ai.baseline.BASELINE_PRESETS` and `BASELINE_WEIGHTS` spell out the pre-change configuration; every new `SearchConfig` field defaults to the old behaviour. A game recorded on bc38ab4 with decision logs must replay bit for bit (`tests/ai/test_baseline.py`). | Paired A/B games need the old AI in process. |
+| Adoption rule | A setting is adopted when decision-level or puzzle evidence shows it fixes a real error and a 400-game guard shows no large harm; the bundle is then measured at game level (ablation on development seeds, one confirmation on held-out seeds). Settings measured as no help were removed rather than left as unused options (threat-aware rollouts, kill-aware and damaged-payoff targeting, a fixed target budget, a separate target prior, a 14-weight refit at the standard budget). | Small single effects are below what affordable game samples resolve. |
+| Budget | `standard` doubles its iterations (clamp(64n, 160, 640)), paid for by the engine speedup and within the 30-minute target; the ablation separates search quality from iterations. `strong` keeps its iterations and gets the new settings. | Request: "If engine speedups are spent on a bigger budget, show by ablation …". |
+| Greedy | Greedy uses `DEFAULT_WEIGHTS`, now the role-feature weights, so it plays slightly differently from before; it keeps the baseline playout policy (`BASELINE_KNOBS`). Its results are floors, not the measure of improvement. | Greedy shares the evaluation. |
+| Changed existing tests | `tests/ai/test_tuning.py` asserted `DEFAULT_WEIGHTS == TUNED_WEIGHTS`; it now asserts the new default (`ROLE_WEIGHTS`). Assertions listing the presets and the preset error message include `fast`. The results schema test expects 1.1.0. No test was skipped or weakened. | Deliberate interface changes. |
+| Results schema | Adding `fast` to `ai.preset` is an additive minor version: 1.0.0 → 1.1.0 (file name stays `results.v1.schema.json`). | Request defaults. |
+| Weakened deck | The deliberately weakened variant used to check `fast` lives in `tests/data/decks/`, not `examples/decks/`, because `compare --decks examples` uses every file in that folder. | Keeps the example pairings fixed. |
+| Engine history | The engine speedups were developed on a side branch with an add-then-revert pair; they were cherry-picked as clean commits, and no commit changes `tests/ai/test_information_set.py`. | The request requires that file to pass unchanged. |

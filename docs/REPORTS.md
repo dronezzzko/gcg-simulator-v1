@@ -60,6 +60,9 @@ is either complete or absent.
   `urn:gcg-sim:schema:results:1.1.0` (1.1.0 added the `fast` preset to `ai.preset`). Every document repeats the id in `schema` and the version
   in `schema_version`. Load the schema with `gcg_sim.reports.load_schema()` and check a document
   with `gcg_sim.reports.validate_results(obj)`.
+- **Comparability.** A rate depends on the AI that played it. Compare runs only with the same
+  preset and the same version (`versions.code_digest`); reports made before the October 2026
+  AI update (schema 1.0.0) are not comparable with new ones.
 - **Win rates.** All rates are from the DUT's point of view. A rate block is
   `{"successes", "n", "rate", "ci95"}`. `ci95` is a 95% Wilson score interval, and `rate` and
   `ci95` are `null` when `n` is 0. Draws count as non-wins and are reported separately.

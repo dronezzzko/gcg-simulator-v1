@@ -160,3 +160,13 @@ head-to-head against the pre-change AI, tactical puzzles, blinded replay audits,
   by a second agent): 15 baseline games from the `main` worktree and 15 new-standard games, same
   seeds (90031–90033, 5 BO1 games per example pairing). Confirmed implausible plays: baseline 22
   (31 flagged), new 19 (22 flagged). Classified list: `build/aiq2/audit/classified.md`.
+- Final measurements on held-out seeds, each run once (commands: `docs/AI.md`, "Strength"
+  and "The fast preset"): new standard vs baseline-standard 925/1600 = 0.578 [0.554, 0.602]
+  (seed 90001); examples spot check 132/240 = 0.550 (90005); strong vs new standard 209/400 =
+  0.523 [0.474, 0.571] (8401; baseline figure 0.575); `tests/slow/test_ai_strength.py`
+  400/400 vs random and 292/400 = 0.730 [0.684, 0.771] vs greedy. fast: 399/400 vs random,
+  251/400 vs greedy, 156/400 vs standard, 36/36 puzzle runs; fidelity pairings agree with
+  standard where standard resolves the matchup; weakened red-green-zeon 141/200 (fast) and
+  139/200 (standard). Throughput (idle, 8 workers): fast 28.2, standard 2.90, strong 1.82,
+  pre-change standard 4.72 games per core-minute; 100 BO3 matches 13.0 min (standard) vs 7.4
+  (pre-change).

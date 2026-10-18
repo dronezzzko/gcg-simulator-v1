@@ -34,18 +34,25 @@ cards in hidden zones, and cards it has looked at. The agents respect that bound
 - From the true state an agent reads only `st.pending` (its own legal options) and what it
   may know; every look-ahead runs on `gcg_sim.engine.observe.determinize(st, player, seed)`,
   which redraws every card hidden from the player from the known decklists and replaces the
-  game RNG (future shuffles and draws).
+  game RNG (future shuffles and draws). A determinization is a copy: it never writes into the
+  true game (`tests/ai/test_search_side_effects.py` checks that the true state's digest is
+  unchanged by `determinize`, `permute_hidden` and a whole MCTS decision).
 - Search seeds come from the agent seed and the decision counter, never from the state.
 - Move keys (below) identify hand, trash, and deck cards by definition only when the
   deciding player knows them; otherwise by instance number, which carries no identity
   (instance numbers are assigned after the shuffle).
+- In the tree, an opponent's action-step pass keeps the walk in the same node: the engine
+  passes silently for a player without options, so the searcher's later nodes would otherwise
+  depend on whether the opponent's hidden hand gave it an option (`observation_keys`).
 - `tests/ai/test_information_set.py` takes 25 mid-game states from greedy self-play, shuffles
   the hidden identities with `permute_hidden` (three permutations each: a different true state
   inside the same information set), and checks that a fresh MCTS agent and a fresh greedy
   agent with the same seed return the same move **and** the same search statistics.
   `test_negative_control_a_search_on_the_true_state_is_not_invariant` shows that the check
   can fail: with `determinize` replaced by a copy of the true state, the search's decision
-  or statistics change on 23 of the 25 states.
+  or statistics change on most of the states. The same procedure runs with each group of
+  new settings switched on separately (`test_root_moves.py`, `test_information_set_policy.py`,
+  `test_search_options.py`).
 
 ## Architecture of the MCTS player (`mcts.py`)
 
@@ -54,15 +61,32 @@ Single-observer information-set MCTS (SO-ISMCTS) over *moves*:
 1. **Moves.** `actions.canonical` merges legal actions that are the same move: two copies of a
    card in hand, or the same play paid with a different number of EX Resources (the
    representative spends the fewest EX Resources, which are single-use). A move key is
-   `(kind, card, target, play-variant)` with hand/trash/deck cards named by definition.
+   `(kind, card, target, play-variant)` with hand/trash/deck cards named by definition. At the
+   root, attacks, blocks, choices and pairings that differ only in which of two
+   interchangeable field cards they use (same public fingerprint: definition, state, derived
+   stats, and no history, once-per-turn record or lasting effect naming one of them) become
+   one move, so the search does not split its visits between them (`merge_equivalent_moves`).
 2. **Dominated moves.** Before searching, the root drops moves that can only be worse than
-   another legal move (`actions.prune_dominated`): declining a free "【Burst】Add this card to
-   your hand", and attacking with a Unit whose AP is 0 or less when no attack-triggered
-   effect or action-step trick could make the attack matter (greedy uses the same filter).
-   It also drops Command plays and ability activations without effect (`noop.without_effect`):
-   in one determinization, the move and "end the main phase / pass" are each followed by the
-   deterministic policy to the next turn, and the move goes if both lines end in the same
-   position apart from the card and Resources it spent and own cards it rested as a cost.
+   another legal move (`actions.prune_dominated`):
+   - declining a free "【Burst】Add this card to your hand";
+   - attacking with a Unit whose AP is 0 or less, unless declaring the attack (in one
+     determinization) queues a trigger the player controls, judged by the engine's own
+     trigger tests, or opens an Action Command or ability the player can afford and aim in
+     that battle (`strict_attack_prune`; greedy keeps the older, looser test);
+   - choosing an already-rested enemy Unit for an effect whose only use of the choice is to
+     rest it, unless something reacts to a Unit being rested, a delayed effect is armed, an
+     "If you do" step follows, or a once-per-turn effect has not acted yet
+     (`prune_noop_rest_targets`).
+
+   It also drops Command plays and ability activations without effect
+   (`noop.without_effect`): in one determinization, the move and "end the main phase / pass"
+   are each followed by the deterministic policy to the next turn, and the move goes if both
+   lines end in the same position apart from the card and Resources it spent and own cards it
+   rested as a cost. Two refinements keep useful moves: the first choice inside the move's
+   resolution is tried with every option, and the move stays if one of them reaches a
+   position the evaluation scores above idling (`noop_branch_choices`; the policy alone would
+   aim a Rest at an already-rested Unit), and Resources placed, set active or removed beyond
+   the move's own payment count as an effect (`noop_resource_aware`).
 3. **Root.** Each iteration picks a root move by UCB1 with a progressive prior:
    `mean + c·sqrt(ln(avail)/visits) + w·prior/(visits+1)` (`c = exploration`, 0.3 in the
    standard preset; `w = prior_weight = 0.5`). Moves not yet tried go first, highest prior
@@ -70,24 +94,32 @@ Single-observer information-set MCTS (SO-ISMCTS) over *moves*:
 4. **Common random numbers.** The *n*-th visit of every root move is played in the *n*-th
    determinization with the *n*-th rollout seed, so root moves are compared on identical
    worlds (paired sampling). This alone raised the win rate against greedy from 0.61 to 0.68
-   in 192-game mirrored tests.
+   in 192-game mirrored tests. Each world is determinized once per search and copied for
+   every visit that plays in it.
 5. **Tree.** Below the root the walk chooses among the moves legal in the current world;
-   children are keyed by `(mover, move key)` and keep availability counts, so a move that
-   exists only in some worlds (the opponent holding a certain card) is judged fairly.
-   Decisions with one legal move are applied without a node. One node is added per
-   iteration.
+   children are keyed by `(mover, decision kind, move key)` and keep availability counts, so
+   a move that exists only in some worlds (the opponent holding a certain card) is judged
+   fairly, and a card's main-phase and action-step plays stay apart. Decisions with one legal
+   move are applied without a node. One node is added per iteration.
 6. **Rollout.** The heuristic playout policy (softmax over its scores, temperature 0.5 in the
    standard preset) plays both sides until `horizon_turns = 2` turn boundaries have passed:
    the rest of the current turn and the whole reply turn, stopping at the start of the turn
-   after that.
+   after that. Every non-terminal leaf is the turn player's first main-phase decision of
+   that turn, the point at which the evaluation is fitted (measured on 250,680 leaves).
 7. **Leaf value** (for the searching player): a finished game scores `1 - 0.01·turns elapsed`
    for a win and `0.01·turns elapsed` for a loss (win sooner, lose later; 0.5 for a draw);
-   otherwise `0.05 + 0.9·σ(score / value_scale)` with `value_scale = 2`, so a certain result
-   always outranks an estimate and lopsided positions keep a usable gradient.
+   otherwise `0.05 + 0.9·σ(score / value_scale)`, so a certain result always outranks an
+   estimate (`SearchConfig` rejects a horizon at which it would not). The presets use
+   `value_scale = 1`, the calibrated log-odds; the earlier 2 halved them, so positions that
+   win 95% of the time were valued about 0.76.
 8. **Budget and choice.** A decision with *n* distinct moves gets
    `clamp(iterations_per_option·n, min_iterations, max_iterations)` iterations; the search stops
-   early once the most-visited move cannot be overtaken. The move with the most visits is
-   played (ties: higher mean, then option order).
+   early once the most-visited move cannot be overtaken. For an effect target choice
+   (cards to choose, trash, discard or order), when the budget runs out while the move to
+   play is within two paired standard errors of another (the visits two moves share are
+   pairs, by step 4), the search goes on one budget at a time up to three budgets
+   (`target_extension`, `target_extension_z`). The move with the most visits is played
+   (ties: higher mean, then option order).
 
 Pre-game choices (`setup.py`):
 
@@ -98,35 +130,52 @@ Pre-game choices (`setup.py`):
 - **Mulligan** (`REDRAW`): `opening_score` plays the hand out greedily over the first four
   turns (resources = turn number, plus Player Two's EX Resource) and weights early board
   development most. The agent redraws when the hand scores below 90% of the average of
-  `mulligan_samples` fresh five-card hands drawn from the rest of the deck (the returned hand
-  goes to the bottom, rule 6-2-1-6-1, so it cannot come back).
+  `mulligan_samples` fresh five-card hands drawn from the rest of the deck. The returned hand
+  goes to the bottom and the deck is shuffled after the new five are drawn (rule 6-2-1-6-1),
+  so a returned card is never in the new hand but can come back later (in the Shields about
+  half the time); sampling the new hand from the rest of the deck is the right model.
 
 ## Playout policy (`policy.py`)
 
 The policy scores every option of every decision kind from the current board, without
 look-ahead; search uses it for rollouts and priors, and greedy uses it (deterministically) to
-finish the turn.
+finish the turn. A search configuration can change some of its rules (`PolicyKnobs`, set by
+the `policy_*` fields of `SearchConfig`); greedy always uses the original rules.
 
 | Decision | Heuristic |
 | --- | --- |
 | Main phase | Play the largest affordable Unit; pair Pilots, strongly preferring one that links (more so on a Unit deployed this turn, which can then attack); replace an EX Base; play Commands and abilities; spend EX Resources only when needed. |
-| Attacks | Lethal on an exposed player first; with more Blockers than attackers, play removal first. Attack a rested Unit when it dies and the attacker survives; avoid attacks into a Blocker that wins the fight; small penalty when the attacker will be exposed to a stronger enemy Unit on the reply turn. |
+| Attacks | Lethal on an exposed player first; with more Blockers than attackers, play removal first. Attack a rested Unit when it dies and the attacker survives; avoid attacks into a Blocker that wins the fight; small penalty when the attacker will be exposed to a stronger enemy Unit on the reply turn. With `policy_zero_ap_face`, a face attack by a Unit that can neither deal damage nor matter through a trigger or a battle trick scores below ending the main phase, and such a Unit does not count as an attacker against the Blockers. |
 | Blocks | Must-block when the player would lose; otherwise value the Shield or Unit saved plus the fight outcome. |
 | Action steps | Tricks during a battle are tried; passing is preferred in the end phase. |
-| Targets (`SELECT`) | Reads the resolving effect's program to classify the choice as helping or harming the chosen cards, then picks the most valuable enemy card to harm or friendly card to help (least valuable for costs); rest-substitution picks cheaper cards. |
+| Targets (`SELECT`) | Reads the resolving effect's program to classify the choice as helping or harming the chosen cards, then picks the most valuable enemy card to harm or friendly card to help (least valuable for costs); rest-substitution picks cheaper cards. With `policy_rule_polarity_table`, a granted rule is signed by its kind (protection such as "can't receive damage" helps, locks such as "stays rested in the start phase" harm; the old rule called every "can't" harmful) and a rule granted to your own Units for this battle goes to the Unit in the battle. |
 | `EXCESS` / `DISCARD` | Trash or discard the least valuable card. |
 | `ARRANGE` | Keep valuable cards on top of your own deck. |
-| `BURST` / `YES_NO` | Yes. |
+| `BURST` | Yes, with score `policy_burst_yes_score` against 0 for no: at the presets' 4.0 a rollout at temperature 0.5 declines a Burst 0.03% of the time instead of 12% (no Burst in the example or test decks should be declined; the root decision is searched either way). |
+| `YES_NO` | Yes (score 1 against 0, so a rollout at temperature 0.5 says no about 12% of the time). |
 | `CHOOSE_FIRST` / `REDRAW` | Go first / keep (search agents use the pre-game procedures above). |
 
 ## Evaluation (`evaluation.py`)
 
-A logistic model of the probability that `player` wins. Each feature is
-`side(player) − side(opponent)` except `tempo`; the vector is antisymmetric, so the two players'
-estimates add up to 1. The search evaluates determinized states only, so the opponent's hand
-composition is a sample from the player's information set.
+A logistic model of the probability that `player` wins. The search evaluates determinized
+states only, so the opponent's hand composition is a sample from the player's information
+set. `Weights` carry a feature set (`evaluation.FEATURE_SETS`):
 
-| Feature | Meaning (per side) | Hand-set | Tuned |
+- **`roles`** (the default, `DEFAULT_WEIGHTS = ROLE_WEIGHTS`, 17 features): computed from the
+  turn player's point of view, then negated for the other player. It keeps 12 of the base
+  differences below (all but `tempo` and `can_kill`), uses an intercept for the turn player,
+  and keeps the two sides' threats apart instead of forcing them to be mirror images:
+  `can_kill_turn_player`, `can_kill_other`, and `inv_race_turn_player`, `inv_race_other`, the
+  inverse of the number of turns that side needs to win if both boards stayed as they are
+  (every Unit with AP attacks the player each turn, each of the defender's Blockers stops the
+  largest blockable attack, the Base absorbs hits at the connecting attacks' mean AP, then
+  every Shield and one more hit; capped at 6 turns). Weights of note: can_kill turn player
+  +1.27, can_kill other −0.42, 1/race turn player +3.25, 1/race other −0.85, intercept −0.75.
+- **`base`** (14 features, `TUNED_WEIGHTS`, the pre-2026-10 default kept for
+  `baseline-standard`): each feature is `side(player) − side(opponent)` except `tempo`, so the
+  two players' estimates add up to 1.
+
+| Feature (base) | Meaning (per side) | Hand-set | Tuned |
 | --- | --- | ---: | ---: |
 | `tempo` | +1 if `player` is the turn player, −1 otherwise | 0.00 | −0.20 |
 | `life` | Shields + Base HP / 3 | 0.35 | 0.43 |
@@ -149,20 +198,29 @@ count.
 
 ### Feature selection
 
-Candidate features were compared by five-fold cross-validated log-loss (folds by game) on
-11,792 turn-start positions from 720 MCTS self-play games. Splitting the hand by card type
-lowered log-loss from 0.515 to 0.491; features that did not help (Unit count, Blocker count,
-EX Resources, deck size, exposed flag, maximum AP, trash size, a continuous attack margin)
-were dropped.
+Candidate features were compared by five-fold cross-validated log-loss (folds by game).
+- For the base set, on 11,792 turn-start positions from 720 MCTS self-play games: splitting
+  the hand by card type lowered log-loss from 0.515 to 0.491; features that did not help (Unit
+  count, Blocker count, EX Resources, deck size, exposed flag, maximum AP, trash size, a
+  continuous attack margin) were dropped.
+- For the role set (2026-10), on 7,941 positions from 540 standard-preset self-play games on
+  the tuning decks: −0.0090 nats against `TUNED_WEIGHTS` out of fold (fold SE about 0.0035)
+  and −0.0074 on positions from test-deck games (never in the fit); a refit of the 14 base
+  weights on the same data was worse out of fold (+0.0025) and did not ship. Interaction terms
+  (life × enemy threat), a sharper lethal estimate, a held-trick feature and dropping
+  `bursts` were measured and gained nothing (within ±0.001).
+- `value_scale`: against outcomes, the leaf mapping at `value_scale = 2` is underconfident
+  (leaves valued 0.65–0.8 win 91% of the time); among 1, 1.5 and 2, 1 has the lowest log-loss
+  on every source (−0.026 to −0.040 nats against 2).
 
 ### Tuning procedure (`tuning.py`)
 
-1. Self-play: two MCTS agents with the small `tuning` budget (16–48 iterations) and the
-   current weights play `--games` games on the three tuning decks (Zeon green/red, Wing
-   green/blue, Tekkadan purple), cycling through all nine ordered deck pairings. The tuning
-   decks are different from the AI test decks.
-2. At the turn player's first main-phase decision of every turn, record its feature vector;
-   label it 1 if that player won the game (draws dropped).
+1. Self-play: two MCTS agents with the small `tuning` budget (16–48 iterations), or a preset's
+   search settings with `--preset`, and the current weights play `--games` games on the three
+   tuning decks (Zeon green/red, Wing green/blue, Tekkadan purple), cycling through all nine
+   ordered deck pairings. The tuning decks are different from the AI test decks.
+2. At the turn player's first main-phase decision of every turn, record its feature vector
+   (`--feature-set base|roles`); label it 1 if that player won the game (draws dropped).
 3. Fit an L2-regularised (λ = 1) logistic regression by Newton's method on the even-indexed
    games of all rounds so far; report log-loss on the current round's odd-indexed games
    before (current weights) and after (fitted weights).
@@ -171,7 +229,8 @@ were dropped.
 5. Validate: a mirrored head-to-head match between the tuned and hand-set weights.
 
 Every seed derives from `--seed` (default 2026); the result does not depend on `--workers`.
-The run that produced `TUNED_WEIGHTS` was
+`--start hand|tuned` chooses the weights round 0 plays with; the defaults reproduce the
+original procedure byte for byte. The base weights `TUNED_WEIGHTS` came from
 `python -m gcg_sim.ai.tuning --games 540 --rounds 2 --workers 13 --validate 216 --validate-preset standard`
 (13 min on 13 cores):
 
@@ -181,10 +240,9 @@ The run that produced `TUNED_WEIGHTS` was
 | 1 (round-0 weights) | 7,957 | 0.5218 | 0.5188 |
 
 Final fit on 16,562 positions. Validation, standard preset, 216 mirrored games: tuned 112,
-hand-set 104 (51.9%, Wilson 95% [0.452, 0.584]) — the tuned model predicts outcomes better,
-and in play it is at least as strong as the hand-set one. An earlier round with the first
-feature set (whole-hand count) showed a clearer effect: tuned against hand-set weights won
-128 of 192 games (66.7%, [0.597, 0.730]).
+hand-set 104 (51.9%, Wilson 95% [0.452, 0.584]). `ROLE_WEIGHTS` came from
+`python -m gcg_sim.ai.tuning --preset standard --start tuned --feature-set roles --games 540 --rounds 1 --seed 35001`
+(self-play with the pre-change standard search and `TUNED_WEIGHTS`).
 
 A small version of the procedure runs in the test suite
 (`tests/ai/test_tuning.py`: three games, one round, run twice and compared bit for bit), and
@@ -196,64 +254,103 @@ uv run python -m gcg_sim.ai.tuning --games 2 --rounds 1
 
 ## Presets and measured throughput
 
-| Preset | Iterations per decision | Other |
-| --- | --- | --- |
-| `standard` (default) | clamp(32·n, 80, 320) | exploration 0.3, rollout temperature 0.5, 24 play/draw game pairs, 96 mulligan samples |
-| `strong` | clamp(128·n, 320, 1280) | exploration 0.15, rollout temperature 0.3, 48 play/draw game pairs, 192 mulligan samples |
+| Preset | Use | Iterations per decision | Other |
+| --- | --- | --- | --- |
+| `fast` | screening deck variants | clamp(7·n, 16, 64) | exploration 0.15, rollout temperature 0.3, 8 play/draw game pairs, 96 mulligan samples |
+| `standard` (default) | benchmarks | clamp(64·n, 160, 640) | exploration 0.3, rollout temperature 0.5, 24 play/draw game pairs, 96 mulligan samples |
+| `strong` | confirmation runs | clamp(128·n, 320, 1280) | exploration 0.15, rollout temperature 0.3, 48 play/draw game pairs, 192 mulligan samples |
 
-Measured on the integrated engine (commit 013ea8f, 8 worker processes on an otherwise idle
-14-core Apple-silicon machine; core-seconds = wall time × workers):
+All three use the same settings otherwise: the root pruning and no-effect refinements, the
+policy settings (Burst score 4.0, 0-AP face attacks, the rule table), close target extension
+(3 budgets, 2 paired standard errors), observation keys, `value_scale = 1` and the role
+evaluation. The pre-change presets stay available as `gcg_sim.ai.baseline.BASELINE_PRESETS`
+(`baseline-standard`, `baseline-strong`) with `BASELINE_WEIGHTS`.
 
-| Measurement | Games | Mean turns | Wall time | Core-seconds per game | Games per core-minute |
-| --- | ---: | ---: | ---: | ---: | ---: |
-| `gcg_sim.ai.throughput --preset standard` (tuning decks, MCTS vs MCTS) | 24 | 14.3 | 38.0 s | 12.7 | 4.74 |
-| `gcg_sim.ai.throughput --preset strong` (tuning decks, MCTS vs MCTS) | 16 | 15.0 | 121.8 s | 60.9 | 0.99 |
-| `gcg-sim benchmark` red-green-zeon vs blue-white-federation, 16 BO3 matches, standard | 44 | 15.7 | 100.2 s | 18.2 | 3.29 |
-| `gcg-sim benchmark` red-green-zeon mirror, 32 BO3 matches, standard | 81 | — | 107.9 s | 10.7 | 5.63 |
+Measured on commit fc29d5f, 8 worker processes on an otherwise idle 14-core Apple M4 Pro, two
+alternating rounds that agreed within 1% (core-seconds = wall time × workers;
+`gcg_sim.ai.throughput --games 48 --workers 8 --seed 11`, 96 games for `fast`, 16 for
+`strong`; tuning decks, MCTS vs MCTS):
 
-So 100 BO3 matches of the example decks (about 250–275 games) take about 6–11 minutes on 8
-cores with `standard`, well inside the 30-minute target; `strong` is about 4–5× slower.
-During development, on the AI branch's older engine and the AI test decks (Federation vs
-SEED, 13 workers), `standard` measured 1.65 games per core-minute and `strong` 0.44.
-About 90% of search time is spent inside the engine's `apply`, two thirds of it recomputing
-derived characteristics (`engine/view.py:_compute`); the playout policy and evaluation take
-under 10%.
+| Measurement | Games per core-minute | Core-seconds per game | Mean turns |
+| --- | ---: | ---: | ---: |
+| `fast` | 28.2 | 2.1 | 15.3 |
+| `standard` | 2.90 | 20.7 | 15.9 |
+| `strong` | 1.82 | 33.0 | 14.2 |
+| pre-change `standard` (`main`, bc38ab4), same machine and protocol | 4.72 | 12.7 | 16.2 |
+
+`fast` plays 9.7× the games per core-minute of `standard`. 100 BO3 matches of
+red-green-zeon against blue-white-federation (`gcg-sim benchmark … --matches 100 --seed 1
+--workers 8`) took 13.0 minutes (251 games) with `standard`, against 7.4 minutes (260 games)
+for the pre-change AI, inside the 30-minute target. The engine speedups of 2026-10
+(output-identical: same games, decision logs and results) made the old AI 1.26× faster on
+the same throughput measurement; `standard` spends that and more on twice the iterations.
+In a profiled game on the pre-change engine, 80–83% of search time was inside the engine's
+`apply`; the playout policy and the evaluation take most of the rest.
 
 Measure with (wall-clock is read only to report speed):
 
 ```bash
-uv run python -m gcg_sim.ai.throughput --preset standard --games 1
+uv run python -m gcg_sim.ai.throughput --preset fast --games 2
 ```
+
+## Comparing AI versions
+
+`python -m gcg_sim.ai.compare CHALLENGER OPPONENT` plays mirrored blocks of four (each deal
+with the challenger on both decks and in both seats) and prints the challenger's wins with a
+Wilson 95% interval; draws count as non-wins. An agent is `random`, `greedy`, a preset, or a
+baseline preset (`baseline-standard`: the AI as released before the 2026-10 changes), with
+`:field=value,...` to change `SearchConfig` fields or `weights=default|hand|baseline|roles`.
+Decks: `tests` (the AI test decks, from the repository root), `tuning`, `examples`, files, or
+`module:attr`. `--out` saves every game for paired analyses.
+
+```bash
+uv run python -m gcg_sim.ai.compare fast random --games 12 --seed 1 --decks tuning
+```
+
+`tests/ai/test_baseline.py` replays one game recorded on bc38ab4 with `baseline-standard`,
+moves and every logged search statistic included, so the baseline cannot drift.
 
 ## Strength
 
-Acceptance test `tests/slow/test_ai_strength.py` (default `standard` preset, test decks
-Federation blue/white and SEED red/white from `tests/ai/decks.py`, 400 games per opponent in
-mirrored blocks of four so each deal is played with the MCTS agent on both decks and in both
-seats). Wins are counted; draws count as non-wins, as in the benchmark reports. Run on the
-integrated engine with dominated-move and no-effect pruning (commit 15ae2eb, 12 worker
-processes):
+All results count wins; draws count as non-wins, as in the benchmark reports. "Mirrored"
+means blocks of four games per deal (each agent on each deck in each seat).
 
-| Opponent | MCTS wins | Draws | Win rate | Wilson 95% interval | Mean turns |
-| --- | ---: | ---: | ---: | --- | ---: |
-| random | 400 / 400 | 0 | 1.000 | [0.990, 1.000] | 11.5 |
-| greedy | 289 / 400 | 0 | 0.723 | [0.677, 0.764] | 17.4 |
+**New `standard` against the pre-change `standard`** (`compare standard baseline-standard`,
+test decks, held-out seed 90001, run once): **925 of 1,600 = 0.578, Wilson 95% [0.554,
+0.602]**. On the example decks (240 games, three pairings, seed 90005):
+132 of 240 = 0.550 [0.487, 0.612] (80 per pairing: 0.550, 0.413, 0.688).
 
-(Earlier runs of the same test against greedy: 281/400 and 287/400 with earlier versions of
-the no-effect check,
-275/400 with dominated-move pruning only, 276/400 before any pruning on commit 013ea8f, and
-272/400 on the AI branch's older engine; the differences are within sampling noise.)
+Where the gain comes from (development seed 36005, 800 mirrored games each against
+`baseline-standard`, same deals):
 
-Greedy is a demanding baseline: it shares the tuned evaluation and the playout policy, and
-it compares its moves on a single world (so its comparisons have no sampling noise).
+| Agent | Wins | Rate | Wilson 95% |
+| --- | ---: | ---: | --- |
+| new settings at twice the iterations (the new `standard`) | 472 / 800 | 0.590 | [0.556, 0.624] |
+| new settings at the old iterations | 435 / 800 | 0.544 | [0.509, 0.578] |
+| old settings at twice the iterations | 433 / 800 | 0.541 | [0.507, 0.576] |
 
-`strong` against `standard` (measured during development on the older engine; test decks,
-mirrored): 58 of 96 games (seed 7) and 103 of 192
-(seed 8), together 161 of 288 = 0.559, Wilson 95% [0.501, 0.615]. Simply giving the standard
-knobs 4× the iterations did not help (46 of 96, 0.479), nor did a three-turn horizon at 2×
-(51 of 96); what helps a large budget is spending it on the best lines (exploration 0.15) with
-less noisy rollouts (temperature 0.3). Those two settings at the standard budget were not
-better than the standard ones (91 of 192, 0.474).
+So better search and more iterations contribute about equally (about 4 points each) and
+roughly add up. Settings that were measured and not adopted are listed under
+[Known weaknesses](#known-weaknesses).
+
+Acceptance test `tests/slow/test_ai_strength.py` (default preset, test decks Federation
+blue/white and SEED red/white from `tests/ai/decks.py`, 400 mirrored games per opponent):
+
+| Opponent | MCTS wins | Win rate | Wilson 95% interval | Mean turns |
+| --- | ---: | ---: | --- | ---: |
+| random | 400 / 400 | 1.000 | [0.990, 1.000] | 11.7 |
+| greedy | 292 / 400 | 0.730 | [0.684, 0.771] | 18.4 |
+
+Before the change the same test gave 400/400 against random and 289/400 (0.723, [0.677,
+0.764]) against greedy. Greedy uses the default evaluation, so it now plays with the role
+weights too; these results are floors, not the measure of improvement.
+
+`strong` against `standard` (400 mirrored games, test decks, seed 8401): 209 of 400 = 0.523
+[0.474, 0.571]. On the same deals the pre-change `strong` beat the pre-change `standard`
+230 of 400 = 0.575 [0.526, 0.623]: `standard` gained more than `strong`, which keeps only
+twice `standard`'s iterations. Earlier measurements on the older engine: simply giving the
+old standard knobs 4× the iterations did not help (46 of 96), nor did a three-turn horizon at
+2× (51 of 96).
 
 Tactical puzzles (`tests/ai/test_puzzles.py`, each solved by the standard preset with two
 agent seeds against an MCTS defender): lethal on an exposed player; lethal by going face
@@ -265,31 +362,124 @@ it in the opponent's end step so the Blocker stays rested); take a favourable tr
 attack into a bigger Blocker; block to survive; block when the Blocker wins the fight; use an
 action-step trick (AP−3) to survive; aim removal at the most valuable Unit it can destroy;
 trash the weakest Unit to the battle-area limit; take a free card from 【Burst】; mulligan a
-hand of uncastable cards and keep a hand with early plays; go first.
+hand of uncastable cards and keep a hand with early plays; go first. Puzzles added with the
+2026-10 settings, each failing with the pre-change configuration: rest the Blocker while a
+bigger enemy Unit is already rested (the no-effect check used to prune the removal; 0/16 →
+16/16 agent seeds), do not rest an already-rested Unit (5/16 and 13/16 → 16/16), aim a ping
+at a Unit that keeps the damage rather than one whose <Repair> heals it and at the active
+rather than the rested Unit with hidden hands (close target extension: 11/24 → 18/24 and
+12/16 → 16/16), and protect the attacked Unit with a battle-scoped protection (0/8 → 8/8).
+
+Blinded replay audit (30 games: 15 from the pre-change AI generated on bc38ab4 and 15 from
+the new `standard`, the same seeds 90031–90033, five BO1 games per example pairing; ten
+auditors read anonymized transcripts with boards and every option but no search statistics,
+and a second agent checked every flagged play): confirmed implausible plays 22 for the old AI
+and 19 for the new one. Wasted effects fell from 6 to 4 and bad targets from 5 to 2;
+passivity (5 → 6), questionable attacks (3 → 4) and two missed lethals in the new games show
+what remains.
+
+## The `fast` preset
+
+`fast` is for screening many deck variants, sub-variants and hypothetical builds; confirm the
+survivors with `standard` on different seeds and never compare or pool rates across presets
+(see the gcg-benchmark skill). Its budget is the cheapest the investigation screened whose decisions still
+agreed with `strong` on 173 confident positions about as often as a clamp(8·n, 20, 80) budget
+(0.744 against 0.733; `standard` 0.808); clamp(6·n, 16, 64) agreed less (0.721) and its lower
+bound against greedy fell below 0.5.
+
+| Check (held-out seeds, each run once) | Result |
+| --- | --- |
+| Games per core-minute against `standard` (same machine, idle) | 28.2 vs 2.90: 9.7× |
+| vs random, 400 seat-swapped games (seed 90002) | 399 / 400 = 0.998 [0.986, 1.000] |
+| vs greedy, 400 games (seed 90003) | 251 / 400 = 0.628 [0.579, 0.674] |
+| vs `standard`, 400 games (seed 90004) | 156 / 400 = 0.390 [0.344, 0.439] |
+| Tactical puzzles of `tests/ai/test_puzzles.py` with `fast` agents on both sides | all 18, with both agent seeds (36/36) |
+
+Fidelity: each example pairing played 400 BO1 matches under `fast` and under `standard` on
+the same seed (the same deals), deck under test listed first:
+
+| Pairing (seed) | `fast` | `standard` | Paired difference (fast − standard) |
+| --- | --- | --- | --- |
+| red-green-zeon vs blue-white-federation (90011) | 234 / 400 = 0.585 [0.536, 0.632] | 207 / 400 = 0.518 [0.469, 0.566] | +0.068 [+0.011, +0.124] |
+| blue-white-federation vs purple-white-tekkadan (90012) | 222 / 400 = 0.555 [0.506, 0.603] | 226 / 400 = 0.565 [0.516, 0.613] | −0.010 [−0.066, +0.046] |
+| purple-white-tekkadan vs red-green-zeon (90013) | 147 / 400 = 0.368 [0.322, 0.416] | 161 / 400 = 0.403 [0.356, 0.451] | −0.035 [−0.085, +0.015] |
+
+Where `standard`'s interval excludes 50% (the second and third pairings), `fast` favours the
+same deck. In the first pairing `standard` does not resolve the matchup and `fast` rates the
+deck under test about 7 points higher (a significant paired difference): `fast` rates are not
+`standard` rates, which is why the screening funnel confirms survivors with `standard`.
+
+A deliberately weakened legal variant of red-green-zeon (`tests/data/decks/
+red-green-zeon-weakened.txt`: four Gelgoog, two Schuzrum-Galluss and three Close Combat
+replaced by weak same-colour cards), 200 BO1 matches against the original (seed 90021):
+
+| Preset | Original deck wins | Rate | Wilson 95% |
+| --- | ---: | ---: | --- |
+| `fast` | 141 / 200 | 0.705 | [0.638, 0.764] |
+| `standard` | 139 / 200 | 0.695 | [0.628, 0.755] |
 
 ## Known weaknesses
 
 - **Horizon.** Rollouts stop at the start of the turn after the reply turn; plans that pay
-  off later rely on the evaluation (for example `can_kill` counts castable removal in hand).
-- **Policy bias.** Rollouts and priors come from a hand-written policy: it plays Commands
-  somewhat eagerly, judges modal choices and activated abilities coarsely, and models the
-  opponent as playing the same way.
+  off later rely on the evaluation. The leaf now prices the next turn's lethal better
+  (calibrated `value_scale` and the role features' separate can-kill and race terms; part of
+  the measured gain above). A lethal extension that played one more turn when the horizon
+  position threatened lethal, with a face-first push and a Blocker guard, was built and
+  measured: it fixed an audited defence position, but with the other settings it won 449/800
+  against 448/800 without it on the same deals, and on 100 decisions where it changed the move
+  the old move did better in play-outs (36 to 23), so it was removed. A three-turn horizon
+  costs about 43% more per iteration and is deferred for `strong`.
+- **Policy bias.** Rollouts and priors come from a hand-written policy. Measured: rollouts
+  cast Commands in 33% of turns where search casts them in 45% (they are under-cast, not
+  eager), and activate abilities more than search does (55% against 22%); modal choices are
+  scored flat; the opponent is modelled with the same policy. The Burst, 0-AP face attack and
+  rule polarity fixes shipped. Kill-aware damage targeting and damage-payoff targeting made
+  the policy's own picks clearly better (regret per Damage decision −0.020) but made no
+  difference to the search's choices (+0.00025 ± 0.00032 against a reseed placebo), so they
+  were removed; effect-aware Command scoring and priors distilled from search statistics made
+  decisions worse in the investigation and were not built.
 - **Strategy fusion.** Determinized search can assume it will "know" hidden cards when a
-  later decision is made; common random numbers at the root reduce, but do not remove, this.
-- **Linear evaluation.** The model has no interaction terms (for example between life and
-  the opponent's board) and is fitted to self-play of the tuning budget.
-- **Budget scaling.** Against greedy the win rate grows slowly with iterations: before paired
-  sampling, 4× the iterations moved it from 0.70 to 0.77, and with paired sampling 2.5× left
-  it at 0.69–0.71 (192 games each). The standard preset therefore spends a moderate budget;
-  the strong preset is for confirmation runs.
-- **Target choice.** The root drops a Command play or an ability activation whose
-  deterministic continuation reaches the next turn in the position of idling, apart from
-  what it spent (see step 2); this removed the "AP-3 on a Unit that cannot battle", "rest a
-  rested Unit" and "pay a cost for an effect that does nothing" plays the replay review
-  found. Choosing the less useful of two legal targets for an effect remains possible when
-  the search values are within sampling noise: target choices have no "do nothing" option
-  to compare against.
-- **Engine-bound speed.** In a profiled standard game, 91% of the time was inside the
-  engine's `apply` and 69% in `engine/view.py:_compute` (338,330 recomputations for 92,691
-  applied actions; 20.8 million `_host_abilities` calls, mostly for cards in hand and trash).
-  Caching per-definition ability lists by zone in the engine would speed search up directly.
+  later decision is made. Measured: the searcher's in-tree nodes took hidden information
+  almost only through the opponent's automatic action-step pass (276 of 288 splits), which
+  `observation_keys` removes (389 splits in 24 of 183 positions → 0; 12 splits of other
+  causes remain). Opponent nodes pool statistics across worlds where the opponent holds
+  different cards (0.84–0.89 distinct hands per visit), so a multiple-observer search would
+  have almost no visits per opponent node at these budgets; the measured fusion effect at
+  opponent nodes is small (+0.021 at a large budget).
+- **Linear evaluation.** The model is still linear. Interaction terms gained nothing
+  (±0.001 nats); the role features replace the forced antisymmetry, which was the measured
+  misspecification. The weights are fitted to self-play of the pre-change standard search;
+  refitting to the new search's own games is a follow-up.
+- **Budget scaling.** Decision regret against a much larger search falls from 0.0035 per
+  decision at half the standard iterations to 0.0019 at the old budget, 0.0013 at twice and
+  0.0006 at four times; past about twice the old budget the limit is the model (rollouts,
+  horizon, evaluation), not the root allocation: every root rule tried (sequential halving,
+  progressive widening, near-tie extensions, visit minimums, budget-dependent exploration)
+  was null within ±0.0004 at equal iterations. `standard` therefore doubled its iterations;
+  `strong` keeps twice `standard`'s and is only slightly stronger (0.523 above).
+- **Target choice.** Close target choices now get up to three budgets (regret −0.00090 ±
+  0.00023 per target decision on 683 decisions, 32 changed choices better and 6 worse), and
+  no-op Rest targets are pruned. Choosing the less useful of two targets is still possible
+  when their values stay within noise after the extension; a heuristic tie-break toward the
+  policy's preferred target measured worse and was not adopted.
+- **Engine-bound speed.** Most search time is inside the engine's `apply` (80–83% before the
+  2026-10 speedups). The output-identical speedups cut function calls per game by about a third (derived-view
+  recomputations −40%, listened-events fast path, rules-management skips) and the world cache
+  cut determinizations by 73%; `standard` spent the savings on iterations. Invalidating the
+  derived view by mutation kind (74% of recomputations produce an identical view) needs a
+  dependency analysis of every condition and is deferred.
+
+### Deferred proposals
+
+- Calibrate matchup estimates against real tournament results (needs data from the user).
+- Refit the evaluation on games of the new search, and test whether `strong` and `fast`
+  benefit from their own fits.
+- A three-turn horizon for `strong`; a larger `strong` budget relative to the new `standard`.
+- Invalidate the derived view by mutation kind; a stable, process-independent
+  `Lasting.effect_key` so saved states reload faithfully in another process.
+- A multiple-observer search, or opponent models other than the shared policy, if a larger
+  budget makes opponent nodes worth splitting.
+- Decision-level regret tooling (the oracle replay used in the investigation) as a committed
+  tool for future search changes.
+- Paired analysis of same-seed variant runs in the benchmark skill (fewer games for the same
+  precision).

@@ -21,7 +21,7 @@ reproducibility, and honest statistics come before speed.
 | Conflicts report + JSON + reviewable overrides | `docs/CONFLICTS.md`, `data/conflicts.json`, `src/gcg_sim/data/overrides.json` |
 | Rules engine (all 1v1 zones, phases, steps, keywords, timings, triggers, rules management) | `src/gcg_sim/engine/` |
 | Effect DSL, text compiler, per-card bindings (auto-discovered) | `src/gcg_sim/effects/` |
-| AI: random, greedy, determinized MCTS (`standard`, `strong` presets), decision log | `src/gcg_sim/ai/` |
+| AI: random, greedy, determinized MCTS (`fast`, `standard`, `strong` presets), decision log | `src/gcg_sim/ai/` |
 | Runner (multiprocess, seed-derived, interrupt-safe) | `src/gcg_sim/runner/` |
 | Reports (`results.json` + versioned JSON Schema, `summary.md`, `games.ndjson`, replays, `timing.json`) | `src/gcg_sim/reports/` |
 | CLI: `benchmark`, `validate`, `data status`, `replay` | `src/gcg_sim/cli.py` |
