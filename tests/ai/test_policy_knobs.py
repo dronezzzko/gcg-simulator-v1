@@ -8,8 +8,8 @@ import pytest
 from tests.ai.situations import burst
 
 from gcg_sim.ai import make_agent, policy, targeting
-from gcg_sim.ai.baseline import BASELINE_PRESETS
-from gcg_sim.ai.config import PRESETS
+from gcg_sim.ai.baseline import BASELINE_PRESETS, BASELINE_WEIGHTS
+from gcg_sim.ai.config import SearchConfig
 from gcg_sim.ai.policy import BASELINE_KNOBS, PolicyKnobs, knobs_for
 from gcg_sim.effects import dsl as d
 from gcg_sim.effects import program as pr
@@ -177,23 +177,29 @@ def test_rule_polarity_table_aims_a_battle_lock_at_the_best_enemy() -> None:
         assert policy.choose(st, None, 0.0) == Action(A.SELECT, aile)
 
 
-TABLE_SEARCH = dataclasses.replace(PRESETS["standard"], policy_rule_polarity_table=True)
+TABLE_SEARCH = dataclasses.replace(BASELINE_PRESETS["standard"], policy_rule_polarity_table=True)
+
+
+def _saves_the_attacked_unit(config: SearchConfig, seed: int, attacked_is_big: bool) -> bool:
+    st, target = _protection(attacked_is_big)
+    agents = (
+        make_agent("mcts", seed=seed, config=config, weights=BASELINE_WEIGHTS),
+        make_agent("mcts", seed=seed + 100),
+    )
+    while st.pending is not None and st.battle is not None:
+        p = st.pending.player
+        apply(st, agents[p].choose(st, p))
+    return st.cards[target].zone is Zone.BATTLE
 
 
 @pytest.mark.parametrize("seed", [1, 2])
 def test_rule_polarity_table_search_saves_the_attacked_unit(seed: int) -> None:
     """The search keeps the protection play only if the policy's target makes it do something
-    (the no-effect check plays the policy's choices), so the target choice decides the battle."""
+    (the no-effect check plays the policy's choices), so the target choice decides the battle.
+    Negative control: without the table, the pre-change search loses the attacked Gundam."""
     for attacked_is_big in (True, False):
-        st, target = _protection(attacked_is_big)
-        agents = (
-            make_agent("mcts", seed=seed, config=TABLE_SEARCH),
-            make_agent("mcts", seed=seed + 100),
-        )
-        while st.pending is not None and st.battle is not None:
-            p = st.pending.player
-            apply(st, agents[p].choose(st, p))
-        assert st.cards[target].zone is Zone.BATTLE
+        assert _saves_the_attacked_unit(TABLE_SEARCH, seed, attacked_is_big)
+    assert not _saves_the_attacked_unit(BASELINE_PRESETS["standard"], seed, True)
 
 
 # ---------------------------------------------------------------------------------------------

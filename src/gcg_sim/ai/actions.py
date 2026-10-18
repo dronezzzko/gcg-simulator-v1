@@ -296,7 +296,9 @@ def _in_flight(st: GameState, uid: int) -> bool:
 
 def _references(st: GameState, uid: int) -> tuple[Any, ...]:
     """What this turn's history, once-per-turn records and lasting or delayed effects say
-    about the card, with the card itself written as ``_SELF``."""
+    about the card, with the card itself written as ``_SELF``. A once-per-turn record counts
+    when any of its numbers equals the card's instance number, so an unrelated record can keep
+    two cards apart; it can never make two different cards look alike."""
     history = tuple(
         (e.kind, e.player, e.by, e.uid == uid, e.source == uid)
         for e in st.history
@@ -330,7 +332,8 @@ def _references(st: GameState, uid: int) -> tuple[Any, ...]:
 
 def _fingerprint(st: GameState, dv: V.Derived, uid: int) -> tuple[Any, ...]:
     """The public state of a field card, without its instance number: two copies of a Unit
-    with equal fingerprints are interchangeable. Any other card stays itself."""
+    with equal fingerprints are interchangeable. Any other card, and a card a battle, resolving
+    effect or waiting trigger names (checked conservatively), stays itself."""
     if not 0 <= uid < len(st.cards):
         return ("arg", uid)
     c = st.cards[uid]

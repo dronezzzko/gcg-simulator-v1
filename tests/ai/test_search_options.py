@@ -1,5 +1,5 @@
-"""Search settings that the presets leave off: more iterations for close effect-target calls and
-observation-keyed tree nodes. Each one changes the search only where it says it does, keeps
+"""Search settings that the baseline leaves off: more iterations for close effect-target calls
+and observation-keyed tree nodes. Each one changes the search only where it says it does, keeps
 decisions inside the information set, and (for the tree keys) fixes the split it targets.
 """
 

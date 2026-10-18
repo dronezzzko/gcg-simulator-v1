@@ -29,6 +29,7 @@ from types import MappingProxyType
 from typing import Any
 
 from gcg_sim.ai.agents import MctsAgent
+from gcg_sim.ai.baseline import BASELINE_PRESETS
 from gcg_sim.ai.config import PRESETS, SearchConfig
 from gcg_sim.ai.evaluation import (
     FEATURE_SETS,
@@ -340,6 +341,7 @@ def tune(
     final = fit_logistic(pooled_all, feature_set=feature_set) if pooled_all else weights
     report["positions"] = len(pooled_all)
     report["weights"] = list(final.values)
+    report["feature_set"] = final.feature_set
     return report
 
 
@@ -362,6 +364,19 @@ def validate(
     }
 
 
+def preset_config(name: str) -> SearchConfig:
+    """``tuning``, a preset, or ``baseline-<preset>`` (the pre-change search, see
+    :mod:`gcg_sim.ai.baseline`)."""
+    if name == "tuning":
+        return TUNING_CONFIG
+    if name.startswith("baseline-"):
+        return BASELINE_PRESETS[name.removeprefix("baseline-")]
+    return PRESETS[name]
+
+
+PRESET_CHOICES = ["tuning", *sorted(PRESETS), *(f"baseline-{p}" for p in sorted(BASELINE_PRESETS))]
+
+
 def main(argv: Sequence[str] | None = None) -> None:
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("--games", type=int, default=240)
@@ -369,21 +384,21 @@ def main(argv: Sequence[str] | None = None) -> None:
     ap.add_argument("--seed", type=int, default=2026)
     ap.add_argument("--workers", type=int, default=1)
     ap.add_argument("--validate", type=int, default=0, help="head-to-head games (multiple of 4)")
-    ap.add_argument("--validate-preset", default="tuning", choices=["tuning", *sorted(PRESETS)])
-    ap.add_argument("--preset", default="tuning", choices=["tuning", *sorted(PRESETS)])
+    ap.add_argument("--validate-preset", default="tuning", choices=PRESET_CHOICES)
+    ap.add_argument("--preset", default="tuning", choices=PRESET_CHOICES)
     ap.add_argument("--start", default="hand", choices=sorted(START_WEIGHTS))
     ap.add_argument("--feature-set", default="base", choices=sorted(FEATURE_SETS))
     args = ap.parse_args(argv)
-    config = PRESETS.get(args.preset, TUNING_CONFIG)
+    config = preset_config(args.preset)
     start = START_WEIGHTS[args.start]
     report = tune(args.games, args.rounds, args.seed, args.workers, start, config, args.feature_set)
     if args.validate:
-        tuned = Weights(tuple(report["weights"]), args.feature_set)
-        preset = PRESETS.get(args.validate_preset, TUNING_CONFIG)
+        tuned = Weights(tuple(report["weights"]), report["feature_set"])
+        preset = preset_config(args.validate_preset)
         report["validation"] = validate(
             args.validate, args.seed, args.workers, tuned, HAND_WEIGHTS, preset
         )
-    report["features"] = list(FEATURE_SETS[args.feature_set])
+    report["features"] = list(FEATURE_SETS[report["feature_set"]])
     print(json.dumps(report, indent=2))
 
 

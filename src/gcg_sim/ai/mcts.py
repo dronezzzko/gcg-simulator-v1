@@ -11,11 +11,11 @@ node, plays the heuristic policy until ``horizon_turns`` turn boundaries have pa
 backs up the evaluation. Only the true state's pending options and the player's own
 knowledge are read directly.
 
-Settings that are off in the presets: ``target_extension`` lets an effect target decision search
-on, one budget at a time, while the move to play is within ``target_extension_z`` paired standard
-errors of another; ``observation_keys`` keys children by decision kind and keeps the walk in the
-same node after an opponent's action-step pass, which the searcher cannot tell apart from the
-engine passing for an opponent without options.
+Two settings, on in the presets and off in the baseline: ``target_extension`` lets an effect
+target decision search on, one budget at a time, while the move to play is within
+``target_extension_z`` paired standard errors of another; ``observation_keys`` keys children by
+decision kind and keeps the walk in the same node after an opponent's action-step pass, which the
+searcher cannot tell apart from the engine passing for an opponent without options.
 """
 
 from __future__ import annotations

@@ -10,9 +10,11 @@ from typing import Any
 import pytest
 
 from gcg_sim.ai import tuning
+from gcg_sim.ai.baseline import BASELINE_PRESETS
 from gcg_sim.ai.compare import parse_agent
 from gcg_sim.ai.config import PRESETS, SearchConfig
 from gcg_sim.ai.evaluation import (
+    FEATURE_SETS,
     FEATURES,
     HAND_WEIGHTS,
     ROLE_FEATURES,
@@ -127,7 +129,7 @@ def test_tuning_cli_selects_the_preset_start_weights_and_feature_set(
 
     def fake_tune(*args: Any) -> dict[str, Any]:
         calls.append(args)
-        return {"weights": [0.0] * len(ROLE_FEATURES)}
+        return {"weights": [0.0] * len(FEATURE_SETS[args[6]]), "feature_set": args[6]}
 
     monkeypatch.setattr(tuning, "tune", fake_tune)
     tuning.main(["--preset", "standard", "--start", "tuned", "--feature-set", "roles"])
@@ -135,3 +137,13 @@ def test_tuning_cli_selects_the_preset_start_weights_and_feature_set(
     assert json.loads(capsys.readouterr().out)["features"] == list(ROLE_FEATURES)
     tuning.main([])
     assert calls[-1][4:] == (HAND_WEIGHTS, tuning.TUNING_CONFIG, "base")
+    tuning.main(["--preset", "baseline-standard", "--start", "tuned", "--feature-set", "roles"])
+    assert calls[-1][4:] == (TUNED_WEIGHTS, BASELINE_PRESETS["standard"], "roles")
+
+
+def test_tuning_without_rounds_reports_the_start_weights_feature_set() -> None:
+    """With no rounds nothing is fitted: the report carries the start weights and their own
+    feature set, whatever --feature-set asked for."""
+    report = tuning.tune(1, 0, 1, 1, TUNED_WEIGHTS, tuning.TUNING_CONFIG, "roles")
+    assert report["weights"] == list(TUNED_WEIGHTS.values)
+    assert report["feature_set"] == "base"

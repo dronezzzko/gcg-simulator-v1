@@ -101,8 +101,9 @@ TUNED_WEIGHTS = Weights(
         0.5532,
     )
 )
-# Fitted by `python -m gcg_sim.ai.tuning --preset standard --start tuned --feature-set roles
-# --games 540 --rounds 1 --seed 35001`: standard-preset self-play with TUNED_WEIGHTS.
+# Fitted by `python -m gcg_sim.ai.tuning --preset baseline-standard --start tuned --feature-set
+# roles --games 540 --rounds 1 --seed 35001`: self-play of the pre-change standard search with
+# TUNED_WEIGHTS.
 ROLE_WEIGHTS = Weights(
     (
         -0.7451,
