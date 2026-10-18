@@ -264,6 +264,28 @@ def test_rest_targets_are_kept_when_a_card_in_play_reacts_to_resting() -> None:
     assert Action(A.SELECT, rested) in root_moves(st, rest_targets=True)
 
 
+def test_rest_targets_are_kept_when_resting_switches_an_effect_on() -> None:
+    """Freedom Gundam: "While this Unit is rested, friendly Shields can't receive battle damage
+    from enemy Units". Resting the active Freedom Gundam would stop the lethal attacks that
+    resting the already-rested Unit leaves open, so the rested target is not a no-op."""
+    sc = Scenario()
+    sc.resources(0, 4)
+    zaku = sc.add(0, "GD01-035")
+    sc.add(0, "GD01-013")
+    amuro = sc.add(0, "ST01-010", Zone.HAND)
+    rested = sc.add(1, "GD04-040", rested=True)
+    freedom = sc.add(1, "GD03-070")
+    sc.shields(0, *[FILLER] * 5)
+    sc.shields(1, FILLER)
+    st = sc.start()
+    play(st, amuro, onto=zaku)
+    assert st.pending is not None and st.pending.kind is DecisionKind.SELECT
+    assert root_moves(st, rest_targets=True) == [
+        Action(A.SELECT, rested),
+        Action(A.SELECT, freedom),
+    ]
+
+
 def test_rest_targets_are_kept_when_the_effect_uses_the_card_again() -> None:
     """G-Falcon DX: "Choose 1 enemy Unit ... Rest it. Then, ... it gets AP-2": the chosen Unit
     is used after the Rest, so a rested one is not a no-op."""

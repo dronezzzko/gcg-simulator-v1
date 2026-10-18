@@ -211,6 +211,27 @@ def _resting_can_trigger(st: GameState) -> bool:
     return any(st.cards[host].zone in _IN_PLAY for host, _ in hosts)
 
 
+def _resting_changes_more_than_the_unit(st: GameState, dec: Decision) -> bool:
+    """Resting one of the active enemy Units on offer switches something on ("while this Unit
+    is rested, friendly Shields can't receive battle damage"): in a determinization (which reads
+    nothing hidden), the derived characteristics of some card change beyond its rested state.
+    Resting an already-rested Unit then is not the same as doing nothing."""
+    world = determinize(st, dec.player, _TRIAL_WORLD_SEED)
+    before = V.derived(world)
+    for o in dec.options:
+        if o.kind is not A.SELECT or not 0 <= o.a < len(world.cards):
+            continue
+        c = world.cards[o.a]
+        if c.owner == dec.player or c.zone is not Zone.BATTLE or c.rested:
+            continue
+        rested = world.clone()
+        rested.cards[o.a].rested = True
+        rested.touch()
+        if not V.derived(rested).same_values(before):
+            return True
+    return False
+
+
 def _rests_a_rested_enemy(st: GameState, dec: Decision, action: Action) -> bool:
     if action.kind is not A.SELECT or not 0 <= action.a < len(st.cards):
         return False
@@ -231,7 +252,7 @@ def prune_dominated(
     damage or trigger anything (``strict_attacks`` asks the engine whether it can). With
     ``rest_targets``, an effect that only rests the enemy Units it chooses does not choose one
     that is already rested (resting it changes nothing) unless a card in play reacts to Units
-    being rested. At least one move is always kept."""
+    being rested or being rested switches on an effect. At least one move is always kept."""
     if dec.kind is DecisionKind.BURST and _free_card_burst(st):
         kept = [m for m in moves if m[1].kind is A.YES]
     elif (
@@ -240,6 +261,7 @@ def prune_dominated(
         and uid_argument(dec)
         and _chosen_only_to_rest(st)
         and not _resting_can_trigger(st)
+        and not _resting_changes_more_than_the_unit(st, dec)
     ):
         kept = [m for m in moves if not _rests_a_rested_enemy(st, dec, m[1])]
     elif dec.kind is DecisionKind.MAIN and strict_attacks:
