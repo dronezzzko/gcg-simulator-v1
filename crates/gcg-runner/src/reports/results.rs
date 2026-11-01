@@ -1,0 +1,414 @@
+//! `results.json` (`reports/results.py`): the reproducible benchmark result. Its content
+//! depends only on the configuration and the code and data versions, never on wall-clock
+//! time, the output path or `--workers`.
+//!
+//! The card facts, `versions()` and the conflict resolutions come from gcg-data
+//! (`CardDb`, `gcg_data::versions`, `gcg_data::conflict_resolutions`); [`ResultsData`] carries
+//! them, so the document is a pure function of the run and that data.
+
+use std::collections::BTreeMap;
+use std::fmt;
+
+use gcg_core::pyjson::Json;
+use gcg_data::{CardDb, CardDef, CardType, Color, Deck};
+
+use super::aggregate::{
+    self, BenchCardStats, CardStats, DutResult, Mulligan, Outcomes, Splits, bench_card_stats,
+    card_stats,
+};
+use super::hypotheses::{self, ALPHA, MIN_GAMES};
+use crate::{BenchmarkConfig, BenchmarkRun, GameRecord};
+
+/// `DRAW_REPLAYS` (`reports/results.py:27`).
+pub const DRAW_REPLAYS: u32 = 1;
+
+/// `NOTES` (`reports/results.py:28-38`), verbatim.
+pub const NOTES: [&str; 4] = [
+    "Win rates count draws as non-wins; n is every game (or match). Intervals are 95% Wilson \
+     score intervals.",
+    "Both seats are played by the same AI (see 'ai'); results measure the decks under that AI, \
+     not under human play.",
+    "Per-card and benchmark-card signals are correlations within these games; the \
+     'hypotheses' list suggests what to test next and is not a conclusion.",
+    "A simultaneous defeat (both_defeated) is a game draw; in BO3 match scoring the turn player \
+     at the end loses it (TRM 5.2). turn_limit games are engine safety-cap draws and are \
+     always counted and reported.",
+];
+
+/// What the report reads from one `CardDef` (`db[n].name`, `.card_type`, `.level`, `.cost`,
+/// `.color`; `reports/results.py:58-60`, `reports/aggregate.py:143-150`, `:198-210`,
+/// `reports/versions.py:107`).
+#[derive(Clone, PartialEq, Eq, Hash, Debug)]
+pub struct CardFacts {
+    pub name: Box<str>,
+    pub card_type: CardType,
+    pub level: i32,
+    pub cost: i32,
+    pub color: Option<Color>,
+}
+
+impl CardFacts {
+    /// The facts of one card definition.
+    #[must_use]
+    pub fn of(def: &CardDef) -> Self {
+        Self {
+            name: def.name.clone(),
+            card_type: def.card_type,
+            level: def.level,
+            cost: def.cost,
+            color: def.color,
+        }
+    }
+}
+
+/// A card number of a deck that the lookup does not know (Python's `KeyError` on `db[n]`).
+#[derive(Clone, PartialEq, Eq, Hash, Debug)]
+pub struct MissingCard(pub Box<str>);
+
+impl fmt::Display for MissingCard {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "card {} is not in the card database", self.0)
+    }
+}
+
+impl std::error::Error for MissingCard {}
+
+/// The data `build_results` reads besides the run: `versions()` (`reports/versions.py:55-75`,
+/// `gcg_data::versions`), `conflict_resolutions` for the two decks (`reports/results.py:181-186`,
+/// `gcg_data::conflict_resolutions`) and the facts of every card in either deck.
+#[derive(Clone, PartialEq, Debug)]
+pub struct ResultsData {
+    versions: Json,
+    conflict_resolutions: Json,
+    cards: BTreeMap<Box<str>, CardFacts>,
+}
+
+impl ResultsData {
+    /// Collects the facts of every main-deck and resource card of both decks of `cfg` through
+    /// `lookup` (with gcg-data: `|n| db.get(n).map(CardFacts::of)`).
+    ///
+    /// # Errors
+    /// [`MissingCard`] for the first card number (deck under test first, main before
+    /// resources) that `lookup` does not know.
+    pub fn new(
+        cfg: &BenchmarkConfig,
+        versions: Json,
+        conflict_resolutions: Json,
+        lookup: impl Fn(&str) -> Option<CardFacts>,
+    ) -> Result<Self, MissingCard> {
+        let mut cards = BTreeMap::new();
+        for deck in [&cfg.deck_under_test, &cfg.benchmark_deck] {
+            for cc in deck.main.iter().chain(deck.resources.iter()) {
+                if cards.contains_key(&cc.card_number) {
+                    continue;
+                }
+                let facts =
+                    lookup(&cc.card_number).ok_or_else(|| MissingCard(cc.card_number.clone()))?;
+                cards.insert(cc.card_number.clone(), facts);
+            }
+        }
+        Ok(Self {
+            versions,
+            conflict_resolutions,
+            cards,
+        })
+    }
+
+    /// The data of the embedded packaged sources, as Python's `build_results` reads it
+    /// (`reports/results.py:145-189`): `gcg_data::versions(cfg.package, cfg.code_digest)`
+    /// (`versions()`, `reports/versions.py:55-75`), `gcg_data::conflict_resolutions` of the
+    /// two decks under the labels `deck_under_test` and `benchmark`, each deck's `main +
+    /// resources` (`reports/results.py:181-186`), and the card facts from
+    /// `CardDb::embedded()` (`get_card_db()`, `reports/results.py:54`).
+    ///
+    /// # Errors
+    /// [`MissingCard`] as [`ResultsData::new`]: a card number the card data does not know.
+    pub fn embedded(cfg: &BenchmarkConfig) -> Result<Self, MissingCard> {
+        let db = CardDb::embedded();
+        let lookup = |n: &str| db.get(n).map(CardFacts::of);
+        // Every card is looked up before conflict_resolutions, which panics on an unknown one.
+        let probe = Self::new(cfg, Json::Null, Json::Null, lookup)?;
+        Ok(Self {
+            versions: gcg_data::versions(cfg.package, cfg.code_digest),
+            conflict_resolutions: gcg_data::conflict_resolutions(&[
+                ("deck_under_test", &cfg.deck_under_test),
+                ("benchmark", &cfg.benchmark_deck),
+            ]),
+            cards: probe.cards,
+        })
+    }
+
+    /// The facts of a card of either deck.
+    ///
+    /// # Panics
+    /// If `number` is not a card of the configuration this data was built for (`new` covers
+    /// every card of both decks).
+    #[must_use]
+    pub fn card(&self, number: &str) -> &CardFacts {
+        self.cards
+            .get(number)
+            .expect("ResultsData::new covers every card of both decks")
+    }
+
+    #[must_use]
+    pub const fn versions(&self) -> &Json {
+        &self.versions
+    }
+
+    #[must_use]
+    pub const fn conflict_resolutions(&self) -> &Json {
+        &self.conflict_resolutions
+    }
+}
+
+fn copies_json(copies: u128) -> Json {
+    Json::Int(i128::try_from(copies).expect("a deck's copy count fits in i128"))
+}
+
+/// `_deck_block(deck)` (`reports/results.py:53-69`).
+fn deck_block(deck: &Deck, data: &ResultsData) -> Json {
+    let listing = |cards: &[gcg_data::CardCount]| {
+        Json::Array(
+            cards
+                .iter()
+                .map(|cc| {
+                    let mut e = Json::object();
+                    e.set("card_number", &*cc.card_number);
+                    e.set("name", &*data.card(&cc.card_number).name);
+                    e.set("count", copies_json(cc.count));
+                    e
+                })
+                .collect(),
+        )
+    };
+    let mut colors: Vec<&'static str> = Vec::new();
+    for cc in &deck.main {
+        if let Some(c) = data.card(&cc.card_number).color
+            && !colors.contains(&c.as_str())
+        {
+            colors.push(c.as_str());
+        }
+    }
+    colors.sort();
+    let total = |cards: &[gcg_data::CardCount]| copies_json(cards.iter().map(|cc| cc.count).sum());
+    let mut o = Json::object();
+    o.set("name", &*deck.name);
+    o.set("digest", deck.digest.as_str());
+    o.set("main_count", total(&deck.main));
+    o.set("resource_count", total(&deck.resources));
+    o.set("colors", colors);
+    o.set("main", listing(&deck.main));
+    o.set("resources", listing(&deck.resources));
+    o
+}
+
+/// `_pick(games, k)` (`reports/results.py:72-79`): the `k` games closest to the lower median
+/// length (ties by match and game order), returned in match and game order.
+fn pick<'a>(games: &[&'a GameRecord], k: u32) -> Vec<&'a GameRecord> {
+    if games.is_empty() || k == 0 {
+        return Vec::new();
+    }
+    let mut turns: Vec<i32> = games.iter().map(|g| g.turns).collect();
+    turns.sort();
+    let median = i64::from(turns[(turns.len() - 1) / 2]);
+    let mut ranked: Vec<&GameRecord> = games.to_vec();
+    ranked.sort_by_key(|g| {
+        (
+            (i64::from(g.turns) - median).abs(),
+            g.match_index,
+            g.game_index,
+        )
+    });
+    ranked.truncate(usize::try_from(k).unwrap_or(usize::MAX));
+    ranked.sort_by_key(|g| (g.match_index, g.game_index));
+    ranked
+}
+
+/// `replay_name(label, g)` (`reports/results.py:82-83`):
+/// `f"replays/{label}-m{match_index:04d}-g{game_index + 1}.json"`.
+#[must_use]
+pub fn replay_name(label: &str, g: &GameRecord) -> String {
+    format!(
+        "replays/{label}-m{:04}-g{}.json",
+        g.match_index,
+        u64::from(g.game_index) + 1
+    )
+}
+
+/// `select_replays(run)` (`reports/results.py:86-91`): representative games to save, every
+/// pick for `win`, then `loss`, then `draw` (`--replays K` each, at most one draw).
+#[must_use]
+pub fn select_replays(run: &BenchmarkRun) -> Vec<(&'static str, &GameRecord)> {
+    let k = run.config.replays;
+    let mut out = Vec::new();
+    for r in DutResult::ALL {
+        let games: Vec<&GameRecord> = run.games().filter(|g| DutResult::of(g) == r).collect();
+        let quota = if r == DutResult::Draw {
+            k.min(DRAW_REPLAYS)
+        } else {
+            k
+        };
+        out.extend(pick(&games, quota).into_iter().map(|g| (r.as_str(), g)));
+    }
+    out
+}
+
+/// `_replay_entries(run)` (`reports/results.py:94-106`).
+fn replay_entries(run: &BenchmarkRun) -> Json {
+    Json::Array(
+        select_replays(run)
+            .into_iter()
+            .map(|(label, g)| {
+                let mut e = Json::object();
+                e.set("file", replay_name(label, g));
+                e.set("result", label);
+                e.set("match_index", g.match_index);
+                e.set("game_number", u64::from(g.game_index) + 1);
+                e.set("turns", g.turns);
+                e.set("end_reason", g.end_reason.as_str());
+                e.set("seed", g.seed);
+                e
+            })
+            .collect(),
+    )
+}
+
+/// `_config_block(run)` (`reports/results.py:109-119`).
+fn config_block(c: &BenchmarkConfig) -> Json {
+    let mut o = Json::object();
+    o.set("matches", c.matches);
+    o.set("format", c.format.as_str());
+    o.set("max_games_per_match", c.format.games_per_match());
+    o.set("wins_needed", c.format.wins_needed());
+    o.set("turn_limit", c.turn_limit);
+    o.set("max_actions", c.max_actions);
+    o.set("replays_per_result", c.replays);
+    o
+}
+
+/// `_ai_block(run)` (`reports/results.py:122-130`). With no game (Python's `IndexError`) the
+/// agents are `null`, which the schema rejects before any file is written.
+fn ai_block(run: &BenchmarkRun) -> Json {
+    let first = run.games().next();
+    let mut o = Json::object();
+    o.set("factory", run.agent_factory.as_str());
+    o.set("preset", run.config.ai_preset);
+    o.set(
+        "dut_agent",
+        first.map(|g| &*g.agents[usize::from(g.dut_seat)]),
+    );
+    o.set(
+        "bench_agent",
+        first.map(|g| &*g.agents[usize::from(g.bench_seat())]),
+    );
+    o.set("decision_log", run.config.decision_log);
+    o
+}
+
+/// `_seeds_block(run)` (`reports/results.py:133-142`).
+fn seeds_block(c: &BenchmarkConfig) -> Json {
+    let mut o = Json::object();
+    o.set("master", c.seed);
+    o.set("prng", "SplitMix64");
+    o.set("game_seed", "derive_seed(master, 'match', m, 'game', g)");
+    o.set(
+        "agent_seed",
+        "derive_seed(master, 'match', m, 'game', g, 'agent', seat)",
+    );
+    o.set("dut_seat", "m % 2");
+    o.set(
+        "game_one_chooser",
+        "seeded die roll inside new_game (rule 6-2-1-4)",
+    );
+    o.set(
+        "later_game_chooser",
+        "loser of the previous game (BO3 Match Rules, TRM 4.6)",
+    );
+    o
+}
+
+/// The statistics `build_results` computes once and shares with the hypotheses
+/// (`reports/results.py:147-152`).
+struct Aggregates {
+    cards: Vec<CardStats>,
+    bench_cards: Vec<BenchCardStats>,
+    split: Splits,
+    mull: Mulligan,
+}
+
+/// `build_results(run)` (`reports/results.py:145-189`) with gcg-data's values in `data`: the
+/// content of `results.json`, keys in Python's insertion order (every writer sorts them).
+/// `schema` and `schema_version` name `run.config.schema`; only 1.1.0 has a schema file
+/// before Phase 6 (PLAN §12.7, docs/port/contracts.md O9), so a 1.2.0 document fails
+/// `validate_results` and is never written.
+#[must_use]
+pub fn build_results_with(run: &BenchmarkRun, data: &ResultsData) -> Json {
+    let games: Vec<&GameRecord> = run.games().collect();
+    let config = &run.config;
+    let agg = Aggregates {
+        cards: card_stats(&games, &config.deck_under_test, data),
+        bench_cards: bench_card_stats(&games, &config.benchmark_deck, MIN_GAMES, data),
+        split: Splits::of(&games, config.format.games_per_match()),
+        mull: Mulligan::of(&games),
+    };
+    let mut decks = Json::object();
+    decks.set("deck_under_test", deck_block(&config.deck_under_test, data));
+    decks.set("benchmark", deck_block(&config.benchmark_deck, data));
+    let mut results = Json::object();
+    results.set("matches", Outcomes::of_matches(&run.matches).to_json());
+    results.set("games", Outcomes::of_games(games.iter().copied()).to_json());
+    let mut thresholds = Json::object();
+    thresholds.set("min_games", MIN_GAMES);
+    thresholds.set("alpha", ALPHA);
+    thresholds.set("multiple_comparisons", "holm");
+    let found = hypotheses::hypotheses(&agg.cards, &agg.bench_cards, &agg.split, &agg.mull);
+    let mut o = Json::object();
+    o.set("schema", config.schema.id());
+    o.set("schema_version", config.schema.as_str());
+    o.set("versions", data.versions().clone());
+    o.set("config", config_block(config));
+    o.set("seeds", seeds_block(config));
+    o.set("ai", ai_block(run));
+    o.set("decks", decks);
+    o.set("results", results);
+    o.set("splits", agg.split.to_json());
+    o.set("game_length", aggregate::game_length(&games));
+    o.set("end_reasons", aggregate::end_reasons(&games));
+    o.set("draws", aggregate::draws(&games));
+    o.set("mulligan", agg.mull.to_json());
+    o.set(
+        "cards",
+        Json::Array(agg.cards.iter().map(CardStats::to_json).collect()),
+    );
+    o.set(
+        "benchmark_cards",
+        Json::Array(
+            agg.bench_cards
+                .iter()
+                .map(BenchCardStats::to_json)
+                .collect(),
+        ),
+    );
+    o.set(
+        "hypotheses",
+        Json::Array(found.iter().map(hypotheses::Hypothesis::to_json).collect()),
+    );
+    o.set("hypothesis_thresholds", thresholds);
+    o.set("conflict_resolutions", data.conflict_resolutions().clone());
+    o.set("replays", replay_entries(run));
+    o.set("notes", NOTES.to_vec());
+    o
+}
+
+/// `build_results(run)` (`reports/results.py:145-189`): [`build_results_with`] over the
+/// embedded packaged sources ([`ResultsData::embedded`]).
+///
+/// # Panics
+/// If a deck of the configuration holds a card number that is not in the embedded card data
+/// (Python raises `KeyError` on `db[n]`); a deck parsed by gcg-data never does.
+#[must_use]
+pub fn build_results(run: &BenchmarkRun) -> Json {
+    let data = ResultsData::embedded(&run.config)
+        .unwrap_or_else(|missing| panic!("a parsed deck holds only known cards: {missing}"));
+    build_results_with(run, &data)
+}

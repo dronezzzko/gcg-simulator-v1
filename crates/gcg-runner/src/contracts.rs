@@ -385,6 +385,11 @@ pub enum ReportError {
         source: io::Error,
     },
     Schema(SchemaError),
+    /// Building a replay document failed: re-simulating its game raised
+    /// (`replay_document`, `runner/replayfile.py:104-150`). Python does not catch it in
+    /// `write_reports` (`reports/writer.py:79-91`) or `cmd_benchmark` (`cli.py:210-216`): a
+    /// traceback and exit 1. The replays before it are written; `results.json` is not.
+    Replay(ReplayError),
     /// SIGINT seen before or after a report file (PLAN §7.5; Inv 01 hazard 54).
     Interrupted,
 }

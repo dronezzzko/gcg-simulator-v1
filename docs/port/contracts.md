@@ -197,7 +197,15 @@ impl Pool {
     where S: Default + Send + 'static, T: Send, E: Send;
 }
 pub enum PoolError<E> { Task { index: usize, error: E }, Cancelled }
-pub struct TaskCx<'p, S> { /* private: the run's shared queue and scratch free list */ }
+pub struct TaskCx<'p, S> { /* private: the run's shared queue, scratch free list and
+                               lowest_failed, and the index of the task it was handed to */ }
+impl<S> TaskCx<'_, S> {
+    /// Landed (integration): true when this task's index is above the run's lowest_failed
+    /// (a lower index failed or panicked, W-149). A running match checks it between decisions,
+    /// like Cancel, and stops early; its result is never reported (the pool reports the lowest
+    /// failing index). Always false inline (threads == 1, run_inline). A relaxed load.
+    pub fn superseded(&self) -> bool;
+}
 impl<S: Default + Send + 'static> TaskCx<'_, S> {
     /// Fork-join inside a task: queues jobs 1.. on the run's shared queue, runs job 0 itself,
     /// then runs queued jobs (its own first) until all of its jobs are done ("help first",
@@ -221,7 +229,8 @@ an owned state clone and a seed, and root trees (§12.3 S1) take owned states. S
 /// signal_hook::flag::register(SIGINT, cancel.flag()); safe code, no unsafe block.
 pub fn install(cancel: &Cancel) -> std::io::Result<()>;
 
-// sys/topology.rs (types landed: PerfLevel, TopologySource, Topology, SYSCTL)
+// sys/topology.rs (types landed: PerfLevel, TopologySource, Topology, SYSCTL;
+// Topology.arm_features: Vec<(String, u64)>, so the hw.optional.arm.caps bit mask fits)
 /// Runs `/usr/sbin/sysctl -n` for hw.nperflevels, hw.perflevelN.{logicalcpu,physicalcpu,name},
 /// hw.cachelinesize and the `hw.optional.arm` listing; falls back to available_parallelism().
 pub fn detect() -> Topology;
@@ -1210,8 +1219,9 @@ Types (`crates/gcg-runner/src/contracts.rs`):
   `AgentSpec`, `AgentFactory` (trait: `make`, `describe`);
 - records: `PlayEvent`, `DutCardEvents`, `GameRecord`, `MatchRecord`, `RunTiming`,
   `BenchmarkRun`, `RunError`;
-- reports and replays: `ReportPaths`, `SchemaError`, `ReportError`, `REPLAY_FORMAT`,
-  `REPLAY_VERSION`, `ReplayCheck`, `ReplayError`;
+- reports and replays: `ReportPaths`, `SchemaError`, `ReportError` (`Io`, `Schema`,
+  `Replay(ReplayError)`, `Interrupted`), `REPLAY_FORMAT`, `REPLAY_VERSION`, `ReplayCheck`,
+  `ReplayError`;
 - test agents: `TestAgentKind`, `TestRandomAgent`, `TestIllegalAgent`, `ILLEGAL_ACTION`.
 
 Landed (S): `Role::as_str`, `Outcome::as_str`, `Format::{ALL, as_str, from_value,
@@ -1220,9 +1230,10 @@ games_per_match, wins_needed}`, `SchemaVersion::{as_str, id}`, `GameRecord::benc
 `TestRandomAgent::new`.
 
 Modules (E): `config`, `game`, `matches` (`match` is a keyword), `run`, `records`, `instrument`,
-`reports` (`reports/{results,summary,aggregate,hypotheses,stats,schema,writer}.rs`), `replay`,
-`test_agents`, `argparse` and `cli_support` (shared by `gcg-sim` and `gcg-eval`, open item
-O11), and `clock` (the only wall-clock module, PLAN §9.9).
+`reports` (`reports/{results,summary,aggregate,hypotheses,stats,schema,writer,pyregex,
+replay_doc}.rs`), `replay`, `test_agents`, `argparse` (landed: `crates/gcg-runner/src/argparse/`,
+moved from `gcg-cli` at integration) and `cli_support` (shared by `gcg-sim` and `gcg-eval`,
+open item O11), and `clock` (the only wall-clock module, PLAN §9.9).
 
 ```rust
 // config.rs (runner/config.py)
@@ -1255,6 +1266,9 @@ impl GameRecord {
 impl MatchRecord { pub fn to_json(&self) -> Json; }                          // :176-184
 pub fn log_entry_from_json(v: &serde_json::Value) -> Result<LogEntry, SchemaError>;   // the dicts of ai/base.py:85-100 and tests/runner/random_agent.py:30-40
 pub mod reports {                                                             // reports/*.py
+    // Landed (E1 and the integration). build_results and write_reports read the embedded
+    // gcg-data values (ResultsData::embedded); a deck card unknown to CardDb::embedded()
+    // panics there (Python's KeyError on db[n]; a parsed deck never has one).
     pub fn build_results(run: &BenchmarkRun) -> Json;                         // results.py:145-189 (1.2.0: PLAN §12.7)
     pub fn validate_results(doc: &Json, v: SchemaVersion) -> Result<(), SchemaError>;   // results.py:48-50; in-house subset validator (PLAN §9.5)
     pub fn render_summary(results: &Json, command: &str) -> String;           // summary.py:230-241
@@ -1263,11 +1277,134 @@ pub mod reports {                                                             //
     pub fn select_replays(run: &BenchmarkRun) -> Vec<(&'static str, &GameRecord)>;   // results.py:86-91 ("win", "loss", "draw")
     pub fn replay_name(label: &str, g: &GameRecord) -> String;                // results.py:82-83
     pub fn to_json_text(doc: &Json) -> String;                                // writer.py:33-34
-    pub fn write_reports(run: &BenchmarkRun, out: &Path, cancel: &Cancel)
-        -> Result<ReportPaths, ReportError>;                                  // writer.py:94-110 (atomic :37-41, results.json last)
-    pub mod stats {
+    /// writer.py:94-110 (atomic :37-41, results.json last): write_reports_with over
+    /// ResultsData::embedded, TimingHost::rust() and replay_document_with(record, cfg, label,
+    /// &resimulate(record)?). Changed at integration: the re-simulation (replay_with_log,
+    /// runner/replayfile.py:75-101) needs the engine, so it is a parameter until the `replay`
+    /// module lands (wave 2b), which may then fold it in.
+    pub fn write_reports(run: &BenchmarkRun, out: &Path, cancel: &Cancel,
+                         resimulate: &mut dyn FnMut(&GameRecord) -> Result<Resimulation, ReplayError>)
+        -> Result<ReportPaths, ReportError>;
+
+    // Additive API of E1, frozen at integration (re-exported from `reports`):
+    pub struct CardFacts { pub name: Box<str>, pub card_type: CardType, pub level: i32,
+                           pub cost: i32, pub color: Option<Color> }          // db[n] fields: results.py:58-60, aggregate.py:143-150, :198-210
+    impl CardFacts { pub fn of(def: &CardDef) -> Self; }
+    pub struct MissingCard(pub Box<str>);                                     // Python's KeyError on db[n]; Display "card {n} is not in the card database"; impl Error
+    pub struct ResultsData { /* private: versions, conflict_resolutions, facts of every card of both decks */ }
+    impl ResultsData {
+        pub fn new(cfg: &BenchmarkConfig, versions: Json, conflict_resolutions: Json,
+                   lookup: impl Fn(&str) -> Option<CardFacts>) -> Result<Self, MissingCard>;   // first unknown card: deck under test first, main before resources
+        /// gcg_data::versions(cfg.package, cfg.code_digest) (versions.py:55-75),
+        /// gcg_data::conflict_resolutions(&[("deck_under_test", dut), ("benchmark", bench)])
+        /// (results.py:181-186) and CardDb::embedded() (get_card_db(), results.py:54).
+        pub fn embedded(cfg: &BenchmarkConfig) -> Result<Self, MissingCard>;
+        pub fn card(&self, number: &str) -> &CardFacts;                       // panics outside both decks
+        pub const fn versions(&self) -> &Json;
+        pub const fn conflict_resolutions(&self) -> &Json;
+    }
+    pub fn build_results_with(run: &BenchmarkRun, data: &ResultsData) -> Json;   // results.py:145-189
+    pub struct TimingHost { pub python: String, pub platform: String }       // platform.python_version(), platform.platform() (writer.py:74-75)
+    impl TimingHost { pub fn rust() -> Self; }                               // "none (Rust build)", format!("{}-{}", std::env::consts::OS, ARCH)
+    pub fn timing_json(run: &BenchmarkRun, host: &TimingHost) -> Json;        // writer.py:60-76: Python's keys in order, then "topology" {levels: [{name, logical_cpus, physical_cpus}], logical_cpus, cache_line_bytes, source: "sysctl"|"fallback"}
+    pub fn write_atomic(path: &Path, text: &str) -> Result<(), ReportError>;  // writer.py:37-41 (.{name}.{pid}.tmp, rename)
+    /// write_reports(run, out_dir) with the data, the replay documents and the host strings
+    /// given: validate (a violation writes nothing), the replays and the stale-replay cleanup,
+    /// games.ndjson, summary.md, timing.json, results.json last; Cancel before and after each
+    /// file. A failing replay_doc is ReportError::Replay and stops the writes there.
+    pub fn write_reports_with(run: &BenchmarkRun, out: &Path, cancel: &Cancel, data: &ResultsData,
+                              replay_doc: &mut dyn FnMut(&'static str, &GameRecord) -> Result<Json, ReplayError>,
+                              host: &TimingHost) -> Result<ReportPaths, ReportError>;
+    pub struct Resimulation { pub winner_seat: Option<i8>, pub log: Vec<String> }   // replay_with_log's st.winner and log (replayfile.py:75-101)
+    pub fn replay_document_with(record: &GameRecord, cfg: &BenchmarkConfig, label: &str,
+                                sim: &Resimulation) -> Json;                  // replayfile.py:104-150
+    pub fn json_from_value(v: &serde_json::Value) -> Json;                    // integers stay integers, key order kept
+    pub mod schema {                                                          // jsonschema 4.26 semantics for the draft 2020-12 subset (PLAN §9.5)
+        pub const RESULTS_SCHEMA_V1_1: &str;                                  // include_str! of src/gcg_sim/reports/schema/results.v1.schema.json
+        pub const SUPPORTED_KEYWORDS: [&str; 26];                             // anything else is a CompileError
+        pub struct Schema { /* private: compiled nodes */ }
+        impl Schema {
+            pub fn compile(text: &str) -> Result<Schema, CompileError>;
+            pub fn validate(&self, instance: &Json) -> Result<(), SchemaError>;   // first violation, depth first in schema order
+        }
+        pub struct CompileError { pub pointer: String, pub message: String }  // Display, Error
+        pub fn results_schema_v1_1() -> &'static Schema;                      // compiled once
+        pub fn is_date(s: &str) -> bool;                                      // jsonschema _format.py is_date
+    }
+    pub mod pyregex {                                                         // the Python `re` subset of the schema patterns and REPLAY_FILE
+        pub const DIGIT_RANGES: [(u32, u32); 72];                             // Python 3.15 `\d` (Unicode Nd)
+        pub fn is_decimal_digit(c: char) -> bool;
+        pub struct PatternError { pub pattern: String, pub message: String }  // Display, Error
+        pub struct Regex { /* private */ }
+        impl Regex {
+            pub fn new(pattern: &str) -> Result<Regex, PatternError>;
+            pub fn is_match(&self, text: &str) -> bool;                       // re.search
+            pub fn is_match_at_start(&self, text: &str) -> bool;              // re.match
+        }
+    }
+    pub mod writer {
+        pub const REPLAY_FILE: &str;                                          // writer.py:20
+        pub const TIMING_NOTE: &str;                                          // writer.py:64
+        pub fn shlex_quote(s: &str) -> String;                                // shlex.quote (3.15)
+        pub fn is_replay_file_name(name: &str) -> bool;                       // REPLAY_FILE.match(name), writer.py:89
+    }
+    pub mod results { pub const DRAW_REPLAYS: u32; pub const NOTES: [&str; 4]; }   // results.py:27-38
+    pub mod summary { pub const TOP_BENCH_CARDS: usize; }                     // summary.py:8
+    pub mod stats {                                                           // reports/stats.py
+        pub const DIGITS: usize; pub const Z95: f64;                          // :9, :12
+        pub fn div(num: u64, den: u64) -> f64;                                // Python's int / int
         pub fn wilson(successes: u64, n: u64, z: f64) -> Option<(f64, f64)>; // stats.py:12-25 (None = Python's ValueError); F's statistics use it
         pub fn rnd(x: f64) -> f64;                                            // :28-29 round(x, 6)
+        pub fn ratio(num: u64, den: u64) -> Option<f64>;                      // :32-33
+        pub struct Rate { pub successes: u64, pub n: u64, pub rate: Option<f64>, pub ci95: Option<(f64, f64)> }
+        impl Rate { pub fn new(successes: u64, n: u64) -> Rate; pub fn to_json(&self) -> Json; }   // rate(), :36-41
+        pub fn intervals_overlap(a: &Rate, b: &Rate) -> bool;                 // :44-47
+        pub fn two_proportion_p(a: &Rate, b: &Rate) -> f64;                   // :50-60, erfc from gcg_core::libm
+        pub fn holm(p_values: &[f64], alpha: f64) -> Vec<bool>;               // :63-72
+        pub fn percentile(sorted_values: &[i64], q: f64) -> i64;              // :75-78, nearest rank
+        pub struct Distribution { pub n: u64, pub mean: Option<f64>, pub median: Option<i64>, pub min: Option<i64>,
+                                  pub max: Option<i64>, pub p10: Option<i64>, pub p90: Option<i64> }
+        impl Distribution { pub fn of(values: &[i64]) -> Distribution; pub fn to_json(&self) -> Json; }   // :81-101
+    }
+    pub mod aggregate {                                                       // reports/aggregate.py
+        pub enum DutResult { Win, Loss, Draw }                                // :20-25
+        impl DutResult { pub const ALL: [DutResult; 3]; pub const fn as_str(self) -> &'static str; pub const fn of(g: &GameRecord) -> DutResult; }
+        pub struct Outcomes { pub n: u64, pub dut_wins: u64, pub bench_wins: u64, pub draws: u64, pub dut_win_rate: Rate }
+        impl Outcomes { pub fn of(winners: impl IntoIterator<Item = Outcome>) -> Outcomes;          // :28-36
+                        pub fn of_games<'a>(games: impl IntoIterator<Item = &'a GameRecord>) -> Outcomes;   // :39-40
+                        pub fn of_matches(matches: &[MatchRecord]) -> Outcomes;   // :43-44
+                        pub fn to_json(&self) -> Json; }
+        pub struct Splits { pub on_play: Outcomes, pub on_draw: Outcomes, pub by_game_number: Vec<(String, Outcomes)> }
+        impl Splits { pub fn of(games: &[&GameRecord], games_per_match: u32) -> Splits; pub fn to_json(&self) -> Json; }   // :47-55
+        pub fn end_reasons(games: &[&GameRecord]) -> Json;                    // :58-62
+        pub fn draws(games: &[&GameRecord]) -> Json;                          // :65-72
+        pub fn game_length(games: &[&GameRecord]) -> Json;                    // :75-83
+        pub struct Mulligan { pub dut_redraw_rate: Rate, pub win_rate_after_redraw: Rate,
+                              pub win_rate_after_keep: Rate, pub bench_redraw_rate: Rate }
+        impl Mulligan { pub fn of(games: &[&GameRecord]) -> Mulligan; pub fn to_json(&self) -> Json; }   // :86-97
+        pub struct HeldNeverPlayed { pub copies: u64, pub rate_of_drawn_copies: Option<f64>, pub games: u64,
+                                     pub in_hand_at_end_copies: u64 }         // :170-175
+        pub struct CardStats { /* pub fields, one per _card_entry key (:142-181), in its order */ }
+        impl CardStats { pub fn to_json(&self) -> Json; }
+        pub fn card_stats(games: &[&GameRecord], deck: &Deck, data: &ResultsData) -> Vec<CardStats>;   // :184-194
+        pub struct BenchCardStats { /* pub fields, one per _bench_entry key (:197-216), plus rank_eligible (:226-228) */ }
+        impl BenchCardStats { pub fn to_json(&self) -> Json; }
+        pub fn bench_card_stats(games: &[&GameRecord], deck: &Deck, min_games: u64,
+                                data: &ResultsData) -> Vec<BenchCardStats>;   // :219-237
+    }
+    pub mod hypotheses {                                                      // reports/hypotheses.py
+        pub const MIN_GAMES: u64; pub const MIN_REDRAWS: u64; pub const MIN_DELTA: f64;
+        pub const MIN_SPLIT_DELTA: f64; pub const DEAD_CARD_RATE: f64; pub const PER_DIRECTION: usize;
+        pub const ALPHA: f64;                                                 // :18-24
+        pub enum Evidence { Compare { a: Rate, b: Rate, delta: f64, ci95_separated: bool, p_value: f64,
+                                      comparisons: Option<usize> },
+                            Dead { drawn_copies: u64, held: HeldNeverPlayed } }
+        impl Evidence { pub fn to_json(&self) -> Json; }
+        pub struct Hypothesis { pub id: String, pub kind: &'static str, pub statement: String,
+                                pub sample_size: u64, pub evidence: Evidence }   // _hypothesis, :31-41
+        impl Hypothesis { pub fn to_json(&self) -> Json; }
+        pub fn hypotheses(cards: &[CardStats], bench_cards: &[BenchCardStats], split: &Splits,
+                          mull: &Mulligan) -> Vec<Hypothesis>;                // :193-206
     }
 }
 pub mod replay {                                                              // runner/replayfile.py
@@ -1277,6 +1414,9 @@ pub mod replay {                                                              //
 }
 impl fmt::Display for RunError; impl fmt::Display for ReplayError; impl fmt::Display for ReportError;
 impl fmt::Display for SchemaError;                                            // (each with impl std::error::Error)
+// Landed: ReplayError (Python's str(exc) per variant, runner/replayfile.py:86-98, :166-167,
+// :180-183; Engine prints the engine's message), ReportError (Replay: "cannot build a replay
+// document: {e}"), SchemaError. RunError: wave 2b.
 pub mod test_agents {                                                         // tests/runner/random_agent.py
     pub fn factory(kind: TestAgentKind) -> Box<dyn AgentFactory>;            // make_random_agent :47-48, make_illegal_agent :63-64
 }
@@ -1292,7 +1432,10 @@ Behaviour fixed by the contract:
   `choose` for every pending decision and slices each seat's new log entries after it
   (`:87-97`); Python's "mutated the game state" check (`:92-93`) cannot fail in Rust, because
   agents get `&GameState` (W-49).
-- `timing.json` keeps Python's keys (A17); `RunTiming` is filled only by `clock.rs`.
+- `timing.json` keeps Python's keys in Python's order (A17), with `"python": "none (Rust
+  build)"` and `"platform": "{os}-{arch}"` from `std::env::consts`, and adds `"topology"`
+  (`levels`, `logical_cpus`, `cache_line_bytes`, `source`); `RunTiming` is filled only by
+  `clock.rs`.
 - `replay::check_replay` builds each seat's deck as Python's `_decklist` does (the sorted
   expansion of the written numbers, `runner/replayfile.py:68-72`) and calls
   `gcg_engine::new_game_by_number`, so an unknown or wrong number fails as Python's
@@ -1328,6 +1471,11 @@ bodies:
   `describe` is `Preset::factory_description`; `make` returns `Result<Box<dyn gcg_ai::Agent>,
   gcg_ai::AgentError>`, through the direct `gcg-ai` edge (Workspace, Edges);
 - `src/lib.rs` keeps the module list; until E lands, the crate is a library with no items.
+- `src/cli.rs` (landed): the `gcg-sim` parser, its typed commands and `main`'s flow behind a
+  `Commands` trait. It builds on `gcg_runner::argparse` (moved from `crates/gcg-cli/src/argparse/`
+  at integration, so `gcg-eval` can share it); `port/oracle/export_cli.py` writes the parser's
+  Unicode tables to `crates/gcg-runner/src/argparse/unicode_tables.rs` and the transcripts to
+  `crates/gcg-cli/tests/vectors/cli.json`.
 
 `crates/gcg-cli/tests/factory_types.rs` (S, landed) implements `gcg_runner::AgentFactory`
 with `gcg-cli`'s dependencies only (a factory that parses the seat's preset and builds no
@@ -1497,7 +1645,7 @@ in `log`; an `iter` record's `decision` is the decision record's `i`.
 | O8 | The `Derived` and `GameConst` starting layouts are untested against the census (PLAN §8.6): capacities (`EVENT_CAPACITY` 10, `CONTEXT_CAPACITY` 4, `ONCE_KEY_CAPACITY` 6) are the plan's estimates | The Phase 2 census confirms or raises them; a raise is a contract change (lead) |
 | O9 | Results schema 1.2.0 (PLAN §12.7) needs per-seat effort totals (`ai.effort`) and the search block (`ai.search`), but neither `Agent` nor `AgentFactory` exposes them, and the 1.2.0 schema file is a Phase 6 deliverable | Until Phase 6 lands schema 1.2.0, `gcg-sim` writes 1.1.0 (its `ai.preset` values `standard`/`fast` are in the 1.1.0 enum). The P6 owner then adds `Agent::effort(&self) -> SearchEffort` and `AgentFactory::search_block(&self) -> Option<Json>` through the change protocol; `SearchEffort` already exists |
 | O10 | W-33 `AiTables`: Python memoises polarity per `(program, pc)` and harm per `def_id` in process globals (`ai/targeting.py:54-112`, `ai/actions.py:167-199`); PLAN §6.2 and A16 place the tables per registry, but no frozen D1/D2 signature carries them and `Registry` cannot hold AI types | Phase 3 recomputes them (pure functions of the registry, so exact by construction). A table type is introduced through the change protocol only if the A16 plugin records a test that reads an entry computed before an override, or Phase 5 measures a win |
-| O11 | The argparse-compatible parser and the CLI pieces both binaries share (progress printer `cli.py:143-159`, deck loading and its messages `:102-126`, `data status` `:236-331`, the report-directory check `:176-185`) live in `gcg-runner` (`argparse`, `cli_support`), because `gcg-eval` cannot depend on the `gcg-sim` crate; their API is not frozen | E publishes the API in its M7 landing report and the lead freezes it here before F's CLI work (M8) |
+| O11 | The argparse-compatible parser and the CLI pieces both binaries share (progress printer `cli.py:143-159`, deck loading and its messages `:102-126`, `data status` `:236-331`, the report-directory check `:176-185`) live in `gcg-runner` (`argparse`, `cli_support`), because `gcg-eval` cannot depend on the `gcg-sim` crate; their API is not frozen | E publishes the API in its M7 landing report and the lead freezes it here before F's CLI work (M8). Integration: `argparse` landed in `gcg-runner` (moved from `gcg-cli`); its `Converter` still holds only `gcg-sim`'s `type=` callables, and `cli_support` is not landed |
 | O12 | The W-135 `compile_fail` doctest for `Agent` (an agent cannot `apply` on the true `&GameState`) needs `gcg_engine::apply`, which lands with C's L5; a doctest written now would fail for an unresolved name instead | Lands with T-023 at M7 in `crates/gcg-ai/src/contracts.rs` (lead); the W-136 doctest is in place now, the W-49 one since step 2 |
 | O14 | The replay checks a `scenario` record's `before16` and `rules_checked` through the dispatcher's `Scenario.start` result (`EngineUnderTest::call`), but `gcg_engine::testkit::Scenario::start` (`testkit.py:160-182`) builds the decks, sets the step and advances in one call, so the real engine's dispatcher cannot observe the state before `advance` | gcg-engine's testkit adds `Scenario::prepare_start(&mut self, step: Step) -> Result<(), TestkitError>` (`testkit.py:162-180`, everything before `advance`), and `start` becomes `prepare_start` then `testkit::engine::advance`; the dispatcher reads the digest between them. `MockEngine` answers from the record until then. Owner: lead (gcg-engine contract), C lands it |
 | O13 | PLAN §13 M2 runs `uv run mypy --strict port/oracle`, which fails with `import-untyped` on every `gcg_sim` import: the package has no `py.typed`, and mypy finds it only as an installed package. With `MYPYPATH=src` the three oracle scripts pass `--strict`. Fixing it needs a file outside this milestone's scope: `PLAN.md` or `pyproject.toml` | The lead adds `mypy_path = "src"` to `[tool.mypy]` in `pyproject.toml` (checked: `MYPYPATH=src uv run mypy` still reports no issues in 101 source files), or writes `MYPYPATH=src` into the PLAN §13 M2 line. The gate above uses `MYPYPATH=src` until then |
@@ -1516,6 +1664,13 @@ in `log`; an `iter` record's `decision` is the decision record's `i`.
 | 2026-11-01 | Registry integration: gcg-effects `Registry` layout `{ generation, db, tables: ir::Tables }` (B1's proposal, authorised by the lead) | integration (B1 + C + A), lead-authorised |
 | 2026-11-01 | Registry integration: gcg-data `py_repr`, `py_path_str` made public and `CardDb::is_empty` added (the `len_without_is_empty` expect removed) | integration, lead-authorised |
 | 2026-11-01 | Registry integration: `StateSnapshot.continuous`/`filter_sets` documented as inline node JSON (lead decision); gcg-effects `Registry::decode_inline` and `InlineNode` added for `canon::from_canonical`'s side-table decoding (reported to the lead for confirmation) | integration, per the lead decision |
+| 2026-11-01 | gcg-runner: `ReportError::Replay(ReplayError)` added; `write_reports_with`'s replay closure returns `Result<Json, ReplayError>`; `Display`/`Error` for `ReplayError` landed | integration E (lead-authorised) |
+| 2026-11-01 | gcg-runner: E1's additive reports API frozen (`ResultsData`, `CardFacts`, `MissingCard`, `build_results_with`, `write_reports_with`, `TimingHost`, `timing_json`, `write_atomic`, `Resimulation`, `replay_document_with`, `json_from_value`; `reports::{schema, pyregex, writer, results, summary, stats, aggregate, hypotheses}` items) | integration E (lead-authorised) |
+| 2026-11-01 | gcg-runner: `build_results(run)` landed over `ResultsData::embedded` (gcg-data `versions`, `conflict_resolutions`, `CardDb::embedded`); `write_reports` landed with a `resimulate` parameter (re-simulation behind `Resimulation` until the engine's replay lands) | integration E (lead-authorised; the added parameter is flagged in the report) |
+| 2026-11-01 | gcg-runner: `timing.json` keeps Python's keys, `"python": "none (Rust build)"`, `"platform": "{os}-{arch}"` (`std::env::consts`), plus `"topology"` (`levels`, `logical_cpus`, `cache_line_bytes`, `source`) | integration E (lead-authorised) |
+| 2026-11-01 | gcg-core: `TaskCx::superseded(&self) -> bool` and the task index in `TaskCx`; `lowest_failed` moved into the run's shared state | integration E (lead-authorised) |
+| 2026-11-01 | gcg-core: `Topology.arm_features: Vec<(String, u64)>` (was `u32`), so `hw.optional.arm.caps` is kept | integration E (lead-authorised) |
+| 2026-11-01 | `argparse` moved from `crates/gcg-cli/src/argparse/` to `crates/gcg-runner/src/argparse/` (`pub mod argparse` in `gcg-runner`); `gcg-cli` keeps `cli.rs`; `export_cli.py` writes the tables to the new path | integration E (lead-authorised) |
 
 ## Review log
 

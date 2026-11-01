@@ -1,0 +1,37 @@
+# Files hashed into `code_digest` (docs/port/PLAN.md §2.4, X19, W-103), read by
+# build-support/code_digest.rs from the build scripts of gcg-cli and gcg-eval.
+#
+# One path per line, relative to the repository root, with `/` separators. A segment `**`
+# matches any number of directories and `*` matches any characters but `/` inside one segment.
+# A line without `*` names one file, which must exist; a pattern may match nothing (a crate
+# without an `ir/` directory). Files outside these lines (notes, tests, build output) never
+# change the digest.
+
+# The workspace and its build configuration.
+Cargo.toml
+Cargo.lock
+.cargo/config.toml
+build-support/code_digest.rs
+build-support/digest-manifest.txt
+
+# Every crate's manifest, build script and sources.
+crates/*/Cargo.toml
+crates/*/build.rs
+crates/*/src/**/*.rs
+
+# Embedded artefacts of the crates: the effect IR, schemas and deck sets (PLAN §2.4).
+crates/*/ir/*.json
+crates/*/ir/*.sha256
+crates/*/schema/*.json
+crates/*/decks/*.txt
+
+# Packaged sources embedded by gcg-data and gcg-runner (PLAN §2.4; read-only, CLAUDE.md).
+src/gcg_sim/data/gcgapi/cards.ndjson
+src/gcg_sim/data/gcgapi/manifest.json
+src/gcg_sim/data/gcgapi/LICENSE-DATA
+src/gcg_sim/data/overrides.json
+src/gcg_sim/data/curated_conflicts.json
+src/gcg_sim/data/official/*.json
+src/gcg_sim/data/rules/rules_index.json
+src/gcg_sim/reports/schema/results.v1.schema.json
+data/SOURCES.lock.json

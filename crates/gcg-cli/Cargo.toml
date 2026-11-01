@@ -21,6 +21,15 @@ gcg-runner.workspace = true
 gcg-search.workspace = true
 mimalloc = { workspace = true, optional = true }
 
+# build.rs: the code digest of build-support/digest-manifest.txt (PLAN X19, W-103).
+[build-dependencies]
+sha2.workspace = true
+
+[dev-dependencies]
+# tests/code_digest.rs includes build-support/code_digest.rs; the vector tests read JSON.
+sha2.workspace = true
+serde_json.workspace = true
+
 [features]
 # Allocator comparison of PLAN §11.4 step 7 (measured externally; off by default).
 mimalloc = ["dep:mimalloc"]

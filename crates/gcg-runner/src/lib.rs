@@ -9,6 +9,10 @@
 //! the module each one lands in (`config`, `game`, `matches`, `run`, `records`, `instrument`,
 //! `reports`, `replay`, `test_agents`, `argparse`, `clock`), are in docs/port/contracts.md.
 
+pub mod argparse;
 mod contracts;
+mod records;
+pub mod reports;
 
 pub use contracts::*;
+pub use records::log_entry_from_json;
