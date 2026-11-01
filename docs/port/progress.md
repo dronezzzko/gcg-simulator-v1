@@ -45,3 +45,25 @@ recorded, inventory and weaknesses complete with sources. Remaining risks: byte 
 the reference MCTS (float order, libm `pow`/`erfc`, CPython repr content ids) — mitigated by
 gcg-core parity helpers and the IR carrying content ids; the derived-view cache and `version`
 counter must be mirrored exactly because both reach `final_state_sha256`.
+
+## Phase 1 — Architecture and plan (done)
+
+- Judge panel (workflow wf_48d5ac0e-8aa): three independent drafts (equivalence-, performance-
+  and delivery-first), two judges (code spot-checks; brief requirement walk), the delivery draft
+  won (9/9/9/9 and 9/8/8/9); synthesis into `docs/port/PLAN.md`, then two adversarial checkers
+  found 46 gaps (1 blocker, 16 major), all fixed (review log at the end of PLAN.md).
+- Lead review: accepted with the decisions in PLAN.md §0.1 (dependency fetch approved under
+  the brief's own requirements; W-120 deferred to the user; §12.11 answer (a); W-122 bytecode
+  kept).
+- Key decisions: JSON IR exported by `port/oracle/export_ir.py` and embedded; 11 crates with the
+  reference search isolated in `gcg-ai-reference` (unreachable from `gcg-sim`); Copy-record
+  arenas for `GameState`; Python's derived-view cache policy mirrored exactly; thread pool with
+  atomic match claiming; oracle and differential runner (`gcg-diff`) before engine code; engine
+  in five layers along Python's import DAG; `gcg-search` forked from the reference with a
+  null-config bit-identity test; seed role ranges and a ledger for tuning/evaluation.
+
+**Gate.** `python3 -c "...tests.json keys..."`: 158 entries, valid, 1 passing (T-016 gcg-core).
+`uv run python scripts/check_doc_commands.py --list docs/port/PLAN.md`: 0 blocks. Risks: the
+engine critical path is sequential (L1→L5); the R1 numbering hazard (effect_key first-use
+numbering in once-keys could make Python's own root merges depend on worker history) is probed
+in Phase 2.
