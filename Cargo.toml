@@ -1,0 +1,29 @@
+[workspace]
+resolver = "3"
+members = ["crates/*"]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2024"
+authors = ["Andrei Gadiukov <andrey.gadyukov@gmail.com>"]
+rust-version = "1.99"
+publish = false
+
+[workspace.dependencies]
+gcg-core = { path = "crates/gcg-core" }
+sha2 = "0.10"
+zmij = "1.0.23"
+serde_json = { version = "1", features = ["preserve_order", "float_roundtrip"] }
+
+[workspace.lints.rust]
+unsafe_code = "deny"
+
+[workspace.lints.clippy]
+all = { level = "warn", priority = -1 }
+
+[profile.release]
+opt-level = 3
+lto = "fat"
+codegen-units = 1
+panic = "abort"
+debug = "line-tables-only"
