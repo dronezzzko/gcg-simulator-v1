@@ -8,5 +8,18 @@
 //! A implements the functions frozen in docs/port/contracts.md.
 
 mod contracts;
+mod db;
+mod deck;
+mod embedded;
+mod model;
+pub mod names;
+pub mod official;
+mod py;
+mod unicode;
+mod validate;
+mod versions;
 
 pub use contracts::*;
+pub use deck::{deck_digest, load_deck, parse_deck, resolve_card_number, to_decklist};
+pub use validate::{require_legal, validate};
+pub use versions::{conflict_resolutions, data_status_parts, versions};
