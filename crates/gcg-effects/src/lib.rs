@@ -7,8 +7,19 @@
 //! The contract types live in `contracts.rs` (lead-owned) and the generated `dsl.rs`; both are
 //! re-exported here. Workstream B1 implements the functions frozen in docs/port/contracts.md.
 
+mod codec;
 mod contracts;
 pub mod dsl;
+mod error;
+mod golden;
+mod hooks;
+mod ir;
+mod pyrepr;
+mod registry;
+mod view;
+
+#[cfg(test)]
+mod tests;
 
 pub use contracts::*;
 pub use dsl::*;

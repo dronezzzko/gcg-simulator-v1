@@ -6,7 +6,9 @@
 //! Python value strings, member names for `repr`), the 34 custom-hook names, one struct
 //! per DSL and instruction dataclass with Python's field order, the `Node` and
 //! `NodeKind` enums, the kind sets of the `type` aliases, and the schema table that
-//! the IR loader compares with the IR (docs/port/PLAN.md §3.4, §5.1). Field types:
+//! the IR loader compares with the IR (docs/port/PLAN.md §3.4, §5.1), and the per-class
+//! glue of the codec (`Node::decode`, `Node::repr_into`, `Node::golden`), which
+//! applies `crate::codec::Field` to every field in declaration order. Field types:
 //! `int` is `i64`, `str` is `StrId` (`VarId` for frame-variable names), `Value` is
 //! `ValueRef`, every other node type is its typed `NodeId` handle, `X | None` is
 //! `Option<X>` and `tuple[X, ...]` is `Box<[X]>`.
@@ -6416,6 +6418,2568 @@ pub const ENUMS: &[EnumSchema] = &[
         ],
     },
 ];
+
+crate::codec::enum_field!(
+    P, Side, Loc, Op, Kw, Stat, CardKind, RuleKind, DamageKind, Ev, Timing, Where, Gate, Duration
+);
+crate::codec::hook_field!(StepHook => "step", CondHook => "cond", FilterHook => "filter", ValueHook => "value");
+
+impl Node {
+    /// Decodes an IR node object of class `kind` (every field present, declaration
+    /// order; docs/port/PLAN.md §3.3).
+    pub(crate) fn decode(
+        kind: NodeKind,
+        obj: &serde_json::Map<String, serde_json::Value>,
+        d: &mut crate::codec::Decoder<'_>,
+    ) -> Result<Self, crate::contracts::IrError> {
+        Ok(match kind {
+            NodeKind::Count => {
+                d.exact_fields(obj, 1)?;
+                Self::Count(Count {
+                    sel: d.field(obj, "sel")?,
+                })
+            }
+            NodeKind::StatOf => {
+                d.exact_fields(obj, 2)?;
+                Self::StatOf(StatOf {
+                    r#ref: d.field(obj, "ref")?,
+                    stat: d.field(obj, "stat")?,
+                })
+            }
+            NodeKind::PlayerLevel => {
+                d.exact_fields(obj, 1)?;
+                Self::PlayerLevel(PlayerLevel {
+                    player: d.field(obj, "player")?,
+                })
+            }
+            NodeKind::HandSize => {
+                d.exact_fields(obj, 1)?;
+                Self::HandSize(HandSize {
+                    player: d.field(obj, "player")?,
+                })
+            }
+            NodeKind::ShieldCount => {
+                d.exact_fields(obj, 1)?;
+                Self::ShieldCount(ShieldCount {
+                    player: d.field(obj, "player")?,
+                })
+            }
+            NodeKind::DeckSize => {
+                d.exact_fields(obj, 1)?;
+                Self::DeckSize(DeckSize {
+                    player: d.field(obj, "player")?,
+                })
+            }
+            NodeKind::VarSize => {
+                d.exact_fields(obj, 1)?;
+                Self::VarSize(VarSize {
+                    var: d.field(obj, "var")?,
+                })
+            }
+            NodeKind::EventAmount => {
+                d.exact_fields(obj, 1)?;
+                Self::EventAmount(EventAmount {
+                    key: d.field(obj, "key")?,
+                })
+            }
+            NodeKind::Sum => {
+                d.exact_fields(obj, 1)?;
+                Self::Sum(Sum {
+                    terms: d.field(obj, "terms")?,
+                })
+            }
+            NodeKind::Times => {
+                d.exact_fields(obj, 2)?;
+                Self::Times(Times {
+                    value: d.field(obj, "value")?,
+                    factor: d.field(obj, "factor")?,
+                })
+            }
+            NodeKind::MinOf => {
+                d.exact_fields(obj, 1)?;
+                Self::MinOf(MinOf {
+                    terms: d.field(obj, "terms")?,
+                })
+            }
+            NodeKind::KwAmount => {
+                d.exact_fields(obj, 2)?;
+                Self::KwAmount(KwAmount {
+                    keyword: d.field(obj, "keyword")?,
+                    r#ref: d.field(obj, "ref")?,
+                })
+            }
+            NodeKind::CustomValue => {
+                d.exact_fields(obj, 2)?;
+                Self::CustomValue(CustomValue {
+                    name: d.field(obj, "name")?,
+                    params: d.field(obj, "params")?,
+                })
+            }
+            NodeKind::IsKind => {
+                d.exact_fields(obj, 1)?;
+                Self::IsKind(IsKind {
+                    kinds: d.field(obj, "kinds")?,
+                })
+            }
+            NodeKind::HasTrait => {
+                d.exact_fields(obj, 1)?;
+                Self::HasTrait(HasTrait {
+                    traits: d.field(obj, "traits")?,
+                })
+            }
+            NodeKind::NameContains => {
+                d.exact_fields(obj, 1)?;
+                Self::NameContains(NameContains {
+                    parts: d.field(obj, "parts")?,
+                })
+            }
+            NodeKind::NameIs => {
+                d.exact_fields(obj, 1)?;
+                Self::NameIs(NameIs {
+                    names: d.field(obj, "names")?,
+                })
+            }
+            NodeKind::HasColor => {
+                d.exact_fields(obj, 1)?;
+                Self::HasColor(HasColor {
+                    colors: d.field(obj, "colors")?,
+                })
+            }
+            NodeKind::StatCmp => {
+                d.exact_fields(obj, 3)?;
+                Self::StatCmp(StatCmp {
+                    stat: d.field(obj, "stat")?,
+                    op: d.field(obj, "op")?,
+                    value: d.field(obj, "value")?,
+                })
+            }
+            NodeKind::IsRested => {
+                d.exact_fields(obj, 1)?;
+                Self::IsRested(IsRested {
+                    rested: d.field(obj, "rested")?,
+                })
+            }
+            NodeKind::HasKeyword => {
+                d.exact_fields(obj, 1)?;
+                Self::HasKeyword(HasKeyword {
+                    keyword: d.field(obj, "keyword")?,
+                })
+            }
+            NodeKind::IsLinked => {
+                d.exact_fields(obj, 1)?;
+                Self::IsLinked(IsLinked {
+                    linked: d.field(obj, "linked")?,
+                })
+            }
+            NodeKind::IsPaired => {
+                d.exact_fields(obj, 1)?;
+                Self::IsPaired(IsPaired {
+                    paired: d.field(obj, "paired")?,
+                })
+            }
+            NodeKind::PairedWith => {
+                d.exact_fields(obj, 1)?;
+                Self::PairedWith(PairedWith {
+                    filters: d.field(obj, "filters")?,
+                })
+            }
+            NodeKind::PairedTo => {
+                d.exact_fields(obj, 1)?;
+                Self::PairedTo(PairedTo {
+                    filters: d.field(obj, "filters")?,
+                })
+            }
+            NodeKind::IsToken => {
+                d.exact_fields(obj, 1)?;
+                Self::IsToken(IsToken {
+                    token: d.field(obj, "token")?,
+                })
+            }
+            NodeKind::IsDamaged => {
+                d.exact_fields(obj, 1)?;
+                Self::IsDamaged(IsDamaged {
+                    damaged: d.field(obj, "damaged")?,
+                })
+            }
+            NodeKind::NotRef => {
+                d.exact_fields(obj, 1)?;
+                Self::NotRef(NotRef {
+                    r#ref: d.field(obj, "ref")?,
+                })
+            }
+            NodeKind::IsRef => {
+                d.exact_fields(obj, 1)?;
+                Self::IsRef(IsRef {
+                    r#ref: d.field(obj, "ref")?,
+                })
+            }
+            NodeKind::IsAttacking => {
+                d.exact_fields(obj, 1)?;
+                Self::IsAttacking(IsAttacking {
+                    attacking: d.field(obj, "attacking")?,
+                })
+            }
+            NodeKind::IsBattling => {
+                d.exact_fields(obj, 1)?;
+                Self::IsBattling(IsBattling {
+                    battling: d.field(obj, "battling")?,
+                })
+            }
+            NodeKind::HasTiming => {
+                d.exact_fields(obj, 1)?;
+                Self::HasTiming(HasTiming {
+                    timing: d.field(obj, "timing")?,
+                })
+            }
+            NodeKind::HasBurst => {
+                d.exact_fields(obj, 1)?;
+                Self::HasBurst(HasBurst {
+                    burst: d.field(obj, "burst")?,
+                })
+            }
+            NodeKind::DeployedThisTurn => {
+                d.exact_fields(obj, 1)?;
+                Self::DeployedThisTurn(DeployedThisTurn {
+                    value: d.field(obj, "value")?,
+                })
+            }
+            NodeKind::HasZone => {
+                d.exact_fields(obj, 1)?;
+                Self::HasZone(HasZone {
+                    zones: d.field(obj, "zones")?,
+                })
+            }
+            NodeKind::LevelCmpRef => {
+                d.exact_fields(obj, 4)?;
+                Self::LevelCmpRef(LevelCmpRef {
+                    stat: d.field(obj, "stat")?,
+                    op: d.field(obj, "op")?,
+                    r#ref: d.field(obj, "ref")?,
+                    ref_stat: d.field(obj, "ref_stat")?,
+                })
+            }
+            NodeKind::AnyOf => {
+                d.exact_fields(obj, 1)?;
+                Self::AnyOf(AnyOf {
+                    filters: d.field(obj, "filters")?,
+                })
+            }
+            NodeKind::AllOf => {
+                d.exact_fields(obj, 1)?;
+                Self::AllOf(AllOf {
+                    filters: d.field(obj, "filters")?,
+                })
+            }
+            NodeKind::Not => {
+                d.exact_fields(obj, 1)?;
+                Self::Not(Not {
+                    filter: d.field(obj, "filter")?,
+                })
+            }
+            NodeKind::CustomFilter => {
+                d.exact_fields(obj, 2)?;
+                Self::CustomFilter(CustomFilter {
+                    name: d.field(obj, "name")?,
+                    params: d.field(obj, "params")?,
+                })
+            }
+            NodeKind::Sel => {
+                d.exact_fields(obj, 4)?;
+                Self::Sel(Sel {
+                    side: d.field(obj, "side")?,
+                    loc: d.field(obj, "loc")?,
+                    filters: d.field(obj, "filters")?,
+                    top_n: d.field(obj, "top_n")?,
+                })
+            }
+            NodeKind::This => {
+                d.no_fields(obj)?;
+                Self::This(This)
+            }
+            NodeKind::ThisCard => {
+                d.no_fields(obj)?;
+                Self::ThisCard(ThisCard)
+            }
+            NodeKind::Var => {
+                d.exact_fields(obj, 1)?;
+                Self::Var(Var {
+                    name: d.field(obj, "name")?,
+                })
+            }
+            NodeKind::EventCard => {
+                d.exact_fields(obj, 1)?;
+                Self::EventCard(EventCard {
+                    key: d.field(obj, "key")?,
+                })
+            }
+            NodeKind::PairedPilotOf => {
+                d.exact_fields(obj, 1)?;
+                Self::PairedPilotOf(PairedPilotOf {
+                    r#ref: d.field(obj, "ref")?,
+                })
+            }
+            NodeKind::PairedUnitOf => {
+                d.exact_fields(obj, 1)?;
+                Self::PairedUnitOf(PairedUnitOf {
+                    r#ref: d.field(obj, "ref")?,
+                })
+            }
+            NodeKind::BattlingWith => {
+                d.exact_fields(obj, 1)?;
+                Self::BattlingWith(BattlingWith {
+                    r#ref: d.field(obj, "ref")?,
+                })
+            }
+            NodeKind::All => {
+                d.exact_fields(obj, 1)?;
+                Self::All(All {
+                    sel: d.field(obj, "sel")?,
+                })
+            }
+            NodeKind::Union => {
+                d.exact_fields(obj, 1)?;
+                Self::Union(Union {
+                    refs: d.field(obj, "refs")?,
+                })
+            }
+            NodeKind::Cmp => {
+                d.exact_fields(obj, 3)?;
+                Self::Cmp(Cmp {
+                    left: d.field(obj, "left")?,
+                    op: d.field(obj, "op")?,
+                    right: d.field(obj, "right")?,
+                })
+            }
+            NodeKind::Exists => {
+                d.exact_fields(obj, 2)?;
+                Self::Exists(Exists {
+                    sel: d.field(obj, "sel")?,
+                    at_least: d.field(obj, "at_least")?,
+                })
+            }
+            NodeKind::IsTurn => {
+                d.exact_fields(obj, 1)?;
+                Self::IsTurn(IsTurn {
+                    player: d.field(obj, "player")?,
+                })
+            }
+            NodeKind::RefMatches => {
+                d.exact_fields(obj, 2)?;
+                Self::RefMatches(RefMatches {
+                    r#ref: d.field(obj, "ref")?,
+                    filters: d.field(obj, "filters")?,
+                })
+            }
+            NodeKind::RefEmpty => {
+                d.exact_fields(obj, 1)?;
+                Self::RefEmpty(RefEmpty {
+                    r#ref: d.field(obj, "ref")?,
+                })
+            }
+            NodeKind::AttackTargetIs => {
+                d.exact_fields(obj, 1)?;
+                Self::AttackTargetIs(AttackTargetIs {
+                    kind: d.field(obj, "kind")?,
+                })
+            }
+            NodeKind::EventFrom => {
+                d.exact_fields(obj, 1)?;
+                Self::EventFrom(EventFrom {
+                    loc: d.field(obj, "loc")?,
+                })
+            }
+            NodeKind::EventFlag => {
+                d.exact_fields(obj, 2)?;
+                Self::EventFlag(EventFlag {
+                    key: d.field(obj, "key")?,
+                    value: d.field(obj, "value")?,
+                })
+            }
+            NodeKind::HappenedThisTurn => {
+                d.exact_fields(obj, 6)?;
+                Self::HappenedThisTurn(HappenedThisTurn {
+                    kind: d.field(obj, "kind")?,
+                    player: d.field(obj, "player")?,
+                    by: d.field(obj, "by")?,
+                    at_least: d.field(obj, "at_least")?,
+                    filters: d.field(obj, "filters")?,
+                    source_filters: d.field(obj, "source_filters")?,
+                })
+            }
+            NodeKind::DidLast => {
+                d.no_fields(obj)?;
+                Self::DidLast(DidLast)
+            }
+            NodeKind::And => {
+                d.exact_fields(obj, 1)?;
+                Self::And(And {
+                    conds: d.field(obj, "conds")?,
+                })
+            }
+            NodeKind::Or => {
+                d.exact_fields(obj, 1)?;
+                Self::Or(Or {
+                    conds: d.field(obj, "conds")?,
+                })
+            }
+            NodeKind::NotC => {
+                d.exact_fields(obj, 1)?;
+                Self::NotC(NotC {
+                    cond: d.field(obj, "cond")?,
+                })
+            }
+            NodeKind::CustomCond => {
+                d.exact_fields(obj, 2)?;
+                Self::CustomCond(CustomCond {
+                    name: d.field(obj, "name")?,
+                    params: d.field(obj, "params")?,
+                })
+            }
+            NodeKind::RuleMod => {
+                d.exact_fields(obj, 7)?;
+                Self::RuleMod(RuleMod {
+                    kind: d.field(obj, "kind")?,
+                    amount: d.field(obj, "amount")?,
+                    damage_kind: d.field(obj, "damage_kind")?,
+                    source_filters: d.field(obj, "source_filters")?,
+                    source_side: d.field(obj, "source_side")?,
+                    once_per_turn: d.field(obj, "once_per_turn")?,
+                    name: d.field(obj, "name")?,
+                })
+            }
+            NodeKind::StatMod => {
+                d.exact_fields(obj, 2)?;
+                Self::StatMod(StatMod {
+                    ap: d.field(obj, "ap")?,
+                    hp: d.field(obj, "hp")?,
+                })
+            }
+            NodeKind::KeywordGrant => {
+                d.exact_fields(obj, 2)?;
+                Self::KeywordGrant(KeywordGrant {
+                    keyword: d.field(obj, "keyword")?,
+                    amount: d.field(obj, "amount")?,
+                })
+            }
+            NodeKind::TraitGrant => {
+                d.exact_fields(obj, 1)?;
+                Self::TraitGrant(TraitGrant {
+                    traits: d.field(obj, "traits")?,
+                })
+            }
+            NodeKind::RuleGrant => {
+                d.exact_fields(obj, 1)?;
+                Self::RuleGrant(RuleGrant {
+                    rule: d.field(obj, "rule")?,
+                })
+            }
+            NodeKind::AbilityGrant => {
+                d.exact_fields(obj, 2)?;
+                Self::AbilityGrant(AbilityGrant {
+                    card_number: d.field(obj, "card_number")?,
+                    ability_index: d.field(obj, "ability_index")?,
+                })
+            }
+            NodeKind::CostMod => {
+                d.exact_fields(obj, 2)?;
+                Self::CostMod(CostMod {
+                    cost: d.field(obj, "cost")?,
+                    level: d.field(obj, "level")?,
+                })
+            }
+            NodeKind::Trigger => {
+                d.exact_fields(obj, 9)?;
+                Self::Trigger(Trigger {
+                    event: d.field(obj, "event")?,
+                    self_only: d.field(obj, "self_only")?,
+                    subject: d.field(obj, "subject")?,
+                    whose_turn: d.field(obj, "whose_turn")?,
+                    pilot_filters: d.field(obj, "pilot_filters")?,
+                    target_filters: d.field(obj, "target_filters")?,
+                    battle_only: d.field(obj, "battle_only")?,
+                    by_enemy: d.field(obj, "by_enemy")?,
+                    include_self: d.field(obj, "include_self")?,
+                })
+            }
+            NodeKind::RestSelf => {
+                d.no_fields(obj)?;
+                Self::RestSelf(RestSelf)
+            }
+            NodeKind::PayResources => {
+                d.exact_fields(obj, 1)?;
+                Self::PayResources(PayResources {
+                    amount: d.field(obj, "amount")?,
+                })
+            }
+            NodeKind::RestCards => {
+                d.exact_fields(obj, 2)?;
+                Self::RestCards(RestCards {
+                    sel: d.field(obj, "sel")?,
+                    count: d.field(obj, "count")?,
+                })
+            }
+            NodeKind::DestroyCards => {
+                d.exact_fields(obj, 2)?;
+                Self::DestroyCards(DestroyCards {
+                    sel: d.field(obj, "sel")?,
+                    count: d.field(obj, "count")?,
+                })
+            }
+            NodeKind::DiscardCards => {
+                d.exact_fields(obj, 2)?;
+                Self::DiscardCards(DiscardCards {
+                    sel: d.field(obj, "sel")?,
+                    count: d.field(obj, "count")?,
+                })
+            }
+            NodeKind::ExileCards => {
+                d.exact_fields(obj, 2)?;
+                Self::ExileCards(ExileCards {
+                    sel: d.field(obj, "sel")?,
+                    count: d.field(obj, "count")?,
+                })
+            }
+            NodeKind::ReturnSelf => {
+                d.no_fields(obj)?;
+                Self::ReturnSelf(ReturnSelf)
+            }
+            NodeKind::DestroySelf => {
+                d.no_fields(obj)?;
+                Self::DestroySelf(DestroySelf)
+            }
+            NodeKind::TrashSelf => {
+                d.no_fields(obj)?;
+                Self::TrashSelf(TrashSelf)
+            }
+            NodeKind::Choose => {
+                d.exact_fields(obj, 10)?;
+                Self::Choose(Choose {
+                    var: d.field(obj, "var")?,
+                    sel: d.field(obj, "sel")?,
+                    count: d.field(obj, "count")?,
+                    min_count: d.field(obj, "min_count")?,
+                    optional: d.field(obj, "optional")?,
+                    chooser: d.field(obj, "chooser")?,
+                    distinct_from: d.field(obj, "distinct_from")?,
+                    targeting: d.field(obj, "targeting")?,
+                    random: d.field(obj, "random")?,
+                    after_then: d.field(obj, "after_then")?,
+                })
+            }
+            NodeKind::ChooseMode => {
+                d.exact_fields(obj, 2)?;
+                Self::ChooseMode(ChooseMode {
+                    options: d.field(obj, "options")?,
+                    chooser: d.field(obj, "chooser")?,
+                })
+            }
+            NodeKind::Draw => {
+                d.exact_fields(obj, 3)?;
+                Self::Draw(Draw {
+                    count: d.field(obj, "count")?,
+                    player: d.field(obj, "player")?,
+                    each_player: d.field(obj, "each_player")?,
+                })
+            }
+            NodeKind::Discard => {
+                d.exact_fields(obj, 6)?;
+                Self::Discard(Discard {
+                    count: d.field(obj, "count")?,
+                    player: d.field(obj, "player")?,
+                    chooser: d.field(obj, "chooser")?,
+                    random: d.field(obj, "random")?,
+                    filters: d.field(obj, "filters")?,
+                    var: d.field(obj, "var")?,
+                })
+            }
+            NodeKind::Damage => {
+                d.exact_fields(obj, 2)?;
+                Self::Damage(Damage {
+                    r#ref: d.field(obj, "ref")?,
+                    amount: d.field(obj, "amount")?,
+                })
+            }
+            NodeKind::DamageShieldArea => {
+                d.exact_fields(obj, 3)?;
+                Self::DamageShieldArea(DamageShieldArea {
+                    player: d.field(obj, "player")?,
+                    amount: d.field(obj, "amount")?,
+                    cards: d.field(obj, "cards")?,
+                })
+            }
+            NodeKind::DamagePlayer => {
+                d.exact_fields(obj, 2)?;
+                Self::DamagePlayer(DamagePlayer {
+                    player: d.field(obj, "player")?,
+                    amount: d.field(obj, "amount")?,
+                })
+            }
+            NodeKind::Destroy => {
+                d.exact_fields(obj, 1)?;
+                Self::Destroy(Destroy {
+                    r#ref: d.field(obj, "ref")?,
+                })
+            }
+            NodeKind::Rest => {
+                d.exact_fields(obj, 1)?;
+                Self::Rest(Rest {
+                    r#ref: d.field(obj, "ref")?,
+                })
+            }
+            NodeKind::SetActive => {
+                d.exact_fields(obj, 1)?;
+                Self::SetActive(SetActive {
+                    r#ref: d.field(obj, "ref")?,
+                })
+            }
+            NodeKind::ReturnToHand => {
+                d.exact_fields(obj, 1)?;
+                Self::ReturnToHand(ReturnToHand {
+                    r#ref: d.field(obj, "ref")?,
+                })
+            }
+            NodeKind::ToDeck => {
+                d.exact_fields(obj, 3)?;
+                Self::ToDeck(ToDeck {
+                    r#ref: d.field(obj, "ref")?,
+                    bottom: d.field(obj, "bottom")?,
+                    shuffle: d.field(obj, "shuffle")?,
+                })
+            }
+            NodeKind::Exile => {
+                d.exact_fields(obj, 1)?;
+                Self::Exile(Exile {
+                    r#ref: d.field(obj, "ref")?,
+                })
+            }
+            NodeKind::ToTrash => {
+                d.exact_fields(obj, 1)?;
+                Self::ToTrash(ToTrash {
+                    r#ref: d.field(obj, "ref")?,
+                })
+            }
+            NodeKind::AddToHand => {
+                d.exact_fields(obj, 2)?;
+                Self::AddToHand(AddToHand {
+                    r#ref: d.field(obj, "ref")?,
+                    reveal: d.field(obj, "reveal")?,
+                })
+            }
+            NodeKind::DeployCard => {
+                d.exact_fields(obj, 5)?;
+                Self::DeployCard(DeployCard {
+                    r#ref: d.field(obj, "ref")?,
+                    rested: d.field(obj, "rested")?,
+                    pay_cost: d.field(obj, "pay_cost")?,
+                    ignore_level: d.field(obj, "ignore_level")?,
+                    as_unit: d.field(obj, "as_unit")?,
+                })
+            }
+            NodeKind::DeployToken => {
+                d.exact_fields(obj, 6)?;
+                Self::DeployToken(DeployToken {
+                    token_key: d.field(obj, "token_key")?,
+                    count: d.field(obj, "count")?,
+                    rested: d.field(obj, "rested")?,
+                    player: d.field(obj, "player")?,
+                    var: d.field(obj, "var")?,
+                    also: d.field(obj, "also")?,
+                })
+            }
+            NodeKind::PlaceExResource => {
+                d.exact_fields(obj, 2)?;
+                Self::PlaceExResource(PlaceExResource {
+                    player: d.field(obj, "player")?,
+                    rested: d.field(obj, "rested")?,
+                })
+            }
+            NodeKind::PlaceResource => {
+                d.exact_fields(obj, 2)?;
+                Self::PlaceResource(PlaceResource {
+                    player: d.field(obj, "player")?,
+                    rested: d.field(obj, "rested")?,
+                })
+            }
+            NodeKind::SetResourcesActive => {
+                d.exact_fields(obj, 2)?;
+                Self::SetResourcesActive(SetResourcesActive {
+                    count: d.field(obj, "count")?,
+                    player: d.field(obj, "player")?,
+                })
+            }
+            NodeKind::RestResources => {
+                d.exact_fields(obj, 2)?;
+                Self::RestResources(RestResources {
+                    count: d.field(obj, "count")?,
+                    player: d.field(obj, "player")?,
+                })
+            }
+            NodeKind::ShieldToHand => {
+                d.exact_fields(obj, 2)?;
+                Self::ShieldToHand(ShieldToHand {
+                    count: d.field(obj, "count")?,
+                    player: d.field(obj, "player")?,
+                })
+            }
+            NodeKind::AddToShields => {
+                d.exact_fields(obj, 4)?;
+                Self::AddToShields(AddToShields {
+                    r#ref: d.field(obj, "ref")?,
+                    count: d.field(obj, "count")?,
+                    player: d.field(obj, "player")?,
+                    top: d.field(obj, "top")?,
+                })
+            }
+            NodeKind::Mill => {
+                d.exact_fields(obj, 3)?;
+                Self::Mill(Mill {
+                    count: d.field(obj, "count")?,
+                    player: d.field(obj, "player")?,
+                    var: d.field(obj, "var")?,
+                })
+            }
+            NodeKind::LookTop => {
+                d.exact_fields(obj, 4)?;
+                Self::LookTop(LookTop {
+                    count: d.field(obj, "count")?,
+                    player: d.field(obj, "player")?,
+                    var: d.field(obj, "var")?,
+                    reveal: d.field(obj, "reveal")?,
+                })
+            }
+            NodeKind::Arrange => {
+                d.exact_fields(obj, 3)?;
+                Self::Arrange(Arrange {
+                    r#ref: d.field(obj, "ref")?,
+                    mode: d.field(obj, "mode")?,
+                    player: d.field(obj, "player")?,
+                })
+            }
+            NodeKind::Reveal => {
+                d.exact_fields(obj, 1)?;
+                Self::Reveal(Reveal {
+                    r#ref: d.field(obj, "ref")?,
+                })
+            }
+            NodeKind::Shuffle => {
+                d.exact_fields(obj, 1)?;
+                Self::Shuffle(Shuffle {
+                    player: d.field(obj, "player")?,
+                })
+            }
+            NodeKind::Recover => {
+                d.exact_fields(obj, 2)?;
+                Self::Recover(Recover {
+                    r#ref: d.field(obj, "ref")?,
+                    amount: d.field(obj, "amount")?,
+                })
+            }
+            NodeKind::Apply => {
+                d.exact_fields(obj, 4)?;
+                Self::Apply(Apply {
+                    r#ref: d.field(obj, "ref")?,
+                    effect: d.field(obj, "effect")?,
+                    duration: d.field(obj, "duration")?,
+                    aux: d.field(obj, "aux")?,
+                })
+            }
+            NodeKind::ApplyPlayer => {
+                d.exact_fields(obj, 5)?;
+                Self::ApplyPlayer(ApplyPlayer {
+                    player: d.field(obj, "player")?,
+                    effect: d.field(obj, "effect")?,
+                    duration: d.field(obj, "duration")?,
+                    filters: d.field(obj, "filters")?,
+                    uses: d.field(obj, "uses")?,
+                })
+            }
+            NodeKind::Pair => {
+                d.exact_fields(obj, 2)?;
+                Self::Pair(Pair {
+                    pilot: d.field(obj, "pilot")?,
+                    unit: d.field(obj, "unit")?,
+                })
+            }
+            NodeKind::PlayCard => {
+                d.exact_fields(obj, 4)?;
+                Self::PlayCard(PlayCard {
+                    r#ref: d.field(obj, "ref")?,
+                    free: d.field(obj, "free")?,
+                    ignore_level: d.field(obj, "ignore_level")?,
+                    cost_delta: d.field(obj, "cost_delta")?,
+                })
+            }
+            NodeKind::ActivateMain => {
+                d.exact_fields(obj, 1)?;
+                Self::ActivateMain(ActivateMain {
+                    r#ref: d.field(obj, "ref")?,
+                })
+            }
+            NodeKind::StartBattle => {
+                d.exact_fields(obj, 3)?;
+                Self::StartBattle(StartBattle {
+                    attacker: d.field(obj, "attacker")?,
+                    target: d.field(obj, "target")?,
+                    damage_only: d.field(obj, "damage_only")?,
+                })
+            }
+            NodeKind::ChangeAttackTarget => {
+                d.exact_fields(obj, 1)?;
+                Self::ChangeAttackTarget(ChangeAttackTarget {
+                    target: d.field(obj, "target")?,
+                })
+            }
+            NodeKind::If => {
+                d.exact_fields(obj, 3)?;
+                Self::If(If {
+                    cond: d.field(obj, "cond")?,
+                    then: d.field(obj, "then")?,
+                    otherwise: d.field(obj, "otherwise")?,
+                })
+            }
+            NodeKind::May => {
+                d.exact_fields(obj, 3)?;
+                Self::May(May {
+                    steps: d.field(obj, "steps")?,
+                    prompt: d.field(obj, "prompt")?,
+                    player: d.field(obj, "player")?,
+                })
+            }
+            NodeKind::Simultaneous => {
+                d.exact_fields(obj, 1)?;
+                Self::Simultaneous(Simultaneous {
+                    steps: d.field(obj, "steps")?,
+                })
+            }
+            NodeKind::IfYouDo => {
+                d.exact_fields(obj, 1)?;
+                Self::IfYouDo(IfYouDo {
+                    steps: d.field(obj, "steps")?,
+                })
+            }
+            NodeKind::ForEach => {
+                d.exact_fields(obj, 3)?;
+                Self::ForEach(ForEach {
+                    r#ref: d.field(obj, "ref")?,
+                    var: d.field(obj, "var")?,
+                    steps: d.field(obj, "steps")?,
+                })
+            }
+            NodeKind::Repeat => {
+                d.exact_fields(obj, 2)?;
+                Self::Repeat(Repeat {
+                    times: d.field(obj, "times")?,
+                    steps: d.field(obj, "steps")?,
+                })
+            }
+            NodeKind::BindVar => {
+                d.exact_fields(obj, 2)?;
+                Self::BindVar(BindVar {
+                    var: d.field(obj, "var")?,
+                    r#ref: d.field(obj, "ref")?,
+                })
+            }
+            NodeKind::DelayedTrigger => {
+                d.exact_fields(obj, 4)?;
+                Self::DelayedTrigger(DelayedTrigger {
+                    trigger: d.field(obj, "trigger")?,
+                    steps: d.field(obj, "steps")?,
+                    duration: d.field(obj, "duration")?,
+                    bind_vars: d.field(obj, "bind_vars")?,
+                })
+            }
+            NodeKind::PayCost => {
+                d.exact_fields(obj, 2)?;
+                Self::PayCost(PayCost {
+                    amount: d.field(obj, "amount")?,
+                    player: d.field(obj, "player")?,
+                })
+            }
+            NodeKind::CustomStep => {
+                d.exact_fields(obj, 2)?;
+                Self::CustomStep(CustomStep {
+                    name: d.field(obj, "name")?,
+                    params: d.field(obj, "params")?,
+                })
+            }
+            NodeKind::Keyword => {
+                d.exact_fields(obj, 4)?;
+                Self::Keyword(Keyword {
+                    keyword: d.field(obj, "keyword")?,
+                    amount: d.field(obj, "amount")?,
+                    gate: d.field(obj, "gate")?,
+                    gate_filters: d.field(obj, "gate_filters")?,
+                })
+            }
+            NodeKind::Constant => {
+                d.exact_fields(obj, 6)?;
+                Self::Constant(Constant {
+                    effects: d.field(obj, "effects")?,
+                    scope: d.field(obj, "scope")?,
+                    cond: d.field(obj, "cond")?,
+                    r#where: d.field(obj, "where")?,
+                    gate: d.field(obj, "gate")?,
+                    gate_filters: d.field(obj, "gate_filters")?,
+                })
+            }
+            NodeKind::Triggered => {
+                d.exact_fields(obj, 7)?;
+                Self::Triggered(Triggered {
+                    trigger: d.field(obj, "trigger")?,
+                    steps: d.field(obj, "steps")?,
+                    cond: d.field(obj, "cond")?,
+                    once_per_turn: d.field(obj, "once_per_turn")?,
+                    r#where: d.field(obj, "where")?,
+                    gate: d.field(obj, "gate")?,
+                    gate_filters: d.field(obj, "gate_filters")?,
+                })
+            }
+            NodeKind::Activated => {
+                d.exact_fields(obj, 9)?;
+                Self::Activated(Activated {
+                    timing: d.field(obj, "timing")?,
+                    costs: d.field(obj, "costs")?,
+                    steps: d.field(obj, "steps")?,
+                    cond: d.field(obj, "cond")?,
+                    once_per_turn: d.field(obj, "once_per_turn")?,
+                    r#where: d.field(obj, "where")?,
+                    gate: d.field(obj, "gate")?,
+                    gate_filters: d.field(obj, "gate_filters")?,
+                    support: d.field(obj, "support")?,
+                })
+            }
+            NodeKind::Command => {
+                d.exact_fields(obj, 3)?;
+                Self::Command(Command {
+                    timing: d.field(obj, "timing")?,
+                    steps: d.field(obj, "steps")?,
+                    cond: d.field(obj, "cond")?,
+                })
+            }
+            NodeKind::Burst => {
+                d.exact_fields(obj, 1)?;
+                Self::Burst(Burst {
+                    steps: d.field(obj, "steps")?,
+                })
+            }
+            NodeKind::Replacement => {
+                d.exact_fields(obj, 7)?;
+                Self::Replacement(Replacement {
+                    event: d.field(obj, "event")?,
+                    steps: d.field(obj, "steps")?,
+                    scope: d.field(obj, "scope")?,
+                    cond: d.field(obj, "cond")?,
+                    once_per_turn: d.field(obj, "once_per_turn")?,
+                    optional: d.field(obj, "optional")?,
+                    gate: d.field(obj, "gate")?,
+                })
+            }
+            NodeKind::NameAlias => {
+                d.exact_fields(obj, 1)?;
+                Self::NameAlias(NameAlias {
+                    names: d.field(obj, "names")?,
+                })
+            }
+            NodeKind::PlayModifier => {
+                d.exact_fields(obj, 5)?;
+                Self::PlayModifier(PlayModifier {
+                    cond: d.field(obj, "cond")?,
+                    costs: d.field(obj, "costs")?,
+                    level: d.field(obj, "level")?,
+                    cost: d.field(obj, "cost")?,
+                    pair_filters: d.field(obj, "pair_filters")?,
+                })
+            }
+            NodeKind::CardScript => {
+                d.exact_fields(obj, 5)?;
+                Self::CardScript(CardScript {
+                    card_number: d.field(obj, "card_number")?,
+                    abilities: d.field(obj, "abilities")?,
+                    unit_abilities: d.field(obj, "unit_abilities")?,
+                    source: d.field(obj, "source")?,
+                    notes: d.field(obj, "notes")?,
+                })
+            }
+            NodeKind::Jump => {
+                d.exact_fields(obj, 1)?;
+                Self::Jump(Jump {
+                    target: d.field(obj, "target")?,
+                })
+            }
+            NodeKind::JumpIfNot => {
+                d.exact_fields(obj, 2)?;
+                Self::JumpIfNot(JumpIfNot {
+                    cond: d.field(obj, "cond")?,
+                    target: d.field(obj, "target")?,
+                })
+            }
+            NodeKind::AskMay => {
+                d.exact_fields(obj, 3)?;
+                Self::AskMay(AskMay {
+                    prompt: d.field(obj, "prompt")?,
+                    player: d.field(obj, "player")?,
+                    target_if_no: d.field(obj, "target_if_no")?,
+                })
+            }
+            NodeKind::JumpIfNotDid => {
+                d.exact_fields(obj, 1)?;
+                Self::JumpIfNotDid(JumpIfNotDid {
+                    target: d.field(obj, "target")?,
+                })
+            }
+            NodeKind::ModeSelect => {
+                d.exact_fields(obj, 4)?;
+                Self::ModeSelect(ModeSelect {
+                    labels: d.field(obj, "labels")?,
+                    targets: d.field(obj, "targets")?,
+                    chooser: d.field(obj, "chooser")?,
+                    end: d.field(obj, "end")?,
+                })
+            }
+            NodeKind::LoopInit => {
+                d.exact_fields(obj, 3)?;
+                Self::LoopInit(LoopInit {
+                    key: d.field(obj, "key")?,
+                    r#ref: d.field(obj, "ref")?,
+                    times: d.field(obj, "times")?,
+                })
+            }
+            NodeKind::LoopNext => {
+                d.exact_fields(obj, 3)?;
+                Self::LoopNext(LoopNext {
+                    key: d.field(obj, "key")?,
+                    var: d.field(obj, "var")?,
+                    end: d.field(obj, "end")?,
+                })
+            }
+            NodeKind::SetDid => {
+                d.exact_fields(obj, 1)?;
+                Self::SetDid(SetDid {
+                    value: d.field(obj, "value")?,
+                })
+            }
+            NodeKind::HoldRules => {
+                d.exact_fields(obj, 1)?;
+                Self::HoldRules(HoldRules {
+                    delta: d.field(obj, "delta")?,
+                })
+            }
+        })
+    }
+
+    /// CPython `repr` (dataclass `repr`: all fields in declaration order).
+    pub(crate) fn repr_into(&self, cx: &crate::codec::ReprCx<'_>, out: &mut String) {
+        use crate::codec::Field as _;
+        match self {
+            Self::Count(x) => {
+                out.push_str("Count(sel=");
+                x.sel.repr(cx, out);
+                out.push(')');
+            }
+            Self::StatOf(x) => {
+                out.push_str("StatOf(ref=");
+                x.r#ref.repr(cx, out);
+                out.push_str(", stat=");
+                x.stat.repr(cx, out);
+                out.push(')');
+            }
+            Self::PlayerLevel(x) => {
+                out.push_str("PlayerLevel(player=");
+                x.player.repr(cx, out);
+                out.push(')');
+            }
+            Self::HandSize(x) => {
+                out.push_str("HandSize(player=");
+                x.player.repr(cx, out);
+                out.push(')');
+            }
+            Self::ShieldCount(x) => {
+                out.push_str("ShieldCount(player=");
+                x.player.repr(cx, out);
+                out.push(')');
+            }
+            Self::DeckSize(x) => {
+                out.push_str("DeckSize(player=");
+                x.player.repr(cx, out);
+                out.push(')');
+            }
+            Self::VarSize(x) => {
+                out.push_str("VarSize(var=");
+                x.var.repr(cx, out);
+                out.push(')');
+            }
+            Self::EventAmount(x) => {
+                out.push_str("EventAmount(key=");
+                x.key.repr(cx, out);
+                out.push(')');
+            }
+            Self::Sum(x) => {
+                out.push_str("Sum(terms=");
+                x.terms.repr(cx, out);
+                out.push(')');
+            }
+            Self::Times(x) => {
+                out.push_str("Times(value=");
+                x.value.repr(cx, out);
+                out.push_str(", factor=");
+                x.factor.repr(cx, out);
+                out.push(')');
+            }
+            Self::MinOf(x) => {
+                out.push_str("MinOf(terms=");
+                x.terms.repr(cx, out);
+                out.push(')');
+            }
+            Self::KwAmount(x) => {
+                out.push_str("KwAmount(keyword=");
+                x.keyword.repr(cx, out);
+                out.push_str(", ref=");
+                x.r#ref.repr(cx, out);
+                out.push(')');
+            }
+            Self::CustomValue(x) => {
+                out.push_str("CustomValue(name=");
+                x.name.repr(cx, out);
+                out.push_str(", params=");
+                x.params.repr(cx, out);
+                out.push(')');
+            }
+            Self::IsKind(x) => {
+                out.push_str("IsKind(kinds=");
+                x.kinds.repr(cx, out);
+                out.push(')');
+            }
+            Self::HasTrait(x) => {
+                out.push_str("HasTrait(traits=");
+                x.traits.repr(cx, out);
+                out.push(')');
+            }
+            Self::NameContains(x) => {
+                out.push_str("NameContains(parts=");
+                x.parts.repr(cx, out);
+                out.push(')');
+            }
+            Self::NameIs(x) => {
+                out.push_str("NameIs(names=");
+                x.names.repr(cx, out);
+                out.push(')');
+            }
+            Self::HasColor(x) => {
+                out.push_str("HasColor(colors=");
+                x.colors.repr(cx, out);
+                out.push(')');
+            }
+            Self::StatCmp(x) => {
+                out.push_str("StatCmp(stat=");
+                x.stat.repr(cx, out);
+                out.push_str(", op=");
+                x.op.repr(cx, out);
+                out.push_str(", value=");
+                x.value.repr(cx, out);
+                out.push(')');
+            }
+            Self::IsRested(x) => {
+                out.push_str("IsRested(rested=");
+                x.rested.repr(cx, out);
+                out.push(')');
+            }
+            Self::HasKeyword(x) => {
+                out.push_str("HasKeyword(keyword=");
+                x.keyword.repr(cx, out);
+                out.push(')');
+            }
+            Self::IsLinked(x) => {
+                out.push_str("IsLinked(linked=");
+                x.linked.repr(cx, out);
+                out.push(')');
+            }
+            Self::IsPaired(x) => {
+                out.push_str("IsPaired(paired=");
+                x.paired.repr(cx, out);
+                out.push(')');
+            }
+            Self::PairedWith(x) => {
+                out.push_str("PairedWith(filters=");
+                x.filters.repr(cx, out);
+                out.push(')');
+            }
+            Self::PairedTo(x) => {
+                out.push_str("PairedTo(filters=");
+                x.filters.repr(cx, out);
+                out.push(')');
+            }
+            Self::IsToken(x) => {
+                out.push_str("IsToken(token=");
+                x.token.repr(cx, out);
+                out.push(')');
+            }
+            Self::IsDamaged(x) => {
+                out.push_str("IsDamaged(damaged=");
+                x.damaged.repr(cx, out);
+                out.push(')');
+            }
+            Self::NotRef(x) => {
+                out.push_str("NotRef(ref=");
+                x.r#ref.repr(cx, out);
+                out.push(')');
+            }
+            Self::IsRef(x) => {
+                out.push_str("IsRef(ref=");
+                x.r#ref.repr(cx, out);
+                out.push(')');
+            }
+            Self::IsAttacking(x) => {
+                out.push_str("IsAttacking(attacking=");
+                x.attacking.repr(cx, out);
+                out.push(')');
+            }
+            Self::IsBattling(x) => {
+                out.push_str("IsBattling(battling=");
+                x.battling.repr(cx, out);
+                out.push(')');
+            }
+            Self::HasTiming(x) => {
+                out.push_str("HasTiming(timing=");
+                x.timing.repr(cx, out);
+                out.push(')');
+            }
+            Self::HasBurst(x) => {
+                out.push_str("HasBurst(burst=");
+                x.burst.repr(cx, out);
+                out.push(')');
+            }
+            Self::DeployedThisTurn(x) => {
+                out.push_str("DeployedThisTurn(value=");
+                x.value.repr(cx, out);
+                out.push(')');
+            }
+            Self::HasZone(x) => {
+                out.push_str("HasZone(zones=");
+                x.zones.repr(cx, out);
+                out.push(')');
+            }
+            Self::LevelCmpRef(x) => {
+                out.push_str("LevelCmpRef(stat=");
+                x.stat.repr(cx, out);
+                out.push_str(", op=");
+                x.op.repr(cx, out);
+                out.push_str(", ref=");
+                x.r#ref.repr(cx, out);
+                out.push_str(", ref_stat=");
+                x.ref_stat.repr(cx, out);
+                out.push(')');
+            }
+            Self::AnyOf(x) => {
+                out.push_str("AnyOf(filters=");
+                x.filters.repr(cx, out);
+                out.push(')');
+            }
+            Self::AllOf(x) => {
+                out.push_str("AllOf(filters=");
+                x.filters.repr(cx, out);
+                out.push(')');
+            }
+            Self::Not(x) => {
+                out.push_str("Not(filter=");
+                x.filter.repr(cx, out);
+                out.push(')');
+            }
+            Self::CustomFilter(x) => {
+                out.push_str("CustomFilter(name=");
+                x.name.repr(cx, out);
+                out.push_str(", params=");
+                x.params.repr(cx, out);
+                out.push(')');
+            }
+            Self::Sel(x) => {
+                out.push_str("Sel(side=");
+                x.side.repr(cx, out);
+                out.push_str(", loc=");
+                x.loc.repr(cx, out);
+                out.push_str(", filters=");
+                x.filters.repr(cx, out);
+                out.push_str(", top_n=");
+                x.top_n.repr(cx, out);
+                out.push(')');
+            }
+            Self::This(_) => out.push_str("This()"),
+            Self::ThisCard(_) => out.push_str("ThisCard()"),
+            Self::Var(x) => {
+                out.push_str("Var(name=");
+                x.name.repr(cx, out);
+                out.push(')');
+            }
+            Self::EventCard(x) => {
+                out.push_str("EventCard(key=");
+                x.key.repr(cx, out);
+                out.push(')');
+            }
+            Self::PairedPilotOf(x) => {
+                out.push_str("PairedPilotOf(ref=");
+                x.r#ref.repr(cx, out);
+                out.push(')');
+            }
+            Self::PairedUnitOf(x) => {
+                out.push_str("PairedUnitOf(ref=");
+                x.r#ref.repr(cx, out);
+                out.push(')');
+            }
+            Self::BattlingWith(x) => {
+                out.push_str("BattlingWith(ref=");
+                x.r#ref.repr(cx, out);
+                out.push(')');
+            }
+            Self::All(x) => {
+                out.push_str("All(sel=");
+                x.sel.repr(cx, out);
+                out.push(')');
+            }
+            Self::Union(x) => {
+                out.push_str("Union(refs=");
+                x.refs.repr(cx, out);
+                out.push(')');
+            }
+            Self::Cmp(x) => {
+                out.push_str("Cmp(left=");
+                x.left.repr(cx, out);
+                out.push_str(", op=");
+                x.op.repr(cx, out);
+                out.push_str(", right=");
+                x.right.repr(cx, out);
+                out.push(')');
+            }
+            Self::Exists(x) => {
+                out.push_str("Exists(sel=");
+                x.sel.repr(cx, out);
+                out.push_str(", at_least=");
+                x.at_least.repr(cx, out);
+                out.push(')');
+            }
+            Self::IsTurn(x) => {
+                out.push_str("IsTurn(player=");
+                x.player.repr(cx, out);
+                out.push(')');
+            }
+            Self::RefMatches(x) => {
+                out.push_str("RefMatches(ref=");
+                x.r#ref.repr(cx, out);
+                out.push_str(", filters=");
+                x.filters.repr(cx, out);
+                out.push(')');
+            }
+            Self::RefEmpty(x) => {
+                out.push_str("RefEmpty(ref=");
+                x.r#ref.repr(cx, out);
+                out.push(')');
+            }
+            Self::AttackTargetIs(x) => {
+                out.push_str("AttackTargetIs(kind=");
+                x.kind.repr(cx, out);
+                out.push(')');
+            }
+            Self::EventFrom(x) => {
+                out.push_str("EventFrom(loc=");
+                x.loc.repr(cx, out);
+                out.push(')');
+            }
+            Self::EventFlag(x) => {
+                out.push_str("EventFlag(key=");
+                x.key.repr(cx, out);
+                out.push_str(", value=");
+                x.value.repr(cx, out);
+                out.push(')');
+            }
+            Self::HappenedThisTurn(x) => {
+                out.push_str("HappenedThisTurn(kind=");
+                x.kind.repr(cx, out);
+                out.push_str(", player=");
+                x.player.repr(cx, out);
+                out.push_str(", by=");
+                x.by.repr(cx, out);
+                out.push_str(", at_least=");
+                x.at_least.repr(cx, out);
+                out.push_str(", filters=");
+                x.filters.repr(cx, out);
+                out.push_str(", source_filters=");
+                x.source_filters.repr(cx, out);
+                out.push(')');
+            }
+            Self::DidLast(_) => out.push_str("DidLast()"),
+            Self::And(x) => {
+                out.push_str("And(conds=");
+                x.conds.repr(cx, out);
+                out.push(')');
+            }
+            Self::Or(x) => {
+                out.push_str("Or(conds=");
+                x.conds.repr(cx, out);
+                out.push(')');
+            }
+            Self::NotC(x) => {
+                out.push_str("NotC(cond=");
+                x.cond.repr(cx, out);
+                out.push(')');
+            }
+            Self::CustomCond(x) => {
+                out.push_str("CustomCond(name=");
+                x.name.repr(cx, out);
+                out.push_str(", params=");
+                x.params.repr(cx, out);
+                out.push(')');
+            }
+            Self::RuleMod(x) => {
+                out.push_str("RuleMod(kind=");
+                x.kind.repr(cx, out);
+                out.push_str(", amount=");
+                x.amount.repr(cx, out);
+                out.push_str(", damage_kind=");
+                x.damage_kind.repr(cx, out);
+                out.push_str(", source_filters=");
+                x.source_filters.repr(cx, out);
+                out.push_str(", source_side=");
+                x.source_side.repr(cx, out);
+                out.push_str(", once_per_turn=");
+                x.once_per_turn.repr(cx, out);
+                out.push_str(", name=");
+                x.name.repr(cx, out);
+                out.push(')');
+            }
+            Self::StatMod(x) => {
+                out.push_str("StatMod(ap=");
+                x.ap.repr(cx, out);
+                out.push_str(", hp=");
+                x.hp.repr(cx, out);
+                out.push(')');
+            }
+            Self::KeywordGrant(x) => {
+                out.push_str("KeywordGrant(keyword=");
+                x.keyword.repr(cx, out);
+                out.push_str(", amount=");
+                x.amount.repr(cx, out);
+                out.push(')');
+            }
+            Self::TraitGrant(x) => {
+                out.push_str("TraitGrant(traits=");
+                x.traits.repr(cx, out);
+                out.push(')');
+            }
+            Self::RuleGrant(x) => {
+                out.push_str("RuleGrant(rule=");
+                x.rule.repr(cx, out);
+                out.push(')');
+            }
+            Self::AbilityGrant(x) => {
+                out.push_str("AbilityGrant(card_number=");
+                x.card_number.repr(cx, out);
+                out.push_str(", ability_index=");
+                x.ability_index.repr(cx, out);
+                out.push(')');
+            }
+            Self::CostMod(x) => {
+                out.push_str("CostMod(cost=");
+                x.cost.repr(cx, out);
+                out.push_str(", level=");
+                x.level.repr(cx, out);
+                out.push(')');
+            }
+            Self::Trigger(x) => {
+                out.push_str("Trigger(event=");
+                x.event.repr(cx, out);
+                out.push_str(", self_only=");
+                x.self_only.repr(cx, out);
+                out.push_str(", subject=");
+                x.subject.repr(cx, out);
+                out.push_str(", whose_turn=");
+                x.whose_turn.repr(cx, out);
+                out.push_str(", pilot_filters=");
+                x.pilot_filters.repr(cx, out);
+                out.push_str(", target_filters=");
+                x.target_filters.repr(cx, out);
+                out.push_str(", battle_only=");
+                x.battle_only.repr(cx, out);
+                out.push_str(", by_enemy=");
+                x.by_enemy.repr(cx, out);
+                out.push_str(", include_self=");
+                x.include_self.repr(cx, out);
+                out.push(')');
+            }
+            Self::RestSelf(_) => out.push_str("RestSelf()"),
+            Self::PayResources(x) => {
+                out.push_str("PayResources(amount=");
+                x.amount.repr(cx, out);
+                out.push(')');
+            }
+            Self::RestCards(x) => {
+                out.push_str("RestCards(sel=");
+                x.sel.repr(cx, out);
+                out.push_str(", count=");
+                x.count.repr(cx, out);
+                out.push(')');
+            }
+            Self::DestroyCards(x) => {
+                out.push_str("DestroyCards(sel=");
+                x.sel.repr(cx, out);
+                out.push_str(", count=");
+                x.count.repr(cx, out);
+                out.push(')');
+            }
+            Self::DiscardCards(x) => {
+                out.push_str("DiscardCards(sel=");
+                x.sel.repr(cx, out);
+                out.push_str(", count=");
+                x.count.repr(cx, out);
+                out.push(')');
+            }
+            Self::ExileCards(x) => {
+                out.push_str("ExileCards(sel=");
+                x.sel.repr(cx, out);
+                out.push_str(", count=");
+                x.count.repr(cx, out);
+                out.push(')');
+            }
+            Self::ReturnSelf(_) => out.push_str("ReturnSelf()"),
+            Self::DestroySelf(_) => out.push_str("DestroySelf()"),
+            Self::TrashSelf(_) => out.push_str("TrashSelf()"),
+            Self::Choose(x) => {
+                out.push_str("Choose(var=");
+                x.var.repr(cx, out);
+                out.push_str(", sel=");
+                x.sel.repr(cx, out);
+                out.push_str(", count=");
+                x.count.repr(cx, out);
+                out.push_str(", min_count=");
+                x.min_count.repr(cx, out);
+                out.push_str(", optional=");
+                x.optional.repr(cx, out);
+                out.push_str(", chooser=");
+                x.chooser.repr(cx, out);
+                out.push_str(", distinct_from=");
+                x.distinct_from.repr(cx, out);
+                out.push_str(", targeting=");
+                x.targeting.repr(cx, out);
+                out.push_str(", random=");
+                x.random.repr(cx, out);
+                out.push_str(", after_then=");
+                x.after_then.repr(cx, out);
+                out.push(')');
+            }
+            Self::ChooseMode(x) => {
+                out.push_str("ChooseMode(options=");
+                x.options.repr(cx, out);
+                out.push_str(", chooser=");
+                x.chooser.repr(cx, out);
+                out.push(')');
+            }
+            Self::Draw(x) => {
+                out.push_str("Draw(count=");
+                x.count.repr(cx, out);
+                out.push_str(", player=");
+                x.player.repr(cx, out);
+                out.push_str(", each_player=");
+                x.each_player.repr(cx, out);
+                out.push(')');
+            }
+            Self::Discard(x) => {
+                out.push_str("Discard(count=");
+                x.count.repr(cx, out);
+                out.push_str(", player=");
+                x.player.repr(cx, out);
+                out.push_str(", chooser=");
+                x.chooser.repr(cx, out);
+                out.push_str(", random=");
+                x.random.repr(cx, out);
+                out.push_str(", filters=");
+                x.filters.repr(cx, out);
+                out.push_str(", var=");
+                x.var.repr(cx, out);
+                out.push(')');
+            }
+            Self::Damage(x) => {
+                out.push_str("Damage(ref=");
+                x.r#ref.repr(cx, out);
+                out.push_str(", amount=");
+                x.amount.repr(cx, out);
+                out.push(')');
+            }
+            Self::DamageShieldArea(x) => {
+                out.push_str("DamageShieldArea(player=");
+                x.player.repr(cx, out);
+                out.push_str(", amount=");
+                x.amount.repr(cx, out);
+                out.push_str(", cards=");
+                x.cards.repr(cx, out);
+                out.push(')');
+            }
+            Self::DamagePlayer(x) => {
+                out.push_str("DamagePlayer(player=");
+                x.player.repr(cx, out);
+                out.push_str(", amount=");
+                x.amount.repr(cx, out);
+                out.push(')');
+            }
+            Self::Destroy(x) => {
+                out.push_str("Destroy(ref=");
+                x.r#ref.repr(cx, out);
+                out.push(')');
+            }
+            Self::Rest(x) => {
+                out.push_str("Rest(ref=");
+                x.r#ref.repr(cx, out);
+                out.push(')');
+            }
+            Self::SetActive(x) => {
+                out.push_str("SetActive(ref=");
+                x.r#ref.repr(cx, out);
+                out.push(')');
+            }
+            Self::ReturnToHand(x) => {
+                out.push_str("ReturnToHand(ref=");
+                x.r#ref.repr(cx, out);
+                out.push(')');
+            }
+            Self::ToDeck(x) => {
+                out.push_str("ToDeck(ref=");
+                x.r#ref.repr(cx, out);
+                out.push_str(", bottom=");
+                x.bottom.repr(cx, out);
+                out.push_str(", shuffle=");
+                x.shuffle.repr(cx, out);
+                out.push(')');
+            }
+            Self::Exile(x) => {
+                out.push_str("Exile(ref=");
+                x.r#ref.repr(cx, out);
+                out.push(')');
+            }
+            Self::ToTrash(x) => {
+                out.push_str("ToTrash(ref=");
+                x.r#ref.repr(cx, out);
+                out.push(')');
+            }
+            Self::AddToHand(x) => {
+                out.push_str("AddToHand(ref=");
+                x.r#ref.repr(cx, out);
+                out.push_str(", reveal=");
+                x.reveal.repr(cx, out);
+                out.push(')');
+            }
+            Self::DeployCard(x) => {
+                out.push_str("DeployCard(ref=");
+                x.r#ref.repr(cx, out);
+                out.push_str(", rested=");
+                x.rested.repr(cx, out);
+                out.push_str(", pay_cost=");
+                x.pay_cost.repr(cx, out);
+                out.push_str(", ignore_level=");
+                x.ignore_level.repr(cx, out);
+                out.push_str(", as_unit=");
+                x.as_unit.repr(cx, out);
+                out.push(')');
+            }
+            Self::DeployToken(x) => {
+                out.push_str("DeployToken(token_key=");
+                x.token_key.repr(cx, out);
+                out.push_str(", count=");
+                x.count.repr(cx, out);
+                out.push_str(", rested=");
+                x.rested.repr(cx, out);
+                out.push_str(", player=");
+                x.player.repr(cx, out);
+                out.push_str(", var=");
+                x.var.repr(cx, out);
+                out.push_str(", also=");
+                x.also.repr(cx, out);
+                out.push(')');
+            }
+            Self::PlaceExResource(x) => {
+                out.push_str("PlaceExResource(player=");
+                x.player.repr(cx, out);
+                out.push_str(", rested=");
+                x.rested.repr(cx, out);
+                out.push(')');
+            }
+            Self::PlaceResource(x) => {
+                out.push_str("PlaceResource(player=");
+                x.player.repr(cx, out);
+                out.push_str(", rested=");
+                x.rested.repr(cx, out);
+                out.push(')');
+            }
+            Self::SetResourcesActive(x) => {
+                out.push_str("SetResourcesActive(count=");
+                x.count.repr(cx, out);
+                out.push_str(", player=");
+                x.player.repr(cx, out);
+                out.push(')');
+            }
+            Self::RestResources(x) => {
+                out.push_str("RestResources(count=");
+                x.count.repr(cx, out);
+                out.push_str(", player=");
+                x.player.repr(cx, out);
+                out.push(')');
+            }
+            Self::ShieldToHand(x) => {
+                out.push_str("ShieldToHand(count=");
+                x.count.repr(cx, out);
+                out.push_str(", player=");
+                x.player.repr(cx, out);
+                out.push(')');
+            }
+            Self::AddToShields(x) => {
+                out.push_str("AddToShields(ref=");
+                x.r#ref.repr(cx, out);
+                out.push_str(", count=");
+                x.count.repr(cx, out);
+                out.push_str(", player=");
+                x.player.repr(cx, out);
+                out.push_str(", top=");
+                x.top.repr(cx, out);
+                out.push(')');
+            }
+            Self::Mill(x) => {
+                out.push_str("Mill(count=");
+                x.count.repr(cx, out);
+                out.push_str(", player=");
+                x.player.repr(cx, out);
+                out.push_str(", var=");
+                x.var.repr(cx, out);
+                out.push(')');
+            }
+            Self::LookTop(x) => {
+                out.push_str("LookTop(count=");
+                x.count.repr(cx, out);
+                out.push_str(", player=");
+                x.player.repr(cx, out);
+                out.push_str(", var=");
+                x.var.repr(cx, out);
+                out.push_str(", reveal=");
+                x.reveal.repr(cx, out);
+                out.push(')');
+            }
+            Self::Arrange(x) => {
+                out.push_str("Arrange(ref=");
+                x.r#ref.repr(cx, out);
+                out.push_str(", mode=");
+                x.mode.repr(cx, out);
+                out.push_str(", player=");
+                x.player.repr(cx, out);
+                out.push(')');
+            }
+            Self::Reveal(x) => {
+                out.push_str("Reveal(ref=");
+                x.r#ref.repr(cx, out);
+                out.push(')');
+            }
+            Self::Shuffle(x) => {
+                out.push_str("Shuffle(player=");
+                x.player.repr(cx, out);
+                out.push(')');
+            }
+            Self::Recover(x) => {
+                out.push_str("Recover(ref=");
+                x.r#ref.repr(cx, out);
+                out.push_str(", amount=");
+                x.amount.repr(cx, out);
+                out.push(')');
+            }
+            Self::Apply(x) => {
+                out.push_str("Apply(ref=");
+                x.r#ref.repr(cx, out);
+                out.push_str(", effect=");
+                x.effect.repr(cx, out);
+                out.push_str(", duration=");
+                x.duration.repr(cx, out);
+                out.push_str(", aux=");
+                x.aux.repr(cx, out);
+                out.push(')');
+            }
+            Self::ApplyPlayer(x) => {
+                out.push_str("ApplyPlayer(player=");
+                x.player.repr(cx, out);
+                out.push_str(", effect=");
+                x.effect.repr(cx, out);
+                out.push_str(", duration=");
+                x.duration.repr(cx, out);
+                out.push_str(", filters=");
+                x.filters.repr(cx, out);
+                out.push_str(", uses=");
+                x.uses.repr(cx, out);
+                out.push(')');
+            }
+            Self::Pair(x) => {
+                out.push_str("Pair(pilot=");
+                x.pilot.repr(cx, out);
+                out.push_str(", unit=");
+                x.unit.repr(cx, out);
+                out.push(')');
+            }
+            Self::PlayCard(x) => {
+                out.push_str("PlayCard(ref=");
+                x.r#ref.repr(cx, out);
+                out.push_str(", free=");
+                x.free.repr(cx, out);
+                out.push_str(", ignore_level=");
+                x.ignore_level.repr(cx, out);
+                out.push_str(", cost_delta=");
+                x.cost_delta.repr(cx, out);
+                out.push(')');
+            }
+            Self::ActivateMain(x) => {
+                out.push_str("ActivateMain(ref=");
+                x.r#ref.repr(cx, out);
+                out.push(')');
+            }
+            Self::StartBattle(x) => {
+                out.push_str("StartBattle(attacker=");
+                x.attacker.repr(cx, out);
+                out.push_str(", target=");
+                x.target.repr(cx, out);
+                out.push_str(", damage_only=");
+                x.damage_only.repr(cx, out);
+                out.push(')');
+            }
+            Self::ChangeAttackTarget(x) => {
+                out.push_str("ChangeAttackTarget(target=");
+                x.target.repr(cx, out);
+                out.push(')');
+            }
+            Self::If(x) => {
+                out.push_str("If(cond=");
+                x.cond.repr(cx, out);
+                out.push_str(", then=");
+                x.then.repr(cx, out);
+                out.push_str(", otherwise=");
+                x.otherwise.repr(cx, out);
+                out.push(')');
+            }
+            Self::May(x) => {
+                out.push_str("May(steps=");
+                x.steps.repr(cx, out);
+                out.push_str(", prompt=");
+                x.prompt.repr(cx, out);
+                out.push_str(", player=");
+                x.player.repr(cx, out);
+                out.push(')');
+            }
+            Self::Simultaneous(x) => {
+                out.push_str("Simultaneous(steps=");
+                x.steps.repr(cx, out);
+                out.push(')');
+            }
+            Self::IfYouDo(x) => {
+                out.push_str("IfYouDo(steps=");
+                x.steps.repr(cx, out);
+                out.push(')');
+            }
+            Self::ForEach(x) => {
+                out.push_str("ForEach(ref=");
+                x.r#ref.repr(cx, out);
+                out.push_str(", var=");
+                x.var.repr(cx, out);
+                out.push_str(", steps=");
+                x.steps.repr(cx, out);
+                out.push(')');
+            }
+            Self::Repeat(x) => {
+                out.push_str("Repeat(times=");
+                x.times.repr(cx, out);
+                out.push_str(", steps=");
+                x.steps.repr(cx, out);
+                out.push(')');
+            }
+            Self::BindVar(x) => {
+                out.push_str("BindVar(var=");
+                x.var.repr(cx, out);
+                out.push_str(", ref=");
+                x.r#ref.repr(cx, out);
+                out.push(')');
+            }
+            Self::DelayedTrigger(x) => {
+                out.push_str("DelayedTrigger(trigger=");
+                x.trigger.repr(cx, out);
+                out.push_str(", steps=");
+                x.steps.repr(cx, out);
+                out.push_str(", duration=");
+                x.duration.repr(cx, out);
+                out.push_str(", bind_vars=");
+                x.bind_vars.repr(cx, out);
+                out.push(')');
+            }
+            Self::PayCost(x) => {
+                out.push_str("PayCost(amount=");
+                x.amount.repr(cx, out);
+                out.push_str(", player=");
+                x.player.repr(cx, out);
+                out.push(')');
+            }
+            Self::CustomStep(x) => {
+                out.push_str("CustomStep(name=");
+                x.name.repr(cx, out);
+                out.push_str(", params=");
+                x.params.repr(cx, out);
+                out.push(')');
+            }
+            Self::Keyword(x) => {
+                out.push_str("Keyword(keyword=");
+                x.keyword.repr(cx, out);
+                out.push_str(", amount=");
+                x.amount.repr(cx, out);
+                out.push_str(", gate=");
+                x.gate.repr(cx, out);
+                out.push_str(", gate_filters=");
+                x.gate_filters.repr(cx, out);
+                out.push(')');
+            }
+            Self::Constant(x) => {
+                out.push_str("Constant(effects=");
+                x.effects.repr(cx, out);
+                out.push_str(", scope=");
+                x.scope.repr(cx, out);
+                out.push_str(", cond=");
+                x.cond.repr(cx, out);
+                out.push_str(", where=");
+                x.r#where.repr(cx, out);
+                out.push_str(", gate=");
+                x.gate.repr(cx, out);
+                out.push_str(", gate_filters=");
+                x.gate_filters.repr(cx, out);
+                out.push(')');
+            }
+            Self::Triggered(x) => {
+                out.push_str("Triggered(trigger=");
+                x.trigger.repr(cx, out);
+                out.push_str(", steps=");
+                x.steps.repr(cx, out);
+                out.push_str(", cond=");
+                x.cond.repr(cx, out);
+                out.push_str(", once_per_turn=");
+                x.once_per_turn.repr(cx, out);
+                out.push_str(", where=");
+                x.r#where.repr(cx, out);
+                out.push_str(", gate=");
+                x.gate.repr(cx, out);
+                out.push_str(", gate_filters=");
+                x.gate_filters.repr(cx, out);
+                out.push(')');
+            }
+            Self::Activated(x) => {
+                out.push_str("Activated(timing=");
+                x.timing.repr(cx, out);
+                out.push_str(", costs=");
+                x.costs.repr(cx, out);
+                out.push_str(", steps=");
+                x.steps.repr(cx, out);
+                out.push_str(", cond=");
+                x.cond.repr(cx, out);
+                out.push_str(", once_per_turn=");
+                x.once_per_turn.repr(cx, out);
+                out.push_str(", where=");
+                x.r#where.repr(cx, out);
+                out.push_str(", gate=");
+                x.gate.repr(cx, out);
+                out.push_str(", gate_filters=");
+                x.gate_filters.repr(cx, out);
+                out.push_str(", support=");
+                x.support.repr(cx, out);
+                out.push(')');
+            }
+            Self::Command(x) => {
+                out.push_str("Command(timing=");
+                x.timing.repr(cx, out);
+                out.push_str(", steps=");
+                x.steps.repr(cx, out);
+                out.push_str(", cond=");
+                x.cond.repr(cx, out);
+                out.push(')');
+            }
+            Self::Burst(x) => {
+                out.push_str("Burst(steps=");
+                x.steps.repr(cx, out);
+                out.push(')');
+            }
+            Self::Replacement(x) => {
+                out.push_str("Replacement(event=");
+                x.event.repr(cx, out);
+                out.push_str(", steps=");
+                x.steps.repr(cx, out);
+                out.push_str(", scope=");
+                x.scope.repr(cx, out);
+                out.push_str(", cond=");
+                x.cond.repr(cx, out);
+                out.push_str(", once_per_turn=");
+                x.once_per_turn.repr(cx, out);
+                out.push_str(", optional=");
+                x.optional.repr(cx, out);
+                out.push_str(", gate=");
+                x.gate.repr(cx, out);
+                out.push(')');
+            }
+            Self::NameAlias(x) => {
+                out.push_str("NameAlias(names=");
+                x.names.repr(cx, out);
+                out.push(')');
+            }
+            Self::PlayModifier(x) => {
+                out.push_str("PlayModifier(cond=");
+                x.cond.repr(cx, out);
+                out.push_str(", costs=");
+                x.costs.repr(cx, out);
+                out.push_str(", level=");
+                x.level.repr(cx, out);
+                out.push_str(", cost=");
+                x.cost.repr(cx, out);
+                out.push_str(", pair_filters=");
+                x.pair_filters.repr(cx, out);
+                out.push(')');
+            }
+            Self::CardScript(x) => {
+                out.push_str("CardScript(card_number=");
+                x.card_number.repr(cx, out);
+                out.push_str(", abilities=");
+                x.abilities.repr(cx, out);
+                out.push_str(", unit_abilities=");
+                x.unit_abilities.repr(cx, out);
+                out.push_str(", source=");
+                x.source.repr(cx, out);
+                out.push_str(", notes=");
+                x.notes.repr(cx, out);
+                out.push(')');
+            }
+            Self::Jump(x) => {
+                out.push_str("Jump(target=");
+                x.target.repr(cx, out);
+                out.push(')');
+            }
+            Self::JumpIfNot(x) => {
+                out.push_str("JumpIfNot(cond=");
+                x.cond.repr(cx, out);
+                out.push_str(", target=");
+                x.target.repr(cx, out);
+                out.push(')');
+            }
+            Self::AskMay(x) => {
+                out.push_str("AskMay(prompt=");
+                x.prompt.repr(cx, out);
+                out.push_str(", player=");
+                x.player.repr(cx, out);
+                out.push_str(", target_if_no=");
+                x.target_if_no.repr(cx, out);
+                out.push(')');
+            }
+            Self::JumpIfNotDid(x) => {
+                out.push_str("JumpIfNotDid(target=");
+                x.target.repr(cx, out);
+                out.push(')');
+            }
+            Self::ModeSelect(x) => {
+                out.push_str("ModeSelect(labels=");
+                x.labels.repr(cx, out);
+                out.push_str(", targets=");
+                x.targets.repr(cx, out);
+                out.push_str(", chooser=");
+                x.chooser.repr(cx, out);
+                out.push_str(", end=");
+                x.end.repr(cx, out);
+                out.push(')');
+            }
+            Self::LoopInit(x) => {
+                out.push_str("LoopInit(key=");
+                x.key.repr(cx, out);
+                out.push_str(", ref=");
+                x.r#ref.repr(cx, out);
+                out.push_str(", times=");
+                x.times.repr(cx, out);
+                out.push(')');
+            }
+            Self::LoopNext(x) => {
+                out.push_str("LoopNext(key=");
+                x.key.repr(cx, out);
+                out.push_str(", var=");
+                x.var.repr(cx, out);
+                out.push_str(", end=");
+                x.end.repr(cx, out);
+                out.push(')');
+            }
+            Self::SetDid(x) => {
+                out.push_str("SetDid(value=");
+                x.value.repr(cx, out);
+                out.push(')');
+            }
+            Self::HoldRules(x) => {
+                out.push_str("HoldRules(delta=");
+                x.delta.repr(cx, out);
+                out.push(')');
+            }
+        }
+    }
+
+    /// `golden.node_to_json` (`effects/golden.py:19-37`): fields equal to their
+    /// default are omitted.
+    pub(crate) fn golden(&self, cx: &crate::codec::ReprCx<'_>) -> gcg_core::pyjson::Json {
+        let mut g = crate::codec::Golden::new(self.kind(), cx);
+        match self {
+            Self::Count(x) => g.field(0, &x.sel),
+            Self::StatOf(x) => {
+                g.field(0, &x.r#ref);
+                g.field(1, &x.stat);
+            }
+            Self::PlayerLevel(x) => g.field(0, &x.player),
+            Self::HandSize(x) => g.field(0, &x.player),
+            Self::ShieldCount(x) => g.field(0, &x.player),
+            Self::DeckSize(x) => g.field(0, &x.player),
+            Self::VarSize(x) => g.field(0, &x.var),
+            Self::EventAmount(x) => g.field(0, &x.key),
+            Self::Sum(x) => g.field(0, &x.terms),
+            Self::Times(x) => {
+                g.field(0, &x.value);
+                g.field(1, &x.factor);
+            }
+            Self::MinOf(x) => g.field(0, &x.terms),
+            Self::KwAmount(x) => {
+                g.field(0, &x.keyword);
+                g.field(1, &x.r#ref);
+            }
+            Self::CustomValue(x) => {
+                g.field(0, &x.name);
+                g.field(1, &x.params);
+            }
+            Self::IsKind(x) => g.field(0, &x.kinds),
+            Self::HasTrait(x) => g.field(0, &x.traits),
+            Self::NameContains(x) => g.field(0, &x.parts),
+            Self::NameIs(x) => g.field(0, &x.names),
+            Self::HasColor(x) => g.field(0, &x.colors),
+            Self::StatCmp(x) => {
+                g.field(0, &x.stat);
+                g.field(1, &x.op);
+                g.field(2, &x.value);
+            }
+            Self::IsRested(x) => g.field(0, &x.rested),
+            Self::HasKeyword(x) => g.field(0, &x.keyword),
+            Self::IsLinked(x) => g.field(0, &x.linked),
+            Self::IsPaired(x) => g.field(0, &x.paired),
+            Self::PairedWith(x) => g.field(0, &x.filters),
+            Self::PairedTo(x) => g.field(0, &x.filters),
+            Self::IsToken(x) => g.field(0, &x.token),
+            Self::IsDamaged(x) => g.field(0, &x.damaged),
+            Self::NotRef(x) => g.field(0, &x.r#ref),
+            Self::IsRef(x) => g.field(0, &x.r#ref),
+            Self::IsAttacking(x) => g.field(0, &x.attacking),
+            Self::IsBattling(x) => g.field(0, &x.battling),
+            Self::HasTiming(x) => g.field(0, &x.timing),
+            Self::HasBurst(x) => g.field(0, &x.burst),
+            Self::DeployedThisTurn(x) => g.field(0, &x.value),
+            Self::HasZone(x) => g.field(0, &x.zones),
+            Self::LevelCmpRef(x) => {
+                g.field(0, &x.stat);
+                g.field(1, &x.op);
+                g.field(2, &x.r#ref);
+                g.field(3, &x.ref_stat);
+            }
+            Self::AnyOf(x) => g.field(0, &x.filters),
+            Self::AllOf(x) => g.field(0, &x.filters),
+            Self::Not(x) => g.field(0, &x.filter),
+            Self::CustomFilter(x) => {
+                g.field(0, &x.name);
+                g.field(1, &x.params);
+            }
+            Self::Sel(x) => {
+                g.field(0, &x.side);
+                g.field(1, &x.loc);
+                g.field(2, &x.filters);
+                g.field(3, &x.top_n);
+            }
+            Self::This(_) => {}
+            Self::ThisCard(_) => {}
+            Self::Var(x) => g.field(0, &x.name),
+            Self::EventCard(x) => g.field(0, &x.key),
+            Self::PairedPilotOf(x) => g.field(0, &x.r#ref),
+            Self::PairedUnitOf(x) => g.field(0, &x.r#ref),
+            Self::BattlingWith(x) => g.field(0, &x.r#ref),
+            Self::All(x) => g.field(0, &x.sel),
+            Self::Union(x) => g.field(0, &x.refs),
+            Self::Cmp(x) => {
+                g.field(0, &x.left);
+                g.field(1, &x.op);
+                g.field(2, &x.right);
+            }
+            Self::Exists(x) => {
+                g.field(0, &x.sel);
+                g.field(1, &x.at_least);
+            }
+            Self::IsTurn(x) => g.field(0, &x.player),
+            Self::RefMatches(x) => {
+                g.field(0, &x.r#ref);
+                g.field(1, &x.filters);
+            }
+            Self::RefEmpty(x) => g.field(0, &x.r#ref),
+            Self::AttackTargetIs(x) => g.field(0, &x.kind),
+            Self::EventFrom(x) => g.field(0, &x.loc),
+            Self::EventFlag(x) => {
+                g.field(0, &x.key);
+                g.field(1, &x.value);
+            }
+            Self::HappenedThisTurn(x) => {
+                g.field(0, &x.kind);
+                g.field(1, &x.player);
+                g.field(2, &x.by);
+                g.field(3, &x.at_least);
+                g.field(4, &x.filters);
+                g.field(5, &x.source_filters);
+            }
+            Self::DidLast(_) => {}
+            Self::And(x) => g.field(0, &x.conds),
+            Self::Or(x) => g.field(0, &x.conds),
+            Self::NotC(x) => g.field(0, &x.cond),
+            Self::CustomCond(x) => {
+                g.field(0, &x.name);
+                g.field(1, &x.params);
+            }
+            Self::RuleMod(x) => {
+                g.field(0, &x.kind);
+                g.field(1, &x.amount);
+                g.field(2, &x.damage_kind);
+                g.field(3, &x.source_filters);
+                g.field(4, &x.source_side);
+                g.field(5, &x.once_per_turn);
+                g.field(6, &x.name);
+            }
+            Self::StatMod(x) => {
+                g.field(0, &x.ap);
+                g.field(1, &x.hp);
+            }
+            Self::KeywordGrant(x) => {
+                g.field(0, &x.keyword);
+                g.field(1, &x.amount);
+            }
+            Self::TraitGrant(x) => g.field(0, &x.traits),
+            Self::RuleGrant(x) => g.field(0, &x.rule),
+            Self::AbilityGrant(x) => {
+                g.field(0, &x.card_number);
+                g.field(1, &x.ability_index);
+            }
+            Self::CostMod(x) => {
+                g.field(0, &x.cost);
+                g.field(1, &x.level);
+            }
+            Self::Trigger(x) => {
+                g.field(0, &x.event);
+                g.field(1, &x.self_only);
+                g.field(2, &x.subject);
+                g.field(3, &x.whose_turn);
+                g.field(4, &x.pilot_filters);
+                g.field(5, &x.target_filters);
+                g.field(6, &x.battle_only);
+                g.field(7, &x.by_enemy);
+                g.field(8, &x.include_self);
+            }
+            Self::RestSelf(_) => {}
+            Self::PayResources(x) => g.field(0, &x.amount),
+            Self::RestCards(x) => {
+                g.field(0, &x.sel);
+                g.field(1, &x.count);
+            }
+            Self::DestroyCards(x) => {
+                g.field(0, &x.sel);
+                g.field(1, &x.count);
+            }
+            Self::DiscardCards(x) => {
+                g.field(0, &x.sel);
+                g.field(1, &x.count);
+            }
+            Self::ExileCards(x) => {
+                g.field(0, &x.sel);
+                g.field(1, &x.count);
+            }
+            Self::ReturnSelf(_) => {}
+            Self::DestroySelf(_) => {}
+            Self::TrashSelf(_) => {}
+            Self::Choose(x) => {
+                g.field(0, &x.var);
+                g.field(1, &x.sel);
+                g.field(2, &x.count);
+                g.field(3, &x.min_count);
+                g.field(4, &x.optional);
+                g.field(5, &x.chooser);
+                g.field(6, &x.distinct_from);
+                g.field(7, &x.targeting);
+                g.field(8, &x.random);
+                g.field(9, &x.after_then);
+            }
+            Self::ChooseMode(x) => {
+                g.field(0, &x.options);
+                g.field(1, &x.chooser);
+            }
+            Self::Draw(x) => {
+                g.field(0, &x.count);
+                g.field(1, &x.player);
+                g.field(2, &x.each_player);
+            }
+            Self::Discard(x) => {
+                g.field(0, &x.count);
+                g.field(1, &x.player);
+                g.field(2, &x.chooser);
+                g.field(3, &x.random);
+                g.field(4, &x.filters);
+                g.field(5, &x.var);
+            }
+            Self::Damage(x) => {
+                g.field(0, &x.r#ref);
+                g.field(1, &x.amount);
+            }
+            Self::DamageShieldArea(x) => {
+                g.field(0, &x.player);
+                g.field(1, &x.amount);
+                g.field(2, &x.cards);
+            }
+            Self::DamagePlayer(x) => {
+                g.field(0, &x.player);
+                g.field(1, &x.amount);
+            }
+            Self::Destroy(x) => g.field(0, &x.r#ref),
+            Self::Rest(x) => g.field(0, &x.r#ref),
+            Self::SetActive(x) => g.field(0, &x.r#ref),
+            Self::ReturnToHand(x) => g.field(0, &x.r#ref),
+            Self::ToDeck(x) => {
+                g.field(0, &x.r#ref);
+                g.field(1, &x.bottom);
+                g.field(2, &x.shuffle);
+            }
+            Self::Exile(x) => g.field(0, &x.r#ref),
+            Self::ToTrash(x) => g.field(0, &x.r#ref),
+            Self::AddToHand(x) => {
+                g.field(0, &x.r#ref);
+                g.field(1, &x.reveal);
+            }
+            Self::DeployCard(x) => {
+                g.field(0, &x.r#ref);
+                g.field(1, &x.rested);
+                g.field(2, &x.pay_cost);
+                g.field(3, &x.ignore_level);
+                g.field(4, &x.as_unit);
+            }
+            Self::DeployToken(x) => {
+                g.field(0, &x.token_key);
+                g.field(1, &x.count);
+                g.field(2, &x.rested);
+                g.field(3, &x.player);
+                g.field(4, &x.var);
+                g.field(5, &x.also);
+            }
+            Self::PlaceExResource(x) => {
+                g.field(0, &x.player);
+                g.field(1, &x.rested);
+            }
+            Self::PlaceResource(x) => {
+                g.field(0, &x.player);
+                g.field(1, &x.rested);
+            }
+            Self::SetResourcesActive(x) => {
+                g.field(0, &x.count);
+                g.field(1, &x.player);
+            }
+            Self::RestResources(x) => {
+                g.field(0, &x.count);
+                g.field(1, &x.player);
+            }
+            Self::ShieldToHand(x) => {
+                g.field(0, &x.count);
+                g.field(1, &x.player);
+            }
+            Self::AddToShields(x) => {
+                g.field(0, &x.r#ref);
+                g.field(1, &x.count);
+                g.field(2, &x.player);
+                g.field(3, &x.top);
+            }
+            Self::Mill(x) => {
+                g.field(0, &x.count);
+                g.field(1, &x.player);
+                g.field(2, &x.var);
+            }
+            Self::LookTop(x) => {
+                g.field(0, &x.count);
+                g.field(1, &x.player);
+                g.field(2, &x.var);
+                g.field(3, &x.reveal);
+            }
+            Self::Arrange(x) => {
+                g.field(0, &x.r#ref);
+                g.field(1, &x.mode);
+                g.field(2, &x.player);
+            }
+            Self::Reveal(x) => g.field(0, &x.r#ref),
+            Self::Shuffle(x) => g.field(0, &x.player),
+            Self::Recover(x) => {
+                g.field(0, &x.r#ref);
+                g.field(1, &x.amount);
+            }
+            Self::Apply(x) => {
+                g.field(0, &x.r#ref);
+                g.field(1, &x.effect);
+                g.field(2, &x.duration);
+                g.field(3, &x.aux);
+            }
+            Self::ApplyPlayer(x) => {
+                g.field(0, &x.player);
+                g.field(1, &x.effect);
+                g.field(2, &x.duration);
+                g.field(3, &x.filters);
+                g.field(4, &x.uses);
+            }
+            Self::Pair(x) => {
+                g.field(0, &x.pilot);
+                g.field(1, &x.unit);
+            }
+            Self::PlayCard(x) => {
+                g.field(0, &x.r#ref);
+                g.field(1, &x.free);
+                g.field(2, &x.ignore_level);
+                g.field(3, &x.cost_delta);
+            }
+            Self::ActivateMain(x) => g.field(0, &x.r#ref),
+            Self::StartBattle(x) => {
+                g.field(0, &x.attacker);
+                g.field(1, &x.target);
+                g.field(2, &x.damage_only);
+            }
+            Self::ChangeAttackTarget(x) => g.field(0, &x.target),
+            Self::If(x) => {
+                g.field(0, &x.cond);
+                g.field(1, &x.then);
+                g.field(2, &x.otherwise);
+            }
+            Self::May(x) => {
+                g.field(0, &x.steps);
+                g.field(1, &x.prompt);
+                g.field(2, &x.player);
+            }
+            Self::Simultaneous(x) => g.field(0, &x.steps),
+            Self::IfYouDo(x) => g.field(0, &x.steps),
+            Self::ForEach(x) => {
+                g.field(0, &x.r#ref);
+                g.field(1, &x.var);
+                g.field(2, &x.steps);
+            }
+            Self::Repeat(x) => {
+                g.field(0, &x.times);
+                g.field(1, &x.steps);
+            }
+            Self::BindVar(x) => {
+                g.field(0, &x.var);
+                g.field(1, &x.r#ref);
+            }
+            Self::DelayedTrigger(x) => {
+                g.field(0, &x.trigger);
+                g.field(1, &x.steps);
+                g.field(2, &x.duration);
+                g.field(3, &x.bind_vars);
+            }
+            Self::PayCost(x) => {
+                g.field(0, &x.amount);
+                g.field(1, &x.player);
+            }
+            Self::CustomStep(x) => {
+                g.field(0, &x.name);
+                g.field(1, &x.params);
+            }
+            Self::Keyword(x) => {
+                g.field(0, &x.keyword);
+                g.field(1, &x.amount);
+                g.field(2, &x.gate);
+                g.field(3, &x.gate_filters);
+            }
+            Self::Constant(x) => {
+                g.field(0, &x.effects);
+                g.field(1, &x.scope);
+                g.field(2, &x.cond);
+                g.field(3, &x.r#where);
+                g.field(4, &x.gate);
+                g.field(5, &x.gate_filters);
+            }
+            Self::Triggered(x) => {
+                g.field(0, &x.trigger);
+                g.field(1, &x.steps);
+                g.field(2, &x.cond);
+                g.field(3, &x.once_per_turn);
+                g.field(4, &x.r#where);
+                g.field(5, &x.gate);
+                g.field(6, &x.gate_filters);
+            }
+            Self::Activated(x) => {
+                g.field(0, &x.timing);
+                g.field(1, &x.costs);
+                g.field(2, &x.steps);
+                g.field(3, &x.cond);
+                g.field(4, &x.once_per_turn);
+                g.field(5, &x.r#where);
+                g.field(6, &x.gate);
+                g.field(7, &x.gate_filters);
+                g.field(8, &x.support);
+            }
+            Self::Command(x) => {
+                g.field(0, &x.timing);
+                g.field(1, &x.steps);
+                g.field(2, &x.cond);
+            }
+            Self::Burst(x) => g.field(0, &x.steps),
+            Self::Replacement(x) => {
+                g.field(0, &x.event);
+                g.field(1, &x.steps);
+                g.field(2, &x.scope);
+                g.field(3, &x.cond);
+                g.field(4, &x.once_per_turn);
+                g.field(5, &x.optional);
+                g.field(6, &x.gate);
+            }
+            Self::NameAlias(x) => g.field(0, &x.names),
+            Self::PlayModifier(x) => {
+                g.field(0, &x.cond);
+                g.field(1, &x.costs);
+                g.field(2, &x.level);
+                g.field(3, &x.cost);
+                g.field(4, &x.pair_filters);
+            }
+            Self::CardScript(x) => {
+                g.field(0, &x.card_number);
+                g.field(1, &x.abilities);
+                g.field(2, &x.unit_abilities);
+                g.field(3, &x.source);
+                g.field(4, &x.notes);
+            }
+            Self::Jump(x) => g.field(0, &x.target),
+            Self::JumpIfNot(x) => {
+                g.field(0, &x.cond);
+                g.field(1, &x.target);
+            }
+            Self::AskMay(x) => {
+                g.field(0, &x.prompt);
+                g.field(1, &x.player);
+                g.field(2, &x.target_if_no);
+            }
+            Self::JumpIfNotDid(x) => g.field(0, &x.target),
+            Self::ModeSelect(x) => {
+                g.field(0, &x.labels);
+                g.field(1, &x.targets);
+                g.field(2, &x.chooser);
+                g.field(3, &x.end);
+            }
+            Self::LoopInit(x) => {
+                g.field(0, &x.key);
+                g.field(1, &x.r#ref);
+                g.field(2, &x.times);
+            }
+            Self::LoopNext(x) => {
+                g.field(0, &x.key);
+                g.field(1, &x.var);
+                g.field(2, &x.end);
+            }
+            Self::SetDid(x) => g.field(0, &x.value),
+            Self::HoldRules(x) => g.field(0, &x.delta),
+        }
+        g.finish()
+    }
+}
 
 #[cfg(test)]
 mod tests {

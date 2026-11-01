@@ -10,7 +10,10 @@ custom-hook tables that the binding modules fill, and emits:
 - one struct per DSL and instruction dataclass with the fields in declaration order (``repr``
   and the IR depend on it), typed by a fixed mapping of the annotation strings;
 - the ``Node`` and ``NodeKind`` enums, the kind sets of the ``type`` aliases, and the schema
-  table that the IR loader compares with the IR's ``schema`` and ``enums`` (PLAN §3.4, §5.1).
+  table that the IR loader compares with the IR's ``schema`` and ``enums`` (PLAN §3.4, §5.1);
+- the per-class glue of ``crate::codec`` (``Node::decode`` from the IR node encoding of
+  ``port/oracle/export_ir.py``, CPython ``repr`` and the golden JSON of ``effects/golden.py``),
+  which applies the hand-written ``Field`` impls to every field in declaration order.
 
 The output goes through ``rustfmt --edition 2024`` so that ``cargo fmt`` leaves it unchanged.
 
@@ -414,6 +417,7 @@ class Gen:
         body += self.render_classes()
         body += self.render_node()
         body += self.render_schema()
+        body += self.render_codec()
         body += self.render_tests()
         uses = sorted(self.used_contract_types)
         head = [
@@ -425,7 +429,9 @@ class Gen:
             "//! Python value strings, member names for `repr`), the 34 custom-hook names, one struct",
             "//! per DSL and instruction dataclass with Python's field order, the `Node` and",
             "//! `NodeKind` enums, the kind sets of the `type` aliases, and the schema table that",
-            "//! the IR loader compares with the IR (docs/port/PLAN.md §3.4, §5.1). Field types:",
+            "//! the IR loader compares with the IR (docs/port/PLAN.md §3.4, §5.1), and the per-class",
+            "//! glue of the codec (`Node::decode`, `Node::repr_into`, `Node::golden`), which",
+            "//! applies `crate::codec::Field` to every field in declaration order. Field types:",
             "//! `int` is `i64`, `str` is `StrId` (`VarId` for frame-variable names), `Value` is",
             "//! `ValueRef`, every other node type is its typed `NodeId` handle, `X | None` is",
             "//! `Option<X>` and `tuple[X, ...]` is `Box<[X]>`.",
@@ -712,6 +718,97 @@ class Gen:
             out.append("        ],")
             out.append("    },")
         out.append("];")
+        return out
+
+    def render_codec(self) -> list[str]:
+        """The per-class glue of ``crate::codec``: decode from the IR node object, CPython
+        ``repr`` (``Name(f1=..., f2=...)``, ``This()``) and the golden JSON."""
+        hook_kinds = ", ".join(
+            f'{name} => "{name.removesuffix("Hook").lower()}"' for name in self.hooks
+        )
+        out = [
+            "",
+            "crate::codec::enum_field!(" + ", ".join(e.__name__ for e in self.enums) + ");",
+            f"crate::codec::hook_field!({hook_kinds});",
+            "",
+            "impl Node {",
+            "    /// Decodes an IR node object of class `kind` (every field present, declaration",
+            "    /// order; docs/port/PLAN.md §3.3).",
+            "    pub(crate) fn decode(",
+            "        kind: NodeKind,",
+            "        obj: &serde_json::Map<String, serde_json::Value>,",
+            "        d: &mut crate::codec::Decoder<'_>,",
+            "    ) -> Result<Self, crate::contracts::IrError> {",
+            "        Ok(match kind {",
+        ]
+        for cls in self.node_classes:
+            name = cls.__name__
+            fields = dataclasses.fields(cls)
+            out.append(f"            NodeKind::{name} => {{")
+            if not fields:
+                out.append("                d.no_fields(obj)?;")
+                out.append(f"                Self::{name}({name})")
+                out.append("            }")
+                continue
+            out.append(f"                d.exact_fields(obj, {len(fields)})?;")
+            out.append(f"                Self::{name}({name} {{")
+            for f in fields:
+                ident = _field_ident(f.name)
+                out.append(f"                    {ident}: d.field(obj, {_rs_str(f.name)})?,")
+            out.append("                })")
+            out.append("            }")
+        out += [
+            "        })",
+            "    }",
+            "",
+            "    /// CPython `repr` (dataclass `repr`: all fields in declaration order).",
+            "    pub(crate) fn repr_into(&self, cx: &crate::codec::ReprCx<'_>, out: &mut String) {",
+            "        use crate::codec::Field as _;",
+            "        match self {",
+        ]
+        for cls in self.node_classes:
+            name = cls.__name__
+            fields = dataclasses.fields(cls)
+            if not fields:
+                out.append(f'            Self::{name}(_) => out.push_str("{name}()"),')
+                continue
+            out.append(f"            Self::{name}(x) => {{")
+            for i, f in enumerate(fields):
+                head = f"{name}(" if i == 0 else ", "
+                out.append(f"                out.push_str({_rs_str(head + f.name + '=')});")
+                out.append(f"                x.{_field_ident(f.name)}.repr(cx, out);")
+            out.append("                out.push(')');")
+            out.append("            }")
+        out += [
+            "        }",
+            "    }",
+            "",
+            "    /// `golden.node_to_json` (`effects/golden.py:19-37`): fields equal to their",
+            "    /// default are omitted.",
+            "    pub(crate) fn golden(&self, cx: &crate::codec::ReprCx<'_>) -> gcg_core::pyjson::Json {",
+            "        let mut g = crate::codec::Golden::new(self.kind(), cx);",
+            "        match self {",
+        ]
+        for cls in self.node_classes:
+            name = cls.__name__
+            fields = dataclasses.fields(cls)
+            if not fields:
+                out.append(f"            Self::{name}(_) => {{}}")
+                continue
+            if len(fields) == 1:
+                ident = _field_ident(fields[0].name)
+                out.append(f"            Self::{name}(x) => g.field(0, &x.{ident}),")
+                continue
+            out.append(f"            Self::{name}(x) => {{")
+            for i, f in enumerate(fields):
+                out.append(f"                g.field({i}, &x.{_field_ident(f.name)});")
+            out.append("            }")
+        out += [
+            "        }",
+            "        g.finish()",
+            "    }",
+            "}",
+        ]
         return out
 
     def render_tests(self) -> list[str]:
