@@ -14,13 +14,14 @@ use serde_json::{Map, Value};
 use crate::codec::{Decoder, Segments, len_u32};
 use crate::contracts::{
     AbilityEntry, AbilityId, AbilityNodeId, CardEntry, ContRef, ContentId, ContinuousId, EvSet,
-    FilterId, FilterSet, HookParams, IrError, KeywordProgram, KwAmounts, NodeId, Program,
-    ProgramId, RuleModId, SUPPORTED_IR_VERSION, ScriptSource, StrId, SystemProgram,
+    FilterId, FilterSet, HookParams, InlineNode, IrError, KeywordProgram, KwAmounts, NodeId,
+    Program, ProgramId, RuleModId, SUPPORTED_IR_VERSION, ScriptSource, StrId, SystemProgram,
 };
 use crate::dsl::{
     CLASSES, CondHook, ENUMS, Ev, FilterHook, Kw, Node, NodeKind, StepHook, ValueHook,
 };
 use crate::hooks::{ParamCx, hook_params};
+use crate::pyrepr::content_id_of;
 use crate::view::{View, canonical_cont};
 
 /// Per-card text the golden files need besides the registry entry (`golden.py:41`).
@@ -55,7 +56,19 @@ pub(crate) struct Tables {
     pub unit_variants: Box<[(DefId, DefId)]>,
     pub hook_params: Box<[(NodeId, HookParams)]>,
     pub card_texts: Box<[CardText]>,
+    /// IR `db_fingerprints` in [`DB_FINGERPRINTS`] order, the order of
+    /// `gcg_data::CardDb::fingerprints` (Inv 03 §9).
+    pub db_fingerprints: [Box<str>; 4],
 }
+
+/// The keys of the IR's `db_fingerprints` (`export_ir.db_fingerprints`), in the order of
+/// `gcg_data::CardDb::fingerprints`, as the `which` of [`IrError::DataMismatch`].
+pub(crate) const DB_FINGERPRINTS: [(&str, &str); 4] = [
+    ("carddefs", "db_fingerprints.carddefs"),
+    ("def_ids", "db_fingerprints.def_ids"),
+    ("token_keys", "db_fingerprints.token_keys"),
+    ("applied_overrides", "db_fingerprints.applied_overrides"),
+];
 
 impl Tables {
     pub(crate) fn view(&self) -> View<'_> {
@@ -158,6 +171,7 @@ impl Tables {
         )?;
         let hook_params = b.hook_params(0, "$.nodes")?;
         check_ability_defs(&abilities, cards.len())?;
+        let db_fingerprints = decode_db_fingerprints(key(&ir, "db_fingerprints", "$")?)?;
         Ok(Self {
             strings,
             var_names,
@@ -179,6 +193,7 @@ impl Tables {
             unit_variants,
             hook_params,
             card_texts,
+            db_fingerprints,
         })
     }
 
@@ -386,12 +401,127 @@ impl Tables {
             unit_variants: self.unit_variants.clone(),
             hook_params: hook_params.into_boxed_slice(),
             card_texts: card_texts.into_boxed_slice(),
+            db_fingerprints: self.db_fingerprints.clone(),
         })
+    }
+
+    /// `Registry::decode_inline`: decodes a self-contained node (the `node_json` form of
+    /// `port/oracle/traces.py`, PLAN §4.8) bottom-up. Every nested node must be an arena node
+    /// (equal CPython `repr`); the root is the arena node with its `repr`, or else the
+    /// decoded node itself.
+    pub(crate) fn decode_inline(&self, node: &Value) -> Result<InlineNode, IrError> {
+        let mut d = Decoder {
+            strings: Segments::split(&self.strings),
+            var_names: Segments::split(&self.var_names),
+            kinds: self.nodes.iter().map(Node::kind).collect(),
+            at: String::new(),
+            field: "",
+        };
+        self.inline_node(node, "$", &classes_by_name(), &mut d)
+    }
+
+    fn inline_node(
+        &self,
+        v: &Value,
+        at: &str,
+        by_name: &[(&'static str, NodeKind)],
+        d: &mut Decoder<'_>,
+    ) -> Result<InlineNode, IrError> {
+        let o = obj(v, at)?;
+        let class = o
+            .get("_")
+            .and_then(Value::as_str)
+            .ok_or_else(|| malformed(at, "missing class name"))?;
+        let Ok(k) = by_name.binary_search_by_key(&class, |(n, _)| *n) else {
+            return Err(IrError::UnknownClass {
+                class: class.to_owned(),
+                card_number: None,
+            });
+        };
+        let mut fields = Map::new();
+        for (name, value) in o {
+            let value = if name == "_" {
+                value.clone()
+            } else {
+                self.inline_refs(value, &format!("{at}.{name}"), by_name, d)?
+            };
+            fields.insert(name.clone(), value);
+        }
+        d.at = at.to_owned();
+        d.field = "";
+        let node = Node::decode(by_name[k].1, &fields, d)?;
+        let view = self.view();
+        let mut repr = String::new();
+        node.repr_into(&view.repr_cx(), &mut repr);
+        let cid = content_id_of(&repr);
+        let arena = self
+            .node_content_ids
+            .iter()
+            .enumerate()
+            .filter(|(_, c)| **c == cid)
+            .map(|(i, _)| NodeId(len_u32(i)))
+            .find(|&id| view.repr(id) == repr);
+        Ok(arena.map_or(InlineNode::Detached(node), InlineNode::Arena))
+    }
+
+    /// A field value of an inline node with every nested node replaced by its arena reference
+    /// (`{"$": id}`, the IR's encoding).
+    fn inline_refs(
+        &self,
+        v: &Value,
+        at: &str,
+        by_name: &[(&'static str, NodeKind)],
+        d: &mut Decoder<'_>,
+    ) -> Result<Value, IrError> {
+        match v {
+            Value::Object(_) => match self.inline_node(v, at, by_name, d)? {
+                InlineNode::Arena(id) => Ok(serde_json::json!({ "$": id.0 })),
+                InlineNode::Detached(n) => Err(malformed(
+                    at,
+                    format!(
+                        "a nested {} node that the registry does not hold",
+                        n.kind().py_name()
+                    ),
+                )),
+            },
+            Value::Array(items) => items
+                .iter()
+                .enumerate()
+                .map(|(i, x)| self.inline_refs(x, &format!("{at}[{i}]"), by_name, d))
+                .collect::<Result<Vec<_>, _>>()
+                .map(Value::Array),
+            other => Ok(other.clone()),
+        }
     }
 }
 
 /// The only fragment format this build reads (`export_ir.FRAGMENT_VERSION`).
 pub(crate) const FRAGMENT_VERSION: i64 = 1;
+
+/// The IR's `db_fingerprints` object, in [`DB_FINGERPRINTS`] order.
+fn decode_db_fingerprints(v: &Value) -> Result<[Box<str>; 4], IrError> {
+    let o = obj(v, "$.db_fingerprints")?;
+    if o.len() != DB_FINGERPRINTS.len() {
+        return Err(malformed(
+            "$.db_fingerprints",
+            format!("expected {} fingerprints", DB_FINGERPRINTS.len()),
+        ));
+    }
+    let mut out: [Box<str>; 4] = Default::default();
+    for (slot, (name, _)) in out.iter_mut().zip(DB_FINGERPRINTS) {
+        let at = format!("$.db_fingerprints.{name}");
+        *slot = text(key(v, name, "$.db_fingerprints")?, &at)?.into();
+    }
+    Ok(out)
+}
+
+/// Every DSL class name with its kind, sorted by name for a binary search.
+fn classes_by_name() -> Vec<(&'static str, NodeKind)> {
+    let mut by_name: Vec<(&'static str, NodeKind)> =
+        NodeKind::ALL.iter().map(|k| (k.py_name(), *k)).collect();
+    by_name.sort_by_key(|(n, _)| *n);
+    by_name
+}
 
 /// Every ability belongs to a definition of the registry.
 fn check_ability_defs(abilities: &[AbilityEntry], n_defs: usize) -> Result<(), IrError> {
@@ -709,9 +839,7 @@ impl<'a> Arena<'a> {
     /// Decodes `items` after the nodes already present. `ir` is the document that holds them
     /// (its `cards` name the owner of a node in errors).
     fn decode_nodes(&mut self, ir: &Value, items: &[Value], at: &str) -> Result<(), IrError> {
-        let mut by_name: Vec<(&'static str, NodeKind)> =
-            NodeKind::ALL.iter().map(|k| (k.py_name(), *k)).collect();
-        by_name.sort_by_key(|(n, _)| *n);
+        let by_name = classes_by_name();
         let first = self.nodes.len();
         self.nodes.reserve(items.len());
         let mut d = Decoder {

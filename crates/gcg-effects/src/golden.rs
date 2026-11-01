@@ -1,23 +1,20 @@
-//! The golden-format writer: `effects/golden.py:40-51` per card and `tools/golden.py:22-36`
-//! per file, regenerating `tests/effects/golden/*.json` byte for byte from the IR
-//! (docs/port/PLAN.md §3.4 test 3).
+//! The golden-format writer: `effects/golden.py:40-51` per card (`Registry::golden_json`) and
+//! `tools/golden.py:22-36` per file (test-only: the crate's test regenerates
+//! `tests/effects/golden/*.json` byte for byte from the IR, docs/port/PLAN.md §3.4 test 3).
 
-use gcg_core::pyjson::{DumpOptions, Json, dumps};
-use gcg_data::{DefId, SYNTHETIC_PREFIX, UNIT_VARIANT_PREFIX};
+use gcg_core::pyjson::Json;
+#[cfg(test)]
+use gcg_core::pyjson::{DumpOptions, dumps};
+use gcg_data::DefId;
+#[cfg(test)]
+use gcg_data::{SYNTHETIC_PREFIX, UNIT_VARIANT_PREFIX};
 
 use crate::codec::Field;
 use crate::dsl::Node;
 use crate::ir::Tables;
 
 /// `json.dumps(data, indent=1, sort_keys=True, ensure_ascii=False)` (`tools/golden.py:36`).
-#[cfg_attr(
-    not(test),
-    expect(
-        dead_code,
-        reason = "the golden writer's Registry entry point (golden_json) needs the card texts in \
-                  the Registry layout (B1 interface request); the golden test runs it on Tables"
-    )
-)]
+#[cfg(test)]
 pub(crate) const GOLDEN_DUMP: DumpOptions = DumpOptions {
     indent: Some(1),
     sort_keys: true,
@@ -25,14 +22,6 @@ pub(crate) const GOLDEN_DUMP: DumpOptions = DumpOptions {
     ensure_ascii: false,
 };
 
-#[cfg_attr(
-    not(test),
-    expect(
-        dead_code,
-        reason = "the golden writer's Registry entry point (golden_json) needs the card texts in \
-                  the Registry layout (B1 interface request); the golden test runs it on Tables"
-    )
-)]
 impl Tables {
     /// `card_golden(cdef, entry, binding_module)` (`effects/golden.py:40-51`). Every entry of
     /// a loaded IR has a script (the loader refuses an unimplemented card, W-69), so the
@@ -63,6 +52,7 @@ impl Tables {
     /// (`card_number.split("-", 1)[0]`, `effects/golden.py:54-55`) over the real cards
     /// (`CardDB.real_cards`, `cards/db.py:309-313`), sorted by prefix, as
     /// `(file stem, file text)`.
+    #[cfg(test)]
     pub(crate) fn golden_files(&self) -> Vec<(String, String)> {
         let mut files: Vec<(String, Json)> = Vec::new();
         for (i, text) in self.card_texts.iter().enumerate() {

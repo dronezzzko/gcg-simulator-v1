@@ -12,18 +12,6 @@ use crate::{
     InvariantViolation, NewGameError, UnimplementedCardError,
 };
 
-/// `repr(s)` of a `str` (`KeyError(key)` prints its argument's `repr`). Non-ASCII text uses
-/// the same quote choice without CPython's printable test (PLAN A19: embedded CPython text).
-fn py_repr_str(s: &str) -> String {
-    if s.is_ascii() {
-        gcg_core::pyrepr::repr_str(s)
-    } else if s.contains('\'') && !s.contains('"') {
-        format!("\"{s}\"")
-    } else {
-        format!("'{}'", s.replace('\'', "\\'"))
-    }
-}
-
 /// `str(UnimplementedCardError(f"{e.card_number}: {e.error}"))` (`effects/registry.py:143-147`).
 impl fmt::Display for UnimplementedCardError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
@@ -42,7 +30,8 @@ impl fmt::Display for EngineError {
             Self::Internal(m) | Self::Value(m) | Self::Index(m) | Self::Assertion(m) => {
                 f.write_str(m)
             }
-            Self::Key(key) => f.write_str(&py_repr_str(key)),
+            // `str(KeyError(key))` is `repr(key)`, CPython's exactly (gcg-data's tables).
+            Self::Key(key) => f.write_str(&gcg_data::py_repr(key)),
             Self::Unimplemented(e) => e.fmt(f),
             Self::RedirectCycle { uids } => {
                 f.write_str("battle damage redirect cycle through units [")?;
@@ -252,6 +241,11 @@ mod tests {
             "'GD01-999'"
         );
         assert_eq!(EngineError::Key("it's".into()).to_string(), "\"it's\"");
+        // Non-ASCII: printable characters are kept, others escaped (CPython unicode_repr).
+        assert_eq!(
+            EngineError::Key("Zaku \u{2161}\u{200b}".into()).to_string(),
+            "'Zaku \u{2161}\\u200b'"
+        );
         let e = EngineError::Value("cannot determinize: empty pool for hidden cards".into());
         assert_eq!(
             format!("{}: {e}", e.py_class()),

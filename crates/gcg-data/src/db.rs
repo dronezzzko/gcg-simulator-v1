@@ -505,12 +505,15 @@ impl CardDb {
 
     /// `len(db)` (`cards/db.py:283-284`).
     #[must_use]
-    #[expect(
-        clippy::len_without_is_empty,
-        reason = "the frozen API has len only (docs/port/contracts.md); a loaded database has defs"
-    )]
     pub fn len(&self) -> usize {
         self.defs.len()
+    }
+
+    /// `not db` (`len(db) == 0`). A database loaded from the packaged snapshot always holds
+    /// definitions.
+    #[must_use]
+    pub fn is_empty(&self) -> bool {
+        self.defs.is_empty()
     }
 
     /// `iter(db)` (`cards/db.py:286-287`): every definition in def_id order.

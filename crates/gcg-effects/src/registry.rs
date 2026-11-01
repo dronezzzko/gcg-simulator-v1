@@ -1,20 +1,26 @@
 //! The frozen `Registry` API of docs/port/contracts.md (gcg-effects), over the contract's
-//! `pub(crate)` layout. Every method reads through [`Registry::view`], the one place that
-//! depends on that layout; the logic is [`crate::view::View`]'s, shared with the decoded
-//! [`crate::ir::Tables`] that the crate's tests exercise.
+//! `pub(crate)` layout: a generation, the card database and the decoded IR
+//! ([`crate::ir::Tables`]). Every lookup reads through [`Registry::view`]; the logic is
+//! [`crate::view::View`]'s, shared with the crate's tests on the decoded tables.
 
 use std::sync::atomic::{AtomicU32, Ordering};
+use std::sync::{Arc, OnceLock};
 
+use gcg_core::pyjson::Json;
 use gcg_data::{CardDb, DefId, ImplementationStatus};
 
 use crate::contracts::{
     AbilityEntry, AbilityId, CardEntry, CondId, ContRef, ContView, ContentId, ContinuousId, EvSet,
-    FilterId, FilterSet, FilterSetId, HookParams, IrError, KeywordProgram, NodeId, Program,
-    ProgramId, Registry, RuleModId, StrId, SystemProgram, VarId,
+    FilterId, FilterSet, FilterSetId, HookParams, InlineNode, IrError, KeywordProgram, NodeId,
+    Program, ProgramId, Registry, RuleModId, StrId, SystemProgram, VarId,
 };
 use crate::dsl::Node;
-use crate::ir::Tables;
+use crate::ir::{DB_FINGERPRINTS, Tables};
 use crate::view::View;
+
+/// The IR checked into the repository (`crates/gcg-effects/ir/registry.json`, written by
+/// `port/oracle/export_ir.py --write`; PLAN §3.1).
+pub(crate) const EMBEDDED_IR: &str = include_str!("../ir/registry.json");
 
 /// Every registry gets a generation no other registry of the process has, so AI memo tables
 /// keyed by it (W-33) never mix two registries. The value is only ever compared.
@@ -26,66 +32,76 @@ impl Tables {
         Registry {
             generation: NEXT_GENERATION.fetch_add(1, Ordering::Relaxed),
             db,
-            strings: self.strings,
-            var_names: self.var_names,
-            printable_non_ascii: self.printable_non_ascii,
-            nodes: self.nodes,
-            node_content_ids: self.node_content_ids,
-            programs: self.programs,
-            keyword_programs: self.keyword_programs,
-            system_programs: self.system_programs,
-            abilities: self.abilities,
-            cards: self.cards,
-            continuous: self.continuous,
-            filter_sets: self.filter_sets,
-            rule_mod_reprs: self.rule_mod_reprs,
-            aliases: self.aliases,
-            always_events: self.always_events,
-            hp_reduction_possible: self.hp_reduction_possible,
-            token_keys: self.token_keys,
-            unit_variants: self.unit_variants,
-            hook_params: self.hook_params,
+            tables: self,
         }
     }
 
-    /// The tables of a registry (without the golden-only card texts, which the `Registry`
-    /// layout does not hold).
-    fn from_registry(reg: &Registry) -> Self {
-        Self {
-            strings: reg.strings.clone(),
-            var_names: reg.var_names.clone(),
-            printable_non_ascii: reg.printable_non_ascii.clone(),
-            nodes: reg.nodes.clone(),
-            node_content_ids: reg.node_content_ids.clone(),
-            programs: reg.programs.clone(),
-            keyword_programs: reg.keyword_programs,
-            system_programs: reg.system_programs,
-            abilities: reg.abilities.clone(),
-            cards: reg.cards.clone(),
-            continuous: reg.continuous.clone(),
-            filter_sets: reg.filter_sets.clone(),
-            rule_mod_reprs: reg.rule_mod_reprs.clone(),
-            aliases: reg.aliases.clone(),
-            always_events: reg.always_events,
-            hp_reduction_possible: reg.hp_reduction_possible,
-            token_keys: reg.token_keys.clone(),
-            unit_variants: reg.unit_variants.clone(),
-            hook_params: reg.hook_params.clone(),
-            card_texts: Box::new([]),
+    /// The card-database check of `Registry::from_ir` (PLAN §3.4 test 6, Inv 03 §9): the IR
+    /// lists `db`'s definitions in def_id order, and its four `db_fingerprints` are `db`'s.
+    pub(crate) fn check_db(&self, db: &CardDb) -> Result<(), IrError> {
+        if self.cards.len() != db.len() {
+            return Err(IrError::DataMismatch {
+                which: "defs",
+                expected: format!("{} definitions", self.cards.len()),
+                found: format!("{} definitions", db.len()),
+            });
         }
+        for (i, (text, def)) in self.card_texts.iter().zip(db.defs()).enumerate() {
+            if text.card_number != def.card_number {
+                return Err(IrError::DataMismatch {
+                    which: "def_ids",
+                    expected: format!("def_id {i} = {}", text.card_number),
+                    found: format!("def_id {i} = {}", def.card_number),
+                });
+            }
+        }
+        for ((_, which), (ir, build)) in DB_FINGERPRINTS
+            .iter()
+            .zip(self.db_fingerprints.iter().zip(db.fingerprints()))
+        {
+            if **ir != *build {
+                return Err(IrError::DataMismatch {
+                    which,
+                    expected: ir.to_string(),
+                    found: build,
+                });
+            }
+        }
+        Ok(())
     }
 }
 
 impl Registry {
+    /// `get_registry()` (`effects/registry.py:400-402`): the registry of the embedded IR over
+    /// [`CardDb::embedded`], loaded once per process.
+    ///
+    /// # Panics
+    /// If the embedded IR does not load, which is a build defect (`cargo test -p gcg-effects`
+    /// loads it).
+    #[must_use]
+    pub fn embedded() -> Arc<Self> {
+        static REGISTRY: OnceLock<Arc<Registry>> = OnceLock::new();
+        Arc::clone(REGISTRY.get_or_init(|| {
+            Arc::new(
+                Self::from_ir(EMBEDDED_IR, CardDb::embedded())
+                    .unwrap_or_else(|e| panic!("the embedded effect IR does not load: {e}")),
+            )
+        }))
+    }
+
     /// Loads an effect IR (PLAN §3.3-§3.4) as the registry of the card database `db`: the IR
     /// version, its schema, enums and hooks against this build's DSL types, every node and
-    /// handle kind, and the cross-table invariants are checked; the first violation is the
-    /// error (an unknown class or hook names its card, W-69).
+    /// handle kind, and the cross-table invariants are checked, then that the IR was exported
+    /// from `db` (its definitions in def_id order and the four `db_fingerprints`); the first
+    /// violation is the error (an unknown class or hook names its card, W-69).
     ///
     /// # Errors
-    /// [`IrError`] for an IR this build cannot load.
+    /// [`IrError`] for an IR this build cannot load; [`IrError::DataMismatch`] for an IR of
+    /// other card data.
     pub fn from_ir(ir_json: &str, db: &'static CardDb) -> Result<Self, IrError> {
-        Ok(Tables::decode(ir_json)?.into_registry(db))
+        let tables = Tables::decode(ir_json)?;
+        tables.check_db(db)?;
+        Ok(tables.into_registry(db))
     }
 
     /// The registry with a script-override fragment applied (`registry.py:209-220`
@@ -97,28 +113,11 @@ impl Registry {
     /// [`IrError::DataMismatch`] when the fragment was exported against another base
     /// registry, otherwise [`IrError`] for a fragment this build cannot load.
     pub fn with_fragment(&self, fragment: &serde_json::Value) -> Result<Self, IrError> {
-        Ok(Tables::from_registry(self)
-            .with_fragment(fragment)?
-            .into_registry(self.db))
+        Ok(self.tables.with_fragment(fragment)?.into_registry(self.db))
     }
 
     fn view(&self) -> View<'_> {
-        View {
-            strings: &self.strings,
-            var_names: &self.var_names,
-            nodes: &self.nodes,
-            node_content_ids: &self.node_content_ids,
-            programs: &self.programs,
-            keyword_programs: &self.keyword_programs,
-            system_programs: &self.system_programs,
-            abilities: &self.abilities,
-            cards: &self.cards,
-            continuous: &self.continuous,
-            filter_sets: &self.filter_sets,
-            rule_mod_reprs: &self.rule_mod_reprs,
-            aliases: &self.aliases,
-            hook_params: &self.hook_params,
-        }
+        self.tables.view()
     }
 
     /// `Registry.db` (`effects/registry.py:70`).
@@ -187,7 +186,7 @@ impl Registry {
     /// `reg.always_events` (`registry.py:356-378`).
     #[must_use]
     pub fn always_events(&self) -> EvSet {
-        self.always_events
+        self.tables.always_events
     }
 
     /// `reg.events_by_def[def_id]` (`registry.py:356-397`).
@@ -199,7 +198,7 @@ impl Registry {
     /// `reg.hp_reduction_possible` (`registry.py:356-378`).
     #[must_use]
     pub fn hp_reduction_possible(&self) -> bool {
-        self.hp_reduction_possible
+        self.tables.hp_reduction_possible
     }
 
     /// The typed parameters of a `Custom*` node (PLAN §5.3).
@@ -266,6 +265,25 @@ impl Registry {
     #[must_use]
     pub fn repr(&self, id: NodeId) -> String {
         self.view().repr(id)
+    }
+
+    /// `card_golden(cdef, entry, binding_module)` (`effects/golden.py:40-51`): the golden
+    /// record of one definition, the object `tools/golden.py:22-36` writes under its number.
+    #[must_use]
+    pub fn golden_json(&self, def: DefId) -> Json {
+        self.tables.golden_json(def)
+    }
+
+    /// Resolves a self-contained node of a trace snapshot's side table (PLAN §4.8; the
+    /// `node_json` form of `port/oracle/traces.py`) against this registry: the arena node with
+    /// equal CPython `repr`, or else the decoded node, whose nested nodes must all be arena
+    /// nodes.
+    ///
+    /// # Errors
+    /// [`IrError`] when the JSON is not a node of this build's DSL, names a string or variable
+    /// the IR does not hold, or nests a node the registry does not hold.
+    pub fn decode_inline(&self, node: &serde_json::Value) -> Result<InlineNode, IrError> {
+        self.tables.decode_inline(node)
     }
 
     /// The `VarId` of a frame-variable name (IR `var_names`).

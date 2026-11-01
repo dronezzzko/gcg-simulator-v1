@@ -1,13 +1,16 @@
-//! The B1 gate of docs/port/PLAN.md §3.4 (tests 1-5), the loader's error paths and the IR
-//! fragments, run against the committed IR. They are unit tests of the crate because they
-//! read the decoded tables directly: a `Registry` needs a `&'static CardDb`, which
-//! workstream A provides (test 6, `db_fingerprints`, runs with it).
+//! The B1 gate of docs/port/PLAN.md §3.4 (tests 1-6), the loader's error paths, the IR
+//! fragments, the public `Registry` API and the decoding of snapshot side-table nodes, run
+//! against the committed IR. They are unit tests of the crate because most of them read the
+//! decoded tables directly; `registry` and `inline` go through the public API.
 
 mod content_ids;
+mod db_fingerprints;
 mod fragments;
 mod golden;
+mod inline;
 mod ir_current;
 mod loader;
+mod registry;
 mod registry_counts;
 mod repr_vectors;
 
@@ -18,8 +21,8 @@ use serde_json::Value;
 
 use crate::ir::Tables;
 
-/// The IR checked into the repository.
-pub(super) const EMBEDDED_IR: &str = include_str!("../../ir/registry.json");
+/// The IR checked into the repository, as `Registry::embedded` loads it.
+pub(super) const EMBEDDED_IR: &str = crate::registry::EMBEDDED_IR;
 
 /// The decoded embedded IR.
 pub(super) fn tables() -> &'static Tables {

@@ -94,6 +94,49 @@ fn inputs_cover_every_file_of_the_python_package() {
     }
 }
 
+/// The packaged files that `gcg-data` embeds with `include_str!`: the `data_file!` paths of
+/// `crates/gcg-data/src/embedded.rs`, relative to `src/gcg_sim/data/`.
+fn gcg_data_embedded_paths() -> Vec<String> {
+    let src = fs::read_to_string(repo_root().join("crates/gcg-data/src/embedded.rs"))
+        .expect("gcg-data embedded.rs");
+    src.split("data_file!(\"")
+        .skip(1)
+        .map(|rest| rest.split('"').next().expect("a closing quote").to_owned())
+        .collect()
+}
+
+/// PLAN §3.4 test 1, last part: the data bytes `gcg-data` embeds are the bytes the IR was
+/// exported from. Every file `gcg-data` embeds is an IR input whose hash equals the file
+/// (`include_str!` reads that same file at build time), and the card database `gcg-data`
+/// built from its embedded bytes equals the one built from the files the IR hashed.
+#[test]
+fn the_embedded_data_bytes_equal_gcg_datas() {
+    let paths = gcg_data_embedded_paths();
+    assert_eq!(paths.len(), 8, "{paths:?}");
+    let root = repo_root();
+    let listed = inputs();
+    for path in &paths {
+        let repo_path = format!("src/gcg_sim/data/{path}");
+        let want = listed
+            .iter()
+            .find(|(p, _)| *p == repo_path)
+            .map(|(_, h)| *h)
+            .unwrap_or_else(|| panic!("{repo_path} is embedded by gcg-data but not an IR input"));
+        let bytes = fs::read(root.join(&repo_path)).expect("embedded data file");
+        assert_eq!(sha256_hex(&bytes), want, "{repo_path}");
+    }
+    let read = |p: &str| {
+        fs::read_to_string(root.join("src/gcg_sim/data").join(p)).expect("packaged data file")
+    };
+    let from_files =
+        gcg_data::CardDb::from_sources(&read("gcgapi/cards.ndjson"), &read("overrides.json"))
+            .expect("the packaged data loads");
+    assert_eq!(
+        from_files.fingerprints(),
+        gcg_data::CardDb::embedded().fingerprints()
+    );
+}
+
 #[test]
 fn the_data_lock_matches() {
     let lock = fs::read(repo_root().join("data/SOURCES.lock.json")).expect("data lock");
@@ -142,8 +185,8 @@ fn schema_and_enums_match_the_generated_types() {
 }
 
 /// PLAN §3.4 test 6, IR side: the exported CardDb fingerprints are the values that
-/// docs/port/inventory/03-data-deck.md §9 records for this data snapshot. The comparison with
-/// `gcg-data`'s own fingerprints needs workstream A's `CardDb`.
+/// docs/port/inventory/03-data-deck.md §9 records for this data snapshot (the comparison with
+/// `gcg-data`'s own fingerprints is `db_fingerprints.rs`).
 #[test]
 fn the_ir_carries_the_recorded_card_db_fingerprints() {
     let fp = &raw()["db_fingerprints"];

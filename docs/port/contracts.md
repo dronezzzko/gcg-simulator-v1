@@ -259,6 +259,7 @@ impl CardDb {
     pub fn from_sources(cards_ndjson: &str, overrides: &str) -> Result<CardDb, DataError>;
                                                                             // cards/db.py:57-69, :116-158; W-157: no empty default
     pub fn len(&self) -> usize;                                             // :283-284 (1153)
+    pub fn is_empty(&self) -> bool;                                         // `not db` (len == 0); integration addition
     pub fn defs(&self) -> &[CardDef];                                       // :286-287 __iter__, def_id order
     pub fn by_id(&self, id: DefId) -> &CardDef;                             // :289-290
     pub fn get(&self, number_or_product_id: &str) -> Option<&CardDef>;      // :292-297 (Python strip(), case-sensitive)
@@ -307,6 +308,10 @@ pub mod names {                                                             // d
 pub fn versions(package: &str, code_digest: &str) -> Json;                  // reports/versions.py:55-75 (insertion order)
 pub fn conflict_resolutions(decks: &[(&str, &Deck)]) -> Json;               // :116-135; labels as reports/results.py:181-186
 pub fn data_status_parts(package: &str, code_digest: &str) -> DataStatusParts;   // cli.py:263-291 without coverage
+
+// Python text semantics for the crates that print Python messages (integration additions)
+pub fn py_repr(s: &str) -> String;                                          // repr(str), CPython 3.15.1 unicode_repr over the generated isprintable table (Inv 03 §10 H1)
+pub fn py_path_str(p: &Path) -> String;                                     // str(pathlib.Path(p)) (Inv 03 §10 H12); non-UTF-8 paths are read lossily
 ```
 
 Differences from PLAN §10.3.1, settled here: `Deck` stores sorted run-length lists (W-144) and
@@ -315,6 +320,10 @@ Differences from PLAN §10.3.1, settled here: `Deck` stores sorted run-length li
 `validate` takes `ValidateOptions` with an `ImplementationStatus`, because check 11 reads the
 effect registry, which `gcg-data` cannot depend on; `conflict_resolutions` takes the deck labels
 and `data_status_parts` the version strings; `CardDb::defs` and `resolve_card_number` are added.
+The registry integration adds `CardDb::is_empty` (clippy `len_without_is_empty`), and makes
+public the two Python text helpers that A implemented crate-private (`unicode::repr_str`,
+`py::path_str`): `py_repr` (the engine's `KeyError` text, `EngineError::Key`, prints it) and
+`py_path_str` (E's CLI messages name deck and report paths as Python prints them).
 
 ## gcg-effects (owner B1) — PLAN §3, §5.1-§5.3, §5.6-§5.7, §10.3.2, Inv 04
 
@@ -339,7 +348,10 @@ Types:
   `.node()` gives the `NodeId`), `ValueRef`, `ParamValue`, `Program`, `AbilityEntry`,
   `ScriptSource`, `EvSet`, `KwAmounts`, `CardEntry`, `KeywordProgram`, `SystemProgram`,
   `FilterSet`, `ContRef`, `ContView`, `StepParams`, `CondParams`, `FilterParams`, `ValueParams`,
-  `HookParams`, `Registry`, `IrError`.
+  `HookParams`, `Registry`, `InlineNode`, `IrError`. `Registry`'s layout is
+  `{ generation: u32, db: &'static CardDb, tables: crate::ir::Tables }` (B1's proposal,
+  authorised at the registry integration): the decoded IR tables, which `Registry::view` and
+  `golden_json` read, and the card database `from_ir` checked them against.
 
 Field typing of the generated nodes: `int` is `i64`; `bool` is `bool`; `str` is `StrId`, except
 frame-variable and loop-key names (`VarSize.var`, `Var.name`, `Choose.var`,
@@ -351,8 +363,9 @@ frame-variable and loop-key names (`VarSize.var`, `Var.name`, `Choose.var`,
 
 ```rust
 impl Registry {
-    pub fn embedded() -> Arc<Registry>;                                    // registry.py:400-402 get_registry; IR via include_str!
-    pub fn from_ir(ir_json: &str, db: &'static CardDb) -> Result<Registry, IrError>;   // PLAN §3.3-§3.4 (schema check vs dsl::CLASSES/ENUMS)
+    pub fn embedded() -> Arc<Registry>;                                    // registry.py:400-402 get_registry; IR via include_str!, over CardDb::embedded(), loaded once
+    pub fn from_ir(ir_json: &str, db: &'static CardDb) -> Result<Registry, IrError>;   // PLAN §3.3-§3.4 (schema check vs dsl::CLASSES/ENUMS; then
+                                                                           // DataMismatch unless db's defs are the IR's in def_id order and db.fingerprints() are its db_fingerprints)
     pub fn with_fragment(&self, fragment: &serde_json::Value) -> Result<Registry, IrError>;
                                                                            // registry.py:209-220 override_script; PLAN §3.4 test overrides
     pub fn db(&self) -> &'static CardDb;                                   // Registry.db (registry.py:70)
@@ -391,7 +404,12 @@ impl Registry {
     pub fn filter_id(&self, n: NodeId) -> Option<FilterId>;              // NodeKind::FILTER
     pub fn cond_id(&self, n: NodeId) -> Option<CondId>;                  // NodeKind::COND
     pub fn continuous_id(&self, n: NodeId) -> Option<ContinuousId>;      // NodeKind::CONTINUOUS
+    // added at the registry integration (change log): the side-table decoding of
+    // canon::from_canonical (PLAN §4.8; lead decision: inline node JSON in snapshots)
+    pub fn decode_inline(&self, node: &serde_json::Value) -> Result<InlineNode, IrError>;
+                                                                           // port/oracle/traces.py node_json form: Arena(id) of equal repr, else Detached(Node) whose nested nodes are arena nodes
 }
+pub enum InlineNode { Arena(NodeId), Detached(Node) }
 impl ContRef {
     pub fn repr(&self, reg: &Registry) -> String;                          // PLAN §4.7: StatMod(ap=.., hp=..), KeywordGrant(..), AbilityGrant(..)
     pub fn content_id(&self, reg: &Registry) -> ContentId;                 // runner/digest.py:26-27
@@ -428,6 +446,12 @@ Differences from PLAN §10.3.2 and §5.3, settled here:
 - `Registry::{filter_id, cond_id, continuous_id}` are added (review fixes): `gcg-diff` and the
   engine's integration tests turn a test-built node's `NodeId` into the typed handle that
   `view::matches` and `testkit::engine::add_lasting` take.
+- `Registry::decode_inline` and `InlineNode` are added at the registry integration: trace
+  snapshots carry their side tables as inline node JSON (lead decision), and
+  `canon::from_canonical` decodes them into typed nodes with the IR's own decoder. A nested
+  node must be an arena node; only the root may be detached (the runtime values of PLAN §5.6).
+  The IR currently has no filter sets (no card has an `ApplyPlayer` with filters), so a
+  snapshot that names a filter set needs a registry that holds it.
 
 ## gcg-engine (owners C, B2) — PLAN §4, §10.3.3, §10.3.4, Inv 05, Inv 06a, Inv 06b
 
@@ -579,6 +603,16 @@ pub mod canon {                                               // C, L1; runner/d
     pub fn state_digest(st: &GameState) -> String;            // digest.py:52-56 (sort_keys, (",", ":"), ensure_ascii)
     pub fn from_canonical(reg: &Arc<Registry>, snap: &StateSnapshot) -> Result<GameState, CanonError>;   // PLAN §4.8
 }
+// StateSnapshot side tables (lead decision at the registry integration): `continuous` maps a
+// content id to a self-contained inline node ({"_": Class, field: value, ...}, nested nodes
+// inline, enums as their values: port/oracle/traces.py `node_json`), `filter_sets` a content id
+// to a list of inline filter nodes. from_canonical decodes every entry with
+// Registry::decode_inline; a content id resolves to the registry's program, filter set or
+// build-time effect, or else to the runtime value its entry spells (StatMod/KeywordGrant with
+// int fields, AbilityGrant); an entry must agree with the registry when both exist, and every
+// resolved effect and filter set must hash back to its content id. GameConst is built from the
+// snapshot's decklists and limits (listened = always_events plus events_of of every decklist
+// def and its Unit variant, core.py:295-313).
 
 // L2 (B2) — view/ (engine/view.py)
 pub mod view {
@@ -1479,6 +1513,9 @@ in `log`; an `iter` record's `decision` is the decision record's `i`.
 | 2026-11-01 | Second review fixes (see the review log): `gcg-cli` → `gcg-ai` edge with `crates/gcg-cli/tests/factory_types.rs`; gcg-ai `Agent::choose_traced` (default body landed), `DecisionTrace`, `SearchStats` (`SearchResult.{iterations, budget, cap, roots, effort}` move to `SearchResult.stats`); gcg-diff `EngineUnderTest::state` and the agent-replay procedure | lead (S) |
 | 2026-11-01 | Third review fix (see the review log): gcg-ai `option_scores` drops its `dv: &Derived` parameter (Python `policy.py:104`); the scorers compute the view where Python's do; recorded in the differences from PLAN §10.3.5 | lead (S) |
 | 2026-11-01 | G integration (lead-authorised): gcg-diff per-test record format of `pytest_trace.py` — `ScenarioRec.{before16, after16, calls_reproduce, rules_checked}` with an optional snapshot and `ScenarioCall` (call + error), `NewGameSpec.validate`, `CallRec.new_game` and empty `after16`, `ProbeRec.error`, `ViewRec`, `OverrideRec` (`OverrideKind`, `MemoCheck`, `MemoRead`; B1's fragment format), `TraceArg::{Ref(EngineRef), Decision}`; `AgentRec.log`; `EngineUnderTest::new_game` takes `&NewGameSpec`; the dispatcher's `Scenario.start` result; `apply.pending` is the decision before the apply; O14 opened | lead (G integration) |
+| 2026-11-01 | Registry integration: gcg-effects `Registry` layout `{ generation, db, tables: ir::Tables }` (B1's proposal, authorised by the lead) | integration (B1 + C + A), lead-authorised |
+| 2026-11-01 | Registry integration: gcg-data `py_repr`, `py_path_str` made public and `CardDb::is_empty` added (the `len_without_is_empty` expect removed) | integration, lead-authorised |
+| 2026-11-01 | Registry integration: `StateSnapshot.continuous`/`filter_sets` documented as inline node JSON (lead decision); gcg-effects `Registry::decode_inline` and `InlineNode` added for `canon::from_canonical`'s side-table decoding (reported to the lead for confirmation) | integration, per the lead decision |
 
 ## Review log
 

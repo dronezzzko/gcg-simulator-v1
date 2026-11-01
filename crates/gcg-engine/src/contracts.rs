@@ -962,9 +962,13 @@ pub enum NewGameError {
 #[derive(Clone, PartialEq, Debug)]
 pub struct StateSnapshot {
     pub state: serde_json::Value,
-    /// `{content_id: IR node JSON or value}` of every continuous effect in the state.
+    /// `{content_id: node}` of the continuous effects the state names (lasting, delayed, the
+    /// effect of `(-8 | -7, -1, effect, ...)` once keys), each a self-contained inline node
+    /// (`{"_": class, field: value, ...}`, nested nodes inline, enums as their values; the
+    /// `node_json` of `port/oracle/traces.py`), or `null` for none.
     pub continuous: serde_json::Value,
-    /// `{content_id: [filter NodeIds]}` of every filter set in the state.
+    /// `{content_id: [node, ...]}` of the filter sets the state names, each a list of inline
+    /// filter nodes, or `null` for none.
     pub filter_sets: serde_json::Value,
     pub rules_checked: i64,
 }

@@ -12,8 +12,8 @@ use std::cell::RefCell;
 use std::sync::Arc;
 
 use gcg_core::rng::SplitMix64;
-use gcg_data::{CardDb, DefId};
-use gcg_effects::{Registry, VarId};
+use gcg_data::{CardDb, CardDef, DefId};
+use gcg_effects::{EvSet, Registry, VarId};
 
 use crate::canon::StateBody;
 use crate::{
@@ -468,6 +468,104 @@ impl LastingArena<'_> {
 }
 
 // ---------------------------------------------------------------------------------------------
+// The data a game shares among its clones
+
+/// `listened_events(st)` (`engine/core.py:295-313`): the registry's `always_events`, plus
+/// `events_by_def[d]` and the events of `d`'s Unit variant for every def_id `d` of the four
+/// decklists. Python memoises it per decklist pair (`_LISTEN_CACHE`); the set is a pure
+/// function of the registry and the decklists, so Rust computes it once per game
+/// (`GameConst.listened`). The testkit recomputes it when it changes the decklists.
+pub(crate) fn listened_events(
+    reg: &Registry,
+    decklists: &[Box<[DefId]>; 2],
+    resource_decklists: &[Box<[DefId]>; 2],
+) -> EvSet {
+    let mut evs = reg.always_events();
+    for dl in decklists.iter().chain(resource_decklists) {
+        for &def in dl.iter() {
+            evs = evs.union(reg.events_of(def));
+            if let Some(variant) = reg.db().unit_variant(def) {
+                evs = evs.union(reg.events_of(variant.def_id));
+            }
+        }
+    }
+    evs
+}
+
+impl EngineVars {
+    /// The `VarId`s of the names the engine writes literally (`game.py:931`, `:941`,
+    /// `interp.py:808`, `:1409`, `:1416`, `builtins.py:16`, `:68`); the exporter puts every one
+    /// into the IR's `var_names` (PLAN §3.3).
+    ///
+    /// # Errors
+    /// [`EngineError::Internal`] for a registry whose IR lacks one of them.
+    pub(crate) fn of(reg: &Registry) -> Result<Self, EngineError> {
+        let var = |name: &str| {
+            reg.var_id(name).ok_or_else(|| {
+                EngineError::Internal(format!(
+                    "the effect registry has no frame variable {name:?} (IR var_names)"
+                ))
+            })
+        };
+        Ok(Self {
+            card: var("card")?,
+            pilot: var("pilot")?,
+            unit: var("unit")?,
+            todeck: var("__todeck")?,
+            play: var("__play")?,
+            looked: var("looked")?,
+            t: var("t")?,
+        })
+    }
+}
+
+impl GameConst {
+    /// The part of a game its clones share (`engine/state.py:561-562`): `reg` and its card
+    /// database, the sorted decklists (`game.py:151-152`), `turn_limit` and `max_actions`,
+    /// [`listened_events`], the registry's `hp_reduction_possible` (`core.py:868`) and
+    /// [`EngineVars`]; no test overrides.
+    ///
+    /// # Errors
+    /// [`EngineError::Internal`] for a def_id outside the registry's card database, or a
+    /// registry without one of the engine's frame variables.
+    pub(crate) fn new(
+        reg: Arc<Registry>,
+        decklists: [Box<[DefId]>; 2],
+        resource_decklists: [Box<[DefId]>; 2],
+        turn_limit: i32,
+        max_actions: i64,
+    ) -> Result<Self, EngineError> {
+        let db = reg.db();
+        if let Some(def) = decklists
+            .iter()
+            .chain(&resource_decklists)
+            .flat_map(|dl| dl.iter())
+            .find(|d| usize::from(d.0) >= db.len())
+        {
+            return Err(EngineError::Internal(format!(
+                "def_id {} is not a definition of the card database",
+                def.0
+            )));
+        }
+        let listened = listened_events(&reg, &decklists, &resource_decklists);
+        let vars = EngineVars::of(&reg)?;
+        let hp_reduction_possible = reg.hp_reduction_possible();
+        Ok(Self {
+            reg,
+            db,
+            decklists,
+            resource_decklists,
+            turn_limit,
+            max_actions,
+            listened,
+            hp_reduction_possible,
+            vars,
+            test_overrides: None,
+        })
+    }
+}
+
+// ---------------------------------------------------------------------------------------------
 // Construction and the read-only accessors (docs/port/contracts.md, gcg-engine public API)
 
 impl GameState {
@@ -523,11 +621,8 @@ impl GameState {
     }
 
     /// A state holding a decoded snapshot body (`canon::from_canonical`, PLAN §4.8), with no
-    /// cached view and Python's `_rules_checked` from the snapshot.
-    #[allow(
-        dead_code,
-        reason = "called by canon::from_canonical once GameConst can be built (B1)"
-    )]
+    /// cached view and Python's `_rules_checked` from the snapshot. The body's decklists and
+    /// limits are `konst`'s.
     pub(crate) fn from_body(konst: Arc<GameConst>, body: StateBody, rules_checked: i64) -> Self {
         let StateBody {
             seed,
@@ -869,6 +964,16 @@ impl GameState {
     #[must_use]
     pub fn db(&self) -> &'static CardDb {
         self.konst.db
+    }
+
+    /// `cdef(st, uid)` (`engine/view.py:23-24`): the definition of the card's current
+    /// `def_id` (a Unit variant while it is one, `interp.py:930`).
+    ///
+    /// # Panics
+    /// If `uid >= cards().len()` (an engine bug: uids come from the state).
+    #[must_use]
+    pub fn def_of(&self, uid: Uid) -> &'static CardDef {
+        self.konst.db.by_id(self.cards[usize::from(uid)].def_id)
     }
 
     /// `GameState.clone()` (`engine/state.py:534-572`) into `self`, reusing `self`'s buffers
@@ -1595,5 +1700,347 @@ mod tests {
             vec![(3, vec![(8, 3)]), (5, vec![(9, 4), (10, 5)]), (4, vec![])]
         );
         assert_eq!(targets.len(), 3);
+    }
+
+    // ---------------------------------------------------------------------------------------
+    // Whole states (T-058): the Python fixture snapshots rebuilt by `canon::from_canonical`.
+
+    use std::sync::OnceLock;
+
+    use serde_json::Value;
+
+    use crate::canon::{self, fixtures};
+    use crate::{Derived, ViewKey};
+
+    fn int(v: &Value) -> i64 {
+        v.as_i64().unwrap()
+    }
+
+    /// A cached view to watch `cache` sharing (its contents are never read here).
+    fn a_view() -> Arc<Derived> {
+        Arc::new(Derived {
+            key: ViewKey {
+                active: 0,
+                turn: 0,
+                n_battles: 0,
+                battle: None,
+                n_history: 0,
+            },
+            present: Vec::new(),
+            ap: Vec::new(),
+            hp: Vec::new(),
+            kw: Vec::new(),
+            traits: Vec::new(),
+            trait_pool: Vec::new(),
+            rules: Vec::new(),
+            rule_pool: Vec::new(),
+            cost_mod: Vec::new(),
+            level_mod: Vec::new(),
+            linked: Vec::new(),
+            abilities: Vec::new(),
+            ability_pool: Vec::new(),
+            hosts: Vec::new(),
+            converged: true,
+            by_event: OnceLock::new(),
+        })
+    }
+
+    /// Everything a state holds, serialised or not, that `clone` must copy or share.
+    fn same_state(a: &GameState, b: &GameState) -> Result<(), String> {
+        let (ja, jb) = (canon::canonical_state(a), canon::canonical_state(b));
+        if ja != jb {
+            return Err("canonical states differ".into());
+        }
+        let cache = |s: &GameState| s.cache.borrow().clone();
+        let shared = match (cache(a), cache(b)) {
+            (None, None) => true,
+            (Some(x), Some(y)) => Arc::ptr_eq(&x, &y),
+            _ => false,
+        };
+        let same = shared
+            && Arc::ptr_eq(&a.konst, &b.konst)
+            && a.rules_checked == b.rules_checked
+            && a.history_epoch == b.history_epoch
+            && a.version == b.version
+            && a.rng == b.rng;
+        same.then_some(())
+            .ok_or_else(|| "a field outside the canonical form differs".into())
+    }
+
+    #[test]
+    fn accessors_read_the_snapshot() {
+        for (rec, st) in fixtures::states() {
+            let id = rec["id"].as_str().unwrap();
+            let s = &rec["state"];
+            assert_eq!(st.seed(), s["seed"].as_u64().unwrap(), "{id}");
+            assert_eq!(st.rng_state(), s["rng"].as_u64().unwrap(), "{id}");
+            let cards = s["cards"].as_array().unwrap();
+            assert_eq!(st.cards().len(), cards.len(), "{id}");
+            for (u, c) in cards.iter().enumerate() {
+                let uid = Uid::try_from(u).unwrap();
+                let card = st.card(uid);
+                assert_eq!(i64::from(card.def_id.0), int(&c[1]), "{id} card {u}");
+                assert_eq!(i64::from(card.owner), int(&c[2]), "{id} card {u}");
+                assert_eq!(i64::from(card.zone.value()), int(&c[3]), "{id} card {u}");
+                assert_eq!(i64::from(card.rested), int(&c[4]), "{id} card {u}");
+                assert_eq!(
+                    [card.damage, card.pair, card.zone_seq, card.entered_turn].map(i64::from),
+                    [int(&c[5]), int(&c[6]), int(&c[7]), int(&c[8])],
+                    "{id} card {u}"
+                );
+                assert_eq!(i64::from(card.known), int(&c[9]), "{id} card {u}");
+                assert!(std::ptr::eq(st.def_of(uid), st.db().by_id(card.def_id)));
+            }
+            for p in 0..2u8 {
+                for (zi, z) in Zone::ALL.iter().enumerate() {
+                    let want: Vec<i64> = s["zones"][usize::from(p)][zi]
+                        .as_array()
+                        .unwrap()
+                        .iter()
+                        .map(int)
+                        .collect();
+                    let got: Vec<i64> = st.zone(p, *z).iter().map(|&u| i64::from(u)).collect();
+                    assert_eq!(got, want, "{id} zone {p} {z:?}");
+                }
+            }
+            assert_eq!(i64::from(st.turn()), int(&s["turn"]), "{id}");
+            assert_eq!(i64::from(st.active()), int(&s["active"]), "{id}");
+            assert_eq!(st.standby(), 1 - st.active(), "{id}");
+            assert_eq!(i64::from(st.first_player()), int(&s["first_player"]));
+            assert_eq!(i64::from(st.setup_chooser()), int(&s["setup_chooser"]));
+            assert_eq!(i64::from(st.phase().value()), int(&s["phase"]), "{id}");
+            assert_eq!(i64::from(st.step().value()), int(&s["step"]), "{id}");
+            assert_eq!(i64::from(st.priority()), int(&s["priority"]), "{id}");
+            assert_eq!(i64::from(st.passes()), int(&s["passes"]), "{id}");
+            let battles = s["battles"].as_array().unwrap();
+            assert_eq!(st.battles().len(), battles.len(), "{id}");
+            assert_eq!(st.battle(), st.battles().last());
+            if let Some(b) = st.battle() {
+                assert_eq!(i64::from(b.battle_id), int(&battles[battles.len() - 1][5]));
+            }
+            let frames = s["frames"].as_array().unwrap();
+            assert_eq!(st.frames().len(), frames.len(), "{id}");
+            for (f, j) in st.frames().iter().zip(frames) {
+                let buf: Vec<i64> = st.frame_buf(f).iter().map(|&x| i64::from(x)).collect();
+                let want: Vec<i64> = j["buf"].as_array().unwrap().iter().map(int).collect();
+                assert_eq!(buf, want, "{id} frame buf");
+                let vars = j["vars"].as_object().unwrap();
+                assert_eq!(st.frame_vars(f).iter().count(), vars.len(), "{id}");
+                for (name, items) in vars {
+                    let v = st.registry().var_id(name).unwrap();
+                    let got: Vec<i64> = st
+                        .frame_vars(f)
+                        .get(v)
+                        .unwrap()
+                        .iter()
+                        .map(|&x| i64::from(x))
+                        .collect();
+                    let want: Vec<i64> = items.as_array().unwrap().iter().map(int).collect();
+                    assert_eq!(got, want, "{id} var {name}");
+                }
+                assert_eq!(
+                    st.frame_ints(f).len(),
+                    j["ints"].as_object().unwrap().len(),
+                    "{id}"
+                );
+                assert_eq!(i64::from(f.pc), int(&j["pc"]), "{id}");
+            }
+            let pending = s["pending_triggers"].as_array().unwrap().len();
+            assert_eq!(st.pending_triggers().len(), pending, "{id}");
+            let batches: Vec<usize> = s["batches"]
+                .as_array()
+                .unwrap()
+                .iter()
+                .map(|b| b.as_array().unwrap().len())
+                .collect();
+            assert_eq!(
+                st.batches().map(<[TriggerInst]>::len).collect::<Vec<_>>(),
+                batches,
+                "{id}"
+            );
+            for (name, list) in [("lasting", st.lasting()), ("delayed", st.delayed())] {
+                let want = s[name].as_array().unwrap();
+                assert_eq!(list.len(), want.len(), "{id} {name}");
+                for (l, j) in list.iter().zip(want) {
+                    let targets: Vec<(i64, i64)> = st
+                        .lasting_targets(l)
+                        .iter()
+                        .map(|&(u, q)| (i64::from(u), i64::from(q)))
+                        .collect();
+                    let want: Vec<(i64, i64)> = j[3]
+                        .as_array()
+                        .unwrap()
+                        .iter()
+                        .map(|t| (int(&t[0]), int(&t[1])))
+                        .collect();
+                    assert_eq!(targets, want, "{id} {name} targets");
+                }
+            }
+            assert_eq!(
+                st.once_used().len(),
+                s["once_used"].as_array().unwrap().len()
+            );
+            assert_eq!(st.history().len(), s["history"].as_array().unwrap().len());
+            assert_eq!(st.history_epoch(), 0);
+            assert_eq!(st.winner().map(i64::from), s["winner"].as_i64(), "{id}");
+            assert_eq!(st.game_over(), !s["winner"].is_null(), "{id}");
+            assert_eq!(
+                st.end_reason().map(EndReason::as_str),
+                s["end_reason"].as_str(),
+                "{id}"
+            );
+            for (name, lists) in [
+                ("decklists", st.decklists()),
+                ("resource_decklists", st.resource_decklists()),
+            ] {
+                for p in 0..2 {
+                    let want: Vec<i64> = s[name][p].as_array().unwrap().iter().map(int).collect();
+                    let got: Vec<i64> = lists[p].iter().map(|d| i64::from(d.0)).collect();
+                    assert_eq!(got, want, "{id} {name}");
+                }
+            }
+            assert_eq!(
+                st.redraws().map(Value::Bool).to_vec(),
+                *s["redraws"].as_array().unwrap()
+            );
+            assert_eq!(st.version(), s["version"].as_u64().unwrap(), "{id}");
+            assert_eq!(st.action_count(), int(&s["action_count"]), "{id}");
+            assert_eq!(st.event_group(), int(&s["event_group"]), "{id}");
+            assert_eq!(i64::from(st.turn_limit()), int(&s["turn_limit"]), "{id}");
+            assert_eq!(st.max_actions(), int(&s["max_actions"]), "{id}");
+            assert_eq!(st.rules_checked(), int(&rec["rules_checked"]), "{id}");
+            assert!(Arc::ptr_eq(st.registry(), fixtures::registry()));
+            assert!(std::ptr::eq(st.db(), st.registry().db()));
+            match (st.pending(), s["pending"].as_object()) {
+                (None, None) => {}
+                (Some(d), Some(j)) => {
+                    assert_eq!(i64::from(d.hdr.player), int(&j["player"]), "{id}");
+                    assert_eq!(d.hdr.kind.as_str(), j["kind"], "{id}");
+                    assert_eq!(
+                        d.hdr.prompt.text(st.registry()).as_ref(),
+                        j["prompt"],
+                        "{id}"
+                    );
+                    let want: Vec<Value> = j["options"].as_array().unwrap().clone();
+                    let got: Vec<Value> = d
+                        .options
+                        .iter()
+                        .map(|a| serde_json::json!([a.kind.as_str(), a.a, a.b, a.c]))
+                        .collect();
+                    assert_eq!(got, want, "{id}");
+                }
+                (a, b) => panic!("{id}: pending {a:?} vs {b:?}"),
+            }
+            assert!(st.cache.borrow().is_none(), "no cached view after a load");
+        }
+    }
+
+    #[test]
+    fn touch_bumps_the_version_and_drops_the_cached_view() {
+        for (rec, mut st) in fixtures::states() {
+            let before = canon::canonical_state(&st);
+            *st.cache.get_mut() = Some(a_view());
+            st.touch();
+            assert_eq!(st.version(), rec["state"]["version"].as_u64().unwrap() + 1);
+            assert!(st.cache.borrow().is_none());
+            let mut after = canon::canonical_state(&st);
+            after.set("version", before.get("version").unwrap().clone());
+            assert_eq!(after, before, "touch changes nothing but version");
+            st.touch();
+            assert_eq!(st.version(), rec["state"]["version"].as_u64().unwrap() + 2);
+        }
+    }
+
+    #[test]
+    fn clone_from_equals_clone() {
+        let states = fixtures::states();
+        let n = states.len();
+        prop::check("clone-from-equals-clone", 300, |rng| {
+            let (_, src) = &states[rng.randrange_usize(n)];
+            let mut src = src.clone();
+            if rng.randrange(2) == 0 {
+                *src.cache.get_mut() = Some(a_view());
+            }
+            // A recycled destination of another size, possibly with a view of its own.
+            let mut dst = states[rng.randrange_usize(n)].1.clone();
+            if rng.randrange(2) == 0 {
+                *dst.cache.get_mut() = Some(a_view());
+            }
+            for _ in 0..rng.randrange(3) {
+                dst.touch();
+            }
+            dst.history_reset();
+            dst.clone_from_state(&src);
+            let copy = src.clone();
+            same_state(&src, &copy)?;
+            same_state(&src, &dst)?;
+            // Value semantics (W-52): writing the copy leaves the source alone.
+            let digest = canon::state_digest(&src);
+            let version = src.version();
+            let had_view = src.cache.borrow().is_some();
+            dst.touch();
+            dst.cards[0].damage += 1;
+            dst.once_clear();
+            dst.history_reset();
+            let mut copy = copy;
+            copy.touch();
+            copy.frame_arena().pop();
+            if canon::state_digest(&src) != digest
+                || src.version() != version
+                || src.cache.borrow().is_some() != had_view
+            {
+                return Err("writing a clone changed its source".into());
+            }
+            Ok(())
+        });
+    }
+
+    #[test]
+    fn clones_share_the_game_constants_and_the_cached_view() {
+        let (_, mut st) = fixtures::states().swap_remove(0);
+        *st.cache.get_mut() = Some(a_view());
+        let copy = st.clone();
+        let (Some(a), Some(b)) = (st.cache.borrow().clone(), copy.cache.borrow().clone()) else {
+            panic!("a clone keeps the cached view");
+        };
+        assert!(Arc::ptr_eq(&a, &b), "state.py:570 shares _derived");
+        assert!(Arc::ptr_eq(&st.konst, &copy.konst));
+        let mut copy = copy;
+        copy.touch();
+        assert!(copy.cache.borrow().is_none());
+        assert!(
+            st.cache.borrow().is_some(),
+            "touch drops only its own state's view"
+        );
+    }
+
+    #[test]
+    fn game_constants_listen_to_the_decklists_events() {
+        let reg = fixtures::registry();
+        let (_, st) = fixtures::states().swap_remove(0);
+        let k = &st.konst;
+        let mut want = reg.always_events();
+        for dl in k.decklists.iter().chain(&k.resource_decklists) {
+            for &d in dl.iter() {
+                want = want.union(reg.events_of(d));
+                if let Some(v) = reg.db().unit_variant(d) {
+                    want = want.union(reg.events_of(v.def_id));
+                }
+            }
+        }
+        assert_eq!(k.listened, want);
+        assert_ne!(k.listened, reg.always_events(), "the decks add events");
+        assert!(k.listened.contains(gcg_effects::Ev::TurnEnd));
+        assert!(k.listened.contains(gcg_effects::Ev::DestroysByBattle));
+        assert_eq!(k.hp_reduction_possible, reg.hp_reduction_possible());
+        assert!(k.test_overrides.is_none());
+        assert_eq!(reg.var_name(k.vars.todeck), "__todeck");
+        assert_eq!(reg.var_name(k.vars.play), "__play");
+        let empty: [Box<[DefId]>; 2] = [Box::new([]), Box::new([])];
+        let none = GameConst::new(Arc::clone(reg), empty.clone(), empty, 200, 5).unwrap();
+        assert_eq!(none.listened, reg.always_events());
+        let bad = [Box::new([DefId(60_000)]) as Box<[DefId]>, Box::new([])];
+        let err = GameConst::new(Arc::clone(reg), bad, [Box::new([]), Box::new([])], 200, 5);
+        assert!(matches!(err, Err(EngineError::Internal(_))));
     }
 }

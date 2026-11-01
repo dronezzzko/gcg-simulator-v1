@@ -10,25 +10,88 @@
 //! encodings: 0/1 in cards, battles and triggers, `true`/`false` in frames and `redraws`.
 //!
 //! Everything here reads the registry through [`Tables`], the few lookups the canonical form
-//! needs (content ids, names, prompt instructions); its `Registry` implementation is the
-//! integration point with gcg-effects (B1).
+//! needs (content ids, names, prompt instructions, side-table nodes); `Registry` implements
+//! it, which is the integration point with gcg-effects (B1).
 
 use std::borrow::Cow;
 use std::fmt::Write as _;
+use std::sync::Arc;
 
 use gcg_core::pyjson::{DumpOptions, Json, Key, dumps};
 use gcg_data::DefId;
-use gcg_effects::{ContRef, Duration, FilterSetId, Kw, ProgramId, StrId, VarId};
+use gcg_effects::{
+    ContRef, ContentId, Duration, FilterSetId, InlineNode, Node, ProgramId, Registry, StrId,
+    ValueRef, VarId,
+};
 use serde_json::{Map, Value};
 use sha2::{Digest, Sha256};
 
 use crate::{
     AbilityKey, Action, ActionKind, Battle, CONTEXT_CAPACITY, CanonError, CardInstance, CtxKey,
     DECISION_JSON_KEYS, DecisionHdr, DecisionKind, EVENT_CAPACITY, EndReason, EnginePrompt, EvKey,
-    EventPayload, FRAME_JSON_KEYS, Frame, FrameKind, HOLD_RULES, HistKind, HistoryEvent, IntEntry,
-    IntKey, Lasting, ONCE_KEY_CAPACITY, OnceElem, OnceKey, Phase, Prompt, STATE_JSON_KEYS, Span,
-    StateSnapshot, Step, TriggerInst, Uid, VarEntry, Zone, ZoneLists,
+    EventPayload, FRAME_JSON_KEYS, Frame, FrameKind, GameConst, GameState, HOLD_RULES, HistKind,
+    HistoryEvent, IntEntry, IntKey, Lasting, ONCE_KEY_CAPACITY, OnceElem, OnceKey, Phase, Prompt,
+    STATE_JSON_KEYS, Span, StateSnapshot, Step, TriggerInst, Uid, VarEntry, Zone, ZoneLists,
 };
+
+// ---------------------------------------------------------------------------------------------
+// The public API (docs/port/contracts.md, gcg-engine `canon`)
+
+/// `canonical_state(st)` (`runner/digest.py:36-49`): `st.to_json()` (`engine/state.py:575-611`)
+/// with every process-local registry index replaced by a content id from the state's registry.
+#[must_use]
+pub fn canonical_state(st: &GameState) -> Json {
+    encode(&st.parts(), &**st.registry())
+}
+
+/// `state_digest(st)` (`runner/digest.py:52-56`): the lowercase SHA-256 hex of
+/// `json.dumps(canonical_state(st), sort_keys=True, separators=(",", ":"))` (`ensure_ascii`).
+#[must_use]
+pub fn state_digest(st: &GameState) -> String {
+    digest_of(&canonical_state(st))
+}
+
+/// Rebuilds a state from a trace snapshot (PLAN §4.8; `GameState.from_json`,
+/// `engine/state.py:613-651`, over the canonical form). Programs, filter sets and
+/// build-time continuous effects resolve by content id in `reg`; a continuous effect the
+/// registry does not hold is built from its side-table node as the runtime value it is (a
+/// frozen `StatMod`, a `KeywordGrant`, a delayed-trigger `AbilityGrant`; PLAN §5.6). Every
+/// side-table entry is decoded into typed nodes and must resolve to what its content id names,
+/// and every resolved effect and filter set must hash back to its content id. The state has
+/// Python's `_rules_checked` from the snapshot (which `from_json` drops, Inv 05 §3.5), no
+/// cached view, and a `GameConst` over `reg` built from the snapshot's decklists and limits.
+///
+/// # Errors
+/// [`CanonError`] naming the JSON path of the first malformed value, or the content id that
+/// names nothing in `reg`.
+pub fn from_canonical(reg: &Arc<Registry>, snap: &StateSnapshot) -> Result<GameState, CanonError> {
+    let mut body = decode(&**reg, snap)?;
+    let konst = GameConst::new(
+        Arc::clone(reg),
+        std::mem::take(&mut body.decklists),
+        std::mem::take(&mut body.resource_decklists),
+        body.turn_limit,
+        body.max_actions,
+    )
+    .map_err(|e| CanonError::Value {
+        path: "$".to_owned(),
+        detail: e.to_string(),
+    })?;
+    Ok(GameState::from_body(
+        Arc::new(konst),
+        body,
+        snap.rules_checked,
+    ))
+}
+
+impl Prompt {
+    /// `Decision.prompt` as Python stores and serialises it (`engine/state.py:42`, `:56`): the
+    /// engine literal, the AskMay prompt, or `"choose " + var`.
+    #[must_use]
+    pub fn text<'r>(&self, reg: &'r Registry) -> Cow<'r, str> {
+        prompt_text(*self, reg)
+    }
+}
 
 /// `json.dumps(x)` with Python's defaults: `", "`, `": "`, `ensure_ascii=True`, insertion
 /// order. The once-key sort key (`digest.py:48`).
@@ -44,8 +107,6 @@ pub(crate) const PY_DEFAULT: DumpOptions = DumpOptions {
 pub(crate) trait Tables {
     /// `Registry::str`.
     fn text(&self, id: StrId) -> &str;
-    /// `Registry::str_id`: an `AbilityGrant` card number of a snapshot side table.
-    fn str_id(&self, s: &str) -> Option<StrId>;
     /// `Registry::var_name`: frame variable and loop-key names.
     fn var_name(&self, v: VarId) -> &str;
     /// `Registry::var_id`.
@@ -64,12 +125,128 @@ pub(crate) trait Tables {
     fn filter_set_cid(&self, f: FilterSetId) -> String;
     /// `Registry::filter_set_by_content_id`.
     fn filter_set_by_cid(&self, cid: &str) -> Option<FilterSetId>;
-    /// `Registry::filters_key` of a side-table filter tuple of IR `NodeId`s.
-    fn filter_set_of_nodes(&self, nodes: &[u32]) -> Option<FilterSetId>;
+    /// A side-table continuous effect (an inline node, PLAN §4.8) as the registry holds it:
+    /// the canonical `ContRef` of its arena node, or the runtime value it spells; `None` for a
+    /// node that is neither. `Err` for JSON that is not a node of the registry's DSL.
+    fn cont_inline(&self, form: &Value) -> Result<Option<ContRef>, String>;
+    /// A side-table filter tuple (a list of inline filter nodes) as a filter set of the
+    /// registry, or `None` when the registry has no such filter set.
+    fn filter_set_inline(&self, form: &Value) -> Result<Option<FilterSetId>, String>;
     /// The prompt of the decision that the instruction at `pc` of `program` asks, when it is an
     /// `AskMay` (`Ask`, or `Engine(YouMay)` for an empty prompt, `interp.py:213-216`) or a
     /// `Choose` (`Choose(var)`, `interp.py:433`, `:461`); `None` for any other instruction.
     fn decision_prompt(&self, program: ProgramId, pc: u16) -> Option<Prompt>;
+}
+
+/// The value of a runtime continuous effect that no IR node spells (PLAN §5.6): a `StatMod`
+/// with int fields (`_frozen`, `interp.py:1276-1283`, or a hook, `wp_gd03_a.py:111`), a
+/// `KeywordGrant` with an int amount (`wp_gd04_a.py:69-106`), an `AbilityGrant` (the
+/// delayed-trigger key, `interp.py:1549`); `None` for any other node.
+fn runtime_cont(node: &Node) -> Option<ContRef> {
+    match node {
+        Node::StatMod(m) => match (m.ap, m.hp) {
+            (ValueRef::Lit(ap), ValueRef::Lit(hp)) => Some(ContRef::StatMod {
+                ap: i32::try_from(ap).ok()?,
+                hp: i32::try_from(hp).ok()?,
+            }),
+            _ => None,
+        },
+        Node::KeywordGrant(g) => match g.amount {
+            ValueRef::Lit(n) => Some(ContRef::KeywordGrant {
+                kw: g.keyword,
+                amount: i32::try_from(n).ok()?,
+            }),
+            ValueRef::Node(_) => None,
+        },
+        Node::AbilityGrant(g) => Some(ContRef::AbilityGrant {
+            card: g.card_number,
+            index: i32::try_from(g.ability_index).ok()?,
+        }),
+        _ => None,
+    }
+}
+
+fn cid_of(s: &str) -> Option<ContentId> {
+    ContentId::from_hex(s)
+}
+
+/// The registry's lookups for the canonical form (B1's `Registry`, PLAN §4.7-§4.8).
+impl Tables for Registry {
+    fn text(&self, id: StrId) -> &str {
+        self.str(id)
+    }
+
+    fn var_name(&self, v: VarId) -> &str {
+        Self::var_name(self, v)
+    }
+
+    fn var_id(&self, name: &str) -> Option<VarId> {
+        Self::var_id(self, name)
+    }
+
+    fn def_count(&self) -> usize {
+        self.db().len()
+    }
+
+    fn program_cid(&self, p: ProgramId) -> String {
+        self.program(p).content_id.as_str().to_owned()
+    }
+
+    fn program_by_cid(&self, cid: &str) -> Option<ProgramId> {
+        cid_of(cid).and_then(|c| self.program_by_content_id(&c))
+    }
+
+    fn cont_cid(&self, c: ContRef) -> String {
+        c.content_id(self).as_str().to_owned()
+    }
+
+    fn cont_by_cid(&self, cid: &str) -> Option<ContRef> {
+        cid_of(cid).and_then(|c| self.cont_by_content_id(&c))
+    }
+
+    fn filter_set_cid(&self, f: FilterSetId) -> String {
+        self.filter_set_content_id(f).as_str().to_owned()
+    }
+
+    fn filter_set_by_cid(&self, cid: &str) -> Option<FilterSetId> {
+        cid_of(cid).and_then(|c| self.filter_set_by_content_id(&c))
+    }
+
+    fn cont_inline(&self, form: &Value) -> Result<Option<ContRef>, String> {
+        Ok(match self.decode_inline(form).map_err(|e| e.to_string())? {
+            InlineNode::Arena(id) => self.continuous_id(id).map(|c| self.cont_of(c)),
+            InlineNode::Detached(node) => runtime_cont(&node),
+        })
+    }
+
+    fn filter_set_inline(&self, form: &Value) -> Result<Option<FilterSetId>, String> {
+        let items = form
+            .as_array()
+            .ok_or_else(|| format!("expected a list of filter nodes, got {form}"))?;
+        let mut filters = Vec::with_capacity(items.len());
+        for f in items {
+            match self.decode_inline(f).map_err(|e| e.to_string())? {
+                InlineNode::Arena(id) => match self.filter_id(id) {
+                    Some(fid) => filters.push(fid),
+                    None => return Ok(None),
+                },
+                InlineNode::Detached(_) => return Ok(None),
+            }
+        }
+        Ok(self.filters_key(&filters))
+    }
+
+    fn decision_prompt(&self, program: ProgramId, pc: u16) -> Option<Prompt> {
+        let ins = *self.program(program).instrs.get(usize::from(pc))?;
+        match self.node(ins) {
+            Node::AskMay(a) if self.str(a.prompt).is_empty() => {
+                Some(Prompt::Engine(EnginePrompt::YouMay))
+            }
+            Node::AskMay(a) => Some(Prompt::Ask(a.prompt)),
+            Node::Choose(c) => Some(Prompt::Choose(c.var)),
+            _ => None,
+        }
+    }
 }
 
 /// `Decision.prompt` as Python stores it (`engine/state.py:56`).
@@ -93,10 +270,6 @@ fn int_key_name(k: IntKey, t: &dyn Tables) -> Cow<'_, str> {
 }
 
 /// `hashlib.sha256(blob).hexdigest()`.
-#[allow(
-    dead_code,
-    reason = "called by canon::state_digest once Tables is implemented for Registry (B1)"
-)]
 pub(crate) fn sha256_hex(blob: &[u8]) -> String {
     let digest = Sha256::digest(blob);
     let mut out = String::with_capacity(64);
@@ -108,10 +281,6 @@ pub(crate) fn sha256_hex(blob: &[u8]) -> String {
 
 /// `state_digest` of a canonical form (`digest.py:52-56`): the SHA-256 of
 /// `json.dumps(canonical, sort_keys=True, separators=(",", ":"))` (`ensure_ascii=True`).
-#[allow(
-    dead_code,
-    reason = "called by canon::state_digest once Tables is implemented for Registry (B1)"
-)]
 pub(crate) fn digest_of(canonical: &Json) -> String {
     sha256_hex(dumps(canonical, DumpOptions::COMPACT_SORTED_ASCII).as_bytes())
 }
@@ -211,10 +380,7 @@ pub(crate) struct StateBody {
     pub(crate) version: u64,
 }
 
-#[allow(
-    dead_code,
-    reason = "read by canon::canonical_state once Tables is implemented for Registry (B1)"
-)]
+#[cfg(test)]
 impl StateBody {
     /// The fields of this body for [`encode`].
     pub(crate) fn parts(&self) -> Parts<'_> {
@@ -263,10 +429,6 @@ impl StateBody {
     }
 }
 
-#[allow(
-    dead_code,
-    reason = "read by canon::canonical_state once Tables is implemented for Registry (B1)"
-)]
 impl crate::GameState {
     /// The serialised fields of this state for [`encode`].
     pub(crate) fn parts(&self) -> Parts<'_> {
@@ -523,10 +685,6 @@ fn decision_json(hdr: &DecisionHdr, options: &[Action], t: &dyn Tables) -> Json 
 
 /// `canonical_state(st)` (`runner/digest.py:36-49`) of the serialised fields `p`: the 34
 /// keys of `GameState.to_json()` in Python's order (`state.py:575-611`).
-#[allow(
-    dead_code,
-    reason = "called by canon::canonical_state once Tables is implemented for Registry (B1)"
-)]
 pub(crate) fn encode(p: &Parts<'_>, t: &dyn Tables) -> Json {
     let zones = Json::Array(
         (0..2u8)
@@ -681,6 +839,8 @@ pub(crate) fn encode(p: &Parts<'_>, t: &dyn Tables) -> Json {
 #[derive(Clone, Copy)]
 enum Loc<'a> {
     Root,
+    /// A side table of the snapshot (`continuous`, `filter_sets`).
+    Table(&'static str),
     Key(&'a Loc<'a>, &'a str),
     Index(&'a Loc<'a>, usize),
 }
@@ -697,6 +857,7 @@ impl<'a> Loc<'a> {
     fn render(&self) -> String {
         match self {
             Self::Root => "$".to_owned(),
+            Self::Table(name) => (*name).to_owned(),
             Self::Key(parent, k) => format!("{}.{k}", parent.render()),
             Self::Index(parent, i) => format!("{}[{i}]", parent.render()),
         }
@@ -845,6 +1006,54 @@ fn rest_as_index(s: &str) -> Option<u16> {
     if canonical { digits.parse().ok() } else { None }
 }
 
+/// Resolves the content id `cid` of a `kind` that the state names at `at` (PLAN §4.8):
+/// `by_cid` is the registry's entry with that id, and the side-table entry of `table`, when
+/// present, is decoded with `inline` (`None`: it names nothing the registry can hold). When
+/// both exist they must be equal; at least one must; and the result must hash back to `cid`
+/// (`hash`, `runner/digest.py:26-27`).
+fn resolve<T: Copy + PartialEq + std::fmt::Debug>(
+    kind: &'static str,
+    cid: &str,
+    at: &Loc<'_>,
+    table: (&'static str, Option<&Map<String, Value>>),
+    by_cid: Option<T>,
+    inline: impl FnOnce(&Value) -> Result<Option<T>, String>,
+    hash: impl FnOnce(T) -> String,
+) -> Result<T, CanonError> {
+    let unknown = || CanonError::UnknownContent {
+        kind,
+        id: cid.to_owned(),
+    };
+    let (name, side) = table;
+    let root = Loc::Table(name);
+    let entry = root.key(cid);
+    let decoded = match side.and_then(|m| m.get(cid)) {
+        Some(form) => Some(inline(form).map_err(|e| entry.value(e))?),
+        None => None,
+    };
+    let found = match (by_cid, decoded) {
+        (Some(r), Some(Some(s))) if r != s => {
+            return Err(entry.value(format!(
+                "decodes to {s:?}, but the registry's {kind} with this content id is {r:?}"
+            )));
+        }
+        (Some(r), Some(None)) => {
+            return Err(entry.value(format!(
+                "names no {kind} of the registry, but the registry's {kind} with this content \
+                 id is {r:?}"
+            )));
+        }
+        (Some(r), _) => r,
+        (None, Some(Some(s))) => s,
+        (None, _) => return Err(unknown()),
+    };
+    let got = hash(found);
+    if got != cid {
+        return Err(at.value(format!("{kind} {found:?} has content id {got}, not {cid}")));
+    }
+    Ok(found)
+}
+
 /// Decodes canonical snapshots against a registry's [`Tables`].
 struct Decoder<'a> {
     t: &'a dyn Tables,
@@ -863,95 +1072,33 @@ impl Decoder<'_> {
             })
     }
 
-    /// A continuous effect: the registry's, or a value from the snapshot's `continuous`
-    /// table, whose content id must match.
+    /// A continuous effect by content id (PLAN §4.8): the registry's effect with that id or
+    /// the one its side-table node spells (both, and equal, when both exist), hashing back to
+    /// `cid`.
     fn cont(&self, cid: &str, at: &Loc<'_>) -> Result<ContRef, CanonError> {
-        if let Some(c) = self.t.cont_by_cid(cid) {
-            return Ok(c);
-        }
-        let unknown = || CanonError::UnknownContent {
-            kind: "continuous",
-            id: cid.to_owned(),
-        };
-        let form = self
-            .continuous
-            .and_then(|m| m.get(cid))
-            .ok_or_else(unknown)?;
-        let c = self.cont_value(form, &at.key(cid))?.ok_or_else(unknown)?;
-        let got = self.t.cont_cid(c);
-        if got != cid {
-            return Err(at.value(format!(
-                "side-table effect {c:?} has content id {got}, not {cid}"
-            )));
-        }
-        Ok(c)
+        resolve(
+            "continuous",
+            cid,
+            at,
+            ("continuous", self.continuous),
+            self.t.cont_by_cid(cid),
+            |form| self.t.cont_inline(form),
+            |c| self.t.cont_cid(c),
+        )
     }
 
-    /// A value-shaped effect in IR node form (`{"_": "StatMod", "ap": -2, "hp": 0}`, PLAN
-    /// §3.3), or `None` for any other class.
-    fn cont_value(&self, form: &Value, at: &Loc<'_>) -> Result<Option<ContRef>, CanonError> {
-        let m = obj(form, at)?;
-        let class = m.get("_").and_then(Value::as_str);
-        Ok(Some(match class {
-            Some("StatMod") => {
-                let m = record(form, &["_", "ap", "hp"], at)?;
-                ContRef::StatMod {
-                    ap: int_as(field(m, "ap"), &at.key("ap"))?,
-                    hp: int_as(field(m, "hp"), &at.key("hp"))?,
-                }
-            }
-            Some("KeywordGrant") => {
-                let m = record(form, &["_", "keyword", "amount"], at)?;
-                ContRef::KeywordGrant {
-                    kw: enum_of(
-                        field(m, "keyword"),
-                        &at.key("keyword"),
-                        "keyword",
-                        Kw::from_value,
-                    )?,
-                    amount: int_as(field(m, "amount"), &at.key("amount"))?,
-                }
-            }
-            Some("AbilityGrant") => {
-                let m = record(form, &["_", "card_number", "ability_index"], at)?;
-                let number = str_of(field(m, "card_number"), &at.key("card_number"))?;
-                ContRef::AbilityGrant {
-                    card: self.t.str_id(number).ok_or_else(|| {
-                        at.value(format!("card number {number:?} is not an IR string"))
-                    })?,
-                    index: int_as(field(m, "ability_index"), &at.key("ability_index"))?,
-                }
-            }
-            _ => return Ok(None),
-        }))
-    }
-
+    /// A filter set by content id: the registry's filter set with that id or the one its
+    /// side-table filter nodes form (both, and equal, when both exist), hashing back to `cid`.
     fn filter_set(&self, cid: &str, at: &Loc<'_>) -> Result<FilterSetId, CanonError> {
-        if let Some(f) = self.t.filter_set_by_cid(cid) {
-            return Ok(f);
-        }
-        let unknown = || CanonError::UnknownContent {
-            kind: "filter_set",
-            id: cid.to_owned(),
-        };
-        let nodes = self
-            .filter_sets
-            .and_then(|m| m.get(cid))
-            .ok_or_else(unknown)?;
-        let at = at.key(cid);
-        let ids: Vec<u32> = arr(nodes, &at)?
-            .iter()
-            .enumerate()
-            .map(|(i, n)| int_as(n, &at.ix(i)))
-            .collect::<Result<_, _>>()?;
-        let f = self.t.filter_set_of_nodes(&ids).ok_or_else(unknown)?;
-        let got = self.t.filter_set_cid(f);
-        if got != cid {
-            return Err(at.value(format!(
-                "side-table filter set has content id {got}, not {cid}"
-            )));
-        }
-        Ok(f)
+        resolve(
+            "filter_set",
+            cid,
+            at,
+            ("filter_sets", self.filter_sets),
+            self.t.filter_set_by_cid(cid),
+            |form| self.t.filter_set_inline(form),
+            |f| self.t.filter_set_cid(f),
+        )
     }
 
     fn event(&self, v: &Value, at: &Loc<'_>) -> Result<EventPayload, CanonError> {
@@ -1489,15 +1636,11 @@ fn span_from(start: usize, end: usize, at: &Loc<'_>) -> Result<Span, CanonError>
 }
 
 /// Decodes `snap.state` (a canonical form) with the side tables of the snapshot
-/// (PLAN §4.8): content ids resolve through `t`, and a value-shaped effect the registry does
-/// not know through `snap.continuous`.
+/// (PLAN §4.8): content ids resolve through `t` and the inline nodes of `snap.continuous` and
+/// `snap.filter_sets` (see [`resolve`]).
 ///
 /// # Errors
 /// [`CanonError`] naming the JSON path of the first malformed or unknown value.
-#[allow(
-    dead_code,
-    reason = "called by canon::from_canonical once Tables is implemented for Registry (B1)"
-)]
 pub(crate) fn decode(t: &dyn Tables, snap: &StateSnapshot) -> Result<StateBody, CanonError> {
     let d = Decoder {
         t,
@@ -1523,177 +1666,105 @@ fn side_table<'v>(
 }
 
 #[cfg(test)]
-mod tests {
-    //! M5.1 without the corpus: Python-exported canonical states
-    //! (`port/oracle/export_state_fixtures.py`) decode and re-encode byte for byte, with
-    //! Python's digests, against a table double of the registry lookups.
+pub(crate) mod fixtures {
+    //! The canonical states that `port/oracle/export_state_fixtures.py` exports with Python's
+    //! digests (`tests/fixtures/states.ndjson`), and a registry that holds all of them.
 
-    use super::*;
-    use crate::NO_ARG;
-    use crate::state::FrameArena;
-    use gcg_core::prop;
-    use gcg_effects::NodeId;
+    use std::sync::{Arc, OnceLock};
+
+    use gcg_data::CardDb;
+    use gcg_effects::{InlineNode, Registry};
+    use serde_json::{Value, json};
+
+    use crate::{GameState, StateSnapshot};
 
     const FIXTURES: &str = include_str!("../tests/fixtures/states.ndjson");
+    const IR: &str = include_str!("../../gcg-effects/ir/registry.json");
 
-    /// The registry lookups of the fixture file's `tables` line. Effects the registry would
-    /// know are `ContRef::Node(i)`; value-shaped ones are resolved from each snapshot's side
-    /// table, as for runtime values that the IR does not list.
-    struct FixtureTables {
-        def_count: usize,
-        programs: Vec<String>,
-        conts: Vec<String>,
-        values: Vec<(ContRef, String)>,
-        filter_sets: Vec<String>,
-        var_names: Vec<String>,
-        strings: Vec<String>,
-        prompts: Vec<(ProgramId, u16, Prompt)>,
+    pub(crate) fn snapshots() -> &'static [Value] {
+        static SNAPSHOTS: OnceLock<Vec<Value>> = OnceLock::new();
+        SNAPSHOTS.get_or_init(|| {
+            FIXTURES
+                .lines()
+                .map(|l| serde_json::from_str(l).unwrap())
+                .collect()
+        })
     }
 
-    fn strings(v: &Value) -> Vec<String> {
-        v.as_array()
-            .unwrap()
-            .iter()
-            .map(|s| s.as_str().unwrap().to_owned())
-            .collect()
-    }
-
-    fn position(list: &[String], s: &str) -> Option<usize> {
-        list.iter().position(|x| x == s)
-    }
-
-    fn id16(i: usize) -> u16 {
-        u16::try_from(i).unwrap()
-    }
-
-    impl FixtureTables {
-        fn new(head: &Value, snapshots: &[Value]) -> Self {
-            let mut t = Self {
-                def_count: usize::try_from(head["def_count"].as_u64().unwrap()).unwrap(),
-                programs: strings(&head["programs"]),
-                conts: strings(&head["continuous"]),
-                values: Vec::new(),
-                filter_sets: strings(&head["filter_sets"]),
-                var_names: strings(&head["var_names"]),
-                strings: strings(&head["strings"]),
-                prompts: Vec::new(),
-            };
-            for p in head["prompts"].as_array().unwrap() {
-                let program =
-                    ProgramId(id16(position(&t.programs, p[0].as_str().unwrap()).unwrap()));
-                let pc = u16::try_from(p[1].as_u64().unwrap()).unwrap();
-                let text = p[3].as_str().unwrap();
-                let prompt = match p[2].as_str().unwrap() {
-                    "ask" => Prompt::Ask(t.str_id(text).unwrap()),
-                    "you_may" => Prompt::Engine(EnginePrompt::YouMay),
-                    "choose" => Prompt::Choose(t.var_id(text).unwrap()),
-                    other => panic!("prompt kind {other}"),
-                };
-                t.prompts.push((program, pc, prompt));
-            }
-            // An independent reading of the side-table forms (the decoder has its own).
-            for s in snapshots {
-                for (cid, form) in s["continuous"].as_object().unwrap() {
-                    let int = |k: &str| i32::try_from(form[k].as_i64().unwrap()).unwrap();
-                    let c = match form["_"].as_str().unwrap() {
-                        "StatMod" => ContRef::StatMod {
-                            ap: int("ap"),
-                            hp: int("hp"),
-                        },
-                        "KeywordGrant" => ContRef::KeywordGrant {
-                            kw: Kw::from_value(form["keyword"].as_str().unwrap()).unwrap(),
-                            amount: int("amount"),
-                        },
-                        "AbilityGrant" => ContRef::AbilityGrant {
-                            card: t.str_id(form["card_number"].as_str().unwrap()).unwrap(),
-                            index: int("ability_index"),
-                        },
-                        other => panic!("side-table class {other}"),
-                    };
-                    if !t.values.iter().any(|(_, x)| x == cid) {
-                        t.values.push((c, cid.clone()));
+    /// The embedded registry with the filter sets that the fixtures name and the IR lacks
+    /// (Python registers filter tuples at run time, `effects/registry.py:132-138`; the IR has
+    /// none yet), added to a copy of the IR under Python's content ids.
+    pub(crate) fn registry() -> &'static Arc<Registry> {
+        static REGISTRY: OnceLock<Arc<Registry>> = OnceLock::new();
+        REGISTRY.get_or_init(|| {
+            let base = Registry::embedded();
+            let mut ir: Value = serde_json::from_str(IR).unwrap();
+            let mut sets = ir["filter_sets"].as_array().unwrap().clone();
+            for s in snapshots() {
+                for (cid, filters) in s["filter_sets"].as_object().unwrap() {
+                    if sets.iter().any(|x| x["content_id"] == *cid) {
+                        continue;
                     }
+                    let ids: Vec<Value> = filters
+                        .as_array()
+                        .unwrap()
+                        .iter()
+                        .map(|f| match base.decode_inline(f) {
+                            Ok(InlineNode::Arena(id)) => Value::from(id.0),
+                            other => panic!("filter {f} is not an IR node: {other:?}"),
+                        })
+                        .collect();
+                    sets.push(json!({"filters": ids, "content_id": cid}));
                 }
             }
-            t
-        }
+            ir["filter_sets"] = Value::Array(sets);
+            Arc::new(Registry::from_ir(&ir.to_string(), CardDb::embedded()).unwrap())
+        })
     }
 
-    impl Tables for FixtureTables {
-        fn text(&self, id: StrId) -> &str {
-            &self.strings[id.0 as usize]
-        }
-        fn str_id(&self, s: &str) -> Option<StrId> {
-            position(&self.strings, s).map(|i| StrId(u32::try_from(i).unwrap()))
-        }
-        fn var_name(&self, v: VarId) -> &str {
-            &self.var_names[usize::from(v.0)]
-        }
-        fn var_id(&self, name: &str) -> Option<VarId> {
-            position(&self.var_names, name).map(|i| VarId(id16(i)))
-        }
-        fn def_count(&self) -> usize {
-            self.def_count
-        }
-        fn program_cid(&self, p: ProgramId) -> String {
-            self.programs[usize::from(p.0)].clone()
-        }
-        fn program_by_cid(&self, cid: &str) -> Option<ProgramId> {
-            position(&self.programs, cid).map(|i| ProgramId(id16(i)))
-        }
-        fn cont_cid(&self, c: ContRef) -> String {
-            match c {
-                ContRef::Node(NodeId(i)) => self.conts[i as usize].clone(),
-                _ => self
-                    .values
-                    .iter()
-                    .find(|(v, _)| *v == c)
-                    .map_or_else(|| format!("no-cid-for-{c:?}"), |(_, cid)| cid.clone()),
-            }
-        }
-        fn cont_by_cid(&self, cid: &str) -> Option<ContRef> {
-            position(&self.conts, cid).map(|i| ContRef::Node(NodeId(u32::try_from(i).unwrap())))
-        }
-        fn filter_set_cid(&self, f: FilterSetId) -> String {
-            self.filter_sets[usize::from(f.0)].clone()
-        }
-        fn filter_set_by_cid(&self, cid: &str) -> Option<FilterSetId> {
-            position(&self.filter_sets, cid).map(|i| FilterSetId(id16(i)))
-        }
-        fn filter_set_of_nodes(&self, _nodes: &[u32]) -> Option<FilterSetId> {
-            None
-        }
-        fn decision_prompt(&self, program: ProgramId, pc: u16) -> Option<Prompt> {
-            self.prompts
-                .iter()
-                .find(|(p, at, _)| *p == program && *at == pc)
-                .map(|&(_, _, prompt)| prompt)
-        }
+    pub(crate) fn by_id(id: &str) -> &'static Value {
+        snapshots().iter().find(|r| r["id"] == id).unwrap()
     }
 
-    struct Fixture {
-        tables: FixtureTables,
-        snapshots: Vec<Value>,
-    }
-
-    fn fixture() -> Fixture {
-        let mut lines = FIXTURES.lines();
-        let head: Value = serde_json::from_str(lines.next().unwrap()).unwrap();
-        assert_eq!(head["t"], "tables");
-        let snapshots: Vec<Value> = lines.map(|l| serde_json::from_str(l).unwrap()).collect();
-        Fixture {
-            tables: FixtureTables::new(&head, &snapshots),
-            snapshots,
-        }
-    }
-
-    fn snapshot(rec: &Value) -> StateSnapshot {
+    pub(crate) fn snapshot(rec: &Value) -> StateSnapshot {
         StateSnapshot {
             state: rec["state"].clone(),
             continuous: rec["continuous"].clone(),
             filter_sets: rec["filter_sets"].clone(),
             rules_checked: rec["rules_checked"].as_i64().unwrap(),
         }
+    }
+
+    /// Every fixture snapshot rebuilt with `canon::from_canonical`, with its record.
+    pub(crate) fn states() -> Vec<(&'static Value, GameState)> {
+        snapshots()
+            .iter()
+            .map(|r| {
+                let st = super::from_canonical(registry(), &snapshot(r))
+                    .unwrap_or_else(|e| panic!("{}: {e}", r["id"]));
+                (r, st)
+            })
+            .collect()
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    //! M5.1 without the corpus: Python-exported canonical states
+    //! (`port/oracle/export_state_fixtures.py`) decode and re-encode byte for byte, with
+    //! Python's digests, against the embedded effect registry (the public round trip is
+    //! `tests/canonical_fixtures.rs`).
+
+    use gcg_core::prop;
+    use serde_json::json;
+
+    use super::fixtures::{by_id, snapshot, snapshots};
+    use super::*;
+    use crate::NO_ARG;
+    use crate::state::FrameArena;
+
+    fn registry() -> &'static Registry {
+        super::fixtures::registry()
     }
 
     /// Python's JSON value as a `gcg_core` value (insertion order kept; no floats occur).
@@ -1745,9 +1816,9 @@ mod tests {
     /// T-045 on the fixture snapshots: decode, re-encode, compare Python's bytes and digest.
     #[test]
     fn python_snapshots_round_trip_byte_for_byte() {
-        let fx = fixture();
-        assert!(fx.snapshots.len() >= 60, "{} snapshots", fx.snapshots.len());
-        for rec in &fx.snapshots {
+        let t = registry();
+        assert_eq!(snapshots().len(), 69);
+        for rec in snapshots() {
             let id = rec["id"].as_str().unwrap();
             let python = to_json(&rec["state"]);
             let python_text = dumps(&python, PY_DEFAULT);
@@ -1758,8 +1829,8 @@ mod tests {
                 "{id}"
             );
             assert_eq!(digest_of(&python), rec["digest"], "{id}");
-            let body = decode(&fx.tables, &snapshot(rec)).unwrap_or_else(|e| panic!("{id}: {e}"));
-            let rust = encode(&body.parts(), &fx.tables);
+            let body = decode(t, &snapshot(rec)).unwrap_or_else(|e| panic!("{id}: {e}"));
+            let rust = encode(&body.parts(), t);
             let rust_text = dumps(&rust, PY_DEFAULT);
             assert!(
                 rust_text == python_text,
@@ -1772,14 +1843,9 @@ mod tests {
 
     #[test]
     fn records_keep_pythons_key_orders_and_bool_encodings() {
-        let fx = fixture();
-        let rec = fx
-            .snapshots
-            .iter()
-            .find(|r| r["id"] == "synthetic/rare-shapes")
-            .unwrap();
-        let body = decode(&fx.tables, &snapshot(rec)).unwrap();
-        let j = encode(&body.parts(), &fx.tables);
+        let t = registry();
+        let body = decode(t, &snapshot(by_id("synthetic/rare-shapes"))).unwrap();
+        let j = encode(&body.parts(), t);
         assert_eq!(keys(&j), STATE_JSON_KEYS);
         let frames = j.get("frames").unwrap();
         let Json::Array(frames) = frames else {
@@ -1787,16 +1853,14 @@ mod tests {
         };
         assert_eq!(keys(&frames[0]), FRAME_JSON_KEYS);
         assert_eq!(keys(j.get("pending").unwrap()), DECISION_JSON_KEYS);
-        // __loop12 < __loop3 and __rest_as10 < __rest_as2: sorted as strings (state.py:387).
+        // __rest_as10 < __rest_as2 < __rest_i: sorted as strings (state.py:387).
         assert_eq!(
             keys(frames[0].get("ints").unwrap()),
-            [
-                "__loop12",
-                "__loop3",
-                "__rest_as10",
-                "__rest_as2",
-                "__rest_i"
-            ]
+            ["__loop0", "__rest_as10", "__rest_as2", "__rest_i"]
+        );
+        assert_eq!(
+            keys(frames[0].get("vars").unwrap())[..2],
+            ["__todeck", "pick"]
         );
         assert_eq!(frames[0].get("did"), Some(&Json::Bool(true)));
         // Battles, triggers and cards write their bools as 0/1.
@@ -1813,18 +1877,19 @@ mod tests {
             "{once}"
         );
         assert_eq!(body.effect_hits, [(2, 7), (5, 9)]);
+        assert!(body.lasting.iter().any(|l| l.filters.is_some()));
     }
 
     #[test]
     fn prompts_are_recovered_from_the_waiting_frame() {
-        let fx = fixture();
-        let t = &fx.tables;
+        let t = registry();
         let mut seen = Vec::new();
-        for rec in &fx.snapshots {
+        for rec in snapshots() {
             let body = decode(t, &snapshot(rec)).unwrap();
             if let Some(hdr) = body.pending {
                 let text = rec["state"]["pending"]["prompt"].as_str().unwrap();
                 assert_eq!(prompt_text(hdr.prompt, t), text);
+                assert_eq!(hdr.prompt.text(t), text);
                 let kind = match hdr.prompt {
                     Prompt::Engine(EnginePrompt::YouMay) => "you may".to_owned(),
                     Prompt::Engine(_) => "engine".to_owned(),
@@ -1848,13 +1913,21 @@ mod tests {
             ]
         );
         // ensure_ascii in the digest blob (digest.py:55; Inv 05 §2.2).
-        let rec = fx
-            .snapshots
+        let rec = snapshots()
             .iter()
             .find(|r| r["state"]["pending"]["prompt"] == "pay ①?")
             .unwrap();
         let blob = dumps(&to_json(&rec["state"]), DumpOptions::COMPACT_SORTED_ASCII);
         assert!(blob.contains("\"prompt\":\"pay \\u2460?\""));
+    }
+
+    #[test]
+    fn only_ask_may_and_choose_instructions_ask_prompts() {
+        let t = registry();
+        // Program 0 is `keyword:Repair`, whose instructions ask nothing.
+        let repair = t.keyword_program(gcg_effects::KeywordProgram::Repair);
+        assert_eq!(t.decision_prompt(repair, 0), None);
+        assert_eq!(t.decision_prompt(repair, u16::MAX), None);
     }
 
     fn mutated(rec: &Value, edit: impl FnOnce(&mut Value)) -> StateSnapshot {
@@ -1865,114 +1938,117 @@ mod tests {
 
     /// A change to a snapshot's `state`, and the error it must produce.
     type Edit = Box<dyn Fn(&mut Value)>;
-    type Check = Box<dyn Fn(CanonError) -> bool>;
+    type Check = Box<dyn Fn(&CanonError) -> bool>;
 
-    fn decode_err(t: &FixtureTables, s: &StateSnapshot) -> CanonError {
+    fn decode_err(t: &dyn Tables, s: &StateSnapshot) -> CanonError {
         decode(t, s).expect_err("the snapshot must be rejected")
+    }
+
+    fn shape(path: String) -> Check {
+        Box::new(move |e| matches!(e, CanonError::Shape { path: p, .. } if *p == path))
+    }
+
+    fn value(path: String) -> Check {
+        Box::new(move |e| matches!(e, CanonError::Value { path: p, .. } if *p == path))
     }
 
     #[test]
     fn malformed_snapshots_name_the_path() {
-        let fx = fixture();
-        let t = &fx.tables;
-        let rec = fx
-            .snapshots
-            .iter()
-            .find(|r| r["id"] == "synthetic/rare-shapes")
-            .unwrap();
-        let shape = |path: &'static str| move |e: CanonError| matches!(e, CanonError::Shape { path: p, .. } if p == path);
-        let value = |path: &'static str| move |e: CanonError| matches!(e, CanonError::Value { path: p, .. } if p == path);
+        let t = registry();
+        let rec = by_id("synthetic/rare-shapes");
+        let n_once = rec["state"]["once_used"].as_array().unwrap().len();
+        let p = |s: &str| s.to_owned();
         let cases: Vec<(Edit, Check)> = vec![
             (
                 Box::new(|s| {
                     s.as_object_mut().unwrap().shift_remove("seed");
                 }),
-                Box::new(shape("$")),
+                shape(p("$")),
             ),
             (
                 Box::new(|s| {
                     s["extra"] = Value::Null;
                 }),
-                Box::new(shape("$")),
+                shape(p("$")),
             ),
             (
                 Box::new(|s| s["cards"][3][0] = 4.into()),
-                Box::new(value("$.cards[3][0]")),
+                value(p("$.cards[3][0]")),
             ),
             (
                 Box::new(|s| s["cards"][3][4] = true.into()),
-                Box::new(shape("$.cards[3][4]")),
+                shape(p("$.cards[3][4]")),
             ),
             (
                 Box::new(|s| s["cards"][3][4] = 2.into()),
-                Box::new(value("$.cards[3][4]")),
+                value(p("$.cards[3][4]")),
             ),
             (
                 Box::new(|s| s["cards"][3][1] = 5000.into()),
-                Box::new(value("$.cards[3][1]")),
+                value(p("$.cards[3][1]")),
             ),
             (
                 Box::new(|s| s["zones"][0][7][0] = 9999.into()),
-                Box::new(value("$.zones[0][7][0]")),
+                value(p("$.zones[0][7][0]")),
             ),
             (
                 Box::new(|s| s["frames"][0]["did"] = 1.into()),
-                Box::new(shape("$.frames[0].did")),
+                shape(p("$.frames[0].did")),
             ),
             (
                 Box::new(|s| {
                     s["frames"][0]["ints"]["__rest_as01"] = 3.into();
                 }),
-                Box::new(value("$.frames[0].ints.__rest_as01")),
+                value(p("$.frames[0].ints.__rest_as01")),
+            ),
+            (
+                Box::new(|s| {
+                    s["frames"][0]["ints"]["__loop3"] = 3.into();
+                }),
+                value(p("$.frames[0].ints.__loop3")),
             ),
             (
                 Box::new(|s| {
                     s["frames"][0]["vars"]["no_such_var"] = Value::Array(vec![]);
                 }),
-                Box::new(value("$.frames[0].vars.no_such_var")),
+                value(p("$.frames[0].vars.no_such_var")),
             ),
             (
                 Box::new(|s| s["pending"]["prompt"] = "say what?".into()),
-                Box::new(value("$.pending.prompt")),
+                value(p("$.pending.prompt")),
             ),
             (
                 Box::new(|s| s["pending"]["kind"] = "think".into()),
-                Box::new(value("$.pending.kind")),
+                value(p("$.pending.kind")),
             ),
             (
                 Box::new(|s| s["lasting"][0][4] = "forever".into()),
-                Box::new(value("$.lasting[0][4]")),
+                value(p("$.lasting[0][4]")),
             ),
             (
                 Box::new(|s| s["lasting"][0][9] = (-2).into()),
-                Box::new(value("$.lasting[0][9]")),
+                value(p("$.lasting[0][9]")),
             ),
             (
                 Box::new(|s| {
                     let dup = s["once_used"][0].clone();
                     s["once_used"].as_array_mut().unwrap().push(dup);
                 }),
-                Box::new(value("$.once_used[5]")),
+                value(format!("$.once_used[{n_once}]")),
             ),
-            (
-                Box::new(|s| s["seed"] = (-1).into()),
-                Box::new(value("$.seed")),
-            ),
-            (
-                Box::new(|s| s["step"] = 7.into()),
-                Box::new(value("$.step")),
-            ),
+            (Box::new(|s| s["seed"] = (-1).into()), value(p("$.seed"))),
+            (Box::new(|s| s["step"] = 7.into()), value(p("$.step"))),
             (
                 Box::new(|s| s["redraws"] = Value::Array(vec![true.into()])),
-                Box::new(shape("$.redraws")),
+                shape(p("$.redraws")),
             ),
         ];
         for (i, (edit, check)) in cases.iter().enumerate() {
             let e = decode_err(t, &mutated(rec, edit));
-            assert!(check(e.clone()), "case {i}: {e}");
+            assert!(check(&e), "case {i}: {e}");
         }
         let unknown_program = mutated(rec, |s| {
-            s["frames"][0]["program_id"] = "0000000000000000".into()
+            s["frames"][0]["program_id"] = "0000000000000000".into();
         });
         assert_eq!(
             decode_err(t, &unknown_program),
@@ -1981,55 +2057,123 @@ mod tests {
                 id: "0000000000000000".into()
             }
         );
-        let mut no_side_table = snapshot(rec);
-        no_side_table.continuous = Value::Object(Map::new());
-        assert!(matches!(
-            decode_err(t, &no_side_table),
-            CanonError::UnknownContent {
-                kind: "continuous",
-                ..
-            }
-        ));
-        let mut wrong_value = snapshot(rec);
-        let cid = rec["state"]["lasting"][0][0].as_str().unwrap();
-        wrong_value.continuous[cid]["ap"] = 7.into();
-        assert!(matches!(
-            decode_err(t, &wrong_value),
-            CanonError::Value { .. }
-        ));
         let unknown_filters = mutated(rec, |s| s["lasting"][0][9] = "ffffffffffffffff".into());
-        assert!(matches!(
+        assert_eq!(
             decode_err(t, &unknown_filters),
             CanonError::UnknownContent {
                 kind: "filter_set",
-                ..
+                id: "ffffffffffffffff".into()
             }
-        ));
+        );
+    }
+
+    /// The side tables (PLAN §4.8): a runtime value needs its entry, every entry must decode
+    /// to what its content id names, and the registry wins only when both agree.
+    #[test]
+    fn side_table_entries_must_resolve_to_their_content_ids() {
+        let t = registry();
+        let rec = by_id("synthetic/rare-shapes");
+        let cid = rec["state"]["lasting"][0][0].as_str().unwrap();
+        let entry_path = format!("continuous.{cid}");
+
+        // A frozen StatMod is no IR node: without its entry it is unknown.
+        let mut no_side_table = snapshot(rec);
+        no_side_table.continuous = Value::Object(Map::new());
+        assert_eq!(
+            decode_err(t, &no_side_table),
+            CanonError::UnknownContent {
+                kind: "continuous",
+                id: cid.into()
+            }
+        );
+        // An entry that spells another value does not hash back to its key.
+        let mut wrong_value = snapshot(rec);
+        wrong_value.continuous[cid]["ap"] = 7.into();
+        assert!(value(p_lasting())(&decode_err(t, &wrong_value)));
+        // An entry that is not a DSL node.
+        let mut not_a_node = snapshot(rec);
+        not_a_node.continuous[cid] = json!({"_": "Nonsense"});
+        assert!(value(entry_path.clone())(&decode_err(t, &not_a_node)));
+        let mut not_continuous = snapshot(rec);
+        not_continuous.continuous[cid] = json!({"_": "IsDamaged", "damaged": true});
+        assert_eq!(
+            decode_err(t, &not_continuous),
+            CanonError::UnknownContent {
+                kind: "continuous",
+                id: cid.into()
+            }
+        );
+
+        // A build-time effect resolves through the registry with or without its entry, and an
+        // entry that names another registry effect is refused.
+        let rule = by_id("fuzz/g003/d0019");
+        let rule_cid = rule["state"]["lasting"][0][0].as_str().unwrap();
+        let other = by_id("fuzz/g010/d0067");
+        let other_form = other["continuous"]
+            .as_object()
+            .unwrap()
+            .values()
+            .next()
+            .unwrap();
+        let mut bare = snapshot(rule);
+        bare.continuous = Value::Object(Map::new());
+        assert!(decode(t, &bare).is_ok());
+        let mut swapped = snapshot(rule);
+        swapped.continuous[rule_cid] = other_form.clone();
+        assert!(value(format!("continuous.{rule_cid}"))(&decode_err(
+            t, &swapped
+        )));
+
+        // Filter sets: the same rules, over lists of inline filter nodes.
+        let fcid = rec["state"]["lasting"][0][9].as_str().unwrap();
+        let mut not_ir = snapshot(rec);
+        not_ir.filter_sets[fcid] = json!([{"_": "HasBurst", "burst": true}]);
+        assert!(value(format!("filter_sets.{fcid}"))(&decode_err(
+            t, &not_ir
+        )));
+        let mut not_a_list = snapshot(rec);
+        not_a_list.filter_sets[fcid] = json!({"_": "IsDamaged", "damaged": true});
+        assert!(value(format!("filter_sets.{fcid}"))(&decode_err(
+            t,
+            &not_a_list
+        )));
+        let mut one_filter = snapshot(rec);
+        one_filter.filter_sets[fcid] = json!([{"_": "IsDamaged", "damaged": true}]);
+        assert!(value(format!("filter_sets.{fcid}"))(&decode_err(
+            t,
+            &one_filter
+        )));
+        // The embedded registry has no filter sets at all.
+        assert_eq!(
+            decode_err(&*Registry::embedded(), &snapshot(rec)),
+            CanonError::UnknownContent {
+                kind: "filter_set",
+                id: fcid.into()
+            }
+        );
+    }
+
+    fn p_lasting() -> String {
+        "$.lasting[0][0]".to_owned()
     }
 
     /// T-150: adding a once key that is present leaves `canonical_state` unchanged.
     #[test]
     fn re_adding_a_once_key_changes_nothing() {
-        let fx = fixture();
+        let t = registry();
         let mut checked = 0;
-        for rec in &fx.snapshots {
-            let mut body = decode(&fx.tables, &snapshot(rec)).unwrap();
+        for rec in snapshots() {
+            let mut body = decode(t, &snapshot(rec)).unwrap();
             let Some(&key) = body.once_used.first() else {
                 continue;
             };
             checked += 1;
-            let before = dumps(&encode(&body.parts(), &fx.tables), PY_DEFAULT);
+            let before = dumps(&encode(&body.parts(), t), PY_DEFAULT);
             crate::state::set_add(&mut body.once_used, key);
-            assert_eq!(
-                dumps(&encode(&body.parts(), &fx.tables), PY_DEFAULT),
-                before
-            );
+            assert_eq!(dumps(&encode(&body.parts(), t), PY_DEFAULT), before);
             // A blind push would serialise the duplicate (the control).
             body.once_used.push(key);
-            assert_ne!(
-                dumps(&encode(&body.parts(), &fx.tables), PY_DEFAULT),
-                before
-            );
+            assert_ne!(dumps(&encode(&body.parts(), t), PY_DEFAULT), before);
         }
         assert!(checked >= 5, "only {checked} snapshots hold once keys");
     }
@@ -2038,16 +2182,29 @@ mod tests {
     /// for shapes and orders that random play does not reach.
     #[test]
     fn edited_states_round_trip() {
-        let fx = fixture();
-        let t = &fx.tables;
-        let bodies: Vec<StateBody> = fx
-            .snapshots
+        let t = registry();
+        let bodies: Vec<StateBody> = snapshots()
             .iter()
             .map(|r| decode(t, &snapshot(r)).unwrap())
             .collect();
-        let conts: Vec<ContRef> = (0..fx.tables.conts.len())
-            .map(|i| ContRef::Node(NodeId(u32::try_from(i).unwrap())))
-            .chain(fx.tables.values.iter().map(|(c, _)| *c))
+        let mut conts: Vec<ContRef> = Vec::new();
+        let mut vars: Vec<VarId> = Vec::new();
+        for b in &bodies {
+            for l in b.lasting.iter().chain(&b.delayed) {
+                if !conts.contains(&l.effect) {
+                    conts.push(l.effect);
+                }
+            }
+            for e in &b.frame_vars {
+                if !vars.contains(&e.var) {
+                    vars.push(e.var);
+                }
+            }
+        }
+        assert!(conts.len() >= 10 && vars.len() >= 5, "{conts:?} {vars:?}");
+        let side: Map<String, Value> = snapshots()
+            .iter()
+            .flat_map(|r| r["continuous"].as_object().unwrap().clone())
             .collect();
         prop::check("canonical-round-trip", 200, |rng| {
             let mut body = bodies[rng.randrange_usize(bodies.len())].clone();
@@ -2066,7 +2223,6 @@ mod tests {
             }
             for _ in 0..rng.randrange(4) {
                 let mut elems = vec![OnceElem::Int(-8), OnceElem::Int(-1)];
-                let set_add = crate::state::set_add;
                 elems.push(OnceElem::Cont(conts[rng.randrange_usize(conts.len())]));
                 for _ in 0..3 {
                     elems.push(OnceElem::Int(
@@ -2075,7 +2231,7 @@ mod tests {
                 }
                 let k = OnceKey::from_elems(&elems[..if rng.randrange(2) == 0 { 6 } else { 3 }])
                     .unwrap();
-                set_add(&mut body.once_used, k);
+                crate::state::set_add(&mut body.once_used, k);
             }
             for _ in 0..rng.randrange(3) {
                 let u = Uid::try_from(rng.randrange_usize(n)).unwrap();
@@ -2092,7 +2248,7 @@ mod tests {
                     ints: &mut body.frame_ints,
                     items: &mut body.frame_items,
                 };
-                let var = VarId(id16(rng.randrange_usize(fx.tables.var_names.len())));
+                let var = vars[rng.randrange_usize(vars.len())];
                 let key = match rng.randrange(4) {
                     0 => IntKey::RestAs(u16::try_from(rng.randrange(30)).unwrap()),
                     1 => IntKey::RestI,
@@ -2109,12 +2265,7 @@ mod tests {
             let snap = StateSnapshot {
                 state: serde_json::from_str(&dumps(&first, PY_DEFAULT))
                     .map_err(|e| e.to_string())?,
-                continuous: fx
-                    .snapshots
-                    .iter()
-                    .flat_map(|r| r["continuous"].as_object().unwrap().clone())
-                    .collect::<Map<String, Value>>()
-                    .into(),
+                continuous: side.clone().into(),
                 filter_sets: Value::Null,
                 rules_checked: -1,
             };

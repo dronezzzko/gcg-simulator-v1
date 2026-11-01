@@ -533,50 +533,29 @@ pub enum HookParams {
 
 /// The loaded effect registry: the IR of PLAN §3.3 in typed form. Immutable once built;
 /// `with_fragment` builds a new one with a new `generation` (W-33).
-#[allow(
-    dead_code,
-    reason = "built and read by workstream B1's IR loader (docs/port/contracts.md)"
-)]
+///
+/// Layout (B1's proposal, authorised by the lead at the registry integration): the decoded IR
+/// tables, which `Registry::view` and the golden writer read, plus the card database the IR
+/// was checked against (`Registry::from_ir`).
 pub struct Registry {
     /// Changes on every `with_fragment`; AI memo tables key on it (W-33, PLAN §5.2).
     pub(crate) generation: u32,
     pub(crate) db: &'static CardDb,
-    /// IR `strings`; index = [`StrId`].
-    pub(crate) strings: Box<[Box<str>]>,
-    /// IR `var_names`; index = [`VarId`].
-    pub(crate) var_names: Box<[Box<str>]>,
-    /// IR `printable_non_ascii`: the only non-ASCII characters `repr` accepts (PLAN §5.7).
-    pub(crate) printable_non_ascii: Box<[char]>,
-    /// IR `nodes`; index = [`NodeId`].
-    pub(crate) nodes: Box<[Node]>,
-    /// IR `node_content_ids`, by [`NodeId`].
-    pub(crate) node_content_ids: Box<[ContentId]>,
-    /// IR `programs`; index = [`ProgramId`].
-    pub(crate) programs: Box<[Program]>,
-    /// IR `keyword_programs`, by [`KeywordProgram`] discriminant.
-    pub(crate) keyword_programs: [ProgramId; 3],
-    /// IR `system_programs`, by [`SystemProgram`] discriminant.
-    pub(crate) system_programs: [ProgramId; 3],
-    /// IR `abilities`; index = [`AbilityId`].
-    pub(crate) abilities: Box<[AbilityEntry]>,
-    /// IR `cards`; index = def_id.
-    pub(crate) cards: Box<[CardEntry]>,
-    /// IR `continuous`: the canonical [`ContRef`] of every `Continuous` node, by node.
-    pub(crate) continuous: Box<[(ContinuousId, ContRef)]>,
-    /// IR `filter_sets`; index = [`FilterSetId`].
-    pub(crate) filter_sets: Box<[FilterSet]>,
-    /// IR `rule_mods`: the `repr` of every `RuleMod` node (`ai/actions.py:360` sort key).
-    pub(crate) rule_mod_reprs: Box<[(RuleModId, Box<str>)]>,
-    /// IR `aliases` (`registry.py:240-241`), by def_id.
-    pub(crate) aliases: Box<[(DefId, Box<[StrId]>)]>,
-    pub(crate) always_events: EvSet,
-    pub(crate) hp_reduction_possible: bool,
-    /// IR `token_keys` (`CardDB._token_by_key`), sorted by key.
-    pub(crate) token_keys: Box<[(StrId, DefId)]>,
-    /// IR `unit_variants` (`CardDB._unit_variant`).
-    pub(crate) unit_variants: Box<[(DefId, DefId)]>,
-    /// Decoded parameters of every `Custom*` node.
-    pub(crate) hook_params: Box<[(NodeId, HookParams)]>,
+    /// The decoded IR (strings, nodes, programs, abilities, cards, continuous effects, filter
+    /// sets, aliases, registry-global values, typed hook parameters, golden card texts).
+    pub(crate) tables: crate::ir::Tables,
+}
+
+/// A self-contained node of a trace snapshot's side table (PLAN §4.8; the `node_json` form of
+/// `port/oracle/traces.py`: `{"_": class, field: value, ...}` with nested nodes inline and enums
+/// as their values), resolved against a registry by `Registry::decode_inline`.
+#[derive(Clone, PartialEq, Eq, Debug)]
+pub enum InlineNode {
+    /// The arena node whose CPython `repr` equals the inline node's.
+    Arena(NodeId),
+    /// A node no arena node equals (a runtime value such as a frozen `StatMod`); every node
+    /// nested in it is an arena node.
+    Detached(Node),
 }
 
 /// Why an IR or an IR fragment could not be loaded. Every variant names enough to act on:

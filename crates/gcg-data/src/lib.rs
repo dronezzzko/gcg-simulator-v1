@@ -21,5 +21,7 @@ mod versions;
 
 pub use contracts::*;
 pub use deck::{deck_digest, load_deck, parse_deck, resolve_card_number, to_decklist};
+pub use py::py_path_str;
+pub use unicode::py_repr;
 pub use validate::{require_legal, validate};
 pub use versions::{conflict_resolutions, data_status_parts, versions};

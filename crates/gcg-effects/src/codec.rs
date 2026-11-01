@@ -38,6 +38,16 @@ impl<'a> Segments<'a> {
         }
     }
 
+    /// The segments of a loaded table: sorted, or after a fragment the base IR's sorted table
+    /// followed by the fragment's sorted additions, split at the first descent.
+    pub(crate) fn split(table: &'a [Box<str>]) -> Self {
+        let at = table
+            .windows(2)
+            .position(|w| w[0] >= w[1])
+            .map_or(table.len(), |i| i + 1);
+        Self::two(&table[..at], &table[at..])
+    }
+
     pub(crate) fn find(&self, s: &str) -> Option<u32> {
         self.parts.iter().find_map(|(part, offset)| {
             part.binary_search_by(|x| (**x).cmp(s))

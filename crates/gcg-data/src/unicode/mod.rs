@@ -368,6 +368,14 @@ pub(crate) fn repr_str(s: &str) -> String {
     out
 }
 
+/// `repr(s)` of a Python `str`, exactly as CPython 3.15.1 prints it ([`repr_str`] over the
+/// generated `isprintable` table): the public form for the crates that print Python messages
+/// with an embedded `repr` (`KeyError`, deck errors).
+#[must_use]
+pub fn py_repr(s: &str) -> String {
+    repr_str(s)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -479,6 +487,7 @@ mod tests {
             "'\\xa0x\\u200e\\u3000\\x7f\\t'"
         );
         assert_eq!(repr_str("it's"), "\"it's\"");
+        assert_eq!(py_repr("Zaku \u{2161}"), repr_str("Zaku \u{2161}"));
         assert_eq!(repr_str("a'b\"c"), "'a\\'b\"c'");
     }
 }

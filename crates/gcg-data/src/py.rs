@@ -189,6 +189,14 @@ pub(crate) fn path_str(p: &str) -> String {
     if out.is_empty() { ".".to_owned() } else { out }
 }
 
+/// `str(pathlib.Path(p))` (Inv 03 §10 H12; `deck/parse.py:111-114` names a deck file this
+/// way in its errors): [`path_str`] of the path's text. A path that is not valid UTF-8 is read
+/// lossily; Python's `surrogateescape` text has no Rust `String` form.
+#[must_use]
+pub fn py_path_str(p: &std::path::Path) -> String {
+    path_str(&p.to_string_lossy())
+}
+
 /// `PurePath.name` of an already normalised path string.
 fn path_name(normalised: &str) -> &str {
     if normalised == "." || normalised.trim_start_matches('/').is_empty() {
@@ -244,6 +252,7 @@ mod tests {
         ];
         for (p, s, stem) in cases {
             assert_eq!(path_str(p), s, "str(Path({p:?}))");
+            assert_eq!(py_path_str(std::path::Path::new(p)), s, "str(Path({p:?}))");
             assert_eq!(path_stem(p), stem, "Path({p:?}).stem");
         }
     }

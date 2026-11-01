@@ -16,6 +16,7 @@ fn every_card_def_equals_python_field_by_field() {
     let fx = fixture("carddefs.json");
     let db = CardDb::embedded();
     assert_eq!(db.len(), 1153);
+    assert!(!db.is_empty());
     assert_eq!(db.len() as u64, u(&fx["len"]));
     let mismatches = def_mismatches(db.defs(), arr(&fx["defs"]));
     assert!(

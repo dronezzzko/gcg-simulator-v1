@@ -6,13 +6,18 @@ serialisation feature (a decision kind, a frame-int key, a once-key form, a last
 history kind, ...), and writes it with Python's own `canonical_state` and digests to
 crates/gcg-engine/tests/fixtures/states.ndjson.
 
-The first line is a table of the registry lookups that the canonical form needs (program,
-continuous and filter-set content ids, frame-variable names, prompt strings and the prompt
-instruction of every waiting frame). The Rust tests use it in place of the IR registry, so
-the round trip is checked before gcg-effects lands. Each later line is a snapshot record in
-the shape of PLAN §8.2 (`state`, `continuous`, `filter_sets`, `rules_checked`) plus
-`digest` (`state_digest`) and `dump_sha256` (the SHA-256 of `json.dumps(canonical)` with
-Python's default separators, which pins the key order).
+Each line is a snapshot record in the shape of PLAN §8.2: `state` (the canonical form),
+`continuous` and `filter_sets` (the side tables of `port/oracle/traces.py`: every continuous
+effect and filter set that the state names by content id, as self-contained inline nodes),
+`rules_checked`, plus `digest` (`state_digest`), `dump_sha256` (the SHA-256 of
+`json.dumps(canonical)` with Python's default separators, which pins the key order) and the
+`features` the state was kept for. The Rust tests rebuild each state with
+`canon::from_canonical` over the embedded effect registry and compare bytes and digests.
+
+The last record is a synthetic state with the shapes random play reaches too rarely. It uses
+only names the effect IR holds (frame variables, filter nodes), so the registry can hold it;
+its filter set is the one runtime registration the IR has no entry for, and the Rust test adds
+it to a copy of the IR.
 
     uv run python port/oracle/export_state_fixtures.py [--check]
 """
@@ -20,6 +25,8 @@ Python's default separators, which pins the key order).
 from __future__ import annotations
 
 import argparse
+import dataclasses
+import enum
 import hashlib
 import json
 import sys
@@ -29,13 +36,18 @@ from typing import Any
 
 from gcg_sim.deck.parse import load_deck, to_decklist
 from gcg_sim.effects import dsl as d
-from gcg_sim.effects import program as pr
 from gcg_sim.effects.registry import Registry, get_registry
 from gcg_sim.engine.game import DeckList, apply, new_game
 from gcg_sim.engine.state import Battle, GameState, Lasting, TriggerInst
 from gcg_sim.engine.types import EndReason
 from gcg_sim.rng import SplitMix64, derive_seed
-from gcg_sim.runner.digest import canonical_state, content_id, state_digest
+from gcg_sim.runner.digest import (
+    LASTING_SOURCE,
+    ONCE_TAGS,
+    canonical_state,
+    content_id,
+    state_digest,
+)
 from gcg_sim.tools.fuzz import deck_for
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -44,7 +56,8 @@ DECKS = ROOT / "examples" / "decks"
 MASTER = 20261101
 FUZZ_GAMES = 1500
 EXAMPLE_SEEDS = 6
-ONCE_TAGS = (-7, -8)
+
+Json = Any
 
 
 def value_form(c: object) -> dict[str, Any] | None:
@@ -207,90 +220,56 @@ def games() -> Iterator[tuple[str, tuple[DeckList, DeckList], int, SplitMix64]]:
                 yield f"example/{na}-vs-{nb}/s{s}", (da, db), seed, rng
 
 
-class Tables:
-    """The registry lookups of every selected snapshot, collected from the Python objects."""
+def node_json(x: object) -> Json:
+    """A DSL value as a self-contained IR node (PLAN §3.3 field encoding, nested nodes inline):
+    ``{"_": class name, field: value, ...}``; enums are their values, tuples are arrays. The
+    side-table form of ``port/oracle/traces.py`` (``node_json``)."""
+    if isinstance(x, enum.Enum):
+        return x.value
+    if x is None or isinstance(x, (bool, int, str)):
+        return x
+    if isinstance(x, (tuple, list)):
+        return [node_json(v) for v in x]
+    if dataclasses.is_dataclass(x) and not isinstance(x, type):
+        out: dict[str, Json] = {"_": type(x).__name__}
+        for f in dataclasses.fields(x):
+            out[f.name] = node_json(getattr(x, f.name))
+        return out
+    raise TypeError(f"cannot encode {type(x).__name__} as an IR node")
 
-    def __init__(self, reg: Registry) -> None:
-        self.reg = reg
-        self.programs: set[str] = set()
-        self.continuous: set[str] = set()
-        self.filter_sets: set[str] = set()
-        self.var_names: set[str] = set()
-        self.strings: set[str] = set()
-        self.prompts: set[tuple[str, int, str, str]] = set()
 
-    def program(self, pid: int) -> None:
-        self.programs.add(content_id(self.reg.programs[pid]))
-
-    def cont(self, key: int, side: dict[str, Any]) -> None:
-        eff = self.reg.continuous[key]
-        cid = content_id(eff)
-        form = value_form(eff)
-        if form is None:
-            self.continuous.add(cid)
-        else:
-            side[cid] = form
-            if form["_"] == "AbilityGrant":
-                self.strings.add(str(form["card_number"]))
-
-    def snapshot(self, st: GameState) -> dict[str, Any]:
-        side: dict[str, Any] = {}
-        for f in st.frames:
-            self.program(f.program_id)
-            self.var_names.update(f.vars)
-            self.var_names.update(k for k in f.ints if k.startswith("__loop"))
-        for t in (*st.pending_triggers, *(t for b in st.batches for t in b)):
-            self.program(t.program_id)
-        for le in (*st.lasting, *st.delayed):
-            self.cont(le.effect_key, side)
-            if le.filters_key >= 0:
-                self.filter_sets.add(content_id(self.reg.filter_sets[le.filters_key]))
-        for k in st.once_used:
-            if len(k) >= 3 and k[0] in ONCE_TAGS and k[1] == -1:
-                self.cont(k[2], side)
-        w = waiting_instr(self.reg, st)
-        if w is not None:
-            pid, pc, ins = w
-            cid = content_id(self.reg.programs[pid])
-            if isinstance(ins, pr.AskMay):
-                if ins.prompt:
-                    self.strings.add(ins.prompt)
-                    self.prompts.add((cid, pc, "ask", ins.prompt))
-                else:
-                    self.prompts.add((cid, pc, "you_may", ""))
-            elif isinstance(ins, d.Choose):
-                self.var_names.add(ins.var)
-                self.prompts.add((cid, pc, "choose", ins.var))
-        return dict(sorted(side.items()))
-
-    def record(self) -> dict[str, Any]:
-        return {
-            "t": "tables",
-            "v": 1,
-            "def_count": len(self.reg.db),
-            "programs": sorted(self.programs),
-            "continuous": sorted(self.continuous),
-            "filter_sets": sorted(self.filter_sets),
-            "var_names": sorted(self.var_names),
-            "strings": sorted(self.strings),
-            "prompts": [list(p) for p in sorted(self.prompts)],
-        }
+def side_tables(st: GameState, reg: Registry) -> tuple[dict[str, Json], dict[str, Json]]:
+    """``{content_id: node}`` of every continuous effect and filter set the canonical state
+    names by content id (``runner/digest.py:36-49``), as ``port/oracle/traces.py``
+    ``side_tables`` writes them (PLAN §4.8)."""
+    cont: dict[str, Json] = {}
+    fsets: dict[str, Json] = {}
+    for le in (*st.lasting, *st.delayed):
+        eff = reg.continuous[le.effect_key]
+        cont[content_id(eff)] = node_json(eff)
+        if le.filters_key >= 0:
+            fs = reg.filter_sets[le.filters_key]
+            fsets[content_id(fs)] = node_json(fs)
+    for key in st.once_used:
+        if len(key) >= 3 and key[0] in ONCE_TAGS and key[1] == LASTING_SOURCE:
+            eff = reg.continuous[key[2]]
+            cont[content_id(eff)] = node_json(eff)
+    return cont, fsets
 
 
 def sha256(text: str) -> str:
     return hashlib.sha256(text.encode()).hexdigest()
 
 
-def snapshot_record(
-    reg: Registry, tables: Tables, st: GameState, sid: str, feats: list[str]
-) -> dict[str, Any]:
+def snapshot_record(reg: Registry, st: GameState, sid: str, feats: list[str]) -> dict[str, Any]:
     canonical = canonical_state(st, reg)
+    cont, fsets = side_tables(st, reg)
     return {
         "t": "snapshot",
         "id": sid,
         "state": canonical,
-        "continuous": tables.snapshot(st),
-        "filter_sets": {},
+        "continuous": cont,
+        "filter_sets": fsets,
         "rules_checked": st._rules_checked,
         "digest": state_digest(st, reg),
         "dump_sha256": sha256(json.dumps(canonical)),
@@ -323,15 +302,16 @@ RARE_SHAPES = [
 def rare_shapes(reg: Registry, base: GameState) -> GameState:
     """`base` with the serialisation shapes that random play reaches too rarely: whatever the
     engine would do with it, `canonical_state` is a pure function of it, so Python stays the
-    oracle for every byte."""
+    oracle for every byte. Frame variables and loop keys are names of the IR's `var_names`
+    (`__loop0` is the only loop key the cards use), and the filter tuple is made of IR nodes."""
     st = base.clone()
     f = st.frames[0]
-    f.ints.update({"__loop3": 2, "__loop12": -1, "__rest_i": 1, "__rest_as10": 7, "__rest_as2": 8})
-    f.vars["__loop3"] = (4, 5)
+    f.ints.update({"__loop0": 2, "__rest_i": 1, "__rest_as10": 7, "__rest_as2": 8})
+    f.vars["pick"] = (4, 5)
     f.vars["__todeck"] = ()
     mod = reg.cont_key(d.StatMod(ap=-3, hp=2))
     grant = reg.cont_key(d.AbilityGrant("GD01-001", 1))
-    filters = reg.filters_key((d.IsDamaged(), d.HasBurst()))
+    filters = reg.filters_key((d.IsDamaged(), d.IsRested()))
     st.lasting.append(Lasting(mod, 1, 4, ((4, 1), (2, 3)), "while_on_field", 3, -1, 1, 2, filters))
     st.delayed.append(Lasting(grant, 0, 6, (), "your_next_turn", 2, 1, serial=-1))
     st.battles.append(
@@ -349,7 +329,6 @@ def rare_shapes(reg: Registry, base: GameState) -> GameState:
 
 def build() -> str:
     reg = get_registry()
-    tables = Tables(reg)
     covered: set[str] = set()
     snapshots: list[dict[str, Any]] = []
     base: GameState | None = None
@@ -360,9 +339,7 @@ def build() -> str:
             new = features(reg, st) - covered
             if new:
                 covered |= new
-                snapshots.append(
-                    snapshot_record(reg, tables, st, f"{game_id}/d{k:04d}", sorted(new))
-                )
+                snapshots.append(snapshot_record(reg, st, f"{game_id}/d{k:04d}", sorted(new)))
                 if base is None and st.frames and st.pending is not None:
                     base = st.clone()
             if st.winner is not None or st.pending is None:
@@ -373,12 +350,13 @@ def build() -> str:
     if base is None:
         raise SystemExit("no decision state with a frame was reached")
     st = rare_shapes(reg, base)
-    snapshots.append(snapshot_record(reg, tables, st, "synthetic/rare-shapes", RARE_SHAPES))
+    snapshots.append(snapshot_record(reg, st, "synthetic/rare-shapes", RARE_SHAPES))
     cids = [content_id(p) for p in reg.programs]
     if len(set(cids)) != len(cids):
         raise SystemExit("program content ids are not unique (PLAN §4.8)")
-    lines = [tables.record(), *snapshots]
-    return "".join(json.dumps(r, ensure_ascii=True, separators=(",", ":")) + "\n" for r in lines)
+    return "".join(
+        json.dumps(r, ensure_ascii=True, separators=(",", ":")) + "\n" for r in snapshots
+    )
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -393,7 +371,7 @@ def main(argv: list[str] | None = None) -> int:
         return 0
     OUT.parent.mkdir(parents=True, exist_ok=True)
     OUT.write_text(text)
-    print(f"wrote {OUT.relative_to(ROOT)}: {text.count(chr(10)) - 1} snapshots, {len(text)} bytes")
+    print(f"wrote {OUT.relative_to(ROOT)}: {text.count(chr(10))} snapshots, {len(text)} bytes")
     return 0
 
 
