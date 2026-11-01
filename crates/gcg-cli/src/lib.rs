@@ -9,6 +9,8 @@
 //! binary land at integration, behind [`cli::Commands`].
 
 pub mod cli;
+pub mod commands;
+pub mod factory;
 
 /// The build-time `code_digest` (PLAN §2.4, X19, W-103): SHA-256 over the files of
 /// `build-support/digest-manifest.txt`, computed by `build.rs`.

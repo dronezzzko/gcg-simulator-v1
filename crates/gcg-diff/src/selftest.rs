@@ -10,15 +10,18 @@
 //! 6. a missing trailing newline;
 //! 7. a once-per-turn key inserted twice (`once_used` set semantics, §4.3).
 //!
-//! At M3 the controls run on a synthetic trace and on real tier-1 traces against
-//! [`MockEngine`]s of the unmutated originals, with a recorded agent oracle; the same controls
-//! join the real-engine replay from M5. Every unmutated line is also re-serialised and must
-//! equal the exporter's bytes, which checks this crate's `json.dumps` writer.
+//! The controls run on a synthetic trace and on real tier-1 traces against [`MockEngine`]s
+//! of the unmutated originals, with a recorded agent oracle; with `--real-engine` (from M5)
+//! the real tier-1 traces also run against the real engine ([`RealEngine`]) and the Rust
+//! agents ([`RustAgents`]). Every unmutated line is also re-serialised and must equal the
+//! exporter's bytes, which checks this crate's `json.dumps` writer.
 
 use std::path::Path;
 
 use serde_json::{Value, json};
 
+use crate::agents::RustAgents;
+use crate::engine::RealEngine;
 use crate::json::{U53, as_u64, py_dumps, state_digest};
 use crate::reader::parse_traces;
 use crate::replay::{AgentObservation, AgentOracle, replay_with};
@@ -255,11 +258,58 @@ fn controls(lines: &[Value]) -> Result<Vec<Control>, String> {
     Ok(out)
 }
 
+/// The engine side of a control run.
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+pub enum Side {
+    /// [`MockEngine`] of the unmutated original, with its recorded agent blocks.
+    Mock,
+    /// The real engine and the Rust agents.
+    Real,
+}
+
+#[expect(
+    clippy::result_large_err,
+    reason = "replay_with returns Divergence by value (frozen in docs/port/contracts.md, gcg-diff)"
+)]
+fn replay_side(
+    side: Side,
+    original: &Trace,
+    t: &Trace,
+    opts: &DiffOptions,
+) -> Result<crate::ReplayStats, crate::Divergence> {
+    match side {
+        Side::Mock => replay_with(
+            t,
+            opts,
+            &mut MockEngine::new(original),
+            &mut Recorded::new(original),
+        ),
+        Side::Real => replay_with(
+            t,
+            opts,
+            &mut RealEngine::for_trace(&t.header),
+            &mut RustAgents::for_trace(t),
+        ),
+    }
+}
+
 /// Run every control on one trace given as lines; returns one report line per control.
 ///
 /// # Errors
 /// A control that did not fire at its record, or an original that does not replay cleanly.
 pub fn run_controls(label: &str, original_text: &str) -> Result<Vec<String>, String> {
+    run_controls_on(Side::Mock, label, original_text)
+}
+
+/// [`run_controls`] against `side`.
+///
+/// # Errors
+/// A control that did not fire at its record, or an original that does not replay cleanly.
+pub fn run_controls_on(
+    side: Side,
+    label: &str,
+    original_text: &str,
+) -> Result<Vec<String>, String> {
     let lines: Vec<Value> = original_text
         .lines()
         .map(|l| serde_json::from_str(l).map_err(|e| format!("{label}: {e}")))
@@ -277,13 +327,8 @@ pub fn run_controls(label: &str, original_text: &str) -> Result<Vec<String>, Str
         return Err(format!("{label}: a control trace is one trace"));
     };
     let opts = DiffOptions::default();
-    replay_with(
-        original,
-        &opts,
-        &mut MockEngine::new(original),
-        &mut Recorded::new(original),
-    )
-    .map_err(|d| format!("{label}: the unmutated trace diverges:\n{d}"))?;
+    replay_side(side, original, original, &opts)
+        .map_err(|d| format!("{label}: the unmutated trace diverges:\n{d}"))?;
     let mut report = Vec::new();
     for c in controls(&lines)? {
         let text = serialise(&c.lines, c.newline);
@@ -302,12 +347,7 @@ pub fn run_controls(label: &str, original_text: &str) -> Result<Vec<String>, Str
                 let [m] = mutated.as_slice() else {
                     return Err(format!("{label}: {}: the mutation split the trace", c.name));
                 };
-                match replay_with(
-                    m,
-                    &opts,
-                    &mut MockEngine::new(original),
-                    &mut Recorded::new(original),
-                ) {
+                match replay_side(side, original, m, &opts) {
                     Ok(_) => Err("no divergence reported".to_owned()),
                     Err(d)
                         if d.line == c.line
@@ -324,7 +364,15 @@ pub fn run_controls(label: &str, original_text: &str) -> Result<Vec<String>, Str
             }
         };
         match fired {
-            Ok(what) => report.push(format!("ok    {label}: {}: {what}", c.name)),
+            Ok(what) => report.push(format!(
+                "ok    {label}{}: {}: {what}",
+                if side == Side::Real {
+                    " (real engine)"
+                } else {
+                    ""
+                },
+                c.name
+            )),
             Err(e) => return Err(format!("FAIL  {label}: {}: {e}", c.name)),
         }
     }
@@ -429,6 +477,20 @@ pub fn run(tier1: &Path) -> Result<Vec<String>, String> {
     for (file, id) in REAL_TRACES {
         let text = extract_trace(&tier1.join(file), id)?;
         report.extend(run_controls(id, &text)?);
+    }
+    Ok(report)
+}
+
+/// [`run`], then the real tier-1 traces' controls against the real engine and the Rust
+/// agents (`gcg-diff selftest --real-engine`, the gate item from M5).
+///
+/// # Errors
+/// The first control that did not fire, or a missing corpus trace.
+pub fn run_real(tier1: &Path) -> Result<Vec<String>, String> {
+    let mut report = run(tier1)?;
+    for (file, id) in REAL_TRACES {
+        let text = extract_trace(&tier1.join(file), id)?;
+        report.extend(run_controls_on(Side::Real, id, &text)?);
     }
     Ok(report)
 }

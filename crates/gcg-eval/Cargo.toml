@@ -25,6 +25,27 @@ serde_json.workspace = true
 mimalloc = { workspace = true, optional = true }
 zstd = { workspace = true, optional = true }
 
+# build.rs: the code digest of build-support/digest-manifest.txt (PLAN X19, W-103).
+[build-dependencies]
+sha2.workspace = true
+
+[[bin]]
+name = "gcg-eval"
+path = "src/main.rs"
+
+# Whole games through the engine, the agents and the runner (A12: long targets need `slow`).
+[[test]]
+name = "e2e"
+path = "tests/e2e.rs"
+required-features = ["slow"]
+
+# T-070: the reference `standard` preset against random and greedy with the decks and seeds of
+# tests/slow/test_ai_strength.py (400 games each).
+[[test]]
+name = "strength_reference"
+path = "tests/strength_reference.rs"
+required-features = ["slow"]
+
 [features]
 # Long strength and end-to-end tests run as [[test]] targets with required-features (A12).
 slow = []

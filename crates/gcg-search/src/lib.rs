@@ -7,6 +7,12 @@
 //! (`search`, `preset_config`, `make_agent` and the `Agent` impl in `agent.rs`) are in
 //! docs/port/contracts.md.
 
+mod agent;
 mod contracts;
+pub mod mcts;
+mod presets;
 
+pub use agent::make_agent;
 pub use contracts::*;
+pub use mcts::search;
+pub use presets::preset_config;

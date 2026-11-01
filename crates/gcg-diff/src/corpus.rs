@@ -1,25 +1,22 @@
 //! `gcg-diff corpus` (PLAN §8.7): check a corpus tier against its manifest and the committed IR,
 //! decode every trace, and replay it.
 //!
-//! Engines available in this build: `--parse-only` (decode and hash checks, the M3 gate) and
-//! `--mock` (replay every trace against a [`MockEngine`] built from the trace itself: proves
-//! that each trace is internally consistent and that the replay handles every record kind).
-//! Replay against the real engine needs `gcg-engine` (workstreams C and B2) and is rejected
-//! with a usage error until it lands.
-
-#![expect(
-    clippy::result_large_err,
-    reason = "replay_trace returns Divergence by value (frozen in docs/port/contracts.md, gcg-diff); \
-              every replay step shares that error type"
-)]
+//! Engines: the real one (the default: [`RealEngine`] over `gcg-engine`, with the agents of
+//! [`crate::agents`] for agent blocks), `--parse-only` (decode and hash checks, the M3 gate)
+//! and `--mock` (replay every trace against a [`MockEngine`] built from the trace itself:
+//! proves that each trace is internally consistent and that the replay handles every record
+//! kind). `--roundtrip` loads every snapshot into the engine and re-serialises it (the M5.1
+//! gate).
 
 use std::fmt::Write as _;
 use std::path::{Path, PathBuf};
 
+use crate::agents::RustAgents;
+use crate::engine::RealEngine;
 use crate::manifest::{self, Repo};
 use crate::mock::MockEngine;
 use crate::reader::read_trace;
-use crate::replay::replay_trace;
+use crate::replay::{replay_trace, replay_with};
 use crate::{DiffOptions, Divergence, ReplayStats, Trace};
 
 /// The engine a corpus run replays against.
@@ -29,6 +26,8 @@ pub enum EngineKind {
     None,
     /// [`MockEngine`] of each trace (`--mock`).
     Mock,
+    /// [`RealEngine`] (the default).
+    Real,
 }
 
 /// `gcg-diff corpus` options.
@@ -41,10 +40,15 @@ pub struct CorpusArgs {
     pub file: Option<PathBuf>,
     pub engine: EngineKind,
     pub roundtrip: bool,
+    /// `--paranoid`: the replay runs on a `paranoid` build of the engine (W-49, W-124).
+    pub paranoid: bool,
     pub require_all: bool,
     pub jobs: usize,
     pub report: Option<PathBuf>,
     pub junit: Option<PathBuf>,
+    /// Record the definitions of every card in a state the real engine reached
+    /// ([`TraceResult::seen_defs`]; `gcg-diff coverage`).
+    pub census: bool,
 }
 
 /// The outcome of one trace.
@@ -54,6 +58,9 @@ pub struct TraceResult {
     pub id: String,
     pub file: String,
     pub outcome: Result<ReplayStats, String>,
+    /// With [`CorpusArgs::census`] and the real engine: the def ids of the cards of every state
+    /// the replay observed, sorted.
+    pub seen_defs: Vec<u16>,
 }
 
 /// What a corpus run found.
@@ -180,7 +187,8 @@ fn check_file(
         if !selected(args, set_of, &t.header.id) {
             continue;
         }
-        let outcome = replay_one(t, args).map_err(|mut d| {
+        let (outcome, seen_defs) = replay_one(t, args);
+        let outcome = outcome.map_err(|mut d| {
             d.line += start - 1;
             format!("{rel}: {d}")
         });
@@ -189,25 +197,37 @@ fn check_file(
             id: t.header.id.clone(),
             file: rel.to_owned(),
             outcome,
+            seen_defs,
         });
     }
     Ok(out)
 }
 
-fn replay_one(t: &Trace, args: &CorpusArgs) -> Result<ReplayStats, Divergence> {
+fn replay_one(t: &Trace, args: &CorpusArgs) -> (Result<ReplayStats, Divergence>, Vec<u16>) {
     let opts = DiffOptions {
         parse_only: args.engine == EngineKind::None,
         roundtrip: args.roundtrip,
-        paranoid: false,
+        paranoid: args.paranoid,
     };
+    if args.engine == EngineKind::Real {
+        let mut engine = RealEngine::for_trace(&t.header);
+        if args.census {
+            engine.record_cards();
+        }
+        let out = replay_with(t, &opts, &mut engine, &mut RustAgents::for_trace(t));
+        return (out, engine.seen_defs());
+    }
     if args.engine == EngineKind::Mock && !MockEngine::mockable(t) {
-        return Err(mock_divergence(
-            t,
-            "MockEngine needs full option lists (options_mode \"full\")".to_owned(),
-        ));
+        return (
+            Err(mock_divergence(
+                t,
+                "MockEngine needs full option lists (options_mode \"full\")".to_owned(),
+            )),
+            Vec::new(),
+        );
     }
     let mut mock = MockEngine::new(t);
-    replay_trace(t, &opts, &mut mock)
+    (replay_trace(t, &opts, &mut mock), Vec::new())
 }
 
 fn mock_divergence(t: &Trace, e: String) -> Divergence {
@@ -238,6 +258,32 @@ pub fn per_set(report: &CorpusReport) -> Vec<(String, usize, usize)> {
             let of: Vec<&TraceResult> = report.results.iter().filter(|r| r.set == s).collect();
             let passed = of.iter().filter(|r| r.outcome.is_ok()).count();
             (s, of.len(), passed)
+        })
+        .collect()
+}
+
+/// What the passing traces of each set covered, summed, in [`per_set`]'s order.
+#[must_use]
+pub fn set_stats(report: &CorpusReport) -> Vec<(String, ReplayStats)> {
+    per_set(report)
+        .into_iter()
+        .map(|(s, _, _)| {
+            let mut sum = ReplayStats::default();
+            for st in report
+                .results
+                .iter()
+                .filter(|r| r.set == s)
+                .filter_map(|r| r.outcome.as_ref().ok())
+            {
+                sum.records += st.records;
+                sum.decisions += st.decisions;
+                sum.snapshots += st.snapshots;
+                sum.applies += st.applies;
+                sum.calls += st.calls;
+                sum.probes += st.probes;
+                sum.agent_decisions += st.agent_decisions;
+            }
+            (s, sum)
         })
         .collect()
 }

@@ -10,9 +10,22 @@
 //! `reports`, `replay`, `test_agents`, `argparse`, `clock`), are in docs/port/contracts.md.
 
 pub mod argparse;
+pub mod cli_support;
+mod clock;
+pub mod config;
 mod contracts;
+pub mod game;
+mod instrument;
+pub mod matches;
 mod records;
+pub mod replay;
 pub mod reports;
+pub mod run;
+pub mod test_agents;
 
+pub use config::{agent_seed, dut_seat, game_seed, own_turn, seat_decks, workers_used};
 pub use contracts::*;
+pub use game::{play_game, replay};
+pub use matches::play_match;
 pub use records::log_entry_from_json;
+pub use run::run_benchmark;

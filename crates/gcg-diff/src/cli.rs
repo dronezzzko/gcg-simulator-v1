@@ -1,12 +1,8 @@
-//! The `gcg-diff` command line (PLAN §8.7, §9.9-§9.10, §12.2). Exit codes: 0 success, 1 a
-//! check failed, 2 usage.
-//!
-//! Commands that need the engine, the agents or the runner (`explain`, `trace-search`, `fuzz`,
-//! `paranoid-games`, `coverage`, `traceability`, `schema-check`, and `corpus` without
-//! `--parse-only`/`--mock`) are not part of this build: they join with the workstreams that
-//! provide what they run (C/B2, D1/D2, E), and asking for one is a usage error that says so.
+//! The `gcg-diff` command line (PLAN §8.7, §9.2-§9.5, §9.9-§9.10, §12.2). Exit codes: 0
+//! success, 1 a check failed or a replay diverged, 2 usage.
 
-use std::path::PathBuf;
+use std::num::NonZeroUsize;
+use std::path::{Path, PathBuf};
 use std::process::ExitCode;
 
 use crate::corpus::{self, CorpusArgs, EngineKind};
@@ -16,38 +12,21 @@ const USAGE: &str = "\
 usage: gcg-diff <command> [options]
 
 commands:
-  corpus [--tier 1|2] [--only SET[:FILTER] ...] [--file TRACE.ndjson] (--parse-only | --mock)
-         [--roundtrip] [--require-all] [--jobs N] [--report FILE] [--junit FILE]
-  selftest
-  lints
+  corpus [--tier 1|2] [--only SET[:FILTER] ...] [--file TRACE.ndjson] [--parse-only | --mock]
+         [--roundtrip] [--paranoid] [--require-all] [--jobs N] [--report FILE] [--junit FILE]
+  explain <trace-id> <decision> [--tier 1|2] [--file TRACE.ndjson] [--limit N]
+  trace-search <trace-id> <decision> [--level 2|3] [--iteration N] [--tier 1|2] [--file TRACE.ndjson]
+  selftest [--real-engine]
+  fuzz --games N (--seed S | --seed-from-commit SHA) [--workers W|auto] [--compare FILE]
+       [--agent random|greedy|ref:<preset>|search:<preset>|mixed:<spec>,<spec>] [--paranoid] [--show N]
+  paranoid-games
+  coverage --check
+  traceability (--check | --write) [--junit FILE]
   tests-json --check
+  schema-check [--expect-invalid] FILE...
   weaknesses --check FILE [--require-resolved]
+  lints
 ";
-
-const PENDING: [(&str, &str); 7] = [
-    (
-        "explain",
-        "the engine's from_canonical and canonical state (workstream C)",
-    ),
-    (
-        "trace-search",
-        "the reference search with a tracer (workstream D2)",
-    ),
-    ("fuzz", "the engine (workstreams C, B2)"),
-    (
-        "paranoid-games",
-        "the engine's paranoid build (workstreams C, B2)",
-    ),
-    ("coverage", "the engine replay census (workstreams C, B2)"),
-    (
-        "traceability",
-        "the per-test replay JUnit (engine) and export_tags.py (G2)",
-    ),
-    (
-        "schema-check",
-        "the results schema validator (workstream E)",
-    ),
-];
 
 fn usage(msg: &str) -> ExitCode {
     eprintln!("gcg-diff: {msg}\n{USAGE}");
@@ -76,7 +55,14 @@ pub fn main(args: Vec<String>) -> ExitCode {
     let repo = Repo::locate();
     match cmd.as_str() {
         "corpus" => cmd_corpus(&repo, rest),
+        "explain" => cmd_explain(&repo, rest),
+        "trace-search" => cmd_trace_search(&repo, rest),
         "selftest" => cmd_selftest(&repo, rest),
+        "fuzz" => cmd_fuzz(rest),
+        "paranoid-games" => cmd_paranoid_games(rest),
+        "coverage" => cmd_coverage(&repo, rest),
+        "traceability" => cmd_traceability(&repo, rest),
+        "schema-check" => cmd_schema_check(rest),
         "lints" => cmd_lints(&repo, rest),
         "tests-json" => cmd_tests_json(&repo, rest),
         "weaknesses" => cmd_weaknesses(&repo, rest),
@@ -84,11 +70,323 @@ pub fn main(args: Vec<String>) -> ExitCode {
             print!("{USAGE}");
             ExitCode::SUCCESS
         }
-        other => match PENDING.iter().find(|(c, _)| *c == other) {
-            Some((c, needs)) => usage(&format!("{c} is not in this build yet: it needs {needs}")),
-            None => usage(&format!("unknown command {other:?}")),
-        },
+        other => usage(&format!("unknown command {other:?}")),
     }
+}
+
+/// The positional arguments and `--flag value` options of a command.
+struct Opts {
+    positional: Vec<String>,
+    flags: Vec<(String, Option<String>)>,
+}
+
+/// Splits `rest` into positionals and options; `valued` lists the options that take a value.
+fn opts(rest: &[String], valued: &[&str], bare: &[&str]) -> Result<Opts, String> {
+    let mut o = Opts {
+        positional: Vec::new(),
+        flags: Vec::new(),
+    };
+    let mut it = rest.iter();
+    while let Some(a) = it.next() {
+        if valued.contains(&a.as_str()) {
+            let v = it.next().ok_or_else(|| format!("{a} needs a value"))?;
+            o.flags.push((a.clone(), Some(v.clone())));
+        } else if bare.contains(&a.as_str()) {
+            o.flags.push((a.clone(), None));
+        } else if a.starts_with("--") {
+            return Err(format!("unknown option {a:?}"));
+        } else {
+            o.positional.push(a.clone());
+        }
+    }
+    Ok(o)
+}
+
+impl Opts {
+    fn value(&self, flag: &str) -> Option<&str> {
+        self.flags
+            .iter()
+            .rev()
+            .find(|(f, _)| f == flag)
+            .and_then(|(_, v)| v.as_deref())
+    }
+
+    fn has(&self, flag: &str) -> bool {
+        self.flags.iter().any(|(f, _)| f == flag)
+    }
+
+    fn tier(&self) -> Result<u8, String> {
+        match self.value("--tier") {
+            None | Some("1") => Ok(1),
+            Some("2") => Ok(2),
+            Some(other) => Err(format!("--tier takes 1 or 2, got {other:?}")),
+        }
+    }
+
+    fn number<T: std::str::FromStr>(&self, flag: &str, default: T) -> Result<T, String> {
+        self.value(flag).map_or(Ok(default), |v| {
+            v.parse()
+                .map_err(|_| format!("{flag} takes a number, got {v:?}"))
+        })
+    }
+}
+
+fn print_lines(lines: &[String]) {
+    for l in lines {
+        println!("{l}");
+    }
+}
+
+fn cmd_explain(repo: &Repo, rest: &[String]) -> ExitCode {
+    let o = match opts(rest, &["--tier", "--file", "--limit"], &[]) {
+        Ok(o) => o,
+        Err(e) => return usage(&format!("explain: {e}")),
+    };
+    let ([id, k], Ok(tier), Ok(limit)) =
+        (o.positional.as_slice(), o.tier(), o.number("--limit", 60))
+    else {
+        return usage("explain takes <trace-id> <decision>");
+    };
+    let Ok(k) = k.parse::<u32>() else {
+        return usage("explain: the decision is a number");
+    };
+    match crate::explain::explain(repo, tier, o.value("--file").map(Path::new), id, k, limit) {
+        Ok(lines) => {
+            print_lines(&lines);
+            ExitCode::SUCCESS
+        }
+        Err(e) => verdict(&[e], ""),
+    }
+}
+
+fn cmd_trace_search(repo: &Repo, rest: &[String]) -> ExitCode {
+    let o = match opts(rest, &["--tier", "--file", "--level", "--iteration"], &[]) {
+        Ok(o) => o,
+        Err(e) => return usage(&format!("trace-search: {e}")),
+    };
+    let [id, k] = o.positional.as_slice() else {
+        return usage("trace-search takes <trace-id> <decision>");
+    };
+    let (Ok(decision), Ok(tier)) = (k.parse::<u32>(), o.tier()) else {
+        return usage("trace-search: the decision is a number");
+    };
+    let level = match o.value("--level") {
+        None | Some("2") => 2,
+        Some("3") => 3,
+        Some(other) => return usage(&format!("--level takes 2 or 3, got {other:?}")),
+    };
+    let iteration = match o.value("--iteration").map(str::parse::<u32>).transpose() {
+        Ok(n) => n,
+        Err(_) => return usage("--iteration takes a number"),
+    };
+    let req = crate::tracesearch::Request {
+        tier,
+        file: o.value("--file").map(Path::new),
+        id,
+        decision,
+        level,
+        iteration,
+    };
+    match crate::tracesearch::trace_search(repo, &req) {
+        Ok((lines, same)) => {
+            print_lines(&lines);
+            if same {
+                ExitCode::SUCCESS
+            } else {
+                ExitCode::from(1)
+            }
+        }
+        Err(e) => verdict(&[e], ""),
+    }
+}
+
+fn paranoid_build() -> Option<ExitCode> {
+    (!cfg!(feature = "paranoid")).then(|| {
+        usage(
+            "--paranoid needs the paranoid build: cargo build --release -p gcg-diff \
+             --features paranoid --target-dir target/paranoid",
+        )
+    })
+}
+
+fn cmd_fuzz(rest: &[String]) -> ExitCode {
+    use crate::fuzz::{self, AgentKind, AgentSpec, FuzzArgs};
+    let o = match opts(
+        rest,
+        &[
+            "--games",
+            "--seed",
+            "--seed-from-commit",
+            "--workers",
+            "--compare",
+            "--agent",
+            "--show",
+        ],
+        &["--paranoid"],
+    ) {
+        Ok(o) if o.positional.is_empty() => o,
+        Ok(_) => return usage("fuzz takes no positional arguments"),
+        Err(e) => return usage(&format!("fuzz: {e}")),
+    };
+    if o.has("--paranoid")
+        && let Some(code) = paranoid_build()
+    {
+        return code;
+    }
+    let games: u64 = match o.number("--games", 1000) {
+        Ok(n) => n,
+        Err(e) => return usage(&e),
+    };
+    let seed = match (o.value("--seed"), o.value("--seed-from-commit")) {
+        (Some(s), None) => match s.parse::<u64>() {
+            Ok(s) => s,
+            Err(_) => return usage(&format!("--seed takes a number, got {s:?}")),
+        },
+        (None, Some(sha)) => {
+            let s = fuzz::commit_seed(sha);
+            println!("seed {s} from commit {sha}");
+            s
+        }
+        (None, None) => 1,
+        (Some(_), Some(_)) => return usage("give --seed or --seed-from-commit, not both"),
+    };
+    let workers = match o.value("--workers") {
+        None => NonZeroUsize::MIN,
+        Some("auto") => {
+            let n = gcg_core::sys::topology::detect()
+                .auto_workers(usize::try_from(games).unwrap_or(usize::MAX));
+            NonZeroUsize::new(n).unwrap_or(NonZeroUsize::MIN)
+        }
+        Some(w) => match w.parse::<usize>().ok().and_then(NonZeroUsize::new) {
+            Some(n) => n,
+            None => {
+                return usage(&format!(
+                    "--workers takes a positive number or auto, got {w:?}"
+                ));
+            }
+        },
+    };
+    let agent = match o.value("--agent").map(fuzz::parse_agent) {
+        None => AgentSpec::Both(AgentKind::Fuzz),
+        Some(Ok(a)) => a,
+        Some(Err(e)) => return usage(&format!("--agent: {e}")),
+    };
+    let show: usize = match o.number("--show", 5) {
+        Ok(n) => n,
+        Err(e) => return usage(&e),
+    };
+    let args = FuzzArgs {
+        games,
+        seed,
+        workers,
+        agent,
+    };
+    let outs = match fuzz::run(&args) {
+        Ok(o) => o,
+        Err(e) => return verdict(&[e], ""),
+    };
+    let reg = gcg_effects::Registry::embedded();
+    let text = fuzz::summary_text(&outs, &fuzz::Pools::new(&reg));
+    print!("{text}");
+    for l in fuzz::failure_lines(&outs, show) {
+        eprintln!("{l}");
+    }
+    let mut errors = Vec::new();
+    if let Some(f) = o.value("--compare")
+        && let Err(e) = fuzz::compare(&text, &outs, Path::new(f))
+    {
+        errors.push(e);
+    }
+    let failed = outs.iter().filter(|g| !g.ok).count();
+    if failed > 0 {
+        errors.push(format!("{failed} game(s) failed"));
+    }
+    verdict(&errors, "fuzz passed")
+}
+
+fn cmd_paranoid_games(rest: &[String]) -> ExitCode {
+    if let Some(code) = no_args("paranoid-games", rest) {
+        return code;
+    }
+    if let Some(code) = paranoid_build() {
+        return code;
+    }
+    match crate::paranoid::run() {
+        Ok((lines, ok)) => {
+            print_lines(&lines);
+            if ok {
+                println!("paranoid-games passed");
+                ExitCode::SUCCESS
+            } else {
+                ExitCode::from(1)
+            }
+        }
+        Err(e) => verdict(&[e], ""),
+    }
+}
+
+fn cmd_coverage(repo: &Repo, rest: &[String]) -> ExitCode {
+    if rest != ["--check"] {
+        return usage("coverage takes --check");
+    }
+    match crate::coverage::check(repo) {
+        Ok((lines, problems)) => {
+            print_lines(&lines);
+            let shown: Vec<String> = problems.iter().take(40).cloned().collect();
+            if problems.len() > shown.len() {
+                eprintln!("(first {} of {} problems)", shown.len(), problems.len());
+            }
+            if problems.is_empty() {
+                verdict(&[], "coverage check passed")
+            } else {
+                verdict(&shown, "")
+            }
+        }
+        Err(e) => verdict(&[e], ""),
+    }
+}
+
+fn cmd_traceability(repo: &Repo, rest: &[String]) -> ExitCode {
+    let o = match opts(rest, &["--junit"], &["--check", "--write"]) {
+        Ok(o) if o.positional.is_empty() => o,
+        Ok(_) => return usage("traceability takes no positional arguments"),
+        Err(e) => return usage(&format!("traceability: {e}")),
+    };
+    let write = match (o.has("--check"), o.has("--write")) {
+        (true, false) => false,
+        (false, true) => true,
+        _ => return usage("traceability takes --check or --write"),
+    };
+    match crate::traceability::run(repo, o.value("--junit").map(Path::new), write) {
+        Ok((lines, problems)) => {
+            print_lines(&lines);
+            let shown: Vec<String> = problems.iter().take(40).cloned().collect();
+            if problems.len() > shown.len() {
+                eprintln!("(first {} of {} problems)", shown.len(), problems.len());
+            }
+            if problems.is_empty() {
+                verdict(&[], "traceability passed")
+            } else {
+                verdict(&shown, "")
+            }
+        }
+        Err(e) => verdict(&[e], ""),
+    }
+}
+
+fn cmd_schema_check(rest: &[String]) -> ExitCode {
+    let expect_invalid = rest.first().is_some_and(|a| a == "--expect-invalid");
+    let files: Vec<String> = rest
+        .iter()
+        .skip(usize::from(expect_invalid))
+        .cloned()
+        .collect();
+    if let Some(bad) = files.iter().find(|f| f.starts_with("--")) {
+        return usage(&format!("schema-check: unknown option {bad:?}"));
+    }
+    let (lines, errors) = crate::schema::check(&files, expect_invalid);
+    print_lines(&lines);
+    verdict(&errors, "schema-check passed")
 }
 
 fn cmd_corpus(repo: &Repo, rest: &[String]) -> ExitCode {
@@ -96,14 +394,16 @@ fn cmd_corpus(repo: &Repo, rest: &[String]) -> ExitCode {
         tier: 1,
         only: Vec::new(),
         file: None,
-        engine: EngineKind::Mock,
+        engine: EngineKind::Real,
         roundtrip: false,
+        paranoid: false,
         require_all: false,
         jobs: std::thread::available_parallelism().map_or(1, std::num::NonZero::get),
         report: None,
         junit: None,
+        census: false,
     };
-    let mut engine: Option<EngineKind> = None;
+    let mut engine = EngineKind::Real;
     let mut it = rest.iter();
     while let Some(flag) = it.next() {
         let mut value = || it.next().cloned();
@@ -129,8 +429,8 @@ fn cmd_corpus(repo: &Repo, rest: &[String]) -> ExitCode {
                 Some(v) => a.file = Some(PathBuf::from(v)),
                 None => return usage("--file needs a path"),
             },
-            "--parse-only" => engine = Some(EngineKind::None),
-            "--mock" => engine = Some(EngineKind::Mock),
+            "--parse-only" => engine = EngineKind::None,
+            "--mock" => engine = EngineKind::Mock,
             "--roundtrip" => a.roundtrip = true,
             "--require-all" => a.require_all = true,
             "--jobs" => match value().and_then(|v| v.parse().ok()) {
@@ -146,22 +446,21 @@ fn cmd_corpus(repo: &Repo, rest: &[String]) -> ExitCode {
                 None => return usage("--junit needs a path"),
             },
             "--paranoid" => {
-                return usage(
-                    "--paranoid replays on the engine's paranoid build (workstreams C, B2), not in this build yet",
-                );
+                if !cfg!(feature = "paranoid") {
+                    return usage(
+                        "--paranoid needs the paranoid build: cargo build --release -p gcg-diff \
+                         --features paranoid --target-dir target/paranoid",
+                    );
+                }
+                a.paranoid = true;
             }
             other => return usage(&format!("corpus: unknown option {other:?}")),
         }
     }
-    let Some(engine) = engine else {
-        return usage(
-            "corpus replays against the real engine only once gcg-engine lands (workstreams C, B2); use --parse-only or --mock",
-        );
-    };
     a.engine = engine;
     if a.roundtrip && a.engine == EngineKind::None {
         return usage(
-            "--roundtrip loads snapshots into an engine: combine it with --mock, not --parse-only",
+            "--roundtrip loads snapshots into an engine: it cannot be combined with --parse-only",
         );
     }
     let report = corpus::run(repo, &a);
@@ -181,20 +480,37 @@ fn cmd_corpus(repo: &Repo, rest: &[String]) -> ExitCode {
     let mode = match a.engine {
         EngineKind::None => "parse-only",
         EngineKind::Mock => "MockEngine",
+        EngineKind::Real => "gcg-engine",
     };
     println!(
-        "corpus tier {} ({mode}{})",
+        "corpus tier {} ({mode}{}{})",
         a.tier,
-        if a.roundtrip { ", roundtrip" } else { "" }
+        if a.roundtrip { ", roundtrip" } else { "" },
+        if a.paranoid { ", paranoid" } else { "" }
     );
-    println!("  {:<12} {:>7} {:>7}", "set", "traces", "passed");
-    let mut total = (0, 0);
-    for (set, n, ok) in corpus::per_set(&report) {
-        println!("  {set:<12} {n:>7} {ok:>7}");
+    println!(
+        "  {:<12} {:>7} {:>7} {:>9} {:>9} {:>7}",
+        "set", "traces", "passed", "decisions", "snapshots", "agent"
+    );
+    let mut total = (0, 0, 0, 0, 0);
+    for ((set, n, ok), (_, st)) in corpus::per_set(&report)
+        .into_iter()
+        .zip(corpus::set_stats(&report))
+    {
+        println!(
+            "  {set:<12} {n:>7} {ok:>7} {:>9} {:>9} {:>7}",
+            st.decisions, st.snapshots, st.agent_decisions
+        );
         total.0 += n;
         total.1 += ok;
+        total.2 += st.decisions;
+        total.3 += st.snapshots;
+        total.4 += st.agent_decisions;
     }
-    println!("  {:<12} {:>7} {:>7}", "total", total.0, total.1);
+    println!(
+        "  {:<12} {:>7} {:>7} {:>9} {:>9} {:>7}",
+        "total", total.0, total.1, total.2, total.3, total.4
+    );
     for r in report
         .results
         .iter()
@@ -224,10 +540,18 @@ fn no_args(cmd: &str, rest: &[String]) -> Option<ExitCode> {
 }
 
 fn cmd_selftest(repo: &Repo, rest: &[String]) -> ExitCode {
-    if let Some(code) = no_args("selftest", rest) {
-        return code;
-    }
-    match crate::selftest::run(&repo.root.join("port/corpus/v1/tier1")) {
+    let real = match rest {
+        [] => false,
+        [flag] if flag == "--real-engine" => true,
+        _ => return usage("selftest takes no options but --real-engine"),
+    };
+    let tier1 = repo.root.join("port/corpus/v1/tier1");
+    let result = if real {
+        crate::selftest::run_real(&tier1)
+    } else {
+        crate::selftest::run(&tier1)
+    };
+    match result {
         Ok(lines) => {
             for l in &lines {
                 println!("{l}");

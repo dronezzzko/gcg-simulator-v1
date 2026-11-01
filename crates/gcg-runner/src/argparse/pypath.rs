@@ -4,39 +4,43 @@
 //! `''` is `.`, and exactly two leading slashes are kept. Checked against vectors exported by
 //! `port/oracle/export_cli.py`.
 
+use std::path::Path;
+
 use super::pystr::PyStr;
 
-const SEP: u32 = '/' as u32;
-const DOT: u32 = '.' as u32;
+/// Stands for each lone surrogate (and each genuine U+FFFD) while `gcg_data::py_path_str`
+/// normalises the text.
+const PLACEHOLDER: char = '\u{fffd}';
 
-/// `str(PurePosixPath(text))`.
+/// `str(PurePosixPath(text))`: [`gcg_data::py_path_str`], extended to lone surrogates. The
+/// normalisation only removes separators and `.` components and never reorders, so every
+/// placeholder survives in order and the original code points go back in their places.
 #[must_use]
 pub fn path_str(text: &PyStr) -> PyStr {
     let cps = text.code_points();
-    // posixpath.splitroot: "//x" keeps its two slashes; "/x" and "///x" get one.
-    let (root, rel): (&[u32], &[u32]) = if cps.first() != Some(&SEP) {
-        (&[], cps)
-    } else if cps.get(1) != Some(&SEP) || cps.get(2) == Some(&SEP) {
-        (&cps[..1], &cps[1..])
-    } else {
-        (&cps[..2], &cps[2..])
-    };
-    let mut out: Vec<u32> = root.to_vec();
-    let mut first = true;
-    for part in rel.split(|&c| c == SEP) {
-        if part.is_empty() || part == [DOT] {
-            continue;
-        }
-        if !first {
-            out.push(SEP);
-        }
-        out.extend_from_slice(part);
-        first = false;
-    }
-    if out.is_empty() {
-        out.push(DOT);
-    }
-    PyStr::from_code_points(out)
+    let held: Vec<u32> = cps
+        .iter()
+        .copied()
+        .filter(|&cp| char::from_u32(cp).is_none_or(|c| c == PLACEHOLDER))
+        .collect();
+    let valid: String = cps
+        .iter()
+        .map(|&cp| char::from_u32(cp).unwrap_or(PLACEHOLDER))
+        .collect();
+    let normalised = gcg_data::py_path_str(Path::new(&valid));
+    let mut held = held.into_iter();
+    PyStr::from_code_points(
+        normalised
+            .chars()
+            .map(|c| {
+                if c == PLACEHOLDER {
+                    held.next().unwrap_or(u32::from(PLACEHOLDER))
+                } else {
+                    u32::from(c)
+                }
+            })
+            .collect(),
+    )
 }
 
 #[cfg(test)]
@@ -56,5 +60,29 @@ mod tests {
         assert_eq!(p("///x"), "/x");
         assert_eq!(p("/"), "/");
         assert_eq!(p("/a/../b"), "/a/../b");
+    }
+
+    #[test]
+    fn surrogates_and_replacement_characters_keep_their_places() {
+        // Python: str(Path("a/\udcff//./b\ufffd/\ud800")), str(Path("//\udcff/./")).
+        let p = |cps: &[u32]| {
+            path_str(&PyStr::from_code_points(cps.to_vec()))
+                .code_points()
+                .to_vec()
+        };
+        let slash = u32::from('/');
+        let a = u32::from('a');
+        let b = u32::from('b');
+        let dot = u32::from('.');
+        assert_eq!(
+            p(&[
+                a, slash, 0xDCFF, slash, slash, dot, slash, b, 0xFFFD, slash, 0xD800
+            ]),
+            [a, slash, 0xDCFF, slash, b, 0xFFFD, slash, 0xD800]
+        );
+        assert_eq!(
+            p(&[slash, slash, 0xDCFF, slash, dot, slash]),
+            [slash, slash, 0xDCFF]
+        );
     }
 }

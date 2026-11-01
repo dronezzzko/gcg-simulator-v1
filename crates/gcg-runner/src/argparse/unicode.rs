@@ -2,7 +2,7 @@
 
 use std::cmp::Ordering;
 
-use super::unicode_tables::{DECIMAL, PRINTABLE, SPACE};
+use super::unicode_tables::{DECIMAL, SPACE};
 
 fn in_ranges(ranges: &[(u32, u32)], cp: u32) -> bool {
     ranges
@@ -16,12 +16,6 @@ fn in_ranges(ranges: &[(u32, u32)], cp: u32) -> bool {
             }
         })
         .is_ok()
-}
-
-/// `chr(cp).isprintable()` (`Py_UNICODE_ISPRINTABLE`, used by `repr`).
-#[must_use]
-pub fn is_printable(cp: u32) -> bool {
-    in_ranges(PRINTABLE, cp)
 }
 
 /// `chr(cp).isspace()` (`Py_UNICODE_ISSPACE`).
@@ -55,11 +49,6 @@ mod tests {
 
     #[test]
     fn spot_checks() {
-        assert!(is_printable(u32::from('a')));
-        assert!(!is_printable(0x7f));
-        assert!(!is_printable(0xa0));
-        assert!(is_printable(u32::from('ö')));
-        assert!(!is_printable(0xdcff));
         assert!(is_space(u32::from(' ')));
         assert!(is_space(0x1c));
         assert!(is_space(0x3000));

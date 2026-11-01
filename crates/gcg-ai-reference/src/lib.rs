@@ -8,6 +8,10 @@
 //! function signatures (`search`, `make_reference_agent` and the `Agent` impl of
 //! `ReferenceAgent`, landing in `mcts.rs` and `agent.rs`) are in docs/port/contracts.md.
 
+mod agent;
 mod contracts;
+pub mod mcts;
 
+pub use agent::{AGENT_KINDS, make_agent, make_reference_agent};
 pub use contracts::*;
+pub use mcts::{is_target_decision, search};

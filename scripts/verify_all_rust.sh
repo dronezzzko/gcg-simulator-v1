@@ -47,8 +47,25 @@ target/release/gcg-diff lints
 target/release/gcg-diff selftest
 target/release/gcg-diff corpus --tier 1 --parse-only --require-all
 target/release/gcg-diff corpus --tier 1 --mock --require-all
+target/release/gcg-diff corpus --tier 1 --mock --roundtrip --require-all
+target/release/gcg-diff corpus --tier 1 --roundtrip --require-all
 target/release/gcg-diff tests-json --check
 target/release/gcg-diff weaknesses --check docs/port/WEAKNESSES.md
+target/release/gcg-diff schema-check crates/gcg-runner/tests/vectors/records/*/results.json
+# From M5.5 (engine layers L2-L5) and M6 (agents) the real-engine gates join (PLAN §9.11):
+#   target/release/gcg-diff selftest --real-engine
+#   target/release/gcg-diff corpus --tier 1 --require-all
+#   target/paranoid/release/gcg-diff corpus --tier 1 --require-all --paranoid
+#   target/release/gcg-diff coverage --check
+#   target/release/gcg-diff traceability --check
+#   target/release/gcg-diff fuzz --games 10000 --seed 2026 --workers auto \
+#     --compare port/corpus/v1/tier1/fuzz/summary-2026-10000.json
+#   target/release/gcg-diff fuzz --games 2000 --seed-from-commit "$(git rev-parse HEAD)" --workers auto
+#   target/paranoid/release/gcg-diff paranoid-games
+#   target/paranoid/release/gcg-diff fuzz --games 400 --seed 2026 --agent greedy --paranoid --workers auto
+#   target/paranoid/release/gcg-diff fuzz --games 400 --seed 2026 --agent search:fast --paranoid --workers auto
+#   target/paranoid/release/gcg-diff fuzz --games 200 --seed 2026 --agent mixed:greedy,search:fast \
+#     --paranoid --workers auto
 
 if cargo tree -p gcg-cli -e normal --offline | grep -q gcg-ai-reference; then
   echo "gcg-cli depends on the reference search" >&2; exit 1; fi

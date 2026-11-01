@@ -650,10 +650,11 @@ pub trait EngineUnderTest {
     /// A `force_link` record: these Unit card numbers count as linked with any paired card in
     /// the current state and every later one (`gcg_engine::testkit::set_force_link`), as the
     /// monkeypatch of `tests/cards/test_wp_gd05_a.py:101-113` does, whose set the test may
-    /// fill after the state exists.
+    /// fill after the state exists. With no state loaded the list is kept for the next state
+    /// (and the `Scenario` being built): four per-test traces send `force_link` first.
     ///
     /// # Errors
-    /// No state is loaded.
+    /// An engine that cannot apply the list.
     fn force_link(&mut self, units: &[String]) -> Result<(), ErrorRec>;
     /// The pending decision, or `None`.
     fn pending(&self) -> Option<PendingRec>;

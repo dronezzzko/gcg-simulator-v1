@@ -32,6 +32,7 @@ fn namespace_json(ns: &Namespace) -> Json {
             Value::Str(s) => json!(["str", text_json(s)]),
             Value::Auto => json!(["str", "auto"]),
             Value::None => json!(["none", ""]),
+            Value::List(_) => panic!("gcg-sim has no append option ({dest})"),
         };
         map.insert((*dest).to_owned(), entry);
     }

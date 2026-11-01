@@ -1734,6 +1734,7 @@ mod tests {
             trait_pool: Vec::new(),
             rules: Vec::new(),
             rule_pool: Vec::new(),
+            rule_kinds: Vec::new(),
             cost_mod: Vec::new(),
             level_mod: Vec::new(),
             linked: Vec::new(),
@@ -1741,6 +1742,7 @@ mod tests {
             ability_pool: Vec::new(),
             hosts: Vec::new(),
             converged: true,
+            db: None,
             by_event: OnceLock::new(),
         })
     }

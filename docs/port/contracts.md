@@ -636,6 +636,7 @@ pub mod view {
     pub fn has_kw(dv: &Derived, uid: Uid, kw: Kw) -> bool;                       // :552-553
     pub fn kw_amount(dv: &Derived, uid: Uid, kw: Kw) -> i32;                     // :556-557
     pub fn traits_of<'a>(st: &'a GameState, dv: &'a Derived, uid: Uid) -> Traits<'a>;       // :560-562
+    pub fn traits_present(dv: &Derived, uid: Uid) -> Option<Traits<'_>>;         // dv.traits.get(uid) without the printed fallback (ai/actions.py:357; wave 2b, D2)
     pub fn rules_of<'a>(dv: &'a Derived, uid: Uid, kind: RuleKind) -> impl Iterator<Item = &'a RuleInst> + 'a;   // :565-566
     pub fn rules_all(dv: &Derived, uid: Uid) -> &[RuleInst];                    // dv.rules.get(uid, ()) (ai/actions.py:360)
     pub fn is_linked(dv: &Derived, uid: Uid) -> bool;                            // :569-570
@@ -703,6 +704,8 @@ pub mod observe {        // C, L5 (engine/observe.py); re-exports crate::HIDDEN_
     pub fn permute_hidden(st: &GameState, observer: u8, seed: u64) -> GameState;              // :113-131
     pub fn information_set_key(st: &GameState, observer: u8) -> InfoSetKey;                   // :134-150
 }
+impl InfoSetKey { pub fn to_json(&self, reg: &Registry) -> Json; }            // the tuple observe.py:136-150 returns, tuples as lists: (cards, zones, turn, active, int(step), repr(pending.to_json())); wave 2b, G
+impl CardMultiset { pub fn entries(&self) -> &[((u8, DefId), u32)]; }         // invariants.py:112-116, sorted by key (Python's Counter order is rebuilt by the caller); wave 2b, G
 pub mod invariants {     // C, L5 (engine/invariants.py); re-exports crate::LISTED_ZONES
     pub fn check(st: &GameState, initial: Option<&CardMultiset>) -> Result<(), CheckError>;   // :29-109
     pub fn initial_multiset(st: &GameState) -> CardMultiset;                                   // :112-116
@@ -722,7 +725,8 @@ pub mod testkit {        // C, L5 (testkit.py); helpers return Python's Assertio
         pub fn base(&mut self, player: u8, number: Option<&str>, damage: i32) -> Result<Uid, TestkitError>;               // :121-123
         pub fn resource_deck(&mut self, player: u8, n: usize) -> Result<(), TestkitError>;           // :125-127
         pub fn force_link(&mut self, unit_numbers: &[&str]);                                          // tests/cards/test_wp_gd05_a.py:101-113
-        pub fn start(&mut self, step: Step) -> Result<(), TestkitError>;                              // :160-182 (+ _build_decks :130-142, _record_decklists :144-158)
+        pub fn prepare_start(&mut self, step: Step) -> Result<(), TestkitError>;                      // :162-180, everything before advance (O14; a step outside Python's table is EngineError::Key("<Step.X: n>"))
+        pub fn start(&mut self, step: Step) -> Result<(), TestkitError>;                              // :160-182 = prepare_start + testkit::engine::advance (+ _build_decks :130-142, _record_decklists :144-158)
         pub fn state(&self) -> &GameState;                                                            // sc.st
         pub fn state_mut(&mut self) -> &mut GameState;
         pub fn into_state(self) -> GameState;
@@ -847,6 +851,8 @@ pub(crate) fn resolve_ref(st: &GameState, ctx: &Ctx, r: RefId) -> Result<UidBuf,
 pub(crate) fn select(st: &GameState, dv: &Derived, ctx: &Ctx, sel: SelId) -> Result<UidBuf, EngineError>;       // :626-632
 pub(crate) fn player_cost_mod(st: &GameState, uid: Uid) -> Result<i64, EngineError>;                            // :525-545
 pub(crate) fn zone_loc_code(z: Zone) -> i32;                                                                     // :952-954
+pub(crate) fn player_of(st: &GameState, ctx: &Ctx, p: P) -> u8;                                                  // :585-592 (wave 2b: frozen for L4, which dropped its copy)
+pub(crate) fn cost_mod_of(dv: &Derived, uid: Uid) -> i32;                                                        // dv.cost_mod.get(uid, 0) (wp_gd02_b.py:62, wp_gd03_a.py:106; wave 2b, L4)
 // L3 (C), core.rs and battle.rs: called by B2's interp and hooks
 pub(crate) fn move_card(st: &mut GameState, uid: Uid, dst: Zone, o: MoveOpts) -> Result<(), EngineError>;   // core.py:55-81 `move`
 pub(crate) fn remove_from_game(st: &mut GameState, uid: Uid) -> Result<(), EngineError>;                    // :109-116
@@ -868,6 +874,15 @@ pub(crate) fn set_winner(st: &mut GameState, losers: &[u8], reason: EndReason); 
 pub(crate) fn rules_management(st: &mut GameState) -> Result<(), EngineError>;                             // :857-892
 pub(crate) fn over(st: &GameState) -> bool;                                                                // :940-942
 pub(crate) fn damage_only_battle(st: &mut GameState, attacker: Uid, target: Uid) -> Result<(), EngineError>;  // battle.py:261-282 (touches :277, :282)
+pub(crate) fn card_uid_for(st: &GameState, a: &AbilityEntry, host: Uid) -> i32;                           // core.py:240-245 (wave 2b: L5's game.py:441, :902 call it; its private copy is dropped)
+impl Lki { pub(crate) fn only(&self, uid: Uid) -> Lki; pub(crate) fn is_empty(&self) -> bool; }         // {k: v for k, v in lki.items() if k == u} (interp.py:776, core.py:910, battle.py:117); emit treats an empty Lki as None
+// L3 (C), battle.rs: called by C's game (L5) and procedures (wave 2b)
+pub(crate) fn declare_attack(st: &mut GameState, attacker: Uid, target: i32) -> Result<(), EngineError>;   // battle.py:12-32
+pub(crate) fn battle_broken(st: &GameState, b: &Battle) -> Result<bool, EngineError>;                     // battle.py:35-44 (a uid outside the card list is IndexError; game.py:263, :276, :287 propagate it)
+pub(crate) fn eligible_blockers(st: &GameState, b: &Battle) -> Result<Vec<Uid>, EngineError>;             // battle.py:47-73
+pub(crate) fn block(st: &mut GameState, blocker: Uid) -> Result<(), EngineError>;                          // battle.py:76-96
+pub(crate) fn damage_step(st: &mut GameState) -> Result<(), EngineError>;                                  // battle.py:196-238
+pub(crate) fn end_battle(st: &mut GameState) -> Result<(), EngineError>;                                   // battle.py:241-258
 // L4 (B2), interp/: called by C's game and testkit::engine
 pub(crate) fn add_lasting(st: &mut GameState, effect: ContRef, controller: u8, source: i32, targets: &[(Uid, i32)],
                           duration: Duration, o: LastingOpts) -> Result<(), EngineError>;   // interp.py:1286-1320 (effect is R.cont_key(effect), the canonical ContRef)
@@ -952,6 +967,24 @@ Differences from PLAN §4.2, §4.6, §10.3.3 and §10.3.4, settled here:
   `view.py:383-384`); B2 may change any of it.
 - `Lasting.player` is `i8`, `HistoryEvent.player` is `u8` and `HistoryEvent.by` is `i8`, all
   checked at their call sites; `TriggerInst.ability_key` is the named `AbilityKey`.
+- Wave 2b integration (2026-11-02), additions only: the `Derived` layout gains
+  `rule_kinds: Vec<RuleKind>` (parallel to `rule_pool`, so `rules_of` filters without the
+  registry) and `db: Option<&'static CardDb>` (so `same_values` compares printed traits as
+  strings, `view.py:99`; `None` only for `Derived::empty()`); `view::{player_of, cost_mod_of}`
+  are boundary names; L3's `battle.rs` names above are frozen as L5 calls them (`battle_broken`
+  returns `Result`); `game.rs` keeps `pub(crate)` `advance`, `uid_at` (a range check, unlike
+  core's Python-indexing `uid_at`), `payment_choices`, `main_options`, `action_step_options`,
+  `activated_list` and `command_playable` for `procedures` and `testkit`; `core.rs` keeps the
+  other `pub(crate)` helpers C listed (`queue_trigger`, `trigger_ok`, `payload`,
+  `resolve_damage`, `shield_area_protected`, `shield_area_reduction`, `triggered`,
+  `trigger_node`, `rule_mod`, `is_true`, `to_i32`, `py_index`, `card_at`, `uid_at`, `by_i8`,
+  and `Lki::{contains, get, abilities_of, insert}`) as C's choice. `set_winner` stays
+  infallible: Python's `ValueError` on an empty loser set (`(loser,) = losers`) is unreachable
+  from every call site (`core.py:866`, `game.py:771`, `battle.py:232`). The paranoid
+  rules-management, damage-scan and unlistened-event checks live in `core.rs`, beside their
+  hooks. Impossible Python failures without an `EngineError` variant (`ZeroDivisionError` in
+  `wp_gd03_a_ap_per` with `per == 0`, the W-143 cases) stay `EngineError::Internal` with
+  Python's message.
 - Step 3 addition (B2): `view::link_satisfied_unpatched(reg, unit, pilot)`, the link check of
   `view.py:125-138` without `TestOverrides`. D2's `opening_score` needs it, because
   `ai/setup.py:18` binds the original function, so the `force_link` monkeypatch of
@@ -1120,6 +1153,24 @@ Differences from PLAN §6.1 and §10.3.5, settled here:
 - Searches take the tracer as a generic `&mut T` (`T: SearchTracer + ?Sized`), so `NoTrace`
   inlines away; `&mut dyn SearchTracer` still works.
 - `AiTables` (W-33) is not a contract type (open item O10).
+- Wave 2b integration (2026-11-02), additive public items. D2: `apply_unchecked(st, action)
+  -> Result<(), EngineError>` (`apply(check=False)` on the AI's own clones; the impossible
+  `IllegalActionError` maps to `EngineError::Internal` with Python's message), `log_entry`
+  (pub), `SPENDING`, `impl Display for AgentError` (Python's `str(exc)` per variant: the
+  `ValueError` text of `ai/base.py:63`, the agent's message, the engine's, and `""` for
+  `KeyboardInterrupt`; the runner's failure text is `match {m} game {g+1} (seed {s}) failed:
+  {py_class}: {Display}`), `impl Error for AgentError`, `From<EngineError>` and
+  `From<ApplyError>` for `AgentError`, `Scratch::{clone_state, recycle_state}`. D1: the
+  constants and helpers `policy::{EX_PENALTY, LETHAL, CLEAR_THE_WAY, MUST_BLOCK, KEEPABLE_TOP,
+  IDLE_ATTACK}`, `values::{LINK_BONUS, PAIR_BONUS, KEYWORD_BONUS, hp_left, keyword_count,
+  unit_value, card_worth, pile_value, Fight, fight, ready_blockers, life, exposed, int_f64}`,
+  `targeting::{Polarity, rule_polarity_of, choice_polarity, choice_rule_lasts_this_battle,
+  rule_lasts_this_battle_at, command_harms_enemy_units, polarity_at, first_step, node_ref,
+  REF_KINDS}`, `evaluation::{BASE_LIFE_HP, DANGER_LIFE, RACE_CAP}` (public modules `policy`,
+  `values`, `targeting`, `evaluation`, `playout`, `actions`, `agent`, `log`, `noop`, `setup`).
+  `pick` returns 0 for an empty list (Python raises; `choose` reproduces Python's error for a
+  decision without options). `merge_equivalent` reads `dv.traits.get(uid, ())` through
+  `view::traits_present`, so the fingerprint has no printed fallback.
 
 ## gcg-ai-reference (owner D2) — PLAN §6.2, §6.4, §6.5, §10.3.5, Inv 07
 
@@ -1170,6 +1221,11 @@ Differences from PLAN §6.4 and §10.3.5, settled here:
 - The `AgentFactory` of `gcg-eval reference-benchmark` (Python's `default_agent_factory`,
   `runner/agents.py:56-63`: `make_agent("mcts", preset=spec.preset, ...)` with
   `DEFAULT_WEIGHTS`) is F's: this crate cannot depend on `gcg-runner`.
+- Wave 2b integration (2026-11-02), additive: `make_agent(kind, preset, seed, log, config:
+  Option<&ReferenceConfig>, weights: Option<&Weights>) -> Result<Box<dyn Agent>, AgentError>`
+  (Python's factory `ai/agents.py:104-127`, the one `FACTORY_DESCRIPTION` names),
+  `AGENT_KINDS` (`["random", "greedy", "mcts"]`), `pub mod mcts` and
+  `is_target_decision(dec) -> bool`.
 
 ## gcg-search (owner D2) — PLAN §6.4, §6.5, §10.3.5, §12.3
 
@@ -1185,9 +1241,18 @@ with E0277 (`Default` not implemented) only.
 ```rust
 // Frozen (D2) — presets.rs, mcts.rs, agent.rs
 pub fn preset_config(p: Preset) -> &'static StrengthenedConfig;              // PLAN §6.4; v0: reference strong (standard) and reference standard (fast), renamed, ROLE_WEIGHTS, every field spelled out
-pub fn search<T: SearchTracer + ?Sized>(st: &GameState, player: u8, cfg: &StrengthenedConfig,
+pub fn search<T: SearchTracer + ?Sized>(obs: &Observation<'_>, cfg: &StrengthenedConfig,
               rng: &mut SplitMix64, cx: &mut AgentCx<'_>, tracer: &mut T)
-    -> Result<SearchResult, AgentError>;                                       // v0: the reference's mcts.py:82-339 with cfg.weights
+    -> Result<SearchResult, AgentError>;                                       // v0: the reference's mcts.py:82-339 with cfg.weights, reading the state through obs (wave 2b)
+// contracts.rs (lead, wave 2b): the strengthened search's view of one decision (PLAN §12.3, W-135)
+pub struct Observation<'a> { /* private: the true state and the observer */ }
+impl<'a> Observation<'a> {
+    pub const fn new(st: &'a GameState, player: u8) -> Self;                  // built by agent.rs only (lint §9.9 item 5)
+    pub const fn player(&self) -> u8;
+    pub(crate) const fn state(&self) -> &'a GameState;                        // v0 only; never public, so no outside crate gets the true state back
+}
+impl StrengthenedConfig { pub fn budget(&self, n_options: usize) -> u32; pub const fn knobs(&self) -> PolicyKnobs; pub fn agent_name(&self) -> String; }   // presets.rs (D2), as ReferenceConfig's
+pub mod mcts { pub fn is_target_decision(dec: &DecisionView<'_>) -> bool; }   // D2
 impl Agent for SearchAgent;                                                    // agent.rs only (lint §9.9 item 5); name search-{cfg.name}
 pub fn make_agent(cfg: &StrengthenedConfig, seed: u64, log: bool) -> Box<dyn Agent>;   // clones cfg
 // crates/gcg-search/tests/null_config.rs (D2; dev-dependency on gcg-ai-reference)
@@ -1208,6 +1273,14 @@ Differences from PLAN §10.3.5, settled here:
   `search-*`, A9).
 - `StrengthenedConfig` carries `weights`, so a preset is self-contained (S10 refits weights
   per preset); `make_agent` therefore has no weights parameter, as in the plan.
+- Wave 2b integration (2026-11-02, lead decision on the lint rule 5 conflict): `search` takes
+  an `Observation` instead of `(st, player)`. `SearchAgent::choose` and `choose_traced` use
+  the true state only in `AgentCore::begin`, `Observation::new` and `AgentCore::finish`;
+  v0's REDRAW and CHOOSE_FIRST dispatch and the search read the state through
+  `Observation::state` (crate-private), so the null configuration still replays the reference
+  bit for bit (`tests/null_config.rs`, `tests/null_config_traces.rs`). Phase 6 (P6-O) narrows
+  what an `Observation` exposes and adds the W-135 compile-fail doctest. `gcg-search` has the
+  dev-dependencies `gcg-diff` (path) and `serde_json`.
 
 ## gcg-runner (owner E) — PLAN §7, §9.5, §10.3.6, §12.7, Inv 01, Inv 02
 
@@ -1457,6 +1530,45 @@ Differences from PLAN §10.3.6, settled here:
 - The CLI constants live here, because `gcg-sim` and `gcg-eval` share them and neither binary
   crate can depend on the other.
 
+Frozen at the wave 2b integration (2026-11-02; O11 closed), E's `cli_support`, shared by
+`gcg-sim` and `gcg-eval` (`cli.py:36-37`, `:102-126`, `:143-159`, `:162-233`, `:236-331`,
+`:334-383`):
+
+```rust
+pub mod cli_support {
+    pub enum CliError { Invalid(PyStr), Interrupted }                         // CliError(message): "error: {message}", exit 1; KeyboardInterrupt: exit 130
+    pub fn read_deck(path: &PyStr) -> Result<Deck, CliError>;                 // _read_deck (cli.py:102-115)
+    pub fn legal_deck(path: &PyStr, implemented: &dyn ImplementationStatus) -> Result<Deck, CliError>;   // _legal_deck (:118-126)
+    pub fn deck_colors(deck: &Deck, db: &CardDb) -> String;
+    pub fn validate_command(path: &PyStr, out: &mut dyn Write) -> Result<(), CliError>;   // cmd_validate
+    pub struct ProgressPrinter { /* private */ }
+    impl ProgressPrinter { pub const fn new(tty: bool) -> Self; pub fn print(&mut self, done: u32, total: u32, stream: &mut dyn Write); }   // :143-159
+    pub fn rate_line(label: &str, block: &Outcomes) -> String;
+    pub fn writable_dir(path: &PyStr) -> Result<(), CliError>;               // _writable_dir (:176-185); os.access is a create-and-remove probe (safe Rust has no access(2))
+    pub struct BenchmarkRequest<'a> { pub deck_under_test: &'a PyStr, pub benchmark_deck: &'a PyStr, pub matches: u32,
+        pub seed: u64, pub workers: Workers, pub format: Format, pub ai_preset: &'static str, pub out: &'a PyStr,
+        pub decision_log: bool, pub replays: u32, pub schema: SchemaVersion, pub package: &'static str,
+        pub code_digest: &'static str }
+    pub fn benchmark_command(req: &BenchmarkRequest<'_>, factory: &dyn AgentFactory, tty: bool, cancel: &Cancel,
+                             out: &mut dyn Write, err: &mut dyn Write) -> Result<(), CliError>;   // cmd_benchmark
+    pub fn coverage(reg: &Registry) -> Json;
+    pub fn data_status(package: &str, code_digest: &str) -> Json;
+    pub fn status_text(s: &Json) -> Vec<String>;
+    pub fn data_status_command(json: bool, package: &str, code_digest: &str, out: &mut dyn Write);   // cmd_data_status
+    pub fn replay_command(path: &PyStr, log: bool, out: &mut dyn Write) -> Result<(), CliError>;     // cmd_replay
+}
+```
+
+Also added at the wave 2b integration (E, additive): `replay::resimulate(record, cfg) ->
+Result<Resimulation, ReplayError>` (the re-simulation `write_reports` takes as its parameter,
+which stays), `game::{match_point, match_point_of, match_loser_seat, result_label}`,
+`config::{AI_PRESETS, DEFAULT_TURN_LIMIT}`; the runner's `GameObserver` relies on
+`GameState::history_epoch()` changing exactly when Python replaces `st.history`
+(`engine/game.py:190`, `:336`). For F, `argparse` gains `Converter::Int` (`type=int`:
+`int(text)` in base 10, error `invalid int value: {text!r}`), `ActionKind::Append { convert,
+choices }` with `Action::append(option, dest, convert, choices, help)` (`action='append'`,
+default `None`) and `Value::List(Vec<Value>)`.
+
 ## gcg-cli (owner E) — PLAN §2.3, §6.5, §7.5, §10.4 E
 
 No contract types: the crate has no consumers. Its surface is Python's `gcg-sim`
@@ -1470,7 +1582,9 @@ bodies:
 - the `gcg-sim` agent factory over `gcg_search::{preset_config, make_agent}`, whose
   `describe` is `Preset::factory_description`; `make` returns `Result<Box<dyn gcg_ai::Agent>,
   gcg_ai::AgentError>`, through the direct `gcg-ai` edge (Workspace, Edges);
-- `src/lib.rs` keeps the module list; until E lands, the crate is a library with no items.
+- `src/lib.rs` keeps the module list (`cli`, `commands`, `factory`; wave 2b). `main.rs` wires
+  the optional `mimalloc` feature as `#[global_allocator]`; results schema 1.1.0 until
+  Phase 6 (O9).
 - `src/cli.rs` (landed): the `gcg-sim` parser, its typed commands and `main`'s flow behind a
   `Commands` trait. It builds on `gcg_runner::argparse` (moved from `crates/gcg-cli/src/argparse/`
   at integration, so `gcg-eval` can share it); `port/oracle/export_cli.py` writes the parser's
@@ -1519,6 +1633,32 @@ Also F's: the `[[bin]] gcg-eval` target and `main.rs`, `build.rs` (X19), the
 `reference-benchmark` factory (`make_reference_agent(reference_preset(spec.preset), seed, log,
 DEFAULT_WEIGHTS)`, `describe` = `gcg_ai_reference::FACTORY_DESCRIPTION`), and the
 subcommands of PLAN §2.1 and A30.
+
+F's landing differences, recorded at the wave 2b integration (2026-11-02):
+
+- `load_decks(set) -> Result<Vec<NamedDeck>, String>` (`NamedDeck { name, deck }`) instead of
+  `Vec<(String, DeckList)>`.
+- `parse_agent` is Python's exact grammar (`compare.py:79-113`, used by `compare`, keeping
+  Python's error texts); the `ref:`/`search:` grammar of PLAN §10.4 F is a separate
+  `parse_agent_spec` (used by `head-to-head`).
+- `compare(challenger, opponent, games: i128, seed: i128, workers, decks, cancel) ->
+  Result<Json, CommandError>`, plus `compare_with(.., play)` for injected games: the report
+  echoes Python's int seed (negative or above 2^64, masked by `derive_seed`). Its
+  `--games/--seed/--workers` are `Converter::Int` options, so a bad value is reported while
+  parsing, in Python's order.
+- Added: `specs::{pair_specs, pairing_master, combinations, deals}`, `stats::{rate_json,
+  newcombe_paired, Paired, PlayDraw}`, `selfplay::{run_game, play, play_all, threads}`;
+  `impl Display for SpecError` is in `specs.rs`. `selfplay::agent_error_text` writes a game
+  failure's message (it differs from `Display for AgentError` only in `"interrupted"` for
+  `Interrupted`).
+- `head-to-head --pair DECK_A:DECK_B[,...]` is repeatable (`Action::append`); the occurrences
+  join in order.
+- `reference-benchmark` takes `--reference-preset fast|standard|strong` instead of
+  `--ai-preset` (lead decision): `--ai-preset` names only the two `gcg-sim` presets.
+- `bench_cmd.rs` ports `cmd_benchmark`'s helpers against the frozen `gcg-runner` and
+  `gcg-data` API and builds its report with `write_reports_with` plus
+  `replay::replay_document`; it may delegate to `cli_support::benchmark_command` now that
+  O11 is frozen.
 
 ## gcg-diff (owner G) — PLAN §8.2, §8.7, §9.9-§9.10, §10.3.7
 
@@ -1623,6 +1763,49 @@ Agent replay (PLAN §8.7 "Search and baselines traces", drill-down levels 1-2):
 - With `engine.state() == None` (`MockEngine`) the agent blocks are decoded and not replayed;
   `ReplayStats.agent_decisions` counts the replayed ones.
 
+Real-engine adapter (G; `crates/gcg-diff/src/{engine,dispatch,agents}.rs`):
+
+- `RealEngine::for_trace(&Header)` is the `EngineUnderTest` over `gcg-engine`, with
+  `RustAgents::for_trace(&Trace)` as its `AgentOracle` (the level-2/3 `Recorder` runs at the
+  decisions whose trace holds `iter`/`apply_trace` records). `corpus` replays against it by
+  default; `--mock` and `--parse-only` stay.
+- `force_link` with no state current keeps the list for the next state and the `Scenario`
+  being built, and does not fail: four per-test traces patch `view.link_satisfied` before
+  they build a state (the trait doc in `contracts.rs` says so since the wave 2b integration).
+- `--roundtrip` loads every snapshot a trace holds (`snapshot` records, `state` records and
+  the `view_from` of a stale one, `scenario` snapshots, after the `override` fragments before
+  them) and compares the canonical bytes (`state_digest` text), the engine's own digest, and
+  the digest prefix and `rc` the trace records for that state (the decision at the same index
+  or the outcome after a `snapshot`; the next `apply` after a `state`; `before16`, or
+  `after16` with `new_game`, of a `scenario`).
+- The view signature (`view` records, the `paranoid.view_signature` probe, the sha16 of a
+  `view.derived` result): `view::signature(st, dv)` must return the form of
+  `port/oracle/traces.py` `view_signature_json` (per-uid maps keyed by the uid's decimal
+  text, keyword maps by keyword value, rule instances `[node_json(rule), controller, source,
+  key, aux]` with a lasting key `[-1, content id, serial]`), which `views` traces record; for
+  per-test traces the dispatcher converts it to `port/oracle/pytest_trace.py` `view_sig`
+  (`dispatch::tests_signature`). A `view` record is computed on a clone of the state, so a
+  missing view is not stored in the replayed state (`effective_view`, `generate_view`).
+- The dispatcher's names are `dispatch::{PROBES, CALLS}`; `tests/dispatch_names.rs` checks
+  that every name the tier-1 corpus records has an entry. Engine functions it needs beyond
+  the frozen list (interface requests, shimmed locally until they land):
+  `InfoSetKey::to_json(&self, reg: &Registry) -> Json` (the tuple `observe.py:136-150`
+  returns, `repr(pending)` last; `observe.information_set_key` results, 190 calls), and
+  `CardMultiset::entries(&self) -> &[((u8, DefId), u32)]` (sorted; the dispatcher writes
+  Python's Counter order, first appearance over `st.cards`, for `invariants.initial_multiset`,
+  and passes `invariants.check` the multiset an earlier `initial_multiset` call returned);
+  plus O14's `Scenario::prepare_start`, which the `Scenario.start` entry calls before
+  `testkit::engine::advance`. All three landed at the wave 2b integration (gcg-engine section).
+- Not frozen (optional requests, open): an engine census of programs pushed and triggers
+  resolved per card (so `coverage` could re-measure in Rust instead of crediting the Python
+  census on passing replays) and paranoid check counters (for the `paranoid-games` count
+  assertions); B2's optional `Registry::node_json(id)`.
+- `coverage --check` credits a non-vanilla card with a passing tagged per-test trace, a
+  native test, or the Python executed-program census when every census game trace passes
+  the real-engine replay; a vanilla card with an instantiation in a replayed state, or as a
+  token. A Rust-side executed-program census would need an engine hook (programs pushed and
+  triggers resolved per card), which no frozen API has.
+
 Differences from PLAN §10.3.7, settled here: `replay_trace` takes the engine under test
 explicitly (the real engine or `MockEngine`); the `state` record has its own `StateRec`
 (it carries `derived`, `view_from` and `view_key`, §8.2), `view` is a `ViewRec` (the
@@ -1645,9 +1828,9 @@ in `log`; an `iter` record's `decision` is the decision record's `i`.
 | O8 | The `Derived` and `GameConst` starting layouts are untested against the census (PLAN §8.6): capacities (`EVENT_CAPACITY` 10, `CONTEXT_CAPACITY` 4, `ONCE_KEY_CAPACITY` 6) are the plan's estimates | The Phase 2 census confirms or raises them; a raise is a contract change (lead) |
 | O9 | Results schema 1.2.0 (PLAN §12.7) needs per-seat effort totals (`ai.effort`) and the search block (`ai.search`), but neither `Agent` nor `AgentFactory` exposes them, and the 1.2.0 schema file is a Phase 6 deliverable | Until Phase 6 lands schema 1.2.0, `gcg-sim` writes 1.1.0 (its `ai.preset` values `standard`/`fast` are in the 1.1.0 enum). The P6 owner then adds `Agent::effort(&self) -> SearchEffort` and `AgentFactory::search_block(&self) -> Option<Json>` through the change protocol; `SearchEffort` already exists |
 | O10 | W-33 `AiTables`: Python memoises polarity per `(program, pc)` and harm per `def_id` in process globals (`ai/targeting.py:54-112`, `ai/actions.py:167-199`); PLAN §6.2 and A16 place the tables per registry, but no frozen D1/D2 signature carries them and `Registry` cannot hold AI types | Phase 3 recomputes them (pure functions of the registry, so exact by construction). A table type is introduced through the change protocol only if the A16 plugin records a test that reads an entry computed before an override, or Phase 5 measures a win |
-| O11 | The argparse-compatible parser and the CLI pieces both binaries share (progress printer `cli.py:143-159`, deck loading and its messages `:102-126`, `data status` `:236-331`, the report-directory check `:176-185`) live in `gcg-runner` (`argparse`, `cli_support`), because `gcg-eval` cannot depend on the `gcg-sim` crate; their API is not frozen | E publishes the API in its M7 landing report and the lead freezes it here before F's CLI work (M8). Integration: `argparse` landed in `gcg-runner` (moved from `gcg-cli`); its `Converter` still holds only `gcg-sim`'s `type=` callables, and `cli_support` is not landed |
+| O11 | The argparse-compatible parser and the CLI pieces both binaries share (progress printer `cli.py:143-159`, deck loading and its messages `:102-126`, `data status` `:236-331`, the report-directory check `:176-185`) live in `gcg-runner` (`argparse`, `cli_support`), because `gcg-eval` cannot depend on the `gcg-sim` crate; their API is not frozen | E publishes the API in its M7 landing report and the lead freezes it here before F's CLI work (M8). Integration: `argparse` landed in `gcg-runner` (moved from `gcg-cli`); its `Converter` still holds only `gcg-sim`'s `type=` callables, and `cli_support` is not landed **Closed at the wave 2b integration:** `cli_support` landed and is frozen in the gcg-runner section; `Converter` gained `Int` and the parser `ActionKind::Append` for `gcg-eval` |
 | O12 | The W-135 `compile_fail` doctest for `Agent` (an agent cannot `apply` on the true `&GameState`) needs `gcg_engine::apply`, which lands with C's L5; a doctest written now would fail for an unresolved name instead | Lands with T-023 at M7 in `crates/gcg-ai/src/contracts.rs` (lead); the W-136 doctest is in place now, the W-49 one since step 2 |
-| O14 | The replay checks a `scenario` record's `before16` and `rules_checked` through the dispatcher's `Scenario.start` result (`EngineUnderTest::call`), but `gcg_engine::testkit::Scenario::start` (`testkit.py:160-182`) builds the decks, sets the step and advances in one call, so the real engine's dispatcher cannot observe the state before `advance` | gcg-engine's testkit adds `Scenario::prepare_start(&mut self, step: Step) -> Result<(), TestkitError>` (`testkit.py:162-180`, everything before `advance`), and `start` becomes `prepare_start` then `testkit::engine::advance`; the dispatcher reads the digest between them. `MockEngine` answers from the record until then. Owner: lead (gcg-engine contract), C lands it |
+| O14 | The replay checks a `scenario` record's `before16` and `rules_checked` through the dispatcher's `Scenario.start` result (`EngineUnderTest::call`), but `gcg_engine::testkit::Scenario::start` (`testkit.py:160-182`) builds the decks, sets the step and advances in one call, so the real engine's dispatcher cannot observe the state before `advance` | gcg-engine's testkit adds `Scenario::prepare_start(&mut self, step: Step) -> Result<(), TestkitError>` (`testkit.py:162-180`, everything before `advance`), and `start` becomes `prepare_start` then `testkit::engine::advance`; the dispatcher reads the digest between them. `MockEngine` answers from the record until then. Owner: lead (gcg-engine contract), C lands it **Closed at the wave 2b integration:** C landed `prepare_start` (`start` = `prepare_start` + `advance`), frozen in the testkit signatures |
 | O13 | PLAN §13 M2 runs `uv run mypy --strict port/oracle`, which fails with `import-untyped` on every `gcg_sim` import: the package has no `py.typed`, and mypy finds it only as an installed package. With `MYPYPATH=src` the three oracle scripts pass `--strict`. Fixing it needs a file outside this milestone's scope: `PLAN.md` or `pyproject.toml` | The lead adds `mypy_path = "src"` to `[tool.mypy]` in `pyproject.toml` (checked: `MYPYPATH=src uv run mypy` still reports no issues in 101 source files), or writes `MYPYPATH=src` into the PLAN §13 M2 line. The gate above uses `MYPYPATH=src` until then |
 
 ## Change log
@@ -1671,6 +1854,8 @@ in `log`; an `iter` record's `decision` is the decision record's `i`.
 | 2026-11-01 | gcg-core: `TaskCx::superseded(&self) -> bool` and the task index in `TaskCx`; `lowest_failed` moved into the run's shared state | integration E (lead-authorised) |
 | 2026-11-01 | gcg-core: `Topology.arm_features: Vec<(String, u64)>` (was `u32`), so `hw.optional.arm.caps` is kept | integration E (lead-authorised) |
 | 2026-11-01 | `argparse` moved from `crates/gcg-cli/src/argparse/` to `crates/gcg-runner/src/argparse/` (`pub mod argparse` in `gcg-runner`); `gcg-cli` keeps `cli.rs`; `export_cli.py` writes the tables to the new path | integration E (lead-authorised) |
+| 2026-11-02 | gcg-diff real-engine adapter (section "Real-engine adapter"): `RealEngine`, `RustAgents`, `Recorder`, the dispatcher name tables, `force_link` without a state, the extended `--roundtrip`, the `view::signature` JSON form, and the interface requests `InfoSetKey::to_json`, `CardMultiset::entries` (with O14's `Scenario::prepare_start`) | G (lead-authorised for EngineUnderTest) |
+| 2026-11-02 | Wave 2b integration: every `lib.rs` module and re-export line of the nine reports; gcg-engine feature `slow`; dev-dependencies `serde_json`+`sha2` (gcg-ai, gcg-ai-reference), `gcg-diff`+`serde_json` (gcg-search); gcg-engine `Derived.{rule_kinds, db}`, `view::{player_of, cost_mod_of}` (boundary), `view::traits_present` (public), the L3 `battle.rs` names L5 calls (`battle_broken` returns `Result`), `core::card_uid_for` and `Lki::only` (L4/L5 private copies dropped), `InfoSetKey::to_json`, `CardMultiset::entries`, `Scenario::prepare_start` (O14 closed); gcg-ai D1/D2 additive items and `Display for AgentError`; gcg-ai-reference `make_agent`, `AGENT_KINDS`, `mcts::is_target_decision`; gcg-search `Observation` and `search(obs, ..)` (lint rule 5), `StrengthenedConfig::{budget, knobs, agent_name}`; gcg-runner `cli_support` frozen (O11 closed), E's additive items, argparse `Converter::Int`, `ActionKind::Append`, `Value::List`; gcg-eval F's differences and `reference-benchmark --reference-preset`; gcg-diff `EngineUnderTest::force_link` doc | wave 2b integration (lead-authorised) |
 
 ## Review log
 

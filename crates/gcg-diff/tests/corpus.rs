@@ -20,10 +20,12 @@ fn args(engine: EngineKind) -> CorpusArgs {
         file: None,
         engine,
         roundtrip: false,
+        paranoid: false,
         require_all: true,
         jobs: 4,
         report: None,
         junit: None,
+        census: false,
     }
 }
 

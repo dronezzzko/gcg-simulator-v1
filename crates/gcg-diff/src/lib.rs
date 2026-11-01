@@ -9,18 +9,29 @@
 
 mod contracts;
 
+pub mod agents;
 pub mod cli;
 pub mod corpus;
+pub mod coverage;
+pub mod dispatch;
+pub mod engine;
+pub mod evidence;
+pub mod explain;
 pub mod floathex;
+pub mod fuzz;
 pub mod json;
 pub mod lints;
 pub mod manifest;
 pub mod mock;
 pub mod options;
+pub mod paranoid;
 pub mod reader;
 pub mod replay;
+pub mod schema;
 pub mod selftest;
 pub mod testsjson;
+pub mod traceability;
+pub mod tracesearch;
 pub mod weaknesses;
 
 pub use contracts::*;

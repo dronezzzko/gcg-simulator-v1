@@ -21,10 +21,10 @@
 
 use std::fmt;
 
-use gcg_engine::{Action, NO_ARG};
+use gcg_engine::{Action, NO_ARG, StateSnapshot};
 use serde_json::Value;
 
-use crate::json::{first_difference, short, state_digest};
+use crate::json::{first_difference, py_dumps_checked, sha256_hex, short, state_digest};
 use crate::options::options_sha16;
 use crate::{
     AgentRec, AltRec, ApplyRec, ApplyTraceRec, CallRec, CallSpec, DecisionRec, DiffOptions,
@@ -238,38 +238,126 @@ impl<'a> Replay<'a> {
         }
     }
 
-    /// `--roundtrip` (M5.1): load every snapshot, re-serialise it, compare the canonical
-    /// state and, where a decision follows at the same index, its digest prefix.
+    /// `--roundtrip` (M5.1): load every snapshot the trace holds (`snapshot` records, the
+    /// state of `state` records and the view origin of a stale one, the pre-advance or new-game
+    /// snapshot of `scenario` records) with `from_canonical`, after applying the `override`
+    /// fragments before it, re-serialise it, and compare the canonical bytes (Python's
+    /// `state_digest` text: sorted keys, compact, ASCII), the digest the engine computes,
+    /// `_rules_checked`, and the digest prefix the trace records for that state: the decision
+    /// at the same index, or the outcome, after a `snapshot`; the next `apply` after a `state`
+    /// (only probes between); `before16` (or `after16` with `new_game`) of a `scenario`.
     fn roundtrip(&mut self) -> Result<(), Divergence> {
         let recs = &self.t.records;
         for (j, rec) in recs.iter().enumerate() {
             self.stats.records += 1;
             let line = j + 2;
-            let Record::Snapshot(s) = rec else { continue };
-            self.stats.snapshots += 1;
-            self.engine
-                .load(&s.snapshot)
-                .map_err(|e| self.div(line, "load", "ok".to_owned(), err_text(&e)))?;
-            let got = self.engine.canonical();
-            if let Some((path, p, r)) = first_difference(&s.snapshot.state, &got, "state") {
-                return Err(self.div(line, &path, p, r));
-            }
-            let next = recs[j + 1..].iter().find_map(|x| match x {
-                Record::Decision(d) if d.index == s.index => Some(d),
-                _ => None,
-            });
-            if let Some(d) = next {
-                let digest =
-                    state_digest(&got).map_err(|e| self.div(line, "digest", String::new(), e))?;
-                if digest[..16] != d.fingerprint.digest16 {
-                    return Err(self.div(
-                        line,
-                        "digest16",
-                        d.fingerprint.digest16.clone(),
-                        digest[..16].to_owned(),
-                    ));
+            match rec {
+                Record::Override(o) => self
+                    .engine
+                    .set_registry(&o.fragment)
+                    .map_err(|e| self.div(line, "override", "ok".to_owned(), err_text(&e)))?,
+                Record::Snapshot(s) => {
+                    let (want, rc) = snapshot_expect(&recs[j + 1..], s.index);
+                    self.roundtrip_one(line, "snapshot", &s.snapshot, want.as_deref())?;
+                    if let Some(rc) = rc
+                        && rc != s.snapshot.rules_checked
+                    {
+                        return Err(self.div(
+                            line,
+                            "snapshot rules_checked",
+                            rc.to_string(),
+                            s.snapshot.rules_checked.to_string(),
+                        ));
+                    }
                 }
+                Record::State(s) => {
+                    let want = recs[j + 1..]
+                        .iter()
+                        .find(|r| !matches!(r, Record::Probe(_) | Record::View(_)))
+                        .and_then(|r| match r {
+                            Record::Apply(a) => Some(a.before16.clone()),
+                            _ => None,
+                        });
+                    self.roundtrip_one(line, "state", &s.snapshot, want.as_deref())?;
+                    if let Some(from) = &s.view_from {
+                        let origin = StateSnapshot {
+                            state: from.clone(),
+                            ..s.snapshot.clone()
+                        };
+                        self.roundtrip_one(line, "state.view_from", &origin, None)?;
+                    }
+                }
+                Record::Scenario(s) => {
+                    if let Some(snap) = &s.snapshot {
+                        let want = if s.new_game.is_some() {
+                            Some(s.after16.as_str())
+                        } else {
+                            s.before16.as_deref()
+                        };
+                        self.roundtrip_one(line, "scenario", snap, want)?;
+                    }
+                }
+                _ => {}
             }
+        }
+        Ok(())
+    }
+
+    fn roundtrip_one(
+        &mut self,
+        line: usize,
+        what: &str,
+        snap: &StateSnapshot,
+        want16: Option<&str>,
+    ) -> Result<(), Divergence> {
+        self.stats.snapshots += 1;
+        self.engine
+            .load(snap)
+            .map_err(|e| self.div(line, &format!("{what} load"), "ok".to_owned(), err_text(&e)))?;
+        let got = self.engine.canonical();
+        if let Some((path, p, r)) = first_difference(&snap.state, &got, "state") {
+            return Err(self.div(line, &format!("{what} {path}"), p, r));
+        }
+        let want_text = py_dumps_checked(&snap.state)
+            .map_err(|e| self.div(line, &format!("{what} bytes"), e, String::new()))?;
+        let got_text = py_dumps_checked(&got)
+            .map_err(|e| self.div(line, &format!("{what} bytes"), String::new(), e))?;
+        if want_text != got_text {
+            let at = want_text
+                .bytes()
+                .zip(got_text.bytes())
+                .position(|(a, b)| a != b)
+                .unwrap_or_else(|| want_text.len().min(got_text.len()));
+            return Err(self.div_note(
+                line,
+                &format!("{what} canonical bytes"),
+                excerpt(&want_text, at),
+                excerpt(&got_text, at),
+                format!("first differing byte at offset {at}"),
+            ));
+        }
+        let fp = self.engine.observe();
+        let digest = sha256_hex(want_text.as_bytes());
+        if fp.digest16 != digest[..16] {
+            return Err(self.div(
+                line,
+                &format!("{what} state_digest"),
+                digest[..16].to_owned(),
+                fp.digest16,
+            ));
+        }
+        if let Some(w) = want16
+            && w != fp.digest16
+        {
+            return Err(self.div(line, &format!("{what} digest16"), w.to_owned(), fp.digest16));
+        }
+        if fp.rules_checked != snap.rules_checked {
+            return Err(self.div(
+                line,
+                &format!("{what} loaded rules_checked"),
+                snap.rules_checked.to_string(),
+                fp.rules_checked.to_string(),
+            ));
         }
         Ok(())
     }
@@ -872,6 +960,12 @@ impl<'a> Replay<'a> {
         let field = format!("{what} {}", spec.func);
         let got = self.engine.probe(spec);
         match (want, got) {
+            (Err(want), Ok(got)) if DICT_RESULT_PROBES.contains(&spec.func.as_str()) => {
+                match first_difference(&as_mapping(want), &as_mapping(&got), "result") {
+                    None => Ok(()),
+                    Some((path, p, r)) => Err(self.div(line, &format!("{field} {path}"), p, r)),
+                }
+            }
             (Err(want), Ok(got)) => match first_difference(want, &got, "result") {
                 None => Ok(()),
                 Some((path, p, r)) => Err(self.div(line, &format!("{field} {path}"), p, r)),
@@ -880,6 +974,55 @@ impl<'a> Replay<'a> {
                 .map_err(|(p, r)| self.div(line, &field, p, r)),
         }
     }
+}
+
+/// Probes whose Python result is a `dict`, encoded as a list of `[key, value]` pairs in the
+/// dict's insertion order. Python compares such results with dict equality, which ignores
+/// order (`tests/cards/test_wp_gd03_a.py:183` asserts `keywords(...) == {...}`), and no engine
+/// or AI logic reads that order (`ai/values.py:30` uses `len`, `ai/actions.py:356` sorts), so
+/// the replay compares them as mappings. The Rust view keeps keyword amounts in declaration
+/// order (docs/port/EQUIVALENCE.md).
+const DICT_RESULT_PROBES: &[&str] = &["testkit.keywords"];
+
+/// A `[key, value]` pair list as a mapping: the pairs sorted by their JSON-encoded key. Any
+/// other value is returned unchanged, so a shape mismatch still shows as a difference.
+fn as_mapping(v: &Value) -> Value {
+    match v {
+        Value::Array(items)
+            if items
+                .iter()
+                .all(|i| i.as_array().is_some_and(|pair| pair.len() == 2)) =>
+        {
+            let mut pairs = items.clone();
+            pairs.sort_by_cached_key(|pair| pair[0].to_string());
+            Value::Array(pairs)
+        }
+        other => other.clone(),
+    }
+}
+
+/// What the trace records elsewhere about the state of a `snapshot` record at decision
+/// `index`: the digest prefix and `rc` of the decision record with that index, when it is the
+/// next decision, or the outcome's final digest, when the outcome comes first.
+fn snapshot_expect(rest: &[Record], index: u32) -> (Option<String>, Option<i64>) {
+    rest.iter()
+        .find_map(|r| match r {
+            Record::Decision(d) if d.index == index => Some((
+                Some(d.fingerprint.digest16.clone()),
+                Some(d.fingerprint.rules_checked),
+            )),
+            Record::Decision(_) => Some((None, None)),
+            Record::Outcome(o) => Some((o.final_digest.get(..16).map(str::to_owned), None)),
+            _ => None,
+        })
+        .unwrap_or((None, None))
+}
+
+/// Up to 40 characters of the ASCII `text` around byte `at`.
+fn excerpt(text: &str, at: usize) -> String {
+    let start = at.saturating_sub(20);
+    let end = (at + 20).min(text.len());
+    text.get(start..end).unwrap_or_default().to_owned()
 }
 
 fn compare_error(want: Option<&ErrorRec>, got: Option<&ErrorRec>) -> Result<(), (String, String)> {

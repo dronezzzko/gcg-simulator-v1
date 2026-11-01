@@ -45,7 +45,8 @@ use gcg_core::rng::SplitMix64;
 use gcg_core::small::InlineVec;
 use gcg_data::{CardDb, DefId};
 use gcg_effects::{
-    AbilityId, Ev, EvSet, FilterSetId, KwAmounts, ProgramId, Registry, RuleModId, StrId, VarId,
+    AbilityId, Ev, EvSet, FilterSetId, KwAmounts, ProgramId, Registry, RuleKind, RuleModId, StrId,
+    VarId,
 };
 
 pub use gcg_effects::{ContRef, Duration};
@@ -717,6 +718,9 @@ pub struct Derived {
     /// Per uid in any zone, application order; empty = absent.
     pub(crate) rules: Vec<Span>,
     pub(crate) rule_pool: Vec<RuleInst>,
+    /// `rule_pool[i].rule`'s `RuleMod.kind`, so `rules_of` filters without the registry
+    /// (`view.py:565-566`, `:466-468`).
+    pub(crate) rule_kinds: Vec<RuleKind>,
     /// `None` = key absent (only non-zero contributions create a key).
     pub(crate) cost_mod: Vec<Option<i32>>,
     pub(crate) level_mod: Vec<Option<i32>>,
@@ -729,6 +733,9 @@ pub struct Derived {
     pub(crate) hosts: Vec<Uid>,
     /// W-48: false when the fixpoint stopped at [`FIXPOINT_PASSES`] without converging.
     pub(crate) converged: bool,
+    /// The card database that `traits[uid].def` indexes, so `same_values` compares printed
+    /// traits as strings (`view.py:99`); `None` only for `Derived::empty()`, which holds none.
+    pub(crate) db: Option<&'static CardDb>,
     pub(crate) by_event: OnceLock<TriggerIndex>,
 }
 

@@ -9,13 +9,27 @@
 //! (`state`, `zones`, `canon`, `view`, `core`, `battle`, `interp`, `game`, `observe`,
 //! `invariants`, `procedures`, `testkit`), are in docs/port/contracts.md.
 
+mod battle;
 pub mod canon;
 mod contracts;
+mod core;
 mod enums;
 mod error;
+mod game;
+mod interp;
+pub mod invariants;
+pub mod observe;
+pub mod procedures;
 mod state;
+#[cfg(feature = "testkit")]
+pub mod testkit;
 mod types;
+pub mod view;
 mod zones;
 
 pub use contracts::*;
 pub use enums::*;
+pub use game::{
+    apply, concede, deck_construction_problems, deck_construction_problems_by_number,
+    legal_actions, new_game, new_game_by_number, step,
+};

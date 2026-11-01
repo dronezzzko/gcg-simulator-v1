@@ -64,6 +64,10 @@ pub struct MockEngine {
     next_probe: usize,
     digest16: String,
     rules_checked: i64,
+    /// A snapshot was loaded since the last game decision was applied: a game trace's
+    /// fingerprint then reports the loaded state's digest and `rules_checked` (`--roundtrip`
+    /// loads every snapshot of a game without applying anything).
+    loaded: bool,
 }
 
 fn mock_error(message: String) -> ErrorRec {
@@ -100,6 +104,7 @@ impl MockEngine {
             next_probe: 0,
             digest16: String::new(),
             rules_checked: -1,
+            loaded: false,
         };
         for rec in &trace.records {
             match rec {
@@ -199,6 +204,7 @@ impl MockEngine {
         self.digest16 = state_digest(&snapshot.state).map_err(mock_error)?[..16].to_owned();
         self.rules_checked = snapshot.rules_checked;
         self.current = Some(snapshot.state.clone());
+        self.loaded = true;
         Ok(())
     }
 }
@@ -286,7 +292,12 @@ impl EngineUnderTest for MockEngine {
         if !self.is_test()
             && let Some(d) = self.decisions.get(self.k)
         {
-            return d.fingerprint.clone();
+            let mut fp = d.fingerprint.clone();
+            if self.loaded {
+                fp.digest16.clone_from(&self.digest16);
+                fp.rules_checked = self.rules_checked;
+            }
+            return fp;
         }
         let step = self
             .decisions
@@ -347,6 +358,7 @@ impl EngineUnderTest for MockEngine {
             )));
         }
         self.k += 1;
+        self.loaded = false;
         self.current = self.state_at(self.k);
         Ok(())
     }

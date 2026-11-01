@@ -11,8 +11,6 @@
 use std::ffi::{OsStr, OsString};
 use std::fmt::Write as _;
 
-use super::unicode;
-
 /// A Python `str`: Unicode scalar values and lone surrogates (`0xD800..=0xDFFF`).
 #[derive(Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Debug, Default)]
 pub struct PyStr(Vec<u32>);
@@ -183,38 +181,38 @@ impl PyStr {
         self.0.extend_from_slice(&s.0);
     }
 
-    /// `repr(self)` (CPython `unicode_repr`): single quotes unless the text holds `'` and no
-    /// `"`; `\\`, the quote, `\t`, `\n` and `\r` escaped; other characters below `U+0020`,
-    /// `U+007F` and every non-printable character (`str.isprintable`, so lone surrogates
-    /// too) as `\xhh`, `\uhhhh` or `\Uhhhhhhhh`.
+    /// `repr(self)` (CPython `unicode_repr`): [`gcg_data::py_repr`], extended to lone
+    /// surrogates, which are never printable and print as `\udcxx`. The quote is chosen over
+    /// the whole text (single unless it holds `'` and no `"`); each surrogate-free run is
+    /// escaped by `py_repr` of the run plus the other quote character, which makes `py_repr`
+    /// pick that same quote; the outer quote and the added character are then cut off.
     #[must_use]
     pub fn repr(&self) -> Self {
-        let has_single = self.contains_char('\'');
-        let has_double = self.contains_char('"');
-        let quote = if has_single && !has_double { '"' } else { '\'' };
+        if let Some(text) = self.to_string_opt() {
+            return Self::from_text(&gcg_data::py_repr(&text));
+        }
+        let quote = if self.contains_char('\'') && !self.contains_char('"') {
+            '"'
+        } else {
+            '\''
+        };
+        let other = if quote == '"' { '\'' } else { '"' };
         let mut out = String::with_capacity(self.0.len() + 2);
         out.push(quote);
-        for &cp in &self.0 {
-            match char::from_u32(cp) {
-                Some('\\') => out.push_str("\\\\"),
-                Some('\t') => out.push_str("\\t"),
-                Some('\n') => out.push_str("\\n"),
-                Some('\r') => out.push_str("\\r"),
-                Some(c) if c == quote => {
-                    out.push('\\');
-                    out.push(c);
-                }
-                Some(c) if (' '..='~').contains(&c) => out.push(c),
-                Some(c) if cp >= 0x80 && unicode::is_printable(cp) => out.push(c),
-                _ if cp < 0x100 => {
-                    let _ = write!(out, "\\x{cp:02x}");
-                }
-                _ if cp < 0x1_0000 => {
-                    let _ = write!(out, "\\u{cp:04x}");
-                }
-                _ => {
-                    let _ = write!(out, "\\U{cp:08x}");
-                }
+        for run in self.0.split_inclusive(|cp| SURROGATES.contains(cp)) {
+            let (text, surrogate) = match run.split_last() {
+                Some((&last, rest)) if SURROGATES.contains(&last) => (rest, Some(last)),
+                _ => (run, None),
+            };
+            if !text.is_empty() {
+                let mut part: String = text.iter().filter_map(|&cp| char::from_u32(cp)).collect();
+                part.push(other);
+                let quoted = gcg_data::py_repr(&part);
+                // `quote` + escaped run + `other` + `quote`, all ASCII at both ends.
+                out.push_str(&quoted[1..quoted.len() - 2]);
+            }
+            if let Some(cp) = surrogate {
+                let _ = write!(out, "\\u{cp:04x}");
             }
         }
         out.push(quote);
@@ -265,6 +263,20 @@ mod tests {
                 .as_deref(),
             Some("bö3")
         );
+    }
+
+    #[test]
+    fn repr_keeps_the_whole_texts_quote_around_surrogates() {
+        // Python: repr("'\udcff\""), repr("'\udcffx'"), repr("\udcff\\\n\udc80").
+        let r = |cps: &[u32]| {
+            PyStr::from_code_points(cps.to_vec())
+                .repr()
+                .to_string_opt()
+                .expect("ASCII")
+        };
+        assert_eq!(r(&[0x27, 0xDCFF, 0x22]), "'\\'\\udcff\"'");
+        assert_eq!(r(&[0x27, 0xDCFF, 0x78, 0x27]), "\"'\\udcffx'\"");
+        assert_eq!(r(&[0xDCFF, 0x5C, 0x0A, 0xDC80]), "'\\udcff\\\\\\n\\udc80'");
     }
 
     #[test]

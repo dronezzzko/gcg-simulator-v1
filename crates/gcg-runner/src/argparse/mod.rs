@@ -15,9 +15,10 @@
 //! terminal's width; this port never colours and wraps to 80 columns, because reading the
 //! terminal size needs an `ioctl`, which safe Rust cannot make.
 //!
-//! The module depends on no other `gcg-*` crate except `gcg-core::lookup`. It lives in
-//! `gcg-runner`, because `gcg-eval` cannot depend on the `gcg-sim` crate
-//! (docs/port/contracts.md, open item O11).
+//! The module depends on no other `gcg-*` code except `gcg-core::lookup` and gcg-data's
+//! Python text rules (`gcg_data::py_repr`, `gcg_data::py_path_str`), which [`PyStr::repr`]
+//! and [`pypath::path_str`] extend to lone surrogates. It lives in `gcg-runner`, because
+//! `gcg-eval` cannot depend on the `gcg-sim` crate (docs/port/contracts.md, open item O11).
 
 pub mod difflib;
 mod format;
@@ -45,10 +46,13 @@ pub enum Value {
     Int(PyInt),
     /// `--workers auto` (the additive Rust value, PLAN A5).
     Auto,
+    /// The list an `action='append'` option builds, one converted value per occurrence
+    /// (`_AppendAction`, `argparse.py:1215-1253`).
+    List(Vec<Value>),
 }
 
-/// The `type=` callables of the `gcg-sim` parser (`cli.py:40-65`), plus the Rust `--workers`
-/// converter.
+/// The `type=` callables of the `gcg-sim` parser (`cli.py:40-65`), the builtin `int` of
+/// `gcg-eval compare` (`ai/compare.py:203-205`), plus the Rust `--workers` converter.
 #[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)]
 pub enum Converter {
     /// No `type=`: the text itself.
@@ -63,6 +67,9 @@ pub enum Converter {
     Seed,
     /// `auto`, or `_positive_int` (PLAN A5; numeric failures read exactly as Python's).
     Workers,
+    /// `type=int`: `int(text)` in base 10; a `ValueError` reads `invalid int value: {text!r}`
+    /// (`argparse.py:2803-2808`).
+    Int,
 }
 
 /// Why a converter rejected a text (`argparse.py:2790-2812`).
@@ -83,6 +90,7 @@ impl Converter {
             Self::PositiveInt | Self::Workers => "_positive_int",
             Self::NonNegativeInt => "_non_negative_int",
             Self::Seed => "_seed",
+            Self::Int => "int",
         }
     }
 
@@ -132,6 +140,9 @@ impl Converter {
                 }
                 Ok(Value::Int(value))
             }
+            Self::Int => pyint::parse_int(text, 10)
+                .map(Value::Int)
+                .ok_or(ConvError::Value),
         }
     }
 }
@@ -145,6 +156,12 @@ pub enum ActionKind {
     StoreTrue,
     /// `_StoreAction` (`argparse.py:1098-1133`) with its `type=` and `choices=`.
     Store {
+        convert: Converter,
+        choices: Option<Vec<&'static str>>,
+    },
+    /// `_AppendAction` (`argparse.py:1215-1253`) with its `type=` and `choices=`: every
+    /// occurrence appends its converted value to the list at `dest` ([`Value::List`]).
+    Append {
         convert: Converter,
         choices: Option<Vec<&'static str>>,
     },
@@ -223,6 +240,26 @@ impl Action {
         }
     }
 
+    /// A repeatable long option with one value per occurrence (`action='append'`, default
+    /// `None`); `dest` as for [`Action::option`].
+    #[must_use]
+    pub fn append(
+        option: &'static str,
+        dest: &'static str,
+        convert: Converter,
+        choices: Option<Vec<&'static str>>,
+        help: String,
+    ) -> Self {
+        Self {
+            option_strings: vec![option],
+            dest: Some(dest),
+            kind: ActionKind::Append { convert, choices },
+            required: false,
+            help: Some(help),
+            default: Some(Value::None),
+        }
+    }
+
     /// A `store_true` flag (default `False`).
     #[must_use]
     pub fn flag(option: &'static str, dest: &'static str, help: String) -> Self {
@@ -252,7 +289,7 @@ impl Action {
     const fn nargs(&self) -> Nargs {
         match self.kind {
             ActionKind::Help | ActionKind::StoreTrue => Nargs::Zero,
-            ActionKind::Store { .. } => Nargs::One,
+            ActionKind::Store { .. } | ActionKind::Append { .. } => Nargs::One,
             ActionKind::SubParsers(_) => Nargs::Parser,
         }
     }
@@ -260,7 +297,9 @@ impl Action {
     /// The `choices` as strings (subcommand names for a subparsers action).
     fn choices(&self) -> Option<Vec<&'static str>> {
         match &self.kind {
-            ActionKind::Store { choices, .. } => choices.clone(),
+            ActionKind::Store { choices, .. } | ActionKind::Append { choices, .. } => {
+                choices.clone()
+            }
             ActionKind::SubParsers(commands) => Some(commands.iter().map(|c| c.name).collect()),
             ActionKind::Help | ActionKind::StoreTrue => None,
         }
@@ -517,7 +556,7 @@ impl Parser {
     fn get_values(&self, action: usize, args: &[PyStr]) -> Result<Values, Flow> {
         let a = &self.actions[action];
         match (&a.kind, args) {
-            (ActionKind::Store { convert, .. }, [arg]) => {
+            (ActionKind::Store { convert, .. } | ActionKind::Append { convert, .. }, [arg]) => {
                 let value = self.get_value(action, *convert, arg)?;
                 self.check_value(action, &value)?;
                 Ok(Values::One(value))
@@ -609,6 +648,18 @@ impl Parser {
                 st.ns.set(a.dest.unwrap_or(""), value);
                 Ok(())
             }
+            (ActionKind::Append { .. }, Values::One(value)) => {
+                // _AppendAction.__call__: a copy of the current list (none for the default
+                // None) with the value appended.
+                let dest = a.dest.unwrap_or("");
+                let mut items = match st.ns.get(dest) {
+                    Some(Value::List(items)) => items.clone(),
+                    _ => Vec::new(),
+                };
+                items.push(value);
+                st.ns.set(dest, Value::List(items));
+                Ok(())
+            }
             (ActionKind::SubParsers(commands), Values::Many(values)) => {
                 // _SubParsersAction.__call__ (argparse.py:1423-1458)
                 let Some((name, rest)) = values.split_first() else {
@@ -640,7 +691,10 @@ impl Parser {
                 }
                 Ok(())
             }
-            (ActionKind::Store { .. } | ActionKind::SubParsers(_), _) => Ok(()),
+            (
+                ActionKind::Store { .. } | ActionKind::Append { .. } | ActionKind::SubParsers(_),
+                _,
+            ) => Ok(()),
         }
     }
 
@@ -1011,5 +1065,87 @@ impl Namespace {
     #[must_use]
     pub fn entries(&self) -> &[(&'static str, Value)] {
         &self.entries
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn parser() -> Parser {
+        let mut p = Parser::new("prog", None);
+        p.push(Action::append(
+            "--pair",
+            "pair",
+            Converter::Str,
+            None,
+            "pairs".to_owned(),
+        ));
+        p.push(Action::option(
+            "--games",
+            "games",
+            Converter::Int,
+            None,
+            Value::Int(PyInt::from_u64(400)),
+            "games".to_owned(),
+        ));
+        p
+    }
+
+    fn parse(args: &[&str]) -> Result<Namespace, Exit> {
+        parser().parse_args(args.iter().map(|a| PyStr::from(*a)).collect(), 80)
+    }
+
+    fn stderr(args: &[&str]) -> String {
+        let e = parse(args).expect_err("a usage error");
+        assert_eq!(e.status, 2);
+        String::from_utf8(e.stderr).expect("utf-8")
+    }
+
+    /// `action='append'` (`argparse.py:1215-1253`): `None` until given, then one value per
+    /// occurrence in order; the usage shows it as a one-value option.
+    #[test]
+    fn append_collects_every_occurrence() {
+        assert_eq!(parse(&[]).expect("parse").get("pair"), Some(&Value::None));
+        let ns = parse(&["--pair", "a:b", "--games", "8", "--pair=c:d"]).expect("parse");
+        assert_eq!(
+            ns.get("pair"),
+            Some(&Value::List(vec![
+                Value::Str(PyStr::from("a:b")),
+                Value::Str(PyStr::from("c:d"))
+            ]))
+        );
+        assert_eq!(
+            parser().format_usage(80),
+            "usage: prog [-h] [--pair PAIR] [--games GAMES]\n"
+        );
+        assert!(
+            stderr(&["--pair"]).ends_with("prog: error: argument --pair: expected one argument\n")
+        );
+    }
+
+    /// `type=int` (`argparse.py:2790-2812`): `int(text)` in base 10, with Python's spaces,
+    /// sign and underscores; anything else is `invalid int value: {text!r}`.
+    #[test]
+    fn int_converts_like_python_int() {
+        for (text, want) in [("12", "12"), (" -7 ", "-7"), ("1_000", "1000"), ("+0", "0")] {
+            let ns = parse(&["--games", text]).expect("parse");
+            let Some(Value::Int(v)) = ns.get("games") else {
+                panic!("{text}: not an int")
+            };
+            assert_eq!(v.to_decimal(), want, "{text}");
+        }
+        assert_eq!(
+            parse(&[]).expect("parse").get("games"),
+            Some(&Value::Int(PyInt::from_u64(400)))
+        );
+        for bad in ["x", "1.5", "0x10", ""] {
+            assert!(
+                stderr(&["--games", bad]).ends_with(&format!(
+                    "prog: error: argument --games: invalid int value: '{bad}'\n"
+                )),
+                "{bad}"
+            );
+        }
     }
 }

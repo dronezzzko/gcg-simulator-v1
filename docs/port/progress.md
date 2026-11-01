@@ -117,3 +117,36 @@ selftest`: 22 negative controls fired; tier 2 (build/oracle/tier2) parse-only 41
 `git diff --quiet d9d41af -- src/gcg_sim tests`. Tier 1 is 41 MB on disk (42,985,138 bytes).
 Open: O14 (`Scenario::prepare_start` so the real engine can answer `before16`); the engine-side
 replay, `explain`, `trace-search`, fuzz and traceability land with the engine (wave 2b).
+
+## Phase 3 — Implementation (engine, AI, runner, eval landed; gate items open)
+
+### M5.2–M8 — engine layers L2–L5, reference AI, runner and CLI, gcg-eval, real-engine diff
+
+- Wave 2b (workflow wf_9026cf90-4d3): nine worktree agents wrote L2 view, L3 core/battle,
+  L4 interpreter, L5 game/observe/invariants/procedures/testkit, D1 policy/evaluation, D2 agent
+  core/actions/no-op/setup + gcg-ai-reference + gcg-search v0, E runner orchestration + gcg-sim
+  CLI, F gcg-eval, G gcg-diff real engine, against the frozen signatures with local shims
+  (never committed). No two branches touched the same file.
+- Integration agent (main tree): lib.rs wiring, every accepted interface request (recorded in
+  docs/port/contracts.md, change log "Wave 2b integration"), `Observation` in gcg-search (lint
+  rule 5), compile and test fixes. Lead: dict-valued probe results (`testkit.keywords`) are
+  compared as mappings, as Python's own `==` does (insertion order of the view's keyword dict is
+  read nowhere else: `ai/values.py:30` uses len, `ai/actions.py:356` sorts); the interp
+  resume-test floor pinned to the 17 effect decisions tier 1 holds.
+
+**Gate (lead-run).** `cargo fmt --all --check`, `cargo clippy --workspace --all-targets -- -D
+warnings` clean; `cargo test --workspace --release`: 631 passed, 0 failed; slow suite
+(`--features gcg-diff/slow,gcg-engine/slow,gcg-eval/slow,gcg-search/slow`): 641 passed, 1
+failed (traceability, below). Differential corpus against the real engine: **tier 1 3804/3804**
+(17,601 decisions, 2,166 snapshots, 1,396 reference/baseline agent decisions) and **tier 2
+4154/4154** (123,726 decisions, 9,078 snapshots, 12,131 reference-search decisions at fast,
+standard and strong) — no state, legal-option, RNG, error or agent divergence. `--roundtrip`
+3804/3804. `traces.py --check --tier 1` under PYTHONHASHSEED 1 and 2 and with `--nocache`,
+`pytest_trace.py --check` and `--selftest` (27/27), `compare_python_vs_rust.sh equivalence
+--selftest` (15/15) and `report --selftest` (14/14), `gcg-diff selftest`, `lints`,
+`tests-json --check` pass. tests.json: 50 passing, 2 failing (T-010, T-094), rest not started.
+
+**Open.** Traceability: 17 rules and 6 FAQ entries tested by Python suites that produce no
+engine trace (card data, deck construction) need native Rust tests tagged `// gcg-tags:`
+(gcg-data), then `gcg-diff traceability --write`. Phase 4 matrix, probe, fuzz, paranoid runs,
+AI test ports and parity tests follow.

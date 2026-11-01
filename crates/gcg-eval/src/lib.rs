@@ -7,6 +7,21 @@
 //! `contracts.rs` (lead-owned) and are re-exported here; the frozen function signatures are
 //! in docs/port/contracts.md. The `gcg-eval` binary target lands with workstream F.
 
+pub mod agent_spec;
+pub mod bench_cmd;
+pub mod build_info;
+pub mod cli;
+pub mod compare;
 mod contracts;
+pub mod decks;
+pub mod env;
+pub mod factories;
+pub mod head_to_head;
+pub mod ledger;
+pub mod pyconv;
+pub mod search_config;
+pub mod selfplay;
+pub mod specs;
+pub mod stats;
 
 pub use contracts::*;

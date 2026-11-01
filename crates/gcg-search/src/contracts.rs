@@ -21,6 +21,7 @@ use std::borrow::Cow;
 use std::str::FromStr;
 
 use gcg_ai::{AgentCore, Weights};
+use gcg_engine::GameState;
 
 /// Agent names are `search-<preset>` (PLAN A9): seed-path material that never collides with
 /// the reference's `mcts-*`.
@@ -159,6 +160,39 @@ pub struct StrengthenedConfig {
 pub struct SearchAgent {
     pub(crate) core: AgentCore,
     pub(crate) config: StrengthenedConfig,
+}
+
+/// What the strengthened search reads of the game at one decision (PLAN §12.3, W-135): the
+/// agent adapter (`agent.rs`) builds it with [`Observation::new`] from the true state it
+/// receives, and passes only this to the search (lint §9.9 item 5). v0 holds the true state
+/// and the search reads it through [`Observation::state`], exactly as the reference does, so
+/// the null configuration replays the reference bit for bit. The state is reachable only
+/// inside this crate; Phase 6 (P6-O) narrows it to the observer's own cards, the public zones
+/// and the public history.
+#[derive(Clone, Copy)]
+pub struct Observation<'a> {
+    st: &'a GameState,
+    player: u8,
+}
+
+impl<'a> Observation<'a> {
+    /// The observation of `player` at the decision of `st`.
+    #[must_use]
+    pub const fn new(st: &'a GameState, player: u8) -> Self {
+        Self { st, player }
+    }
+
+    /// The observing player.
+    #[must_use]
+    pub const fn player(&self) -> u8 {
+        self.player
+    }
+
+    /// v0 only: the state the search reads.
+    #[must_use]
+    pub(crate) const fn state(&self) -> &'a GameState {
+        self.st
+    }
 }
 
 #[cfg(test)]
