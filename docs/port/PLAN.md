@@ -1435,7 +1435,7 @@ behaviour. The M3 gate shows this: wrapped runs give the same `final_state_sha25
 lists as plain runs, and identical bytes under `PYTHONHASHSEED=1` and `2`. Python is only needed
 to regenerate. The committed outputs make every tier-1 Rust test runnable without Python.
 `port/oracle` passes `uv run ruff check port`, `uv run ruff format --check port` and
-`uv run mypy --strict port/oracle` (W-154).
+`MYPYPATH=src uv run mypy --strict port/oracle` (W-154).
 
 ### 8.2 Trace format (NDJSON, one object per line, version 1)
 
@@ -2379,7 +2379,7 @@ arguments, and `&GameState` for test overrides.
 // D1: policy.rs, evaluation.rs, playout.rs (ai/policy.py, evaluation.py, playout.py)
 pub struct PolicyKnobs { pub burst_yes_score: f64, pub rule_polarity_table: bool, pub zero_ap_face: bool }
 pub const BASELINE_KNOBS: PolicyKnobs;
-pub fn option_scores(st: &GameState, dv: &Derived, dec: &DecisionView<'_>, options: &[Action], knobs: &PolicyKnobs) -> Vec<f64>;
+pub fn option_scores(st: &GameState, dec: &DecisionView<'_>, options: &[Action], knobs: &PolicyKnobs) -> Result<Vec<f64>, EngineError>; // no `dv`: scorers compute the view where Python does (contracts.md change log)
 pub fn choose(st: &GameState, rng: Option<&mut SplitMix64>, temperature: f64, knobs: &PolicyKnobs) -> Action;
 pub fn pick(options: &[Action], scores: &[f64], rng: Option<&mut SplitMix64>, temperature: f64) -> usize;
 pub struct Weights { /* feature set + values; ROLE_WEIGHTS, TUNED_WEIGHTS, HAND_WEIGHTS as exact f64 bit patterns, evaluation.py:62-129 */ }
@@ -3321,7 +3321,7 @@ RG
 uv run python port/oracle/export_ir.py --check
 uv run python port/oracle/export_vectors.py --check
 cargo test --release --locked --offline -p gcg-core -p gcg-effects     # ir_current, content ids, golden, counts, repr, fingerprints
-uv run ruff check port && uv run ruff format --check port && uv run mypy --strict port/oracle
+uv run ruff check port && uv run ruff format --check port && MYPYPATH=src uv run mypy --strict port/oracle
 ```
 
 ### M3 (Phase 2 gate)

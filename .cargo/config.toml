@@ -1,0 +1,15 @@
+# Build configuration for the Rust port (docs/port/PLAN.md §11.4 step 5, §11.6).
+#
+# Local builds tune for the machine that runs them (M2 Pro: apple-m2 features).
+# Distributable builds: RUSTFLAGS="-C target-cpu=apple-m2" cargo build --profile dist
+# (scripts/build_dist.sh); the RUSTFLAGS variable replaces the rustflags below, and the
+# `dist` profile of Cargo.toml writes to target/dist/. On an M6 with a toolchain that has no
+# M6 target name, keep "native" or use the newest known Apple target (apple-m5); check with
+# `rustc --print target-cpus | grep apple` and
+# `rustc -C target-cpu=native --print cfg | grep target_feature`.
+#
+# target-cpu cannot change float results: Rust never contracts `a * b + c` into an FMA without
+# `mul_add` (banned in clippy.toml), and libm calls are run-time calls. M9 and M10 prove this by
+# running the tier-1 corpus and the seed-1 equivalence subset with both builds.
+[build]
+rustflags = ["-C", "target-cpu=native"]

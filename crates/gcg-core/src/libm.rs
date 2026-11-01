@@ -27,6 +27,10 @@ pub fn erfc(x: f64) -> f64 {
 
 /// `x ** y` for floats (libm `pow`, never strength-reduced).
 #[must_use]
+#[expect(
+    clippy::disallowed_methods,
+    reason = "the one sanctioned f64::powf (clippy.toml, PLAN §9.9)"
+)]
 pub fn pow(x: f64, y: f64) -> f64 {
     x.powf(std::hint::black_box(y))
 }

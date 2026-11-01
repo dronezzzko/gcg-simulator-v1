@@ -1,0 +1,34 @@
+[package]
+name = "gcg-eval"
+description = "Evaluation harness: reference benchmark, head-to-head, compare and Phase 6 tools"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+rust-version.workspace = true
+publish.workspace = true
+
+[lints]
+workspace = true
+
+[dependencies]
+gcg-core.workspace = true
+gcg-data.workspace = true
+# Direct edges to crates already in the closure (PLAN §2.2): head-to-head plays games with
+# gcg_engine::new_game on a gcg_effects::Registry (ai/selfplay.py:60-75).
+gcg-effects.workspace = true
+gcg-engine.workspace = true
+gcg-ai.workspace = true
+gcg-ai-reference.workspace = true
+gcg-search.workspace = true
+gcg-runner.workspace = true
+serde_json.workspace = true
+mimalloc = { workspace = true, optional = true }
+zstd = { workspace = true, optional = true }
+
+[features]
+# Long strength and end-to-end tests run as [[test]] targets with required-features (A12).
+slow = []
+# Allocator comparison of PLAN §11.4 step 7 (measured externally; off by default).
+mimalloc = ["dep:mimalloc"]
+# Opt-in compressed games.ndjson for `gcg-eval benchmark --compress` (W-99).
+zstd = ["dep:zstd"]

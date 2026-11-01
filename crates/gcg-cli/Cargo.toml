@@ -1,0 +1,26 @@
+[package]
+name = "gcg-cli"
+description = "The gcg-sim command line (validate, benchmark, data status, replay)"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+rust-version.workspace = true
+publish.workspace = true
+
+[lints]
+workspace = true
+
+# Never add gcg-ai-reference or gcg-diff here (PLAN §2.2 reachability rule, §6.5).
+[dependencies]
+gcg-core.workspace = true
+gcg-data.workspace = true
+gcg-effects.workspace = true
+# The agent factory names gcg_ai::{Agent, AgentError} (docs/port/contracts.md, Edges).
+gcg-ai.workspace = true
+gcg-runner.workspace = true
+gcg-search.workspace = true
+mimalloc = { workspace = true, optional = true }
+
+[features]
+# Allocator comparison of PLAN §11.4 step 7 (measured externally; off by default).
+mimalloc = ["dep:mimalloc"]

@@ -154,6 +154,10 @@ mod tests {
         let mut v: Vec<u32> = (0..50).collect();
         r.shuffle(&mut v);
         let mut sorted = v.clone();
+        #[expect(
+            clippy::disallowed_methods,
+            reason = "distinct u32 keys: the sort order is unique"
+        )]
         sorted.sort_unstable();
         assert_eq!(sorted, (0..50).collect::<Vec<_>>());
     }

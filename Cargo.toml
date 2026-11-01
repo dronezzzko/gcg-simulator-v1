@@ -1,6 +1,20 @@
 [workspace]
 resolver = "3"
-members = ["crates/*"]
+# The eleven crates of docs/port/PLAN.md §2.1, in dependency order (§2.2). Listed explicitly so
+# that no stray directory under crates/ can join the workspace (X19).
+members = [
+    "crates/gcg-core",
+    "crates/gcg-data",
+    "crates/gcg-effects",
+    "crates/gcg-engine",
+    "crates/gcg-ai",
+    "crates/gcg-ai-reference",
+    "crates/gcg-search",
+    "crates/gcg-runner",
+    "crates/gcg-cli",
+    "crates/gcg-eval",
+    "crates/gcg-diff",
+]
 
 [workspace.package]
 version = "0.1.0"
@@ -10,10 +24,25 @@ rust-version = "1.99"
 publish = false
 
 [workspace.dependencies]
+# Workspace crates (dependency edges: docs/port/PLAN.md §2.2).
 gcg-core = { path = "crates/gcg-core" }
+gcg-data = { path = "crates/gcg-data" }
+gcg-effects = { path = "crates/gcg-effects" }
+gcg-engine = { path = "crates/gcg-engine" }
+gcg-ai = { path = "crates/gcg-ai" }
+gcg-ai-reference = { path = "crates/gcg-ai-reference" }
+gcg-search = { path = "crates/gcg-search" }
+gcg-runner = { path = "crates/gcg-runner" }
+# External crates: the A8 list plus the dependency fetch approved at M1 (PLAN §0.1).
 sha2 = "0.10"
 zmij = "1.0.23"
 serde_json = { version = "1", features = ["preserve_order", "float_roundtrip"] }
+libm = "0.2.16"
+hashbrown = { version = "0.17", default-features = false }
+foldhash = { version = "0.2", default-features = false }
+signal-hook = { version = "0.4", default-features = false }
+mimalloc = { version = "0.1", default-features = false }
+zstd = { version = "0.14", default-features = false }
 
 [workspace.lints.rust]
 unsafe_code = "deny"
@@ -27,3 +56,9 @@ lto = "fat"
 codegen-units = 1
 panic = "abort"
 debug = "line-tables-only"
+
+# Distributable binaries (PLAN §11.4 step 5, scripts/build_dist.sh):
+#   RUSTFLAGS="-C target-cpu=apple-m2" cargo build --profile dist --locked --offline -p gcg-cli
+# RUSTFLAGS replaces the target-cpu=native default of .cargo/config.toml. Output: target/dist/.
+[profile.dist]
+inherits = "release"

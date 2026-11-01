@@ -27,7 +27,7 @@ def bits(x: float) -> str:
 
 def from_bits(rng: SplitMix64) -> float:
     while True:
-        (x,) = struct.unpack(">d", rng.next_u64().to_bytes(8, "big"))
+        x: float = struct.unpack(">d", rng.next_u64().to_bytes(8, "big"))[0]
         if math.isfinite(x):
             return x
 
