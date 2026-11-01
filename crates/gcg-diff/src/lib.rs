@@ -5,9 +5,26 @@
 //!
 //! Workstream G implements it (PLAN §10.1). The trace record types of format version 1 (PLAN
 //! §8.2) and the runner's interface types live in `contracts.rs` (lead-owned) and are
-//! re-exported here; the frozen function signatures are in docs/port/contracts.md. The
-//! `gcg-diff` binary target lands with workstream G.
+//! re-exported here; the frozen function signatures are in docs/port/contracts.md.
 
 mod contracts;
 
+pub mod cli;
+pub mod corpus;
+pub mod floathex;
+pub mod json;
+pub mod lints;
+pub mod manifest;
+pub mod mock;
+pub mod options;
+pub mod reader;
+pub mod replay;
+pub mod selftest;
+pub mod testsjson;
+pub mod weaknesses;
+
 pub use contracts::*;
+pub use mock::MockEngine;
+pub use options::options_sha16;
+pub use reader::{parse_record, read_trace};
+pub use replay::replay_trace;

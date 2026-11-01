@@ -1,0 +1,11 @@
+// lint-path: crates/gcg-search/src/agent.rs
+impl Agent for SearchAgent {
+    fn choose(&mut self, st: &GameState, player: u8, cx: &mut AgentCx<'_>) -> Result<Action, AgentError> {
+        let (dec, rng) = self.core.begin(st, player)?;
+        let obs = Observation::new(st, player);
+        let peek = st.cards.len();
+        let action = self.search(&obs, dec, rng, cx)?;
+        self.core.finish(st, player, action, &[]);
+        Ok(action)
+    }
+}

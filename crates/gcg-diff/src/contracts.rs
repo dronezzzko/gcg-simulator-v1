@@ -15,6 +15,8 @@
 use std::path::PathBuf;
 
 use gcg_ai::{IterTrace, MoveKey};
+use gcg_data::DefId;
+use gcg_effects::{AbilityId, ProgramId};
 use gcg_engine::{Action, DecisionKind, EndReason, GameState, StateSnapshot, Step};
 
 /// `"v"` of every header this reader accepts.
@@ -169,6 +171,10 @@ pub struct AgentRec {
     pub roots: Option<Vec<MoveKey>>,
     /// `"alts"`: every alternative, unranked and unrounded, in the agent's order.
     pub alternatives: Vec<AltRec>,
+    /// `"log"`: the entries the seat's `decision_log()` gained with this decision, as Python
+    /// wrote them (`port/oracle/traces.py` `agent_block`, trace lines have sorted keys); the
+    /// replay compares them value by value with the Rust agent's new entries.
+    pub log: Vec<serde_json::Value>,
 }
 
 /// `"t": "decision"`: the state before the `i`-th decision and the recorded choice.
@@ -241,8 +247,12 @@ pub struct OutcomeRec {
 // ---------------------------------------------------------------------------------------------
 // Per-test records (§8.2)
 
-/// An argument of a `scenario`, `call` or `probe` record (§8.2 "Argument encoding"). Tuples
-/// and lists are both JSON lists.
+/// An argument of a `scenario`, `call` or `probe` record (§8.2 "Argument encoding",
+/// `port/oracle/pytest_trace.py` `TestTrace.enc`). Tuples, lists, `Action`s (`to_json()`),
+/// dicts (`[key, value]` pairs in insertion order), sets (sorted), a `Ctx`
+/// (`[controller, host, card_uid, vars, event]`) and a `RuleInst` (`[{"$": rule}, controller,
+/// source, key, aux]`) are JSON lists; a float is its `float.hex()` string and an int of
+/// 2^53 and above a decimal string.
 #[derive(Clone, PartialEq, Eq, Hash, Debug)]
 pub enum TraceArg {
     Null,
@@ -256,8 +266,42 @@ pub enum TraceArg {
         name: String,
         value: EnumValue,
     },
-    /// `{"$": <NodeId>}`: a DSL object the test built, hash-consed into the test's IR fragment.
+    /// `{"$": <NodeId>}`: a DSL object the test passed, as a node of the embedded registry
+    /// with the trace's current `override` fragment applied (the base's own id for a node the
+    /// base IR holds).
     Node(u32),
+    /// `{"enum": "<Type>", "value": ...}` with one of the [`EngineRef`] type names: an engine
+    /// object passed by reference.
+    Ref(EngineRef),
+    /// A `Decision` (`Decision.to_json()`, `engine/state.py:51-58`).
+    Decision(PendingRec),
+}
+
+/// An engine object passed by reference (`TestTrace.enc`); no engine or DSL enum has one of
+/// these type names (the exporter checks).
+#[derive(Clone, PartialEq, Eq, Hash, Debug)]
+pub enum EngineRef {
+    /// `{"enum": "GameState", "value": "<digest16>"}`: the replay's current state, whose
+    /// `state_digest` prefix this is.
+    State(String),
+    /// `{"enum": "GameState", "value": "scenario"}`: the state of the `Scenario` being built
+    /// (only inside a `scenario` record's `calls`).
+    ScenarioState,
+    /// `{"enum": "Derived", "value": "current"}`: the current state's view (`view.derived`).
+    View,
+    /// `{"enum": "CardDef", "value": <def_id>}`.
+    CardDef(DefId),
+    /// `{"enum": "AbilityEntry", "value": <aid>}`.
+    Ability(AbilityId),
+    /// `{"enum": "Frame", "value": <index>}`: the frame at this index of the current state's
+    /// frames; -1 when the frame was none of them.
+    Frame(i32),
+    /// `{"enum": "Program", "value": <ProgramId>}`: a `Program`, or a Python program id passed
+    /// as a parameter named `program_id`, as a program of the embedded registry with the
+    /// current fragment applied.
+    Program(ProgramId),
+    /// `{"enum": "Registry", "value": "current"}`.
+    Registry,
 }
 
 /// The `value` of a [`TraceArg::Enum`].
@@ -270,15 +314,29 @@ pub enum EnumValue {
 /// One captured call: a `testkit.Scenario` method (`testkit.py:38-182`) or an engine function.
 #[derive(Clone, PartialEq, Eq, Hash, Debug)]
 pub struct CallSpec {
-    /// `"fn"`, e.g. `Scenario.add`, `core.destroy`, `V.ap_of`.
+    /// `"fn"`: `<module>.<function>` after the engine module the test reached the function
+    /// through (`core`, `interp`, `battle`, `observe`, `game`, `invariants`, `view`), e.g.
+    /// `interp.push_frame`, `view.ap_of`; `testkit.<function>` for a testkit query;
+    /// `Scenario.<method>` for a Scenario method, `Scenario.__init__` included.
     pub func: String,
     pub args: Vec<TraceArg>,
     /// `"kwargs"`, in call order; absent means none.
     pub kwargs: Vec<(String, TraceArg)>,
 }
 
-/// How a test built its game when it did not use a `Scenario`: `new_game` with decks, seed
-/// and chooser.
+/// One call of a `scenario` record's build, with what it raised: a `Scenario` method, or an
+/// engine call on the Scenario's state before `start` ([`EngineRef::ScenarioState`]).
+#[derive(Clone, PartialEq, Eq, Hash, Debug)]
+pub struct ScenarioCall {
+    /// `"fn"`, `"args"`, `"kwargs"`.
+    pub call: CallSpec,
+    /// `"error"`: present when the call raised (the test caught it).
+    pub error: Option<ErrorRec>,
+}
+
+/// `new_game(decks, seed, *, chooser, turn_limit, max_actions, validate)`
+/// (`engine/game.py:107-116`): a game trace's header, or how a test built its game when it did
+/// not use a `Scenario`.
 #[derive(Clone, PartialEq, Eq, Hash, Debug)]
 pub struct NewGameSpec {
     pub decks: [TraceDeck; 2],
@@ -286,19 +344,35 @@ pub struct NewGameSpec {
     pub chooser: Option<u8>,
     pub turn_limit: i32,
     pub max_actions: i64,
+    /// `validate` (Python's default `True`; a game trace's header always validates).
+    pub validate: bool,
 }
 
-/// `"t": "scenario"`: the test id, its traceability tags, the Scenario calls and the canonical
-/// state before `advance` in `Scenario.start` (`testkit.py:160-182`), or the `new_game` spec.
+/// `"t": "scenario"`: the test id, its traceability tags, and how the test built its state:
+/// the Scenario calls up to `Scenario.start` (`testkit.py:38-182`), or the `new_game` spec.
 #[derive(Clone, PartialEq, Debug)]
 pub struct ScenarioRec {
     /// `"test"`, the pytest node id.
     pub test: String,
     /// `"tags"`: the `rule`/`card`/`faq`/`ruling` marks, as `kind:value`.
     pub tags: Vec<String>,
-    pub calls: Vec<CallSpec>,
+    /// `"calls"`: from `Scenario.__init__` to `Scenario.start`; empty with `new_game`.
+    pub calls: Vec<ScenarioCall>,
     pub new_game: Option<NewGameSpec>,
-    /// `"state"`, `"continuous"`, `"rules_checked"` (and `"filter_sets"`).
+    /// `"before16"`: the digest prefix of the state before `advance` in `Scenario.start`
+    /// (`testkit.py:181`); absent with `new_game`.
+    pub before16: Option<String>,
+    /// `"after16"`: the digest prefix after `advance`, or after `new_game`.
+    pub after16: String,
+    /// `"calls_reproduce"`: false when the test wrote the Scenario's state between recorded
+    /// calls, so that only `snapshot` rebuilds the state before `advance`.
+    pub calls_reproduce: bool,
+    /// `"rules_checked"`: `_rules_checked` of the state before `advance` (of the new game with
+    /// `new_game`); always present.
+    pub rules_checked: i64,
+    /// `"state"`, `"continuous"`, `"filter_sets"` (with `rules_checked`): the state before
+    /// `advance` (the new game with `new_game`). Present when `calls_reproduce` is false, and
+    /// in every record of a trace written with `--trace-snapshots all`.
     pub snapshot: Option<StateSnapshot>,
 }
 
@@ -310,26 +384,36 @@ pub struct ErrorRec {
     pub message: String,
 }
 
-/// `"t": "apply"`: an `apply` outside any agent.
+/// `"t": "apply"`: an `apply` outside any agent. Like a decision record, it describes the
+/// state the action is applied to (`before16`, `pending`); `after16` covers the state after.
 #[derive(Clone, PartialEq, Eq, Hash, Debug)]
 pub struct ApplyRec {
     pub action: Action,
     pub check: bool,
+    /// The digest prefix before the apply.
     pub before16: String,
+    /// The digest prefix after the apply (whether or not it raised).
     pub after16: String,
+    /// The pending decision before the apply, which the action answers (`null`: none).
     pub pending: Option<PendingRec>,
     pub error: Option<ErrorRec>,
 }
 
-/// `"t": "call"`: a direct call from a test module into a public engine function (`core.*`,
-/// `B.*`, `I.*`, `observe.*`, `game.*`), replayed through `gcg-diff`'s name dispatcher; a name
-/// without a dispatcher entry is a counted failure.
+/// `"t": "call"`: a direct call from a test module into an engine function of `core`,
+/// `interp`, `battle`, `observe`, `game` or `invariants`, replayed through `gcg-diff`'s name
+/// dispatcher; a name without a dispatcher entry is a counted failure. A `new_game` that raised
+/// is a `call` named `game.new_game` with no arguments and its spec in `new_game`, replayed
+/// with [`EngineUnderTest::new_game`].
 #[derive(Clone, PartialEq, Debug)]
 pub struct CallRec {
     pub call: CallSpec,
+    /// `null` when the call raised.
     pub result: serde_json::Value,
+    /// The current state's digest prefix after the call; `""` while no state is current.
     pub after16: String,
     pub error: Option<ErrorRec>,
+    /// `"new_game"`: the spec of a `game.new_game` that raised.
+    pub new_game: Option<NewGameSpec>,
 }
 
 /// `"derived"` of a `state` record (`engine/view.py:232-239`).
@@ -354,12 +438,71 @@ pub struct StateRec {
     pub view_key: Option<serde_json::Value>,
 }
 
-/// `"t": "probe"`: a testkit or `V.*` query, in call order (probes call `derived`, so Rust
-/// evaluates them in the same order).
+/// `"t": "probe"`: a `testkit.*` or `view.*` query of a test, in call order (probes call
+/// `derived`, so Rust evaluates them in the same order), or one of the two probes of a `views`
+/// trace, `views.cards` and `V.trigger_index` (`port/oracle/traces.py` `generate_view`).
 #[derive(Clone, PartialEq, Debug)]
 pub struct ProbeRec {
     pub call: CallSpec,
+    /// `null` when the query raised.
     pub result: serde_json::Value,
+    /// `"error"`: present when the query raised.
+    pub error: Option<ErrorRec>,
+}
+
+/// `"t": "view"`: `tests/paranoid.py:24-39`'s view signature after an apply, or what computing
+/// it raised (`{"sig": null, "error": ...}`).
+#[derive(Clone, PartialEq, Debug)]
+pub struct ViewRec {
+    /// `"sig"`: `null` when computing it raised.
+    pub sig: serde_json::Value,
+    pub error: Option<ErrorRec>,
+}
+
+/// `"kind"` of an `override` record.
+#[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Debug)]
+pub enum OverrideKind {
+    /// Right after the header: the nodes, programs and filter sets of the test's own objects
+    /// (the arena of every `{"$": NodeId}` and [`EngineRef::Program`] argument).
+    Additions,
+    /// After `registry.override_script` (`registry.py:209-215`).
+    Override,
+    /// After `registry.restore_entry` (`registry.py:218-220`).
+    Restore,
+}
+
+/// One read of an AI memo-table entry that existed when an override started (PLAN A16).
+#[derive(Clone, PartialEq, Debug)]
+pub struct MemoRead {
+    /// `"table"`, e.g. `gcg_sim.ai.targeting._cache`.
+    pub table: String,
+    /// `"key"`: the entry's key, a process-local program id written as its content id.
+    pub key: Vec<serde_json::Value>,
+    pub value: serde_json::Value,
+}
+
+/// `"memo"` of an override: whether every AI memo table was empty when the override started
+/// (each override test runs in a fresh process, A16), the table sizes, and the reads of the
+/// entries that existed then.
+#[derive(Clone, PartialEq, Debug)]
+pub struct MemoCheck {
+    pub empty: bool,
+    /// `"sizes"`: entries per table, by table name in name order.
+    pub sizes: Vec<(String, u64)>,
+    pub reads: Vec<MemoRead>,
+}
+
+/// `"t": "override"`: from here on, states are built on the embedded registry with
+/// `fragment` applied (`Registry::with_fragment`; the format of `port/oracle/export_ir.py`
+/// `build_fragment`, `fragment_version` 1). Every fragment of a test holds the test's own
+/// objects with the same ids.
+#[derive(Clone, PartialEq, Debug)]
+pub struct OverrideRec {
+    pub kind: OverrideKind,
+    /// The IR fragment, applied to the base registry (not to the previous fragment).
+    pub fragment: serde_json::Value,
+    /// Present exactly on [`OverrideKind::Override`].
+    pub memo: Option<MemoCheck>,
 }
 
 /// `"outcome"` of an `end` record.
@@ -392,12 +535,12 @@ pub enum Record {
     Call(CallRec),
     /// `state`.
     State(StateRec),
-    /// `view`: `{"sig": ...}`, `tests/paranoid.py:24-39`'s view signature after an apply.
-    View(serde_json::Value),
+    /// `view`.
+    View(ViewRec),
     /// `probe`.
     Probe(ProbeRec),
-    /// `override`: `{"fragment": <IR fragment>}` (`registry.override_script`, PLAN §3.4).
-    Override(serde_json::Value),
+    /// `override`.
+    Override(OverrideRec),
     /// `force_link`: `{"units": [card numbers]}` (`tests/cards/test_wp_gd05_a.py:101-113`).
     ForceLink(Vec<String>),
     /// `end`: `{"outcome": "passed"|"failed"}`.
@@ -474,11 +617,13 @@ pub struct Divergence {
 /// The engine side of a replay (§10.3.7): the real engine, or a `MockEngine` that replays the
 /// recorded observations (the M3 gate, before the engine exists).
 pub trait EngineUnderTest {
-    /// `new_game` from a header's decks, seed, chooser and limits.
+    /// `new_game` with a spec: a game trace's header (decks, seed, chooser, limits,
+    /// `validate = true`), a `scenario` record's `new_game`, or a `game.new_game` call record.
+    /// On an error the current state stays.
     ///
     /// # Errors
     /// What `new_game` raised, as Python's class and message.
-    fn new_game(&mut self, header: &Header) -> Result<(), ErrorRec>;
+    fn new_game(&mut self, spec: &NewGameSpec) -> Result<(), ErrorRec>;
     /// Replace the state by a snapshot (`canon::from_canonical`).
     ///
     /// # Errors
@@ -493,8 +638,8 @@ pub trait EngineUnderTest {
     /// # Errors
     /// A snapshot that does not load, or a view whose key is not `rec.view_key`.
     fn load_state(&mut self, rec: &StateRec) -> Result<(), ErrorRec>;
-    /// An `override` record (`registry.override_script`, PLAN §3.4): the following `new_game`,
-    /// `load` and `load_state` calls use `base.with_fragment(fragment)`, where `base` is the
+    /// An `override` record's fragment (PLAN §3.4): the following `new_game`, `load`,
+    /// `load_state` and Scenario calls use `base.with_fragment(fragment)`, where `base` is the
     /// embedded registry. A state built before the record keeps its registry; every override
     /// test builds its states inside its override (`tests/ai/test_root_moves.py:188-192`,
     /// `:312-318`, `tests/rules/test_turn.py:848-849`).
@@ -531,7 +676,11 @@ pub trait EngineUnderTest {
     /// # Errors
     /// What the query raised.
     fn probe(&mut self, call: &CallSpec) -> Result<serde_json::Value, ErrorRec>;
-    /// A direct engine call (`call` records).
+    /// A direct engine call (`call` records), or a call of a `scenario` record's build (a
+    /// `Scenario` method, the replay's `game.advance` of a `calls_reproduce: false` snapshot).
+    /// `Scenario.start` answers `{"digest16": <digest prefix>, "rules_checked": <n>}` of the
+    /// state before its `advance` (`testkit.py:181`), which the replay compares with the
+    /// record's `before16` and `rules_checked`; the other Scenario results are not compared.
     ///
     /// # Errors
     /// What the call raised, or a dispatcher miss.

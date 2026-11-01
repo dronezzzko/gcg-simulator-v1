@@ -92,3 +92,28 @@ port/oracle` clean; `git diff --quiet d9d41af -- src/gcg_sim tests` (reference u
 `todo!`/`unimplemented!`/TODO/FIXME/`std::time` in `crates/`; `cargo tree -p gcg-cli` contains
 neither `gcg-ai-reference` nor `gcg-diff` (agent-reported, and enforced by
 `crates/gcg-cli/tests/no_reference.rs`, which passes).
+
+### M3 — differential oracle and trace corpus (done)
+
+- Wave 1 G part 1 (traces.py, coverage_decks.py, census.py, offset hook, gcg-diff reader,
+  MockEngine, negative controls, lints, verify scripts) and G part 2 (pytest_trace.py per-test
+  traces, export_tags.py, W-160 normaliser and comparison-script hardening) squash-merged.
+- Integration agent: reader accepts the per-test format additions, agent `log` decoded,
+  per-test override fragments emitted in B1's fragment format (FragmentBuilder over export_ir's
+  encoders, byte-equal to build_fragment where it applies), `apply.pending` = decision before
+  the apply. Tier-1 budget raised to 45 MiB (lead decision; per-test set is 22 MB).
+- Lead: lint rule 6 narrowed to the three W-122 directories (a bare `__pycache__` is the
+  reference's own code_digest skip-name), negative control moved to a `tests/perf` path, and an
+  allowed-fixture line added.
+
+**Gate.** `cargo fmt --all --check`, `cargo clippy --workspace --all-targets -- -D warnings`
+clean; `cargo test --workspace --release`: 203 passed, 0 failed; `gcg-diff corpus --tier 1
+--parse-only --require-all` and `--mock --roundtrip`: 3804/3804 (baselines 8, coverage 50,
+full 4, fuzz 100, search 9, tests 3213, vanilla 40, views 280, worlds 100); `gcg-diff
+selftest`: 22 negative controls fired; tier 2 (build/oracle/tier2) parse-only 4154/4154;
+`traces.py --check --tier 1` under PYTHONHASHSEED 1 and 2 and `pytest_trace.py --check`
+(agent-run after the final regeneration; nothing since touched the corpus or generators);
+`census.py --check`, `export_ir.py --check` current; ruff, ruff format, mypy --strict clean;
+`git diff --quiet d9d41af -- src/gcg_sim tests`. Tier 1 is 41 MB on disk (42,985,138 bytes).
+Open: O14 (`Scenario::prepare_start` so the real engine can answer `before16`); the engine-side
+replay, `explain`, `trace-search`, fuzz and traceability land with the engine (wave 2b).

@@ -1344,10 +1344,11 @@ Types (`crates/gcg-diff/src/contracts.rs`), the trace format version 1 of PLAN �
 `TRACE_FORMAT_VERSION`, `SNAPSHOT_EVERY`, `TraceKind`, `OptionsMode`, `Generator`,
 `TraceDeck`, `Header`, `PendingRec`, `TraceOptions`, `Fingerprint`, `AltRec`, `AgentRec`,
 `DecisionRec`, `SnapshotRec`, `IterRec`, `ApplyTraceRec`, `OutcomeRec`, `TraceArg`,
-`EnumValue`, `CallSpec`, `NewGameSpec`, `ScenarioRec`, `ErrorRec`, `ApplyRec`, `CallRec`,
-`DerivedMark`, `StateRec`, `ProbeRec`, `TestOutcome`, `Record` (15 variants, one per `"t"`
-tag), `Trace`, `TraceError`; and the runner's `DiffOptions`, `ReplayStats`, `Divergence` and
-`EngineUnderTest` (trait). Each type documents its JSON keys. The format is the contract
+`EngineRef`, `EnumValue`, `CallSpec`, `ScenarioCall`, `NewGameSpec`, `ScenarioRec`,
+`ErrorRec`, `ApplyRec`, `CallRec`, `DerivedMark`, `StateRec`, `ProbeRec`, `ViewRec`,
+`OverrideKind`, `MemoRead`, `MemoCheck`, `OverrideRec`, `TestOutcome`, `Record` (15 variants,
+one per `"t"` tag), `Trace`, `TraceError`; and the runner's `DiffOptions`, `ReplayStats`,
+`Divergence` and `EngineUnderTest` (trait). Each type documents its JSON keys. The format is the contract
 between G's Python exporters and every Rust reader: a change bumps `"v"` and goes through
 the change protocol.
 
@@ -1365,10 +1366,12 @@ pub struct MockEngine;  impl EngineUnderTest for MockEngine;                  //
 `EngineUnderTest` has `new_game`, `load`, `load_state`, `set_registry`, `force_link`,
 `pending`, `observe`, `apply`, `canonical`, `probe` and `call`, one per record kind that
 changes or reads the engine, and `state`, the current `&GameState` for the agent replay
-(`None` from `MockEngine`). The real engine implements them with:
+(`None` from `MockEngine`). `new_game` takes a `NewGameSpec` (a game header gives one with
+`validate: true`, `replay::header_spec`). The real engine implements them with:
 
-- `new_game` and a `scenario` record's `new_game`: `gcg_engine::new_game_by_number` on the
-  `TraceDeck` strings;
+- `new_game` (a game header, a `scenario` record's `new_game`, a failed `game.new_game` call):
+  `gcg_engine::new_game_by_number` on the `TraceDeck` strings with `NewGameOptions { chooser,
+  turn_limit, max_actions, validate }` from the spec; on an error the current state stays;
 - `load_state`: `canon::from_canonical`, then `testkit::install_view` for a stale view, then
   `testkit::set_force_link` with the current list;
 - `set_registry`: `Registry::with_fragment` on the embedded registry; `force_link`:
@@ -1376,8 +1379,48 @@ changes or reads the engine, and `state`, the current `&GameState` for the agent
 - `call`: the name dispatcher maps the Python functions `interp.{push_frame, add_lasting,
   draw, deploy_cards}`, `game.advance` and `core.card_type` (whatever alias or import the test
   used) to `testkit::engine::*`, `core.clear_listen_cache` to a no-op (gcg-engine testkit
-  section), and the public names to the public API. `{"$": NodeId}` arguments become handles
-  through `Registry::{filter_id, cond_id, continuous_id}`.
+  section), the public names to the public API, and `Scenario.<method>` to
+  `testkit::Scenario` (one Scenario under construction at a time, whose state the argument
+  `EngineRef::ScenarioState` names). `Scenario.start` answers `{"digest16", "rules_checked"}`
+  of the state before its `advance` (open item O14). `{"$": NodeId}` arguments become handles
+  through `Registry::{filter_id, cond_id, continuous_id}`; `EngineRef::Program` is the
+  `ProgramId` itself; `EngineRef::State(d16)` is the current state (its digest prefix is d16).
+
+Per-test traces (`port/oracle/pytest_trace.py`; the reader is strict, an unknown key is an
+error):
+
+- `scenario` records carry `before16` (absent with `new_game`), `after16`, `calls_reproduce`
+  and `rules_checked` (of the state before `advance`; of the new game with `new_game`). The
+  pre-advance snapshot (`state`, `continuous`, `filter_sets`) is present only when
+  `calls_reproduce` is false or with `--trace-snapshots all`. `calls` run from
+  `Scenario.__init__` to a `Scenario.start` that returned; a call that raised keeps `error`
+  (`ScenarioCall`). `new_game` specs carry `validate`.
+- A `new_game` that raised is a `call` record named `game.new_game` with `new_game`, no
+  arguments, and `after16` of the state current before it (`""` while none is). `call` and
+  `probe` records may carry `error` (then `result` is `null`); a `view` record may be
+  `{"sig": null, "error"}`.
+- Call names are `<module>.<fn>` after the engine module the test reached the function through
+  (`core`, `interp`, `battle`, `observe`, `game`, `invariants` for calls; `view` for probes),
+  `testkit.<fn>` for testkit probes, and `Scenario.<method>` (`__init__` included) inside
+  `scenario` calls; a `views` trace's probes are `views.cards` and `V.trigger_index`.
+- Arguments (`TraceArg`): engine objects by reference are `EngineRef`s (`{"enum": "GameState",
+  "value": digest16 | "scenario"}`, `Derived` `"current"`, `CardDef` def id, `AbilityEntry`
+  aid, `Frame` index or -1, `Program` `ProgramId`, `Registry` `"current"`); a `Decision` is its
+  `to_json()`; a `Ctx` is a 5-element list; dicts are `[key, value]` lists; sets are sorted
+  lists; floats are `float.hex()` strings.
+- `apply.pending` is the decision pending before the apply (as in a decision record);
+  `after16` covers the state after it, the pending decision included.
+- `override` records are `{"kind": "additions" | "override" | "restore", "fragment", "memo"}`
+  (`memo` exactly on `override`: the A16 check that every AI memo table was empty when the
+  override started, the sizes, and the reads of older entries). `fragment` has the format of
+  `port/oracle/export_ir.py` `build_fragment` (`fragment_version` 1, every key) and is applied
+  to the embedded base registry with `Registry::with_fragment`. `pytest_trace.py`
+  (`FragmentBuilder`) builds it with export_ir's encoders and checks it against
+  `build_fragment` where that applies; a test's fragments share one arena, so its own objects
+  (nodes, `Program`s, filter tuples, which also join `filter_sets`) have the same ids in all
+  of them, numbered after the base's, and `abilities` lists every ability after the base's
+  (an earlier override of the same process leaves its abilities, so aids stay Python's).
+  `crates/gcg-diff/tests/fragments.rs` applies every committed fragment and checks the ids.
 
 Agent replay (PLAN §8.7 "Search and baselines traces", drill-down levels 1-2):
 
@@ -1400,10 +1443,11 @@ Agent replay (PLAN §8.7 "Search and baselines traces", drill-down levels 1-2):
 
 Differences from PLAN §10.3.7, settled here: `replay_trace` takes the engine under test
 explicitly (the real engine or `MockEngine`); the `state` record has its own `StateRec`
-(it carries `derived`, `view_from` and `view_key`, §8.2), `view` keeps the signature JSON;
-`call` and `probe` records share `CallSpec` with optional `kwargs`; `roots` in the agent
-block are move keys and `alts` are all alternatives in agent order, unranked and unrounded;
-an `iter` record's `decision` is the decision record's `i`.
+(it carries `derived`, `view_from` and `view_key`, §8.2), `view` is a `ViewRec` (the
+signature JSON or an error), `override` an `OverrideRec`; `call` and `probe` records share
+`CallSpec` with optional `kwargs`; `roots` in the agent block are move keys and `alts` are all
+alternatives in agent order, unranked and unrounded, with the seat's new decision-log entries
+in `log`; an `iter` record's `decision` is the decision record's `i`.
 
 ## Open items (for the lead)
 
@@ -1421,6 +1465,7 @@ an `iter` record's `decision` is the decision record's `i`.
 | O10 | W-33 `AiTables`: Python memoises polarity per `(program, pc)` and harm per `def_id` in process globals (`ai/targeting.py:54-112`, `ai/actions.py:167-199`); PLAN §6.2 and A16 place the tables per registry, but no frozen D1/D2 signature carries them and `Registry` cannot hold AI types | Phase 3 recomputes them (pure functions of the registry, so exact by construction). A table type is introduced through the change protocol only if the A16 plugin records a test that reads an entry computed before an override, or Phase 5 measures a win |
 | O11 | The argparse-compatible parser and the CLI pieces both binaries share (progress printer `cli.py:143-159`, deck loading and its messages `:102-126`, `data status` `:236-331`, the report-directory check `:176-185`) live in `gcg-runner` (`argparse`, `cli_support`), because `gcg-eval` cannot depend on the `gcg-sim` crate; their API is not frozen | E publishes the API in its M7 landing report and the lead freezes it here before F's CLI work (M8) |
 | O12 | The W-135 `compile_fail` doctest for `Agent` (an agent cannot `apply` on the true `&GameState`) needs `gcg_engine::apply`, which lands with C's L5; a doctest written now would fail for an unresolved name instead | Lands with T-023 at M7 in `crates/gcg-ai/src/contracts.rs` (lead); the W-136 doctest is in place now, the W-49 one since step 2 |
+| O14 | The replay checks a `scenario` record's `before16` and `rules_checked` through the dispatcher's `Scenario.start` result (`EngineUnderTest::call`), but `gcg_engine::testkit::Scenario::start` (`testkit.py:160-182`) builds the decks, sets the step and advances in one call, so the real engine's dispatcher cannot observe the state before `advance` | gcg-engine's testkit adds `Scenario::prepare_start(&mut self, step: Step) -> Result<(), TestkitError>` (`testkit.py:162-180`, everything before `advance`), and `start` becomes `prepare_start` then `testkit::engine::advance`; the dispatcher reads the digest between them. `MockEngine` answers from the record until then. Owner: lead (gcg-engine contract), C lands it |
 | O13 | PLAN §13 M2 runs `uv run mypy --strict port/oracle`, which fails with `import-untyped` on every `gcg_sim` import: the package has no `py.typed`, and mypy finds it only as an installed package. With `MYPYPATH=src` the three oracle scripts pass `--strict`. Fixing it needs a file outside this milestone's scope: `PLAN.md` or `pyproject.toml` | The lead adds `mypy_path = "src"` to `[tool.mypy]` in `pyproject.toml` (checked: `MYPYPATH=src uv run mypy` still reports no issues in 101 source files), or writes `MYPYPATH=src` into the PLAN §13 M2 line. The gate above uses `MYPYPATH=src` until then |
 
 ## Change log
@@ -1433,6 +1478,7 @@ an `iter` record's `decision` is the decision record's `i`.
 | 2026-11-01 | Review fixes (see the review log): gate commands `--check`/`--locked --offline` and the mypy line (O13); `Pool::run_inline` landed in `gcg-core` and the `AgentCx` pattern documented; gcg-engine `HistKindRef` (landed), `new_game_by_number`, `deck_construction_problems_by_number`, `testkit::{install_view, set_force_link}`, `testkit::engine::*` with `FrameArgs`/`LastingArgs`, the L1 `zone_remove`/`zone_extend`/`zone_insert_front`, `add_lasting`/`deploy_cards` as boundary names; gcg-effects `Registry::{filter_id, cond_id, continuous_id}`, `PromptId`/`Registry.prompts`/`Registry::prompt` dropped (O4 closed), `ContentId` field `pub(crate)`; `EngineUnderTest::{load_state, set_registry, force_link}`; mypy fixes in `port/oracle` | lead (S) |
 | 2026-11-01 | Second review fixes (see the review log): `gcg-cli` → `gcg-ai` edge with `crates/gcg-cli/tests/factory_types.rs`; gcg-ai `Agent::choose_traced` (default body landed), `DecisionTrace`, `SearchStats` (`SearchResult.{iterations, budget, cap, roots, effort}` move to `SearchResult.stats`); gcg-diff `EngineUnderTest::state` and the agent-replay procedure | lead (S) |
 | 2026-11-01 | Third review fix (see the review log): gcg-ai `option_scores` drops its `dv: &Derived` parameter (Python `policy.py:104`); the scorers compute the view where Python's do; recorded in the differences from PLAN §10.3.5 | lead (S) |
+| 2026-11-01 | G integration (lead-authorised): gcg-diff per-test record format of `pytest_trace.py` — `ScenarioRec.{before16, after16, calls_reproduce, rules_checked}` with an optional snapshot and `ScenarioCall` (call + error), `NewGameSpec.validate`, `CallRec.new_game` and empty `after16`, `ProbeRec.error`, `ViewRec`, `OverrideRec` (`OverrideKind`, `MemoCheck`, `MemoRead`; B1's fragment format), `TraceArg::{Ref(EngineRef), Decision}`; `AgentRec.log`; `EngineUnderTest::new_game` takes `&NewGameSpec`; the dispatcher's `Scenario.start` result; `apply.pending` is the decision before the apply; O14 opened | lead (G integration) |
 
 ## Review log
 
