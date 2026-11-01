@@ -9,8 +9,13 @@
 //! (`state`, `zones`, `canon`, `view`, `core`, `battle`, `interp`, `game`, `observe`,
 //! `invariants`, `procedures`, `testkit`), are in docs/port/contracts.md.
 
+pub mod canon;
 mod contracts;
 mod enums;
+mod error;
+mod state;
+mod types;
+mod zones;
 
 pub use contracts::*;
 pub use enums::*;
