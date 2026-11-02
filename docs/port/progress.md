@@ -178,7 +178,7 @@ passed, 0 failed; `gcg-diff traceability --check` passed (Python 395 rules teste
 Rust 395 tested, 0 without evidence; 840/840 non-vanilla cards, 119/119 FAQ, 360 rulings + 8
 N/A with Rust evidence); `gcg-diff coverage --check`, `lints`, `tests-json --check` passed.
 Agent-run long items (not re-run by the lead): paranoid tier-1 corpus 3804/3804 and paranoid
-tier 2 (T-054, T-091), 10,000-game fuzz comparison (T-055). tests.json: 79 passing, 1 failing.
+tier 2 (T-054, T-091), 10,000-game fuzz comparison (T-055). tests.json: 78 passing, 1 failing.
 
 **Open.** T-056 failing: one `search:fast` strategic fuzz game in 1,000 (game 221, seed
 11012090770908643750) reaches the W-143 redirect cycle inside a rollout; the engine reports
