@@ -5,10 +5,11 @@
 //! else, so a candidate can never leave a field at a silent default (W-136): the 24
 //! `SearchConfig` fields under their Python names, plus `weights`, either a name of
 //! `ai/compare.py`'s `WEIGHTS` (`default`, `hand`, `baseline`, `roles`) or
-//! `{"feature_set": "base"|"roles", "values": [...]}`. Counts are integers in `0..2^32`,
-//! `horizon_turns` an `i32`, the float fields any JSON number, the flags booleans.
-//! [`to_json`] writes a configuration in this format (fields in declaration order, weights as
-//! an object).
+//! `{"feature_set": "base"|"roles", "values": [...]}`, plus `mechanisms`, an object with every
+//! field of `gcg_search::MechanismFlags` (`true`/`false`, a count or `null`, a number in
+//! `[0, 1]`, `"known"`/`"archetype"`). Counts are integers in `0..2^32`, `horizon_turns` an
+//! `i32`, the float fields any JSON number, the flags booleans. [`to_json`] writes a
+//! configuration in this format (fields in declaration order, weights as an object).
 
 use std::borrow::Cow;
 use std::path::Path;
@@ -16,13 +17,15 @@ use std::path::Path;
 use gcg_ai::{FeatureSet, Weights};
 use gcg_core::pyjson::Json;
 use gcg_data::py_path_str;
-use gcg_search::StrengthenedConfig;
+use gcg_search::{FlagValue, MechanismFlags, OpponentList, StrengthenedConfig};
 use serde_json::{Map, Value};
 
 use crate::agent_spec::{SEARCH_FIELDS, weights_named};
 
 /// The key of the weights entry.
 pub const WEIGHTS_KEY: &str = "weights";
+/// The key of the mechanism flags (`gcg_search::MechanismFlags`).
+pub const MECHANISMS_KEY: &str = "mechanisms";
 
 fn field<'a>(obj: &'a Map<String, Value>, name: &str) -> Result<&'a Value, String> {
     obj.get(name)
@@ -90,6 +93,38 @@ fn weights(v: &Value) -> Result<Weights, String> {
     Weights::new(values, set).map_err(|e| e.to_string())
 }
 
+fn flag_value(v: &Value) -> Option<FlagValue> {
+    match v {
+        Value::Bool(b) => Some(FlagValue::Bool(*b)),
+        Value::Null => Some(FlagValue::Count(None)),
+        Value::Number(n) => match n.as_u64().and_then(|x| u32::try_from(x).ok()) {
+            Some(c) => Some(FlagValue::Count(Some(c))),
+            None => n.as_f64().map(FlagValue::Share),
+        },
+        Value::String(s) => OpponentList::from_value(s).map(FlagValue::List),
+        Value::Array(_) | Value::Object(_) => None,
+    }
+}
+
+fn mechanisms(v: &Value) -> Result<MechanismFlags, String> {
+    let obj = v
+        .as_object()
+        .ok_or_else(|| format!("{MECHANISMS_KEY:?} must be an object"))?;
+    if let Some(extra) = obj
+        .keys()
+        .find(|k| !MechanismFlags::FIELDS.iter().any(|(name, _)| name == k))
+    {
+        return Err(format!("unknown mechanism field {extra:?}"));
+    }
+    if let Some((name, _)) = MechanismFlags::FIELDS
+        .iter()
+        .find(|(name, _)| obj.get(*name).is_some_and(|v| flag_value(v).is_none()))
+    {
+        return Err(format!("mechanism field {name:?} has an unsupported value"));
+    }
+    MechanismFlags::from_values(|name| obj.get(name).and_then(flag_value))
+}
+
 /// A configuration from a parsed JSON value.
 ///
 /// # Errors
@@ -100,7 +135,7 @@ pub fn from_value(v: &Value) -> Result<StrengthenedConfig, String> {
         .ok_or_else(|| "a search configuration is a JSON object".to_owned())?;
     if let Some(extra) = obj
         .keys()
-        .find(|k| *k != WEIGHTS_KEY && !SEARCH_FIELDS.contains(&k.as_str()))
+        .find(|k| *k != WEIGHTS_KEY && *k != MECHANISMS_KEY && !SEARCH_FIELDS.contains(&k.as_str()))
     {
         return Err(format!("unknown field {extra:?}"));
     }
@@ -133,6 +168,7 @@ pub fn from_value(v: &Value) -> Result<StrengthenedConfig, String> {
         policy_rule_polarity_table: flag(obj, "policy_rule_polarity_table")?,
         policy_zero_ap_face: flag(obj, "policy_zero_ap_face")?,
         weights: weights(field(obj, WEIGHTS_KEY)?)?,
+        mechanisms: mechanisms(field(obj, MECHANISMS_KEY)?)?,
     })
 }
 
@@ -181,6 +217,18 @@ pub fn to_json(cfg: &StrengthenedConfig) -> Json {
     w.set("feature_set", cfg.weights.feature_set().as_str());
     w.set("values", cfg.weights.values().to_vec());
     o.set(WEIGHTS_KEY, w);
+    let mut m = Json::object();
+    for &(name, _) in MechanismFlags::FIELDS {
+        let value = match cfg.mechanisms.get(name) {
+            Some(FlagValue::Bool(b)) => Json::Bool(b),
+            Some(FlagValue::Count(None)) | None => Json::Null,
+            Some(FlagValue::Count(Some(n))) => Json::from(n),
+            Some(FlagValue::Share(x)) => Json::Float(x),
+            Some(FlagValue::List(l)) => Json::from(l.as_str()),
+        };
+        m.set(name, value);
+    }
+    o.set(MECHANISMS_KEY, m);
     o
 }
 
@@ -216,6 +264,7 @@ mod tests {
             policy_rule_polarity_table: true,
             policy_zero_ap_face: true,
             weights: gcg_ai::ROLE_WEIGHTS.clone(),
+            mechanisms: gcg_search::preset_config(gcg_search::Preset::Fast).mechanisms,
         }
     }
 
@@ -247,6 +296,32 @@ mod tests {
         assert_eq!(
             from_value(&extra),
             Err("unknown field \"exploraton\"".to_owned())
+        );
+
+        let mut flags = value.clone();
+        flags["mechanisms"]["root_trees"] = Value::from(4);
+        flags["mechanisms"]["opponent_list"] = Value::from("archetype");
+        let parsed = from_value(&flags).map(|c| c.mechanisms);
+        assert_eq!(
+            parsed.map(|m| (m.root_trees, m.opponent_list)),
+            Ok((Some(4), OpponentList::Archetype))
+        );
+        if let Some(o) = flags["mechanisms"].as_object_mut() {
+            o.remove("portable_math");
+        }
+        assert_eq!(
+            from_value(&flags),
+            Err("missing mechanism field \"portable_math\"".to_owned())
+        );
+        flags["mechanisms"]["portable_math"] = Value::from("yes");
+        assert_eq!(
+            from_value(&flags),
+            Err("mechanism field \"portable_math\" has an unsupported value".to_owned())
+        );
+        flags["mechanisms"]["no_such_flag"] = Value::from(true);
+        assert_eq!(
+            from_value(&flags),
+            Err("unknown mechanism field \"no_such_flag\"".to_owned())
         );
 
         let mut negative = value;

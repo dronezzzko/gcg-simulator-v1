@@ -19,7 +19,7 @@ use gcg_engine::canon::from_canonical;
 use gcg_search::{Preset, preset_config};
 use serde_json::Value;
 
-use common::{both_searches, null_config};
+use common::{both_pregames, both_searches, null_config, strengthened_search};
 
 fn bits(alts: &[Alternative]) -> Vec<(gcg_engine::Action, u64, u32)> {
     alts.iter()
@@ -37,14 +37,18 @@ fn null_configurations_copy_every_reference_field() {
             assert_eq!(null.budget(n), reference.budget(n));
         }
         assert_eq!(null.knobs(), reference.knobs());
+        assert!(null.mechanisms.enabled().is_empty());
+        assert_eq!(null.check_mechanisms(), Ok(()));
     }
     let baseline = null_config(&BASELINE_STANDARD, BASELINE_WEIGHTS);
     assert_eq!(baseline.weights, TUNED_WEIGHTS);
-    // v0 presets: standard is reference strong and fast is reference standard, renamed
-    // (PLAN §6.4).
+    // The shipped presets: standard is reference strong and fast is reference standard,
+    // renamed (PLAN §6.4), with only the engine-error leaf on (W-143) until the Phase 6
+    // packages adopt their mechanisms.
     let renamed = |c: &gcg_search::StrengthenedConfig, name: &'static str| {
         let mut c = c.clone();
         c.name = name.into();
+        c.mechanisms.engine_error_leaf = true;
         c
     };
     assert_eq!(
@@ -103,8 +107,88 @@ fn the_copy_replays_the_reference_on_every_vector_decision() {
             assert_eq!(bits(&c.alternatives), bits(&r.alternatives), "{id}");
             assert_eq!(c.stats, r.stats, "{id}");
             assert_eq!(c_rng, r_rng, "{id}");
+            // The shipped presets' engine-error leaf changes nothing where no simulated line
+            // fails (W-143): the same decision, statistics and draws, and no error leaf.
+            let mut leaf = null_config(reference, weights);
+            leaf.mechanisms.engine_error_leaf = true;
+            let (e, effort, e_rng) = strengthened_search(&st, player, &leaf, seed);
+            assert_eq!(e.action, r.action, "{id}");
+            assert_eq!(bits(&e.alternatives), bits(&r.alternatives), "{id}");
+            assert_eq!(e.stats, r.stats, "{id}");
+            assert_eq!(e_rng, r_rng, "{id}");
+            assert_eq!(effort.engine_error_leaves, 0, "{id}");
             checked += 1;
         }
     }
     assert!(checked >= 100, "{checked}");
+}
+
+/// REDRAW and CHOOSE_FIRST on the observation (`gcg_search::pregame`, null configuration)
+/// equal `mulligan_choice` and `first_player_choice` on the true state, which equal Python on
+/// these records (`crates/gcg-ai/tests/search_components.rs`, `search_engine.rs`).
+#[test]
+fn the_copy_replays_the_reference_pregame_choices() {
+    let path = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+        .join("../gcg-ai/tests/vectors/search/decisions.ndjson");
+    let reg = Registry::embedded();
+    let mut checked = 0;
+    for line in fs::read_to_string(path).expect("the vectors").lines() {
+        let rec: Value = serde_json::from_str(line).expect("a record");
+        let runs: Vec<(Option<u32>, Option<u32>)> = match rec["kind"].as_str() {
+            Some("redraw") => rec["mulligan"]
+                .as_array()
+                .expect("mulligan runs")
+                .iter()
+                .map(|m| {
+                    (
+                        u32::try_from(m["samples"].as_u64().expect("samples")).ok(),
+                        None,
+                    )
+                })
+                .collect(),
+            Some("choose_first") => vec![(
+                None,
+                u32::try_from(rec["first_player"]["games"].as_u64().expect("games")).ok(),
+            )],
+            _ => continue,
+        };
+        let snap = &rec["snapshot"];
+        let st = from_canonical(
+            &reg,
+            &StateSnapshot {
+                state: snap["state"].clone(),
+                continuous: snap["continuous"].clone(),
+                filter_sets: snap["filter_sets"].clone(),
+                rules_checked: snap["rules_checked"].as_i64().expect("rules_checked"),
+            },
+        )
+        .expect("a state");
+        let player = u8::try_from(rec["player"].as_i64().expect("a seat")).expect("a seat");
+        let seed = rec["seed"]
+            .as_u64()
+            .or_else(|| rec["seed"].as_str().and_then(|s| s.parse().ok()))
+            .expect("a seed");
+        for (samples, games) in runs {
+            let mut cfg = null_config(&FAST, DEFAULT_WEIGHTS);
+            if let Some(n) = samples {
+                cfg.mulligan_samples = n;
+            }
+            if let Some(n) = games {
+                cfg.first_player_games = n;
+            }
+            let ((r, r_rng), (c, c_rng)) = both_pregames(&st, player, &cfg, seed);
+            let id = format!("{} {samples:?} {games:?}", rec["id"]);
+            assert_eq!(c.0, r.0, "{id}");
+            assert_eq!(bits(&c.1), bits(&r.1), "{id}");
+            assert_eq!(c_rng, r_rng, "{id}");
+            checked += 1;
+        }
+    }
+    assert!(checked >= 18, "{checked}");
+}
+
+/// The crate's own null flags are the spelled-out list of the gate.
+#[test]
+fn the_crate_null_flags_equal_the_spelled_out_list() {
+    assert_eq!(gcg_search::MechanismFlags::NULL, common::NULL_MECHANISMS);
 }

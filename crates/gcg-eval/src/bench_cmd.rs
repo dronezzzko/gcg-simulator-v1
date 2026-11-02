@@ -61,6 +61,9 @@ pub struct BenchArgs {
     pub out: String,
     pub decision_log: bool,
     pub replays: u32,
+    /// `--decision-trace FILE` (W-21): the per-decision trace of `crate::trace`, written
+    /// besides the reports, which stay byte-identical.
+    pub decision_trace: Option<PathBuf>,
 }
 
 /// `_legal_deck(path)` (`cli.py:119-126`): the deck, or every violation of
@@ -252,6 +255,16 @@ pub fn benchmark(
     writable_dir(&args.out).map_err(CommandError::Invalid)?;
     let (dut_name, bench_name) = (dut.name.clone(), bench.name.clone());
     let cfg = config(args, dut, bench, schema);
+    let sink = std::sync::Arc::new(crate::trace::Sink::default());
+    let traced = crate::trace::TracingFactory {
+        inner: factory,
+        sink: std::sync::Arc::clone(&sink),
+    };
+    let factory: &dyn AgentFactory = if args.decision_trace.is_some() {
+        &traced
+    } else {
+        factory
+    };
     let run = {
         let mut printer = ProgressPrinter::new(err, tty, "matches");
         let mut progress =
@@ -263,6 +276,23 @@ pub fn benchmark(
             RunError::Interrupted => CommandError::Interrupted,
         })?
     };
+    if let Some(path) = &args.decision_trace {
+        let games: Vec<[u64; 2]> = run.games().map(|g| g.agent_seeds).collect();
+        let lines = sink.take(|seed| {
+            games.iter().enumerate().find_map(|(i, s)| {
+                s.iter()
+                    .position(|x| *x == seed)
+                    .map(|seat| (u64::try_from(i).unwrap_or(u64::MAX), u8::from(seat == 1)))
+            })
+        });
+        std::fs::write(path, crate::trace::ndjson(lines)).map_err(|e| {
+            CommandError::Invalid(format!(
+                "cannot write {}: {}",
+                py_path_str(path),
+                strerror(&e)
+            ))
+        })?;
+    }
     let data = ResultsData::embedded(&cfg).map_err(|e| CommandError::Invalid(e.to_string()))?;
     let mut replay_doc = |label: &'static str, record: &gcg_runner::GameRecord| {
         gcg_runner::replay::replay_document(record, &cfg, label)

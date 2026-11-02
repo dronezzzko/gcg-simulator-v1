@@ -195,8 +195,99 @@ fn check_search(cfg: &StrengthenedConfig) -> Result<(), String> {
         }
         .to_string());
     }
-    Ok(())
+    cfg.check_mechanisms()
 }
+
+/// A strengthened-search field the 24-field table does not know (the Phase 6 mechanism
+/// flags and constants, PLAN §12.3), set through the configuration file format
+/// ([`search_config::to_json`] and [`search_config::from_value`]): the text converts by the
+/// type of the field's current value (a boolean with `_flag`, an integer with `int`, a float
+/// with `float`, a string as given), and the file format's checks apply. `Ok(None)`: the
+/// configuration has no such field.
+///
+/// # Errors
+/// The conversion's or the file format's message.
+pub fn set_search_field_generic(
+    cfg: &StrengthenedConfig,
+    field: &str,
+    value: &str,
+) -> Result<Option<StrengthenedConfig>, String> {
+    use serde_json::Value;
+    if field == search_config::WEIGHTS_KEY {
+        return Ok(None);
+    }
+    let text = gcg_core::pyjson::dumps(
+        &search_config::to_json(cfg),
+        gcg_core::pyjson::DumpOptions::PRETTY_SORTED_UTF8,
+    );
+    let mut doc: Value = serde_json::from_str(&text)
+        .map_err(|e| format!("cannot re-read the search configuration: {e}"))?;
+    let Some(slot) = doc.get_mut(field) else {
+        return Ok(None);
+    };
+    let new = match &*slot {
+        Value::Bool(_) => Value::Bool(py_flag(value)?),
+        Value::Number(n) if n.is_f64() => {
+            let x = py_float(value)?;
+            serde_json::Number::from_f64(x)
+                .map(Value::Number)
+                .ok_or_else(|| format!("{field} must be a finite number, got {value}"))?
+        }
+        Value::Number(_) => {
+            let v = py_int(value)?;
+            let d = v.to_decimal();
+            d.parse::<i64>()
+                .map(Value::from)
+                .or_else(|_| d.parse::<u64>().map(Value::from))
+                .map_err(|_| format!("{field} must be a 64-bit integer in this port, got {d}"))?
+        }
+        Value::String(_) => Value::String(value.to_owned()),
+        _ => return Err(format!("{field} cannot be set from the command line")),
+    };
+    *slot = new;
+    search_config::from_value(&doc).map(Some)
+}
+
+/// The strengthened search with a reference configuration's 24 settings and `weights`, every
+/// Phase 6 mechanism off: the null configuration, which replays the reference search
+/// (`crates/gcg-search/tests/null_config.rs`; PLAN §12.3, §12.4 individual rows). Only the
+/// agent name differs (`search-<name>`, PLAN A9), so its per-decision seeds differ from the
+/// reference agent's.
+#[must_use]
+pub fn null_config(reference: &ReferenceConfig, weights: &Weights) -> StrengthenedConfig {
+    StrengthenedConfig {
+        name: reference.name.clone(),
+        max_iterations: reference.max_iterations,
+        min_iterations: reference.min_iterations,
+        iterations_per_option: reference.iterations_per_option,
+        exploration: reference.exploration,
+        prior_weight: reference.prior_weight,
+        prior_temperature: reference.prior_temperature,
+        horizon_turns: reference.horizon_turns,
+        rollout_temperature: reference.rollout_temperature,
+        value_scale: reference.value_scale,
+        max_rollout_decisions: reference.max_rollout_decisions,
+        first_player_games: reference.first_player_games,
+        mulligan_samples: reference.mulligan_samples,
+        policy_burst_yes_score: reference.policy_burst_yes_score,
+        noop_branch_choices: reference.noop_branch_choices,
+        noop_resource_aware: reference.noop_resource_aware,
+        strict_attack_prune: reference.strict_attack_prune,
+        prune_noop_rest_targets: reference.prune_noop_rest_targets,
+        merge_equivalent_moves: reference.merge_equivalent_moves,
+        observation_keys: reference.observation_keys,
+        target_extension: reference.target_extension,
+        target_extension_z: reference.target_extension_z,
+        policy_rule_polarity_table: reference.policy_rule_polarity_table,
+        policy_zero_ap_face: reference.policy_zero_ap_face,
+        weights: weights.clone(),
+        mechanisms: gcg_search::MechanismFlags::NULL,
+    }
+}
+
+/// The prefix of a null-configuration head: `search:null-<preset>` or
+/// `search:null-baseline-<preset>`.
+pub const NULL_PREFIX: &str = "null-";
 
 /// What the head of a spec resolved to, before the overrides.
 enum Base {
@@ -233,7 +324,13 @@ fn apply_overrides(
         let applied = match &mut base {
             Base::Random | Base::Greedy => None,
             Base::Reference(cfg) => set_reference_field(cfg, field, value),
-            Base::Search(cfg) => set_search_field(cfg, field, value),
+            Base::Search(cfg) => set_search_field(cfg, field, value)
+                .or_else(|| cfg.mechanisms.set_text(field, value))
+                .or_else(|| {
+                    set_search_field_generic(cfg, field, value)
+                        .transpose()
+                        .map(|r| r.map(|new| *cfg = new))
+                }),
         };
         applied.ok_or_else(no_setting)??;
         changed = true;
@@ -324,10 +421,13 @@ pub fn parse_agent(text: &str) -> Result<AgentDesc, String> {
 }
 
 /// The head-to-head grammar (PLAN §10.4 F): `ref:<preset>`, `ref:baseline-<preset>`,
-/// `search:<preset>` (`standard`, `fast`: `gcg_search::preset_config`), `search:FILE.json`
+/// `search:<preset>` (`standard`, `fast`: `gcg_search::preset_config`),
+/// `search:null-<preset>` and `search:null-baseline-<preset>` (the [`null_config`] of a
+/// reference preset with the weights its `ref:` spec plays with, PLAN §12.4), `search:FILE.json`
 /// ([`search_config::load`]; the path cannot contain `:`), each with `:field=value,...`
-/// overrides; anything else is [`parse_agent`]'s grammar (`random`, `greedy`, and the bare
-/// reference presets).
+/// overrides (a `search:` override may name any field of the configuration file format,
+/// [`set_search_field_generic`]); anything else is [`parse_agent`]'s grammar (`random`,
+/// `greedy`, and the bare reference presets).
 ///
 /// # Errors
 /// The parse error; for `search:FILE.json` also the file's.
@@ -345,13 +445,25 @@ pub fn parse_agent_spec(text: &str) -> Result<AgentDesc, String> {
     }
     if let Some(rest) = text.strip_prefix(SEARCH_PREFIX) {
         let (head, overrides) = rest.split_once(':').unwrap_or((rest, ""));
+        let null = head
+            .strip_prefix(NULL_PREFIX)
+            .and_then(reference_head)
+            .and_then(|(base, w)| match base {
+                Base::Reference(cfg) => {
+                    Some(null_config(&cfg, w.as_ref().unwrap_or(DEFAULT_WEIGHTS)))
+                }
+                _ => None,
+            });
         let config = if let Some(p) = Preset::from_value(head) {
             gcg_search::preset_config(p).clone()
+        } else if let Some(cfg) = null {
+            cfg
         } else if head.ends_with(".json") {
             search_config::load(Path::new(head))?
         } else {
             return Err(format!(
-                "unknown search preset {}; choose from {} or a FILE.json",
+                "unknown search preset {}; choose from {}, null-<reference preset> or a \
+                 FILE.json",
                 py_repr(head),
                 list_repr(Preset::ALL.iter().map(|p| p.as_str()))
             ));
@@ -359,6 +471,39 @@ pub fn parse_agent_spec(text: &str) -> Result<AgentDesc, String> {
         return apply_overrides(head, Base::Search(config), None, overrides);
     }
     parse_agent(text)
+}
+
+/// A strengthened-search configuration with `:field=value,...` overrides applied, as a
+/// `search:` spec applies them (`head` names the spec in error messages).
+///
+/// # Errors
+/// The first bad override.
+pub fn search_with(
+    config: StrengthenedConfig,
+    head: &str,
+    overrides: &str,
+) -> Result<StrengthenedConfig, String> {
+    match apply_overrides(head, Base::Search(config), None, overrides)? {
+        AgentDesc::Search { config } => Ok(config),
+        _ => unreachable!("a search base stays a search agent"),
+    }
+}
+
+/// `spec` with `overrides` appended (`:` after a bare head, `,` after existing overrides).
+#[must_use]
+pub fn with_overrides(spec: &str, overrides: &str) -> String {
+    if overrides.is_empty() {
+        return spec.to_owned();
+    }
+    let rest = spec
+        .strip_prefix(REF_PREFIX)
+        .or_else(|| spec.strip_prefix(SEARCH_PREFIX))
+        .unwrap_or(spec);
+    if rest.contains(':') {
+        format!("{spec},{overrides}")
+    } else {
+        format!("{spec}:{overrides}")
+    }
 }
 
 /// The agent's name (`Agent::name`): seed-path material (`ai/base.py:65`).
@@ -426,7 +571,10 @@ mod tests {
         );
         assert_eq!(
             parse_agent_spec("search:strong").err().as_deref(),
-            Some("unknown search preset 'strong'; choose from ['standard', 'fast'] or a FILE.json")
+            Some(
+                "unknown search preset 'strong'; choose from ['standard', 'fast'], \
+                 null-<reference preset> or a FILE.json"
+            )
         );
         assert_eq!(parse_agent_spec("random"), Ok(AgentDesc::Random));
         assert!(matches!(
@@ -442,6 +590,119 @@ mod tests {
                 .err()
                 .as_deref(),
             Some("horizon_turns must be in [-2147483648, 2147483647] in this port, got 2147483648")
+        );
+    }
+
+    /// PLAN §12.4: `search:null-<preset>` is the reference preset's configuration with its
+    /// `ref:` weights, every mechanism off; a baseline keeps `BASELINE_WEIGHTS`.
+    #[test]
+    fn null_heads_carry_the_reference_settings() {
+        for (name, cfg) in PRESETS {
+            let Ok(AgentDesc::Search { config }) = parse_agent_spec(&format!("search:null-{name}"))
+            else {
+                panic!("search:null-{name}")
+            };
+            assert_eq!(config, null_config(cfg, DEFAULT_WEIGHTS), "{name}");
+            assert_eq!(
+                agent_name(&AgentDesc::Search { config }),
+                format!("search-{name}")
+            );
+        }
+        let Ok(AgentDesc::Search { config }) =
+            parse_agent_spec("search:null-baseline-strong:max_iterations=9")
+        else {
+            panic!("baseline null")
+        };
+        assert_eq!(&config.weights, BASELINE_WEIGHTS);
+        assert_eq!(config.max_iterations, 9);
+        assert!(parse_agent_spec("search:null-random").is_err());
+    }
+
+    /// W-123: every `SearchConfig` field round-trips through the override parser of both the
+    /// `ref:` and the `search:` grammar, and nothing else changes; the generic path (the
+    /// configuration file format) sets the same values as the field table.
+    #[test]
+    fn w123_every_config_field_round_trips_through_the_parser() {
+        let base = parse_agent_spec("ref:standard").unwrap_or(AgentDesc::Random);
+        let AgentDesc::Reference { config: rbase, .. } = base else {
+            panic!("ref:standard")
+        };
+        let sbase = null_config(&rbase, DEFAULT_WEIGHTS);
+        let sample = |field: &str| -> &'static str {
+            match field {
+                "name" => "variant",
+                "exploration"
+                | "prior_weight"
+                | "prior_temperature"
+                | "rollout_temperature"
+                | "value_scale"
+                | "policy_burst_yes_score"
+                | "target_extension"
+                | "target_extension_z" => "0.375",
+                "horizon_turns" => "1",
+                f if f.starts_with("noop_")
+                    || f.starts_with("policy_")
+                    || f.ends_with("_prune")
+                    || f.ends_with("_targets")
+                    || f.ends_with("_moves")
+                    || f.ends_with("_keys") =>
+                {
+                    "false"
+                }
+                _ => "7",
+            }
+        };
+        for field in SEARCH_FIELDS {
+            let text = format!("{field}={}", sample(field));
+            let Ok(AgentDesc::Reference { config: r, .. }) =
+                parse_agent_spec(&format!("ref:standard:{text}"))
+            else {
+                panic!("ref:standard:{text}")
+            };
+            let Ok(AgentDesc::Search { config: s }) =
+                parse_agent_spec(&format!("search:null-standard:{text}"))
+            else {
+                panic!("search:null-standard:{text}")
+            };
+            assert_ne!(r, rbase, "{text} changes the reference configuration");
+            assert_eq!(s, null_config(&r, DEFAULT_WEIGHTS), "{text}");
+            let generic = set_search_field_generic(&sbase, field, sample(field));
+            assert_eq!(generic, Ok(Some(s.clone())), "generic {text}");
+            let mut table = sbase.clone();
+            assert_eq!(
+                set_search_field(&mut table, field, sample(field)),
+                Some(Ok(()))
+            );
+            assert_eq!(table, s, "table {text}");
+        }
+        assert_eq!(set_search_field_generic(&sbase, "nope", "1"), Ok(None));
+        assert_eq!(
+            set_search_field_generic(&sbase, "weights", "hand"),
+            Ok(None)
+        );
+        assert!(set_search_field_generic(&sbase, "max_iterations", "-1").is_err());
+    }
+
+    #[test]
+    fn search_overrides_reach_the_mechanism_flags() {
+        let Ok(AgentDesc::Search { config }) =
+            parse_agent_spec("search:fast:engine_error_leaf=false,portable_math=true")
+        else {
+            panic!("a search spec")
+        };
+        assert!(!config.mechanisms.engine_error_leaf && config.mechanisms.portable_math);
+        assert_eq!(
+            parse_agent_spec("search:fast:root_trees=4")
+                .err()
+                .as_deref(),
+            Some("mechanism root_trees (P6-D) is not available in this build")
+        );
+        assert!(parse_agent_spec("search:fast:engine_error_leaf=2").is_err());
+        assert_eq!(
+            parse_agent_spec("search:fast:no_such_flag=1")
+                .err()
+                .as_deref(),
+            Some("'fast' has no search setting 'no_such_flag'")
         );
     }
 }

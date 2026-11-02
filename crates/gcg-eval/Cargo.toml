@@ -22,12 +22,19 @@ gcg-ai-reference.workspace = true
 gcg-search.workspace = true
 gcg-runner.workspace = true
 serde_json.workspace = true
+# `gcg-eval evidence`: SHA-256 of evidence files (W-127; A8 lists sha2).
+sha2.workspace = true
 mimalloc = { workspace = true, optional = true }
 zstd = { workspace = true, optional = true }
 
 # build.rs: the code digest of build-support/digest-manifest.txt (PLAN X19, W-103).
 [build-dependencies]
 sha2.workspace = true
+
+# W-152's negative control gives seat 0 two extra Shields through the testkit (A18); a
+# dev-dependency, so it never reaches the gcg-eval binary.
+[dev-dependencies]
+gcg-engine = { workspace = true, features = ["testkit"] }
 
 [[bin]]
 name = "gcg-eval"
@@ -44,6 +51,14 @@ required-features = ["slow"]
 [[test]]
 name = "strength_reference"
 path = "tests/strength_reference.rs"
+required-features = ["slow"]
+
+# W-150 (every preset at 1/4/10 workers, hash-order negative control) and W-152 (seat and
+# first-player symmetry over 4,000 random and 400 `search:fast` mirror games, two-Shield
+# negative control).
+[[test]]
+name = "phase6_slow"
+path = "tests/phase6_slow.rs"
 required-features = ["slow"]
 
 [features]

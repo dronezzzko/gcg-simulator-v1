@@ -1,0 +1,33 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:gcg-eval:schema:observed-matches:1",
+  "title": "Observed matchup results for gcg-eval calibrate",
+  "description": "Real match results supplied by the user (W-41). Nothing is fetched or invented: every entry names its source. deck_a and deck_b are deck files (relative to this file or the working directory) or deck names that gcg-eval resolves; wins, losses and draws are deck_a's games against deck_b.",
+  "type": "object",
+  "required": ["format", "version", "matches"],
+  "additionalProperties": false,
+  "properties": {
+    "format": {"const": "gcg-eval-observed-matches"},
+    "version": {"const": 1},
+    "description": {"type": "string"},
+    "matches": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["deck_a", "deck_b", "wins", "losses", "draws", "source", "date"],
+        "additionalProperties": false,
+        "properties": {
+          "deck_a": {"type": "string", "minLength": 1},
+          "deck_b": {"type": "string", "minLength": 1},
+          "wins": {"type": "integer", "minimum": 0},
+          "losses": {"type": "integer", "minimum": 0},
+          "draws": {"type": "integer", "minimum": 0},
+          "source": {"type": "string", "minLength": 1},
+          "date": {"type": "string", "format": "date"},
+          "note": {"type": "string"}
+        }
+      }
+    }
+  }
+}

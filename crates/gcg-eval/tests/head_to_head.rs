@@ -135,6 +135,7 @@ fn a_set_selection_is_comparison_specs_and_subsets_keep_their_games() {
 
     let panel = Panel {
         held_out: vec!["tuning-zeon".to_owned()],
+        pairs: Vec::new(),
     };
     let held = selection(&set(DeckSet::Tuning, PairSet::HeldOut), Some(&panel));
     assert_eq!(
@@ -198,6 +199,7 @@ fn the_report_has_pooled_held_out_and_per_pair_blocks() {
     let (c, o) = agents();
     let panel = Panel {
         held_out: vec!["tuning-tekkadan".to_owned()],
+        pairs: Vec::new(),
     };
     let source = set(DeckSet::Tuning, PairSet::All);
     let sel = selection(&source, Some(&panel));
@@ -216,6 +218,7 @@ fn the_report_has_pooled_held_out_and_per_pair_blocks() {
         workers: Workers::Count(1),
         choose_first: ChooseFirst::Seat0,
         out: None,
+        decision_trace: None,
     };
     let doc = report(&args, ["random", "greedy"], &sel, &specs, &outcomes);
     let Json::Object(items) = &doc else {
@@ -245,9 +248,47 @@ fn the_report_has_pooled_held_out_and_per_pair_blocks() {
             "result",
             "held_out",
             "by_pair",
+            "by_deck",
             "unfinished",
             "outcomes"
         ]
+    );
+    let Some(Json::Array(by_deck)) = doc.get("by_deck") else {
+        panic!("by_deck")
+    };
+    let names: Vec<Option<&Json>> = by_deck.iter().map(|d| d.get("deck")).collect();
+    assert_eq!(
+        names,
+        ["tuning-zeon", "tuning-wing", "tuning-tekkadan"]
+            .map(|n| Some(Json::from(n)))
+            .iter()
+            .map(Option::as_ref)
+            .collect::<Vec<_>>()
+    );
+    let deck_games: u64 = by_deck
+        .iter()
+        .filter_map(|d| d.get("result").and_then(|r| r.get("n")))
+        .map(|n| {
+            if let Json::Int(i) = n {
+                u64::try_from(*i).unwrap_or(0)
+            } else {
+                0
+            }
+        })
+        .sum();
+    assert_eq!(
+        deck_games, 24,
+        "every game counts for the challenger's deck once"
+    );
+    let result = doc.get("result").expect("result");
+    assert!(
+        result.get("stratified").is_some(),
+        "a pooled block over 3 pairs"
+    );
+    assert_eq!(
+        result.get("effort"),
+        Some(&Json::Null),
+        "no effort without traced games"
     );
     assert_eq!(
         doc.get("unfinished"),

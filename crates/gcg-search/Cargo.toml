@@ -21,6 +21,12 @@ gcg-ai.workspace = true
 # Long scenario and strength tests run as [[test]] targets with required-features (A12).
 slow = []
 
+# The null configuration over every decision of the tier-1 search set (three searches each).
+[[test]]
+name = "null_config_search_set"
+path = "tests/null_config_search_set.rs"
+required-features = ["slow"]
+
 [dev-dependencies]
 # D2's null-config test compares this search with the reference (PLAN §10.4 D2). A
 # dev-dependency never enters gcg-cli's normal build (crates/gcg-cli/tests/no_reference.rs).

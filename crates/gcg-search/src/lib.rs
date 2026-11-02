@@ -1,18 +1,25 @@
 //! The strengthened search behind the two `gcg-sim` presets `standard` and `fast`
-//! (docs/port/PLAN.md §2.1, §6.4, §12.3). Phase 3 ships it as a copy of the reference search
-//! whose null configuration replays the reference bit for bit.
+//! (docs/port/PLAN.md §2.1, §6.4, §12.3): the reference search's core loop (`mcts.rs`) with the
+//! Phase 6 extension points of `mech/`, configured by [`StrengthenedConfig`] and its
+//! [`MechanismFlags`]. Its null configuration (every mechanism off) replays the reference bit
+//! for bit; the search sees only an [`Observation`] (W-135).
 //!
-//! Workstream D2 writes the v0 copy (PLAN §10.1). The contract types (PLAN §10.3.5) live in
-//! `contracts.rs` (lead-owned) and are re-exported here; the frozen function signatures
-//! (`search`, `preset_config`, `make_agent` and the `Agent` impl in `agent.rs`) are in
-//! docs/port/contracts.md.
+//! The contract types (PLAN §10.3.5) live in `contracts.rs` (lead-owned) and are re-exported
+//! here; the frozen function signatures (`search`, `preset_config`, `make_agent` and the
+//! `Agent` impl in `agent.rs`) are in docs/port/contracts.md.
 
 mod agent;
 mod contracts;
+mod flags;
 pub mod mcts;
+mod mech;
+mod observation;
 mod presets;
+mod tree;
 
-pub use agent::make_agent;
+pub use agent::{make_agent, make_search_agent};
 pub use contracts::*;
-pub use mcts::search;
+pub use flags::{FlagValue, MechanismFlags, OpponentList};
+pub use mcts::{pregame, search, search_with_effort};
+pub use observation::Observation;
 pub use presets::preset_config;

@@ -1,17 +1,63 @@
 //! Contract types of `gcg-search` (docs/port/PLAN.md §6.4, §6.5, §10.3.5, §12.3), owned by the
 //! lead (§10.1 S).
 //!
-//! Phase 3 ships the strengthened search as a copy of the reference (D2, "v0"); Phase 6 adds
-//! one [`StrengthenedConfig`] field per mechanism (§12.3), so every ablation row is a flag
-//! flip. This crate never depends on `gcg-ai-reference` (PLAN §2.2): the two configuration
-//! types have no conversion in shipped code (§6.5 item 1), and the null-config conversion of
-//! D2's gate lives in this crate's tests, which reach the reference through a dev-dependency.
+//! The strengthened search is the reference's core loop with Phase 6 extension points
+//! (`mech/`); [`StrengthenedConfig::mechanisms`] has one field per planned mechanism (§12.3,
+//! [`MechanismFlags`]), so every ablation row is a flag flip. This crate never depends on
+//! `gcg-ai-reference` (PLAN §2.2): the two configuration types have no conversion in shipped
+//! code (§6.5 item 1), and the null-config conversion of D2's gate lives in this crate's tests,
+//! which reach the reference through a dev-dependency.
 //!
 //! `StrengthenedConfig` has no `Default`, so a preset or an override cannot leave a field
 //! unset (W-136):
 //!
 //! ```compile_fail,E0277
 //! let _cfg = gcg_search::StrengthenedConfig { ..Default::default() };
+//! ```
+//!
+//! Every field must be named; a configuration that leaves out the mechanisms does not compile
+//! (W-136):
+//!
+//! ```compile_fail,E0063
+//! let base = gcg_search::preset_config(gcg_search::Preset::Fast);
+//! let _cfg = gcg_search::StrengthenedConfig {
+//!     name: "candidate".into(),
+//!     max_iterations: base.max_iterations,
+//!     min_iterations: base.min_iterations,
+//!     iterations_per_option: base.iterations_per_option,
+//!     exploration: base.exploration,
+//!     prior_weight: base.prior_weight,
+//!     prior_temperature: base.prior_temperature,
+//!     horizon_turns: base.horizon_turns,
+//!     rollout_temperature: base.rollout_temperature,
+//!     value_scale: base.value_scale,
+//!     max_rollout_decisions: base.max_rollout_decisions,
+//!     first_player_games: base.first_player_games,
+//!     mulligan_samples: base.mulligan_samples,
+//!     policy_burst_yes_score: base.policy_burst_yes_score,
+//!     noop_branch_choices: base.noop_branch_choices,
+//!     noop_resource_aware: base.noop_resource_aware,
+//!     strict_attack_prune: base.strict_attack_prune,
+//!     prune_noop_rest_targets: base.prune_noop_rest_targets,
+//!     merge_equivalent_moves: base.merge_equivalent_moves,
+//!     observation_keys: base.observation_keys,
+//!     target_extension: base.target_extension,
+//!     target_extension_z: base.target_extension_z,
+//!     policy_rule_polarity_table: base.policy_rule_polarity_table,
+//!     policy_zero_ap_face: base.policy_zero_ap_face,
+//!     weights: base.weights.clone(),
+//! };
+//! ```
+//!
+//! The reference configuration is a different type: it cannot configure the strengthened
+//! search, and neither converts into the other (W-136, §6.5 item 1):
+//!
+//! ```compile_fail,E0308
+//! let _agent = gcg_search::make_agent(&gcg_ai_reference::STANDARD, 1, false);
+//! ```
+//!
+//! ```compile_fail,E0308
+//! let _cfg: gcg_search::StrengthenedConfig = gcg_ai_reference::STRONG.clone();
 //! ```
 //!
 //! Workstream D2 implements the functions frozen in docs/port/contracts.md (gcg-search
@@ -21,7 +67,8 @@ use std::borrow::Cow;
 use std::str::FromStr;
 
 use gcg_ai::{AgentCore, Weights};
-use gcg_engine::GameState;
+
+use crate::MechanismFlags;
 
 /// Agent names are `search-<preset>` (PLAN A9): seed-path material that never collides with
 /// the reference's `mcts-*`.
@@ -115,12 +162,11 @@ impl FromStr for Preset {
     }
 }
 
-/// The strengthened search's configuration (PLAN §6.5, §10.3.5, §12.3). v0 has exactly the 24
-/// `SearchConfig` fields of `gcg_ai_reference::ReferenceConfig` (`ai/config.py:23-46`, same
-/// names, types and meaning) plus the evaluation weights, so that a preset is self-contained
-/// (S10 refits weights per preset). Phase 6 appends one field per mechanism; all of them off
-/// gives the reference behaviour (the null configuration of D2's gate). No `Default`: every
-/// preset spells out every field (W-136).
+/// The strengthened search's configuration (PLAN §6.5, §10.3.5, §12.3): the 24 `SearchConfig`
+/// fields of `gcg_ai_reference::ReferenceConfig` (`ai/config.py:23-46`, same names, types and
+/// meaning), the evaluation weights, so that a preset is self-contained (S10 refits weights per
+/// preset), and the Phase 6 mechanisms; every mechanism off gives the reference behaviour (the
+/// null configuration of D2's gate). No `Default`: every preset spells out every field (W-136).
 #[derive(Clone, PartialEq, Debug)]
 pub struct StrengthenedConfig {
     /// Seeds the agent's decisions through its name `search-{name}` (PLAN A9).
@@ -151,48 +197,33 @@ pub struct StrengthenedConfig {
     /// The evaluation weights the search scores leaves with; the reference pairs them
     /// separately (`ai/agents.py:79`).
     pub weights: Weights,
+    /// The Phase 6 mechanisms (PLAN §12.2, §12.3), all off in the null configuration.
+    pub mechanisms: MechanismFlags,
+}
+
+/// What the strengthened mechanisms did, besides the reference's `gcg_ai::SearchEffort`.
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug, Default)]
+pub struct MechanismEffort {
+    /// Iterations whose simulated line ended in an engine error and was scored as a loss
+    /// (`engine_error_leaf`, W-143).
+    pub engine_error_leaves: u64,
+}
+
+impl MechanismEffort {
+    /// Adds `other`'s counts.
+    pub const fn add(&mut self, other: Self) {
+        self.engine_error_leaves += other.engine_error_leaves;
+    }
 }
 
 /// The strengthened agent (PLAN §6.1, §12.3). Only `agent.rs` (D2) implements `Agent` for it
-/// (lint §9.9 item 5); from Phase 6 its `choose` passes the search an `Observation` only.
+/// (lint §9.9 item 5); its `choose` passes the search an `Observation` only (W-135).
 #[derive(Clone, Debug)]
-#[allow(dead_code, reason = "read by workstream D2's agent.rs")]
 pub struct SearchAgent {
     pub(crate) core: AgentCore,
     pub(crate) config: StrengthenedConfig,
-}
-
-/// What the strengthened search reads of the game at one decision (PLAN §12.3, W-135): the
-/// agent adapter (`agent.rs`) builds it with [`Observation::new`] from the true state it
-/// receives, and passes only this to the search (lint §9.9 item 5). v0 holds the true state
-/// and the search reads it through [`Observation::state`], exactly as the reference does, so
-/// the null configuration replays the reference bit for bit. The state is reachable only
-/// inside this crate; Phase 6 (P6-O) narrows it to the observer's own cards, the public zones
-/// and the public history.
-#[derive(Clone, Copy)]
-pub struct Observation<'a> {
-    st: &'a GameState,
-    player: u8,
-}
-
-impl<'a> Observation<'a> {
-    /// The observation of `player` at the decision of `st`.
-    #[must_use]
-    pub const fn new(st: &'a GameState, player: u8) -> Self {
-        Self { st, player }
-    }
-
-    /// The observing player.
-    #[must_use]
-    pub const fn player(&self) -> u8 {
-        self.player
-    }
-
-    /// v0 only: the state the search reads.
-    #[must_use]
-    pub(crate) const fn state(&self) -> &'a GameState {
-        self.st
-    }
+    /// The mechanism counters summed over the agent's decisions.
+    pub(crate) effort: MechanismEffort,
 }
 
 #[cfg(test)]

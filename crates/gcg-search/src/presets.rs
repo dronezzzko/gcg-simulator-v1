@@ -1,16 +1,75 @@
 //! The shipped `gcg-sim` presets of the strengthened search (PLAN §6.4) and the
 //! configuration helpers the search reads.
 //!
-//! v0 starts from the reference presets as the brief maps them: `standard` from reference
-//! `strong`, `fast` from reference `standard` (`ai/config.py:93-109`), renamed, with
-//! `ROLE_WEIGHTS` (`DEFAULT_WEIGHTS`, `ai/evaluation.py:129`). Phase 6 tunes them (§12.8).
+//! The presets start from the reference presets as the brief maps them: `standard` from
+//! reference `strong`, `fast` from reference `standard` (`ai/config.py:93-109`), renamed, with
+//! `ROLE_WEIGHTS` (`DEFAULT_WEIGHTS`, `ai/evaluation.py:129`). Of the Phase 6 mechanisms only
+//! `engine_error_leaf` is on so far; the packages adopt theirs and §12.8 tunes the budgets.
 
 use std::borrow::Cow;
 use std::sync::LazyLock;
 
 use gcg_ai::{PolicyKnobs, ROLE_WEIGHTS};
 
-use crate::{Preset, StrengthenedConfig};
+use crate::{MechanismFlags, OpponentList, Preset, StrengthenedConfig};
+
+/// The mechanisms of both shipped presets, every field spelled out: the reference everywhere
+/// except that a simulated line ending in an engine error scores as a loss instead of failing
+/// the real game (W-143).
+const SHIPPED_MECHANISMS: MechanismFlags = MechanismFlags {
+    adaptive_horizon: false,
+    generalized_leaf: false,
+    capped_rollout_continuation: false,
+    tactical_solver: false,
+    lethal_root: false,
+    threat_leaf: false,
+    critical_extension: false,
+    effective_blockers: false,
+    solver_can_kill: false,
+    opponent_buckets: None,
+    belief_worlds: None,
+    belief_last_n: None,
+    exact_pools: false,
+    opponent_view_share: 0.0,
+    opponent_list: OpponentList::Known,
+    root_trees: None,
+    visited_set_backup: false,
+    in_tree_filters: false,
+    transpositions: false,
+    subtree_reuse: false,
+    macro_multi_pick: false,
+    prior_worlds: None,
+    ex_variants: false,
+    typed_fingerprint: false,
+    prune_worlds: None,
+    branch_all_selects: false,
+    rest_prune_worlds: false,
+    target_rollouts: false,
+    real_idle_line: false,
+    calibrated_policy: false,
+    modal_lookahead: false,
+    yes_no_lookahead: false,
+    end_phase_actions: false,
+    burst_decline_list: false,
+    order_trigger_scorer: false,
+    exhaustive_polarity: false,
+    exact_fight: false,
+    opponent_knobs: false,
+    kill_aware_targeting: false,
+    refit_weights: false,
+    phase_weights: false,
+    keyword_features: false,
+    ability_count_features: false,
+    hand_slots: false,
+    burst_shield_probability: false,
+    no_tempo_feature: false,
+    determinized_fit: false,
+    leaf_density: false,
+    exclude_capped_play_draw: false,
+    paired_mulligan: false,
+    portable_math: false,
+    engine_error_leaf: true,
+};
 
 /// `standard`: reference `strong` (`ai/config.py:98-109`), every field spelled out.
 static STANDARD: LazyLock<StrengthenedConfig> = LazyLock::new(|| StrengthenedConfig {
@@ -39,6 +98,7 @@ static STANDARD: LazyLock<StrengthenedConfig> = LazyLock::new(|| StrengthenedCon
     policy_rule_polarity_table: true,
     policy_zero_ap_face: true,
     weights: ROLE_WEIGHTS.clone(),
+    mechanisms: SHIPPED_MECHANISMS,
 });
 
 /// `fast`: reference `standard` (`ai/config.py:93-97`), every field spelled out.
@@ -68,6 +128,7 @@ static FAST: LazyLock<StrengthenedConfig> = LazyLock::new(|| StrengthenedConfig 
     policy_rule_polarity_table: true,
     policy_zero_ap_face: true,
     weights: ROLE_WEIGHTS.clone(),
+    mechanisms: SHIPPED_MECHANISMS,
 });
 
 /// The configuration of a shipped preset (PLAN §6.4).
@@ -107,6 +168,15 @@ impl StrengthenedConfig {
     pub fn agent_name(&self) -> String {
         format!("{}{}", crate::AGENT_PREFIX, self.name)
     }
+
+    /// Whether this build implements every mechanism the configuration enables; the search
+    /// and the agent refuse a configuration that fails it.
+    ///
+    /// # Errors
+    /// `mechanism <name> (<package>) is not available in this build`.
+    pub fn check_mechanisms(&self) -> Result<(), String> {
+        crate::mech::validate(&self.mechanisms)
+    }
 }
 
 #[cfg(test)]
@@ -125,5 +195,36 @@ mod tests {
         assert_eq!(standard.weights, ROLE_WEIGHTS);
         assert_eq!(fast.knobs().burst_yes_score.to_bits(), 4.0f64.to_bits());
         assert!(fast.knobs().rule_polarity_table && fast.knobs().zero_ap_face);
+    }
+
+    #[test]
+    fn shipped_presets_enable_only_the_engine_error_leaf() {
+        for p in Preset::ALL {
+            let cfg = preset_config(p);
+            assert_eq!(cfg.mechanisms.enabled(), ["engine_error_leaf"]);
+            assert_eq!(cfg.check_mechanisms(), Ok(()));
+        }
+    }
+
+    #[test]
+    fn unavailable_mechanisms_are_refused() {
+        let mut cfg = preset_config(Preset::Fast).clone();
+        assert_eq!(
+            cfg.mechanisms.set_text("portable_math", "true"),
+            Some(Ok(()))
+        );
+        assert_eq!(cfg.check_mechanisms(), Ok(()));
+        assert_eq!(cfg.mechanisms.set_text("root_trees", "4"), Some(Ok(())));
+        assert_eq!(
+            cfg.check_mechanisms(),
+            Err("mechanism root_trees (P6-D) is not available in this build".to_owned())
+        );
+        assert_eq!(cfg.mechanisms.set_text("root_trees", "none"), Some(Ok(())));
+        assert_eq!(cfg.check_mechanisms(), Ok(()));
+        assert_eq!(cfg.mechanisms.set_text("no_such_flag", "true"), None);
+        assert!(matches!(
+            cfg.mechanisms.set_text("engine_error_leaf", "2"),
+            Some(Err(_))
+        ));
     }
 }

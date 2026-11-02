@@ -234,6 +234,67 @@ impl Paired {
         );
         o
     }
+
+    /// The seeded percentile bootstrap over deals of the paired difference (W-42): `reps`
+    /// resamples of the `n` deals with replacement (each draw `randrange(n)` of a
+    /// `SplitMix64(seed)`: below `b` a challenger-only deal, +1; below `b + c` an
+    /// opponent-only deal, -1; otherwise 0), each resample's mean difference, sorted; the
+    /// interval is the order statistics `floor(0.025 reps)` and `ceil(0.975 reps) - 1`.
+    /// `None` without deals or resamples.
+    #[must_use]
+    pub fn bootstrap_ci(&self, seed: u64, reps: u32) -> Option<(f64, f64)> {
+        let n = self.deals();
+        if n == 0 || reps == 0 {
+            return None;
+        }
+        let mut rng = gcg_core::SplitMix64::new(seed);
+        let mut means = Vec::with_capacity(usize::try_from(reps).unwrap_or(0));
+        for _ in 0..reps {
+            let mut sum: i64 = 0;
+            for _ in 0..n {
+                let k = rng.randrange(n);
+                if k < self.b {
+                    sum += 1;
+                } else if k < self.b + self.c {
+                    sum -= 1;
+                }
+            }
+            means.push(quotient(sum, n));
+        }
+        means.sort_by(|x, y| gcg_core::pymath::cmp_f64(*x, *y));
+        let r = usize::try_from(reps).unwrap_or(usize::MAX);
+        let lo = r * 25 / 1000;
+        let hi = (r * 975).div_ceil(1000) - 1;
+        Some((means[lo], means[hi]))
+    }
+
+    /// [`Paired::to_json`] plus `bootstrap_ci95`, the [`Paired::bootstrap_ci`] of
+    /// [`BOOTSTRAP_REPS`] resamples on [`bootstrap_seed`] (the resamples depend only on the
+    /// counts, so one fixed seed keeps every report deterministic), 4 places.
+    #[must_use]
+    pub fn to_json_with_bootstrap(&self) -> Json {
+        let mut o = self.to_json();
+        o.set(
+            "bootstrap_ci95",
+            self.bootstrap_ci(bootstrap_seed(), BOOTSTRAP_REPS)
+                .map_or(Json::Null, |(lo, hi)| {
+                    Json::Array(vec![
+                        round_f64(lo, RATE_DIGITS).into(),
+                        round_f64(hi, RATE_DIGITS).into(),
+                    ])
+                }),
+        );
+        o
+    }
+}
+
+/// Resamples of the deal bootstrap.
+pub const BOOTSTRAP_REPS: u32 = 1000;
+
+/// The seed of the deal bootstrap: `derive_seed(0, "gcg-eval", "bootstrap")`.
+#[must_use]
+pub fn bootstrap_seed() -> u64 {
+    gcg_core::derive_seed!(0, "gcg-eval", "bootstrap")
 }
 
 /// The realised play/draw split of one agent (A24): the games it played on the play (its seat
@@ -303,6 +364,49 @@ mod tests {
             );
         }
         assert_eq!(newcombe_paired(0, 0, 0, 0, Z95), (-1.0, 1.0));
+    }
+
+    /// W-42: Newcombe (1998), Table II, example (a): 36, 12, 2, 0 (n = 50), method 10,
+    /// 0.0569 to 0.3404 to four places. The paper could not be fetched offline: the value is
+    /// the one quoted from it, and the full-precision vectors of `export_stats.py` (an
+    /// independent Python implementation) pin the bits (`tests/vectors.rs`).
+    #[test]
+    fn w42_newcombe_published_example() {
+        let (lo, hi) = newcombe_paired(36, 12, 2, 0, Z95);
+        assert_eq!((round_f64(lo, 4), round_f64(hi, 4)), (0.0569, 0.3404));
+    }
+
+    /// W-42: the bootstrap interval is seeded (same seed, same bounds), contains the paired
+    /// difference, is degenerate without discordant deals, and narrows with more deals.
+    #[test]
+    fn w42_bootstrap_over_deals() {
+        let t = Paired {
+            a: 40,
+            b: 30,
+            c: 10,
+            d: 20,
+        };
+        let ci = t.bootstrap_ci(7, 1000).unwrap_or((9.0, 9.0));
+        assert_eq!(t.bootstrap_ci(7, 1000), Some(ci));
+        let diff = t.difference().unwrap_or(0.0);
+        assert!(ci.0 < diff && diff < ci.1, "{ci:?} around {diff}");
+        assert!(ci.0 > 0.0, "20 more challenger-only deals of 100: {ci:?}");
+        let none = Paired {
+            a: 5,
+            b: 0,
+            c: 0,
+            d: 5,
+        };
+        assert_eq!(none.bootstrap_ci(7, 1000), Some((0.0, 0.0)));
+        let big = Paired {
+            a: 400,
+            b: 300,
+            c: 100,
+            d: 200,
+        };
+        let wide = big.bootstrap_ci(7, 1000).unwrap_or((0.0, 0.0));
+        assert!(wide.1 - wide.0 < ci.1 - ci.0);
+        assert_eq!(Paired::default().bootstrap_ci(7, 1000), None);
     }
 
     #[test]
