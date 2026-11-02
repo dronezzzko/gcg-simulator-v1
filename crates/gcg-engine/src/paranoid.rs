@@ -64,6 +64,62 @@ impl Check {
 
 thread_local! {
     static COUNTS: [Cell<u64>; 6] = const { [const { Cell::new(0) }; 6] };
+    static MOVED_HOSTS: std::cell::RefCell<Vec<MovedHost>> = const {
+        std::cell::RefCell::new(Vec::new())
+    };
+}
+
+/// W-162: a trigger whose host moved again between queueing and resolution, so the trigger
+/// resolves against the card in its new place (rule 4-1-5 makes it a new card there). The
+/// engine keeps Python's behaviour; this only records where it happens.
+#[derive(Clone, PartialEq, Eq, Debug)]
+pub struct MovedHost {
+    /// The host card's number when the trigger resolves.
+    pub card_number: Box<str>,
+    /// The host's `zone_seq` when the trigger was queued (after a leave-play move, so a
+    /// 【Destroyed】 trigger whose card stays in the trash is not recorded).
+    pub queued_seq: i32,
+    /// The host's `zone_seq` when the trigger resolves.
+    pub resolved_seq: i32,
+}
+
+/// W-162: the side table of the trigger list, outside the game's value (never serialised,
+/// hashed or compared): for each entry of `GameState.triggers`, in the same order, the host's
+/// `zone_seq` at the moment it was queued (`NO_ARG` without a host, or for a trigger loaded
+/// from a snapshot), and the queued `zone_seq` of the trigger the list handed out last.
+#[derive(Clone, Default, Debug)]
+pub(crate) struct TriggerSeqs {
+    pub(crate) queued: Vec<i32>,
+    pub(crate) taken: i32,
+}
+
+/// W-162: `t` resolves now (`_resolve_trigger`, `engine/game.py:712-727`, past its once-key
+/// check) with `queued`, the host's `zone_seq` when it was queued; a host whose `zone_seq`
+/// changed since is recorded.
+pub(crate) fn trigger_resolves(st: &crate::GameState, host: i32, queued: i32) {
+    let Ok(uid) = usize::try_from(host) else {
+        return;
+    };
+    let Some(c) = st.cards.get(uid) else {
+        return;
+    };
+    if queued == crate::NO_ARG || c.zone_seq == queued {
+        return;
+    }
+    MOVED_HOSTS.with(|m| {
+        m.borrow_mut().push(MovedHost {
+            card_number: st.db().by_id(c.def_id).card_number.clone(),
+            queued_seq: queued,
+            resolved_seq: c.zone_seq,
+        });
+    });
+}
+
+/// W-162: every trigger recorded on this thread so far whose host moved again before it
+/// resolved, in resolution order.
+#[must_use]
+pub fn moved_hosts() -> Vec<MovedHost> {
+    MOVED_HOSTS.with(|m| m.borrow().clone())
 }
 
 /// `self.checks[name] += 1`.

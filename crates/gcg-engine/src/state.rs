@@ -309,6 +309,12 @@ pub(crate) struct TriggerArena<'a> {
     pub(crate) triggers: &'a mut Vec<TriggerInst>,
     pub(crate) batch_starts: &'a mut Vec<u32>,
     pub(crate) pending_start: &'a mut u32,
+    /// W-162 (`paranoid`): the side table kept parallel to `triggers`, and the cards whose
+    /// `zone_seq` it records at queue time.
+    #[cfg(feature = "paranoid")]
+    pub(crate) seqs: &'a mut crate::paranoid::TriggerSeqs,
+    #[cfg(feature = "paranoid")]
+    pub(crate) cards: &'a [CardInstance],
 }
 
 /// The end of batch `i`: the next batch's start, or the start of the pending tail.
@@ -324,6 +330,14 @@ impl TriggerArena<'_> {
     /// `st.pending_triggers.append(t)` (`core.py:273`, `:393`, `:449`, `:472`, `:714`).
     pub(crate) fn push_pending(&mut self, t: TriggerInst) -> Result<(), EngineError> {
         offset(self.triggers.len() + 1, "trigger list")?;
+        #[cfg(feature = "paranoid")]
+        {
+            let seq = usize::try_from(t.host)
+                .ok()
+                .and_then(|u| self.cards.get(u))
+                .map_or(crate::NO_ARG, |c| c.zone_seq);
+            self.seqs.queued.push(seq);
+        }
         self.triggers.push(t);
         Ok(())
     }
@@ -354,6 +368,10 @@ impl TriggerArena<'_> {
             return Err(EngineError::Index("pop index out of range".to_owned()));
         }
         *self.pending_start -= 1;
+        #[cfg(feature = "paranoid")]
+        {
+            self.seqs.taken = self.seqs.queued.remove(at);
+        }
         Ok(self.triggers.remove(at))
     }
 
@@ -362,6 +380,8 @@ impl TriggerArena<'_> {
         if let Some(start) = self.batch_starts.pop() {
             let end = *self.pending_start as usize;
             self.triggers.drain(start as usize..end);
+            #[cfg(feature = "paranoid")]
+            self.seqs.queued.drain(start as usize..end);
             *self.pending_start = start;
         }
     }
@@ -369,6 +389,8 @@ impl TriggerArena<'_> {
     /// `st.batches = []; st.pending_triggers = []` (`game.py:769-770`).
     pub(crate) fn clear(&mut self) {
         self.triggers.clear();
+        #[cfg(feature = "paranoid")]
+        self.seqs.queued.clear();
         self.batch_starts.clear();
         *self.pending_start = 0;
     }
@@ -600,6 +622,8 @@ impl GameState {
             triggers: Vec::new(),
             batch_starts: Vec::new(),
             pending_start: 0,
+            #[cfg(feature = "paranoid")]
+            trigger_seqs: crate::paranoid::TriggerSeqs::default(),
             frames: Vec::new(),
             frame_vars: Vec::new(),
             frame_ints: Vec::new(),
@@ -666,6 +690,11 @@ impl GameState {
             max_actions: _,
             version,
         } = body;
+        #[cfg(feature = "paranoid")]
+        let trigger_seqs = crate::paranoid::TriggerSeqs {
+            queued: vec![crate::NO_ARG; triggers.len()],
+            taken: crate::NO_ARG,
+        };
         Self {
             seed,
             rng: SplitMix64::new(rng),
@@ -690,6 +719,8 @@ impl GameState {
             triggers,
             batch_starts,
             pending_start,
+            #[cfg(feature = "paranoid")]
+            trigger_seqs,
             frames,
             frame_vars,
             frame_ints,
@@ -1010,6 +1041,8 @@ impl GameState {
             triggers,
             batch_starts,
             pending_start,
+            #[cfg(feature = "paranoid")]
+            trigger_seqs,
             frames,
             frame_vars,
             frame_ints,
@@ -1051,6 +1084,11 @@ impl GameState {
         copy(&mut self.triggers, triggers);
         copy(&mut self.batch_starts, batch_starts);
         self.pending_start = *pending_start;
+        #[cfg(feature = "paranoid")]
+        {
+            copy(&mut self.trigger_seqs.queued, &trigger_seqs.queued);
+            self.trigger_seqs.taken = trigger_seqs.taken;
+        }
         copy(&mut self.frames, frames);
         copy(&mut self.frame_vars, frame_vars);
         copy(&mut self.frame_ints, frame_ints);
@@ -1110,6 +1148,7 @@ impl GameState {
 
     /// `st.pending = Decision(...)` (`interp.py:101`, `game.py:163`, ...).
     pub(crate) fn set_pending(&mut self, hdr: DecisionHdr, options: &[crate::Action]) {
+        crate::diag::assert_live_decision(hdr.kind);
         self.pending = Some(hdr);
         self.pending_options.clear();
         self.pending_options.extend_from_slice(options);
@@ -1246,6 +1285,10 @@ impl GameState {
             triggers: &mut self.triggers,
             batch_starts: &mut self.batch_starts,
             pending_start: &mut self.pending_start,
+            #[cfg(feature = "paranoid")]
+            seqs: &mut self.trigger_seqs,
+            #[cfg(feature = "paranoid")]
+            cards: &self.cards,
         }
     }
 
@@ -1600,6 +1643,8 @@ mod tests {
         triggers: Vec<TriggerInst>,
         batch_starts: Vec<u32>,
         pending_start: u32,
+        #[cfg(feature = "paranoid")]
+        seqs: crate::paranoid::TriggerSeqs,
     }
 
     impl Triggers {
@@ -1608,6 +1653,10 @@ mod tests {
                 triggers: &mut self.triggers,
                 batch_starts: &mut self.batch_starts,
                 pending_start: &mut self.pending_start,
+                #[cfg(feature = "paranoid")]
+                seqs: &mut self.seqs,
+                #[cfg(feature = "paranoid")]
+                cards: &[],
             }
         }
 

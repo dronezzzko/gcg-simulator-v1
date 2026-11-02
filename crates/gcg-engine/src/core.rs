@@ -1739,6 +1739,10 @@ pub(crate) fn rules_management(st: &mut GameState) -> Result<(), EngineError> {
                 return Ok(());
             }
         }
+        #[cfg(feature = "paranoid")]
+        if st.konst.hp_reduction_possible {
+            paranoid::per_game_hp_shortcut(st)?;
+        }
         let dv = view::derived(st)?;
         let mut doomed: UidBuf = UidBuf::new();
         for p in [st.active, 1 - st.active] {
@@ -1913,6 +1917,147 @@ mod paranoid {
         Ok(())
     }
 
+    /// W-51: the registry's `hp_reduction_possible` (`effects/registry.py:356-376`) is true
+    /// when any card of the database can lower HP, so the engine scans every state in full,
+    /// as Python does. The flag computed from this game's cards alone
+    /// ([`game_lowers_hp`]) may be false; then the printed-HP shortcut would have skipped
+    /// this scan, and the full scan must find nothing to destroy, as the shortcut assumes.
+    /// The engine value stays Python's; this only shows that the per-game refinement would
+    /// change no result.
+    pub(super) fn per_game_hp_shortcut(st: &GameState) -> Result<(), EngineError> {
+        if game_lowers_hp(st) {
+            return Ok(());
+        }
+        let (damaged, lethal) = super::damage_scan(st);
+        if !damaged || !lethal {
+            no_printed_lethal_damage(st)?;
+        }
+        Ok(())
+    }
+
+    /// W-51: the `hp_reduction_possible` formula of `effects/registry.py:368-370` over the
+    /// cards that can appear in this game: both decklists and resource decklists, their Unit
+    /// variants, every token definition, and every card whose abilities one of them can grant
+    /// (`AbilityGrant`), read from the CPython `repr` of each script ([`lowers_hp`]).
+    pub(super) fn game_lowers_hp(st: &GameState) -> bool {
+        let reg = st.registry();
+        let db = st.db();
+        let mut todo: Vec<gcg_data::DefId> = Vec::new();
+        for dl in st.decklists().into_iter().chain(st.resource_decklists()) {
+            for &d in dl {
+                todo.push(d);
+                if let Some(v) = db.unit_variant(d) {
+                    todo.push(v.def_id);
+                }
+            }
+        }
+        todo.extend(db.defs().iter().filter(|d| d.is_token()).map(|d| d.def_id));
+        let mut seen = vec![false; db.len()];
+        while let Some(d) = todo.pop() {
+            let i = usize::from(d.0);
+            if std::mem::replace(&mut seen[i], true) {
+                continue;
+            }
+            let Some(script) = reg.card(d).script else {
+                continue;
+            };
+            let text = reg.repr(script);
+            if lowers_hp(&text) {
+                return true;
+            }
+            for number in granted_cards(&text) {
+                if let Some(g) = db.get(number) {
+                    todo.push(g.def_id);
+                }
+            }
+        }
+        false
+    }
+
+    /// The `(start, end)` byte range of each top-level argument of the call whose `(` is at
+    /// `open` in a CPython `repr`, skipping quoted strings, and the index after its `)`.
+    fn call_args(text: &str, open: usize) -> (Vec<(usize, usize)>, usize) {
+        let b = text.as_bytes();
+        let (mut depth, mut i, mut start) = (0usize, open, open + 1);
+        let mut args = Vec::new();
+        let mut quote: Option<u8> = None;
+        while i < b.len() {
+            let c = b[i];
+            if let Some(q) = quote {
+                if c == b'\\' {
+                    i += 1;
+                } else if c == q {
+                    quote = None;
+                }
+            } else {
+                match c {
+                    b'\'' | b'"' => quote = Some(c),
+                    b'(' | b'[' | b'{' => depth += 1,
+                    b')' | b']' | b'}' => {
+                        depth = depth.saturating_sub(1);
+                        if depth == 0 {
+                            args.push((start, i));
+                            return (args, i + 1);
+                        }
+                    }
+                    b',' if depth == 1 => {
+                        args.push((start, i));
+                        start = i + 1;
+                    }
+                    _ => {}
+                }
+            }
+            i += 1;
+        }
+        (args, b.len())
+    }
+
+    /// Every `StatMod(ap=.., hp=..)` in a CPython `repr` whose `hp` is not a literal int
+    /// `>= 0` (`registry.py:368-370`: `isinstance(n, d.StatMod) and not (isinstance(n.hp,
+    /// int) and n.hp >= 0)`). A `repr` this cannot read counts as lowering, which only
+    /// disables the check.
+    pub(super) fn lowers_hp(text: &str) -> bool {
+        let mut from = 0;
+        while let Some(k) = text[from..].find("StatMod(") {
+            let open = from + k + "StatMod".len();
+            let word_start = text[..from + k]
+                .bytes()
+                .next_back()
+                .is_none_or(|c| !c.is_ascii_alphanumeric() && c != b'_');
+            if !word_start {
+                from = open;
+                continue;
+            }
+            let (args, end) = call_args(text, open);
+            let hp = args
+                .iter()
+                .map(|&(a, b)| text[a..b].trim())
+                .find_map(|arg| arg.strip_prefix("hp="));
+            match hp.map(str::parse::<i64>) {
+                Some(Ok(v)) if v >= 0 => {}
+                _ => return true,
+            }
+            from = end.max(open + 1);
+        }
+        false
+    }
+
+    /// The card numbers of every `AbilityGrant(card_number='..', ...)` in a CPython `repr`.
+    fn granted_cards(text: &str) -> Vec<&str> {
+        let key = "AbilityGrant(card_number='";
+        let mut out = Vec::new();
+        let mut from = 0;
+        while let Some(k) = text[from..].find(key) {
+            let start = from + k + key.len();
+            let Some(len) = text[start..].find('\'') else {
+                break;
+            };
+            out.push(&text[start..start + len]);
+            from = start + len;
+        }
+        out
+    }
+
     /// `CacheChecker.rules_management` (`tests/paranoid.py:113-125`): a check skipped because
     /// the state has not changed since the last one changes nothing when run in full.
     pub(super) fn unchanged_state(st: &GameState) -> Result<(), EngineError> {
@@ -1937,6 +2082,56 @@ mod paranoid {
             st.turn
         );
         Ok(())
+    }
+
+    #[cfg(test)]
+    mod tests {
+        use std::sync::Arc;
+
+        use gcg_effects::Registry;
+
+        use super::{game_lowers_hp, lowers_hp};
+
+        #[test]
+        fn statmod_reprs_follow_the_registry_formula() {
+            assert!(lowers_hp("Apply(effect=StatMod(ap=0, hp=-1), duration=x)"));
+            assert!(!lowers_hp("StatMod(ap=2, hp=0)"));
+            assert!(!lowers_hp("StatMod(ap=Count(sel=Sel(a=(1, 2))), hp=3)"));
+            assert!(lowers_hp("StatMod(ap=0, hp=Count(sel=Sel(name='a)b')))"));
+            assert!(!lowers_hp(
+                "CustomStatMod(ap=0, hp=-1) StatMod(ap=-1, hp=1)"
+            ));
+            assert!(lowers_hp("StatMod(ap=1, hp=1), StatMod(ap=0, hp=-2)"));
+        }
+
+        /// The scanner agrees with Python's registry-wide flag: no packaged card lowers HP
+        /// (the IR's `hp_reduction_possible` is false), and the GD01-064 override of
+        /// `tests/rules/test_damage.py:791` ("It gets HP-1 during this turn") does.
+        #[test]
+        fn per_card_flags_agree_with_the_registry() {
+            let reg = Registry::embedded();
+            assert!(!reg.hp_reduction_possible());
+            for def in reg.db().defs() {
+                if let Some(s) = reg.card(def.def_id).script {
+                    assert!(!lowers_hp(&reg.repr(s)), "{}", def.card_number);
+                }
+            }
+            let path = concat!(
+                env!("CARGO_MANIFEST_DIR"),
+                "/../gcg-effects/ir/fragments/GD01-064.json"
+            );
+            let fixture: serde_json::Value =
+                serde_json::from_str(&std::fs::read_to_string(path).expect("the fixture"))
+                    .expect("JSON");
+            let over = Arc::new(reg.with_fragment(&fixture["fragment"]).expect("loads"));
+            assert!(over.hp_reduction_possible());
+            let def = over.db().get("GD01-064").expect("GD01-064").def_id;
+            assert!(lowers_hp(
+                &over.repr(over.card(def).script.expect("a script"))
+            ));
+            let (_, st) = crate::canon::fixtures::states().swap_remove(0);
+            assert!(!game_lowers_hp(&st), "the packaged decks lower no HP");
+        }
     }
 }
 

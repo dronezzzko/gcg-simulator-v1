@@ -13,6 +13,7 @@ mod battle;
 pub mod canon;
 mod contracts;
 mod core;
+pub mod diag;
 mod enums;
 mod error;
 mod game;
@@ -30,6 +31,7 @@ pub mod view;
 mod zones;
 
 pub use contracts::*;
+pub use diag::CapKind;
 pub use enums::*;
 pub use game::{
     apply, concede, deck_construction_problems, deck_construction_problems_by_number,

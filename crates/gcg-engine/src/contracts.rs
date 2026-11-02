@@ -588,6 +588,10 @@ pub struct GameState {
     pub(crate) batch_starts: Vec<u32>,
     /// `pending_triggers = triggers[pending_start..]`.
     pub(crate) pending_start: u32,
+    /// W-162, feature `paranoid` only: the queue-time host `zone_seq` of each entry of
+    /// `triggers`, outside the game's value (never serialised, hashed or compared).
+    #[cfg(feature = "paranoid")]
+    pub(crate) trigger_seqs: crate::paranoid::TriggerSeqs,
     pub(crate) frames: Vec<Frame>,
     pub(crate) frame_vars: Vec<VarEntry>,
     pub(crate) frame_ints: Vec<IntEntry>,

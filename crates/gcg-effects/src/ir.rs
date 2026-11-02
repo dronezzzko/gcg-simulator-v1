@@ -871,6 +871,7 @@ impl<'a> Arena<'a> {
                 },
                 other => other,
             })?;
+            check_prevention_threshold(ir, &node, first + i, first, &d.at)?;
             d.kinds.push(kind);
             self.nodes.push(node);
         }
@@ -880,8 +881,37 @@ impl<'a> Arena<'a> {
     }
 }
 
+/// W-158: `_prevented` reads a CANT_RECEIVE_DAMAGE threshold ("damage of N or less",
+/// GD05-123, Q416) only when `RuleMod.amount` is a literal int, and any other `Value` as limit
+/// 0, which means "can't receive any damage" (`engine/core.py:525`). No packaged card has
+/// such an amount; one that did would be silently immune, so the registry refuses it and names
+/// the card (W-69: build errors fail fast). Evaluating a computed threshold would be a rules
+/// change, which belongs to the Python workflow.
+fn check_prevention_threshold(
+    ir: &Value,
+    node: &Node,
+    id: usize,
+    first: usize,
+    at: &str,
+) -> Result<(), IrError> {
+    if let Node::RuleMod(m) = node
+        && m.kind == crate::dsl::RuleKind::CantReceiveDamage
+        && matches!(m.amount, crate::contracts::ValueRef::Node(_))
+    {
+        let card = owner_card(ir, id, first).unwrap_or_else(|| "a node of no card".to_owned());
+        return Err(malformed(
+            &format!("{at}.amount"),
+            format!(
+                "{card}: a CANT_RECEIVE_DAMAGE threshold that is not a literal int would be \
+                 read as unlimited prevention (W-158)"
+            ),
+        ));
+    }
+    Ok(())
+}
+
 /// The number of the first card (def_id order) whose script contains node `target`, from the
-/// raw IR document whose `nodes` start at id `offset` (used for W-69 errors only).
+/// raw IR document whose `nodes` start at id `offset` (used for W-69 and W-158 errors only).
 fn owner_card(ir: &Value, target: usize, offset: usize) -> Option<String> {
     let nodes = ir.get("nodes")?.as_array()?;
     for card in ir.get("cards")?.as_array()? {

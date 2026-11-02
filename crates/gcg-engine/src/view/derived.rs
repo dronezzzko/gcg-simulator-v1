@@ -975,6 +975,9 @@ fn compute_in<'w>(st: &GameState, w: &'w mut pool::Work) -> Result<&'w mut Deriv
     }
     let dv = if have_prev { prev } else { base };
     dv.converged = converged;
+    if !converged {
+        crate::diag::note_non_converged();
+    }
     finalize(dv);
     Ok(dv)
 }

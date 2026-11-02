@@ -1380,6 +1380,8 @@ fn resolve_trigger(st: &mut GameState, t: &TriggerInst) -> Result<(), EngineErro
     {
         return Ok(());
     }
+    #[cfg(feature = "paranoid")]
+    crate::paranoid::trigger_resolves(st, t.host, st.trigger_seqs.taken);
     let kind = if t.burst {
         FrameKind::Burst
     } else {
@@ -1417,6 +1419,7 @@ pub(crate) fn advance(st: &mut GameState) -> Result<(), EngineError> {
             return Err(EngineError::NoProgress { steps });
         }
         steps += 1;
+        crate::diag::assert_live_step(st.step);
         if st.action_count > st.max_actions() {
             st.winner = Some(-1);
             st.end_reason = Some(EndReason::TurnLimit);
