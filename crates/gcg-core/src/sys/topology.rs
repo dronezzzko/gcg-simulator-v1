@@ -43,8 +43,8 @@ pub enum TopologySource {
 pub struct Topology {
     /// `hw.perflevel0..N-1`, in sysctl order.
     pub levels: Vec<PerfLevel>,
-    /// The sum of `levels[*].logical_cpus` (what `--workers auto` uses before the match-count
-    /// cap), or `available_parallelism()` for [`TopologySource::Fallback`].
+    /// The sum of `levels[*].logical_cpus`, or `available_parallelism()` for
+    /// [`TopologySource::Fallback`]. `--workers auto` uses [`Topology::fast_logical_cpus`].
     pub logical_cpus: usize,
     /// `hw.cachelinesize` (128 on the M2 Pro), if known.
     pub cache_line_bytes: Option<u32>,
@@ -56,11 +56,31 @@ pub struct Topology {
 }
 
 impl Topology {
-    /// `--workers auto`: `max(1, min(self.logical_cpus, matches))` (PLAN §7.4). Every core is
-    /// assumed to run at full speed (brief `<target_hardware>`), so every tier counts.
+    /// The logical CPUs of every tier except the slowest one (the efficiency tier), or all of
+    /// them on a one-tier machine or without tier information. On the M2 Pro this is the 6
+    /// performance cores; on the three-tier M6 layout the 2 super and 4 performance cores.
+    #[must_use]
+    pub fn fast_logical_cpus(&self) -> usize {
+        match self.levels.split_last() {
+            Some((_, faster)) if !faster.is_empty() => faster
+                .iter()
+                .map(|l| usize::try_from(l.logical_cpus).unwrap_or(usize::MAX))
+                .sum::<usize>()
+                .max(1),
+            _ => self.logical_cpus.max(1),
+        }
+    }
+
+    /// `--workers auto`: `max(1, min(self.fast_logical_cpus(), matches))` (PLAN §7.4). A match
+    /// is the unit of work and runs sequentially, so a match that starts late on an efficiency
+    /// core (about 2.1x slower per game on the M2 Pro) finishes after the others and leaves
+    /// the fast cores idle. Measured on the M2 Pro (docs/port/BENCHMARKS.md, Part 1 and
+    /// Part 2): 6 workers beat 10 on every timed workload, e.g. 100 reference `standard`
+    /// matches in 41.3 s against 47.9 s, and 20 `standard` matches in 133.7 s against 150.0 s.
+    /// The worker count never changes any output.
     #[must_use]
     pub fn auto_workers(&self, matches: usize) -> usize {
-        self.logical_cpus.min(matches).max(1)
+        self.fast_logical_cpus().min(matches).max(1)
     }
 
     /// The topology when `sysctl` gives nothing usable: `available_parallelism()` (1 if even
@@ -239,7 +259,8 @@ mod tests {
                 .collect::<Vec<_>>(),
             [&("caps".to_owned(), 868_632_327_146_696_703)]
         );
-        assert_eq!(topo.auto_workers(100), 10);
+        assert_eq!(topo.fast_logical_cpus(), 6);
+        assert_eq!(topo.auto_workers(100), 6);
         assert_eq!(topo.auto_workers(3), 3);
         assert_eq!(topo.auto_workers(0), 1);
     }
@@ -256,7 +277,8 @@ mod tests {
             ]
         );
         assert_eq!(topo.logical_cpus, 12);
-        assert_eq!(topo.auto_workers(100), 12);
+        assert_eq!(topo.fast_logical_cpus(), 6);
+        assert_eq!(topo.auto_workers(100), 6);
         assert_eq!(
             topo.arm_features,
             [

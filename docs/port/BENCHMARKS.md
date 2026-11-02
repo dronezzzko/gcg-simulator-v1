@@ -252,10 +252,72 @@ So no Metal code was written; it would also need `unsafe` Objective-C bindings.
 
 ## Part 1: equal-work speedup (reference search)
 
-Not measured yet. Phase 5 produced the binaries; the hyperfine comparison on an idle machine
-is the lead's. `GCG_PGO=1 scripts/compare_python_vs_rust.sh part1 --best N` times the PGO
-build.
+Measured 2026-11-02 on an idle machine. Commit 34b3107 was built with
+`cargo build --release --locked` (plain release, mimalloc, `target-cpu=native`). Every Rust
+run recorded the binary's code digest `f903072548180a9164b792cb1a7d13086dffcc3d4da699e53d6ccbf6afb6deeb`
+(`build/comparison/env.txt`). The Rust binary is `gcg-eval reference-benchmark
+--reference-preset …`: the reference search at the exact reference budgets. Its outputs are
+byte-identical to Python's (docs/port/EQUIVALENCE.md).
+
+The best worker count was found the same way as for Python: one run each of the 20-match
+screening workload. For the reference search, 6 workers took 8.5 s, 8 took 9.6 s, 10 took
+9.6 s and auto (10) took 9.5 s, so the best is 6. A match is the unit of work, and a match
+that starts late on one of the 4 efficiency cores finishes about 2.1x later than on a
+performance core. With 6 workers, the scheduler keeps all of them on the 6 performance cores.
+
+| Pair | Configuration | Python | Rust | Python median | Rust median (min, max) | Speedup |
+| --- | --- | --- | --- | ---: | ---: | ---: |
+| A (screening) | headline, best workers | `standard` m100 w10 | ref `standard` m100 w6 | 972.0 s | 41.3 s (41.2, 41.4) | **23.5x** |
+| A (screening) | headline, 10 workers | `standard` m100 w10 | ref `standard` m100 w10 | 972.0 s | 47.9 s (47.8, 47.9) | **20.3x** |
+| A (screening) | single-thread | `standard` m20 w1 | ref `standard` m20 w1 | 1269.5 s | 28.2 s (28.1, 28.2) | **45.1x** |
+| B (full search) | best workers | `strong` m20 w10 | ref `strong` m20 w6 | 356.0 s | 14.7 s (14.5, 15.8) | **24.2x** |
+
+Rust ran 5 runs per configuration (hyperfine, fresh `--out` each run). Python ran 3 runs,
+from the Phase 0 baseline above. Commands:
+
+```text
+scripts/compare_python_vs_rust.sh best-workers rust-reference
+scripts/compare_python_vs_rust.sh part1 --best 6
+scripts/compare_python_vs_rust.sh report
+```
+
+**Why some configurations are below 10x.** The single-thread speedup at equal work is 45x.
+That is the implementation's raw speed: one engine apply, view compute and MCTS iteration
+against Python's (Phase 5 log). The multi-worker headlines land at 20–24x for two measured
+reasons:
+
+1. Python's 10-process pool uses all 10 cores, efficiency cores included, while Rust's best
+   count is the 6 performance cores. Rust's per-core advantage is therefore spread over fewer
+   cores.
+2. The reference search is sequential inside a match, so the run ends with a tail of the last
+   matches. 100 matches over 6 workers gives an uneven last round.
+
+Both effects are structural. Neither is a slow path, and every configuration clears 10x.
 
 ## Part 2: shipped presets
 
-Not measured yet (Phase 6).
+The same machine and protocol. Commit 34b3107 was built as above, and the binary is
+`gcg-sim benchmark --ai-preset fast|standard`, which runs the strengthened search with the
+tuned budgets of docs/port/eval/M15. The best-worker search for the presets on the 20-match
+`fast` workload took 16.6 s at 6 workers, 18.0 s at 8, 17.8 s at 10 and 17.8 s at auto, so
+the best is 6.
+
+| Pair | Configuration | Python | Rust | Python median | Rust median (min, max) | Speedup |
+| --- | --- | --- | --- | ---: | ---: | ---: |
+| `fast` vs Python `standard` | headline, best workers | `standard` m100 w10 | `fast` m100 w6 | 972.0 s | 76.9 s (76.9, 77.2) | **12.6x** |
+| `fast` vs Python `standard` | headline, 10 workers | `standard` m100 w10 | `fast` m100 w10 | 972.0 s | 88.0 s (87.9, 88.3) | **11.0x** |
+| `fast` vs Python `standard` | single-thread | `standard` m20 w1 | `fast` m20 w1 | 1269.5 s | 52.7 s (52.6, 52.7) | **24.1x** |
+| `standard` vs Python `strong` | full search, best workers | `strong` m20 w10 | `standard` m20 w6 | 356.0 s | 133.7 s (133.6, 134.1) | **2.66x** |
+
+Rust ran 5 runs per configuration, except `standard`, which ran 3. The `standard` row is the
+budget constraint of PLAN §12.8: `standard` spends 8x the reference `strong` budget, plus the
+adopted mechanisms (about 10x its instructions per game), and so stays 2.66x faster than
+Python `strong`. A first session at 10 workers gave 150.0 s (2.37x). Commands:
+
+```text
+scripts/compare_python_vs_rust.sh best-workers rust-presets
+scripts/compare_python_vs_rust.sh part2 --best 6
+scripts/compare_python_vs_rust.sh report      # "all 8 configurations present, current and at least 2x"
+```
+
+The 2x floor holds in every configuration of both parts.

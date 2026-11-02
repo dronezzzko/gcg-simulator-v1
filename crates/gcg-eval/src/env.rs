@@ -150,7 +150,7 @@ mod tests {
         assert_eq!(doc.get("code_digest"), Some(&Json::from(CODE_DIGEST)));
         assert_eq!(CODE_DIGEST.len(), 64);
         let topo = doc.get("topology").cloned().unwrap_or(Json::Null);
-        assert_eq!(topo.get("auto_workers"), Some(&Json::from(10_usize)));
+        assert_eq!(topo.get("auto_workers"), Some(&Json::from(6_usize)));
         assert_eq!(
             doc.get("cpu_features")
                 .and_then(|f| f.get("sysctl"))

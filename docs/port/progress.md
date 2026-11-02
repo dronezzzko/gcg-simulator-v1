@@ -227,3 +227,17 @@ paranoid `search:fast` fuzz stopped under load; Part 1 hyperfine runs (need an i
 **Gate.** Byte equivalence is exact; no statistical fallback is needed. Risk carried forward:
 the matrix binaries predate Phase 5, but the headline, the corpus (tier 1 and 2 at 100% after
 every later commit) and every package's three-preset smoke cover the current code.
+
+### M10 — Phase 5 gate: Part 1 and Part 2 measured (done)
+
+- Idle-machine timing, commit 34b3107 (plain release, code digest f9030725…): best Rust worker
+  count 6 for both the reference search and the presets (20-match search: 8.5 s at 6 vs 9.6 s
+  at 10). Part 1: headline 23.5x (best) / 20.3x (10 workers), single-thread 45.1x, full search
+  24.2x. Part 2: fast headline 12.6x / 11.0x, single-thread 24.1x; standard full search 2.66x.
+  `scripts/compare_python_vs_rust.sh report`: "all 8 configurations present, current and at
+  least 2x". Tables in docs/port/BENCHMARKS.md.
+- `--workers auto` now uses the fast tiers only (6 on the M2 Pro, 2+4 on the M6 layout),
+  because 6 workers beat 10 on every timed workload (match-granular tail on efficiency cores).
+- GPU: not adopted (evaluation 0.9%, policy 5.4% of time; not batchable in the sequential
+  reference search). M6: runtime detection, three-tier topology and build notes in
+  BENCHMARKS.md (no M6 available; nothing measured on one).

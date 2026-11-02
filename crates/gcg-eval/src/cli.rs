@@ -66,7 +66,7 @@ pub const DESCRIPTION: &str = "Evaluation harness of the gcg-sim port: the refer
      head-to-head comparisons of agents and the tuning tools.";
 /// `--workers` help, as `gcg-sim`'s (PLAN A5, §7.4).
 pub const WORKERS_HELP: &str =
-    "worker processes; auto uses one per logical CPU (at most one per match)";
+    "worker processes; auto uses one per performance-core CPU (at most one per match)";
 /// The reference presets, in `PRESETS` order (`ai/config.py:80-111`).
 pub const REFERENCE_PRESETS: [&str; 3] = ["fast", "standard", "strong"];
 /// The reference specs an ablation row can start from.
@@ -302,7 +302,7 @@ fn push_run_options(p: &mut Parser, d: &RunDefaults) {
         Converter::Workers,
         None,
         Value::Int(PyInt::from_u64(1)),
-        "worker threads; auto uses one per logical CPU".to_owned(),
+        "worker threads; auto uses one per performance-core CPU".to_owned(),
     ));
     p.push(Action::option(
         "--choose-first",

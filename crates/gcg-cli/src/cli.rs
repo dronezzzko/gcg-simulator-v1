@@ -25,7 +25,7 @@ pub const PROG: &str = "gcg-sim";
 
 /// `--workers` help: Python's "worker processes" (PLAN A5) and the additive `auto` (§7.4).
 pub const WORKERS_HELP: &str =
-    "worker processes; auto uses one per logical CPU (at most one per match)";
+    "worker processes; auto uses one per performance-core CPU (at most one per match)";
 
 /// `--ai-preset` help: the brief's wording for each value (`BRIEF.md` `<ai_presets>`, PLAN
 /// A11) and the mapping to the Python presets the budgets start from (PLAN D12).

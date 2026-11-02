@@ -97,10 +97,12 @@ fn two_and_three_tier_listings_parse_into_their_tiers() {
 }
 
 #[test]
-fn auto_uses_every_tier_and_at_most_one_worker_per_match() {
+fn auto_uses_the_fast_tiers_and_at_most_one_worker_per_match() {
+    // Every tier but the efficiency tier: 6 performance cores on the M2 Pro, 2 super + 4
+    // performance cores on the M6 layout (docs/port/BENCHMARKS.md, Part 1 and Part 2).
     for (listing, logical) in [
-        ("sysctl-m2pro.txt", 10_u32),
-        ("sysctl-3tier-synthetic.txt", 12),
+        ("sysctl-m2pro.txt", 6_u32),
+        ("sysctl-3tier-synthetic.txt", 6),
     ] {
         let topo = parse(&fixture(listing));
         for matches in 1..=30_u32 {
@@ -154,7 +156,7 @@ fn timing_json_records_the_tiers_and_the_workers_used() {
         let doc: serde_json::Value =
             serde_json::from_str(&to_json_text(&timing_json(&run, &TimingHost::rust())))
                 .expect("timing.json is JSON");
-        assert_eq!(doc["workers"], topo.logical_cpus.min(20));
+        assert_eq!(doc["workers"], topo.fast_logical_cpus().min(20));
         let t = &doc["topology"];
         assert_eq!(t["logical_cpus"], topo.logical_cpus);
         assert_eq!(t["source"], "sysctl");
@@ -173,10 +175,10 @@ fn timing_json_records_the_tiers_and_the_workers_used() {
     }
 }
 
-/// `--workers auto` on this machine: the workers recorded are `min(logical CPUs, matches)`, and
-/// the results are those of one worker.
+/// `--workers auto` on this machine: the workers recorded are `min(fast-tier CPUs, matches)`,
+/// and the results are those of one worker.
 #[test]
-fn needs_engine_auto_runs_like_one_worker_with_every_cpu() {
+fn needs_engine_auto_runs_like_one_worker_on_the_fast_tiers() {
     let f = factory(TestAgentKind::Random);
     let here = topology::detect();
     let one = run_benchmark(
@@ -193,7 +195,7 @@ fn needs_engine_auto_runs_like_one_worker_with_every_cpu() {
         &Cancel::new(),
     )
     .expect("auto");
-    let want = u32::try_from(here.logical_cpus.min(12)).expect("small");
+    let want = u32::try_from(here.fast_logical_cpus().min(12)).expect("small");
     assert_eq!(auto.timing.workers, want);
     assert_eq!(auto.timing.topology, here);
     assert_eq!(one.timing.workers, 1);

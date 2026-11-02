@@ -118,7 +118,7 @@ pub const fn own_turn(turn: i32, seat: u8, first_player: u8) -> i32 {
 
 /// `processes_used(config)` (`runner/run.py:83-85`): the workers that actually play, `1 if
 /// workers <= 1 or matches == 1 else min(workers, matches)`. `--workers auto` resolves through
-/// [`Topology::auto_workers`] (every logical CPU, at most one per match; PLAN §7.4).
+/// [`Topology::auto_workers`] (every CPU of the faster tiers, at most one per match; PLAN §7.4).
 #[must_use]
 pub fn workers_used(cfg: &BenchmarkConfig, topology: &Topology) -> u32 {
     let requested = match cfg.workers {
