@@ -18,7 +18,7 @@ use gcg_core::rng::SplitMix64;
 use gcg_effects::Registry;
 use gcg_engine::canon::from_canonical;
 use gcg_engine::{Action, GameState, StateSnapshot};
-use gcg_search::{MechanismEffort, Observation, Preset, StrengthenedConfig, preset_config};
+use gcg_search::{MechanismEffort, Observation, Preset, StrengthenedConfig, reference_mapping};
 use serde_json::Value;
 
 /// The searched decisions of the D2 vectors (`crates/gcg-ai/tests/vectors/search/`), as
@@ -55,10 +55,10 @@ pub fn searched_states(limit: usize) -> Vec<(GameState, u8, u64)> {
         .collect()
 }
 
-/// The reference `standard` budget (the strengthened `fast` preset) with every mechanism off,
+/// The reference `standard` budget (`reference_mapping(Preset::Fast)`) with every mechanism off,
 /// then the `field=value` overrides of `flags`.
 pub fn config(flags: &[(&str, &str)]) -> StrengthenedConfig {
-    let mut cfg = preset_config(Preset::Fast).clone();
+    let mut cfg = reference_mapping(Preset::Fast).clone();
     cfg.mechanisms = gcg_search::MechanismFlags::NULL;
     for (field, value) in flags {
         assert_eq!(

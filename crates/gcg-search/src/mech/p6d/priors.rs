@@ -140,14 +140,14 @@ mod tests {
     use crate::mech::p6o::math::Math;
     use crate::mech::tests::searched_states;
     use crate::tree::Tree;
-    use crate::{Preset, preset_config};
+    use crate::{Preset, reference_mapping};
     use gcg_ai::{canonical, option_scores};
     use gcg_engine::observe::determinize;
     use gcg_engine::{Action, GameState};
 
     /// The priors of node 0 after the worlds `order` (indices into `worlds`) reach it.
     fn priors_after(st: &GameState, player: u8, worlds: &[GameState], order: &[usize]) -> Vec<u64> {
-        let cfg = preset_config(Preset::Fast);
+        let cfg = reference_mapping(Preset::Fast);
         let mut tree = Tree::default();
         let node = tree.new_node();
         let mut all: Vec<ChildKey> = Vec::new();

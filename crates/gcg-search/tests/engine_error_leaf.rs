@@ -1,9 +1,11 @@
 //! `engine_error_leaf` (W-143, W-110): the strategic fuzz game that failed
 //! (`gcg-diff fuzz --games 400 --seed 2026 --agent search:fast`, game index 221, game seed
 //! 11012090770908643750) reaches the GD04-095 redirect cycle `[36, 3, 36]` inside a rollout of
-//! the strengthened search. With the flag on (the shipped presets) the simulated line scores as a
+//! the strengthened search at the reference `standard` budget (`reference_mapping(Fast)`, the
+//! shipped `fast` preset when the game failed). With the flag on the simulated line scores as a
 //! loss and the real game completes; with the flag off the same decision fails with the engine's
-//! `RedirectCycle` (Python's `RecursionError`), as before.
+//! `RedirectCycle` (Python's `RecursionError`), as before. The shipped `fast` preset (the flag
+//! on) finishes the game too.
 
 use std::num::NonZeroUsize;
 use std::sync::Arc;
@@ -14,7 +16,9 @@ use gcg_core::pool::{Cancel, Pool, TaskCx};
 use gcg_diff::fuzz::{AgentKind, AgentSpec, FuzzArgs, Pools, play_one};
 use gcg_effects::Registry;
 use gcg_engine::{EngineError, GameState, NewGameOptions, apply, new_game_by_number};
-use gcg_search::{MechanismEffort, Preset, SearchAgent, make_search_agent, preset_config};
+use gcg_search::{
+    MechanismEffort, Preset, SearchAgent, make_search_agent, preset_config, reference_mapping,
+};
 
 const MASTER: u64 = 2026;
 const INDEX: u64 = 221;
@@ -95,17 +99,22 @@ fn the_failing_fuzz_game_completes_with_the_shipped_preset() {
     let out = play_one(&reg, &pools, INDEX, &args);
     assert_eq!(out.seed, GAME_SEED);
     assert!(out.ok && out.finished, "{:?}", out.error);
-    // The same game through the concrete agents: the simulated redirect cycles were scored as
-    // losses and counted, and the real game finished with the same number of actions.
-    let (outcome, effort) = play(preset_config(Preset::Fast));
+    // The same game through the concrete agents finishes with the same number of actions.
+    let (outcome, _) = play(preset_config(Preset::Fast));
     let (actions, _) = outcome.expect("the game completes");
     assert_eq!(u64::try_from(actions).expect("a count"), out.actions);
+    // At the configuration the game failed with, the simulated redirect cycles were scored as
+    // losses and counted, and the real game finished.
+    let failing = reference_mapping(Preset::Fast);
+    assert!(failing.mechanisms.engine_error_leaf);
+    let (outcome, effort) = play(failing);
+    outcome.expect("the game completes");
     assert!(effort.engine_error_leaves > 0, "{effort:?}");
 }
 
 #[test]
 fn without_the_flag_the_cycle_fails_the_game_as_before() {
-    let mut cfg = preset_config(Preset::Fast).clone();
+    let mut cfg = reference_mapping(Preset::Fast).clone();
     cfg.mechanisms.engine_error_leaf = false;
     let (outcome, effort) = play(&cfg);
     match outcome {

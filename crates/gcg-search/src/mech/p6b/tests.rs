@@ -419,7 +419,7 @@ pub(super) fn null_standard() -> StrengthenedConfig {
 }
 
 fn config(flags: &[&str]) -> StrengthenedConfig {
-    let mut cfg = crate::preset_config(Preset::Fast).clone();
+    let mut cfg = crate::reference_mapping(Preset::Fast).clone();
     cfg.mechanisms = MechanismFlags::NULL;
     for f in flags {
         assert_eq!(cfg.mechanisms.set_text(f, "true"), Some(Ok(())));

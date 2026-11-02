@@ -20,7 +20,7 @@ use super::super::PregameCx;
 use super::mulligan::{OPENING_TURNS, mulligan_rollout};
 use super::play_draw::{PLAY_DRAW_ROLLOUT, choose_with};
 use super::sim::{Ending, Rollout, simulate};
-use crate::{MechanismFlags, Observation, Preset, StrengthenedConfig, preset_config};
+use crate::{MechanismFlags, Observation, Preset, StrengthenedConfig, reference_mapping};
 
 /// One pre-game record: the state (with `edit` applied to its canonical JSON), the deciding seat
 /// and the per-decision seed.
@@ -66,7 +66,7 @@ fn records(kind: &str, edit: impl Fn(&mut Value)) -> Vec<Record> {
 /// `fast` (reference `standard` budgets) with only the P6-H flags `paired_mulligan` and
 /// `exclude_capped_play_draw` set as given.
 fn config(mulligan: bool, play_draw: bool) -> StrengthenedConfig {
-    let mut cfg = preset_config(Preset::Fast).clone();
+    let mut cfg = reference_mapping(Preset::Fast).clone();
     cfg.mechanisms = MechanismFlags::NULL;
     cfg.mechanisms.paired_mulligan = mulligan;
     cfg.mechanisms.exclude_capped_play_draw = play_draw;
@@ -247,7 +247,7 @@ fn mulligan_lines_play_the_opening_turns_on_shared_worlds() {
     let recs = records("redraw", |_| {});
     // The reference `standard` and `strong` budgets: the starting points of `fast` and `standard`.
     for preset in [Preset::Fast, Preset::Standard] {
-        let mut cfg = preset_config(preset).clone();
+        let mut cfg = reference_mapping(preset).clone();
         cfg.mechanisms = MechanismFlags::NULL;
         cfg.mechanisms.paired_mulligan = true;
         let seeds: Vec<u64> = (0..cfg.mulligan_samples).map(u64::from).collect();

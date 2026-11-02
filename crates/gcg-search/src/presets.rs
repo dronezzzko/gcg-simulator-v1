@@ -1,10 +1,20 @@
-//! The shipped `gcg-sim` presets of the strengthened search (PLAN §6.4) and the
+//! The shipped `gcg-sim` presets of the strengthened search (PLAN §6.4, §12.8) and the
 //! configuration helpers the search reads.
 //!
 //! The presets start from the reference presets as the brief maps them: `standard` from
 //! reference `strong`, `fast` from reference `standard` (`ai/config.py:93-109`), renamed, with
-//! `ROLE_WEIGHTS` (`DEFAULT_WEIGHTS`, `ai/evaluation.py:129`). Of the Phase 6 mechanisms only
-//! `engine_error_leaf` is on so far; the packages adopt theirs and §12.8 tunes the budgets.
+//! `ROLE_WEIGHTS` (`DEFAULT_WEIGHTS`, `ai/evaluation.py:129`). M15 (PLAN §12.8) changed only
+//! the three budget fields, scaled from the mapped reference preset's, and the mechanisms;
+//! every other search setting is the mapped reference preset's:
+//!
+//! | Preset | Mapping | Budget scale | `iterations_per_option` | `min_iterations` | `max_iterations` |
+//! | --- | --- | ---: | ---: | ---: | ---: |
+//! | `standard` | reference `strong` (128 / 320 / 1280) | 8 | 1024 | 2560 | 10240 |
+//! | `fast` | reference `standard` (64 / 160 / 640) | 1.5 | 96 | 240 | 960 |
+//!
+//! Both presets run the same mechanisms (`SHIPPED_MECHANISMS`). The measurements behind the
+//! choice are in `docs/port/eval/M15/README.md` (bundle and leave-one-out rows, budget curves,
+//! per-game cost).
 
 use std::borrow::Cow;
 use std::sync::LazyLock;
@@ -14,14 +24,16 @@ use gcg_core::stable_hash::StableHasher;
 
 use crate::{MechanismFlags, OpponentList, Preset, StrengthenedConfig};
 
-/// The mechanisms of both shipped presets, every field spelled out: the reference everywhere
-/// except that a simulated line ending in an engine error scores as a loss instead of failing
-/// the real game (W-143).
+/// The mechanisms of both shipped presets, every field spelled out (M15 bundle,
+/// `docs/port/eval/M15/README.md`): the adaptive horizon (W-01) with the capped-rollout
+/// continuation (W-15), the tactical solver in rollouts (W-03), capped play/draw simulations
+/// excluded from the paired estimate (W-44), and a simulated line ending in an engine error
+/// scored as a loss instead of failing the real game (W-143). Everything else is the reference.
 const SHIPPED_MECHANISMS: MechanismFlags = MechanismFlags {
-    adaptive_horizon: false,
+    adaptive_horizon: true,
     generalized_leaf: false,
-    capped_rollout_continuation: false,
-    tactical_solver: false,
+    capped_rollout_continuation: true,
+    tactical_solver: true,
     lethal_root: false,
     threat_leaf: false,
     critical_extension: false,
@@ -66,18 +78,19 @@ const SHIPPED_MECHANISMS: MechanismFlags = MechanismFlags {
     no_tempo_feature: false,
     determinized_fit: false,
     leaf_density: false,
-    exclude_capped_play_draw: false,
+    exclude_capped_play_draw: true,
     paired_mulligan: false,
     portable_math: false,
     engine_error_leaf: true,
 };
 
-/// `standard`: reference `strong` (`ai/config.py:98-109`), every field spelled out.
+/// `standard`: reference `strong` (`ai/config.py:98-109`) at 8 times its budget, every field
+/// spelled out.
 static STANDARD: LazyLock<StrengthenedConfig> = LazyLock::new(|| StrengthenedConfig {
     name: Cow::Borrowed("standard"),
-    max_iterations: 1280,
-    min_iterations: 320,
-    iterations_per_option: 128,
+    max_iterations: 10240,
+    min_iterations: 2560,
+    iterations_per_option: 1024,
     exploration: 0.15,
     prior_weight: 0.5,
     prior_temperature: 1.5,
@@ -102,12 +115,13 @@ static STANDARD: LazyLock<StrengthenedConfig> = LazyLock::new(|| StrengthenedCon
     mechanisms: SHIPPED_MECHANISMS,
 });
 
-/// `fast`: reference `standard` (`ai/config.py:93-97`), every field spelled out.
+/// `fast`: reference `standard` (`ai/config.py:93-97`) at 1.5 times its budget, every field
+/// spelled out.
 static FAST: LazyLock<StrengthenedConfig> = LazyLock::new(|| StrengthenedConfig {
     name: Cow::Borrowed("fast"),
-    max_iterations: 640,
-    min_iterations: 160,
-    iterations_per_option: 64,
+    max_iterations: 960,
+    min_iterations: 240,
+    iterations_per_option: 96,
     exploration: 0.3,
     prior_weight: 0.5,
     prior_temperature: 1.5,
@@ -138,6 +152,42 @@ pub fn preset_config(p: Preset) -> &'static StrengthenedConfig {
     match p {
         Preset::Standard => &STANDARD,
         Preset::Fast => &FAST,
+    }
+}
+
+/// `p`'s preset at its mapped reference preset's budget with only `engine_error_leaf` on: the
+/// reference settings, renamed (the shipped preset before M15, PLAN §12.8's starting point).
+fn mapped_reference(p: Preset) -> StrengthenedConfig {
+    let (iterations_per_option, min_iterations, max_iterations) = match p {
+        Preset::Standard => (128, 320, 1280),
+        Preset::Fast => (64, 160, 640),
+    };
+    let mut mechanisms = MechanismFlags::NULL;
+    mechanisms.engine_error_leaf = true;
+    StrengthenedConfig {
+        iterations_per_option,
+        min_iterations,
+        max_iterations,
+        mechanisms,
+        ..preset_config(p).clone()
+    }
+}
+
+static STANDARD_REFERENCE: LazyLock<StrengthenedConfig> =
+    LazyLock::new(|| mapped_reference(Preset::Standard));
+static FAST_REFERENCE: LazyLock<StrengthenedConfig> =
+    LazyLock::new(|| mapped_reference(Preset::Fast));
+
+/// The configuration a shipped preset starts from (PLAN §12.8): its mapped reference preset
+/// (`standard` from reference `strong`, `fast` from reference `standard`) with every reference
+/// setting and budget, renamed, `ROLE_WEIGHTS`, and only `engine_error_leaf` on. Tests that
+/// measure a mechanism at the reference budgets start from it; the shipped presets are
+/// [`preset_config`].
+#[must_use]
+pub fn reference_mapping(p: Preset) -> &'static StrengthenedConfig {
+    match p {
+        Preset::Standard => &STANDARD_REFERENCE,
+        Preset::Fast => &FAST_REFERENCE,
     }
 }
 
@@ -234,14 +284,42 @@ mod tests {
     use super::*;
 
     #[test]
-    fn presets_start_from_the_mapped_reference_budgets() {
+    fn presets_scale_the_mapped_reference_budgets() {
         let standard = preset_config(Preset::Standard);
         let fast = preset_config(Preset::Fast);
         assert_eq!(standard.agent_name(), Preset::Standard.agent_name());
         assert_eq!(fast.agent_name(), Preset::Fast.agent_name());
         let budgets = |c: &StrengthenedConfig| [1, 2, 3, 5, 10, 20, 30].map(|n| c.budget(n));
-        assert_eq!(budgets(standard), [320, 320, 384, 640, 1280, 1280, 1280]);
-        assert_eq!(budgets(fast), [160, 160, 192, 320, 640, 640, 640]);
+        // Reference `strong` (320, 320, 384, 640, 1280, 1280, 1280) times 8.
+        assert_eq!(
+            budgets(standard),
+            [2560, 2560, 3072, 5120, 10240, 10240, 10240]
+        );
+        // Reference `standard` (160, 160, 192, 320, 640, 640, 640) times 1.5.
+        assert_eq!(budgets(fast), [240, 240, 288, 480, 960, 960, 960]);
+        let (standard_ref, fast_ref) = (
+            reference_mapping(Preset::Standard),
+            reference_mapping(Preset::Fast),
+        );
+        assert_eq!(
+            budgets(standard_ref),
+            [320, 320, 384, 640, 1280, 1280, 1280]
+        );
+        assert_eq!(budgets(fast_ref), [160, 160, 192, 320, 640, 640, 640]);
+        // A preset and its starting point differ only in the budget and the mechanisms.
+        for p in Preset::ALL {
+            let start = reference_mapping(p);
+            assert_eq!(start.mechanisms.enabled(), ["engine_error_leaf"]);
+            let shipped = preset_config(p);
+            let rebudgeted = StrengthenedConfig {
+                iterations_per_option: start.iterations_per_option,
+                min_iterations: start.min_iterations,
+                max_iterations: start.max_iterations,
+                mechanisms: start.mechanisms,
+                ..shipped.clone()
+            };
+            assert_eq!(&rebudgeted, start);
+        }
         assert_eq!(standard.weights, ROLE_WEIGHTS);
         assert_eq!(fast.knobs().burst_yes_score.to_bits(), 4.0f64.to_bits());
         assert!(fast.knobs().rule_polarity_table && fast.knobs().zero_ap_face);
@@ -274,7 +352,14 @@ mod tests {
         assert_eq!(cfg.mechanisms.set_text("root_trees", "4"), Some(Ok(())));
         assert_eq!(
             search_settings(Preset::Fast, &cfg).mechanisms,
-            ["engine_error_leaf", "root_trees"]
+            [
+                "adaptive_horizon",
+                "capped_rollout_continuation",
+                "engine_error_leaf",
+                "exclude_capped_play_draw",
+                "root_trees",
+                "tactical_solver"
+            ]
         );
     }
 
@@ -304,10 +389,20 @@ mod tests {
     }
 
     #[test]
-    fn shipped_presets_enable_only_the_engine_error_leaf() {
+    fn shipped_presets_enable_the_m15_bundle() {
         for p in Preset::ALL {
             let cfg = preset_config(p);
-            assert_eq!(cfg.mechanisms.enabled(), ["engine_error_leaf"]);
+            assert_eq!(
+                cfg.mechanisms.enabled(),
+                [
+                    "adaptive_horizon",
+                    "capped_rollout_continuation",
+                    "engine_error_leaf",
+                    "exclude_capped_play_draw",
+                    "tactical_solver"
+                ]
+            );
+            assert_eq!(cfg.mechanisms, SHIPPED_MECHANISMS);
             assert_eq!(cfg.check_mechanisms(), Ok(()));
         }
     }

@@ -21,7 +21,7 @@ use serde_json::Value;
 use super::noop;
 use crate::mcts::run;
 use crate::mech::Composed;
-use crate::{MechanismEffort, Observation, Preset, StrengthenedConfig, preset_config};
+use crate::{MechanismEffort, Observation, Preset, StrengthenedConfig, reference_mapping};
 
 /// The searched decisions of the D2 vectors (`crates/gcg-ai/tests/vectors/search/`), as
 /// `(state, player, per-decision seed)`.
@@ -58,7 +58,7 @@ fn searched_states() -> Vec<(GameState, u8, u64)> {
 
 /// `fast` (the reference `standard` budget) with every mechanism off but `on`.
 fn config(on: &[(&str, &str)]) -> StrengthenedConfig {
-    let mut cfg = preset_config(Preset::Fast).clone();
+    let mut cfg = reference_mapping(Preset::Fast).clone();
     cfg.mechanisms.engine_error_leaf = false;
     for &(f, v) in on {
         assert_eq!(cfg.mechanisms.set_text(f, v), Some(Ok(())), "{f}");
@@ -113,7 +113,7 @@ fn the_ported_no_effect_check_with_its_options_off_is_the_reference() {
         let obs = Observation::new(&st, player).expect("an observation");
         let info = obs.info();
         let dec = info.pending().expect("a decision");
-        let cfg = preset_config(Preset::Standard);
+        let cfg = reference_mapping(Preset::Standard);
         let moves: Vec<(MoveKey, Action)> = prune_dominated(
             info,
             &dec,
@@ -340,7 +340,7 @@ fn the_real_idle_line_never_replays_the_move_under_test() {
     let info = obs.info();
     let dec = info.pending().expect("a decision");
     let moves = reference_moves(info);
-    let cfg = preset_config(Preset::Standard);
+    let cfg = reference_mapping(Preset::Standard);
     // The per-decision generator of `search-standard` (seed 1), first decision: its first draw
     // is the no-effect world's seed (`ai/mcts.py:96`).
     let decision_seed = derive_seed(
@@ -450,7 +450,7 @@ fn a_forced_cap_hit_keeps_the_move() {
     let st = idle_siege_ploy();
     let dec = st.pending().expect("the main phase");
     let moves = reference_moves(&st);
-    let cfg = preset_config(Preset::Standard);
+    let cfg = reference_mapping(Preset::Standard);
     let (key, action) = *moves
         .iter()
         .find(|(k, _)| k.kind == ActionKind::PlayCommand)
@@ -579,7 +579,7 @@ fn without_the_exception_the_freedom_lethal_is_missed() {
     let dec = st.pending().expect("the target");
     // The reference prune keeps both targets: resting Freedom changes the derived view.
     assert_eq!(reference_moves(&st).len(), 2);
-    let cfg = preset_config(Preset::Fast);
+    let cfg = reference_mapping(Preset::Fast);
     let obs = Observation::new(&st, 0).expect("an observation");
     let mut found = 0;
     for seed in 1..=16u64 {

@@ -26,7 +26,7 @@ use super::{
 use crate::mcts::{pregame_with_applies, search_with_carry};
 use crate::{
     MechanismEffort, MechanismFlags, Observation, Preset, StrengthenedConfig, make_search_agent,
-    preset_config,
+    reference_mapping,
 };
 
 /// The pre-game decisions of `kind` in the D2 vectors, as `(state, player, per-decision seed)`.
@@ -92,7 +92,7 @@ fn root_judgements_are_the_aux_applies_of_a_p6e_search() {
 
 #[test]
 fn pre_game_simulations_report_their_applies_and_the_reference_reports_none() {
-    let mut on = preset_config(Preset::Fast).clone();
+    let mut on = reference_mapping(Preset::Fast).clone();
     on.mechanisms = MechanismFlags::NULL;
     on.mechanisms.paired_mulligan = true;
     on.mechanisms.exclude_capped_play_draw = true;

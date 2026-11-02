@@ -61,7 +61,30 @@ views 280 and worlds 100 traces; tier 2 holds coverage 468, fuzz 500, search 144
 
 ### End-to-end matrix
 
-Filled in from `build/comparison/equivalence/tally.txt` when the matrix run completes.
+`scripts/compare_python_vs_rust.sh equivalence` with its defaults (started 2026-11-02 01:06, 30 s
+after commit 6daf17f, whose tree the Rust binaries were built from; Python at d9d41af): 3 seeds (1, 2, 3) x 3 example pairings
+(red-green-zeon vs blue-white-federation, purple-white-tekkadan vs red-green-zeon,
+blue-white-federation vs purple-white-tekkadan) x `bo1` and `bo3` x reference presets `fast`,
+`standard` and `strong` x `--decision-log` off and on, at `--matches 10`, giving 108 Python
+configurations. Each Python baseline was generated under PYTHONHASHSEED 1 and 2 (216 runs, all
+108 pairs identical). The Rust run (`gcg-eval reference-benchmark`) was repeated at
+`--workers 1`, `4` and `10`, giving 324 comparisons of `results.json`, `games.ndjson`,
+`replays/*.json` and `summary.md` after masking the three implementation fields:
+
+| Dimension | Identical |
+| --- | ---: |
+| reference `fast` | 108/108 |
+| reference `standard` | 108/108 |
+| reference `strong` | 108/108 |
+| decision log off | 162/162 |
+| decision log on | 162/162 |
+| **total** | **324/324** |
+
+The run took 19 h 06 min of wall time (153,530 CPU-seconds, almost all of it Python).
+Per-configuration outputs and diffs are in `build/comparison/equivalence/` (not committed).
+The 100-match headline (reference `standard`, `bo3`, seed 1, red-green-zeon vs
+blue-white-federation, Rust at `--workers 1`, `4` and `10`) is recorded below when its run
+completes.
 
 ### Numbering-shift probe (PLAN §8.9, R1)
 

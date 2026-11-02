@@ -22,7 +22,7 @@ use crate::mcts::run;
 use crate::mech::{BackupCx, Composed, WorldCx};
 use crate::tree::{ChildKey, Tree};
 use crate::{
-    MechanismEffort, MechanismFlags, Observation, Preset, StrengthenedConfig, preset_config,
+    MechanismEffort, MechanismFlags, Observation, Preset, StrengthenedConfig, reference_mapping,
 };
 
 /// The searched decisions of the D2 vectors (`crates/gcg-ai/tests/vectors/search/`), as
@@ -60,7 +60,7 @@ fn searched_states() -> Vec<(GameState, u8, u64)> {
 
 /// `fast` (the reference `standard` budget) with every mechanism off but `on`.
 fn config(on: &[(&str, &str)]) -> StrengthenedConfig {
-    let mut cfg = preset_config(Preset::Fast).clone();
+    let mut cfg = reference_mapping(Preset::Fast).clone();
     cfg.mechanisms = MechanismFlags::NULL;
     for &(f, v) in on {
         assert_eq!(cfg.mechanisms.set_text(f, v), Some(Ok(())), "{f}");
@@ -147,11 +147,11 @@ fn settings_that_do_nothing_are_refused() {
         with(&[("belief_worlds", "4"), ("belief_last_n", "0")]),
         Err("belief_last_n must weigh at least 1 decision".to_owned())
     );
-    let mut cfg = preset_config(Preset::Fast).clone();
+    let mut cfg = reference_mapping(Preset::Fast).clone();
     assert_eq!(cfg.mechanisms.set_text("belief_last_n", "1"), Some(Ok(())));
     assert!(cfg.check_mechanisms().is_err());
     for refused in [("exact_pools", "true"), ("opponent_list", "archetype")] {
-        let mut cfg = preset_config(Preset::Fast).clone();
+        let mut cfg = reference_mapping(Preset::Fast).clone();
         assert_eq!(cfg.mechanisms.set_text(refused.0, refused.1), Some(Ok(())));
         assert_eq!(
             cfg.check_mechanisms(),

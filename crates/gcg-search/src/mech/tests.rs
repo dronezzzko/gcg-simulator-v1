@@ -16,7 +16,7 @@ use serde_json::Value;
 
 use super::{Composed, HorizonDecision, LeafCx, Mechanisms, RolloutCx, RootCx, WorldCx, reference};
 use crate::mcts::run;
-use crate::{MechanismEffort, Observation, Preset, StrengthenedConfig, preset_config};
+use crate::{MechanismEffort, Observation, Preset, StrengthenedConfig, reference_mapping};
 
 /// The searched decisions of the D2 vectors (`crates/gcg-ai/tests/vectors/search/`), as
 /// `(state, player, per-decision seed)`.
@@ -52,9 +52,10 @@ pub(crate) fn searched_states(limit: usize) -> Vec<(GameState, u8, u64)> {
         .collect()
 }
 
-/// `fast` with every mechanism off but those `flags` names.
+/// `fast` at the reference `standard` budget (`reference_mapping`) with every mechanism off but
+/// those `flags` names.
 pub(crate) fn config(flags: &[&str]) -> StrengthenedConfig {
-    let mut cfg = preset_config(Preset::Fast).clone();
+    let mut cfg = reference_mapping(Preset::Fast).clone();
     cfg.mechanisms.engine_error_leaf = false;
     for f in flags {
         assert_eq!(cfg.mechanisms.set_text(f, "true"), Some(Ok(())), "{f}");

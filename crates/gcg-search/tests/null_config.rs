@@ -16,7 +16,7 @@ use gcg_ai_reference::{BASELINE_STANDARD, BASELINE_WEIGHTS, FAST, PRESETS, STAND
 use gcg_effects::Registry;
 use gcg_engine::StateSnapshot;
 use gcg_engine::canon::from_canonical;
-use gcg_search::{Preset, preset_config};
+use gcg_search::{Preset, preset_config, reference_mapping};
 use serde_json::Value;
 
 use common::{both_pregames, both_searches, null_config, strengthened_search};
@@ -43,8 +43,45 @@ fn null_configurations_copy_every_reference_field() {
     let baseline = null_config(&BASELINE_STANDARD, BASELINE_WEIGHTS);
     assert_eq!(baseline.weights, TUNED_WEIGHTS);
     // The shipped presets: standard is reference strong and fast is reference standard,
-    // renamed (PLAN §6.4), with only the engine-error leaf on (W-143) until the Phase 6
-    // packages adopt their mechanisms.
+    // renamed (PLAN §6.4), with the M15 budgets and mechanisms (PLAN §12.8,
+    // docs/port/eval/M15/README.md); every other setting is the mapped reference preset's.
+    let shipped = |c: &gcg_search::StrengthenedConfig,
+                   name: &'static str,
+                   (ipo, min, max): (u32, u32, u32)| {
+        let mut c = c.clone();
+        c.name = name.into();
+        c.iterations_per_option = ipo;
+        c.min_iterations = min;
+        c.max_iterations = max;
+        for flag in [
+            "adaptive_horizon",
+            "capped_rollout_continuation",
+            "tactical_solver",
+            "exclude_capped_play_draw",
+            "engine_error_leaf",
+        ] {
+            assert_eq!(c.mechanisms.set_text(flag, "true"), Some(Ok(())), "{flag}");
+        }
+        c
+    };
+    assert_eq!(
+        shipped(
+            &null_config(&STRONG, DEFAULT_WEIGHTS),
+            "standard",
+            (1024, 2560, 10240)
+        ),
+        *preset_config(Preset::Standard)
+    );
+    assert_eq!(
+        shipped(
+            &null_config(&STANDARD, DEFAULT_WEIGHTS),
+            "fast",
+            (96, 240, 960)
+        ),
+        *preset_config(Preset::Fast)
+    );
+    // The configurations they start from: the mapped reference preset, renamed, with only the
+    // engine-error leaf on (W-143), the shipped presets before M15.
     let renamed = |c: &gcg_search::StrengthenedConfig, name: &'static str| {
         let mut c = c.clone();
         c.name = name.into();
@@ -53,11 +90,11 @@ fn null_configurations_copy_every_reference_field() {
     };
     assert_eq!(
         renamed(&null_config(&STRONG, DEFAULT_WEIGHTS), "standard"),
-        *preset_config(Preset::Standard)
+        *reference_mapping(Preset::Standard)
     );
     assert_eq!(
         renamed(&null_config(&STANDARD, DEFAULT_WEIGHTS), "fast"),
-        *preset_config(Preset::Fast)
+        *reference_mapping(Preset::Fast)
     );
     assert_ne!(
         null_config(&FAST, DEFAULT_WEIGHTS).agent_name(),
