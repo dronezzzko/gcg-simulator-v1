@@ -20,9 +20,10 @@ use crate::cli::{BenchmarkArgs, CommandError, Commands, DataStatusArgs, ReplayAr
 use crate::factory::SearchFactory;
 use crate::{CODE_DIGEST, PACKAGE_VERSION};
 
-/// The results schema `gcg-sim` writes: 1.1.0 until the Phase 6 schema 1.2.0 lands
-/// (docs/port/contracts.md open item O9); its `ai.preset` values are in the 1.1.0 enum.
-pub const SCHEMA: SchemaVersion = SchemaVersion::V1_1;
+/// The results schema `gcg-sim` writes: 1.2.0 (PLAN §12.7, A10; docs/port/contracts.md O9),
+/// with the strengthened search's `ai.search` and per-seat `ai.effort` and the corrected
+/// reproduce line of W-100 (A23). `gcg-eval reference-benchmark` keeps Python's 1.1.0.
+pub const SCHEMA: SchemaVersion = SchemaVersion::V1_2;
 
 /// The real command bodies of `gcg-sim`.
 #[derive(Debug)]
@@ -98,7 +99,7 @@ impl Commands for SimCommands {
         out: &mut dyn Write,
     ) -> Result<(), CommandError> {
         self.start()?;
-        data_status_command(args.json, PACKAGE_VERSION, CODE_DIGEST, out);
+        data_status_command(args.json, PACKAGE_VERSION, CODE_DIGEST, SCHEMA, out);
         self.finish(Ok(()))
     }
 

@@ -3,8 +3,9 @@
 //! `gcg_sim.cli.main`, run from the repository root), the `gcg-sim` binary run the same way
 //! gives the same exit status, stdout and stderr, byte for byte. Python's `versions.package`
 //! and `versions.code_digest` (the `data status` header and JSON) are replaced by the Rust
-//! build's values first; `prefix` cases agree up to CPython's `JSONDecodeError` text (PLAN
-//! A19).
+//! build's values first, and so is `versions.results_schema`: `gcg-sim` writes results 1.2.0
+//! (PLAN §12.7, A10; O9), which `data status` names where Python names its 1.1.0; `prefix`
+//! cases agree up to CPython's `JSONDecodeError` text (PLAN A19).
 //!
 //! The cases that re-simulate a game (`replay` of a saved replay) need the engine's game layer
 //! and run in `needs_engine_replay_transcripts_match_python`.
@@ -46,17 +47,29 @@ fn run(argv: &[&str]) -> Transcript {
     }
 }
 
-/// Python's text with its package version and code digest replaced by the Rust build's.
+/// Python's text with its package version, code digest and results schema version replaced by
+/// the Rust build's.
 fn masked(v: &Json, text: &str) -> String {
     let package = common::str_of(&v["package"]);
+    let (python_schema, schema) = (
+        gcg_data::RESULTS_SCHEMA_VERSION,
+        gcg_cli::commands::SCHEMA.as_str(),
+    );
     text.replace(common::str_of(&v["code_digest"]), gcg_cli::CODE_DIGEST)
         .replace(
-            &format!("gcg-sim {package} (results schema"),
-            &format!("gcg-sim {} (results schema", gcg_cli::PACKAGE_VERSION),
+            &format!("gcg-sim {package} (results schema {python_schema})"),
+            &format!(
+                "gcg-sim {} (results schema {schema})",
+                gcg_cli::PACKAGE_VERSION
+            ),
         )
         .replace(
             &format!("\"package\": \"{package}\""),
             &format!("\"package\": \"{}\"", gcg_cli::PACKAGE_VERSION),
+        )
+        .replace(
+            &format!("\"results_schema\": \"{python_schema}\""),
+            &format!("\"results_schema\": \"{schema}\""),
         )
 }
 
@@ -133,6 +146,9 @@ fn the_masking_touches_only_the_version_fields() {
     let python = common::str_of(&case["stdout"]);
     let rust = run(&["data", "status", "--json"]).stdout;
     assert_eq!(masked(&v, python), rust);
+    // The one value the results 1.2.0 bump changes (O9): Python's 1.1.0, gcg-sim's 1.2.0.
+    assert!(python.contains("\"results_schema\": \"1.1.0\""));
+    assert!(rust.contains("\"results_schema\": \"1.2.0\""));
     let tampered = python.replacen(
         "\"rules_version\": \"1.9.0\"",
         "\"rules_version\": \"1.9.1\"",

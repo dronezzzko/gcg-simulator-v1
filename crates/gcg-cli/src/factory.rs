@@ -3,9 +3,9 @@
 //! where Python's `default_agent_factory` (`runner/agents.py:56-63`) builds the reference
 //! search; the reference is not reachable from `gcg-sim` (PLAN §2.2, §6.5).
 
-use gcg_ai::{Agent, AgentError};
+use gcg_ai::{Agent, AgentError, SearchSettings};
 use gcg_runner::{AgentFactory, AgentSpec};
-use gcg_search::{Preset, make_agent, preset_config};
+use gcg_search::{Preset, make_agent, preset_config, search_settings};
 
 /// Builds `search-<preset>` agents through [`gcg_search::make_agent`].
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
@@ -44,6 +44,11 @@ impl AgentFactory for SearchFactory {
     fn describe(&self) -> String {
         self.preset.factory_description().to_owned()
     }
+
+    /// Results 1.2.0 `ai.search` (PLAN §12.7, O9): the preset's settings.
+    fn search_block(&self) -> Option<SearchSettings> {
+        Some(search_settings(self.preset, preset_config(self.preset)))
+    }
 }
 
 #[cfg(test)]
@@ -73,5 +78,16 @@ mod tests {
             SearchFactory::new(Preset::Standard).describe(),
             "gcg-search::make_agent('standard')"
         );
+    }
+
+    #[test]
+    fn the_search_block_is_the_presets() {
+        for p in Preset::ALL {
+            let block = SearchFactory::new(p)
+                .search_block()
+                .expect("a search block");
+            assert_eq!(block, search_settings(p, preset_config(p)));
+            assert_eq!((block.preset, block.mapping), (p.as_str(), p.mapping()));
+        }
     }
 }

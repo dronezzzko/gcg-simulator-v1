@@ -19,7 +19,7 @@ use std::fs;
 use std::path::{Path, PathBuf};
 use std::process::Command;
 
-use gcg_ai::{Agent, AgentError};
+use gcg_ai::{Agent, AgentError, SearchSettings};
 use gcg_core::pool::Cancel;
 use gcg_core::pyjson::Json;
 use gcg_runner::checkpoint::{CHECKPOINT_FILE, ResumeError, run_resumable};
@@ -28,8 +28,8 @@ use gcg_runner::reports::schema::{RESULTS_SCHEMA_V1_1, RESULTS_SCHEMA_V1_2};
 use gcg_runner::reports::set::{EXTREME_REPLAY_FILE, extreme_replay_name, is_report_entry};
 use gcg_runner::reports::writer::{deck_file_name, release_factory, written_decks};
 use gcg_runner::reports::{
-    ResultsData, SearchReport, SeatEffort, SetOptions, TimingHost, build_results_with,
-    reproduce_command, select_extremes, validate_results, write_report_set,
+    ResultsData, SetOptions, TimingHost, build_results_with, reproduce_command, select_extremes,
+    validate_results, write_report_set,
 };
 use gcg_runner::{
     AgentFactory, AgentSpec, BenchmarkConfig, BenchmarkRun, Format, GameRecord, Role, RunError,
@@ -128,15 +128,16 @@ fn without_timing(mut t: BTreeMap<String, Vec<u8>>) -> BTreeMap<String, Vec<u8>>
     t
 }
 
-fn search_report() -> SearchReport {
-    SearchReport {
+fn search_settings() -> SearchSettings {
+    SearchSettings {
+        preset: "fast",
         mapping: "reference standard",
         iterations_per_option: 64,
         min_iterations: 128,
         max_iterations: 640,
         aux_apply_cap: 0,
-        mechanisms: vec!["engine_error_leaf".to_owned()],
-        effort: [SeatEffort::default(); 2],
+        mechanisms: vec!["engine_error_leaf"],
+        weights: "ROLE_WEIGHTS".to_owned(),
     }
 }
 
@@ -181,7 +182,9 @@ fn schema_1_2_validates_a_run_with_its_search_block_and_rejects_without() {
     cfg.schema = SchemaVersion::V1_2;
     let mut run = run11.clone();
     run.config = cfg.clone();
-    let doc = build_results_with(&run, &data.clone().with_search(search_report()));
+    let without = run.clone();
+    run.search = Some(search_settings());
+    let doc = build_results_with(&run, &data);
     validate_results(&doc, SchemaVersion::V1_2).expect("1.2.0 with ai.search and ai.effort");
     assert_eq!(doc.get("schema_version"), Some(&Json::Str("1.2.0".into())));
     let v: Value = serde_json::from_str(&gcg_runner::reports::to_json_text(&doc)).expect("JSON");
@@ -189,16 +192,13 @@ fn schema_1_2_validates_a_run_with_its_search_block_and_rejects_without() {
     assert_eq!(v["ai"]["search"]["algorithm"], "gcg-search");
     assert_eq!(v["ai"]["effort"][1]["seat"], 1);
     // Negative controls: no search block; a reference preset; a 1.2.0 document as 1.1.0.
-    let err = validate_results(&build_results_with(&run, &data), SchemaVersion::V1_2)
+    let err = validate_results(&build_results_with(&without, &data), SchemaVersion::V1_2)
         .expect_err("ai.search is required");
     assert_eq!(err.pointer, "/ai");
     let mut strong = run.clone();
     strong.config.ai_preset = "strong";
-    let err = validate_results(
-        &build_results_with(&strong, &data.clone().with_search(search_report())),
-        SchemaVersion::V1_2,
-    )
-    .expect_err("strong is not a shipped preset");
+    let err = validate_results(&build_results_with(&strong, &data), SchemaVersion::V1_2)
+        .expect_err("strong is not a shipped preset");
     assert_eq!(err.pointer, "/ai/preset");
     assert!(validate_results(&doc, SchemaVersion::V1_1).is_err());
     // The 1.1.0 document of the same run is unchanged by the 1.2.0 support.
@@ -208,8 +208,9 @@ fn schema_1_2_validates_a_run_with_its_search_block_and_rejects_without() {
     );
     let summary = gcg_runner::reports::render_summary(&doc, &reproduce_command(&run));
     assert!(summary.contains(
-        "Search: `gcg-search` (reference standard mapping), 64 iterations per option (min 128, \
-         max 640, auxiliary apply cap 0), mechanisms: `engine_error_leaf`."
+        "Search: `gcg-search`, preset `fast` (reference standard mapping), 64 iterations per \
+         option (min 128, max 640, auxiliary apply cap 0 per iteration), mechanisms: \
+         `engine_error_leaf`, weights `ROLE_WEIGHTS`."
     ));
 }
 

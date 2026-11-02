@@ -14,7 +14,7 @@
 use std::io;
 use std::path::PathBuf;
 
-use gcg_ai::{Agent, AgentError, LogEntry};
+use gcg_ai::{Agent, AgentEffort, AgentError, LogEntry, SearchSettings};
 use gcg_core::SplitMix64;
 use gcg_core::sys::topology::Topology;
 use gcg_data::Deck;
@@ -215,6 +215,14 @@ pub trait AgentFactory: Sync {
     /// `gcg_ai_reference::FACTORY_DESCRIPTION`, `gcg_search::Preset::factory_description` and
     /// [`TestAgentKind::factory_description`].
     fn describe(&self) -> String;
+
+    /// The configuration of the strengthened search this factory's agents run, which the
+    /// runner records in [`BenchmarkRun::search`] for results 1.2.0 `ai.search` (PLAN §12.7,
+    /// O9): `Some` for the `gcg-sim` presets (`gcg_search::search_settings`), `None`, the
+    /// default, for every other factory (the reference search, the test agents).
+    fn search_block(&self) -> Option<SearchSettings> {
+        None
+    }
 }
 
 // ---------------------------------------------------------------------------------------------
@@ -279,6 +287,10 @@ pub struct GameRecord {
     /// Both seats' entries in decision order, or `None` without `--decision-log`
     /// (`runner/game.py:94-97`, `:165`).
     pub decision_log: Option<Vec<LogEntry>>,
+    /// Rust only (PLAN §12.7, O9): each seat's [`Agent::effort`] after the game's last
+    /// decision, `None` for an agent that reports none. Not part of `to_json`, so
+    /// `games.ndjson` keeps Python's keys; `--resume` checkpoints carry it.
+    pub effort: [Option<AgentEffort>; 2],
 }
 
 impl GameRecord {
@@ -328,6 +340,9 @@ pub struct BenchmarkRun {
     pub timing: RunTiming,
     /// `describe_factory(factory)` (`runner/run.py:139`).
     pub agent_factory: String,
+    /// Rust only (PLAN §12.7, O9): the factory's [`AgentFactory::search_block`], which results
+    /// 1.2.0 write as `ai.search`.
+    pub search: Option<SearchSettings>,
 }
 
 impl BenchmarkRun {

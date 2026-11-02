@@ -149,6 +149,7 @@ fn timing_json_records_the_tiers_and_the_workers_used() {
             },
             config: cfg,
             agent_factory: "random_agent.py:make_random_agent".to_owned(),
+            search: None,
         };
         let doc: serde_json::Value =
             serde_json::from_str(&to_json_text(&timing_json(&run, &TimingHost::rust())))

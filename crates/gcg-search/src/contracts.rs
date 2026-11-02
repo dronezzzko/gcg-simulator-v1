@@ -66,7 +66,7 @@
 use std::borrow::Cow;
 use std::str::FromStr;
 
-use gcg_ai::{AgentCore, Weights};
+use gcg_ai::{AgentCore, AgentEffort, Weights};
 
 use crate::MechanismFlags;
 
@@ -224,6 +224,9 @@ pub struct SearchAgent {
     pub(crate) config: StrengthenedConfig,
     /// The mechanism counters summed over the agent's decisions.
     pub(crate) effort: MechanismEffort,
+    /// Every decision and the search statistics it reported (`Agent::effort`, results 1.2.0
+    /// `ai.effort`, O9).
+    pub(crate) totals: AgentEffort,
     /// The trees the agent carries to its next decision (`subtree_reuse`, S7, W-11); empty
     /// while the flag is off.
     pub(crate) reuse: crate::mech::p6d::reuse::Carry,

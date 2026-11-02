@@ -12,8 +12,8 @@ use gcg_core::rng::SplitMix64;
 use gcg_engine::{Action, DecisionKind, GameState};
 
 use gcg_ai::{
-    Agent, AgentCx, AgentError, Alternative, DecisionTrace, LogEntry, NoTrace, SearchEffort,
-    SearchStats, SearchTracer,
+    Agent, AgentCx, AgentEffort, AgentError, Alternative, DecisionTrace, LogEntry, NoTrace,
+    SearchEffort, SearchStats, SearchTracer,
 };
 
 use crate::mcts::{pregame_with_applies, search_with_carry};
@@ -82,11 +82,13 @@ impl Agent for SearchAgent {
         let (dec, mut rng) = self.core.begin(st, player)?;
         let (action, alternatives) = if dec.options.len() == 1 {
             self.reuse.clear();
+            self.totals.record(None);
             (dec.options[0], Vec::new())
         } else {
             let obs = Observation::new(st, player)?;
-            let (action, alternatives, _) =
+            let (action, alternatives, search) =
                 self.decide(dec.hdr.kind, &mut rng, &obs, cx, &mut NoTrace)?;
+            self.totals.record(search.as_ref());
             (action, alternatives)
         };
         Ok(self.core.finish(st, player, action, &alternatives))
@@ -110,6 +112,7 @@ impl Agent for SearchAgent {
             let obs = Observation::new(st, player)?;
             self.decide(dec.hdr.kind, &mut rng, &obs, cx, tracer)?
         };
+        self.totals.record(search.as_ref());
         let action = self.core.finish(st, player, action, &alternatives);
         Ok((
             action,
@@ -126,6 +129,12 @@ impl Agent for SearchAgent {
     fn decision_log(&self) -> &[LogEntry] {
         self.core.entries()
     }
+
+    /// Every decision since the agent was built and the search statistics each reported
+    /// (`DecisionTrace::search`), the same for `choose` and `choose_traced` (O9).
+    fn effort(&self) -> Option<AgentEffort> {
+        Some(self.totals)
+    }
 }
 
 /// The strengthened agent `search-{cfg.name}` with its own copy of the configuration, as its
@@ -136,6 +145,7 @@ pub fn make_search_agent(cfg: &StrengthenedConfig, seed: u64, log: bool) -> Sear
         core: gcg_ai::AgentCore::new(cfg.agent_name(), seed, log),
         config: cfg.clone(),
         effort: MechanismEffort::default(),
+        totals: AgentEffort::default(),
         reuse: Carry::default(),
     }
 }

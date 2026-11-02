@@ -21,8 +21,9 @@
 use std::sync::{Arc, Mutex};
 
 use gcg_ai::{
-    Agent, AgentCx, AgentError, BASELINE_KNOBS, DecisionTrace, GREEDY_MAX_DECISIONS, LogEntry,
-    NoTrace, PruneFlags, SearchTracer, canonical, play_until_turn, prune_dominated,
+    Agent, AgentCx, AgentEffort, AgentError, BASELINE_KNOBS, DecisionTrace, GREEDY_MAX_DECISIONS,
+    LogEntry, NoTrace, PruneFlags, SearchSettings, SearchTracer, canonical, play_until_turn,
+    prune_dominated,
 };
 use gcg_core::SplitMix64;
 use gcg_core::pyjson::{DumpOptions, Json, dumps};
@@ -294,6 +295,10 @@ impl Agent for TracingAgent {
     fn decision_log(&self) -> &[LogEntry] {
         self.inner.decision_log()
     }
+
+    fn effort(&self) -> Option<AgentEffort> {
+        self.inner.effort()
+    }
 }
 
 /// A factory whose agents are [`TracingAgent`]s around `inner`'s.
@@ -314,6 +319,10 @@ impl AgentFactory for TracingFactory<'_> {
 
     fn describe(&self) -> String {
         self.inner.describe()
+    }
+
+    fn search_block(&self) -> Option<SearchSettings> {
+        self.inner.search_block()
     }
 }
 

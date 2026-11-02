@@ -6,7 +6,8 @@
 //! order. A later run with `--resume` and the same configuration reads the file, verifies the
 //! digest and plays only the missing matches. Every match is a pure function of the
 //! configuration, the master seed and its index (`runner/run.py:1-7`), and a record survives
-//! the JSON round trip unchanged (`GameRecord::to_json`/`from_json`), so the reports equal an
+//! the JSON round trip unchanged (`GameRecord::to_json`/`from_json`, plus the line's `effort`
+//! for the Rust-only per-seat search effort of results 1.2.0), so the reports equal an
 //! uninterrupted run's byte for byte (`timing.json` aside). A different configuration is
 //! refused; a final line cut short by a kill is ignored and its match played again.
 //!
@@ -37,6 +38,7 @@ use std::io::{self, Write};
 use std::path::{Path, PathBuf};
 use std::sync::Mutex;
 
+use gcg_ai::AgentEffort;
 use gcg_core::pool::Cancel;
 use gcg_core::pyjson::{DumpOptions, Json, dumps};
 use gcg_core::stable_hash::stable_key;
@@ -126,7 +128,45 @@ fn header(identity: &Json) -> String {
     line
 }
 
-/// One finished match as a checkpoint line.
+fn effort_json(e: Option<&AgentEffort>) -> Json {
+    e.map_or(Json::Null, |e| {
+        let mut o = Json::object();
+        o.set("decisions", e.decisions);
+        o.set("searches", e.searches);
+        o.set("iterations", e.iterations);
+        o.set("applies_tree", e.applies_tree);
+        o.set("applies_rollout", e.applies_rollout);
+        o.set("applies_aux", e.applies_aux);
+        o.set("worlds", e.worlds);
+        o.set("rollouts_capped", e.rollouts_capped);
+        o
+    })
+}
+
+fn effort_from_json(v: &Value) -> Result<Option<AgentEffort>, String> {
+    if v.is_null() {
+        return Ok(None);
+    }
+    let n = |k: &str| {
+        v.get(k)
+            .and_then(Value::as_u64)
+            .ok_or_else(|| format!("an effort entry needs the count {k}"))
+    };
+    Ok(Some(AgentEffort {
+        decisions: n("decisions")?,
+        searches: n("searches")?,
+        iterations: n("iterations")?,
+        applies_tree: n("applies_tree")?,
+        applies_rollout: n("applies_rollout")?,
+        applies_aux: n("applies_aux")?,
+        worlds: n("worlds")?,
+        rollouts_capped: n("rollouts_capped")?,
+    }))
+}
+
+/// One finished match as a checkpoint line. The games' Rust-only `effort` (results 1.2.0,
+/// O9), which `GameRecord::to_json` leaves out, goes under `effort`, one `[seat 0, seat 1]`
+/// pair per game, when any agent reported one.
 #[must_use]
 pub fn match_line(record: &MatchRecord, seconds: f64) -> String {
     let mut o = Json::object();
@@ -140,6 +180,24 @@ pub fn match_line(record: &MatchRecord, seconds: f64) -> String {
         "games",
         Json::Array(record.games.iter().map(GameRecord::to_json).collect()),
     );
+    if record
+        .games
+        .iter()
+        .any(|g| g.effort.iter().any(Option::is_some))
+    {
+        o.set(
+            "effort",
+            Json::Array(
+                record
+                    .games
+                    .iter()
+                    .map(|g| {
+                        Json::Array(g.effort.iter().map(|e| effort_json(e.as_ref())).collect())
+                    })
+                    .collect(),
+            ),
+        );
+    }
     let mut line = dumps(&o, DumpOptions::COMPACT_SORTED_ASCII);
     line.push('\n');
     line
@@ -175,13 +233,26 @@ pub fn parse_match_line(line: &str) -> Result<(MatchRecord, f64), String> {
         .and_then(outcome)
         .ok_or("a match line needs a winner")?;
     let seconds = v.get("seconds").and_then(Value::as_f64).unwrap_or(0.0);
-    let games = v
+    let mut games = v
         .get("games")
         .and_then(Value::as_array)
         .ok_or("a match line needs games")?
         .iter()
         .map(|g| GameRecord::from_json(g).map_err(|e| format!("game record: {e:?}")))
         .collect::<Result<Vec<GameRecord>, String>>()?;
+    if let Some(efforts) = v.get("effort") {
+        let efforts = efforts
+            .as_array()
+            .filter(|e| e.len() == games.len())
+            .ok_or("a match line's effort needs one entry per game")?;
+        for (g, pair) in games.iter_mut().zip(efforts) {
+            let pair = pair
+                .as_array()
+                .filter(|p| p.len() == 2)
+                .ok_or("a game's effort needs one entry per seat")?;
+            g.effort = [effort_from_json(&pair[0])?, effort_from_json(&pair[1])?];
+        }
+    }
     Ok((
         MatchRecord {
             match_index,
@@ -325,6 +396,7 @@ pub fn run_resumable(
         return Err(ResumeError::Checkpoint(message));
     }
     let mut run = result.map_err(ResumeError::Run)?;
+    run.search = f.search_block();
     for (i, record) in run.matches.iter().enumerate() {
         if let (Some((_, seconds)), Some(slot)) = (
             done.get(&record.match_index),

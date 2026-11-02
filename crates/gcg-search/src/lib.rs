@@ -22,4 +22,4 @@ pub use contracts::*;
 pub use flags::{FlagValue, MechanismFlags, OpponentList};
 pub use mcts::{pregame, search, search_with_effort};
 pub use observation::Observation;
-pub use presets::preset_config;
+pub use presets::{preset_config, search_settings, weights_id};

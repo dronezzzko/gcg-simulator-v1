@@ -102,6 +102,7 @@ fn game(m: u32, g: u32, winner: Outcome, turns: i32, drawn: &[&str]) -> GameReco
         turn_limit: 200,
         max_actions: 20_000,
         decision_log: None,
+        effort: [None, None],
     }
 }
 
@@ -146,6 +147,7 @@ fn run_of(cfg: BenchmarkConfig, matches: Vec<Vec<GameRecord>>) -> BenchmarkRun {
             },
         },
         agent_factory: "synthetic".to_owned(),
+        search: None,
     }
 }
 

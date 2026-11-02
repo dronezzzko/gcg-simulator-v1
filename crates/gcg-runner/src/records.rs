@@ -137,7 +137,8 @@ impl GameRecord {
     }
 
     /// `GameRecord.from_json` (`runner/records.py:134-162`): a missing `decision_log` key reads
-    /// as `None`, as `d.get("decision_log")` does.
+    /// as `None`, as `d.get("decision_log")` does. The Rust-only `effort` is not in the JSON
+    /// and reads as `[None, None]`.
     ///
     /// # Errors
     /// [`SchemaError`] naming the first missing key or value of the wrong type.
@@ -226,6 +227,7 @@ impl GameRecord {
             turn_limit: i32_of(field(v, "turn_limit", &at)?, &at.key("turn_limit"))?,
             max_actions: i64_of(field(v, "max_actions", &at)?, &at.key("max_actions"))?,
             decision_log,
+            effort: [None, None],
         })
     }
 }

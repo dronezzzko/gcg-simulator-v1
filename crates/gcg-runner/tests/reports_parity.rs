@@ -213,6 +213,7 @@ fn load(id: &str, kind: &str) -> Fixture {
             matches,
             timing,
             agent_factory: str_of(&spec["agent_factory"]).to_owned(),
+            search: None,
         },
         data,
         host,

@@ -145,8 +145,8 @@ fn capitalize(s: &str) -> String {
     })
 }
 
-/// The "search" line of results 1.2.0 (PLAN §12.7): the strengthened search's mapping,
-/// budget and enabled mechanisms; absent from 1.1.0 documents.
+/// The "search" line of results 1.2.0 (PLAN §12.7): the strengthened search's preset and its
+/// mapping, budget, enabled mechanisms and weights; absent from 1.1.0 documents.
 fn search_line(ai: &Json) -> Option<String> {
     let s = ai.get("search")?;
     let b = get(s, "budget");
@@ -155,9 +155,10 @@ fn search_line(ai: &Json) -> Option<String> {
         .map(|m| format!("`{}`", py_str(m)))
         .collect();
     Some(format!(
-        "Search: `{}` ({} mapping), {} iterations per option (min {}, max {}, auxiliary apply \
-         cap {}), mechanisms: {}.",
+        "Search: `{}`, preset `{}` ({} mapping), {} iterations per option (min {}, max {}, \
+         auxiliary apply cap {} per iteration), mechanisms: {}, weights `{}`.",
         py_str(get(s, "algorithm")),
+        py_str(get(s, "preset")),
         py_str(get(s, "mapping")),
         py_str(get(b, "iterations_per_option")),
         py_str(get(b, "min_iterations")),
@@ -167,7 +168,8 @@ fn search_line(ai: &Json) -> Option<String> {
             "none".to_owned()
         } else {
             mechanisms.join(", ")
-        }
+        },
+        py_str(get(s, "weights")),
     ))
 }
 

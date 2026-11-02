@@ -58,7 +58,8 @@ const TARGET_KINDS: [DecisionKind; 4] = [
 
 /// The auxiliary engine applies a decision may spend per iteration of its cap
 /// (`macro_multi_pick`'s trial picks); past it, a multi-card choice keeps its single picks.
-const AUX_APPLIES_PER_ITERATION: u64 = 16;
+/// Results 1.2.0 report it as `ai.search.budget.aux_apply_cap` (PLAN §12.7).
+pub const AUX_APPLIES_PER_ITERATION: u64 = 16;
 
 /// `_child_key(dec, key, cfg)` (`ai/mcts.py:267-268`).
 fn child_key(dec: &DecisionView<'_>, key: MoveKey, cfg: &StrengthenedConfig) -> ChildKey {

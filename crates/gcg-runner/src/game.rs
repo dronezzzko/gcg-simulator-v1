@@ -288,6 +288,7 @@ pub fn play_game(
         turn_limit: cfg.turn_limit,
         max_actions: cfg.max_actions,
         decision_log: log,
+        effort: [agents[0].effort(), agents[1].effort()],
     })
 }
 
@@ -407,6 +408,7 @@ pub(crate) mod tests {
             turn_limit: 200,
             max_actions: 20_000,
             decision_log: None,
+            effort: [None, None],
         }
     }
 

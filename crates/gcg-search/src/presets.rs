@@ -9,7 +9,8 @@
 use std::borrow::Cow;
 use std::sync::LazyLock;
 
-use gcg_ai::{PolicyKnobs, ROLE_WEIGHTS};
+use gcg_ai::{HAND_WEIGHTS, PolicyKnobs, ROLE_WEIGHTS, SearchSettings, TUNED_WEIGHTS, Weights};
+use gcg_core::stable_hash::StableHasher;
 
 use crate::{MechanismFlags, OpponentList, Preset, StrengthenedConfig};
 
@@ -140,6 +141,55 @@ pub fn preset_config(p: Preset) -> &'static StrengthenedConfig {
     }
 }
 
+/// The named weight tables `weights_id` recognises, in the order it checks them.
+static NAMED_WEIGHTS: [(&str, &Weights); 3] = [
+    ("ROLE_WEIGHTS", &ROLE_WEIGHTS),
+    ("TUNED_WEIGHTS", &TUNED_WEIGHTS),
+    ("HAND_WEIGHTS", &HAND_WEIGHTS),
+];
+
+/// The identity of evaluation weights in results 1.2.0 `ai.search.weights` (PLAN §12.7): the
+/// name of the shipped table whose feature set and bit patterns they equal, otherwise
+/// `<feature set>:<16 hex digits>`, the stable key of the feature set and the little-endian
+/// bit patterns (`gcg_core::stable_hash`), so any other weights get their own identity.
+#[must_use]
+pub fn weights_id(w: &Weights) -> String {
+    let bits = |x: &Weights| -> Vec<u64> { x.values().iter().map(|v| v.to_bits()).collect() };
+    if let Some((name, _)) = NAMED_WEIGHTS
+        .iter()
+        .find(|(_, t)| t.feature_set() == w.feature_set() && bits(t) == bits(w))
+    {
+        return (*name).to_owned();
+    }
+    let mut h = StableHasher::new();
+    h.update(w.feature_set().as_str().as_bytes());
+    h.update(&[0]);
+    for b in bits(w) {
+        h.update(&b.to_le_bytes());
+    }
+    format!("{}:{:016x}", w.feature_set().as_str(), h.finish().0)
+}
+
+/// The results 1.2.0 `ai.search` settings (PLAN §12.7, O9) of the strengthened search with
+/// configuration `cfg` for the shipped preset `preset` (`cfg` is `preset_config(preset)`,
+/// possibly with overridden mechanisms): the preset, its reference mapping, the iteration
+/// budget, the auxiliary apply cap ([`crate::mcts::AUX_APPLIES_PER_ITERATION`]), the enabled
+/// mechanisms (sorted) and the weights' identity ([`weights_id`]). The agent factories of
+/// `gcg-sim` and `gcg-eval benchmark` return it from `AgentFactory::search_block`.
+#[must_use]
+pub fn search_settings(preset: Preset, cfg: &StrengthenedConfig) -> SearchSettings {
+    SearchSettings {
+        preset: preset.as_str(),
+        mapping: preset.mapping(),
+        iterations_per_option: cfg.iterations_per_option,
+        min_iterations: cfg.min_iterations,
+        max_iterations: cfg.max_iterations,
+        aux_apply_cap: crate::mcts::AUX_APPLIES_PER_ITERATION,
+        mechanisms: cfg.mechanisms.enabled(),
+        weights: weights_id(&cfg.weights),
+    }
+}
+
 impl StrengthenedConfig {
     /// `budget(n_options)` (`ai/config.py:55-57`):
     /// `max(min_iterations, min(max_iterations, iterations_per_option * n_options))` in exact
@@ -195,6 +245,62 @@ mod tests {
         assert_eq!(standard.weights, ROLE_WEIGHTS);
         assert_eq!(fast.knobs().burst_yes_score.to_bits(), 4.0f64.to_bits());
         assert!(fast.knobs().rule_polarity_table && fast.knobs().zero_ap_face);
+    }
+
+    #[test]
+    fn search_settings_describe_each_preset() {
+        for (p, mapping) in [
+            (Preset::Standard, "reference strong"),
+            (Preset::Fast, "reference standard"),
+        ] {
+            let cfg = preset_config(p);
+            let s = search_settings(p, cfg);
+            assert_eq!(s.preset, p.as_str());
+            assert_eq!(s.mapping, mapping);
+            assert_eq!(
+                (s.iterations_per_option, s.min_iterations, s.max_iterations),
+                (
+                    cfg.iterations_per_option,
+                    cfg.min_iterations,
+                    cfg.max_iterations
+                )
+            );
+            assert_eq!(s.aux_apply_cap, crate::mcts::AUX_APPLIES_PER_ITERATION);
+            assert_eq!(s.mechanisms, cfg.mechanisms.enabled());
+            assert_eq!(s.weights, "ROLE_WEIGHTS");
+        }
+        // An overridden mechanism shows up in the settings, sorted by name.
+        let mut cfg = preset_config(Preset::Fast).clone();
+        assert_eq!(cfg.mechanisms.set_text("root_trees", "4"), Some(Ok(())));
+        assert_eq!(
+            search_settings(Preset::Fast, &cfg).mechanisms,
+            ["engine_error_leaf", "root_trees"]
+        );
+    }
+
+    #[test]
+    fn weights_have_a_name_or_a_digest() {
+        assert_eq!(weights_id(&ROLE_WEIGHTS), "ROLE_WEIGHTS");
+        assert_eq!(weights_id(&TUNED_WEIGHTS), "TUNED_WEIGHTS");
+        assert_eq!(weights_id(&HAND_WEIGHTS), "HAND_WEIGHTS");
+        let with_first = |x: f64| {
+            let mut v = ROLE_WEIGHTS.values().to_vec();
+            v[0] = x;
+            weights_id(&Weights::new(v, ROLE_WEIGHTS.feature_set()).expect("17 weights"))
+        };
+        assert_eq!(with_first(ROLE_WEIGHTS.values()[0]), "ROLE_WEIGHTS");
+        let (negative, positive) = (with_first(-0.0), with_first(0.0));
+        assert!(
+            negative.starts_with("roles:") && negative.len() == "roles:".len() + 16,
+            "{negative}"
+        );
+        // Bit patterns, not values: -0.0 and 0.0 are different weights.
+        assert_ne!(negative, positive);
+        assert_eq!(negative, with_first(-0.0));
+        // Weights rebuilt from a table's values are that table.
+        let base = Weights::new(TUNED_WEIGHTS.values().to_vec(), TUNED_WEIGHTS.feature_set())
+            .expect("14 weights");
+        assert_eq!(weights_id(&base), "TUNED_WEIGHTS");
     }
 
     #[test]

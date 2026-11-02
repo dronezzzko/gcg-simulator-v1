@@ -31,18 +31,21 @@ pub fn run_benchmark(
     progress: &mut dyn FnMut(u32, u32),
     cancel: &Cancel,
 ) -> Result<BenchmarkRun, RunError> {
-    run_matches(
+    let mut run = run_matches(
         cfg,
         &topology::detect(),
         f.describe(),
         progress,
         cancel,
         &|m, cx| play_match(cfg, m, f, cx),
-    )
+    )?;
+    run.search = f.search_block();
+    Ok(run)
 }
 
 /// [`run_benchmark`] over any match player, so the pool orchestration (match order, progress
-/// counts, the lowest failing index, interrupts) is testable on scripted matches.
+/// counts, the lowest failing index, interrupts) is testable on scripted matches. The run's
+/// `search` is `None`; the caller sets the factory's search block.
 pub(crate) fn run_matches(
     cfg: &BenchmarkConfig,
     topology: &Topology,
@@ -91,6 +94,7 @@ pub(crate) fn run_matches(
             topology: topology.clone(),
         },
         agent_factory,
+        search: None,
     })
 }
 

@@ -24,7 +24,7 @@
 use std::io::Write;
 use std::path::{Path, PathBuf};
 
-use gcg_ai::{Agent, AgentError};
+use gcg_ai::{Agent, AgentError, SearchSettings};
 use gcg_core::pool::Cancel;
 use gcg_core::pyjson::Json;
 use gcg_data::py_path_str;
@@ -46,17 +46,19 @@ use gcg_runner::{
     AgentFactory, AgentSpec, BenchmarkConfig, DEFAULT_OUT_DIR, DEFAULT_REPLAYS, Format, GameRecord,
     Outcome, ReportError, RunError, SchemaVersion, Workers, run_benchmark,
 };
-use gcg_search::{OpponentList, Preset, StrengthenedConfig, make_agent, preset_config};
+use gcg_search::{
+    OpponentList, Preset, StrengthenedConfig, make_agent, preset_config, search_settings,
+};
 use serde_json::Value as JsonValue;
 
 use crate::bench_cmd::CommandError;
 use crate::build_info::{CODE_DIGEST, PACKAGE_VERSION};
 use crate::cli::{PROG, WORKERS_HELP};
 
-/// The results schema `gcg-sim benchmark` writes (`gcg-cli`'s `commands::SCHEMA`): 1.1.0 until
-/// the strengthened search reports `ai.search` and `ai.effort` (docs/port/contracts.md O9).
-/// `gcg-eval benchmark` writes the same, so T-153 holds.
-pub const SIM_SCHEMA: SchemaVersion = SchemaVersion::V1_1;
+/// The results schema `gcg-sim benchmark` writes (`gcg-cli`'s `commands::SCHEMA`): 1.2.0, with
+/// the strengthened search's `ai.search` and `ai.effort` (PLAN §12.7, A10;
+/// docs/port/contracts.md O9). `gcg-eval benchmark` writes the same, so T-153 holds.
+pub const SIM_SCHEMA: SchemaVersion = SchemaVersion::V1_2;
 
 /// The options of `gcg-eval benchmark` besides `gcg-sim benchmark`'s.
 #[derive(Clone, Copy, PartialEq, Eq, Debug, Default)]
@@ -144,6 +146,12 @@ impl AgentFactory for ShippedFactory {
             }
             _ => self.preset.factory_description().to_owned(),
         }
+    }
+
+    /// Results 1.2.0 `ai.search` (PLAN §12.7, O9): `gcg-sim`'s settings of the preset, with
+    /// the `--opponent-list` override in the mechanisms.
+    fn search_block(&self) -> Option<SearchSettings> {
+        Some(search_settings(self.preset, &self.config))
     }
 }
 

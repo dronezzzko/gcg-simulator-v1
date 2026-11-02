@@ -1001,7 +1001,8 @@ Differences from PLAN §4.2, §4.6, §10.3.3 and §10.3.4, settled here:
 
 Types (`crates/gcg-ai/src/contracts.rs`):
 
-- the player interface: `Agent` (trait: `name`, `choose`, `choose_traced`, `decision_log`),
+- the player interface: `Agent` (trait: `name`, `choose`, `choose_traced`, `decision_log`,
+  `effort`; O9),
   `DecisionTrace` (what `choose_traced` reports), `AgentCx`
   (`scratch`, `par`, `cancel`), `Scratch` (128-byte aligned, `Default + Send + 'static` for
   the pool; D2's starting layout), `AgentError` (with `py_class`);
@@ -1012,6 +1013,7 @@ Types (`crates/gcg-ai/src/contracts.rs`):
   `TUNED_WEIGHTS`, `ROLE_WEIGHTS`, `DEFAULT_WEIGHTS`, `Density`, `MoveKey`, `PruneFlags`,
   `NoopFlags`;
 - shared by both searches and `gcg-diff`: `SearchResult`, `SearchStats`, `SearchEffort`,
+  `AgentEffort` and `SearchSettings` (results 1.2.0, O9),
   `IterTrace`,
   `SearchTracer` (trait), `NoTrace`;
 - the baseline players: `GREEDY_MULLIGAN_SAMPLES`, `GREEDY_MAX_DECISIONS`, `RandomAgent`,
@@ -1177,6 +1179,19 @@ Differences from PLAN §6.1 and §10.3.5, settled here:
   `pick` returns 0 for an empty list (Python raises; `choose` reproduces Python's error for a
   decision without options). `merge_equivalent` reads `dv.traits.get(uid, ())` through
   `view::traits_present`, so the fingerprint has no printed fallback.
+- O9 (results 1.2.0, PLAN §12.7): `Agent::effort(&self) -> Option<AgentEffort>`, default
+  `None` (the reference search, greedy, random and the runner's test agents report nothing
+  new); the strengthened agent returns `Some`. `AgentEffort { decisions, searches,
+  iterations, applies_tree, applies_rollout, applies_aux, worlds, rollouts_capped }` with
+  `record(Option<&SearchStats>)` (one decision; a decision that reported `SearchStats` is a
+  search, as `DecisionTrace::search` reports it), `plus` and `applies` (landed in
+  `contracts.rs`). `SearchSettings { preset, mapping, iterations_per_option, min_iterations,
+  max_iterations, aux_apply_cap, mechanisms, weights }` is what
+  `gcg_runner::AgentFactory::search_block` returns; it lives here because both
+  `gcg-search` (which builds it) and `gcg-runner` (which writes it) depend on `gcg-ai`, and
+  neither on the other. O9 proposed `SearchEffort` as the result and `Json` for the block:
+  `SearchEffort` has no iterations or decision count, and a typed block keeps the report
+  format in `gcg-runner`.
 
 ## gcg-ai-reference (owner D2) — PLAN §6.2, §6.4, §6.5, §10.3.5, Inv 07
 
@@ -1258,6 +1273,11 @@ impl<'a> Observation<'a> {
     pub(crate) const fn state(&self) -> &'a GameState;                        // v0 only; never public, so no outside crate gets the true state back
 }
 impl StrengthenedConfig { pub fn budget(&self, n_options: usize) -> u32; pub const fn knobs(&self) -> PolicyKnobs; pub fn agent_name(&self) -> String; }   // presets.rs (D2), as ReferenceConfig's
+// O9 (results 1.2.0, PLAN §12.7) — presets.rs, mcts.rs, agent.rs
+pub fn search_settings(preset: Preset, cfg: &StrengthenedConfig) -> SearchSettings;   // ai.search of the factories' agents: preset, mapping, budget, aux cap, enabled mechanisms (sorted), weights_id
+pub fn weights_id(w: &Weights) -> String;                                      // ROLE_WEIGHTS / TUNED_WEIGHTS / HAND_WEIGHTS by feature set and bit patterns, else "<feature set>:<16 hex>" (gcg_core::stable_hash)
+pub mod mcts { pub const AUX_APPLIES_PER_ITERATION: u64; }                   // 16: macro_multi_pick's auxiliary applies per iteration of the cap; ai.search.budget.aux_apply_cap
+impl Agent for SearchAgent { fn effort(&self) -> Option<AgentEffort>; }       // Some(totals): every decision of choose and choose_traced alike (crate-private field SearchAgent.totals)
 pub mod mcts { pub fn is_target_decision(dec: &DecisionView<'_>) -> bool; }   // D2
 impl Agent for SearchAgent;                                                    // agent.rs only (lint §9.9 item 5); name search-{cfg.name}
 pub fn make_agent(cfg: &StrengthenedConfig, seed: u64, log: bool) -> Box<dyn Agent>;   // clones cfg
@@ -1310,8 +1330,9 @@ Types (`crates/gcg-runner/src/contracts.rs`):
 - CLI constants shared by `gcg-sim` and `gcg-eval`: `EXIT_OK`, `EXIT_INVALID`, `EXIT_USAGE`,
   `EXIT_INTERRUPTED`, `INTERRUPTED_MESSAGE`, `DEFAULT_OUT_DIR`, `DEFAULT_REPLAYS`;
 - configuration: `Role`, `Outcome`, `Format`, `Workers`, `SchemaVersion`, `BenchmarkConfig`,
-  `AgentSpec`, `AgentFactory` (trait: `make`, `describe`);
-- records: `PlayEvent`, `DutCardEvents`, `GameRecord`, `MatchRecord`, `RunTiming`,
+  `AgentSpec`, `AgentFactory` (trait: `make`, `describe`, `search_block`; O9);
+- records: `PlayEvent`, `DutCardEvents`, `GameRecord` (Rust-only `effort`, O9),
+  `MatchRecord`, `RunTiming`,
   `BenchmarkRun`, `RunError`;
 - reports and replays: `ReportPaths`, `SchemaError`, `ReportError` (`Io`, `Schema`,
   `Replay(ReplayError)`, `Interrupted`), `REPLAY_FORMAT`, `REPLAY_VERSION`, `ReplayCheck`,
@@ -1363,7 +1384,7 @@ pub mod reports {                                                             //
     // Landed (E1 and the integration). build_results and write_reports read the embedded
     // gcg-data values (ResultsData::embedded); a deck card unknown to CardDb::embedded()
     // panics there (Python's KeyError on db[n]; a parsed deck never has one).
-    pub fn build_results(run: &BenchmarkRun) -> Json;                         // results.py:145-189 (1.2.0: PLAN §12.7)
+    pub fn build_results(run: &BenchmarkRun) -> Json;                         // results.py:145-189 (1.2.0: PLAN §12.7; ai.search and ai.effort from the run, O9)
     pub fn validate_results(doc: &Json, v: SchemaVersion) -> Result<(), SchemaError>;   // results.py:48-50; in-house subset validator (PLAN §9.5)
     pub fn render_summary(results: &Json, command: &str) -> String;           // summary.py:230-241
     pub fn reproduce_command(run: &BenchmarkRun) -> String;                   // writer.py:44-51; V1_2 runs write the corrected line (A23, W-100)
@@ -1415,6 +1436,7 @@ pub mod reports {                                                             //
     pub fn json_from_value(v: &serde_json::Value) -> Json;                    // integers stay integers, key order kept
     pub mod schema {                                                          // jsonschema 4.26 semantics for the draft 2020-12 subset (PLAN §9.5)
         pub const RESULTS_SCHEMA_V1_1: &str;                                  // include_str! of src/gcg_sim/reports/schema/results.v1.schema.json
+        pub const RESULTS_SCHEMA_V1_2: &str;                                  // include_str! of crates/gcg-runner/schema/results.v1_2.schema.json (PLAN §12.7)
         pub const SUPPORTED_KEYWORDS: [&str; 26];                             // anything else is a CompileError
         pub struct Schema { /* private: compiled nodes */ }
         impl Schema {
@@ -1423,6 +1445,7 @@ pub mod reports {                                                             //
         }
         pub struct CompileError { pub pointer: String, pub message: String }  // Display, Error
         pub fn results_schema_v1_1() -> &'static Schema;                      // compiled once
+        pub fn results_schema_v1_2() -> &'static Schema;                      // compiled once
         pub fn is_date(s: &str) -> bool;                                      // jsonschema _format.py is_date
     }
     pub mod pyregex {                                                         // the Python `re` subset of the schema patterns and REPLAY_FILE
@@ -1573,9 +1596,10 @@ pub mod cli_support {
     pub fn benchmark_command(req: &BenchmarkRequest<'_>, factory: &dyn AgentFactory, tty: bool, cancel: &Cancel,
                              out: &mut dyn Write, err: &mut dyn Write) -> Result<(), CliError>;   // cmd_benchmark; writes the reports as one set (reports::write_report_set, W-102; Phase 6 wave 2)
     pub fn coverage(reg: &Registry) -> Json;
-    pub fn data_status(package: &str, code_digest: &str) -> Json;
+    pub fn data_status(package: &str, code_digest: &str, schema: SchemaVersion) -> Json;   // versions.results_schema names `schema` (O9)
     pub fn status_text(s: &Json) -> Vec<String>;
-    pub fn data_status_command(json: bool, package: &str, code_digest: &str, out: &mut dyn Write);   // cmd_data_status
+    pub fn data_status_command(json: bool, package: &str, code_digest: &str, schema: SchemaVersion,
+                               out: &mut dyn Write);                         // cmd_data_status
     pub fn replay_command(path: &PyStr, log: bool, out: &mut dyn Write) -> Result<(), CliError>;     // cmd_replay
 }
 ```
@@ -1589,6 +1613,28 @@ which stays), `game::{match_point, match_point_of, match_loser_seat, result_labe
 `int(text)` in base 10, error `invalid int value: {text!r}`), `ActionKind::Append { convert,
 choices }` with `Action::append(option, dest, convert, choices, help)` (`action='append'`,
 default `None`) and `Value::List(Vec<Value>)`.
+
+O9 (results 1.2.0, PLAN §12.7; closed): `AgentFactory::search_block(&self) ->
+Option<gcg_ai::SearchSettings>`, default `None`; `run_benchmark` and
+`checkpoint::run_resumable` store it in the Rust-only `BenchmarkRun.search`, and `play_game`
+stores each seat's `Agent::effort` after the last decision in the Rust-only
+`GameRecord.effort: [Option<AgentEffort>; 2]`. `GameRecord::to_json` leaves `effort` out
+(`games.ndjson` keeps Python's keys; `from_json` gives `[None, None]`); a checkpoint line
+carries it under `effort` (one `[seat 0, seat 1]` pair per game, written only when an agent
+reported one), so a resumed run's reports equal an uninterrupted run's. A 1.2.0 document
+writes `ai.search` (`reports::search_json`: `algorithm`, `preset`, `mapping`, `budget`
+`{iterations_per_option, min_iterations, max_iterations, aux_apply_cap}`, sorted
+`mechanisms`, `weights`) and `ai.effort` (`reports::effort_json`: per seat, seat 0 first,
+`games`, the eight `AgentEffort` totals and the per-game distributions
+`iterations_per_game` and `applies_per_game`) only when the run has a search block; without
+one the 1.2.0 schema rejects it at `/ai` and nothing is written. `reports::versions_for(v,
+schema)` gives `versions` with `results_schema` naming the schema written (1.1.0
+unchanged), for `results.json` and `data status`. P6-M's interim `SearchReport`,
+`SeatEffort` and `ResultsData::{with_search, search}` are dropped: the block and the effort
+come from the run. The 1.2.0 schema adds to P6-M's groundwork `ai.search.preset`,
+`ai.search.weights` (pattern), the per-seat effort fields above and a `oneOf` that ties
+`ai.preset`, `ai.search.preset` and `ai.search.mapping` together
+(`crates/gcg-runner/tests/results_1_2.rs`, 22 negative controls).
 
 ## gcg-cli (owner E) — PLAN §2.3, §6.5, §7.5, §10.4 E
 
@@ -1604,8 +1650,9 @@ bodies:
   `describe` is `Preset::factory_description`; `make` returns `Result<Box<dyn gcg_ai::Agent>,
   gcg_ai::AgentError>`, through the direct `gcg-ai` edge (Workspace, Edges);
 - `src/lib.rs` keeps the module list (`cli`, `commands`, `factory`; wave 2b). `main.rs` wires
-  the optional `mimalloc` feature as `#[global_allocator]`; results schema 1.1.0 until
-  Phase 6 (O9).
+  the optional `mimalloc` feature as `#[global_allocator]`; `commands::SCHEMA` is results
+  schema 1.2.0 (O9, closed), and the factory's `search_block` is
+  `gcg_search::search_settings` of its preset; `data status` names results schema 1.2.0.
 - `src/cli.rs` (landed): the `gcg-sim` parser, its typed commands and `main`'s flow behind a
   `Commands` trait. It builds on `gcg_runner::argparse` (moved from `crates/gcg-cli/src/argparse/`
   at integration, so `gcg-eval` can share it); `port/oracle/export_cli.py` writes the parser's
@@ -1847,7 +1894,7 @@ in `log`; an `iter` record's `decision` is the decision record's `i`.
 | O6 | The engine needs reverse lookups the step-1 `Registry` API lacks: the `VarId` of its literal frame-variable names (PLAN §3.3 already requires them in `var_names`), the `StrId` of a card number for `ContRef::AbilityGrant` (`interp.py:1549`) and snapshot loading, and the `FilterSetId` of an `ApplyPlayer` filter tuple (`interp.py:1314`) | **Settled in step 2:** `Registry::{var_id, str_id, filters_key}` added to the gcg-effects signatures (additions only; nothing B1 has landed changes). The exporter must put every `ApplyPlayer.filters` tuple into `filter_sets` |
 | O7 | `view::derived` returns `Result` (Python's `_compute` can raise), so every caller of the view propagates `EngineError`, including the AI's calls on the true state | **Settled in step 3:** `AgentError::Engine(EngineError)`; the D1/D2 functions that reach the view return `Result<_, EngineError>`, the agent-level ones `AgentError` |
 | O8 | The `Derived` and `GameConst` starting layouts are untested against the census (PLAN §8.6): capacities (`EVENT_CAPACITY` 10, `CONTEXT_CAPACITY` 4, `ONCE_KEY_CAPACITY` 6) are the plan's estimates | The Phase 2 census confirms or raises them; a raise is a contract change (lead) |
-| O9 | Results schema 1.2.0 (PLAN §12.7) needs per-seat effort totals (`ai.effort`) and the search block (`ai.search`), but neither `Agent` nor `AgentFactory` exposes them, and the 1.2.0 schema file is a Phase 6 deliverable | Until Phase 6 lands schema 1.2.0, `gcg-sim` writes 1.1.0 (its `ai.preset` values `standard`/`fast` are in the 1.1.0 enum). The P6 owner then adds `Agent::effort(&self) -> SearchEffort` and `AgentFactory::search_block(&self) -> Option<Json>` through the change protocol; `SearchEffort` already exists |
+| O9 | Results schema 1.2.0 (PLAN §12.7) needs per-seat effort totals (`ai.effort`) and the search block (`ai.search`), but neither `Agent` nor `AgentFactory` exposes them, and the 1.2.0 schema file is a Phase 6 deliverable | Until Phase 6 lands schema 1.2.0, `gcg-sim` writes 1.1.0 (its `ai.preset` values `standard`/`fast` are in the 1.1.0 enum). The P6 owner then adds `Agent::effort(&self) -> SearchEffort` and `AgentFactory::search_block(&self) -> Option<Json>` through the change protocol; `SearchEffort` already exists **Closed (O9 results 1.2.0):** `Agent::effort(&self) -> Option<AgentEffort>` and `AgentFactory::search_block(&self) -> Option<SearchSettings>` (both default `None`), recorded in `GameRecord.effort` and `BenchmarkRun.search`; `gcg-sim benchmark` and `gcg-eval benchmark` write 1.2.0, `gcg-eval reference-benchmark` and `preset-benchmark` 1.1.0 (gcg-ai, gcg-runner and gcg-search sections) |
 | O10 | W-33 `AiTables`: Python memoises polarity per `(program, pc)` and harm per `def_id` in process globals (`ai/targeting.py:54-112`, `ai/actions.py:167-199`); PLAN §6.2 and A16 place the tables per registry, but no frozen D1/D2 signature carries them and `Registry` cannot hold AI types | Phase 3 recomputes them (pure functions of the registry, so exact by construction). A table type is introduced through the change protocol only if the A16 plugin records a test that reads an entry computed before an override, or Phase 5 measures a win |
 | O11 | The argparse-compatible parser and the CLI pieces both binaries share (progress printer `cli.py:143-159`, deck loading and its messages `:102-126`, `data status` `:236-331`, the report-directory check `:176-185`) live in `gcg-runner` (`argparse`, `cli_support`), because `gcg-eval` cannot depend on the `gcg-sim` crate; their API is not frozen | E publishes the API in its M7 landing report and the lead freezes it here before F's CLI work (M8). Integration: `argparse` landed in `gcg-runner` (moved from `gcg-cli`); its `Converter` still holds only `gcg-sim`'s `type=` callables, and `cli_support` is not landed **Closed at the wave 2b integration:** `cli_support` landed and is frozen in the gcg-runner section; `Converter` gained `Int` and the parser `ActionKind::Append` for `gcg-eval` |
 | O12 | The W-135 `compile_fail` doctest for `Agent` (an agent cannot `apply` on the true `&GameState`) needs `gcg_engine::apply`, which lands with C's L5; a doctest written now would fail for an unresolved name instead | Lands with T-023 at M7 in `crates/gcg-ai/src/contracts.rs` (lead); the W-136 doctest is in place now, the W-49 one since step 2 |
@@ -1880,6 +1927,7 @@ in `log`; an `iter` record's `decision` is the decision record's `i`.
 | 2026-11-02 | Phase 5 performance (lead-accepted): gcg-engine `Derived` is sparse (`ViewSlot` per written uid) and records the reads of its base pass for the confirming-pass skip (paranoid check `SkippedPass`, so `paranoid::counts()` has 6 values); `TriggerIndex.items` is a `Vec`; `UidBuf` is `gcg_core::small::SmallBuf<Uid, 24>` and `InlineVec` gains `as_mut_slice`; `payment_choices` returns a `Pays` range instead of a `Vec`; `mimalloc` is a default feature of `gcg-cli` and `gcg-eval` (system allocator with `--no-default-features`) | lead (Phase 5) |
 | 2026-11-02 | Phase 6 wave 2 integration (P6-D, P6-E, P6-F, P6-H, P6-L, P6-M, P6-N; lead-authorised): gcg-search `SearchAgent.reuse` (P6-D's `subtree_reuse` carry folded in; `ReusingAgent`, `make_reusing_agent` dropped), pre-game decisions that simulated report `SearchStats` with `applies_aux` (P6-H), root-judgement applies in `applies_aux` (P6-E, `Mechanisms::root_applies`), the composition of the packages' hooks in `mech/mod.rs` (see the gcg-search section); `gcg-search` `[[test]]` targets `p6d_scenarios`, `p6h_pregame` and the shared `tests/scenarios/main.rs`; gcg-engine testkit `CapOutcome`, `TO_NEXT_TURN_STEPS`, `pass_all_allow_cap`, `to_next_turn_allow_cap`, `run_random_allow_cap`, and `pass_all`, `to_next_turn`, `run_random` fail at their caps (P6-N, W-113); gcg-runner `cli_support::benchmark_command` writes its reports through `write_report_set` (P6-M, W-102) and P6-M's additive `reports` API (`SearchReport`, `SeatEffort`, `write_report_set`, `SetOptions`, `Compression`, the 1.2.0 schema; `gcg-sim` still writes 1.1.0, O9 open); gcg-data's `legality` module (P6-L, additive); gcg-eval `validate`, `benchmark`, `replay-game`, `replay-check`, `compare-runs --allow-mixed`; `build-support/digest-manifest.txt` lists `src/gcg_sim/data/gcgapi/products.json` (embedded by gcg-eval's `validate`, P6-L) | Phase 6 wave 2 integration (lead-authorised) |
 | 2026-11-02 | P6-J engine hardening (lead-accepted): public `gcg_engine::diag` module with `CapKind`, `GameState::cap_kind()` (which safety cap ended the game; outputs unchanged, W-46) and the per-thread counter `diag::non_converged_views()` (W-48); under `paranoid`, `paranoid::{MovedHost, moved_hosts}` and the crate-private `GameState.trigger_seqs` side table (never serialised, absent from release builds, W-162); `gcg_effects` registry build rejects a computed damage-prevention threshold through `IrError::Malformed` naming the card (W-158) | lead (P6-J) |
+| 2026-11-02 | O9 results 1.2.0 (closes O9; PLAN §12.7, A10, A23): gcg-ai `Agent::effort` (default `None`), `AgentEffort` (`record`, `plus`, `applies`), `SearchSettings`; gcg-runner `AgentFactory::search_block` (default `None`), `GameRecord.effort` and `BenchmarkRun.search` (Rust-only, not in `to_json`), checkpoint lines' `effort`, `reports::{search_json, effort_json, versions_for}` replacing P6-M's `SearchReport`, `SeatEffort` and `ResultsData::{with_search, search}`, the completed `results.v1_2.schema.json`, `cli_support::{data_status, data_status_command}` take the `SchemaVersion` the binary writes; gcg-search `search_settings`, `weights_id`, `mcts::AUX_APPLIES_PER_ITERATION`, `SearchAgent.totals` and its `Agent::effort`; gcg-cli `commands::SCHEMA` and gcg-eval `benchmark_opts::SIM_SCHEMA` = 1.2.0, their factories' `search_block`; gcg-eval's `TracingAgent`/`TracingFactory` forward both | O9 implementer (lead-authorised for exactly these contract additions) |
 
 ## Review log
 

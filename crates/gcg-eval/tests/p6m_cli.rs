@@ -29,7 +29,7 @@ use gcg_eval::build_info::{CODE_DIGEST, PACKAGE_VERSION};
 use gcg_runner::argparse::PyStr;
 use gcg_runner::cli_support::{BenchmarkRequest, benchmark_command, replay_command};
 use gcg_runner::{AgentFactory, Format, Workers};
-use gcg_search::{OpponentList, Preset};
+use gcg_search::{OpponentList, Preset, preset_config, search_settings};
 use serde_json::Value;
 
 fn root() -> PathBuf {
@@ -151,8 +151,12 @@ fn baseline() -> &'static (PathBuf, String, String) {
 
 #[test]
 fn the_shipped_factory_is_gcg_sims() {
+    // Results 1.2.0 (O9): gcg-sim's schema, and the search block of gcg-sim's factory
+    // (`search_settings` of the preset, crates/gcg-cli/src/factory.rs).
+    assert_eq!(SIM_SCHEMA, gcg_runner::SchemaVersion::V1_2);
     for p in Preset::ALL {
         let f = ShippedFactory::new(p, None);
+        assert_eq!(f.search_block(), Some(search_settings(p, preset_config(p))));
         assert_eq!(f.describe(), p.factory_description());
         assert_eq!(
             gcg_runner::reports::writer::release_factory(p.as_str()),
@@ -163,6 +167,12 @@ fn the_shipped_factory_is_gcg_sims() {
     assert_eq!(
         archetype.describe(),
         "gcg-search::make_agent('fast', opponent_list='archetype')"
+    );
+    let block = archetype.search_block().expect("a search block");
+    assert!(
+        block.mechanisms.contains(&"opponent_list"),
+        "{:?}",
+        block.mechanisms
     );
     assert_eq!(
         ShippedFactory::new(Preset::Fast, Some(OpponentList::Known)).describe(),
@@ -220,6 +230,8 @@ fn t153_benchmark_writes_gcg_sims_bytes_and_ignores_the_factory_variable() {
         serde_json::from_slice(&fs::read(out.join("results.json")).expect("results"))
             .expect("JSON");
     assert_eq!(results["ai"]["factory"], "gcg-search::make_agent('fast')");
+    assert_eq!(results["schema_version"], "1.2.0");
+    assert_eq!(results["ai"]["search"]["preset"], "fast");
     // W-104: the deterministic decision counts in timing.json.
     let timing: Value =
         serde_json::from_slice(&fs::read(out.join("timing.json")).expect("timing")).expect("JSON");

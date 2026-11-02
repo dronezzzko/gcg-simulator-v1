@@ -28,8 +28,8 @@ pub mod writer;
 
 pub use replay_doc::{Resimulation, replay_document_with};
 pub use results::{
-    CardFacts, MissingCard, ResultsData, SearchReport, SeatEffort, build_results,
-    build_results_with, replay_name, select_replays,
+    CardFacts, MissingCard, ResultsData, build_results, build_results_with, effort_json,
+    replay_name, search_json, select_replays,
 };
 pub use schema::{json_from_value, validate_results};
 pub use set::{Compression, SetOptions, select_extremes, write_report_set};

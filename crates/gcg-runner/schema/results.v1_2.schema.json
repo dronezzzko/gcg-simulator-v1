@@ -220,13 +220,22 @@
           "additionalProperties": false,
           "required": [
             "algorithm",
+            "preset",
             "mapping",
             "budget",
-            "mechanisms"
+            "mechanisms",
+            "weights"
           ],
           "properties": {
             "algorithm": {
               "const": "gcg-search"
+            },
+            "preset": {
+              "enum": [
+                "fast",
+                "standard"
+              ],
+              "description": "the shipped preset the search configuration is (equal to ai.preset)"
             },
             "mapping": {
               "enum": [
@@ -259,7 +268,8 @@
                 },
                 "aux_apply_cap": {
                   "type": "integer",
-                  "minimum": 0
+                  "minimum": 0,
+                  "description": "the auxiliary engine applies (macro_multi_pick trial picks) a decision may spend per iteration of its iteration cap"
                 }
               }
             },
@@ -269,43 +279,78 @@
                 "type": "string",
                 "pattern": "^[a-z][a-z0-9_]*$"
               },
-              "description": "the enabled mechanism flags, sorted"
+              "description": "the enabled mechanism flags, sorted by name"
+            },
+            "weights": {
+              "type": "string",
+              "pattern": "^([A-Z]+_WEIGHTS|(base|roles):[0-9a-f]{16})$",
+              "description": "the evaluation weights: the name of a shipped table, or the feature set and the 16-hex-digit stable key of the weights' bit patterns"
             }
           }
         },
         "effort": {
           "type": "array",
-          "description": "search effort totals per seat over every game of the run, seat 0 then seat 1 (deterministic counts)",
+          "description": "search effort per seat, seat 0 then seat 1, over every game of the run: totals and per-game distributions (deterministic counts, docs/port/PLAN.md sections 6.6 and 12.7)",
           "prefixItems": [
             {
               "type": "object",
               "additionalProperties": false,
               "required": [
                 "seat",
+                "games",
+                "decisions",
+                "searches",
                 "iterations",
                 "applies_tree",
                 "applies_rollout",
-                "applies_aux"
+                "applies_aux",
+                "worlds",
+                "rollouts_capped",
+                "iterations_per_game",
+                "applies_per_game"
               ],
               "properties": {
                 "seat": {
                   "const": 0
                 },
+                "games": {
+                  "$ref": "#/$defs/count",
+                  "description": "games whose agent in this seat reported its effort"
+                },
+                "decisions": {
+                  "$ref": "#/$defs/count"
+                },
+                "searches": {
+                  "$ref": "#/$defs/count",
+                  "description": "decisions that reported search statistics (searches, and pre-game decisions whose mechanisms simulated)"
+                },
                 "iterations": {
-                  "type": "integer",
-                  "minimum": 0
+                  "$ref": "#/$defs/count"
                 },
                 "applies_tree": {
-                  "type": "integer",
-                  "minimum": 0
+                  "$ref": "#/$defs/count"
                 },
                 "applies_rollout": {
-                  "type": "integer",
-                  "minimum": 0
+                  "$ref": "#/$defs/count"
                 },
                 "applies_aux": {
-                  "type": "integer",
-                  "minimum": 0
+                  "$ref": "#/$defs/count"
+                },
+                "worlds": {
+                  "$ref": "#/$defs/count",
+                  "description": "determinised worlds built"
+                },
+                "rollouts_capped": {
+                  "$ref": "#/$defs/count",
+                  "description": "rollouts stopped by max_rollout_decisions"
+                },
+                "iterations_per_game": {
+                  "$ref": "#/$defs/distribution",
+                  "description": "the per-game iteration totals of this seat"
+                },
+                "applies_per_game": {
+                  "$ref": "#/$defs/distribution",
+                  "description": "the per-game engine apply totals (tree + rollout + aux) of this seat"
                 }
               }
             },
@@ -314,30 +359,60 @@
               "additionalProperties": false,
               "required": [
                 "seat",
+                "games",
+                "decisions",
+                "searches",
                 "iterations",
                 "applies_tree",
                 "applies_rollout",
-                "applies_aux"
+                "applies_aux",
+                "worlds",
+                "rollouts_capped",
+                "iterations_per_game",
+                "applies_per_game"
               ],
               "properties": {
                 "seat": {
                   "const": 1
                 },
+                "games": {
+                  "$ref": "#/$defs/count",
+                  "description": "games whose agent in this seat reported its effort"
+                },
+                "decisions": {
+                  "$ref": "#/$defs/count"
+                },
+                "searches": {
+                  "$ref": "#/$defs/count",
+                  "description": "decisions that reported search statistics (searches, and pre-game decisions whose mechanisms simulated)"
+                },
                 "iterations": {
-                  "type": "integer",
-                  "minimum": 0
+                  "$ref": "#/$defs/count"
                 },
                 "applies_tree": {
-                  "type": "integer",
-                  "minimum": 0
+                  "$ref": "#/$defs/count"
                 },
                 "applies_rollout": {
-                  "type": "integer",
-                  "minimum": 0
+                  "$ref": "#/$defs/count"
                 },
                 "applies_aux": {
-                  "type": "integer",
-                  "minimum": 0
+                  "$ref": "#/$defs/count"
+                },
+                "worlds": {
+                  "$ref": "#/$defs/count",
+                  "description": "determinised worlds built"
+                },
+                "rollouts_capped": {
+                  "$ref": "#/$defs/count",
+                  "description": "rollouts stopped by max_rollout_decisions"
+                },
+                "iterations_per_game": {
+                  "$ref": "#/$defs/distribution",
+                  "description": "the per-game iteration totals of this seat"
+                },
+                "applies_per_game": {
+                  "$ref": "#/$defs/distribution",
+                  "description": "the per-game engine apply totals (tree + rollout + aux) of this seat"
                 }
               }
             }
@@ -345,7 +420,43 @@
           "minItems": 2,
           "maxItems": 2
         }
-      }
+      },
+      "oneOf": [
+        {
+          "properties": {
+            "preset": {
+              "const": "standard"
+            },
+            "search": {
+              "properties": {
+                "preset": {
+                  "const": "standard"
+                },
+                "mapping": {
+                  "const": "reference strong"
+                }
+              }
+            }
+          }
+        },
+        {
+          "properties": {
+            "preset": {
+              "const": "fast"
+            },
+            "search": {
+              "properties": {
+                "preset": {
+                  "const": "fast"
+                },
+                "mapping": {
+                  "const": "reference standard"
+                }
+              }
+            }
+          }
+        }
+      ]
     },
     "decks": {
       "type": "object",

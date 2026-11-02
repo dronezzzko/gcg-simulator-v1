@@ -26,6 +26,7 @@ use crate::argparse::pypath::path_str;
 use crate::config::DEFAULT_TURN_LIMIT;
 use crate::replay::{check_replay, getitem, py_str_value, resimulate, seat_key};
 use crate::reports::aggregate::Outcomes;
+use crate::reports::results::versions_for;
 use crate::reports::{ResultsData, SetOptions, TimingHost, replay_document_with, write_report_set};
 use crate::run::run_benchmark;
 use crate::{
@@ -476,12 +477,13 @@ pub fn coverage(reg: &Registry) -> Json {
     out
 }
 
-/// `data_status()` (`cli.py:263-291`).
+/// `data_status()` (`cli.py:263-291`); `versions.results_schema` names the results schema
+/// the binary writes (`schema`: 1.1.0 is Python's value, `gcg-sim` writes 1.2.0, O9).
 #[must_use]
-pub fn data_status(package: &str, code_digest: &str) -> Json {
+pub fn data_status(package: &str, code_digest: &str, schema: SchemaVersion) -> Json {
     let parts = gcg_data::data_status_parts(package, code_digest);
     let mut out = Json::object();
-    out.set("versions", parts.versions);
+    out.set("versions", versions_for(parts.versions, schema));
     out.set("snapshot", parts.snapshot);
     out.set("banlist", parts.banlist);
     out.set("coverage", coverage(&Registry::embedded()));
@@ -608,9 +610,15 @@ pub fn status_text(s: &Json) -> Vec<String> {
 }
 
 /// `cmd_data_status(args, out)` (`cli.py:325-331`): the JSON (`indent=2, sort_keys=True,
-/// ensure_ascii=False`) or the text lines.
-pub fn data_status_command(json: bool, package: &str, code_digest: &str, out: &mut dyn Write) {
-    let status = data_status(package, code_digest);
+/// ensure_ascii=False`) or the text lines, for a binary that writes results `schema`.
+pub fn data_status_command(
+    json: bool,
+    package: &str,
+    code_digest: &str,
+    schema: SchemaVersion,
+    out: &mut dyn Write,
+) {
+    let status = data_status(package, code_digest, schema);
     let text = if json {
         dumps(&status, DumpOptions::PRETTY_SORTED_UTF8)
     } else {

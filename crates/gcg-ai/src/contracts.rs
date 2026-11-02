@@ -76,6 +76,17 @@ pub trait Agent: Send {
     /// unless the agent was built with logging on. The runner slices the new entries per seat
     /// after each decision (`runner/game.py:94-97`).
     fn decision_log(&self) -> &[LogEntry];
+
+    /// The search effort this agent spent since it was built (PLAN §6.6, §12.7; open item O9):
+    /// `Some` for the strengthened search's agents, which count every decision and sum the
+    /// [`SearchStats`] it reported. `None`, the default, for agents that report nothing beyond
+    /// their decisions: the reference search, greedy, random and the runner's test agents. The
+    /// runner reads it once per game, after the last decision (agents are rebuilt for every
+    /// game), for the per-seat `ai.effort` of results 1.2.0. Reading it never changes a
+    /// decision.
+    fn effort(&self) -> Option<AgentEffort> {
+        None
+    }
 }
 
 /// What an agent needs besides the state (PLAN §6.1, §7.1): the worker's scratch buffers, the
@@ -578,6 +589,86 @@ pub struct SearchEffort {
     pub rollouts_capped: u64,
 }
 
+/// What an agent spent over its decisions ([`Agent::effort`]; PLAN §6.6, §12.7, O9): the
+/// decisions it made, how many of them reported [`SearchStats`] (a search, including one that
+/// returned with a single root move, or a pre-game decision whose mechanisms simulated, as
+/// [`DecisionTrace::search`] reports them), and the sum of those statistics' iterations and
+/// [`SearchEffort`] counts. Deterministic counts, never used to stop a search.
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug, Default)]
+pub struct AgentEffort {
+    pub decisions: u64,
+    pub searches: u64,
+    pub iterations: u64,
+    pub applies_tree: u64,
+    pub applies_rollout: u64,
+    pub applies_aux: u64,
+    pub worlds: u64,
+    pub rollouts_capped: u64,
+}
+
+impl AgentEffort {
+    /// Counts one decision and, when it reported them, its search statistics.
+    pub fn record(&mut self, search: Option<&SearchStats>) {
+        self.decisions += 1;
+        if let Some(stats) = search {
+            self.searches += 1;
+            self.iterations += u64::from(stats.iterations);
+            self.applies_tree += stats.effort.applies_tree;
+            self.applies_rollout += stats.effort.applies_rollout;
+            self.applies_aux += stats.effort.applies_aux;
+            self.worlds += stats.effort.worlds;
+            self.rollouts_capped += stats.effort.rollouts_capped;
+        }
+    }
+
+    /// The sum of two counts.
+    #[must_use]
+    pub const fn plus(&self, o: &Self) -> Self {
+        Self {
+            decisions: self.decisions + o.decisions,
+            searches: self.searches + o.searches,
+            iterations: self.iterations + o.iterations,
+            applies_tree: self.applies_tree + o.applies_tree,
+            applies_rollout: self.applies_rollout + o.applies_rollout,
+            applies_aux: self.applies_aux + o.applies_aux,
+            worlds: self.worlds + o.worlds,
+            rollouts_capped: self.rollouts_capped + o.rollouts_capped,
+        }
+    }
+
+    /// Engine applies of every purpose.
+    #[must_use]
+    pub const fn applies(&self) -> u64 {
+        self.applies_tree + self.applies_rollout + self.applies_aux
+    }
+}
+
+/// The configuration of the search an agent factory's agents run, as results 1.2.0 records
+/// it under `ai.search` (PLAN §12.7, O9; `gcg_runner::AgentFactory::search_block`). Only the
+/// strengthened search's factories have one (`gcg_search::search_settings`); the report adds
+/// `algorithm` (`gcg-search`).
+#[derive(Clone, PartialEq, Eq, Hash, Debug)]
+pub struct SearchSettings {
+    /// The shipped preset the configuration is (`standard` or `fast`).
+    pub preset: &'static str,
+    /// The reference preset its budgets start from (`gcg_search::Preset::mapping`).
+    pub mapping: &'static str,
+    /// The iteration budget `clamp(iterations_per_option * n, min_iterations,
+    /// max_iterations)` (`ai/config.py:55-57`).
+    pub iterations_per_option: u32,
+    pub min_iterations: u32,
+    pub max_iterations: u32,
+    /// The auxiliary engine applies (trial picks of `macro_multi_pick`) a decision may spend
+    /// per iteration of its iteration cap.
+    pub aux_apply_cap: u64,
+    /// The enabled mechanism flags, sorted by name.
+    pub mechanisms: Vec<&'static str>,
+    /// The evaluation weights: the name of a shipped table (`ROLE_WEIGHTS`, `TUNED_WEIGHTS`,
+    /// `HAND_WEIGHTS`) or `<feature set>:<16 hex digits>` for other weights
+    /// (`gcg_search::weights_id`).
+    pub weights: String,
+}
+
 /// One iteration of a search, as drill-down level 2 records it (PLAN §8.2 `iter`, §8.7).
 #[derive(Clone, Copy, PartialEq, Debug)]
 pub struct IterTrace {
@@ -897,6 +988,50 @@ mod tests {
             search: Some(result.stats),
         };
         assert_eq!(trace.search.map(|s| s.roots), Some(roots));
+    }
+
+    /// O9: agents report no effort unless they override `effort`; the counts sum every
+    /// decision and the statistics of those that reported a search.
+    #[test]
+    fn effort_counts_decisions_and_search_statistics() {
+        assert_eq!(Untraced.effort(), None);
+        let stats = |iterations: u32, tree: u64| SearchStats {
+            iterations,
+            budget: iterations,
+            cap: iterations,
+            roots: Vec::new(),
+            effort: SearchEffort {
+                applies_tree: tree,
+                applies_rollout: 2 * tree,
+                applies_aux: 1,
+                worlds: 3,
+                rollouts_capped: 1,
+            },
+        };
+        let mut a = AgentEffort::default();
+        a.record(None);
+        a.record(Some(&stats(10, 5)));
+        a.record(Some(&stats(0, 0)));
+        assert_eq!(
+            a,
+            AgentEffort {
+                decisions: 3,
+                searches: 2,
+                iterations: 10,
+                applies_tree: 5,
+                applies_rollout: 10,
+                applies_aux: 2,
+                worlds: 6,
+                rollouts_capped: 2,
+            }
+        );
+        assert_eq!(a.applies(), 17);
+        let twice = a.plus(&a);
+        assert_eq!(
+            (twice.decisions, twice.iterations, twice.applies()),
+            (6, 20, 34)
+        );
+        assert_eq!(AgentEffort::default().plus(&a), a);
     }
 
     /// Tests, `gcg-diff` and tools build their `AgentCx` outside the pool with
