@@ -7,6 +7,8 @@ use std::process::ExitCode;
 
 use gcg_core::pool::Cancel;
 
+/// The allocator of PLAN §11.4 step 7 (feature `mimalloc`, on by default; without it the
+/// system allocator).
 #[cfg(feature = "mimalloc")]
 #[global_allocator]
 static GLOBAL: mimalloc::MiMalloc = mimalloc::MiMalloc;

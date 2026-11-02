@@ -64,7 +64,9 @@ required-features = ["slow"]
 [features]
 # Long strength and end-to-end tests run as [[test]] targets with required-features (A12).
 slow = []
-# Allocator comparison of PLAN §11.4 step 7 (measured externally; off by default).
+# The allocator of PLAN §11.4 step 7: on by default, measured against the system allocator
+# (--no-default-features) in docs/port/BENCHMARKS.md.
+default = ["mimalloc"]
 mimalloc = ["dep:mimalloc"]
 # Opt-in compressed games.ndjson for `gcg-eval benchmark --compress` (W-99).
 zstd = ["dep:zstd"]

@@ -17,6 +17,7 @@ mod eval;
 mod hooks;
 #[cfg(feature = "paranoid")]
 mod paranoid;
+mod pool;
 mod query;
 mod signature;
 #[cfg(test)]
@@ -37,6 +38,8 @@ pub use query::{
     traits_of, traits_present,
 };
 pub use signature::signature;
+
+pub(crate) use pool::recycle;
 
 #[allow(
     unused_imports,
@@ -121,7 +124,7 @@ impl Derived {
     /// reference that selects no cards. Every accessor reads it as all keys absent.
     #[must_use]
     pub fn empty() -> Derived {
-        derived::blank(0, None, UNREAD_KEY)
+        Derived::unallocated()
     }
 
     /// The `_view_key` this view was computed for (`engine/view.py:237`).

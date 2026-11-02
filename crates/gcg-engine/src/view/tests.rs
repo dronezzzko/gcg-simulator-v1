@@ -134,6 +134,38 @@ fn a_key_change_recomputes_without_a_touch() {
     assert!(!Arc::ptr_eq(&d, &derived(&st).unwrap()));
 }
 
+/// The trigger index read off a cached view's hosts equals the zone scan, on every committed
+/// `views` snapshot, with either player active; an uncached view is scanned from the zones.
+#[test]
+fn the_cached_trigger_index_equals_the_zone_scan() {
+    let mut checked = 0;
+    for file in 0..9 {
+        let name = format!("views-{file:03}.ndjson");
+        for i in 0.. {
+            let path = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+                .join("../../port/corpus/v1/tier1/views")
+                .join(&name);
+            let n = fs::read_to_string(&path)
+                .unwrap()
+                .lines()
+                .filter(|l| l.contains("\"snapshot\""))
+                .count();
+            if i >= n {
+                break;
+            }
+            for active in [0u8, 1] {
+                let mut st = corpus_state(&name, i);
+                st.active = active;
+                let dv = derived(&st).unwrap();
+                let fast = trigger_index(&st, &dv).clone();
+                assert_eq!(fast, super::derived::build_index(&st, &dv), "{name} #{i}");
+                checked += usize::from(!fast.items.is_empty());
+            }
+        }
+    }
+    assert!(checked >= 100, "{checked} states with triggers checked");
+}
+
 #[test]
 fn clones_share_the_cached_view_and_its_trigger_index() {
     let st = state0();
@@ -246,13 +278,28 @@ fn same_values_is_dict_equality_with_presence_and_order() {
     let a = fresh(4);
     // Uids beyond a view are absent keys; `key`, `linked` and `converged` are not compared.
     let mut b = fresh(6);
-    b.linked[1] = true;
+    let s = b.write_slot(1).unwrap();
+    b.slots[s].linked = true;
     b.converged = false;
     assert!(same_values(&a, &b) && same_values(&b, &a));
+    // A slot whose keys are all absent equals a uid without a slot, on either side.
+    let mut a2 = fresh(4);
+    a2.write_slot(3).unwrap();
+    assert!(same_values(&a, &a2) && same_values(&a2, &a));
     // A key with 0 differs from an absent key (cost_mod, view.py:395).
     let mut c = fresh(4);
-    c.cost_mod[2] = Some(0);
-    assert!(!same_values(&a, &c));
+    let s = c.write_slot(2).unwrap();
+    c.slots[s].cost_mod = Some(0);
+    assert!(!same_values(&a, &c) && !same_values(&c, &a));
+    // Slots created in a different order compare by uid.
+    let (mut p, mut q) = (fresh(4), fresh(4));
+    p.set_stats(1, 2, 3, DefId(0)).unwrap();
+    p.set_stats(2, 4, 5, DefId(0)).unwrap();
+    q.set_stats(2, 4, 5, DefId(0)).unwrap();
+    q.set_stats(1, 2, 3, DefId(0)).unwrap();
+    assert!(same_values(&p, &q) && same_values(&q, &p));
+    q.set_stats(1, 2, 4, DefId(0)).unwrap();
+    assert!(!same_values(&p, &q) && !same_values(&q, &p));
     // A stacking keyword at amount 0 is present (view.py:376-377).
     let mut d = fresh(4);
     let mut e = fresh(4);

@@ -1067,7 +1067,10 @@ impl GameState {
         self.event_group = *event_group;
         copy(&mut self.effect_hits, effect_hits);
         self.version = *version;
-        self.cache.get_mut().clone_from(&*cache.borrow());
+        let old = std::mem::replace(self.cache.get_mut(), cache.borrow().clone());
+        if let Some(old) = old {
+            crate::view::recycle(old);
+        }
         self.rules_checked = *rules_checked;
         self.history_epoch = *history_epoch;
     }
@@ -1085,7 +1088,9 @@ impl GameState {
     /// Called exactly where Python calls it (PLAN §4.4).
     pub(crate) fn touch(&mut self) {
         self.version += 1;
-        *self.cache.get_mut() = None;
+        if let Some(old) = self.cache.get_mut().take() {
+            crate::view::recycle(old);
+        }
     }
 
     /// `st.once_used.add(key)`: nothing when an equal key is present (a Python set, PLAN §4.3).
@@ -1705,12 +1710,10 @@ mod tests {
     // ---------------------------------------------------------------------------------------
     // Whole states (T-058): the Python fixture snapshots rebuilt by `canon::from_canonical`.
 
-    use std::sync::OnceLock;
-
     use serde_json::Value;
 
+    use crate::Derived;
     use crate::canon::{self, fixtures};
-    use crate::{Derived, ViewKey};
 
     fn int(v: &Value) -> i64 {
         v.as_i64().unwrap()
@@ -1718,33 +1721,7 @@ mod tests {
 
     /// A cached view to watch `cache` sharing (its contents are never read here).
     fn a_view() -> Arc<Derived> {
-        Arc::new(Derived {
-            key: ViewKey {
-                active: 0,
-                turn: 0,
-                n_battles: 0,
-                battle: None,
-                n_history: 0,
-            },
-            present: Vec::new(),
-            ap: Vec::new(),
-            hp: Vec::new(),
-            kw: Vec::new(),
-            traits: Vec::new(),
-            trait_pool: Vec::new(),
-            rules: Vec::new(),
-            rule_pool: Vec::new(),
-            rule_kinds: Vec::new(),
-            cost_mod: Vec::new(),
-            level_mod: Vec::new(),
-            linked: Vec::new(),
-            abilities: Vec::new(),
-            ability_pool: Vec::new(),
-            hosts: Vec::new(),
-            converged: true,
-            db: None,
-            by_event: OnceLock::new(),
-        })
+        Arc::new(Derived::unallocated())
     }
 
     /// Everything a state holds, serialised or not, that `clone` must copy or share.

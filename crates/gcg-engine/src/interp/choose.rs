@@ -200,7 +200,7 @@ fn choose_candidates(
     reg: &Registry,
     fi: usize,
     ins: &Choose,
-) -> Result<Vec<Uid>, EngineError> {
+) -> Result<crate::UidBuf, EngineError> {
     let dv = view::derived(st)?;
     let ctx = ctx_of(st, fi)?;
     let mut cands = view::select(st, &dv, &ctx, ins.sel)?;
@@ -215,7 +215,7 @@ fn choose_candidates(
     }
     if ins.targeting {
         let controller = st.frames[fi].controller;
-        let mut kept = Vec::with_capacity(cands.len());
+        let mut kept = crate::UidBuf::new();
         for u in cands {
             if !cant_be_chosen(st, reg, &dv, u, controller)? {
                 kept.push(u);

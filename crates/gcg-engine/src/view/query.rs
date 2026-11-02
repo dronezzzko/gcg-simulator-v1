@@ -211,18 +211,18 @@ pub fn link_satisfied_unpatched(reg: &Registry, unit: &CardDef, pilot: &CardDef)
     let Some(link) = &unit.link else {
         return false;
     };
-    let pilot_name = [pilot.pilot_name.as_deref().unwrap_or("")];
-    let own: Vec<&str> = if pilot.card_type == CardType::Pilot {
-        pilot.names().iter().map(|n| &**n).collect()
-    } else {
-        pilot_name.to_vec()
+    let pilot_name = pilot.pilot_name.as_deref().unwrap_or("");
+    let own_contains = |part: &str| {
+        if pilot.card_type == CardType::Pilot {
+            pilot.names().iter().any(|n| n.contains(part))
+        } else {
+            pilot_name.contains(part)
+        }
     };
     let aliases = reg.aliases(pilot.def_id);
     for part in &link.name_parts {
         let part = &**part;
-        if own.iter().any(|n| n.contains(part))
-            || aliases.iter().any(|&a| reg.str(a).contains(part))
-        {
+        if own_contains(part) || aliases.iter().any(|&a| reg.str(a).contains(part)) {
             return true;
         }
     }

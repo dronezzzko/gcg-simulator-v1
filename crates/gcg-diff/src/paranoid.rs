@@ -28,8 +28,9 @@ pub const FUZZ_SEED: u64 = 11;
 pub const DECISION_LIMIT: u32 = 20_000;
 /// `test_engine_caches.py:41-45`: each check of `gcg_engine::paranoid::Check::ALL` (cached
 /// view, unlistened event, no printed lethal damage, unchanged state, view-free reference)
-/// must run more often than this over the games.
-pub const MORE_THAN: [u64; 5] = [10_000, 1_000, 1_000, 1_000, 1_000];
+/// must run more often than this over the games; the Rust-only skipped-fixpoint-pass check of
+/// the derived view (PLAN §11.4 step 4) has the same floor as the others.
+pub const MORE_THAN: [u64; 6] = [10_000, 1_000, 1_000, 1_000, 1_000, 1_000];
 
 /// `RESOURCES` (`ai/tuning.py:62`).
 const RESOURCES: [&str; 10] = ["R-001"; 10];
@@ -144,7 +145,7 @@ pub fn greedy_game(seed: u64) -> Result<(i8, i32, u32), String> {
 /// The lines of the check counts since `before`, and whether each check ran more often than
 /// [`MORE_THAN`].
 #[cfg(feature = "paranoid")]
-fn counted(before: [u64; 5], lines: &mut Vec<String>) -> bool {
+fn counted(before: [u64; 6], lines: &mut Vec<String>) -> bool {
     use gcg_engine::paranoid::{Check, counts};
     let after = counts();
     let mut ok = true;

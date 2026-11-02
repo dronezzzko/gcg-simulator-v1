@@ -454,6 +454,9 @@ pub(crate) fn selects(st: &GameState, r: RefId) -> bool {
     }
 }
 
+/// `_UNREAD = Derived()` (`engine/view.py:845`): one shared view with every key absent.
+static UNREAD: Derived = Derived::unallocated();
+
 /// `resolve_ref(st, ctx, ref)` (`engine/view.py:848-850`): `resolve` against `derived(st)`
 /// only when the reference selects cards, else against `_UNREAD`; the result is the same,
 /// and only whether the cache is filled differs (Inv 05 §6.10). Under `paranoid` a view-free
@@ -470,7 +473,7 @@ pub(crate) fn resolve_ref(st: &GameState, ctx: &Ctx, r: RefId) -> Result<UidBuf,
         let dv = derived(st)?;
         return resolve(st, &dv, ctx, r);
     }
-    let got = resolve(st, &Derived::empty(), ctx, r)?;
+    let got = resolve(st, &UNREAD, ctx, r)?;
     #[cfg(feature = "paranoid")]
     super::paranoid::view_free_ref(st, ctx, r, &got)?;
     Ok(got)

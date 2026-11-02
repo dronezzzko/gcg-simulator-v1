@@ -217,7 +217,7 @@ fn ctx_of(st: &GameState, fi: usize) -> Result<Ctx, EngineError> {
 
 /// `_refs(st, f, ref)` (`interp.py:481-482`): `V.resolve_ref` with the frame's context, which
 /// computes the derived view only for references that select cards (`view.py:834-850`).
-fn refs(st: &GameState, fi: usize, r: gcg_effects::RefId) -> Result<Vec<Uid>, EngineError> {
+fn refs(st: &GameState, fi: usize, r: gcg_effects::RefId) -> Result<crate::UidBuf, EngineError> {
     crate::view::resolve_ref(st, &ctx_of(st, fi)?, r)
 }
 

@@ -691,13 +691,18 @@ pub struct TraitsRef {
 )]
 pub struct TriggerIndex {
     pub(crate) offs: [u32; N_EVENTS + 1],
-    pub(crate) items: Box<[(Uid, AbilityId)]>,
+    /// A `Vec` so that its buffer can be recycled with the view (PLAN §11.4 step 1).
+    pub(crate) items: Vec<(Uid, AbilityId)>,
 }
 
-/// `Derived` (`engine/view.py:66-106`), dense by uid (`len = cards.len()` at compute time).
+/// `Derived` (`engine/view.py:66-106`), sparse by uid (`len = cards.len()` at compute time):
+/// `index[uid]` names the uid's [`ViewSlot`], and a uid without one has every key absent.
 /// Every accessor treats `uid >= len` as an absent key and returns Python's `.get` fallback
 /// (PLAN §4.6). Immutable once built except `by_event`, which is filled once from the zones of
 /// whichever state asks first (`view.py:317-333`; Inv 11 hazard H2). `Send + Sync`.
+///
+/// The buffers of a dropped view go to a per-thread pool and are reused by the next compute
+/// (`view::pool`, PLAN §11.4 step 1); a reused view is reset to the state of a fresh one.
 #[allow(
     dead_code,
     reason = "built and read by workstream B2 (docs/port/contracts.md)"
@@ -706,37 +711,66 @@ pub struct Derived {
     /// The `_view_key` this view was computed for (Python's `()` default only for
     /// `Derived::empty()`, which is never cached).
     pub(crate) key: ViewKey,
-    /// The `ap`/`hp`/`kw`/`traits` keys exist: the card was in BATTLE or BASE in the base view.
-    pub(crate) present: Vec<bool>,
-    /// Unclamped until `_finalize` (`view.py:477-483`).
-    pub(crate) ap: Vec<i32>,
-    pub(crate) hp: Vec<i32>,
-    /// A key with an amount (`Some`) is present; a stacking keyword granted 0 is present.
-    pub(crate) kw: Vec<KwAmounts>,
-    pub(crate) traits: Vec<TraitsRef>,
+    /// Per uid below `len(st.cards)` at compute time: 0 when the view holds no slot for it,
+    /// else 1 + the slot's position in `slots`.
+    pub(crate) index: Vec<u16>,
+    /// The slots of the uids the view wrote, in creation order (never iterated for an
+    /// observable order: every ordered read goes through `index` or `hosts`).
+    pub(crate) slots: Vec<ViewSlot>,
     pub(crate) trait_pool: Vec<StrId>,
-    /// Per uid in any zone, application order; empty = absent.
-    pub(crate) rules: Vec<Span>,
     pub(crate) rule_pool: Vec<RuleInst>,
     /// `rule_pool[i].rule`'s `RuleMod.kind`, so `rules_of` filters without the registry
     /// (`view.py:565-566`, `:466-468`).
     pub(crate) rule_kinds: Vec<RuleKind>,
-    /// `None` = key absent (only non-zero contributions create a key).
-    pub(crate) cost_mod: Vec<Option<i32>>,
-    pub(crate) level_mod: Vec<Option<i32>>,
-    pub(crate) linked: Vec<bool>,
-    /// Per host, zone-scan order, duplicates kept; empty = absent.
-    pub(crate) abilities: Vec<Span>,
     pub(crate) ability_pool: Vec<AbilityId>,
     /// Insertion order of `view.abilities` (`view.py:245-311`), which the constant loop follows
     /// (`view.py:425`).
     pub(crate) hosts: Vec<Uid>,
+    /// `hosts[..hosts_split]` came from player 0's zones and the rest from player 1's, each in
+    /// the zone order of the trigger index (BATTLE, BASE, PAIRED, HAND, TRASH; list order).
+    pub(crate) hosts_split: u32,
     /// W-48: false when the fixpoint stopped at [`FIXPOINT_PASSES`] without converging.
     pub(crate) converged: bool,
     /// The card database that `traits[uid].def` indexes, so `same_values` compares printed
     /// traits as strings (`view.py:99`); `None` only for `Derived::empty()`, which holds none.
     pub(crate) db: Option<&'static CardDb>,
     pub(crate) by_event: OnceLock<TriggerIndex>,
+    /// Scratch lists of the compute that fills this buffer (never part of the view's value).
+    pub(crate) scratch_aids: Vec<AbilityId>,
+    pub(crate) scratch_uids: Vec<Uid>,
+    /// While set, every accessor records what it read: `reads[uid]` collects the
+    /// `view::derived::READ_*` bits of the uid's entries read so far. Only a compute's base
+    /// buffer records, during the first fixpoint pass (never a shared view); atomics only
+    /// because views are `Sync`, the buffer has one thread.
+    pub(crate) recording: std::sync::atomic::AtomicBool,
+    pub(crate) reads: Vec<std::sync::atomic::AtomicU16>,
+}
+
+/// One uid's entries of a [`Derived`] view. A slot equal to [`ViewSlot::BLANK`] (apart from
+/// `uid`) has every key absent, exactly like a uid without a slot.
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+#[allow(
+    dead_code,
+    reason = "built and read by workstream B2 (docs/port/contracts.md)"
+)]
+pub(crate) struct ViewSlot {
+    pub(crate) uid: Uid,
+    /// The `ap`/`hp`/`kw`/`traits` keys exist: the card was in BATTLE or BASE in the base view.
+    pub(crate) present: bool,
+    pub(crate) linked: bool,
+    /// Unclamped until `_finalize` (`view.py:477-483`).
+    pub(crate) ap: i32,
+    pub(crate) hp: i32,
+    /// A key with an amount (`Some`) is present; a stacking keyword granted 0 is present.
+    pub(crate) kw: KwAmounts,
+    pub(crate) traits: TraitsRef,
+    /// Any zone, application order; empty = absent.
+    pub(crate) rules: Span,
+    /// `None` = key absent (only non-zero contributions create a key).
+    pub(crate) cost_mod: Option<i32>,
+    pub(crate) level_mod: Option<i32>,
+    /// Per host, zone-scan order, duplicates kept; empty = absent.
+    pub(crate) abilities: Span,
 }
 
 /// A uid's traits (`traits_of`, `view.py:560-562`): `printed` then `granted`.
@@ -753,13 +787,17 @@ pub struct Names<'a> {
     pub aliases: &'a [StrId],
 }
 
-/// A scratch list of uids replacing Python's temporary tuples (PLAN §10.3.4). Phase 5 may
-/// replace it by a pooled buffer under the change protocol.
+/// A scratch list of uids replacing Python's temporary tuples (PLAN §10.3.4): inline up to
+/// [`UID_BUF_INLINE`] uids, so the usual short list never allocates (Phase 5, PLAN §11.4
+/// step 1); it reads as a slice and has the `Vec` methods the engine uses.
 #[allow(
     dead_code,
     reason = "used by workstreams C and B2 (docs/port/contracts.md)"
 )]
-pub(crate) type UidBuf = Vec<Uid>;
+pub(crate) type UidBuf = gcg_core::small::SmallBuf<Uid, UID_BUF_INLINE>;
+
+/// The inline capacity of [`UidBuf`]: a full field, hand or short trash fits.
+pub(crate) const UID_BUF_INLINE: usize = 24;
 
 // ---------------------------------------------------------------------------------------------
 // Internal layer boundary (PLAN §10.3.4): keyword-only arguments and last-known information

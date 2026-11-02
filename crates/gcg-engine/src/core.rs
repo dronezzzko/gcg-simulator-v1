@@ -20,12 +20,14 @@ use gcg_effects::{
     RuleKind, RuleModId, SelId, Side, TriggerId, ValueRef,
 };
 
+use gcg_core::small::InlineVec;
+
 use crate::view;
 use crate::{
-    AbilityKey, BOTH_KNOW, CardInstance, Ctx, CtxVars, DamageOpts, Derived, EndReason, EngineError,
-    EvKey, EventPayload, GameState, HistKind, HistoryEvent, Lki, LkiEntry, MoveOpts, NO_ARG,
-    OnceElem, OnceKey, PREVENT_ONCE_TAG, Phase, REDUCE_ONCE_TAG, RuleInst, RuleKey, Span, Step,
-    TOKEN_ZONES, TriggerInst, Uid, UidBuf, Zone,
+    AbilityKey, BOTH_KNOW, CardInstance, Ctx, CtxVars, DamageOpts, Derived, EVENT_CAPACITY,
+    EndReason, EngineError, EvKey, EventPayload, GameState, HistKind, HistoryEvent, Lki, LkiEntry,
+    MoveOpts, NO_ARG, OnceElem, OnceKey, PREVENT_ONCE_TAG, Phase, REDUCE_ONCE_TAG, RuleInst,
+    RuleKey, Span, Step, TOKEN_ZONES, TriggerInst, Uid, UidBuf, Zone,
 };
 
 // ---------------------------------------------------------------------------------------------
@@ -573,24 +575,33 @@ fn event_payload(
     extra: &[(EvKey, i32)],
 ) -> Result<EventPayload, EngineError> {
     let mut group = NO_ARG;
-    let mut rest: Vec<(EvKey, i32)> = Vec::with_capacity(extra.len());
+    // The extras sorted on the stack: more than fit would overflow the payload below anyway,
+    // so a full buffer only remembers that the payload must fail at the same point.
+    let mut rest: InlineVec<(EvKey, i32), EVENT_CAPACITY> = InlineVec::new();
+    let mut overflow = false;
     for &(k, v) in extra {
         if k == EvKey::Group {
             group = v;
-        } else {
-            rest.push((k, v));
+        } else if rest.try_push((k, v)).is_err() {
+            overflow = true;
         }
     }
     if group == NO_ARG {
         group = to_i32(st.event_group, "event group")?;
     }
-    rest.sort();
+    rest.as_mut_slice().sort();
     let mut ev = EventPayload::default();
     ev.push(EvKey::Subject, subject)?;
     ev.push(EvKey::Player, player)?;
     ev.push(EvKey::Group, group)?;
-    for (k, v) in rest {
+    for &(k, v) in rest.as_slice() {
         ev.push(k, v)?;
+    }
+    if overflow {
+        return Err(EngineError::Capacity {
+            what: "event payload",
+            capacity: EVENT_CAPACITY,
+        });
     }
     Ok(ev)
 }
@@ -776,7 +787,7 @@ fn keyword_triggers(
     if ev == Ev::TurnEnd {
         let program = st.registry().keyword_program(KeywordProgram::Repair);
         let active = st.active;
-        let field: UidBuf = st.zones.get(active, Zone::Battle).to_vec();
+        let field: UidBuf = st.zones.get(active, Zone::Battle).iter().copied().collect();
         for uid in field {
             let c = st.cards[usize::from(uid)];
             if view::kw_amount(dv, uid, Kw::Repair) > 0 && c.damage > 0 {
@@ -1200,14 +1211,14 @@ fn follow_redirects(
     start: Uid,
     mut next: impl FnMut(Uid) -> Result<Option<Uid>, EngineError>,
 ) -> Result<Uid, EngineError> {
-    let mut chain: UidBuf = Vec::new();
+    let mut chain: UidBuf = UidBuf::new();
     let mut uid = start;
     while let Some(dest) = next(uid)? {
         chain.push(uid);
         if chain.contains(&dest) {
             chain.push(dest);
             return Err(EngineError::RedirectCycle {
-                uids: chain.into_boxed_slice(),
+                uids: chain.to_vec().into_boxed_slice(),
             });
         }
         uid = dest;
@@ -1399,7 +1410,7 @@ pub(crate) fn shields_receiving_damage(
     d: DamageOpts,
 ) -> Result<UidBuf, EngineError> {
     let Some(&first) = uids.first() else {
-        return Ok(Vec::new());
+        return Ok(UidBuf::new());
     };
     let dv = view::derived(st)?;
     let owner = st.cards[usize::from(first)].owner;
@@ -1407,9 +1418,9 @@ pub(crate) fn shields_receiving_damage(
         .checked_sub(shield_area_reduction(st, owner, d.source, d.battle, d.by)?)
         .ok_or(EngineError::Overflow { what: "damage" })?;
     if left <= 0 {
-        return Ok(Vec::new());
+        return Ok(UidBuf::new());
     }
-    let mut out = Vec::new();
+    let mut out = UidBuf::new();
     for &u in uids {
         if !prevented(st, &dv, u, amount, d.source, d.battle, d.by, false)?
             && !prevented(st, &dv, u, left, d.source, d.battle, d.by, true)?
@@ -1568,7 +1579,7 @@ pub(crate) fn destroy(
     source: i32,
 ) -> Result<UidBuf, EngineError> {
     let dv = view::derived(st)?;
-    let mut targets: UidBuf = Vec::new();
+    let mut targets: UidBuf = UidBuf::new();
     for &u in uids {
         let c = st.cards[usize::from(u)];
         if !matches!(c.zone, Zone::Battle | Zone::Base | Zone::Paired) {
@@ -1729,7 +1740,7 @@ pub(crate) fn rules_management(st: &mut GameState) -> Result<(), EngineError> {
             }
         }
         let dv = view::derived(st)?;
-        let mut doomed: UidBuf = Vec::new();
+        let mut doomed: UidBuf = UidBuf::new();
         for p in [st.active, 1 - st.active] {
             for z in [Zone::Battle, Zone::Base] {
                 for &uid in st.zones.get(p, z) {

@@ -270,7 +270,7 @@ impl Victims {
 /// triggers from its last-known information; ST12-016:Q452/Q453).
 fn destroy_battle(st: &mut GameState, victims: &Victims) -> Result<UidBuf, EngineError> {
     let dv = view::derived(st)?;
-    let mut doomed: UidBuf = Vec::new();
+    let mut doomed: UidBuf = UidBuf::new();
     for &(u, _) in &victims.0 {
         let c = st.cards[usize::from(u)];
         if matches!(c.zone, Zone::Battle | Zone::Base) && c.damage >= view::hp_of(st, &dv, u) {

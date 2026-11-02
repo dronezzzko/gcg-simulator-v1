@@ -831,7 +831,7 @@ pub(super) fn h_to_trash(
         .filter(|u| !field.contains(u))
         .collect();
     let destroyed = if field.is_empty() {
-        Vec::new()
+        crate::UidBuf::new()
     } else {
         let f = &st.frames[fi];
         let (by, source) = (i32::from(f.controller), f.host);

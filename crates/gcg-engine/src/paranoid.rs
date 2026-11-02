@@ -20,16 +20,21 @@ pub enum Check {
     UnchangedState,
     /// A reference resolved without the view, resolved again with it (`:127-132`).
     ViewFreeReference,
+    /// A second fixpoint pass that the derived view skipped because every read of the first
+    /// pass answers the same in its result, run in full and compared (Rust only: PLAN §11.4
+    /// step 4, the transparency check of that shortcut).
+    SkippedPass,
 }
 
 impl Check {
     /// Every check, in the order of [`counts`].
-    pub const ALL: [Self; 5] = [
+    pub const ALL: [Self; 6] = [
         Self::CachedView,
         Self::UnlistenedEvent,
         Self::NoPrintedLethalDamage,
         Self::UnchangedState,
         Self::ViewFreeReference,
+        Self::SkippedPass,
     ];
 
     /// The `CacheChecker.checks` key.
@@ -41,6 +46,7 @@ impl Check {
             Self::NoPrintedLethalDamage => "no printed lethal damage",
             Self::UnchangedState => "unchanged state",
             Self::ViewFreeReference => "view-free reference",
+            Self::SkippedPass => "skipped fixpoint pass",
         }
     }
 
@@ -51,12 +57,13 @@ impl Check {
             Self::NoPrintedLethalDamage => 2,
             Self::UnchangedState => 3,
             Self::ViewFreeReference => 4,
+            Self::SkippedPass => 5,
         }
     }
 }
 
 thread_local! {
-    static COUNTS: [Cell<u64>; 5] = const { [const { Cell::new(0) }; 5] };
+    static COUNTS: [Cell<u64>; 6] = const { [const { Cell::new(0) }; 6] };
 }
 
 /// `self.checks[name] += 1`.
@@ -69,7 +76,7 @@ pub(crate) fn count(check: Check) {
 
 /// How many times each check of [`Check::ALL`] ran on this thread so far.
 #[must_use]
-pub fn counts() -> [u64; 5] {
+pub fn counts() -> [u64; 6] {
     COUNTS.with(|n| n.each_ref().map(Cell::get))
 }
 
@@ -88,6 +95,6 @@ mod tests {
             assert_eq!(after[i] - before[i], want, "{}", c.name());
         }
         let other = std::thread::spawn(counts).join().expect("joins");
-        assert_eq!(other, [0; 5]);
+        assert_eq!(other, [0; Check::ALL.len()]);
     }
 }

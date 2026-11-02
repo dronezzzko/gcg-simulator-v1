@@ -186,3 +186,25 @@ tier 2 (T-054, T-091), 10,000-game fuzz comparison (T-055). tests.json: 78 passi
 Phase 6: the strengthened search scores a simulated line that ends in an engine error instead
 of failing the real game (AI only; W-143, W-110). End-to-end matrix and the numbering-shift
 probe still running.
+
+## Phase 5 — Performance (code done; official timing pending an idle machine)
+
+- Phase 5 agent (worktree): profile-driven, output-identical optimisations, one commit each,
+  measured by instructions retired (load-independent) on single-thread reference runs:
+  sparse derived view in recycled per-thread buffers (14.75G → 6.75G instructions per std
+  game), allocation-free hot paths (→ 5.57G), trigger index read off the cached view's hosts
+  (→ 5.44G), mimalloc default allocator (→ 4.82G), skip of the confirming fixpoint pass when
+  its reads repeat, with a paranoid check that runs the skipped pass (105,974 runs, all equal)
+  (→ 4.65G), opt-in PGO via `scripts/build_pgo.sh` (→ 3.84G). Dropped (no gain): recycled
+  worlds, link memo, per-definition zone flags, target-cpu variants. GPU not adopted: leaf
+  evaluation 0.9% and policy 5.4% of time, not batchable in the sequential reference search.
+- Rough (loaded machine, not a measurement of record): std BO1 game 0.29–0.34 s user vs Python
+  13.3 s; 20 BO3 matches single-thread 24.9 s vs 1269.5 s; at 10 workers 8.9 s vs 221 s.
+
+**Gate (lead-run, merged tree, `CARGO_TARGET_DIR=target/integrate`).** fmt clean; clippy
+`--all-features -D warnings` clean; `cargo test --workspace --release`: 984 passed, 0 failed;
+corpus tier 1 3804/3804 and tier 2 4154/4154; lints pass; std one-game
+`final_state_sha256` unchanged (69c66131…7e4e). Agent-run: slow suite 884 passed, paranoid
+tier 1 3804/3804, paranoid engine tests 214, 10,000-game fuzz equal to the committed summary.
+Not done: zero allocation per iteration (about 150 left per iteration, about 2% of samples);
+paranoid `search:fast` fuzz stopped under load; Part 1 hyperfine runs (need an idle machine).

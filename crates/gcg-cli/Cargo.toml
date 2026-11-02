@@ -36,5 +36,7 @@ sha2.workspace = true
 serde_json.workspace = true
 
 [features]
-# Allocator comparison of PLAN §11.4 step 7 (measured externally; off by default).
+# The allocator of PLAN §11.4 step 7: on by default, measured against the system allocator
+# (--no-default-features) in docs/port/BENCHMARKS.md.
+default = ["mimalloc"]
 mimalloc = ["dep:mimalloc"]

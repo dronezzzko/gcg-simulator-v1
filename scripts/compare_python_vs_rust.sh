@@ -42,6 +42,14 @@ py_bin="$repo/.venv/bin/gcg-sim"
 py="$repo/.venv/bin/python"
 rs_sim="$repo/target/release/gcg-sim"
 rs_eval="$repo/target/release/gcg-eval"
+# GCG_PGO=1 times the profile-guided binaries of scripts/build_pgo.sh instead (identical
+# outputs; BENCHMARKS.md "PGO"); env.txt records which build was timed.
+rust_build="release"
+if [[ "${GCG_PGO:-0}" == 1 ]]; then
+  rust_build="pgo"
+  rs_sim="$repo/target/pgo/use/release/gcg-sim"
+  rs_eval="$repo/target/pgo/use/release/gcg-eval"
+fi
 dut="examples/decks/red-green-zeon.txt"
 bench="examples/decks/blue-white-federation.txt"
 workload=("$dut" "$bench" --format bo3 --seed 1)
@@ -86,8 +94,12 @@ print(got)
 # Always rebuild, so no stale binary is ever timed; record the binaries' code digest.
 need_rust() {
   need_python
-  cargo build --release --locked --offline -p gcg-cli -p gcg-eval || die "cargo build failed"
-  [[ -x "$rs_sim" && -x "$rs_eval" ]] || die "missing Rust binaries in target/release"
+  if [[ "$rust_build" == pgo ]]; then
+    scripts/build_pgo.sh || die "scripts/build_pgo.sh failed"
+  else
+    cargo build --release --locked --offline -p gcg-cli -p gcg-eval || die "cargo build failed"
+  fi
+  [[ -x "$rs_sim" && -x "$rs_eval" ]] || die "missing Rust binaries ($rust_build build)"
   rust_digest="$("$rs_eval" env | json_code_digest)" || die "gcg-eval env reported no code_digest"
 }
 
@@ -118,6 +130,7 @@ record_env() {
     echo "hyperfine: $(hyperfine --version)"
     echo "git: $(git rev-parse --short HEAD) ($(git rev-parse --abbrev-ref HEAD))"
     echo "rust_code_digest: $digest"
+    echo "rust_build: $rust_build"
   } >"$out/env.txt.tmp"
   mv "$out/env.txt.tmp" "$out/env.txt"
   cat "$out/env.txt"

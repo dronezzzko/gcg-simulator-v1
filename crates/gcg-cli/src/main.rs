@@ -13,7 +13,8 @@ use gcg_cli::cli;
 use gcg_cli::commands::SimCommands;
 use gcg_core::pool::Cancel;
 
-/// The allocator comparison of PLAN §11.4 step 7 (feature `mimalloc`, off by default).
+/// The allocator of PLAN §11.4 step 7 (feature `mimalloc`, on by default; without it the
+/// system allocator).
 #[cfg(feature = "mimalloc")]
 #[global_allocator]
 static GLOBAL: mimalloc::MiMalloc = mimalloc::MiMalloc;

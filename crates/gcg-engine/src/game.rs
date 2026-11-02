@@ -730,22 +730,52 @@ fn resources(st: &GameState, p: u8) -> (i64, i64) {
     (normal, ex)
 }
 
+/// The result of [`payment_choices`]: the counts `lo..=hi` in ascending order, none when
+/// `lo > hi` (always a contiguous run, so it needs no list).
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+pub(crate) struct Pays {
+    lo: i32,
+    hi: i32,
+}
+
+impl Pays {
+    const NONE: Pays = Pays { lo: 1, hi: 0 };
+
+    /// No count pays.
+    pub(crate) fn is_empty(self) -> bool {
+        self.lo > self.hi
+    }
+
+    /// The counts, ascending.
+    pub(crate) fn iter(self) -> std::ops::RangeInclusive<i32> {
+        self.lo..=self.hi
+    }
+}
+
+impl<const N: usize> PartialEq<[i32; N]> for Pays {
+    fn eq(&self, other: &[i32; N]) -> bool {
+        self.iter().eq(other.iter().copied())
+    }
+}
+
 /// `payment_choices(st, p, cost, resources=None)` (`engine/game.py:372-382`): the numbers of
 /// EX Resources that can pay `cost`, ascending.
-pub(crate) fn payment_choices(
-    st: &GameState,
-    p: u8,
-    cost: i64,
-    known: Option<(i64, i64)>,
-) -> Vec<i32> {
+pub(crate) fn payment_choices(st: &GameState, p: u8, cost: i64, known: Option<(i64, i64)>) -> Pays {
     if cost <= 0 {
-        return vec![0];
+        return Pays { lo: 0, hi: 0 };
     }
     let (normal, ex) = known.unwrap_or_else(|| resources(st, p));
     let lo = (cost - normal).max(0);
     let hi = cost.min(ex);
-    // lo and hi are bounded by the resource count (at most a few hundred cards).
-    (lo..=hi).filter_map(|c| i32::try_from(c).ok()).collect()
+    // lo and hi are bounded by the resource count (at most a few hundred cards); a count that
+    // is no i32 is dropped, as the list form dropped it.
+    match (
+        i32::try_from(lo),
+        i32::try_from(hi.min(i64::from(i32::MAX))),
+    ) {
+        (Ok(lo), Ok(hi)) => Pays { lo, hi },
+        _ => Pays::NONE,
+    }
 }
 
 /// `_level_ok(st, dv, p, uid)` (`engine/game.py:385-386`, rule 2-9-1).
@@ -839,7 +869,7 @@ fn cost_candidates(
     c: &Ctx,
     sel: SelId,
     active_only: bool,
-) -> Result<Vec<Uid>, EngineError> {
+) -> Result<crate::UidBuf, EngineError> {
     let mut cands = view::select(st, dv, c, sel)?;
     if active_only {
         cands.retain(|&u| !st.card(u).rested);
@@ -1086,7 +1116,7 @@ pub(crate) fn main_options(st: &GameState) -> Result<Vec<Action>, EngineError> {
             let cost = view::play_cost(st, &dv, uid)?;
             payment_choices(st, p, i64::from(cost), Some(res))
         } else {
-            Vec::new()
+            Pays::NONE
         };
         if pays.is_empty() {
             out.extend(alternatives);
@@ -1095,16 +1125,16 @@ pub(crate) fn main_options(st: &GameState) -> Result<Vec<Action>, EngineError> {
         let u = i32::from(uid);
         match cd.card_type {
             CardType::Unit => {
-                out.extend(pays.iter().map(|&c| Action::new(A::PlayUnit, u, NO_ARG, c)))
+                out.extend(pays.iter().map(|c| Action::new(A::PlayUnit, u, NO_ARG, c)))
             }
             CardType::Base => {
-                out.extend(pays.iter().map(|&c| Action::new(A::PlayBase, u, NO_ARG, c)))
+                out.extend(pays.iter().map(|c| Action::new(A::PlayBase, u, NO_ARG, c)))
             }
             CardType::Pilot => {
                 for &m in &my_units {
                     out.extend(
                         pays.iter()
-                            .map(|&c| Action::new(A::Pair, u, i32::from(m), c)),
+                            .map(|c| Action::new(A::Pair, u, i32::from(m), c)),
                     );
                 }
             }
@@ -1112,14 +1142,14 @@ pub(crate) fn main_options(st: &GameState) -> Result<Vec<Action>, EngineError> {
                 if command_playable(st, p, uid, Timing::Main)? {
                     out.extend(
                         pays.iter()
-                            .map(|&c| Action::new(A::PlayCommand, u, NO_ARG, c)),
+                            .map(|c| Action::new(A::PlayCommand, u, NO_ARG, c)),
                     );
                 }
                 if cd.pilot_name.is_some() {
                     for &m in &my_units {
                         out.extend(
                             pays.iter()
-                                .map(|&c| Action::new(A::Pair, u, i32::from(m), c)),
+                                .map(|c| Action::new(A::Pair, u, i32::from(m), c)),
                         );
                     }
                 }
@@ -1131,7 +1161,7 @@ pub(crate) fn main_options(st: &GameState) -> Result<Vec<Action>, EngineError> {
     for (host, aid, cost) in activated_list(st, p, Timing::Main)? {
         out.extend(
             payment_choices(st, p, i64::from(cost), Some(res))
-                .into_iter()
+                .iter()
                 .map(|c| Action::new(A::Activate, i32::from(host), aid, c)),
         );
     }
@@ -1218,21 +1248,14 @@ fn alt_play_options(
             None => i64::from(view::play_cost(st, dv, uid)?),
         };
         let base = ALT_PLAY_BASE * to_i32(i as i64 + 1, "play modifier index")?;
-        let enc: Vec<i32> = payment_choices(st, p, cost, None)
-            .into_iter()
-            .map(|x| x + base)
-            .collect();
+        let pays = payment_choices(st, p, cost, None);
+        let enc = || pays.iter().map(move |x| x + base);
         match cd.card_type {
-            CardType::Unit => {
-                out.extend(enc.iter().map(|&e| Action::new(A::PlayUnit, u, NO_ARG, e)))
+            CardType::Unit => out.extend(enc().map(|e| Action::new(A::PlayUnit, u, NO_ARG, e))),
+            CardType::Base => out.extend(enc().map(|e| Action::new(A::PlayBase, u, NO_ARG, e))),
+            CardType::Command if command_playable(st, p, uid, Timing::Main)? => {
+                out.extend(enc().map(|e| Action::new(A::PlayCommand, u, NO_ARG, e)))
             }
-            CardType::Base => {
-                out.extend(enc.iter().map(|&e| Action::new(A::PlayBase, u, NO_ARG, e)))
-            }
-            CardType::Command if command_playable(st, p, uid, Timing::Main)? => out.extend(
-                enc.iter()
-                    .map(|&e| Action::new(A::PlayCommand, u, NO_ARG, e)),
-            ),
             _ => {}
         }
         if cd.is_pilot_capable() {
@@ -1240,10 +1263,7 @@ fn alt_play_options(
                 if !pm.pair_filters.is_empty() && !view::matches(st, dv, &c, m, &pm.pair_filters)? {
                     continue;
                 }
-                out.extend(
-                    enc.iter()
-                        .map(|&e| Action::new(A::Pair, u, i32::from(m), e)),
-                );
+                out.extend(enc().map(|e| Action::new(A::Pair, u, i32::from(m), e)));
             }
         }
     }
@@ -1266,14 +1286,14 @@ pub(crate) fn action_step_options(st: &GameState, p: u8) -> Result<Vec<Action>, 
             let u = i32::from(uid);
             out.extend(
                 pays.iter()
-                    .map(|&c| Action::new(A::PlayCommand, u, NO_ARG, c)),
+                    .map(|c| Action::new(A::PlayCommand, u, NO_ARG, c)),
             );
         }
     }
     for (host, aid, cost) in activated_list(st, p, Timing::Action)? {
         out.extend(
             payment_choices(st, p, i64::from(cost), None)
-                .into_iter()
+                .iter()
                 .map(|c| Action::new(A::Activate, i32::from(host), aid, c)),
         );
     }
