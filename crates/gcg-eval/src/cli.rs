@@ -986,6 +986,15 @@ pub fn build_parser() -> Parser {
                 parser: tune_parser(),
             },
             SubCommand {
+                name: "tune-leaf",
+                help: Some(crate::tune_ext::HELP),
+                parser: {
+                    let mut p = crate::tune_ext::parser();
+                    push_run_options(&mut p, &ROW_DEFAULTS);
+                    p
+                },
+            },
+            SubCommand {
                 name: "calibrate",
                 help: Some("simulated against observed matchup rates"),
                 parser: calibrate_parser(),
@@ -1058,6 +1067,7 @@ pub enum Command {
     Fidelity(FidelityArgs),
     Regret(RegretArgs),
     Tune(TuneArgs),
+    TuneLeaf(crate::tune_ext::TuneLeafArgs),
     Calibrate(CalibrateArgs),
     /// The arguments and `--allow-mixed` (W-91).
     CompareRuns(CompareRunsArgs, bool),
@@ -1391,6 +1401,10 @@ fn phase6_command(name: &str, ns: &Namespace, sub: &Parser, columns: i64) -> Res
             record: get_path(ns, "record"),
             opts: run_options(ns, sub, columns, true)?,
         }),
+        "tune-leaf" => Command::TuneLeaf(crate::tune_ext::args(
+            ns,
+            run_options(ns, sub, columns, true)?,
+        )),
         "calibrate" => Command::Calibrate(CalibrateArgs {
             file: need_path(ns, "observed"),
             agent: need_text(ns, "agent"),
@@ -1705,6 +1719,7 @@ fn run_command(
         Command::Fidelity(args) => crate::fidelity::run(args, cancel, tty, out, err),
         Command::Regret(args) => crate::regret::run(args, cancel, tty, out, err),
         Command::Tune(args) => crate::tune::run(args, cancel, tty, out, err),
+        Command::TuneLeaf(args) => crate::tune_ext::run(args, cancel, tty, out, err),
         Command::Calibrate(args) => crate::calibrate::run(args, cancel, tty, out, err),
         Command::CompareRuns(args, allow_mixed) => {
             crate::benchmark_opts::guard_runs(&args.a, &args.b, *allow_mixed, err)?;

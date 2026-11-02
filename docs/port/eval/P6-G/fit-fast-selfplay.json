@@ -1,0 +1,1076 @@
+{
+ "format": "gcg-eval-tune-leaf",
+ "version": 1,
+ "leaf_point": "first pending decision of a turn",
+ "sources": [
+  {
+   "format": "gcg-eval-leaf-positions",
+   "version": 1,
+   "leaf_point": "first pending decision of a turn",
+   "agent": "search:fast",
+   "decks": "panel",
+   "pairs": [
+    [
+     "blue-white-federation",
+     "purple-white-tekkadan"
+    ],
+    [
+     "blue-white-federation",
+     "red-green-zeon"
+    ],
+    [
+     "blue-white-federation",
+     "blue-green-ramp"
+    ],
+    [
+     "blue-white-federation",
+     "purple-blue-swarm"
+    ],
+    [
+     "blue-white-federation",
+     "red-purple-control"
+    ],
+    [
+     "purple-white-tekkadan",
+     "red-green-zeon"
+    ],
+    [
+     "purple-white-tekkadan",
+     "blue-green-ramp"
+    ],
+    [
+     "purple-white-tekkadan",
+     "purple-blue-swarm"
+    ],
+    [
+     "purple-white-tekkadan",
+     "red-purple-control"
+    ],
+    [
+     "red-green-zeon",
+     "blue-green-ramp"
+    ],
+    [
+     "red-green-zeon",
+     "purple-blue-swarm"
+    ],
+    [
+     "red-green-zeon",
+     "red-purple-control"
+    ],
+    [
+     "blue-green-ramp",
+     "purple-blue-swarm"
+    ],
+    [
+     "blue-green-ramp",
+     "red-purple-control"
+    ],
+    [
+     "purple-blue-swarm",
+     "red-purple-control"
+    ]
+   ],
+   "seed": 10700300,
+   "role": "tuning",
+   "games": 3000,
+   "choose_first": "seat0",
+   "positions": 51763,
+   "drawn_games_dropped": 0
+  }
+ ],
+ "fit": {
+  "min_turn": 3,
+  "folds": 5,
+  "lambdas": [
+   0.03,
+   0.1,
+   0.3,
+   1.0,
+   3.0,
+   10.0,
+   30.0,
+   100.0,
+   300.0,
+   1000.0
+  ],
+  "steps": 30,
+  "fold_seed": 10700300,
+  "fold_by": "game",
+  "signs": false,
+  "positions": 51763,
+  "positions_fitted": 42346,
+  "positions_held_out": 3417,
+  "held_out_pairs": [
+   [
+    "purple-blue-swarm",
+    "red-purple-control"
+   ]
+  ]
+ },
+ "models": [
+  {
+   "key": "kw=0,ab=0,hs=0,bp=0,det=0,int=1,ph=0",
+   "mode": "true-state",
+   "features": [
+    "intercept",
+    "life",
+    "danger",
+    "ap",
+    "hp",
+    "linked",
+    "ready",
+    "hand_units",
+    "hand_pilots",
+    "hand_commands",
+    "hand_bases",
+    "level",
+    "bursts",
+    "can_kill_turn_player",
+    "can_kill_other",
+    "inv_race_turn_player",
+    "inv_race_other"
+   ],
+   "edges": [],
+   "samples": {
+    "train": 42346,
+    "train_determinized": 84692,
+    "train_true_state": 42346
+   },
+   "cv": [
+    {
+     "lambda": 0.03,
+     "logloss_own": 0.532153,
+     "logloss_determinized": 0.536016,
+     "logloss_true_state": 0.532153
+    },
+    {
+     "lambda": 0.1,
+     "logloss_own": 0.532152,
+     "logloss_determinized": 0.536016,
+     "logloss_true_state": 0.532152
+    },
+    {
+     "lambda": 0.3,
+     "logloss_own": 0.532151,
+     "logloss_determinized": 0.536014,
+     "logloss_true_state": 0.532151
+    },
+    {
+     "lambda": 1.0,
+     "logloss_own": 0.532149,
+     "logloss_determinized": 0.53601,
+     "logloss_true_state": 0.532149
+    },
+    {
+     "lambda": 3.0,
+     "logloss_own": 0.532155,
+     "logloss_determinized": 0.536012,
+     "logloss_true_state": 0.532155
+    },
+    {
+     "lambda": 10.0,
+     "logloss_own": 0.532255,
+     "logloss_determinized": 0.53611,
+     "logloss_true_state": 0.532255
+    },
+    {
+     "lambda": 30.0,
+     "logloss_own": 0.532768,
+     "logloss_determinized": 0.536644,
+     "logloss_true_state": 0.532768
+    },
+    {
+     "lambda": 100.0,
+     "logloss_own": 0.534561,
+     "logloss_determinized": 0.538548,
+     "logloss_true_state": 0.534561
+    },
+    {
+     "lambda": 300.0,
+     "logloss_own": 0.537916,
+     "logloss_determinized": 0.542113,
+     "logloss_true_state": 0.537916
+    },
+    {
+     "lambda": 1000.0,
+     "logloss_own": 0.544705,
+     "logloss_determinized": 0.549199,
+     "logloss_true_state": 0.544705
+    }
+   ],
+   "lambda": 1.0,
+   "out_of_fold": {
+    "own": 0.532149,
+    "determinized": 0.53601,
+    "true_state": 0.532149,
+    "role_weights_determinized": 0.564112,
+    "role_weights_true_state": 0.558011
+   },
+   "held_out": {
+    "samples_determinized": 6834,
+    "samples_true_state": 3417,
+    "logloss_determinized": 0.586583,
+    "logloss_true_state": 0.580945,
+    "role_weights_determinized": 0.593344,
+    "role_weights_true_state": 0.58534
+   },
+   "per_deck": [
+    {
+     "deck": "blue-white-federation",
+     "samples": 31318,
+     "games": 1000,
+     "logloss_model": 0.537857,
+     "logloss_role_weights": 0.584555,
+     "difference": -0.046697,
+     "se": 0.005932,
+     "worse_by_more_than_one_se": false
+    },
+    {
+     "deck": "purple-white-tekkadan",
+     "samples": 29628,
+     "games": 1000,
+     "logloss_model": 0.536754,
+     "logloss_role_weights": 0.551118,
+     "difference": -0.014364,
+     "se": 0.004562,
+     "worse_by_more_than_one_se": false
+    },
+    {
+     "deck": "red-green-zeon",
+     "samples": 27530,
+     "games": 1000,
+     "logloss_model": 0.531339,
+     "logloss_role_weights": 0.544898,
+     "difference": -0.013559,
+     "se": 0.005222,
+     "worse_by_more_than_one_se": false
+    },
+    {
+     "deck": "blue-green-ramp",
+     "samples": 30692,
+     "games": 1000,
+     "logloss_model": 0.528331,
+     "logloss_role_weights": 0.554079,
+     "difference": -0.025748,
+     "se": 0.00563,
+     "worse_by_more_than_one_se": false
+    },
+    {
+     "deck": "purple-blue-swarm",
+     "samples": 21118,
+     "games": 800,
+     "logloss_model": 0.529165,
+     "logloss_role_weights": 0.580709,
+     "difference": -0.051544,
+     "se": 0.006004,
+     "worse_by_more_than_one_se": false
+    },
+    {
+     "deck": "red-purple-control",
+     "samples": 29098,
+     "games": 800,
+     "logloss_model": 0.550753,
+     "logloss_role_weights": 0.572054,
+     "difference": -0.021301,
+     "se": 0.00568,
+     "worse_by_more_than_one_se": false
+    }
+   ],
+   "weights": [
+    {
+     "intercept": -0.454192,
+     "life": 0.257459,
+     "danger": -0.517504,
+     "ap": 0.138263,
+     "hp": 0.127053,
+     "linked": -0.216165,
+     "ready": 0.141756,
+     "hand_units": 0.578472,
+     "hand_pilots": 0.503501,
+     "hand_commands": 0.453921,
+     "hand_bases": 0.479934,
+     "level": -0.01504,
+     "bursts": 0.340938,
+     "can_kill_turn_player": 1.13701,
+     "can_kill_other": -0.459655,
+     "inv_race_turn_player": 2.498875,
+     "inv_race_other": -0.219521
+    }
+   ]
+  },
+  {
+   "key": "kw=0,ab=0,hs=0,bp=0,det=1,int=1,ph=0",
+   "mode": "determinized",
+   "features": [
+    "intercept",
+    "life",
+    "danger",
+    "ap",
+    "hp",
+    "linked",
+    "ready",
+    "hand_units",
+    "hand_pilots",
+    "hand_commands",
+    "hand_bases",
+    "level",
+    "bursts",
+    "can_kill_turn_player",
+    "can_kill_other",
+    "inv_race_turn_player",
+    "inv_race_other"
+   ],
+   "edges": [],
+   "samples": {
+    "train": 84692,
+    "train_determinized": 84692,
+    "train_true_state": 42346
+   },
+   "cv": [
+    {
+     "lambda": 0.03,
+     "logloss_own": 0.533756,
+     "logloss_determinized": 0.533756,
+     "logloss_true_state": 0.533946
+    },
+    {
+     "lambda": 0.1,
+     "logloss_own": 0.533756,
+     "logloss_determinized": 0.533756,
+     "logloss_true_state": 0.533946
+    },
+    {
+     "lambda": 0.3,
+     "logloss_own": 0.533755,
+     "logloss_determinized": 0.533755,
+     "logloss_true_state": 0.533945
+    },
+    {
+     "lambda": 1.0,
+     "logloss_own": 0.533754,
+     "logloss_determinized": 0.533754,
+     "logloss_true_state": 0.533944
+    },
+    {
+     "lambda": 3.0,
+     "logloss_own": 0.533752,
+     "logloss_determinized": 0.533752,
+     "logloss_true_state": 0.533944
+    },
+    {
+     "lambda": 10.0,
+     "logloss_own": 0.533775,
+     "logloss_determinized": 0.533775,
+     "logloss_true_state": 0.533968
+    },
+    {
+     "lambda": 30.0,
+     "logloss_own": 0.533961,
+     "logloss_determinized": 0.533961,
+     "logloss_true_state": 0.534147
+    },
+    {
+     "lambda": 100.0,
+     "logloss_own": 0.534906,
+     "logloss_determinized": 0.534906,
+     "logloss_true_state": 0.535033
+    },
+    {
+     "lambda": 300.0,
+     "logloss_own": 0.537224,
+     "logloss_determinized": 0.537224,
+     "logloss_true_state": 0.537184
+    },
+    {
+     "lambda": 1000.0,
+     "logloss_own": 0.542096,
+     "logloss_determinized": 0.542096,
+     "logloss_true_state": 0.541678
+    }
+   ],
+   "lambda": 3.0,
+   "out_of_fold": {
+    "own": 0.533752,
+    "determinized": 0.533752,
+    "true_state": 0.533944,
+    "role_weights_determinized": 0.564112,
+    "role_weights_true_state": 0.558011
+   },
+   "held_out": {
+    "samples_determinized": 6834,
+    "samples_true_state": 3417,
+    "logloss_determinized": 0.582068,
+    "logloss_true_state": 0.581206,
+    "role_weights_determinized": 0.593344,
+    "role_weights_true_state": 0.58534
+   },
+   "per_deck": [
+    {
+     "deck": "blue-white-federation",
+     "samples": 31318,
+     "games": 1000,
+     "logloss_model": 0.538357,
+     "logloss_role_weights": 0.584555,
+     "difference": -0.046198,
+     "se": 0.006064,
+     "worse_by_more_than_one_se": false
+    },
+    {
+     "deck": "purple-white-tekkadan",
+     "samples": 29628,
+     "games": 1000,
+     "logloss_model": 0.534457,
+     "logloss_role_weights": 0.551118,
+     "difference": -0.016661,
+     "se": 0.004806,
+     "worse_by_more_than_one_se": false
+    },
+    {
+     "deck": "red-green-zeon",
+     "samples": 27530,
+     "games": 1000,
+     "logloss_model": 0.529538,
+     "logloss_role_weights": 0.544898,
+     "difference": -0.01536,
+     "se": 0.005306,
+     "worse_by_more_than_one_se": false
+    },
+    {
+     "deck": "blue-green-ramp",
+     "samples": 30692,
+     "games": 1000,
+     "logloss_model": 0.526649,
+     "logloss_role_weights": 0.554079,
+     "difference": -0.02743,
+     "se": 0.005813,
+     "worse_by_more_than_one_se": false
+    },
+    {
+     "deck": "purple-blue-swarm",
+     "samples": 21118,
+     "games": 800,
+     "logloss_model": 0.524229,
+     "logloss_role_weights": 0.580709,
+     "difference": -0.05648,
+     "se": 0.00647,
+     "worse_by_more_than_one_se": false
+    },
+    {
+     "deck": "red-purple-control",
+     "samples": 29098,
+     "games": 800,
+     "logloss_model": 0.546471,
+     "logloss_role_weights": 0.572054,
+     "difference": -0.025583,
+     "se": 0.005818,
+     "worse_by_more_than_one_se": false
+    }
+   ],
+   "weights": [
+    {
+     "intercept": -0.44383,
+     "life": 0.260708,
+     "danger": -0.518041,
+     "ap": 0.139003,
+     "hp": 0.127297,
+     "linked": -0.22253,
+     "ready": 0.133325,
+     "hand_units": 0.549267,
+     "hand_pilots": 0.493383,
+     "hand_commands": 0.544249,
+     "hand_bases": 0.532833,
+     "level": -0.007277,
+     "bursts": 0.298786,
+     "can_kill_turn_player": 1.25342,
+     "can_kill_other": -0.484403,
+     "inv_race_turn_player": 2.375939,
+     "inv_race_other": -0.168635
+    }
+   ]
+  },
+  {
+   "key": "kw=0,ab=0,hs=0,bp=0,det=1,int=1,ph=1",
+   "mode": "determinized",
+   "features": [
+    "intercept",
+    "life",
+    "danger",
+    "ap",
+    "hp",
+    "linked",
+    "ready",
+    "hand_units",
+    "hand_pilots",
+    "hand_commands",
+    "hand_bases",
+    "level",
+    "bursts",
+    "can_kill_turn_player",
+    "can_kill_other",
+    "inv_race_turn_player",
+    "inv_race_other"
+   ],
+   "edges": [
+    8,
+    13
+   ],
+   "samples": {
+    "train": 84692,
+    "train_determinized": 84692,
+    "train_true_state": 42346
+   },
+   "cv": [
+    {
+     "lambda": 0.03,
+     "logloss_own": 0.529864,
+     "logloss_determinized": 0.529864,
+     "logloss_true_state": 0.529566
+    },
+    {
+     "lambda": 0.1,
+     "logloss_own": 0.529837,
+     "logloss_determinized": 0.529837,
+     "logloss_true_state": 0.529539
+    },
+    {
+     "lambda": 0.3,
+     "logloss_own": 0.529817,
+     "logloss_determinized": 0.529817,
+     "logloss_true_state": 0.529519
+    },
+    {
+     "lambda": 1.0,
+     "logloss_own": 0.529803,
+     "logloss_determinized": 0.529803,
+     "logloss_true_state": 0.529507
+    },
+    {
+     "lambda": 3.0,
+     "logloss_own": 0.529797,
+     "logloss_determinized": 0.529797,
+     "logloss_true_state": 0.529503
+    },
+    {
+     "lambda": 10.0,
+     "logloss_own": 0.5298,
+     "logloss_determinized": 0.5298,
+     "logloss_true_state": 0.529509
+    },
+    {
+     "lambda": 30.0,
+     "logloss_own": 0.529912,
+     "logloss_determinized": 0.529912,
+     "logloss_true_state": 0.529626
+    },
+    {
+     "lambda": 100.0,
+     "logloss_own": 0.53062,
+     "logloss_determinized": 0.53062,
+     "logloss_true_state": 0.530325
+    },
+    {
+     "lambda": 300.0,
+     "logloss_own": 0.532604,
+     "logloss_determinized": 0.532604,
+     "logloss_true_state": 0.532243
+    },
+    {
+     "lambda": 1000.0,
+     "logloss_own": 0.537343,
+     "logloss_determinized": 0.537343,
+     "logloss_true_state": 0.536805
+    }
+   ],
+   "lambda": 3.0,
+   "out_of_fold": {
+    "own": 0.529797,
+    "determinized": 0.529797,
+    "true_state": 0.529503,
+    "role_weights_determinized": 0.564112,
+    "role_weights_true_state": 0.558011
+   },
+   "held_out": {
+    "samples_determinized": 6834,
+    "samples_true_state": 3417,
+    "logloss_determinized": 0.575357,
+    "logloss_true_state": 0.574217,
+    "role_weights_determinized": 0.593344,
+    "role_weights_true_state": 0.58534
+   },
+   "per_deck": [
+    {
+     "deck": "blue-white-federation",
+     "samples": 31318,
+     "games": 1000,
+     "logloss_model": 0.538751,
+     "logloss_role_weights": 0.584555,
+     "difference": -0.045804,
+     "se": 0.006182,
+     "worse_by_more_than_one_se": false
+    },
+    {
+     "deck": "purple-white-tekkadan",
+     "samples": 29628,
+     "games": 1000,
+     "logloss_model": 0.53166,
+     "logloss_role_weights": 0.551118,
+     "difference": -0.019458,
+     "se": 0.005107,
+     "worse_by_more_than_one_se": false
+    },
+    {
+     "deck": "red-green-zeon",
+     "samples": 27530,
+     "games": 1000,
+     "logloss_model": 0.524859,
+     "logloss_role_weights": 0.544898,
+     "difference": -0.020039,
+     "se": 0.005618,
+     "worse_by_more_than_one_se": false
+    },
+    {
+     "deck": "blue-green-ramp",
+     "samples": 30692,
+     "games": 1000,
+     "logloss_model": 0.522933,
+     "logloss_role_weights": 0.554079,
+     "difference": -0.031146,
+     "se": 0.006613,
+     "worse_by_more_than_one_se": false
+    },
+    {
+     "deck": "purple-blue-swarm",
+     "samples": 21118,
+     "games": 800,
+     "logloss_model": 0.517563,
+     "logloss_role_weights": 0.580709,
+     "difference": -0.063146,
+     "se": 0.006285,
+     "worse_by_more_than_one_se": false
+    },
+    {
+     "deck": "red-purple-control",
+     "samples": 29098,
+     "games": 800,
+     "logloss_model": 0.539056,
+     "logloss_role_weights": 0.572054,
+     "difference": -0.032997,
+     "se": 0.006698,
+     "worse_by_more_than_one_se": false
+    }
+   ],
+   "weights": [
+    {
+     "intercept": -0.492168,
+     "life": 0.581738,
+     "danger": 0.624361,
+     "ap": 0.202905,
+     "hp": 0.091429,
+     "linked": -0.375213,
+     "ready": 0.393465,
+     "hand_units": 0.74839,
+     "hand_pilots": 0.685063,
+     "hand_commands": 0.754136,
+     "hand_bases": 0.694814,
+     "level": 0.180835,
+     "bursts": 0.175344,
+     "can_kill_turn_player": 0.856745,
+     "can_kill_other": -0.862852,
+     "inv_race_turn_player": 1.151352,
+     "inv_race_other": 0.064535
+    },
+    {
+     "intercept": -0.586948,
+     "life": 0.321605,
+     "danger": -0.558742,
+     "ap": 0.142691,
+     "hp": 0.134036,
+     "linked": -0.18156,
+     "ready": 0.151711,
+     "hand_units": 0.589281,
+     "hand_pilots": 0.593557,
+     "hand_commands": 0.57968,
+     "hand_bases": 0.605178,
+     "level": 0.260032,
+     "bursts": 0.440147,
+     "can_kill_turn_player": 1.030252,
+     "can_kill_other": -0.452594,
+     "inv_race_turn_player": 2.685268,
+     "inv_race_other": -0.283654
+    },
+    {
+     "intercept": -0.226968,
+     "life": 0.073729,
+     "danger": -0.586251,
+     "ap": 0.134231,
+     "hp": 0.133976,
+     "linked": -0.210332,
+     "ready": -0.009068,
+     "hand_units": 0.54854,
+     "hand_pilots": 0.40277,
+     "hand_commands": 0.522243,
+     "hand_bases": 0.597719,
+     "level": -0.142537,
+     "bursts": 0.619829,
+     "can_kill_turn_player": 1.374511,
+     "can_kill_other": -0.313833,
+     "inv_race_turn_player": 2.568756,
+     "inv_race_other": -0.573546
+    }
+   ]
+  },
+  {
+   "key": "kw=1,ab=1,hs=1,bp=1,det=1,int=1,ph=1",
+   "mode": "determinized",
+   "features": [
+    "intercept",
+    "life",
+    "danger",
+    "ap",
+    "hp",
+    "linked",
+    "ready",
+    "level",
+    "bursts",
+    "can_kill_turn_player",
+    "can_kill_other",
+    "inv_race_turn_player",
+    "inv_race_other",
+    "tp_hand_unit",
+    "tp_hand_pilot",
+    "tp_hand_command",
+    "tp_hand_base",
+    "ot_hand_unit",
+    "ot_hand_pilot",
+    "ot_hand_command",
+    "ot_hand_base",
+    "tp_castable_units",
+    "tp_castable_others",
+    "ot_castable_units",
+    "ot_castable_others",
+    "tp_kw_repair",
+    "ot_kw_repair",
+    "tp_kw_breach",
+    "ot_kw_breach",
+    "tp_kw_support",
+    "ot_kw_support",
+    "tp_kw_blocker",
+    "ot_kw_blocker",
+    "tp_kw_first_strike",
+    "ot_kw_first_strike",
+    "tp_kw_high_maneuver",
+    "ot_kw_high_maneuver",
+    "tp_kw_suppression",
+    "ot_kw_suppression",
+    "tp_units_activated",
+    "tp_units_triggered",
+    "ot_units_activated",
+    "ot_units_triggered",
+    "tp_burst_next",
+    "tp_burst_any",
+    "ot_burst_next",
+    "ot_burst_any"
+   ],
+   "edges": [
+    8,
+    13
+   ],
+   "samples": {
+    "train": 84692,
+    "train_determinized": 84692,
+    "train_true_state": 42346
+   },
+   "cv": [
+    {
+     "lambda": 0.03,
+     "logloss_own": 0.517603,
+     "logloss_determinized": 0.517603,
+     "logloss_true_state": 0.515761
+    },
+    {
+     "lambda": 0.1,
+     "logloss_own": 0.517596,
+     "logloss_determinized": 0.517596,
+     "logloss_true_state": 0.515776
+    },
+    {
+     "lambda": 0.3,
+     "logloss_own": 0.517706,
+     "logloss_determinized": 0.517706,
+     "logloss_true_state": 0.51595
+    },
+    {
+     "lambda": 1.0,
+     "logloss_own": 0.518243,
+     "logloss_determinized": 0.518243,
+     "logloss_true_state": 0.51663
+    },
+    {
+     "lambda": 3.0,
+     "logloss_own": 0.519151,
+     "logloss_determinized": 0.519151,
+     "logloss_true_state": 0.517694
+    },
+    {
+     "lambda": 10.0,
+     "logloss_own": 0.520178,
+     "logloss_determinized": 0.520178,
+     "logloss_true_state": 0.518863
+    },
+    {
+     "lambda": 30.0,
+     "logloss_own": 0.521192,
+     "logloss_determinized": 0.521192,
+     "logloss_true_state": 0.519989
+    },
+    {
+     "lambda": 100.0,
+     "logloss_own": 0.522913,
+     "logloss_determinized": 0.522913,
+     "logloss_true_state": 0.521851
+    },
+    {
+     "lambda": 300.0,
+     "logloss_own": 0.526087,
+     "logloss_determinized": 0.526087,
+     "logloss_true_state": 0.525219
+    },
+    {
+     "lambda": 1000.0,
+     "logloss_own": 0.532762,
+     "logloss_determinized": 0.532762,
+     "logloss_true_state": 0.532231
+    }
+   ],
+   "lambda": 0.1,
+   "out_of_fold": {
+    "own": 0.517596,
+    "determinized": 0.517596,
+    "true_state": 0.515776,
+    "role_weights_determinized": 0.564112,
+    "role_weights_true_state": 0.558011
+   },
+   "held_out": {
+    "samples_determinized": 6834,
+    "samples_true_state": 3417,
+    "logloss_determinized": 0.572595,
+    "logloss_true_state": 0.569424,
+    "role_weights_determinized": 0.593344,
+    "role_weights_true_state": 0.58534
+   },
+   "per_deck": [
+    {
+     "deck": "blue-white-federation",
+     "samples": 31318,
+     "games": 1000,
+     "logloss_model": 0.530843,
+     "logloss_role_weights": 0.584555,
+     "difference": -0.053712,
+     "se": 0.007863,
+     "worse_by_more_than_one_se": false
+    },
+    {
+     "deck": "purple-white-tekkadan",
+     "samples": 29628,
+     "games": 1000,
+     "logloss_model": 0.524536,
+     "logloss_role_weights": 0.551118,
+     "difference": -0.026582,
+     "se": 0.005976,
+     "worse_by_more_than_one_se": false
+    },
+    {
+     "deck": "red-green-zeon",
+     "samples": 27530,
+     "games": 1000,
+     "logloss_model": 0.519476,
+     "logloss_role_weights": 0.544898,
+     "difference": -0.025422,
+     "se": 0.006538,
+     "worse_by_more_than_one_se": false
+    },
+    {
+     "deck": "blue-green-ramp",
+     "samples": 30692,
+     "games": 1000,
+     "logloss_model": 0.504262,
+     "logloss_role_weights": 0.554079,
+     "difference": -0.049817,
+     "se": 0.007575,
+     "worse_by_more_than_one_se": false
+    },
+    {
+     "deck": "purple-blue-swarm",
+     "samples": 21118,
+     "games": 800,
+     "logloss_model": 0.504359,
+     "logloss_role_weights": 0.580709,
+     "difference": -0.07635,
+     "se": 0.008319,
+     "worse_by_more_than_one_se": false
+    },
+    {
+     "deck": "red-purple-control",
+     "samples": 29098,
+     "games": 800,
+     "logloss_model": 0.518164,
+     "logloss_role_weights": 0.572054,
+     "difference": -0.05389,
+     "se": 0.008401,
+     "worse_by_more_than_one_se": false
+    }
+   ],
+   "weights": [
+    {
+     "intercept": -0.995437,
+     "life": 0.566885,
+     "danger": 0.232939,
+     "ap": 0.262069,
+     "hp": 0.081115,
+     "linked": -0.541271,
+     "ready": 0.293893,
+     "level": 0.203618,
+     "bursts": 3.667059,
+     "can_kill_turn_player": 1.561465,
+     "can_kill_other": -2.464857,
+     "inv_race_turn_player": 0.437337,
+     "inv_race_other": 0.598227,
+     "tp_hand_unit": 0.834539,
+     "tp_hand_pilot": 0.803426,
+     "tp_hand_command": 0.858337,
+     "tp_hand_base": 0.810887,
+     "ot_hand_unit": -0.734315,
+     "ot_hand_pilot": -0.78955,
+     "ot_hand_command": -0.850505,
+     "ot_hand_base": -0.781214,
+     "tp_castable_units": 0.060373,
+     "tp_castable_others": -0.077988,
+     "ot_castable_units": -0.060308,
+     "ot_castable_others": 0.160163,
+     "tp_kw_repair": 0.198814,
+     "ot_kw_repair": -0.165834,
+     "tp_kw_breach": -0.009606,
+     "ot_kw_breach": 0.117761,
+     "tp_kw_support": 0.0,
+     "ot_kw_support": 0.0,
+     "tp_kw_blocker": -0.27672,
+     "ot_kw_blocker": 0.310052,
+     "tp_kw_first_strike": 0.0,
+     "ot_kw_first_strike": 0.0,
+     "tp_kw_high_maneuver": 0.079716,
+     "ot_kw_high_maneuver": 0.046278,
+     "tp_kw_suppression": 0.541935,
+     "ot_kw_suppression": -0.214223,
+     "tp_units_activated": 0.280161,
+     "tp_units_triggered": 0.225121,
+     "ot_units_activated": -0.265185,
+     "ot_units_triggered": -0.072613,
+     "tp_burst_next": -4.480901,
+     "tp_burst_any": -15.898858,
+     "ot_burst_next": 5.110073,
+     "ot_burst_any": 15.525712
+    },
+    {
+     "intercept": 0.321786,
+     "life": 0.299325,
+     "danger": -0.823698,
+     "ap": 0.130807,
+     "hp": 0.168506,
+     "linked": -0.104512,
+     "ready": 0.126307,
+     "level": 0.303939,
+     "bursts": 0.781273,
+     "can_kill_turn_player": 0.825215,
+     "can_kill_other": -0.431091,
+     "inv_race_turn_player": 2.938769,
+     "inv_race_other": -0.875311,
+     "tp_hand_unit": 0.638844,
+     "tp_hand_pilot": 0.582679,
+     "tp_hand_command": 0.559051,
+     "tp_hand_base": 0.588802,
+     "ot_hand_unit": -0.818707,
+     "ot_hand_pilot": -0.602477,
+     "ot_hand_command": -0.610095,
+     "ot_hand_base": -0.666526,
+     "tp_castable_units": -0.071405,
+     "tp_castable_others": 0.004033,
+     "ot_castable_units": 0.248347,
+     "ot_castable_others": 0.029377,
+     "tp_kw_repair": -0.135316,
+     "ot_kw_repair": 0.126846,
+     "tp_kw_breach": 0.049621,
+     "ot_kw_breach": -0.004763,
+     "tp_kw_support": 0.0,
+     "ot_kw_support": 0.0,
+     "tp_kw_blocker": -0.116905,
+     "ot_kw_blocker": 0.118094,
+     "tp_kw_first_strike": 0.0,
+     "ot_kw_first_strike": 0.0,
+     "tp_kw_high_maneuver": -0.544771,
+     "ot_kw_high_maneuver": 0.294718,
+     "tp_kw_suppression": 0.752836,
+     "ot_kw_suppression": -0.056367,
+     "tp_units_activated": 0.164498,
+     "tp_units_triggered": -0.020458,
+     "ot_units_activated": 0.103253,
+     "ot_units_triggered": 0.047269,
+     "tp_burst_next": 1.389235,
+     "tp_burst_any": -2.553624,
+     "ot_burst_next": 0.262846,
+     "ot_burst_any": 1.024702
+    },
+    {
+     "intercept": -0.371463,
+     "life": 0.231091,
+     "danger": -0.532232,
+     "ap": 0.100362,
+     "hp": 0.165829,
+     "linked": -0.137418,
+     "ready": 0.065548,
+     "level": -0.158416,
+     "bursts": 0.439508,
+     "can_kill_turn_player": 1.481817,
+     "can_kill_other": -0.433395,
+     "inv_race_turn_player": 2.269946,
+     "inv_race_other": -0.440213,
+     "tp_hand_unit": 1.358727,
+     "tp_hand_pilot": 0.446786,
+     "tp_hand_command": 0.463726,
+     "tp_hand_base": 0.552947,
+     "ot_hand_unit": -1.0194,
+     "ot_hand_pilot": -0.330939,
+     "ot_hand_command": -0.527705,
+     "ot_hand_base": -0.606247,
+     "tp_castable_units": -0.758425,
+     "tp_castable_others": 0.037747,
+     "ot_castable_units": 0.611045,
+     "ot_castable_others": 0.031745,
+     "tp_kw_repair": -0.151521,
+     "ot_kw_repair": 0.099355,
+     "tp_kw_breach": 0.09469,
+     "ot_kw_breach": -0.069753,
+     "tp_kw_support": 0.0,
+     "ot_kw_support": 0.0,
+     "tp_kw_blocker": 0.095303,
+     "ot_kw_blocker": -0.142624,
+     "tp_kw_first_strike": 0.0,
+     "ot_kw_first_strike": 0.0,
+     "tp_kw_high_maneuver": 0.783919,
+     "ot_kw_high_maneuver": -0.155886,
+     "tp_kw_suppression": 0.87297,
+     "ot_kw_suppression": -0.586303,
+     "tp_units_activated": -0.072836,
+     "tp_units_triggered": 0.062401,
+     "ot_units_activated": 0.164242,
+     "ot_units_triggered": -0.040793,
+     "tp_burst_next": 3.112131,
+     "tp_burst_any": -1.243866,
+     "ot_burst_next": -2.519277,
+     "ot_burst_any": 0.895391
+    }
+   ]
+  }
+ ],
+ "tests": []
+}

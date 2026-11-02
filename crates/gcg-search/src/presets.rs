@@ -323,15 +323,15 @@ mod tests {
         assert_eq!(cfg.mechanisms.set_text("root_trees", "4"), Some(Ok(())));
         assert_eq!(cfg.check_mechanisms(), Ok(()));
         assert_eq!(
-            cfg.mechanisms.set_text("opponent_buckets", "8"),
+            cfg.mechanisms.set_text("opponent_list", "archetype"),
             Some(Ok(()))
         );
         assert_eq!(
             cfg.check_mechanisms(),
-            Err("mechanism opponent_buckets (P6-C) is not available in this build".to_owned())
+            Err("mechanism opponent_list (P6-C) is not available in this build".to_owned())
         );
         assert_eq!(
-            cfg.mechanisms.set_text("opponent_buckets", "none"),
+            cfg.mechanisms.set_text("opponent_list", "known"),
             Some(Ok(()))
         );
         assert_eq!(cfg.check_mechanisms(), Ok(()));

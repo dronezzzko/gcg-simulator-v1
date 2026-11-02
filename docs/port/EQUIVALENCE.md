@@ -63,6 +63,24 @@ views 280 and worlds 100 traces; tier 2 holds coverage 468, fuzz 500, search 144
 
 Filled in from `build/comparison/equivalence/tally.txt` when the matrix run completes.
 
+### Numbering-shift probe (PLAN §8.9, R1)
+
+The reference's equivalent-move fingerprint reads once-per-turn records, and lasting-rule once
+keys contain `effect_key`, a number Python assigns in first-use order inside one process
+(`effects/registry.py:124-130`). Python's own output could therefore depend on which games a
+worker process played before. The probe runs Python with every process-local effect number
+shifted by 1,000 (`port/oracle/offset_hook/sitecustomize.py`) and Python at `--workers 1`
+against `--workers 10`:
+
+`COMPARE_OUT=build/probe scripts/compare_python_vs_rust.sh equivalence --matches 4 --seeds "1 2"
+--formats bo3 --presets "fast standard" --pairs "red-green-zeon:blue-white-federation
+purple-white-tekkadan:red-green-zeon" --decision-logs off --offset-probe 1000 --python-only`
+
+Result: 8 configurations, 0 depend on the numbering, and Python `--workers 1` and `--workers 10`
+differ in 0 (each baseline also identical under PYTHONHASHSEED 1 and 2). The hazard exists in
+the code but did not fire on these games; the Rust port keys continuous effects by value, so it
+cannot depend on numbering at all.
+
 ## Known differences
 
 None of these changes a game, a decision or a byte of `results.json`, `games.ndjson`,

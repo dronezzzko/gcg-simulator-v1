@@ -83,13 +83,13 @@ options:
 
 $ gcg-eval --help
 usage: gcg-eval [-h]
-                {reference-benchmark,preset-benchmark,head-to-head,compare,ablation,budget-curve,fidelity,regret,tune,calibrate,compare-runs,decks,gates,evidence,validate,env,benchmark,replay-game,replay-check} ...
+                {reference-benchmark,preset-benchmark,head-to-head,compare,ablation,budget-curve,fidelity,regret,tune,tune-leaf,calibrate,compare-runs,decks,gates,evidence,validate,env,benchmark,replay-game,replay-check} ...
 
 Evaluation harness of the gcg-sim port: the reference search, head-to-head
 comparisons of agents and the tuning tools.
 
 positional arguments:
-  {reference-benchmark,preset-benchmark,head-to-head,compare,ablation,budget-curve,fidelity,regret,tune,calibrate,compare-runs,decks,gates,evidence,validate,env,benchmark,replay-game,replay-check}
+  {reference-benchmark,preset-benchmark,head-to-head,compare,ablation,budget-curve,fidelity,regret,tune,tune-leaf,calibrate,compare-runs,decks,gates,evidence,validate,env,benchmark,replay-game,replay-check}
     reference-benchmark
                         the benchmark pipeline with the reference search and
                         its presets
@@ -102,6 +102,8 @@ positional arguments:
     fidelity            do two agents rank deck variants alike
     regret              decision-level regret against an oracle search
     tune                fit the evaluation weights from recorded positions
+    tune-leaf           record leaf-point positions and fit the strengthened
+                        evaluation (P6-G)
     calibrate           simulated against observed matchup rates
     compare-runs        paired analysis of two same-seed benchmark runs
     decks               deck-set tools: --overlap
@@ -488,6 +490,79 @@ options:
   --pair PAIR           explicit pairs DECK_A:DECK_B[,DECK_C:DECK_D...] (deck
                         names or files); repeatable; replaces --decks
   --games GAMES         self-play games, a multiple of 4 (default 240)
+  --seed SEED           master seed (default 1)
+  --role {tuning,dev,confirm,eval,review}
+                        seed role: the seed must lie in its range and is
+                        recorded in the ledger
+  --ledger LEDGER       seed ledger of --role runs (default
+                        docs/port/eval/seed-ledger.json)
+  --workers WORKERS     worker threads; auto uses one per logical CPU
+  --choose-first {seat0,agents}
+                        seat0: seat 0 goes first in every game (balanced
+                        play/draw); agents: the chooser's agent decides
+  --out OUT             also write the report, with every game, here
+
+$ gcg-eval tune-leaf --help
+usage: gcg-eval tune-leaf [-h] [--agent AGENT] [--positions POSITIONS]
+                          [--record RECORD] [--model MODEL]
+                          [--weights-out WEIGHTS_OUT]
+                          [--test-positions TEST_POSITIONS] [--folds FOLDS]
+                          [--fold-by {game,pair}] [--signs] [--deck-transfer]
+                          [--lambdas LAMBDAS] [--steps STEPS]
+                          [--holdout-pairs HOLDOUT_PAIRS]
+                          [--min-turn MIN_TURN]
+                          [--decks {examples,tests,tuning,eval,panel}]
+                          [--pairs {all,tuning,held-out}] [--pair PAIR]
+                          [--games GAMES] [--seed SEED]
+                          [--role {tuning,dev,confirm,eval,review}]
+                          [--ledger LEDGER] [--workers WORKERS]
+                          [--choose-first {seat0,agents}] [--out OUT]
+
+Record leaf-point positions from self-play of the strengthened search and fit
+the P6-G evaluation models (W-34 to W-37, W-39, W-142).
+
+options:
+  -h, --help            show this help message and exit
+  --agent AGENT         the self-play agent (default search:standard)
+  --positions POSITIONS
+                        fit these recorded positions instead of playing;
+                        repeatable
+  --record RECORD       write the recorded positions here
+  --model MODEL         a model to fit, by its P6-G flags joined with + (for
+                        example determinized_fit+keyword_features); repeatable
+  --weights-out WEIGHTS_OUT
+                        write the fitted models as the table gcg-search embeds
+  --test-positions TEST_POSITIONS
+                        also score the fitted models and ROLE_WEIGHTS on these
+                        recorded positions; repeatable
+  --folds FOLDS         cross-validation folds (default 5)
+  --fold-by {game,pair}
+                        deal the cross-validation folds by game or by pair
+                        (every game of a pair in one fold; judges transfer to
+                        other decks, W-36) (default game)
+  --signs               constrain each weight's sign: the turn player's assets
+                        help the turn player, the other player's assets and
+                        the danger term hurt it, the intercept is free
+  --deck-transfer       also refit each model without the games of each deck,
+                        at its chosen lambda, and score those games: the per-
+                        deck transfer table of W-36
+  --lambdas LAMBDAS     comma-separated L2 strengths scored by cross-
+                        validation (default 1,10,100,1000,10000)
+  --steps STEPS         Newton steps (default 30)
+  --holdout-pairs HOLDOUT_PAIRS
+                        the last N pairs are only the held-out check (default
+                        1)
+  --min-turn MIN_TURN   the first turn of a fitted position (default 3)
+  --decks {examples,tests,tuning,eval,panel}
+                        deck set; every pair of its decks is played (default
+                        panel)
+  --pairs {all,tuning,held-out}
+                        which pairs of the deck set (held-out split:
+                        docs/port/eval/panel.json; default tuning)
+  --pair PAIR           explicit pairs DECK_A:DECK_B[,DECK_C:DECK_D...] (deck
+                        names or files); repeatable; replaces --decks
+  --games GAMES         games per row, a multiple of 4, blocks dealt round-
+                        robin over the pairs (default 400)
   --seed SEED           master seed (default 1)
   --role {tuning,dev,confirm,eval,review}
                         seed role: the seed must lie in its range and is

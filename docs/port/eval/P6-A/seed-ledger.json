@@ -1,0 +1,275 @@
+{
+ "version": 1,
+ "entries": [
+  {
+   "role": "dev",
+   "master": 20100100,
+   "command": "ablation",
+   "config": {
+    "row": "individual",
+    "mechanism": "engine_error_leaf=false",
+    "challenger": "search:null-standard:engine_error_leaf=false",
+    "opponent": "ref:standard",
+    "decks": "panel",
+    "pairs": "tuning",
+    "games": 400,
+    "choose_first": "seat0"
+   }
+  },
+  {
+   "role": "dev",
+   "master": 20100100,
+   "command": "ablation",
+   "config": {
+    "row": "individual",
+    "mechanism": "horizon_turns=3",
+    "challenger": "search:null-standard:horizon_turns=3",
+    "opponent": "ref:standard",
+    "decks": "panel",
+    "pairs": "tuning",
+    "games": 400,
+    "choose_first": "seat0"
+   }
+  },
+  {
+   "role": "dev",
+   "master": 20100100,
+   "command": "ablation",
+   "config": {
+    "row": "individual",
+    "mechanism": "adaptive_horizon=true",
+    "challenger": "search:null-standard:adaptive_horizon=true",
+    "opponent": "ref:standard",
+    "decks": "panel",
+    "pairs": "tuning",
+    "games": 400,
+    "choose_first": "seat0"
+   }
+  },
+  {
+   "role": "dev",
+   "master": 20100100,
+   "command": "ablation",
+   "config": {
+    "row": "individual",
+    "mechanism": "generalized_leaf=true",
+    "challenger": "search:null-standard:generalized_leaf=true",
+    "opponent": "ref:standard",
+    "decks": "panel",
+    "pairs": "tuning",
+    "games": 400,
+    "choose_first": "seat0"
+   }
+  },
+  {
+   "role": "dev",
+   "master": 20100100,
+   "command": "ablation",
+   "config": {
+    "row": "individual",
+    "mechanism": "capped_rollout_continuation=true",
+    "challenger": "search:null-standard:capped_rollout_continuation=true",
+    "opponent": "ref:standard",
+    "decks": "panel",
+    "pairs": "tuning",
+    "games": 400,
+    "choose_first": "seat0"
+   }
+  },
+  {
+   "role": "dev",
+   "master": 20100100,
+   "command": "ablation",
+   "config": {
+    "row": "individual",
+    "mechanism": "horizon_turns=4",
+    "challenger": "search:null-standard:horizon_turns=4",
+    "opponent": "ref:standard",
+    "decks": "panel",
+    "pairs": "tuning",
+    "games": 400,
+    "choose_first": "seat0"
+   }
+  },
+  {
+   "role": "dev",
+   "master": 20100100,
+   "command": "ablation",
+   "config": {
+    "row": "individual",
+    "mechanism": "horizon_turns=3,adaptive_horizon=true,generalized_leaf=true,capped_rollout_continuation=true",
+    "challenger": "search:null-standard:horizon_turns=3,adaptive_horizon=true,generalized_leaf=true,capped_rollout_continuation=true",
+    "opponent": "ref:standard",
+    "decks": "panel",
+    "pairs": "tuning",
+    "games": 400,
+    "choose_first": "seat0"
+   }
+  },
+  {
+   "role": "dev",
+   "master": 20100200,
+   "command": "ablation",
+   "config": {
+    "row": "leave-one-out",
+    "mechanism": "horizon_turns=2",
+    "challenger": "search:standard:iterations_per_option=256,min_iterations=640,max_iterations=2560,horizon_turns=3",
+    "opponent": "search:standard:iterations_per_option=256,min_iterations=640,max_iterations=2560,horizon_turns=3,horizon_turns=2",
+    "decks": "panel",
+    "pairs": "tuning",
+    "games": 400,
+    "choose_first": "seat0"
+   }
+  },
+  {
+   "role": "dev",
+   "master": 20100200,
+   "command": "ablation",
+   "config": {
+    "row": "leave-one-out",
+    "mechanism": "adaptive_horizon=false",
+    "challenger": "search:standard:iterations_per_option=256,min_iterations=640,max_iterations=2560,adaptive_horizon=true",
+    "opponent": "search:standard:iterations_per_option=256,min_iterations=640,max_iterations=2560,adaptive_horizon=true,adaptive_horizon=false",
+    "decks": "panel",
+    "pairs": "tuning",
+    "games": 400,
+    "choose_first": "seat0"
+   }
+  },
+  {
+   "role": "dev",
+   "master": 20100200,
+   "command": "ablation",
+   "config": {
+    "row": "leave-one-out",
+    "mechanism": "horizon_turns=2",
+    "challenger": "search:standard:iterations_per_option=256,min_iterations=640,max_iterations=2560,horizon_turns=4",
+    "opponent": "search:standard:iterations_per_option=256,min_iterations=640,max_iterations=2560,horizon_turns=4,horizon_turns=2",
+    "decks": "panel",
+    "pairs": "tuning",
+    "games": 400,
+    "choose_first": "seat0"
+   }
+  },
+  {
+   "role": "dev",
+   "master": 20100200,
+   "command": "ablation",
+   "config": {
+    "row": "leave-one-out",
+    "mechanism": "horizon_turns=2,adaptive_horizon=false,generalized_leaf=false,capped_rollout_continuation=false",
+    "challenger": "search:standard:iterations_per_option=256,min_iterations=640,max_iterations=2560,horizon_turns=3,adaptive_horizon=true,generalized_leaf=true,capped_rollout_continuation=true",
+    "opponent": "search:standard:iterations_per_option=256,min_iterations=640,max_iterations=2560,horizon_turns=3,adaptive_horizon=true,generalized_leaf=true,capped_rollout_continuation=true,horizon_turns=2,adaptive_horizon=false,generalized_leaf=false,capped_rollout_continuation=false",
+    "decks": "panel",
+    "pairs": "tuning",
+    "games": 400,
+    "choose_first": "seat0"
+   }
+  },
+  {
+   "role": "dev",
+   "master": 20100200,
+   "command": "ablation",
+   "config": {
+    "row": "leave-one-out",
+    "mechanism": "generalized_leaf=false",
+    "challenger": "search:standard:iterations_per_option=256,min_iterations=640,max_iterations=2560,generalized_leaf=true",
+    "opponent": "search:standard:iterations_per_option=256,min_iterations=640,max_iterations=2560,generalized_leaf=true,generalized_leaf=false",
+    "decks": "panel",
+    "pairs": "tuning",
+    "games": 400,
+    "choose_first": "seat0"
+   }
+  },
+  {
+   "role": "dev",
+   "master": 20100200,
+   "command": "ablation",
+   "config": {
+    "row": "leave-one-out",
+    "mechanism": "capped_rollout_continuation=false",
+    "challenger": "search:standard:iterations_per_option=256,min_iterations=640,max_iterations=2560,capped_rollout_continuation=true",
+    "opponent": "search:standard:iterations_per_option=256,min_iterations=640,max_iterations=2560,capped_rollout_continuation=true,capped_rollout_continuation=false",
+    "decks": "panel",
+    "pairs": "tuning",
+    "games": 400,
+    "choose_first": "seat0"
+   }
+  },
+  {
+   "role": "dev",
+   "master": 20100100,
+   "command": "ablation",
+   "config": {
+    "row": "individual",
+    "mechanism": "adaptive_horizon=true,generalized_leaf=true,capped_rollout_continuation=true",
+    "challenger": "search:null-standard:adaptive_horizon=true,generalized_leaf=true,capped_rollout_continuation=true",
+    "opponent": "ref:standard",
+    "decks": "panel",
+    "pairs": "tuning",
+    "games": 400,
+    "choose_first": "seat0"
+   }
+  },
+  {
+   "role": "confirm",
+   "master": 30100100,
+   "command": "ablation",
+   "config": {
+    "row": "individual",
+    "mechanism": "adaptive_horizon=true",
+    "challenger": "search:null-standard:adaptive_horizon=true",
+    "opponent": "ref:standard",
+    "decks": "panel",
+    "pairs": "tuning",
+    "games": 1600,
+    "choose_first": "seat0"
+   }
+  },
+  {
+   "role": "confirm",
+   "master": 30100100,
+   "command": "ablation",
+   "config": {
+    "row": "individual",
+    "mechanism": "generalized_leaf=true",
+    "challenger": "search:null-standard:generalized_leaf=true",
+    "opponent": "ref:standard",
+    "decks": "panel",
+    "pairs": "tuning",
+    "games": 1600,
+    "choose_first": "seat0"
+   }
+  },
+  {
+   "role": "confirm",
+   "master": 30100100,
+   "command": "ablation",
+   "config": {
+    "row": "individual",
+    "mechanism": "engine_error_leaf=false",
+    "challenger": "search:null-standard:engine_error_leaf=false",
+    "opponent": "ref:standard",
+    "decks": "panel",
+    "pairs": "tuning",
+    "games": 1600,
+    "choose_first": "seat0"
+   }
+  },
+  {
+   "role": "confirm",
+   "master": 30100100,
+   "command": "ablation",
+   "config": {
+    "row": "individual",
+    "mechanism": "adaptive_horizon=true,generalized_leaf=true,capped_rollout_continuation=true",
+    "challenger": "search:null-standard:adaptive_horizon=true,generalized_leaf=true,capped_rollout_continuation=true",
+    "opponent": "ref:standard",
+    "decks": "panel",
+    "pairs": "tuning",
+    "games": 1600,
+    "choose_first": "seat0"
+   }
+  }
+ ]
+}

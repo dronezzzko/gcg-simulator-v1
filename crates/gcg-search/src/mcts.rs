@@ -861,7 +861,7 @@ pub(crate) fn search_with_carry<T: SearchTracer + ?Sized>(
 ) -> Result<(SearchResult, MechanismEffort), AgentError> {
     validate(&cfg.mechanisms).map_err(AgentError::Value)?;
     let mech = Composed::new(cfg);
-    let (mut result, effort) = match cfg.mechanisms.root_trees {
+    let (mut result, mut effort) = match cfg.mechanisms.root_trees {
         Some(k) => run_trees(
             &mech,
             obs.info(),
@@ -875,6 +875,7 @@ pub(crate) fn search_with_carry<T: SearchTracer + ?Sized>(
         None => run(&mech, obs.info(), obs.player(), cfg, rng, cx, tracer, carry),
     }?;
     result.stats.effort.applies_aux += mech.aux_applies();
+    effort.add(mech.effort());
     Ok((result, effort))
 }
 
@@ -1235,6 +1236,7 @@ fn run_trees(
             let dec = decision_of(&info, phase.player)?;
             let mech = Composed::with_state(&phase.cfg, state);
             let aux_before = mech.aux_applies();
+            let effort_before = mech.effort();
             let keys: Vec<ChildKey> = phase
                 .root
                 .list
@@ -1277,6 +1279,7 @@ fn run_trees(
                 &mut NoTrace,
             )?;
             data.effort.applies_aux += mech.aux_applies() - aux_before;
+            data.mech_effort.add(mech.effort().since(effort_before));
             let state = mech.into_state();
             Ok((info, TreeState::Running(Box::new(data)), state))
         });

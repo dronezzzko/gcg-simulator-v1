@@ -1,0 +1,443 @@
+{
+ "version": 1,
+ "entries": [
+  {
+   "role": "dev",
+   "master": 20700100,
+   "command": "ablation",
+   "config": {
+    "row": "individual",
+    "mechanism": "leaf_density=true",
+    "challenger": "search:null-standard:leaf_density=true",
+    "opponent": "ref:standard",
+    "decks": "panel",
+    "pairs": "tuning",
+    "games": 400,
+    "choose_first": "seat0"
+   }
+  },
+  {
+   "role": "dev",
+   "master": 20700100,
+   "command": "ablation",
+   "config": {
+    "row": "individual",
+    "mechanism": "engine_error_leaf=false",
+    "challenger": "search:null-standard:engine_error_leaf=false",
+    "opponent": "ref:standard",
+    "decks": "panel",
+    "pairs": "tuning",
+    "games": 400,
+    "choose_first": "seat0"
+   }
+  },
+  {
+   "role": "dev",
+   "master": 20700200,
+   "command": "ablation",
+   "config": {
+    "row": "leave-one-out",
+    "mechanism": "leaf_density=false",
+    "challenger": "search:standard:iterations_per_option=256,min_iterations=640,max_iterations=2560,leaf_density=true",
+    "opponent": "search:standard:iterations_per_option=256,min_iterations=640,max_iterations=2560,leaf_density=true,leaf_density=false",
+    "decks": "panel",
+    "pairs": "tuning",
+    "games": 400,
+    "choose_first": "seat0"
+   }
+  },
+  {
+   "role": "tuning",
+   "master": 10700200,
+   "command": "tune-leaf",
+   "config": {
+    "agent": "search:standard",
+    "decks": "tuning",
+    "pairs": "all",
+    "games": 1200,
+    "choose_first": "seat0"
+   }
+  },
+  {
+   "role": "tuning",
+   "master": 10700300,
+   "command": "tune-leaf",
+   "config": {
+    "agent": "search:fast",
+    "decks": "panel",
+    "pairs": "tuning",
+    "games": 3000,
+    "choose_first": "seat0"
+   }
+  },
+  {
+   "role": "tuning",
+   "master": 10700100,
+   "command": "tune-leaf",
+   "config": {
+    "agent": "search:standard",
+    "decks": "panel",
+    "pairs": "tuning",
+    "games": 6000,
+    "choose_first": "seat0"
+   }
+  },
+  {
+   "role": "dev",
+   "master": 20700100,
+   "command": "ablation",
+   "config": {
+    "row": "individual",
+    "mechanism": "determinized_fit=true,keyword_features=true,ability_count_features=true,hand_slots=true,burst_shield_probability=true,phase_weights=true",
+    "challenger": "search:null-standard:determinized_fit=true,keyword_features=true,ability_count_features=true,hand_slots=true,burst_shield_probability=true,phase_weights=true",
+    "opponent": "ref:standard",
+    "decks": "panel",
+    "pairs": "tuning",
+    "games": 400,
+    "choose_first": "seat0"
+   }
+  },
+  {
+   "role": "dev",
+   "master": 20700100,
+   "command": "ablation",
+   "config": {
+    "row": "individual",
+    "mechanism": "refit_weights=true",
+    "challenger": "search:null-standard:refit_weights=true",
+    "opponent": "ref:standard",
+    "decks": "panel",
+    "pairs": "tuning",
+    "games": 400,
+    "choose_first": "seat0"
+   }
+  },
+  {
+   "role": "dev",
+   "master": 20700100,
+   "command": "ablation",
+   "config": {
+    "row": "individual",
+    "mechanism": "determinized_fit=true",
+    "challenger": "search:null-standard:determinized_fit=true",
+    "opponent": "ref:standard",
+    "decks": "panel",
+    "pairs": "tuning",
+    "games": 400,
+    "choose_first": "seat0"
+   }
+  },
+  {
+   "role": "dev",
+   "master": 20700200,
+   "command": "ablation",
+   "config": {
+    "row": "leave-one-out",
+    "mechanism": "determinized_fit=false,keyword_features=false,ability_count_features=false,hand_slots=false,burst_shield_probability=false,phase_weights=false",
+    "challenger": "search:standard:iterations_per_option=256,min_iterations=640,max_iterations=2560,determinized_fit=true,keyword_features=true,ability_count_features=true,hand_slots=true,burst_shield_probability=true,phase_weights=true",
+    "opponent": "search:standard:iterations_per_option=256,min_iterations=640,max_iterations=2560,determinized_fit=true,keyword_features=true,ability_count_features=true,hand_slots=true,burst_shield_probability=true,phase_weights=true,determinized_fit=false,keyword_features=false,ability_count_features=false,hand_slots=false,burst_shield_probability=false,phase_weights=false",
+    "decks": "panel",
+    "pairs": "tuning",
+    "games": 400,
+    "choose_first": "seat0"
+   }
+  },
+  {
+   "role": "dev",
+   "master": 20700100,
+   "command": "ablation",
+   "config": {
+    "row": "individual",
+    "mechanism": "phase_weights=true",
+    "challenger": "search:null-standard:phase_weights=true",
+    "opponent": "ref:standard",
+    "decks": "panel",
+    "pairs": "tuning",
+    "games": 400,
+    "choose_first": "seat0"
+   }
+  },
+  {
+   "role": "dev",
+   "master": 20700100,
+   "command": "ablation",
+   "config": {
+    "row": "individual",
+    "mechanism": "keyword_features=true",
+    "challenger": "search:null-standard:keyword_features=true",
+    "opponent": "ref:standard",
+    "decks": "panel",
+    "pairs": "tuning",
+    "games": 400,
+    "choose_first": "seat0"
+   }
+  },
+  {
+   "role": "dev",
+   "master": 20700100,
+   "command": "ablation",
+   "config": {
+    "row": "individual",
+    "mechanism": "determinized_fit=true,value_scale=0.78",
+    "challenger": "search:null-standard:determinized_fit=true,value_scale=0.78",
+    "opponent": "ref:standard",
+    "decks": "panel",
+    "pairs": "tuning",
+    "games": 400,
+    "choose_first": "seat0"
+   }
+  },
+  {
+   "role": "dev",
+   "master": 20700100,
+   "command": "ablation",
+   "config": {
+    "row": "individual",
+    "mechanism": "burst_shield_probability=true",
+    "challenger": "search:null-standard:burst_shield_probability=true",
+    "opponent": "ref:standard",
+    "decks": "panel",
+    "pairs": "tuning",
+    "games": 400,
+    "choose_first": "seat0"
+   }
+  },
+  {
+   "role": "dev",
+   "master": 20700100,
+   "command": "ablation",
+   "config": {
+    "row": "individual",
+    "mechanism": "determinized_fit=true,keyword_features=true,ability_count_features=true,hand_slots=true,burst_shield_probability=true,phase_weights=true,value_scale=0.78",
+    "challenger": "search:null-standard:determinized_fit=true,keyword_features=true,ability_count_features=true,hand_slots=true,burst_shield_probability=true,phase_weights=true,value_scale=0.78",
+    "opponent": "ref:standard",
+    "decks": "panel",
+    "pairs": "tuning",
+    "games": 400,
+    "choose_first": "seat0"
+   }
+  },
+  {
+   "role": "dev",
+   "master": 20700200,
+   "command": "ablation",
+   "config": {
+    "row": "leave-one-out",
+    "mechanism": "determinized_fit=false",
+    "challenger": "search:standard:iterations_per_option=256,min_iterations=640,max_iterations=2560,determinized_fit=true",
+    "opponent": "search:standard:iterations_per_option=256,min_iterations=640,max_iterations=2560,determinized_fit=true,determinized_fit=false",
+    "decks": "panel",
+    "pairs": "tuning",
+    "games": 400,
+    "choose_first": "seat0"
+   }
+  },
+  {
+   "role": "dev",
+   "master": 20700100,
+   "command": "ablation",
+   "config": {
+    "row": "individual",
+    "mechanism": "hand_slots=true",
+    "challenger": "search:null-standard:hand_slots=true",
+    "opponent": "ref:standard",
+    "decks": "panel",
+    "pairs": "tuning",
+    "games": 400,
+    "choose_first": "seat0"
+   }
+  },
+  {
+   "role": "dev",
+   "master": 20700100,
+   "command": "ablation",
+   "config": {
+    "row": "individual",
+    "mechanism": "ability_count_features=true",
+    "challenger": "search:null-standard:ability_count_features=true",
+    "opponent": "ref:standard",
+    "decks": "panel",
+    "pairs": "tuning",
+    "games": 400,
+    "choose_first": "seat0"
+   }
+  },
+  {
+   "role": "dev",
+   "master": 20700100,
+   "command": "ablation",
+   "config": {
+    "row": "individual",
+    "mechanism": "no_tempo_feature=true",
+    "challenger": "search:null-standard:no_tempo_feature=true",
+    "opponent": "ref:standard",
+    "decks": "panel",
+    "pairs": "tuning",
+    "games": 400,
+    "choose_first": "seat0"
+   }
+  },
+  {
+   "role": "dev",
+   "master": 20700200,
+   "command": "ablation",
+   "config": {
+    "row": "leave-one-out",
+    "mechanism": "refit_weights=false",
+    "challenger": "search:standard:iterations_per_option=256,min_iterations=640,max_iterations=2560,refit_weights=true",
+    "opponent": "search:standard:iterations_per_option=256,min_iterations=640,max_iterations=2560,refit_weights=true,refit_weights=false",
+    "decks": "panel",
+    "pairs": "tuning",
+    "games": 400,
+    "choose_first": "seat0"
+   }
+  },
+  {
+   "role": "dev",
+   "master": 20700200,
+   "command": "ablation",
+   "config": {
+    "row": "leave-one-out",
+    "mechanism": "hand_slots=false",
+    "challenger": "search:standard:iterations_per_option=256,min_iterations=640,max_iterations=2560,hand_slots=true",
+    "opponent": "search:standard:iterations_per_option=256,min_iterations=640,max_iterations=2560,hand_slots=true,hand_slots=false",
+    "decks": "panel",
+    "pairs": "tuning",
+    "games": 400,
+    "choose_first": "seat0"
+   }
+  },
+  {
+   "role": "confirm",
+   "master": 30700100,
+   "command": "ablation",
+   "config": {
+    "row": "individual",
+    "mechanism": "determinized_fit=true,keyword_features=true,ability_count_features=true,hand_slots=true,burst_shield_probability=true,phase_weights=true",
+    "challenger": "search:null-standard:determinized_fit=true,keyword_features=true,ability_count_features=true,hand_slots=true,burst_shield_probability=true,phase_weights=true",
+    "opponent": "ref:standard",
+    "decks": "panel",
+    "pairs": "tuning",
+    "games": 1600,
+    "choose_first": "seat0"
+   }
+  },
+  {
+   "role": "dev",
+   "master": 20700200,
+   "command": "ablation",
+   "config": {
+    "row": "leave-one-out",
+    "mechanism": "phase_weights=false",
+    "challenger": "search:standard:iterations_per_option=256,min_iterations=640,max_iterations=2560,phase_weights=true",
+    "opponent": "search:standard:iterations_per_option=256,min_iterations=640,max_iterations=2560,phase_weights=true,phase_weights=false",
+    "decks": "panel",
+    "pairs": "tuning",
+    "games": 400,
+    "choose_first": "seat0"
+   }
+  },
+  {
+   "role": "dev",
+   "master": 20700200,
+   "command": "ablation",
+   "config": {
+    "row": "leave-one-out",
+    "mechanism": "burst_shield_probability=false",
+    "challenger": "search:standard:iterations_per_option=256,min_iterations=640,max_iterations=2560,burst_shield_probability=true",
+    "opponent": "search:standard:iterations_per_option=256,min_iterations=640,max_iterations=2560,burst_shield_probability=true,burst_shield_probability=false",
+    "decks": "panel",
+    "pairs": "tuning",
+    "games": 400,
+    "choose_first": "seat0"
+   }
+  },
+  {
+   "role": "dev",
+   "master": 20700200,
+   "command": "ablation",
+   "config": {
+    "row": "leave-one-out",
+    "mechanism": "keyword_features=false",
+    "challenger": "search:standard:iterations_per_option=256,min_iterations=640,max_iterations=2560,keyword_features=true",
+    "opponent": "search:standard:iterations_per_option=256,min_iterations=640,max_iterations=2560,keyword_features=true,keyword_features=false",
+    "decks": "panel",
+    "pairs": "tuning",
+    "games": 400,
+    "choose_first": "seat0"
+   }
+  },
+  {
+   "role": "tuning",
+   "master": 10700400,
+   "command": "tune-leaf",
+   "config": {
+    "agent": "search:standard:determinized_fit=true,keyword_features=true,ability_count_features=true,hand_slots=true,burst_shield_probability=true,phase_weights=true",
+    "decks": "panel",
+    "pairs": "tuning",
+    "games": 2100,
+    "choose_first": "seat0"
+   }
+  },
+  {
+   "role": "dev",
+   "master": 20700200,
+   "command": "ablation",
+   "config": {
+    "row": "leave-one-out",
+    "mechanism": "ability_count_features=false",
+    "challenger": "search:standard:iterations_per_option=256,min_iterations=640,max_iterations=2560,ability_count_features=true",
+    "opponent": "search:standard:iterations_per_option=256,min_iterations=640,max_iterations=2560,ability_count_features=true,ability_count_features=false",
+    "decks": "panel",
+    "pairs": "tuning",
+    "games": 400,
+    "choose_first": "seat0"
+   }
+  },
+  {
+   "role": "confirm",
+   "master": 30700100,
+   "command": "ablation",
+   "config": {
+    "row": "individual",
+    "mechanism": "hand_slots=true",
+    "challenger": "search:null-standard:hand_slots=true",
+    "opponent": "ref:standard",
+    "decks": "panel",
+    "pairs": "tuning",
+    "games": 1600,
+    "choose_first": "seat0"
+   }
+  },
+  {
+   "role": "confirm",
+   "master": 30700100,
+   "command": "ablation",
+   "config": {
+    "row": "individual",
+    "mechanism": "leaf_density=true",
+    "challenger": "search:null-standard:leaf_density=true",
+    "opponent": "ref:standard",
+    "decks": "panel",
+    "pairs": "tuning",
+    "games": 1600,
+    "choose_first": "seat0"
+   }
+  },
+  {
+   "role": "dev",
+   "master": 20700200,
+   "command": "ablation",
+   "config": {
+    "row": "leave-one-out",
+    "mechanism": "no_tempo_feature=false",
+    "challenger": "search:standard:iterations_per_option=256,min_iterations=640,max_iterations=2560,no_tempo_feature=true",
+    "opponent": "search:standard:iterations_per_option=256,min_iterations=640,max_iterations=2560,no_tempo_feature=true,no_tempo_feature=false",
+    "decks": "panel",
+    "pairs": "tuning",
+    "games": 400,
+    "choose_first": "seat0"
+   }
+  }
+ ]
+}

@@ -692,11 +692,12 @@ mod tests {
         };
         assert!(!config.mechanisms.engine_error_leaf && config.mechanisms.portable_math);
         assert!(parse_agent_spec("search:fast:root_trees=4").is_ok());
+        assert!(parse_agent_spec("search:fast:opponent_buckets=8").is_ok());
         assert_eq!(
-            parse_agent_spec("search:fast:opponent_buckets=8")
+            parse_agent_spec("search:fast:opponent_list=archetype")
                 .err()
                 .as_deref(),
-            Some("mechanism opponent_buckets (P6-C) is not available in this build")
+            Some("mechanism opponent_list (P6-C) is not available in this build")
         );
         assert!(parse_agent_spec("search:fast:engine_error_leaf=2").is_err());
         assert_eq!(

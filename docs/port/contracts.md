@@ -1322,6 +1322,26 @@ Differences from PLAN §10.3.5, settled here:
   priors and `prior_worlds` the in-tree priors; the backup is P6-D's or the reference's, then
   P6-E's record; each `root_trees` tree carries a copy of the root findings and its own P6-F
   state between phases, `ComposedState`, and its look-ahead applies join its effort).
+- Phase 6 wave 3 integration (P6-A, P6-B, P6-C, P6-G; lead-authorised): `MechanismEffort`
+  gains `horizon_extensions`, `capped_continued`, `capped_unsettled` (P6-A, W-01, W-15),
+  `belief_reweighted_worlds` and `opponent_view_worlds` (P6-C, W-07, W-139), all 0 with the
+  flags off, and `MechanismEffort::since` (the counts added since a snapshot); the core adds
+  `Composed::effort` once per search and, under `root_trees`, each tree phase's increase
+  (two lines in `mcts.rs`). `lib.rs` re-exports `pub use mech::p6g::api as p6g;` (P6-G: the
+  `gcg-eval tune-leaf` recorder calls the leaf's own feature and density functions, W-142).
+  Inside the crate (no other public change): `Composed` composes the four packages in the
+  order documented in `mech/mod.rs` ("Composition order"): `root_moves` runs P6-A's leaf check,
+  P6-C's note, P6-E (or the reference), then P6-B's `lethal_root`; `budget` is P6-E's (or the
+  reference's), then P6-B's; `world`, `select` and `backup` put P6-C first; `rollout_choice`
+  puts P6-B's proved lethal before P6-F; `leaf_value` runs P6-A's capped continuation, then a
+  finished line or P6-B's proved lethal by P6-A's leaf mapping, else the mapping's estimate of
+  a P6-G model or the weights, with P6-B's feature swaps on the scored columns and P6-G's
+  `leaf_density`; `validate` ends with `p6c::check`, then `p6g::validate`. The packages' own
+  leaves (`p6a::leaf_value`, `p6b::leaf::leaf_value`, `p6g::leaf_value`) are test-only
+  oracles: `mech/compose_tests.rs` checks that each leaf flag alone gives its package's leaf
+  bit for bit (every searched position's leaf, finished, capped and proved-lethal lines among
+  them) and its package's whole search. `ComposedState` carries P6-B's and P6-C's state;
+  P6-A's counters start afresh in each tree phase.
 
 ## gcg-runner (owner E) — PLAN §7, §9.5, §10.3.6, §12.7, Inv 01, Inv 02
 
@@ -1928,6 +1948,7 @@ in `log`; an `iter` record's `decision` is the decision record's `i`.
 | 2026-11-02 | Phase 6 wave 2 integration (P6-D, P6-E, P6-F, P6-H, P6-L, P6-M, P6-N; lead-authorised): gcg-search `SearchAgent.reuse` (P6-D's `subtree_reuse` carry folded in; `ReusingAgent`, `make_reusing_agent` dropped), pre-game decisions that simulated report `SearchStats` with `applies_aux` (P6-H), root-judgement applies in `applies_aux` (P6-E, `Mechanisms::root_applies`), the composition of the packages' hooks in `mech/mod.rs` (see the gcg-search section); `gcg-search` `[[test]]` targets `p6d_scenarios`, `p6h_pregame` and the shared `tests/scenarios/main.rs`; gcg-engine testkit `CapOutcome`, `TO_NEXT_TURN_STEPS`, `pass_all_allow_cap`, `to_next_turn_allow_cap`, `run_random_allow_cap`, and `pass_all`, `to_next_turn`, `run_random` fail at their caps (P6-N, W-113); gcg-runner `cli_support::benchmark_command` writes its reports through `write_report_set` (P6-M, W-102) and P6-M's additive `reports` API (`SearchReport`, `SeatEffort`, `write_report_set`, `SetOptions`, `Compression`, the 1.2.0 schema; `gcg-sim` still writes 1.1.0, O9 open); gcg-data's `legality` module (P6-L, additive); gcg-eval `validate`, `benchmark`, `replay-game`, `replay-check`, `compare-runs --allow-mixed`; `build-support/digest-manifest.txt` lists `src/gcg_sim/data/gcgapi/products.json` (embedded by gcg-eval's `validate`, P6-L) | Phase 6 wave 2 integration (lead-authorised) |
 | 2026-11-02 | P6-J engine hardening (lead-accepted): public `gcg_engine::diag` module with `CapKind`, `GameState::cap_kind()` (which safety cap ended the game; outputs unchanged, W-46) and the per-thread counter `diag::non_converged_views()` (W-48); under `paranoid`, `paranoid::{MovedHost, moved_hosts}` and the crate-private `GameState.trigger_seqs` side table (never serialised, absent from release builds, W-162); `gcg_effects` registry build rejects a computed damage-prevention threshold through `IrError::Malformed` naming the card (W-158) | lead (P6-J) |
 | 2026-11-02 | O9 results 1.2.0 (closes O9; PLAN §12.7, A10, A23): gcg-ai `Agent::effort` (default `None`), `AgentEffort` (`record`, `plus`, `applies`), `SearchSettings`; gcg-runner `AgentFactory::search_block` (default `None`), `GameRecord.effort` and `BenchmarkRun.search` (Rust-only, not in `to_json`), checkpoint lines' `effort`, `reports::{search_json, effort_json, versions_for}` replacing P6-M's `SearchReport`, `SeatEffort` and `ResultsData::{with_search, search}`, the completed `results.v1_2.schema.json`, `cli_support::{data_status, data_status_command}` take the `SchemaVersion` the binary writes; gcg-search `search_settings`, `weights_id`, `mcts::AUX_APPLIES_PER_ITERATION`, `SearchAgent.totals` and its `Agent::effort`; gcg-cli `commands::SCHEMA` and gcg-eval `benchmark_opts::SIM_SCHEMA` = 1.2.0, their factories' `search_block`; gcg-eval's `TracingAgent`/`TracingFactory` forward both | O9 implementer (lead-authorised for exactly these contract additions) |
+| 2026-11-02 | Phase 6 wave 3 integration (P6-A, P6-B, P6-C, P6-G; lead-authorised): gcg-search `MechanismEffort.{horizon_extensions, capped_continued, capped_unsettled}` (P6-A) and `MechanismEffort.{belief_reweighted_worlds, opponent_view_worlds}` (P6-C request 3), `MechanismEffort::since`, filled through `Composed::effort` in `mcts.rs` (`search_with_carry`, each `root_trees` phase); `lib.rs` `pub use mech::p6g::api as p6g` (P6-G, W-142); gcg-eval `lib.rs` `pub mod tune_ext` and the `tune-leaf` subcommand in `cli.rs` (P6-G); the composition of the four packages' hooks in `mech/mod.rs` (see the gcg-search section); the refused-flag examples of `presets.rs::unavailable_mechanisms_are_refused` and `agent_spec.rs::search_overrides_reach_the_mechanism_flags` move from `opponent_buckets=8` (now provided) to `opponent_list=archetype` (P6-C); the scenario target `tests/scenarios/main.rs` lists the `p6a_*`, `p6b_*` and `p6c_*` modules; no `Cargo.toml` change; `docs/port/eval/seed-ledger.json` gains the 83 entries of the P6-A, P6-B, P6-C and P6-G ledgers (kept per package) | Phase 6 wave 3 integration (lead-authorised) |
 
 ## Review log
 

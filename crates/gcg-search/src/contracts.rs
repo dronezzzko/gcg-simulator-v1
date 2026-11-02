@@ -207,12 +207,41 @@ pub struct MechanismEffort {
     /// Iterations whose simulated line ended in an engine error and was scored as a loss
     /// (`engine_error_leaf`, W-143).
     pub engine_error_leaves: u64,
+    /// Simulated lines `adaptive_horizon` extended past their horizon (W-01).
+    pub horizon_extensions: u64,
+    /// Capped rollouts `capped_rollout_continuation` continued to a main-phase decision (W-15).
+    pub capped_continued: u64,
+    /// Of those, the lines still unsettled after the continuation, scored 0.5 (W-15).
+    pub capped_unsettled: u64,
+    /// Worlds whose candidate `belief_worlds` drew is not the reference's world (W-07).
+    pub belief_reweighted_worlds: u64,
+    /// Opponent-view worlds `opponent_view_share` built (W-139).
+    pub opponent_view_worlds: u64,
 }
 
 impl MechanismEffort {
     /// Adds `other`'s counts.
     pub const fn add(&mut self, other: Self) {
         self.engine_error_leaves += other.engine_error_leaves;
+        self.horizon_extensions += other.horizon_extensions;
+        self.capped_continued += other.capped_continued;
+        self.capped_unsettled += other.capped_unsettled;
+        self.belief_reweighted_worlds += other.belief_reweighted_worlds;
+        self.opponent_view_worlds += other.opponent_view_worlds;
+    }
+
+    /// The counts added since `earlier`, a snapshot of the same running counters.
+    #[must_use]
+    pub const fn since(self, earlier: Self) -> Self {
+        Self {
+            engine_error_leaves: self.engine_error_leaves - earlier.engine_error_leaves,
+            horizon_extensions: self.horizon_extensions - earlier.horizon_extensions,
+            capped_continued: self.capped_continued - earlier.capped_continued,
+            capped_unsettled: self.capped_unsettled - earlier.capped_unsettled,
+            belief_reweighted_worlds: self.belief_reweighted_worlds
+                - earlier.belief_reweighted_worlds,
+            opponent_view_worlds: self.opponent_view_worlds - earlier.opponent_view_worlds,
+        }
     }
 }
 

@@ -35,6 +35,7 @@ pub mod specs;
 pub mod stats;
 pub mod trace;
 pub mod tune;
+pub mod tune_ext;
 pub mod validate_cmd;
 
 pub use contracts::*;
