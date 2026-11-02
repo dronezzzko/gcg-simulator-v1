@@ -19,6 +19,8 @@ mod game;
 mod interp;
 pub mod invariants;
 pub mod observe;
+#[cfg(feature = "paranoid")]
+pub mod paranoid;
 pub mod procedures;
 mod state;
 #[cfg(feature = "testkit")]

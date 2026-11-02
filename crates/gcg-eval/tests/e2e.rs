@@ -4,7 +4,12 @@
 //! writes identical reports at 1, 4 and 10 workers (T-080) and realises the A24 balance with
 //! `--choose-first seat0` (T-149); `reference-benchmark` writes Python's preset and agent names
 //! and schema 1.1.0, and its replays verify (T-082, the M8 smoke run); `preset-benchmark` runs a
-//! configuration file.
+//! configuration file. `e2e/workers.rs` runs fresh `gcg-eval` processes at 1, 4 and 10 workers
+//! for every player (T-003) and `compare` at the three M9 gate configurations against Python
+//! (T-079, `tests/vectors/parity/compare.json`).
+
+#[path = "e2e/workers.rs"]
+mod workers;
 
 use std::ffi::OsString;
 use std::path::{Path, PathBuf};

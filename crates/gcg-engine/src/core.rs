@@ -1872,6 +1872,7 @@ mod paranoid {
     /// `CacheChecker.emit` (`tests/paranoid.py:86-100`): an event `emit` skips as unlistened
     /// has no trigger candidate.
     pub(super) fn unlistened_event(st: &GameState, ev: Ev) -> Result<(), EngineError> {
+        crate::paranoid::count(crate::paranoid::Check::UnlistenedEvent);
         let dv = view::derived(st)?;
         assert!(
             view::trigger_index(st, &dv).get(ev).is_empty(),
@@ -1885,6 +1886,7 @@ mod paranoid {
     /// `CacheChecker.damage_scan` (`tests/paranoid.py:102-111`): when no damage reaches
     /// printed HP, none reaches the derived HP either.
     pub(super) fn no_printed_lethal_damage(st: &GameState) -> Result<(), EngineError> {
+        crate::paranoid::count(crate::paranoid::Check::NoPrintedLethalDamage);
         let dv = view::derived(st)?;
         for p in 0..2u8 {
             for z in [Zone::Battle, Zone::Base] {
@@ -1903,6 +1905,7 @@ mod paranoid {
     /// `CacheChecker.rules_management` (`tests/paranoid.py:113-125`): a check skipped because
     /// the state has not changed since the last one changes nothing when run in full.
     pub(super) fn unchanged_state(st: &GameState) -> Result<(), EngineError> {
+        crate::paranoid::count(crate::paranoid::Check::UnchangedState);
         let mut full = st.clone();
         full.rules_checked = -1;
         super::rules_management(&mut full)?;

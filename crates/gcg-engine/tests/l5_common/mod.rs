@@ -1,6 +1,7 @@
-//! Shared helpers of the layer-5 tests: the Python vectors of
-//! `tests/fixtures/l5_vectors.ndjson` (`tests/fixtures/export_l5_vectors.py`), decks by card
-//! number, snapshots and decision JSON.
+//! Shared helpers of the engine's integration tests: the Python vectors of
+//! `tests/fixtures/l5_vectors.ndjson` (`tests/fixtures/export_l5_vectors.py`) and
+//! `tests/fixtures/engine_vectors.ndjson` (`port/oracle/export_engine_vectors.py`), decks by
+//! card number, snapshots, decision JSON and the replay of Scenario operations.
 
 #![allow(dead_code, reason = "each test target uses a different part")]
 
@@ -11,7 +12,8 @@ use std::sync::{Arc, OnceLock};
 use gcg_effects::Registry;
 use gcg_engine::canon::from_canonical;
 use gcg_engine::{
-    Action, ActionKind, GameState, NewGameError, NewGameOptions, StateSnapshot, new_game_by_number,
+    Action, ActionKind, AddOptions, GameState, NewGameError, NewGameOptions, Scenario,
+    ScenarioOptions, StateSnapshot, Step, TestkitError, Zone, new_game_by_number,
 };
 use serde_json::{Value, json};
 
@@ -19,15 +21,128 @@ pub fn crate_dir() -> PathBuf {
     PathBuf::from(env!("CARGO_MANIFEST_DIR"))
 }
 
+fn ndjson(name: &str) -> Vec<Value> {
+    fs::read_to_string(crate_dir().join("tests/fixtures").join(name))
+        .unwrap_or_else(|e| panic!("{name}: {e}"))
+        .lines()
+        .map(|l| serde_json::from_str(l).expect("a JSON record"))
+        .collect()
+}
+
 pub fn vectors() -> &'static [Value] {
     static V: OnceLock<Vec<Value>> = OnceLock::new();
-    V.get_or_init(|| {
-        fs::read_to_string(crate_dir().join("tests/fixtures/l5_vectors.ndjson"))
-            .expect("the L5 vector file")
-            .lines()
-            .map(|l| serde_json::from_str(l).expect("a JSON record"))
-            .collect()
+    V.get_or_init(|| ndjson("l5_vectors.ndjson"))
+}
+
+/// The records of `tests/fixtures/engine_vectors.ndjson` of type `t`.
+pub fn engine_records(t: &str) -> Vec<&'static Value> {
+    static V: OnceLock<Vec<Value>> = OnceLock::new();
+    let all = V.get_or_init(|| ndjson("engine_vectors.ndjson"));
+    let out: Vec<&Value> = all.iter().filter(|r| r["t"] == t).collect();
+    assert!(!out.is_empty(), "no {t} records in engine_vectors.ndjson");
+    out
+}
+
+fn player(v: &Value) -> u8 {
+    u8::try_from(v.as_u64().expect("a player")).expect("a player")
+}
+
+fn zone(v: &Value) -> Zone {
+    Zone::from_value(int(v)).expect("a zone")
+}
+
+fn count(v: &Value) -> usize {
+    usize::try_from(v.as_u64().expect("a count")).expect("a count")
+}
+
+/// `Scenario(**init)` (`testkit.py:38-49`) with Python's defaults for absent keys.
+pub fn scenario_options(init: &Value) -> ScenarioOptions {
+    let d = ScenarioOptions::default();
+    ScenarioOptions {
+        active: init.get("active").map_or(d.active, player),
+        turn: init
+            .get("turn")
+            .map_or(d.turn, |v| i32::try_from(int(v)).expect("a turn")),
+        seed: init.get("seed").map_or(d.seed, u64_of),
+        deck_size: init.get("deck_size").map_or(d.deck_size, count),
+    }
+}
+
+/// Runs one Scenario operation of a vector record (the op lists of both exporters); the
+/// result as Python's JSON.
+///
+/// # Errors
+/// What the testkit raised.
+pub fn run_op(sc: &mut Scenario, op: &[Value]) -> Result<Value, TestkitError> {
+    let name = op[0].as_str().expect("an op name");
+    let a = &op[1..];
+    let step = |v: &Value| Step::from_value(int(v)).expect("a step");
+    Ok(match name {
+        "prepare_start" => {
+            sc.prepare_start(step(&a[0]))?;
+            Value::Null
+        }
+        "start" => {
+            sc.start(step(&a[0]))?;
+            Value::Null
+        }
+        "add" => {
+            let kw = &a[3];
+            let flag = |k: &str, d: bool| kw.get(k).map_or(d, |v| v.as_bool().expect("a bool"));
+            let o = AddOptions {
+                rested: flag("rested", false),
+                damage: kw
+                    .get("damage")
+                    .map_or(0, |v| i32::try_from(int(v)).expect("a damage")),
+                pilot: kw.get("pilot").map(|v| v.as_str().expect("a number")),
+                deployed_this_turn: flag("deployed_this_turn", false),
+                known: flag("known", true),
+            };
+            json!(sc.add(
+                player(&a[0]),
+                a[1].as_str().expect("a number"),
+                zone(&a[2]),
+                o
+            )?)
+        }
+        "hand" => json!(sc.hand(player(&a[0]), &strs(&a[1]))?),
+        "trash" => json!(sc.trash(player(&a[0]), &strs(&a[1]))?),
+        "shields" => json!(sc.shields(player(&a[0]), &strs(&a[1]))?),
+        "deck" => {
+            sc.deck(player(&a[0]), &strs(&a[1]));
+            Value::Null
+        }
+        "resources" => {
+            json!(sc.resources(player(&a[0]), count(&a[1]), count(&a[2]), count(&a[3]))?)
+        }
+        "base" => {
+            let damage = i32::try_from(int(&a[2])).expect("a damage");
+            json!(sc.base(player(&a[0]), a[1].as_str(), damage)?)
+        }
+        "resource_deck" => {
+            sc.resource_deck(player(&a[0]), count(&a[1]))?;
+            Value::Null
+        }
+        "add_raw" => {
+            json!(sc.add_raw(player(&a[0]), a[1].as_str().expect("a number"), zone(&a[2]))?)
+        }
+        other => panic!("unknown scenario op {other}"),
     })
+}
+
+/// The Scenario of a record's `init` after its `ops`, each op returning what Python's did.
+pub fn replay_scenario(rec: &Value) -> Scenario {
+    let id = &rec["id"];
+    let mut sc = Scenario::new(&reg(), scenario_options(&rec["init"]));
+    let ops = rec["ops"].as_array().expect("ops");
+    let results = rec["results"].as_array().expect("results");
+    assert_eq!(ops.len(), results.len(), "{id}");
+    for (op, want) in ops.iter().zip(results) {
+        let op = op.as_array().expect("an op");
+        let got = run_op(&mut sc, op).unwrap_or_else(|e| panic!("{id}: {op:?}: {e:?}"));
+        assert_eq!(&got, want, "{id}: {op:?}");
+    }
+    sc
 }
 
 pub fn records(t: &str) -> Vec<&'static Value> {

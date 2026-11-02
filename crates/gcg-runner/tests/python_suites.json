@@ -1,0 +1,1108 @@
+{
+ "about": "T-078: every test function of tests/runner, tests/reports, tests/cli and tests/deck (port/oracle/export_parity.py --section collect) with its Rust coverage: native (a Rust test with the same inputs and assertions), transitive (Rust reproduces Python's outputs byte for byte on the test's inputs, so the test's assertions over them hold) or not-ported (the Python test exercises something Rust cannot express). Checked by tests/python_suites.rs.",
+ "entries": [
+  {
+   "python": "tests/runner/test_config.py::test_game_and_agent_seeds_follow_the_documented_derivation",
+   "coverage": "native",
+   "rust": [
+    "crates/gcg-runner/src/config.rs::seeds_follow_the_documented_derivation",
+    "crates/gcg-runner/src/config.rs::seeds_match_the_python_records"
+   ]
+  },
+  {
+   "python": "tests/runner/test_config.py::test_seeds_are_64_bit_and_depend_on_every_index",
+   "coverage": "native",
+   "rust": [
+    "crates/gcg-runner/src/config.rs::seeds_depend_on_every_index",
+    "crates/gcg-runner/tests/runner_suite.rs::seeds_depend_on_every_index_property"
+   ],
+   "note": "u64 by type; the Hypothesis property runs as 500 seeded cases"
+  },
+  {
+   "python": "tests/runner/test_config.py::test_seats_alternate_between_matches",
+   "coverage": "native",
+   "rust": [
+    "crates/gcg-runner/src/config.rs::seats_alternate_between_matches"
+   ]
+  },
+  {
+   "python": "tests/runner/test_config.py::test_own_turn_counts_turns_started_by_a_seat",
+   "coverage": "native",
+   "rust": [
+    "crates/gcg-runner/src/config.rs::own_turn_counts_turns_started_by_a_seat"
+   ]
+  },
+  {
+   "python": "tests/runner/test_config.py::test_format_rules",
+   "coverage": "native",
+   "rust": [
+    "crates/gcg-runner/src/config.rs::format_rules"
+   ]
+  },
+  {
+   "python": "tests/runner/test_config.py::test_invalid_config_is_rejected_with_a_specific_message",
+   "coverage": "native",
+   "rust": [
+    "crates/gcg-runner/src/config.rs::invalid_configs_are_rejected_with_pythons_messages",
+    "crates/gcg-cli/tests/transcripts.rs::every_transcript_matches_python"
+   ],
+   "note": "matches, workers, ai_preset and turn_limit natively; a format outside bo3/bo1, negative replays and a seed outside [0, 2**64) cannot be built in Rust (enum, u32, u64), and the CLI rejects them as usage errors with Python's messages (cli.json transcripts)"
+  },
+  {
+   "python": "tests/runner/test_config.py::test_runner_presets_are_the_ai_presets",
+   "coverage": "native",
+   "rust": [
+    "crates/gcg-eval/tests/parity.rs::runner_presets_are_the_reference_presets",
+    "crates/gcg-runner/tests/runner_suite.rs::runner_presets_are_the_reference_presets"
+   ]
+  },
+  {
+   "python": "tests/runner/test_digest.py::test_digest_ignores_registry_numbering",
+   "coverage": "transitive",
+   "rust": [
+    "crates/gcg-engine/tests/canonical_fixtures.rs::every_fixture_snapshot_round_trips_with_pythons_digest",
+    "crates/gcg-engine/src/canon.rs::side_table_entries_must_resolve_to_their_content_ids",
+    "crates/gcg-runner/tests/engine_runs.rs::needs_engine_every_saved_python_replay_verifies"
+   ],
+   "vectors": [
+    "port/corpus/v1/tier1"
+   ],
+   "note": "Rust has no process-local registry numbering to renumber: the canonical form names every effect, filter set and program by its content id (canon.rs), and it reproduces Python's state digests on the exported snapshots, every corpus state and every Python replay, which Python computed under its own process-local numbering"
+  },
+  {
+   "python": "tests/runner/test_digest.py::test_digest_changes_with_the_game_state",
+   "coverage": "native",
+   "rust": [
+    "crates/gcg-runner/tests/runner_suite.rs::digest_changes_with_the_game_state"
+   ]
+  },
+  {
+   "python": "tests/runner/test_instrument.py::test_hands_and_redraws",
+   "coverage": "native",
+   "rust": [
+    "crates/gcg-runner/tests/runner_suite.rs::needs_engine_hands_and_redraws"
+   ]
+  },
+  {
+   "python": "tests/runner/test_instrument.py::test_drawn_cards_are_consistent",
+   "coverage": "native",
+   "rust": [
+    "crates/gcg-runner/tests/runner_suite.rs::needs_engine_drawn_cards_are_consistent"
+   ]
+  },
+  {
+   "python": "tests/runner/test_instrument.py::test_played_cards_match_the_action_stream",
+   "coverage": "native",
+   "rust": [
+    "crates/gcg-runner/tests/runner_suite.rs::needs_engine_played_cards_match_the_action_stream"
+   ]
+  },
+  {
+   "python": "tests/runner/test_instrument.py::test_search_copies_do_not_leak_into_the_records",
+   "coverage": "native",
+   "rust": [
+    "crates/gcg-runner/tests/runner_suite.rs::needs_engine_search_copies_do_not_leak_into_the_records"
+   ]
+  },
+  {
+   "python": "tests/runner/test_instrument.py::test_an_agent_that_mutates_the_real_game_is_rejected",
+   "coverage": "not-ported",
+   "rust": [
+    "crates/gcg-runner/tests/runner_suite.rs::needs_engine_search_copies_do_not_leak_into_the_records"
+   ],
+   "note": "Cannot be written in Rust: Agent::choose receives the true state as &GameState and apply needs &mut GameState, so an agent cannot mutate the real game (W-135; GameState fields are not writable outside gcg-engine, the compile_fail doctest of crates/gcg-engine/src/contracts.rs, W-49). runner/game.rs documents that Python's check has no counterpart. The agents' own clones are checked by search_copies_do_not_leak_into_the_records"
+  },
+  {
+   "python": "tests/runner/test_instrument.py::test_illegal_agent_actions_fail_with_game_context",
+   "coverage": "native",
+   "rust": [
+    "crates/gcg-runner/tests/runner_suite.rs::needs_engine_illegal_agent_actions_fail_with_game_context",
+    "crates/gcg-runner/src/game.rs::run_errors_print_the_game_failure"
+   ]
+  },
+  {
+   "python": "tests/runner/test_instrument.py::test_decision_log_is_collected_in_decision_order",
+   "coverage": "native",
+   "rust": [
+    "crates/gcg-runner/tests/runner_suite.rs::needs_engine_decision_log_is_collected_in_decision_order"
+   ]
+  },
+  {
+   "python": "tests/runner/test_instrument.py::test_agents_receive_their_role_seat_and_seed",
+   "coverage": "native",
+   "rust": [
+    "crates/gcg-runner/tests/runner_suite.rs::needs_engine_agents_receive_their_role_seat_and_seed"
+   ]
+  },
+  {
+   "python": "tests/runner/test_match.py::test_match_ends_when_a_player_has_two_wins",
+   "coverage": "native",
+   "rust": [
+    "crates/gcg-runner/src/matches.rs::match_ends_when_a_player_has_two_wins"
+   ]
+  },
+  {
+   "python": "tests/runner/test_match.py::test_simultaneous_defeat_scores_for_the_non_turn_player_in_bo3",
+   "coverage": "native",
+   "rust": [
+    "crates/gcg-runner/src/matches.rs::simultaneous_defeat_scores_for_the_non_turn_player_in_bo3"
+   ]
+  },
+  {
+   "python": "tests/runner/test_match.py::test_turn_limit_draw_scores_nothing_and_next_chooser_is_random",
+   "coverage": "native",
+   "rust": [
+    "crates/gcg-runner/src/matches.rs::turn_limit_draw_scores_nothing_and_next_chooser_is_random"
+   ]
+  },
+  {
+   "python": "tests/runner/test_match.py::test_bo1_plays_a_single_game",
+   "coverage": "native",
+   "rust": [
+    "crates/gcg-runner/src/matches.rs::bo1_plays_a_single_game"
+   ]
+  },
+  {
+   "python": "tests/runner/test_match.py::test_match_point_rules",
+   "coverage": "native",
+   "rust": [
+    "crates/gcg-runner/src/game.rs::match_point_rules"
+   ]
+  },
+  {
+   "python": "tests/runner/test_match.py::test_real_bo3_matches_follow_the_loser_chooses_rule",
+   "coverage": "native",
+   "rust": [
+    "crates/gcg-runner/tests/engine_runs.rs::needs_engine_real_bo3_matches_follow_the_loser_chooses_rule"
+   ]
+  },
+  {
+   "python": "tests/runner/test_match.py::test_game_one_player_one_is_chosen_by_a_seeded_random_winner_before_hands",
+   "coverage": "native",
+   "rust": [
+    "crates/gcg-runner/tests/runner_suite.rs::needs_engine_game_one_player_one_is_chosen_by_a_seeded_random_winner_before_hands"
+   ]
+  },
+  {
+   "python": "tests/runner/test_match.py::test_real_turn_limit_games_are_draws_without_match_points",
+   "coverage": "native",
+   "rust": [
+    "crates/gcg-runner/tests/engine_runs.rs::needs_engine_turn_limit_games_are_draws_without_match_points"
+   ]
+  },
+  {
+   "python": "tests/runner/test_pool.py::test_results_do_not_depend_on_workers",
+   "coverage": "native",
+   "rust": [
+    "crates/gcg-runner/src/run.rs::results_do_not_depend_on_workers",
+    "crates/gcg-runner/tests/engine_runs.rs::needs_engine_results_are_identical_at_1_4_and_10_workers"
+   ]
+  },
+  {
+   "python": "tests/runner/test_pool.py::test_progress_reports_every_match",
+   "coverage": "native",
+   "rust": [
+    "crates/gcg-runner/src/run.rs::results_do_not_depend_on_workers"
+   ],
+   "note": "the progress calls are (i, total) for i in 1..=total at 1, 2, 4 and 10 workers"
+  },
+  {
+   "python": "tests/runner/test_pool.py::test_worker_failures_propagate_and_stop_the_pool",
+   "coverage": "native",
+   "rust": [
+    "crates/gcg-runner/tests/engine_runs.rs::needs_engine_an_illegal_agent_fails_the_lowest_match",
+    "crates/gcg-runner/tests/engine_runs.rs::needs_engine_failures_at_3_and_7_report_match_3_under_10_workers",
+    "crates/gcg-runner/src/run.rs::the_lowest_failing_match_is_reported"
+   ],
+   "note": "threads instead of processes: no worker can outlive the scoped pool"
+  },
+  {
+   "python": "tests/runner/test_pool.py::test_interrupt_terminates_workers_and_returns_nothing",
+   "coverage": "native",
+   "rust": [
+    "crates/gcg-runner/src/run.rs::an_interrupt_returns_no_results"
+   ]
+  },
+  {
+   "python": "tests/runner/test_pool.py::test_timing_records_the_processes_that_actually_played",
+   "coverage": "native",
+   "rust": [
+    "crates/gcg-runner/src/run.rs::timing_records_the_workers_that_played"
+   ]
+  },
+  {
+   "python": "tests/runner/test_replay.py::test_many_games_replay_to_the_recorded_final_state",
+   "coverage": "native",
+   "rust": [
+    "crates/gcg-runner/tests/engine_runs.rs::needs_engine_many_games_replay_to_the_recorded_final_state"
+   ]
+  },
+  {
+   "python": "tests/runner/test_replay.py::test_every_example_pairing_replays",
+   "coverage": "native",
+   "rust": [
+    "crates/gcg-runner/tests/runner_suite.rs::needs_engine_every_example_pairing_replays"
+   ],
+   "note": "@pytest.mark.slow in Python; fast enough in Rust to run in every test run"
+  },
+  {
+   "python": "tests/runner/test_replay.py::test_record_json_round_trip",
+   "coverage": "native",
+   "rust": [
+    "crates/gcg-runner/tests/engine_runs.rs::needs_engine_record_json_round_trips"
+   ]
+  },
+  {
+   "python": "tests/runner/test_replay.py::test_replay_document_verifies_and_detects_tampering",
+   "coverage": "native",
+   "rust": [
+    "crates/gcg-runner/tests/engine_runs.rs::needs_engine_replay_documents_verify_and_detect_tampering"
+   ]
+  },
+  {
+   "python": "tests/runner/test_replay.py::test_broken_replay_documents_raise_replay_error",
+   "coverage": "native",
+   "rust": [
+    "crates/gcg-runner/tests/engine_runs.rs::needs_engine_broken_replay_documents_raise_replay_error",
+    "crates/gcg-runner/src/replay.rs::malformed_documents_fail_with_pythons_first_exception"
+   ]
+  },
+  {
+   "python": "tests/reports/test_hypotheses.py::test_card_drawn_win_rate_signal",
+   "coverage": "transitive",
+   "rust": [
+    "crates/gcg-runner/tests/reports_parity.rs::results_json_is_pythons_and_validates",
+    "crates/gcg-runner/tests/reports_parity.rs::summary_md_is_pythons",
+    "crates/gcg-runner/tests/reports_parity.rs::the_export_covers_every_report_path"
+   ],
+   "vectors": [
+    "crates/gcg-runner/tests/vectors/records/synthetic-card-delta"
+   ],
+   "note": "export_records.py builds synthetic-card-delta from this test's make_record games (same counts, wins and cards over the conftest run); the Rust results.json (hypotheses, evidence, statements, thresholds) and summary.md equal Python's byte for byte and validate"
+  },
+  {
+   "python": "tests/reports/test_hypotheses.py::test_dead_card_signal",
+   "coverage": "transitive",
+   "rust": [
+    "crates/gcg-runner/tests/reports_parity.rs::results_json_is_pythons_and_validates",
+    "crates/gcg-runner/tests/reports_parity.rs::summary_md_is_pythons",
+    "crates/gcg-runner/tests/reports_parity.rs::the_export_covers_every_report_path"
+   ],
+   "vectors": [
+    "crates/gcg-runner/tests/vectors/records/synthetic-dead-card"
+   ],
+   "note": "export_records.py builds synthetic-dead-card from this test's make_record games (same counts, wins and cards over the conftest run); the Rust results.json (hypotheses, evidence, statements, thresholds) and summary.md equal Python's byte for byte and validate"
+  },
+  {
+   "python": "tests/reports/test_hypotheses.py::test_play_draw_and_redraw_signals",
+   "coverage": "transitive",
+   "rust": [
+    "crates/gcg-runner/tests/reports_parity.rs::results_json_is_pythons_and_validates",
+    "crates/gcg-runner/tests/reports_parity.rs::summary_md_is_pythons",
+    "crates/gcg-runner/tests/reports_parity.rs::the_export_covers_every_report_path"
+   ],
+   "vectors": [
+    "crates/gcg-runner/tests/vectors/records/synthetic-play-draw-redraw"
+   ],
+   "note": "export_records.py builds synthetic-play-draw-redraw from this test's make_record games (same counts, wins and cards over the conftest run); the Rust results.json (hypotheses, evidence, statements, thresholds) and summary.md equal Python's byte for byte and validate"
+  },
+  {
+   "python": "tests/reports/test_hypotheses.py::test_benchmark_threat_signal",
+   "coverage": "transitive",
+   "rust": [
+    "crates/gcg-runner/tests/reports_parity.rs::results_json_is_pythons_and_validates",
+    "crates/gcg-runner/tests/reports_parity.rs::summary_md_is_pythons",
+    "crates/gcg-runner/tests/reports_parity.rs::the_export_covers_every_report_path"
+   ],
+   "vectors": [
+    "crates/gcg-runner/tests/vectors/records/synthetic-bench-threat"
+   ],
+   "note": "export_records.py builds synthetic-bench-threat from this test's make_record games (same counts, wins and cards over the conftest run); the Rust results.json (hypotheses, evidence, statements, thresholds) and summary.md equal Python's byte for byte and validate"
+  },
+  {
+   "python": "tests/reports/test_hypotheses.py::test_small_samples_produce_no_hypotheses",
+   "coverage": "transitive",
+   "rust": [
+    "crates/gcg-runner/tests/reports_parity.rs::results_json_is_pythons_and_validates",
+    "crates/gcg-runner/tests/reports_parity.rs::summary_md_is_pythons",
+    "crates/gcg-runner/tests/reports_parity.rs::the_export_covers_every_report_path"
+   ],
+   "vectors": [
+    "crates/gcg-runner/tests/vectors/records/synthetic-small"
+   ],
+   "note": "export_records.py builds synthetic-small from this test's make_record games (same counts, wins and cards over the conftest run); the Rust results.json (hypotheses, evidence, statements, thresholds) and summary.md equal Python's byte for byte and validate"
+  },
+  {
+   "python": "tests/reports/test_hypotheses.py::test_a_difference_within_sampling_noise_is_not_a_hypothesis",
+   "coverage": "transitive",
+   "rust": [
+    "crates/gcg-runner/tests/reports_parity.rs::results_json_is_pythons_and_validates",
+    "crates/gcg-runner/tests/reports_parity.rs::summary_md_is_pythons",
+    "crates/gcg-runner/tests/reports_parity.rs::the_export_covers_every_report_path"
+   ],
+   "vectors": [
+    "crates/gcg-runner/tests/vectors/records/synthetic-noise"
+   ],
+   "note": "export_records.py builds synthetic-noise from this test's make_record games (same counts, wins and cards over the conftest run); the Rust results.json (hypotheses, evidence, statements, thresholds) and summary.md equal Python's byte for byte and validate"
+  },
+  {
+   "python": "tests/reports/test_hypotheses.py::test_signals_carry_their_test_and_family_size",
+   "coverage": "transitive",
+   "rust": [
+    "crates/gcg-runner/tests/reports_parity.rs::results_json_is_pythons_and_validates",
+    "crates/gcg-runner/tests/reports_parity.rs::summary_md_is_pythons",
+    "crates/gcg-runner/tests/reports_parity.rs::the_export_covers_every_report_path"
+   ],
+   "vectors": [
+    "crates/gcg-runner/tests/vectors/records/synthetic-card-delta"
+   ],
+   "note": "export_records.py builds synthetic-card-delta from this test's make_record games (same counts, wins and cards over the conftest run); the Rust results.json (hypotheses, evidence, statements, thresholds) and summary.md equal Python's byte for byte and validate"
+  },
+  {
+   "python": "tests/reports/test_reports.py::test_results_validate_against_the_versioned_schema",
+   "coverage": "transitive",
+   "rust": [
+    "crates/gcg-runner/tests/reports_parity.rs::results_json_is_pythons_and_validates",
+    "crates/gcg-eval/tests/parity.rs::test_random_runs_equal_python_with_the_factory_hook",
+    "crates/gcg-runner/tests/schema_controls.rs::the_base_document_validates"
+   ],
+   "vectors": [
+    "crates/gcg-runner/tests/vectors/records/random-bo3-s3",
+    "crates/gcg-eval/tests/vectors/parity/test-random.json"
+   ],
+   "note": "The fixture run (federation vs zeon, 60 BO3 matches, seed 3, 2 replays, test-random) is record set random-bo3-s3: Rust rebuilds its results.json, summary.md, games.ndjson and replays byte for byte from the records and through a live run, and gcg-eval reference-benchmark --agent test-random writes the same bytes as Python's CLI with the factory hook; every assertion of the test reads those files. The schema id and both version fields are asserted by parity.rs."
+  },
+  {
+   "python": "tests/reports/test_reports.py::test_every_report_file_is_written",
+   "coverage": "native",
+   "rust": [
+    "crates/gcg-runner/tests/reports_parity.rs::write_reports_writes_pythons_files",
+    "crates/gcg-runner/tests/reports_parity.rs::write_reports_writes_pythons_files_from_the_embedded_data"
+   ],
+   "note": "the tree written equals Python's file for file, with no .tmp leftovers"
+  },
+  {
+   "python": "tests/reports/test_reports.py::test_versions_seeds_and_ai_settings",
+   "coverage": "transitive",
+   "rust": [
+    "crates/gcg-runner/tests/reports_parity.rs::results_json_is_pythons_and_validates",
+    "crates/gcg-runner/tests/reports_parity.rs::the_embedded_data_is_the_exported_data_and_build_results_is_pythons",
+    "crates/gcg-eval/tests/parity.rs::test_random_runs_equal_python_with_the_factory_hook"
+   ],
+   "vectors": [
+    "crates/gcg-runner/tests/vectors/records/random-bo3-s3",
+    "crates/gcg-eval/tests/vectors/parity/test-random.json"
+   ],
+   "note": "The fixture run (federation vs zeon, 60 BO3 matches, seed 3, 2 replays, test-random) is record set random-bo3-s3: Rust rebuilds its results.json, summary.md, games.ndjson and replays byte for byte from the records and through a live run, and gcg-eval reference-benchmark --agent test-random writes the same bytes as Python's CLI with the factory hook; every assertion of the test reads those files."
+  },
+  {
+   "python": "tests/reports/test_reports.py::test_outcomes_match_the_game_records",
+   "coverage": "transitive",
+   "rust": [
+    "crates/gcg-runner/tests/reports_parity.rs::results_json_is_pythons_and_validates",
+    "crates/gcg-runner/tests/reports_parity.rs::games_ndjson_is_pythons",
+    "crates/gcg-eval/tests/parity.rs::test_random_runs_equal_python_with_the_factory_hook"
+   ],
+   "vectors": [
+    "crates/gcg-runner/tests/vectors/records/random-bo3-s3"
+   ],
+   "note": "The fixture run (federation vs zeon, 60 BO3 matches, seed 3, 2 replays, test-random) is record set random-bo3-s3: Rust rebuilds its results.json, summary.md, games.ndjson and replays byte for byte from the records and through a live run, and gcg-eval reference-benchmark --agent test-random writes the same bytes as Python's CLI with the factory hook; every assertion of the test reads those files."
+  },
+  {
+   "python": "tests/reports/test_reports.py::test_per_card_statistics",
+   "coverage": "transitive",
+   "rust": [
+    "crates/gcg-runner/tests/reports_parity.rs::results_json_is_pythons_and_validates",
+    "crates/gcg-eval/tests/parity.rs::test_random_runs_equal_python_with_the_factory_hook"
+   ],
+   "vectors": [
+    "crates/gcg-runner/tests/vectors/records/random-bo3-s3"
+   ],
+   "note": "The fixture run (federation vs zeon, 60 BO3 matches, seed 3, 2 replays, test-random) is record set random-bo3-s3: Rust rebuilds its results.json, summary.md, games.ndjson and replays byte for byte from the records and through a live run, and gcg-eval reference-benchmark --agent test-random writes the same bytes as Python's CLI with the factory hook; every assertion of the test reads those files."
+  },
+  {
+   "python": "tests/reports/test_reports.py::test_benchmark_cards_associated_with_losses",
+   "coverage": "transitive",
+   "rust": [
+    "crates/gcg-runner/tests/reports_parity.rs::results_json_is_pythons_and_validates",
+    "crates/gcg-eval/tests/parity.rs::test_random_runs_equal_python_with_the_factory_hook"
+   ],
+   "vectors": [
+    "crates/gcg-runner/tests/vectors/records/random-bo3-s3"
+   ],
+   "note": "The fixture run (federation vs zeon, 60 BO3 matches, seed 3, 2 replays, test-random) is record set random-bo3-s3: Rust rebuilds its results.json, summary.md, games.ndjson and replays byte for byte from the records and through a live run, and gcg-eval reference-benchmark --agent test-random writes the same bytes as Python's CLI with the factory hook; every assertion of the test reads those files."
+  },
+  {
+   "python": "tests/reports/test_reports.py::test_hypotheses_are_labelled_with_sample_sizes",
+   "coverage": "transitive",
+   "rust": [
+    "crates/gcg-runner/tests/reports_parity.rs::results_json_is_pythons_and_validates",
+    "crates/gcg-eval/tests/parity.rs::test_random_runs_equal_python_with_the_factory_hook"
+   ],
+   "vectors": [
+    "crates/gcg-runner/tests/vectors/records/random-bo3-s3"
+   ],
+   "note": "The fixture run (federation vs zeon, 60 BO3 matches, seed 3, 2 replays, test-random) is record set random-bo3-s3: Rust rebuilds its results.json, summary.md, games.ndjson and replays byte for byte from the records and through a live run, and gcg-eval reference-benchmark --agent test-random writes the same bytes as Python's CLI with the factory hook; every assertion of the test reads those files."
+  },
+  {
+   "python": "tests/reports/test_reports.py::test_conflict_resolutions_cover_deck_cards",
+   "coverage": "transitive",
+   "rust": [
+    "crates/gcg-runner/tests/reports_parity.rs::results_json_is_pythons_and_validates",
+    "crates/gcg-data/tests/status.rs::conflict_resolutions_equal_python",
+    "crates/gcg-eval/tests/parity.rs::test_random_runs_equal_python_with_the_factory_hook"
+   ],
+   "vectors": [
+    "crates/gcg-runner/tests/vectors/records/random-bo3-s3"
+   ],
+   "note": "The fixture run (federation vs zeon, 60 BO3 matches, seed 3, 2 replays, test-random) is record set random-bo3-s3: Rust rebuilds its results.json, summary.md, games.ndjson and replays byte for byte from the records and through a live run, and gcg-eval reference-benchmark --agent test-random writes the same bytes as Python's CLI with the factory hook; every assertion of the test reads those files."
+  },
+  {
+   "python": "tests/reports/test_reports.py::test_replays_are_representative_and_verify",
+   "coverage": "transitive",
+   "rust": [
+    "crates/gcg-runner/tests/reports_parity.rs::replay_documents_are_pythons",
+    "crates/gcg-runner/tests/reports_parity.rs::results_json_is_pythons_and_validates",
+    "crates/gcg-cli/tests/replays.rs::needs_engine_every_python_replay_verifies_with_pythons_transcripts",
+    "crates/gcg-eval/tests/parity.rs::test_random_runs_equal_python_with_the_factory_hook"
+   ],
+   "vectors": [
+    "crates/gcg-runner/tests/vectors/records/random-bo3-s3",
+    "crates/gcg-cli/tests/vectors/parity/python-replays.json"
+   ],
+   "note": "The fixture run (federation vs zeon, 60 BO3 matches, seed 3, 2 replays, test-random) is record set random-bo3-s3: Rust rebuilds its results.json, summary.md, games.ndjson and replays byte for byte from the records and through a live run, and gcg-eval reference-benchmark --agent test-random writes the same bytes as Python's CLI with the factory hook; every assertion of the test reads those files. The replay selection (listed files, results, turns) is part of results.json, and every replay verifies under gcg-sim replay with Python's transcript."
+  },
+  {
+   "python": "tests/reports/test_reports.py::test_wall_clock_data_only_in_timing",
+   "coverage": "native",
+   "rust": [
+    "crates/gcg-runner/tests/reports_parity.rs::results_ignore_timing_and_round_trip_records",
+    "crates/gcg-runner/tests/reports_parity.rs::timing_json_names_the_rust_build_and_the_topology"
+   ]
+  },
+  {
+   "python": "tests/reports/test_reports.py::test_rewriting_removes_stale_replays_but_keeps_other_files",
+   "coverage": "native",
+   "rust": [
+    "crates/gcg-runner/tests/reports_parity.rs::rewriting_removes_stale_replays_but_keeps_other_files"
+   ]
+  },
+  {
+   "python": "tests/reports/test_reports.py::test_summary_lists_the_key_sections",
+   "coverage": "transitive",
+   "rust": [
+    "crates/gcg-runner/tests/reports_parity.rs::summary_md_is_pythons",
+    "crates/gcg-eval/tests/parity.rs::test_random_runs_equal_python_with_the_factory_hook"
+   ],
+   "vectors": [
+    "crates/gcg-runner/tests/vectors/records/random-bo3-s3"
+   ],
+   "note": "The fixture run (federation vs zeon, 60 BO3 matches, seed 3, 2 replays, test-random) is record set random-bo3-s3: Rust rebuilds its results.json, summary.md, games.ndjson and replays byte for byte from the records and through a live run, and gcg-eval reference-benchmark --agent test-random writes the same bytes as Python's CLI with the factory hook; every assertion of the test reads those files. The headings and the reproduce line are summary.md text."
+  },
+  {
+   "python": "tests/reports/test_reports.py::test_schema_rejects_invalid_results",
+   "coverage": "native",
+   "rust": [
+    "crates/gcg-runner/tests/report_vectors.rs::schema_verdicts_match_jsonschema",
+    "crates/gcg-runner/tests/schema_controls.rs::every_control_is_rejected_where_jsonschema_rejects_it",
+    "crates/gcg-runner/tests/reports_parity.rs::an_invalid_document_writes_nothing"
+   ],
+   "note": "the five mutations are among the 82 jsonschema-judged cases of stats.json; the 21 negative controls of tests/vectors/invalid-results cover every assertion keyword"
+  },
+  {
+   "python": "tests/reports/test_reports.py::test_draws_and_turn_limits_are_counted_and_reported",
+   "coverage": "transitive",
+   "rust": [
+    "crates/gcg-runner/tests/reports_parity.rs::results_json_is_pythons_and_validates",
+    "crates/gcg-runner/tests/reports_parity.rs::summary_md_is_pythons"
+   ],
+   "vectors": [
+    "crates/gcg-runner/tests/vectors/records/synthetic-draws"
+   ],
+   "note": "export_records.py builds synthetic-draws from this test's two matches (a both_defeated draw scored for the bench, a turn-limit draw); Rust's results.json equals Python's byte for byte and validates"
+  },
+  {
+   "python": "tests/reports/test_reports.py::test_resolutions_named_by_a_curated_conflict_are_listed_for_every_card_it_names",
+   "coverage": "native",
+   "rust": [
+    "crates/gcg-runner/tests/runner_suite.rs::resolutions_named_by_a_curated_conflict_are_listed_for_every_card_it_names",
+    "crates/gcg-data/tests/status.rs::conflict_resolutions_equal_python"
+   ]
+  },
+  {
+   "python": "tests/reports/test_stats.py::test_wilson_known_values",
+   "coverage": "native",
+   "rust": [
+    "crates/gcg-runner/src/reports/stats.rs::known_values_of_tests_reports_test_stats",
+    "crates/gcg-runner/tests/report_vectors.rs::wilson_is_bit_identical"
+   ]
+  },
+  {
+   "python": "tests/reports/test_stats.py::test_wilson_rejects_impossible_counts",
+   "coverage": "native",
+   "rust": [
+    "crates/gcg-runner/src/reports/stats.rs::known_values_of_tests_reports_test_stats",
+    "crates/gcg-runner/tests/report_vectors.rs::wilson_is_bit_identical"
+   ],
+   "note": "(6, 5) gives None; negative counts cannot be passed (u64)"
+  },
+  {
+   "python": "tests/reports/test_stats.py::test_wilson_bounds_contain_the_estimate",
+   "coverage": "native",
+   "rust": [
+    "crates/gcg-runner/tests/runner_suite.rs::wilson_bounds_contain_the_estimate"
+   ],
+   "note": "the Hypothesis property as 200 seeded cases"
+  },
+  {
+   "python": "tests/reports/test_stats.py::test_wilson_narrows_with_more_data",
+   "coverage": "native",
+   "rust": [
+    "crates/gcg-runner/tests/runner_suite.rs::wilson_narrows_with_more_data"
+   ],
+   "note": "the Hypothesis property as 200 seeded cases"
+  },
+  {
+   "python": "tests/reports/test_stats.py::test_rate_block",
+   "coverage": "native",
+   "rust": [
+    "crates/gcg-runner/src/reports/stats.rs::known_values_of_tests_reports_test_stats"
+   ]
+  },
+  {
+   "python": "tests/reports/test_stats.py::test_distribution_and_percentiles",
+   "coverage": "native",
+   "rust": [
+    "crates/gcg-runner/src/reports/stats.rs::known_values_of_tests_reports_test_stats",
+    "crates/gcg-runner/tests/report_vectors.rs::distributions_match_python"
+   ]
+  },
+  {
+   "python": "tests/reports/test_stats.py::test_two_proportion_test_and_holm_correction",
+   "coverage": "native",
+   "rust": [
+    "crates/gcg-runner/src/reports/stats.rs::known_values_of_tests_reports_test_stats",
+    "crates/gcg-runner/tests/report_vectors.rs::two_proportion_p_is_bit_identical",
+    "crates/gcg-runner/tests/report_vectors.rs::holm_matches_python"
+   ]
+  },
+  {
+   "python": "tests/cli/test_cli.py::test_validate_legal_deck",
+   "coverage": "native",
+   "rust": [
+    "crates/gcg-cli/tests/commands.rs::command_transcripts_match_python"
+   ],
+   "note": "commands.json holds Python's transcript of this command line (gcg_sim.cli.main from the repository root); the gcg-sim binary prints the same exit status, stdout and stderr byte for byte"
+  },
+  {
+   "python": "tests/cli/test_cli.py::test_validate_illegal_deck",
+   "coverage": "native",
+   "rust": [
+    "crates/gcg-cli/tests/commands.rs::command_transcripts_match_python"
+   ],
+   "note": "commands.json holds Python's transcript of this command line (gcg_sim.cli.main from the repository root); the gcg-sim binary prints the same exit status, stdout and stderr byte for byte"
+  },
+  {
+   "python": "tests/cli/test_cli.py::test_validate_reports_parse_errors",
+   "coverage": "native",
+   "rust": [
+    "crates/gcg-cli/tests/commands.rs::command_transcripts_match_python"
+   ],
+   "note": "commands.json holds Python's transcript of this command line (gcg_sim.cli.main from the repository root); the gcg-sim binary prints the same exit status, stdout and stderr byte for byte"
+  },
+  {
+   "python": "tests/cli/test_cli.py::test_validate_rejects_a_deck_file_that_is_not_utf8",
+   "coverage": "native",
+   "rust": [
+    "crates/gcg-cli/tests/commands.rs::command_transcripts_match_python"
+   ],
+   "note": "commands.json holds Python's transcript of this command line (gcg_sim.cli.main from the repository root); the gcg-sim binary prints the same exit status, stdout and stderr byte for byte"
+  },
+  {
+   "python": "tests/cli/test_cli.py::test_validate_missing_file",
+   "coverage": "native",
+   "rust": [
+    "crates/gcg-cli/tests/commands.rs::command_transcripts_match_python"
+   ],
+   "note": "commands.json holds Python's transcript of this command line (gcg_sim.cli.main from the repository root); the gcg-sim binary prints the same exit status, stdout and stderr byte for byte"
+  },
+  {
+   "python": "tests/cli/test_cli.py::test_usage_errors_exit_2",
+   "coverage": "native",
+   "rust": [
+    "crates/gcg-cli/tests/transcripts.rs::every_transcript_matches_python",
+    "crates/gcg-cli/tests/usage_binary.rs::the_binary_prints_the_parsers_help_and_usage_errors"
+   ],
+   "note": "all twelve command lines are cli.json transcripts (in-process and through the binary); --ai-preset max is an intended difference only in the choices listed"
+  },
+  {
+   "python": "tests/cli/test_cli.py::test_help_exits_0",
+   "coverage": "native",
+   "rust": [
+    "crates/gcg-cli/tests/transcripts.rs::every_transcript_matches_python",
+    "crates/gcg-cli/tests/usage_binary.rs::the_binary_prints_the_parsers_help_and_usage_errors",
+    "crates/gcg-cli/tests/usage_binary.rs::every_subcommand_has_its_help_and_a_usage_error_among_the_cases"
+   ]
+  },
+  {
+   "python": "tests/cli/test_cli.py::test_data_status_text",
+   "coverage": "native",
+   "rust": [
+    "crates/gcg-cli/tests/commands.rs::command_transcripts_match_python",
+    "crates/gcg-data/tests/status.rs::data_status_text_and_json_equal_python"
+   ],
+   "note": "commands.json holds Python's transcript of this command line (gcg_sim.cli.main from the repository root); the gcg-sim binary prints the same exit status, stdout and stderr byte for byte"
+  },
+  {
+   "python": "tests/cli/test_cli.py::test_data_status_json",
+   "coverage": "native",
+   "rust": [
+    "crates/gcg-cli/tests/commands.rs::command_transcripts_match_python",
+    "crates/gcg-data/tests/status.rs::data_status_text_and_json_equal_python"
+   ],
+   "note": "commands.json holds Python's transcript of this command line (gcg_sim.cli.main from the repository root); the gcg-sim binary prints the same exit status, stdout and stderr byte for byte"
+  },
+  {
+   "python": "tests/cli/test_cli.py::test_benchmark_writes_reports_and_prints_a_summary",
+   "coverage": "native",
+   "rust": [
+    "crates/gcg-cli/tests/benchmark.rs::needs_engine_benchmark_writes_reports_and_prints_a_summary",
+    "crates/gcg-eval/tests/parity.rs::test_random_runs_equal_python_with_the_factory_hook"
+   ],
+   "note": "gcg-sim has no agent-factory hook (PLAN §8.8 item 3): the binary test runs the fast preset with the same assertions, and gcg-eval reference-benchmark --agent test-random equals Python's CLI under GCG_SIM_AGENT_FACTORY (stdout, stderr and every file)"
+  },
+  {
+   "python": "tests/cli/test_cli.py::test_benchmark_rejects_an_illegal_deck",
+   "coverage": "native",
+   "rust": [
+    "crates/gcg-cli/tests/commands.rs::command_transcripts_match_python"
+   ],
+   "note": "commands.json holds Python's transcript of this command line (gcg_sim.cli.main from the repository root); the gcg-sim binary prints the same exit status, stdout and stderr byte for byte; the --out directory stays absent"
+  },
+  {
+   "python": "tests/cli/test_cli.py::test_benchmark_checks_the_report_directory_before_playing",
+   "coverage": "native",
+   "rust": [
+    "crates/gcg-cli/tests/commands.rs::command_transcripts_match_python"
+   ],
+   "note": "commands.json holds Python's transcript of this command line (gcg_sim.cli.main from the repository root); the gcg-sim binary prints the same exit status, stdout and stderr byte for byte"
+  },
+  {
+   "python": "tests/cli/test_cli.py::test_benchmark_without_the_ai_package_fails_clearly",
+   "coverage": "not-ported",
+   "rust": [],
+   "note": "No Rust counterpart: Python imports its AI package at run time (runner/agents.py AI_MODULE) and the test monkeypatches that name; gcg-sim links the strengthened search statically, so the failure cannot occur"
+  },
+  {
+   "python": "tests/cli/test_cli.py::test_replay_verifies_a_saved_game",
+   "coverage": "native",
+   "rust": [
+    "crates/gcg-cli/tests/commands.rs::needs_engine_replay_transcripts_match_python",
+    "crates/gcg-cli/tests/replays.rs::needs_engine_every_python_replay_verifies_with_pythons_transcripts"
+   ]
+  },
+  {
+   "python": "tests/cli/test_cli.py::test_replay_log",
+   "coverage": "native",
+   "rust": [
+    "crates/gcg-cli/tests/commands.rs::needs_engine_replay_transcripts_match_python",
+    "crates/gcg-cli/tests/replays.rs::needs_engine_every_python_replay_verifies_with_pythons_transcripts"
+   ]
+  },
+  {
+   "python": "tests/cli/test_cli.py::test_replay_detects_a_changed_outcome",
+   "coverage": "native",
+   "rust": [
+    "crates/gcg-cli/tests/commands.rs::needs_engine_replay_transcripts_match_python"
+   ],
+   "note": "the tampered.json fixture adds turns to the expectation, as the test does"
+  },
+  {
+   "python": "tests/cli/test_cli.py::test_replay_rejects_invalid_files",
+   "coverage": "native",
+   "rust": [
+    "crates/gcg-cli/tests/commands.rs::command_transcripts_match_python"
+   ],
+   "note": "commands.json holds Python's transcript of this command line (gcg_sim.cli.main from the repository root); the gcg-sim binary prints the same exit status, stdout and stderr byte for byte (bad.json, list.json, other.json)"
+  },
+  {
+   "python": "tests/cli/test_cli.py::test_replay_missing_file",
+   "coverage": "native",
+   "rust": [
+    "crates/gcg-cli/tests/commands.rs::command_transcripts_match_python"
+   ],
+   "note": "commands.json holds Python's transcript of this command line (gcg_sim.cli.main from the repository root); the gcg-sim binary prints the same exit status, stdout and stderr byte for byte"
+  },
+  {
+   "python": "tests/cli/test_cli.py::test_replay_rejects_a_file_that_is_not_utf8",
+   "coverage": "native",
+   "rust": [
+    "crates/gcg-cli/tests/commands.rs::command_transcripts_match_python"
+   ],
+   "note": "commands.json holds Python's transcript of this command line (gcg_sim.cli.main from the repository root); the gcg-sim binary prints the same exit status, stdout and stderr byte for byte (latin1-replay.bin)"
+  },
+  {
+   "python": "tests/cli/test_cli.py::test_a_report_write_failure_names_the_file",
+   "coverage": "native",
+   "rust": [
+    "crates/gcg-cli/tests/benchmark.rs::needs_engine_a_report_write_failure_names_the_file"
+   ]
+  },
+  {
+   "python": "tests/cli/test_cli.py::test_benchmark_with_the_fast_preset_is_the_same_for_any_worker_count",
+   "coverage": "native",
+   "rust": [
+    "crates/gcg-cli/tests/benchmark.rs::needs_engine_outputs_are_identical_for_any_worker_count",
+    "crates/gcg-eval/tests/e2e/workers.rs::reference_benchmark_is_identical_at_1_4_and_10_workers"
+   ],
+   "note": "gcg-sim's fast preset is the strengthened search (agents search-fast); the reference fast preset (mcts-fast) runs through gcg-eval at 1, 4 and 10 workers (feature slow)"
+  },
+  {
+   "python": "tests/cli/test_console_script.py::test_help_and_validate",
+   "coverage": "native",
+   "rust": [
+    "crates/gcg-cli/tests/usage_binary.rs::the_binary_prints_the_parsers_help_and_usage_errors",
+    "crates/gcg-cli/tests/commands.rs::command_transcripts_match_python"
+   ]
+  },
+  {
+   "python": "tests/cli/test_console_script.py::test_results_are_byte_identical_for_one_and_two_workers",
+   "coverage": "native",
+   "rust": [
+    "crates/gcg-cli/tests/benchmark.rs::needs_engine_outputs_are_identical_for_any_worker_count",
+    "crates/gcg-eval/tests/parity.rs::test_random_runs_equal_python_with_the_factory_hook"
+   ],
+   "note": "1, 4, 10 and auto workers; timing.json records the workers used; the test-random configuration is reproduced from Python at 2 workers by Rust at 4"
+  },
+  {
+   "python": "tests/cli/test_console_script.py::test_results_do_not_depend_on_the_python_hash_seed",
+   "coverage": "not-ported",
+   "rust": [],
+   "note": "No Rust counterpart: there is no hash seed. HashMap and HashSet are banned by clippy.toml (disallowed-types) and lookups go through gcg_core::lookup::LookupMap, which has no iteration; the exporters themselves are checked under PYTHONHASHSEED 1 and 2 (export_parity.py --check)"
+  },
+  {
+   "python": "tests/cli/test_console_script.py::test_saved_replays_verify_in_a_fresh_process",
+   "coverage": "native",
+   "rust": [
+    "crates/gcg-cli/tests/benchmark.rs::needs_engine_saved_replays_verify_in_a_fresh_process",
+    "crates/gcg-cli/tests/replays.rs::needs_engine_rust_replays_are_the_files_python_verified"
+   ]
+  },
+  {
+   "python": "tests/cli/test_console_script.py::test_ctrl_c_stops_workers_and_writes_nothing",
+   "coverage": "native",
+   "rust": [
+    "crates/gcg-cli/tests/interrupt.rs::needs_engine_ctrl_c_stops_workers_and_writes_nothing"
+   ],
+   "note": "every behavioural assertion kept; the two timing assertions are dropped (brief: no timing tests)"
+  },
+  {
+   "python": "tests/deck/test_examples.py::test_there_are_at_least_three_example_decks",
+   "coverage": "native",
+   "rust": [
+    "crates/gcg-runner/tests/deck_suite.rs::there_are_at_least_three_example_decks"
+   ]
+  },
+  {
+   "python": "tests/deck/test_examples.py::test_example_deck_is_legal_and_implemented",
+   "coverage": "native",
+   "rust": [
+    "crates/gcg-runner/tests/deck_suite.rs::example_deck_is_legal_and_implemented"
+   ]
+  },
+  {
+   "python": "tests/deck/test_examples.py::test_example_deck_names_its_archetype_first",
+   "coverage": "native",
+   "rust": [
+    "crates/gcg-runner/tests/deck_suite.rs::example_deck_names_its_archetype_first"
+   ]
+  },
+  {
+   "python": "tests/deck/test_examples.py::test_example_matchups_play_to_completion",
+   "coverage": "native",
+   "rust": [
+    "crates/gcg-runner/tests/deck_suite.rs::needs_engine_example_matchups_play_to_completion"
+   ]
+  },
+  {
+   "python": "tests/deck/test_parse.py::test_parses_counts_comments_and_blank_lines",
+   "coverage": "native",
+   "rust": [
+    "crates/gcg-runner/tests/deck_suite.rs::parses_counts_comments_and_blank_lines"
+   ]
+  },
+  {
+   "python": "tests/deck/test_parse.py::test_alt_art_product_ids_normalize_to_the_card_number",
+   "coverage": "native",
+   "rust": [
+    "crates/gcg-runner/tests/deck_suite.rs::alt_art_product_ids_normalize_to_the_card_number"
+   ]
+  },
+  {
+   "python": "tests/deck/test_parse.py::test_unknown_alt_art_suffix_of_a_known_card_normalizes",
+   "coverage": "native",
+   "rust": [
+    "crates/gcg-runner/tests/deck_suite.rs::unknown_alt_art_suffix_of_a_known_card_normalizes"
+   ]
+  },
+  {
+   "python": "tests/deck/test_parse.py::test_names_are_normalized_before_comparison",
+   "coverage": "native",
+   "rust": [
+    "crates/gcg-runner/tests/deck_suite.rs::names_are_normalized_before_comparison"
+   ]
+  },
+  {
+   "python": "tests/deck/test_parse.py::test_normalize_name",
+   "coverage": "native",
+   "rust": [
+    "crates/gcg-runner/tests/deck_suite.rs::normalize_name"
+   ]
+  },
+  {
+   "python": "tests/deck/test_parse.py::test_syntax_error_names_the_line",
+   "coverage": "native",
+   "rust": [
+    "crates/gcg-runner/tests/deck_suite.rs::syntax_error_names_the_line"
+   ]
+  },
+  {
+   "python": "tests/deck/test_parse.py::test_zero_count_is_a_syntax_error",
+   "coverage": "native",
+   "rust": [
+    "crates/gcg-runner/tests/deck_suite.rs::zero_count_is_a_syntax_error"
+   ]
+  },
+  {
+   "python": "tests/deck/test_parse.py::test_unknown_id_is_reported_with_its_line",
+   "coverage": "native",
+   "rust": [
+    "crates/gcg-runner/tests/deck_suite.rs::unknown_id_is_reported_with_its_line"
+   ]
+  },
+  {
+   "python": "tests/deck/test_parse.py::test_name_mismatch_is_reported",
+   "coverage": "native",
+   "rust": [
+    "crates/gcg-runner/tests/deck_suite.rs::name_mismatch_is_reported"
+   ]
+  },
+  {
+   "python": "tests/deck/test_parse.py::test_every_parse_problem_is_listed_in_one_error",
+   "coverage": "native",
+   "rust": [
+    "crates/gcg-runner/tests/deck_suite.rs::every_parse_problem_is_listed_in_one_error"
+   ]
+  },
+  {
+   "python": "tests/deck/test_parse.py::test_load_deck_uses_file_stem_and_handles_bom",
+   "coverage": "native",
+   "rust": [
+    "crates/gcg-runner/tests/deck_suite.rs::load_deck_uses_file_stem_and_handles_bom"
+   ]
+  },
+  {
+   "python": "tests/deck/test_parse.py::test_to_decklist",
+   "coverage": "native",
+   "rust": [
+    "crates/gcg-runner/tests/deck_suite.rs::to_decklist_is_the_main_deck_and_the_resources"
+   ]
+  },
+  {
+   "python": "tests/deck/test_parse.py::test_digest_ignores_order_comments_names_and_split_lines",
+   "coverage": "native",
+   "rust": [
+    "crates/gcg-runner/tests/deck_suite.rs::digest_ignores_order_comments_names_and_split_lines"
+   ]
+  },
+  {
+   "python": "tests/deck/test_parse.py::test_round_trip_preserves_counts",
+   "coverage": "native",
+   "rust": [
+    "crates/gcg-runner/tests/deck_suite.rs::round_trip_preserves_counts"
+   ],
+   "note": "the Hypothesis property as 60 seeded cases"
+  },
+  {
+   "python": "tests/deck/test_validate.py::test_base_deck_is_legal",
+   "coverage": "native",
+   "rust": [
+    "crates/gcg-runner/tests/deck_suite.rs::base_deck_is_legal"
+   ]
+  },
+  {
+   "python": "tests/deck/test_validate.py::test_main_deck_must_have_exactly_50_cards",
+   "coverage": "native",
+   "rust": [
+    "crates/gcg-runner/tests/deck_suite.rs::main_deck_must_have_exactly_50_cards"
+   ]
+  },
+  {
+   "python": "tests/deck/test_validate.py::test_resource_deck_must_have_exactly_10_cards",
+   "coverage": "native",
+   "rust": [
+    "crates/gcg-runner/tests/deck_suite.rs::resource_deck_must_have_exactly_10_cards"
+   ]
+  },
+  {
+   "python": "tests/deck/test_validate.py::test_at_most_four_copies_per_card_number",
+   "coverage": "native",
+   "rust": [
+    "crates/gcg-runner/tests/deck_suite.rs::at_most_four_copies_per_card_number"
+   ]
+  },
+  {
+   "python": "tests/deck/test_validate.py::test_alternate_printings_count_as_the_same_card",
+   "coverage": "native",
+   "rust": [
+    "crates/gcg-runner/tests/deck_suite.rs::alternate_printings_count_as_the_same_card"
+   ]
+  },
+  {
+   "python": "tests/deck/test_validate.py::test_same_name_with_different_card_numbers_counts_separately",
+   "coverage": "native",
+   "rust": [
+    "crates/gcg-runner/tests/deck_suite.rs::same_name_with_different_card_numbers_counts_separately"
+   ]
+  },
+  {
+   "python": "tests/deck/test_validate.py::test_resource_deck_allows_any_number_of_one_card_number",
+   "coverage": "native",
+   "rust": [
+    "crates/gcg-runner/tests/deck_suite.rs::resource_deck_allows_any_number_of_one_card_number"
+   ]
+  },
+  {
+   "python": "tests/deck/test_validate.py::test_at_most_two_colors",
+   "coverage": "native",
+   "rust": [
+    "crates/gcg-runner/tests/deck_suite.rs::at_most_two_colors"
+   ]
+  },
+  {
+   "python": "tests/deck/test_validate.py::test_one_or_two_colors_are_legal",
+   "coverage": "native",
+   "rust": [
+    "crates/gcg-runner/tests/deck_suite.rs::one_or_two_colors_are_legal"
+   ]
+  },
+  {
+   "python": "tests/deck/test_validate.py::test_card_types_route_to_the_deck_they_compose",
+   "coverage": "native",
+   "rust": [
+    "crates/gcg-runner/tests/deck_suite.rs::card_types_route_to_the_deck_they_compose"
+   ]
+  },
+  {
+   "python": "tests/deck/test_validate.py::test_tokens_are_not_part_of_the_deck",
+   "coverage": "native",
+   "rust": [
+    "crates/gcg-runner/tests/deck_suite.rs::tokens_are_not_part_of_the_deck"
+   ]
+  },
+  {
+   "python": "tests/deck/test_validate.py::test_resource_deck_holds_only_resource_cards",
+   "coverage": "native",
+   "rust": [
+    "crates/gcg-runner/tests/deck_suite.rs::resource_deck_holds_only_resource_cards"
+   ]
+  },
+  {
+   "python": "tests/deck/test_validate.py::test_main_deck_holds_only_unit_pilot_command_base",
+   "coverage": "native",
+   "rust": [
+    "crates/gcg-runner/tests/deck_suite.rs::main_deck_holds_only_unit_pilot_command_base"
+   ]
+  },
+  {
+   "python": "tests/deck/test_validate.py::test_banned_card",
+   "coverage": "native",
+   "rust": [
+    "crates/gcg-runner/tests/deck_suite.rs::banned_card"
+   ]
+  },
+  {
+   "python": "tests/deck/test_validate.py::test_restricted_card",
+   "coverage": "native",
+   "rust": [
+    "crates/gcg-runner/tests/deck_suite.rs::restricted_card"
+   ]
+  },
+  {
+   "python": "tests/deck/test_validate.py::test_banned_pairs",
+   "coverage": "native",
+   "rust": [
+    "crates/gcg-runner/tests/deck_suite.rs::banned_pairs"
+   ]
+  },
+  {
+   "python": "tests/deck/test_validate.py::test_attribute_pair",
+   "coverage": "native",
+   "rust": [
+    "crates/gcg-runner/tests/deck_suite.rs::attribute_pair"
+   ]
+  },
+  {
+   "python": "tests/deck/test_validate.py::test_attribute_pair_starter_deck_exception_is_not_applied",
+   "coverage": "native",
+   "rust": [
+    "crates/gcg-runner/tests/deck_suite.rs::attribute_pair_starter_deck_exception_is_not_applied"
+   ]
+  },
+  {
+   "python": "tests/deck/test_validate.py::test_one_attribute_card_number_with_four_copies_is_legal",
+   "coverage": "native",
+   "rust": [
+    "crates/gcg-runner/tests/deck_suite.rs::one_attribute_card_number_with_four_copies_is_legal"
+   ]
+  },
+  {
+   "python": "tests/deck/test_validate.py::test_attribute_predicate_matches_the_enumerated_list",
+   "coverage": "native",
+   "rust": [
+    "crates/gcg-runner/tests/deck_suite.rs::attribute_predicate_matches_the_enumerated_list"
+   ]
+  },
+  {
+   "python": "tests/deck/test_validate.py::test_attribute_pair_cross_checks_predicate_and_list",
+   "coverage": "transitive",
+   "rust": [
+    "crates/gcg-data/src/validate.rs::attribute_notes_equal_python",
+    "crates/gcg-data/tests/decks.rs::deck_cases_equal_python"
+   ],
+   "vectors": [
+    "crates/gcg-data/tests/vectors/decks.json"
+   ],
+   "note": "The test monkeypatches official.banlist; export_data.py runs the same two parametrisations (GD05-014 left off the enumerated list, GD01-008 added to it) and exports the messages as attribute_notes (listed-minus, listed-plus), which gcg-data's validator reproduces with the rule's enumerated list changed the same way"
+  },
+  {
+   "python": "tests/deck/test_validate.py::test_unknown_id",
+   "coverage": "native",
+   "rust": [
+    "crates/gcg-runner/tests/deck_suite.rs::unknown_id"
+   ]
+  },
+  {
+   "python": "tests/deck/test_validate.py::test_name_mismatch",
+   "coverage": "native",
+   "rust": [
+    "crates/gcg-runner/tests/deck_suite.rs::name_mismatch"
+   ]
+  },
+  {
+   "python": "tests/deck/test_validate.py::test_unimplemented_card",
+   "coverage": "native",
+   "rust": [
+    "crates/gcg-runner/tests/deck_suite.rs::unimplemented_card"
+   ],
+   "note": "the monkeypatched registry is an ImplementationStatus that reports GD01-008 as not compiled"
+  },
+  {
+   "python": "tests/deck/test_validate.py::test_require_legal_lists_every_violation",
+   "coverage": "native",
+   "rust": [
+    "crates/gcg-runner/tests/deck_suite.rs::require_legal_lists_every_violation"
+   ]
+  }
+ ]
+}

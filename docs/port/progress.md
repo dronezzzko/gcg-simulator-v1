@@ -150,3 +150,39 @@ standard and strong) — no state, legal-option, RNG, error or agent divergence.
 engine trace (card data, deck construction) need native Rust tests tagged `// gcg-tags:`
 (gcg-data), then `gcg-diff traceability --write`. Phase 4 matrix, probe, fuzz, paranoid runs,
 AI test ports and parity tests follow.
+
+## Phase 4 — Equivalence (in progress)
+
+### Phase 4 test completion (workflow wf_c6937f85-9a4, five worktree agents, merged)
+
+- P4-A traceability: native Rust tests tagged for the 23 entries whose Python tests leave no
+  engine trace (card data, compiled scripts, deck construction); `docs/RULES_TRACEABILITY.md`
+  and `docs/port/TRACEABILITY_CARDS.md` regenerated (lead re-ran `--write` after the merge).
+- P4-B: 10,000-game fuzz at seed 2026 with invariants, summary byte-equal to Python's; 2,000
+  games at a commit-derived seed; paranoid tier 1 and tier 2; paranoid check counters
+  (`crates/gcg-engine/src/paranoid.rs`, feature-gated, no game effect).
+- P4-C: 52 puzzle cases with decision logs equal to Python's, 128 information-set cases,
+  fork-join play/draw choice equals serial.
+- P4-D: identical outputs at 1/4/10 workers (reference, v0 search, greedy, random), all 25
+  Python replays verify under Rust byte for byte, two-value `--ai-preset`, reference-benchmark
+  with test agents, schema negative controls, ports of tests/runner, reports, cli, deck,
+  `gcg-eval compare` equal to Python, head-to-head identical across worker counts, seed roles,
+  help and usage parity, topology parsing.
+- P4-E: 12 lead-example ports, touch/version catalogue, engine property tests, once_used
+  semantics, deck order in new_game.
+
+**Gate (lead-run).** `cargo fmt --all --check`, `cargo clippy --workspace --all-targets
+--all-features -- -D warnings` clean; `cargo test --workspace --release`: 864 passed, 0 failed;
+slow suite (`--features gcg-diff/slow,gcg-engine/slow,gcg-eval/slow,gcg-search/slow`): 880
+passed, 0 failed; `gcg-diff traceability --check` passed (Python 395 rules tested, 184 N/A;
+Rust 395 tested, 0 without evidence; 840/840 non-vanilla cards, 119/119 FAQ, 360 rulings + 8
+N/A with Rust evidence); `gcg-diff coverage --check`, `lints`, `tests-json --check` passed.
+Agent-run long items (not re-run by the lead): paranoid tier-1 corpus 3804/3804 and paranoid
+tier 2 (T-054, T-091), 10,000-game fuzz comparison (T-055). tests.json: 79 passing, 1 failing.
+
+**Open.** T-056 failing: one `search:fast` strategic fuzz game in 1,000 (game 221, seed
+11012090770908643750) reaches the W-143 redirect cycle inside a rollout; the engine reports
+`RedirectCycle` exactly where Python raises `RecursionError` (not a divergence). Resolution in
+Phase 6: the strengthened search scores a simulated line that ends in an engine error instead
+of failing the real game (AI only; W-143, W-110). End-to-end matrix and the numbering-shift
+probe still running.

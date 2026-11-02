@@ -5,7 +5,10 @@
 //!
 //! - `fuzz.run(16, seed=11, workers=1)` with no failure;
 //! - for seeds 1 and 2, `run_game((greedy(seed), greedy(seed + 10)), (TUNING_DECKS[0],
-//!   TUNING_DECKS[1]), seed)` (`ai/selfplay.py:60-75`) ending with a winner.
+//!   TUNING_DECKS[1]), seed)` (`ai/selfplay.py:60-75`) ending with a winner;
+//! - every check ran more often than `test_engine_caches.py:41-45` requires
+//!   ([`MORE_THAN`]), counted by `gcg_engine::paranoid::counts` on this thread (both game groups
+//!   run on the calling thread).
 
 use std::num::NonZeroUsize;
 
@@ -23,6 +26,10 @@ pub const FUZZ_GAMES: u64 = 16;
 pub const FUZZ_SEED: u64 = 11;
 /// `DECISION_LIMIT` (`ai/selfplay.py:22`).
 pub const DECISION_LIMIT: u32 = 20_000;
+/// `test_engine_caches.py:41-45`: each check of `gcg_engine::paranoid::Check::ALL` (cached
+/// view, unlistened event, no printed lethal damage, unchanged state, view-free reference)
+/// must run more often than this over the games.
+pub const MORE_THAN: [u64; 5] = [10_000, 1_000, 1_000, 1_000, 1_000];
 
 /// `RESOURCES` (`ai/tuning.py:62`).
 const RESOURCES: [&str; 10] = ["R-001"; 10];
@@ -134,11 +141,43 @@ pub fn greedy_game(seed: u64) -> Result<(i8, i32, u32), String> {
     Ok((winner, st.turn(), decisions))
 }
 
-/// The `paranoid-games` report: one line per game group, and whether all passed.
+/// The lines of the check counts since `before`, and whether each check ran more often than
+/// [`MORE_THAN`].
+#[cfg(feature = "paranoid")]
+fn counted(before: [u64; 5], lines: &mut Vec<String>) -> bool {
+    use gcg_engine::paranoid::{Check, counts};
+    let after = counts();
+    let mut ok = true;
+    for (i, check) in Check::ALL.iter().enumerate() {
+        let n = after[i].saturating_sub(before[i]);
+        let enough = n > MORE_THAN[i];
+        lines.push(format!(
+            "check {:<24} {n:>9} runs (more than {} required){}",
+            check.name(),
+            MORE_THAN[i],
+            if enough { "" } else { ": TOO FEW" }
+        ));
+        ok &= enough;
+    }
+    ok
+}
+
+/// The `paranoid-games` report: one line per game group and per check count, and whether all
+/// passed.
 ///
 /// # Errors
-/// A fuzz run that could not run.
+/// A fuzz run that could not run, or a build without the `paranoid` feature (its checks are
+/// compiled out, so nothing would be verified).
 pub fn run() -> Result<(Vec<String>, bool), String> {
+    if !cfg!(feature = "paranoid") {
+        return Err(
+            "paranoid-games needs the paranoid build: cargo build --release -p gcg-diff \
+             --features paranoid --target-dir target/paranoid"
+                .to_owned(),
+        );
+    }
+    #[cfg(feature = "paranoid")]
+    let before = gcg_engine::paranoid::counts();
     let mut lines = Vec::new();
     let mut ok = true;
     let args = FuzzArgs {
@@ -177,6 +216,10 @@ pub fn run() -> Result<(Vec<String>, bool), String> {
                 ok = false;
             }
         }
+    }
+    #[cfg(feature = "paranoid")]
+    {
+        ok &= counted(before, &mut lines);
     }
     Ok((lines, ok))
 }

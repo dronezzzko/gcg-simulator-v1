@@ -13,87 +13,14 @@ use gcg_engine::{
     Action, ActionKind, AddOptions, NewGameOptions, Scenario, ScenarioOptions, Step, TestkitError,
     Zone,
 };
-use l5_common::{int, load, record, records, reg, start_game, strs};
-use serde_json::{Value, json};
-
-fn player(v: &Value) -> u8 {
-    u8::try_from(v.as_u64().unwrap()).unwrap()
-}
-
-fn zone(v: &Value) -> Zone {
-    Zone::from_value(int(v)).unwrap()
-}
-
-fn options(init: &Value) -> ScenarioOptions {
-    let d = ScenarioOptions::default();
-    ScenarioOptions {
-        active: init.get("active").map_or(d.active, player),
-        turn: init
-            .get("turn")
-            .map_or(d.turn, |v| i32::try_from(int(v)).unwrap()),
-        seed: init.get("seed").map_or(d.seed, |v| v.as_u64().unwrap()),
-        deck_size: init.get("deck_size").map_or(d.deck_size, |v| {
-            usize::try_from(v.as_u64().unwrap()).unwrap()
-        }),
-    }
-}
-
-/// Runs one Python operation of a `scenario` record; the result as Python's JSON.
-fn run_op(sc: &mut Scenario, op: &[Value]) -> Result<Value, TestkitError> {
-    let name = op[0].as_str().unwrap();
-    let a = &op[1..];
-    Ok(match name {
-        "prepare_start" => {
-            let step = Step::from_value(int(&a[0])).unwrap();
-            sc.prepare_start(step)?;
-            Value::Null
-        }
-        "add" => {
-            let kw = &a[3];
-            let flag = |k: &str, d: bool| kw.get(k).map_or(d, |v| v.as_bool().unwrap());
-            let o = AddOptions {
-                rested: flag("rested", false),
-                damage: kw
-                    .get("damage")
-                    .map_or(0, |v| i32::try_from(int(v)).unwrap()),
-                pilot: kw.get("pilot").map(|v| v.as_str().unwrap()),
-                deployed_this_turn: flag("deployed_this_turn", false),
-                known: flag("known", true),
-            };
-            json!(sc.add(player(&a[0]), a[1].as_str().unwrap(), zone(&a[2]), o)?)
-        }
-        "hand" => json!(sc.hand(player(&a[0]), &strs(&a[1]))?),
-        "trash" => json!(sc.trash(player(&a[0]), &strs(&a[1]))?),
-        "shields" => json!(sc.shields(player(&a[0]), &strs(&a[1]))?),
-        "deck" => {
-            sc.deck(player(&a[0]), &strs(&a[1]));
-            Value::Null
-        }
-        "resources" => {
-            let n = |v: &Value| usize::try_from(v.as_u64().unwrap()).unwrap();
-            json!(sc.resources(player(&a[0]), n(&a[1]), n(&a[2]), n(&a[3]))?)
-        }
-        "base" => {
-            let damage = i32::try_from(int(&a[2])).unwrap();
-            json!(sc.base(player(&a[0]), a[1].as_str(), damage)?)
-        }
-        "resource_deck" => {
-            sc.resource_deck(
-                player(&a[0]),
-                usize::try_from(a[1].as_u64().unwrap()).unwrap(),
-            )?;
-            Value::Null
-        }
-        "add_raw" => json!(sc.add_raw(player(&a[0]), a[1].as_str().unwrap(), zone(&a[2]))?),
-        other => panic!("unknown scenario op {other}"),
-    })
-}
+use l5_common::{int, load, record, records, reg, run_op, scenario_options, start_game};
+use serde_json::json;
 
 #[test]
 fn scenarios_build_pythons_state_before_advance() {
     for rec in records("scenario") {
         let id = rec["id"].as_str().unwrap();
-        let mut sc = Scenario::new(&reg(), options(&rec["init"]));
+        let mut sc = Scenario::new(&reg(), scenario_options(&rec["init"]));
         let mut before = None;
         for (op, want) in rec["ops"]
             .as_array()

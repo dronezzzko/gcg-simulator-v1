@@ -20,6 +20,7 @@ use crate::{Ctx, Derived, EngineError, GameState};
 /// # Panics
 /// `paranoid: stale view` or `paranoid: stale trigger index`.
 pub(crate) fn cached_view(st: &GameState, dv: &Derived) -> Result<(), EngineError> {
+    crate::paranoid::count(crate::paranoid::Check::CachedView);
     let fresh = compute(st)?;
     assert!(
         signature(st, &fresh) == signature(st, dv),
@@ -56,6 +57,7 @@ pub(crate) fn view_free_ref(
     r: RefId,
     got: &[crate::Uid],
 ) -> Result<(), EngineError> {
+    crate::paranoid::count(crate::paranoid::Check::ViewFreeReference);
     let dv = derived(st)?;
     assert!(
         resolve(st, &dv, ctx, r)? == got,

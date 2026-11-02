@@ -138,6 +138,16 @@ fn needs_engine_outputs_are_identical_for_any_worker_count() {
             files.push(r.file_name().expect("name").as_encoded_bytes().to_vec());
             files.push(fs::read(r).expect("replay"));
         }
+        // timing.json is the one file that records the run itself: the workers that played
+        // (tests/cli/test_console_script.py:62-64).
+        let timing: serde_json::Value =
+            serde_json::from_str(&fs::read_to_string(out.join("timing.json")).expect("timing"))
+                .expect("JSON");
+        let want_workers = match workers {
+            "auto" => gcg_core::sys::topology::detect().logical_cpus.min(4),
+            n => n.parse::<usize>().expect("a count").min(4),
+        };
+        assert_eq!(timing["workers"], want_workers, "--workers {workers}");
         match &first {
             None => first = Some((out, files)),
             Some((_, want)) => {

@@ -10,16 +10,17 @@ pub mod engine;
 
 use std::sync::Arc;
 
+use gcg_core::pyjson::{DumpOptions, dumps};
 use gcg_core::rng::SplitMix64;
 use gcg_data::{CardDb, CardType, DeckList, DefId, ImplementationStatus};
-use gcg_effects::{Kw, Registry};
+use gcg_effects::{ContRef, Kw, Registry};
 
 use crate::view;
 use crate::{
     Action, ActionKind, AddOptions, ApplyError, BOTH_KNOW, DEFAULT_TURN_LIMIT, DecisionKind,
-    EngineError, FILLER_RESOURCE, FILLER_UNIT, GameConst, GameState, MAX_ACTIONS_DEFAULT, Phase,
-    Scenario, ScenarioOptions, Step, TestOverrides, TestkitError, Uid, UnimplementedCardError,
-    ViewKey, Zone,
+    EngineError, FILLER_RESOURCE, FILLER_UNIT, GameConst, GameState, MAX_ACTIONS_DEFAULT, OnceElem,
+    Phase, Scenario, ScenarioOptions, StateSnapshot, Step, TestOverrides, TestkitError, Uid,
+    UnimplementedCardError, ViewKey, Zone,
 };
 
 type A = ActionKind;
@@ -881,6 +882,65 @@ pub fn set_force_link(st: &mut GameState, units: &[&str]) {
     };
     let konst = with_overrides(&st.konst, Some(Arc::new(overrides)));
     st.konst = Arc::new(konst);
+}
+
+/// The inline side-table node of a continuous effect that no IR node spells (PLAN §4.8,
+/// §5.6), in the `node_json` form of `port/oracle/traces.py`; `None` for an IR node, which
+/// resolves by its content id.
+fn value_node(reg: &Registry, c: ContRef) -> Option<serde_json::Value> {
+    Some(match c {
+        ContRef::StatMod { ap, hp } => serde_json::json!({"_": "StatMod", "ap": ap, "hp": hp}),
+        ContRef::KeywordGrant { kw, amount } => {
+            serde_json::json!({"_": "KeywordGrant", "keyword": kw.as_str(), "amount": amount})
+        }
+        ContRef::AbilityGrant { card, index } => serde_json::json!(
+            {"_": "AbilityGrant", "card_number": reg.str(card), "ability_index": index}
+        ),
+        ContRef::Node(_) => return None,
+    })
+}
+
+/// `st` as a trace snapshot (PLAN §4.8; the `snapshot` record of `port/oracle/traces.py`): the
+/// canonical state, a `continuous` side table with the value effects (a `StatMod` with int
+/// fields, a `KeywordGrant` with an int amount, an `AbilityGrant`) of its lasting effects,
+/// delayed effects and once keys, and `rules_checked`. IR effects and filter sets resolve by
+/// content id in the registry, so `canon::from_canonical` rebuilds `st` from it.
+///
+/// # Panics
+/// Never: the canonical form always dumps to valid JSON.
+#[must_use]
+pub fn snapshot(st: &GameState) -> StateSnapshot {
+    const COMPACT: DumpOptions = DumpOptions {
+        indent: None,
+        sort_keys: false,
+        compact: true,
+        ensure_ascii: true,
+    };
+    let reg = st.registry();
+    let mut continuous = serde_json::Map::new();
+    let named = st
+        .lasting()
+        .iter()
+        .chain(st.delayed())
+        .map(|l| l.effect)
+        .chain(st.once_used().iter().flat_map(|k| {
+            k.0.as_slice().iter().filter_map(|e| match e {
+                OnceElem::Cont(c) => Some(*c),
+                OnceElem::Int(_) => None,
+            })
+        }));
+    for c in named {
+        if let Some(node) = value_node(reg, c) {
+            continuous.insert(c.content_id(reg).as_str().to_owned(), node);
+        }
+    }
+    let text = dumps(&crate::canon::canonical_state(st), COMPACT);
+    StateSnapshot {
+        state: serde_json::from_str(&text).expect("the canonical state is JSON"),
+        continuous: serde_json::Value::Object(continuous),
+        filter_sets: serde_json::Value::Object(serde_json::Map::new()),
+        rules_checked: st.rules_checked(),
+    }
 }
 
 #[cfg(test)]

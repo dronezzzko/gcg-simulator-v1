@@ -6,26 +6,21 @@
 //!   two seeded random games, decision by decision against Python's digests, with
 //!   `invariants::check` after every action;
 //! - the setup decisions into turn 1, the README scenario, `invariants::check` on mid-game
-//!   states, `procedures` against the recorded options, `testkit::install_view`;
-//! - the native ports of the 12 lead-example tests (`tests/rules/test_lead_examples.py`,
-//!   `tests/cards/test_lead_examples.py`).
+//!   states, `procedures` against the recorded options, `testkit::install_view`.
+//!
+//! The native ports of the 12 lead-example tests are in `lead_examples.rs` (T-057).
 
 mod l5_common;
 
 use std::sync::Arc;
 
 use gcg_core::rng::SplitMix64;
-use gcg_effects::Kw;
 use gcg_engine::canon::state_digest;
 use gcg_engine::invariants::{check, initial_multiset};
-use gcg_engine::testkit::{
-    attack, block, end_main, has_action, install_view, keywords, no, pass_all, play, select,
-    to_next_turn, yes, zone_of,
-};
+use gcg_engine::testkit::install_view;
 use gcg_engine::{
     Action, ActionKind, AddOptions, CheckError, DecisionKind, EndReason, GameState, NewGameOptions,
-    PLAYER_TARGET, Scenario, ScenarioOptions, Step, TestkitError, Zone, apply, legal_actions,
-    procedures, view,
+    Scenario, ScenarioOptions, Step, Zone, apply, legal_actions, procedures, view,
 };
 use l5_common::{
     action, action_json, int, load, pending_json, record, records, reg, start_game, u64_of,
@@ -259,225 +254,4 @@ fn needs_engine_install_view_reuses_the_view_while_the_key_holds() {
     let mut other = key;
     other.turn += 1;
     assert!(install_view(&st, &from, other).is_err());
-}
-
-// ---------------------------------------------------------------------------------------------
-// Native ports of the lead-example tests (tests/rules/test_lead_examples.py)
-
-const VANILLA_2_2: &str = "GD01-060"; // Zaku Mariner, Lv2 cost1 2/2, no effects
-const BLOCKER: &str = "GD01-072"; // Launcher Strike Gundam, <Blocker>
-const BURST_ADD: &str = "GD01-097"; // Guel Jeturk, 【Burst】Add this card to your hand.
-const PILOT: &str = "GD01-089"; // Riddhe Marcenas, a Pilot card
-
-fn scenario() -> Scenario {
-    Scenario::new(&reg(), ScenarioOptions::default())
-}
-
-fn unit(sc: &mut Scenario, player: u8, number: &str) -> u16 {
-    sc.add(player, number, Zone::Battle, AddOptions::default())
-        .unwrap()
-}
-
-fn pending_kind(st: &GameState) -> Option<DecisionKind> {
-    st.pending().map(|d| d.hdr.kind)
-}
-
-// gcg-tags: rule=3-2-4 rule=3-2-6-3
-#[test]
-fn needs_engine_lead_newly_deployed_unit_cannot_attack() -> Result<(), TestkitError> {
-    let mut sc = scenario();
-    sc.resources(0, 3, 0, 0)?;
-    let card = sc.add(0, VANILLA_2_2, Zone::Hand, AddOptions::default())?;
-    sc.start(Step::Main)?;
-    let st = sc.state_mut();
-    play(st, card, None, 0)?;
-    assert_eq!(zone_of(st, card), Zone::Battle);
-    assert!(!has_action(
-        st,
-        ActionKind::Attack,
-        Some(i32::from(card)),
-        None
-    ));
-    Ok(())
-}
-
-// gcg-tags: rule=8-5-2-2 rule=1-2-2-1 rule=11-2-1-1
-#[test]
-fn needs_engine_lead_battle_damage_with_empty_shield_area_wins() -> Result<(), TestkitError> {
-    let mut sc = scenario();
-    let u = unit(&mut sc, 0, VANILLA_2_2);
-    sc.start(Step::Main)?;
-    let st = sc.state_mut();
-    attack(st, u, PLAYER_TARGET)?;
-    pass_all(st, 50)?;
-    assert_eq!(st.winner(), Some(0));
-    assert_eq!(st.end_reason(), Some(EndReason::BattleDamage));
-    Ok(())
-}
-
-// gcg-tags: rule=8-5-2-3 rule=8-5-2-3-1 rule=4-6-4-2
-#[test]
-fn needs_engine_lead_attack_destroys_top_shield() -> Result<(), TestkitError> {
-    let mut sc = scenario();
-    let u = unit(&mut sc, 0, VANILLA_2_2);
-    let shields = sc.shields(1, &[VANILLA_2_2, VANILLA_2_2])?;
-    sc.start(Step::Main)?;
-    let st = sc.state_mut();
-    attack(st, u, PLAYER_TARGET)?;
-    pass_all(st, 50)?;
-    assert_eq!(zone_of(st, shields[0]), Zone::Trash);
-    assert_eq!(zone_of(st, shields[1]), Zone::Shield);
-    Ok(())
-}
-
-// gcg-tags: rule=8-3-1 rule=13-1-4-1 rule=8-5-3-2
-#[test]
-fn needs_engine_lead_blocker_redirects_and_units_trade() -> Result<(), TestkitError> {
-    let mut sc = scenario();
-    let attacker = unit(&mut sc, 0, VANILLA_2_2);
-    let blocker = unit(&mut sc, 1, BLOCKER);
-    sc.start(Step::Main)?;
-    let st = sc.state_mut();
-    attack(st, attacker, PLAYER_TARGET)?;
-    assert_eq!(pending_kind(st), Some(DecisionKind::Block));
-    block(st, Some(blocker))?;
-    pass_all(st, 50)?;
-    assert!(st.card(blocker).rested);
-    assert_eq!(zone_of(st, attacker), Zone::Trash);
-    Ok(())
-}
-
-// gcg-tags: rule=13-2-5-1 rule=5-10-3 card=GD01-097
-#[test]
-fn needs_engine_lead_burst_add_to_hand() -> Result<(), TestkitError> {
-    let mut sc = scenario();
-    let u = unit(&mut sc, 0, VANILLA_2_2);
-    let shield = sc.shields(1, &[BURST_ADD])?[0];
-    sc.start(Step::Main)?;
-    let st = sc.state_mut();
-    attack(st, u, PLAYER_TARGET)?;
-    pass_all(st, 50)?;
-    assert_eq!(pending_kind(st), Some(DecisionKind::Burst));
-    yes(st)?;
-    assert_eq!(zone_of(st, shield), Zone::Hand);
-    Ok(())
-}
-
-// gcg-tags: rule=13-2-5-2
-#[test]
-fn needs_engine_lead_declining_burst_trashes_shield() -> Result<(), TestkitError> {
-    let mut sc = scenario();
-    let u = unit(&mut sc, 0, VANILLA_2_2);
-    let shield = sc.shields(1, &[BURST_ADD])?[0];
-    sc.start(Step::Main)?;
-    let st = sc.state_mut();
-    attack(st, u, PLAYER_TARGET)?;
-    pass_all(st, 50)?;
-    no(st)?;
-    assert_eq!(zone_of(st, shield), Zone::Trash);
-    Ok(())
-}
-
-// gcg-tags: rule=7-6-5-1 rule=4-8-4
-#[test]
-fn needs_engine_lead_hand_limit_discards_down_to_ten() -> Result<(), TestkitError> {
-    let mut sc = scenario();
-    sc.hand(0, &[VANILLA_2_2; 12])?;
-    sc.start(Step::Main)?;
-    let st = sc.state_mut();
-    end_main(st)?;
-    pass_all(st, 50)?;
-    assert_eq!(pending_kind(st), Some(DecisionKind::Discard));
-    let hand = st.zone(0, Zone::Hand).to_vec();
-    select(st, &[hand[0]], None)?;
-    select(st, &[hand[1]], None)?;
-    assert_eq!(st.zone(0, Zone::Hand).len(), 10);
-    Ok(())
-}
-
-// gcg-tags: rule=7-3-1 rule=7-4-1
-#[test]
-fn needs_engine_lead_draw_and_resource_phases() -> Result<(), TestkitError> {
-    let mut sc = Scenario::new(
-        &reg(),
-        ScenarioOptions {
-            active: 1,
-            ..ScenarioOptions::default()
-        },
-    );
-    sc.resource_deck(0, 3)?;
-    sc.start(Step::Main)?;
-    let st = sc.state_mut();
-    let hand_before = st.zone(0, Zone::Hand).len();
-    to_next_turn(st)?;
-    assert_eq!(st.active(), 0);
-    assert_eq!(st.zone(0, Zone::Hand).len(), hand_before + 1);
-    assert_eq!(st.zone(0, Zone::ResourceArea).len(), 1);
-    Ok(())
-}
-
-// Native ports of tests/cards/test_lead_examples.py
-
-// gcg-tags: card=GD01-001 ruling=GD01-001:Q119
-#[test]
-fn needs_engine_lead_gd01_001_gains_repair_itself() -> Result<(), TestkitError> {
-    let mut sc = scenario();
-    let gundam = unit(&mut sc, 0, "GD01-001");
-    sc.start(Step::Main)?;
-    let kws = keywords(sc.state(), gundam)?;
-    assert_eq!(
-        kws.iter().find(|(k, _)| *k == Kw::Repair).map(|e| e.1),
-        Some(1)
-    );
-    Ok(())
-}
-
-// gcg-tags: card=GD01-001
-#[test]
-fn needs_engine_lead_gd01_001_when_paired_draws_with_two_other_units() -> Result<(), TestkitError> {
-    let mut sc = scenario();
-    sc.resources(0, 5, 0, 0)?;
-    let gundam = unit(&mut sc, 0, "GD01-001");
-    unit(&mut sc, 0, VANILLA_2_2);
-    unit(&mut sc, 0, VANILLA_2_2);
-    let pilot = sc.add(0, PILOT, Zone::Hand, AddOptions::default())?;
-    sc.start(Step::Main)?;
-    let st = sc.state_mut();
-    let hand_before = st.zone(0, Zone::Hand).len();
-    play(st, pilot, Some(gundam), 0)?;
-    assert_eq!(st.zone(0, Zone::Hand).len(), hand_before);
-    Ok(())
-}
-
-// gcg-tags: card=GD01-001
-#[test]
-fn needs_engine_lead_gd01_001_when_paired_no_draw_with_one_other_unit() -> Result<(), TestkitError>
-{
-    let mut sc = scenario();
-    sc.resources(0, 5, 0, 0)?;
-    let gundam = unit(&mut sc, 0, "GD01-001");
-    unit(&mut sc, 0, VANILLA_2_2);
-    let pilot = sc.add(0, PILOT, Zone::Hand, AddOptions::default())?;
-    sc.start(Step::Main)?;
-    let st = sc.state_mut();
-    let hand_before = st.zone(0, Zone::Hand).len();
-    play(st, pilot, Some(gundam), 0)?;
-    assert_eq!(st.zone(0, Zone::Hand).len(), hand_before - 1);
-    Ok(())
-}
-
-// gcg-tags: card=GD01-001 rule=13-1-1-1
-#[test]
-fn needs_engine_lead_gd01_001_repair_recovers_at_end_of_turn() -> Result<(), TestkitError> {
-    let mut sc = scenario();
-    let o = AddOptions {
-        damage: 2,
-        ..AddOptions::default()
-    };
-    let gundam = sc.add(0, "GD01-001", Zone::Battle, o)?;
-    sc.start(Step::Main)?;
-    let st = sc.state_mut();
-    to_next_turn(st)?;
-    assert_eq!(st.card(gundam).damage, 1);
-    Ok(())
 }
