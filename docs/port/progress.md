@@ -208,3 +208,22 @@ corpus tier 1 3804/3804 and tier 2 4154/4154; lints pass; std one-game
 tier 1 3804/3804, paranoid engine tests 214, 10,000-game fuzz equal to the committed summary.
 Not done: zero allocation per iteration (about 150 left per iteration, about 2% of samples);
 paranoid `search:fast` fuzz stopped under load; Part 1 hyperfine runs (need an idle machine).
+
+### M9 — Phase 4 gate (done)
+
+- End-to-end matrix (`scripts/compare_python_vs_rust.sh equivalence`, defaults): 108 Python
+  configurations (3 seeds x 3 example pairings x bo1/bo3 x reference fast/standard/strong x
+  decision log off/on, `--matches 10`), each Python baseline identical under PYTHONHASHSEED 1
+  and 2 (216 runs); Rust `gcg-eval reference-benchmark` at workers 1/4/10: **324/324
+  byte-identical** after masking the three implementation fields (19 h 06 min wall).
+- Headline 100 matches (reference standard, bo3, seed 1, rgz vs bwf): **3/3** identical at
+  workers 1/4/10, rebuilt from the post-Phase-5 tree.
+- Numbering-shift probe (T-033): 0 of 8 configurations depend on Python's effect numbering;
+  Python workers 1 vs 10 identical in 8.
+- docs/port/EQUIVALENCE.md: method, corpus and matrix results, probe, 7 known differences
+  (none changes a compared byte). tests.json: T-002, T-015, T-033, T-062-T-064, T-083-T-090
+  passing.
+
+**Gate.** Byte equivalence is exact; no statistical fallback is needed. Risk carried forward:
+the matrix binaries predate Phase 5, but the headline, the corpus (tier 1 and 2 at 100% after
+every later commit) and every package's three-preset smoke cover the current code.

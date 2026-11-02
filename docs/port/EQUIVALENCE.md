@@ -82,9 +82,13 @@ configurations. Each Python baseline was generated under PYTHONHASHSEED 1 and 2 
 
 The run took 19 h 06 min of wall time (153,530 CPU-seconds, almost all of it Python).
 Per-configuration outputs and diffs are in `build/comparison/equivalence/` (not committed).
-The 100-match headline (reference `standard`, `bo3`, seed 1, red-green-zeon vs
-blue-white-federation, Rust at `--workers 1`, `4` and `10`) is recorded below when its run
-completes.
+**Headline, 100 matches** (reference `standard`, `bo3`, seed 1, red-green-zeon vs
+blue-white-federation; `scripts/compare_python_vs_rust.sh equivalence --matches 100 --seeds 1
+--formats bo3 --presets standard --pairs red-green-zeon:blue-white-federation --workers "1 4 10"
+--decision-logs off`): Python baseline identical under both hash seeds; Rust identical at
+`--workers 1`, `4` and `10`: **3/3**. This run rebuilt the Rust binaries from the tree at
+e14c839 (after the Phase 5 optimisations and both strengthened-search waves), so it also shows
+that the optimised reference search is unchanged at full benchmark scale.
 
 ### Numbering-shift probe (PLAN §8.9, R1)
 
