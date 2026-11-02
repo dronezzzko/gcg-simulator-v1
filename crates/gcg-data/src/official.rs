@@ -13,16 +13,16 @@ use crate::contracts::{
 use crate::{embedded, model, py};
 
 const CONSTRUCTION_FILE: &str = "official/deck_construction.json";
-const BANLIST_FILE: &str = "official/banlist.json";
+pub(crate) const BANLIST_FILE: &str = "official/banlist.json";
 
-fn shape(file: &str, detail: impl Into<String>) -> DataError {
+pub(crate) fn shape(file: &str, detail: impl Into<String>) -> DataError {
     DataError::Shape {
         file: file.into(),
         detail: detail.into(),
     }
 }
 
-fn field<'a>(file: &str, d: &'a Value, path: &[&str]) -> Result<&'a Value, DataError> {
+pub(crate) fn field<'a>(file: &str, d: &'a Value, path: &[&str]) -> Result<&'a Value, DataError> {
     let mut v = d;
     for key in path {
         v = py::get(v, key).ok_or_else(|| shape(file, format!("missing {}", path.join("."))))?;
@@ -39,12 +39,12 @@ fn uint(file: &str, d: &Value, path: &[&str]) -> Result<u32, DataError> {
 }
 
 /// `str(v)`.
-fn text(file: &str, d: &Value, path: &[&str]) -> Result<Box<str>, DataError> {
+pub(crate) fn text(file: &str, d: &Value, path: &[&str]) -> Result<Box<str>, DataError> {
     Ok(py::str_of(field(file, d, path)?).into())
 }
 
 /// A list whose items are read with `f`.
-fn list<'a, T>(
+pub(crate) fn list<'a, T>(
     file: &str,
     v: &'a Value,
     what: &str,
@@ -187,23 +187,33 @@ fn attribute_rule(r: &Value) -> Result<AttributePairRule, DataError> {
 /// `banlist()` from the text of `banlist.json` (`deck/official.py:112-127`); lists keep file
 /// order.
 pub(crate) fn parse_banlist(text_json: &str) -> Result<Banlist, DataError> {
-    let f = BANLIST_FILE;
-    let d: Value = serde_json::from_str(text_json).map_err(|e| DataError::Json {
-        file: f.into(),
+    parse_banlist_value(&banlist_document(text_json)?)
+}
+
+/// `json.loads` of `banlist.json`'s text.
+pub(crate) fn banlist_document(text_json: &str) -> Result<Value, DataError> {
+    serde_json::from_str(text_json).map_err(|e| DataError::Json {
+        file: BANLIST_FILE.into(),
         line: 0,
         message: e.to_string(),
-    })?;
-    let banned = list(f, field(f, &d, &["banned"])?, "banned", |b| {
+    })
+}
+
+/// `banlist()`'s body (`deck/official.py:112-127`) over one list object: the top-level
+/// document, or one dated list of its optional `history` (W-72, [`crate::legality`]).
+pub(crate) fn parse_banlist_value(d: &Value) -> Result<Banlist, DataError> {
+    let f = BANLIST_FILE;
+    let banned = list(f, field(f, d, &["banned"])?, "banned", |b| {
         field(f, b, &["card_number"])
     })?;
-    let restricted = list(f, field(f, &d, &["restricted"])?, "restricted", |r| {
+    let restricted = list(f, field(f, d, &["restricted"])?, "restricted", |r| {
         Ok(Restricted {
             card_number: text(f, r, &["card_number"])?,
             max_copies: uint(f, r, &["max_copies"])?,
             exceptions: exceptions(field(f, r, &["exceptions"])?)?,
         })
     })?;
-    let banned_pairs = list(f, field(f, &d, &["banned_pairs"])?, "banned_pairs", |p| {
+    let banned_pairs = list(f, field(f, d, &["banned_pairs"])?, "banned_pairs", |p| {
         let cards = field(f, p, &["cards"])?
             .as_array()
             .filter(|c| c.len() >= 2)
@@ -215,12 +225,12 @@ pub(crate) fn parse_banlist(text_json: &str) -> Result<Banlist, DataError> {
     })?;
     let attribute_rules = list(
         f,
-        field(f, &d, &["attribute_pair_rules"])?,
+        field(f, d, &["attribute_pair_rules"])?,
         "attribute_pair_rules",
         attribute_rule,
     )?;
     Ok(Banlist {
-        effective_date: text(f, &d, &["effective_date"])?,
+        effective_date: text(f, d, &["effective_date"])?,
         banned: string_set(f, banned, "banned")?,
         restricted: restricted.into(),
         banned_pairs: banned_pairs.into(),

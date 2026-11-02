@@ -20,7 +20,7 @@ use crate::{MechanismEffort, Observation, Preset, StrengthenedConfig, preset_con
 
 /// The searched decisions of the D2 vectors (`crates/gcg-ai/tests/vectors/search/`), as
 /// `(state, player, per-decision seed)`.
-fn searched_states(limit: usize) -> Vec<(GameState, u8, u64)> {
+pub(crate) fn searched_states(limit: usize) -> Vec<(GameState, u8, u64)> {
     let path = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
         .join("../gcg-ai/tests/vectors/search/decisions.ndjson");
     let reg = Registry::embedded();
@@ -53,7 +53,7 @@ fn searched_states(limit: usize) -> Vec<(GameState, u8, u64)> {
 }
 
 /// `fast` with every mechanism off but those `flags` names.
-fn config(flags: &[&str]) -> StrengthenedConfig {
+pub(crate) fn config(flags: &[&str]) -> StrengthenedConfig {
     let mut cfg = preset_config(Preset::Fast).clone();
     cfg.mechanisms.engine_error_leaf = false;
     for f in flags {
@@ -62,9 +62,9 @@ fn config(flags: &[&str]) -> StrengthenedConfig {
     cfg
 }
 
-type Outcome = Result<(SearchResult, MechanismEffort), AgentError>;
+pub(crate) type Outcome = Result<(SearchResult, MechanismEffort), AgentError>;
 
-fn run_with<M: Mechanisms>(
+pub(crate) fn run_with<M: Mechanisms>(
     mech: &M,
     st: &GameState,
     player: u8,
@@ -88,6 +88,7 @@ fn run_with<M: Mechanisms>(
             &mut rng,
             &mut cx,
             &mut NoTrace,
+            None,
         )
     })
 }

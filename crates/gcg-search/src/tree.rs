@@ -37,11 +37,13 @@ impl Child {
 
 /// The tree: `nodes[i]` is `_Node.children` (`ai/mcts.py:60-62`) as a list of
 /// `(key, child index)` in insertion order, used for lookups only (never iterated for a
-/// decision), and `children` holds every `_Child`.
-#[derive(Default)]
+/// decision), and `children` holds every `_Child`. `p6d` holds the per-tree tables of the P6-D
+/// mechanisms (transpositions, K-world priors), empty when they are off.
+#[derive(Clone, Debug, Default)]
 pub(crate) struct Tree {
     pub(crate) nodes: Vec<Vec<(ChildKey, u32)>>,
     pub(crate) children: Vec<Child>,
+    pub(crate) p6d: crate::mech::p6d::TreeExt,
 }
 
 impl Tree {
@@ -72,6 +74,25 @@ impl Tree {
         });
         let c = u32::try_from(self.children.len() - 1).expect("tree children fit in u32");
         self.nodes[node as usize].push((key, c));
+    }
+
+    /// The child `key` of `node` with its prior set to `prior`, created when missing
+    /// (`prior_worlds`, W-140, recomputes the priors of existing children).
+    pub(crate) fn set_prior(&mut self, node: u32, key: ChildKey, mover: u8, prior: f64) {
+        match self.get(node, &key) {
+            Some(c) => self.children[c as usize].prior = prior,
+            None => self.setdefault(node, key, mover, prior),
+        }
+    }
+
+    /// The node of the observation key `key` (`transpositions`, S7), created on first use.
+    pub(crate) fn transposed(&mut self, key: gcg_core::stable_hash::StableKey) -> u32 {
+        if let Some(n) = self.p6d.table.get(key) {
+            return n;
+        }
+        let n = self.new_node();
+        self.p6d.table.insert(key, n);
+        n
     }
 
     /// `_node_of(child)` (`ai/mcts.py:248-251`): the child's node, created on first use.

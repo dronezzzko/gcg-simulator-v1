@@ -30,6 +30,11 @@ use crate::{SchemaError, SchemaVersion};
 pub const RESULTS_SCHEMA_V1_1: &str =
     include_str!("../../../../src/gcg_sim/reports/schema/results.v1.schema.json");
 
+/// The 1.2.0 results schema of `gcg-sim` (PLAN §12.7): the 1.1.0 constraints plus `ai.search`
+/// and `ai.effort`, `ai.preset` limited to the two shipped presets. The file name follows W-97:
+/// the major version, plus the minor version when two minors ship side by side.
+pub const RESULTS_SCHEMA_V1_2: &str = include_str!("../../schema/results.v1_2.schema.json");
+
 /// The keywords the validator implements; anything else in a schema is a compile error.
 pub const SUPPORTED_KEYWORDS: [&str; 26] = [
     "$defs",
@@ -779,22 +784,37 @@ pub fn results_schema_v1_1() -> &'static Schema {
     })
 }
 
-/// `validate_results(obj)` (`reports/results.py:48-50`) for the schema version `v`. Results
-/// 1.2.0 (PLAN §12.7) has no schema file before Phase 6 (docs/port/contracts.md O9), so a
-/// 1.2.0 document is always rejected and never written.
+/// The compiled 1.2.0 schema (compiled once per process).
+///
+/// # Panics
+/// If the embedded schema does not compile (a build defect the tests catch).
+#[must_use]
+pub fn results_schema_v1_2() -> &'static Schema {
+    static SCHEMA: OnceLock<Schema> = OnceLock::new();
+    SCHEMA.get_or_init(|| {
+        Schema::compile(RESULTS_SCHEMA_V1_2).expect("the embedded 1.2.0 schema compiles")
+    })
+}
+
+/// The embedded schema text of version `v`.
+#[must_use]
+pub const fn results_schema_text(v: SchemaVersion) -> &'static str {
+    match v {
+        SchemaVersion::V1_1 => RESULTS_SCHEMA_V1_1,
+        SchemaVersion::V1_2 => RESULTS_SCHEMA_V1_2,
+    }
+}
+
+/// `validate_results(obj)` (`reports/results.py:48-50`) for the schema version `v`: 1.1.0
+/// against Python's file, 1.2.0 against `crates/gcg-runner/schema/results.v1_2.schema.json`
+/// (PLAN §12.7).
 ///
 /// # Errors
-/// The first violation, or the missing 1.2.0 schema.
+/// The first violation.
 pub fn validate_results(doc: &Json, v: SchemaVersion) -> Result<(), SchemaError> {
     match v {
         SchemaVersion::V1_1 => results_schema_v1_1().validate(doc),
-        SchemaVersion::V1_2 => Err(SchemaError {
-            pointer: String::new(),
-            message: format!(
-                "results schema {} is not embedded in this build (PLAN §12.7)",
-                v.as_str()
-            ),
-        }),
+        SchemaVersion::V1_2 => results_schema_v1_2().validate(doc),
     }
 }
 

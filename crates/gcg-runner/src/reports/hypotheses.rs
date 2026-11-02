@@ -340,6 +340,89 @@ fn bench_threat(card: &BenchCardStats) -> Option<Hypothesis> {
     })
 }
 
+/// One comparison of a hypothesis family before Holm (W-94, W-98): its id, rounded delta, and
+/// the p-value as `results.json` stores it (rounded to 6 digits) and unrounded.
+#[derive(Clone, PartialEq, Debug)]
+pub struct FamilyTest {
+    pub id: String,
+    pub delta: f64,
+    pub p_rounded: f64,
+    pub p_unrounded: f64,
+}
+
+/// A hypothesis family as [`hypotheses`] tests it: the candidates that pass its size and
+/// delta filters, and the family size Holm divides by (`max(comparisons, candidates)`).
+#[derive(Clone, PartialEq, Debug)]
+pub struct Family {
+    pub family: &'static str,
+    pub size: usize,
+    pub tests: Vec<FamilyTest>,
+}
+
+fn family_test(h: &Hypothesis) -> Option<FamilyTest> {
+    match &h.evidence {
+        Evidence::Compare {
+            a,
+            b,
+            delta,
+            p_value,
+            ..
+        } => Some(FamilyTest {
+            id: h.id.clone(),
+            delta: *delta,
+            p_rounded: *p_value,
+            p_unrounded: two_proportion_p(a, b),
+        }),
+        Evidence::Dead { .. } => None,
+    }
+}
+
+/// The four families of [`hypotheses`] (card deltas, play/draw, redraw, benchmark threats)
+/// with the same candidates and family sizes, for the run-level analysis of
+/// `analysis.json` (W-94, W-98). `hypotheses` itself is unchanged.
+#[must_use]
+pub fn family_tests(
+    cards: &[CardStats],
+    bench_cards: &[BenchCardStats],
+    split: &Splits,
+    mull: &Mulligan,
+) -> Vec<Family> {
+    let family = |name: &'static str, found: Vec<Hypothesis>, comparisons: usize| Family {
+        family: name,
+        size: comparisons.max(found.len()),
+        tests: found.iter().filter_map(family_test).collect(),
+    };
+    let deltas: Vec<Hypothesis> = cards.iter().filter_map(card_delta).collect();
+    let threats: Vec<Hypothesis> = bench_cards.iter().filter_map(bench_threat).collect();
+    let eligible = bench_cards.iter().filter(|b| b.rank_eligible).count();
+    // A split comparison counts once its sample-size condition holds, as a sampled card does.
+    let compared = |a: &Rate, b: &Rate, min: u64| usize::from(a.n >= min && b.n >= min);
+    let play_draw_compared = compared(
+        &split.on_play.dut_win_rate,
+        &split.on_draw.dut_win_rate,
+        MIN_GAMES,
+    );
+    let redraw_compared = compared(
+        &mull.win_rate_after_redraw,
+        &mull.win_rate_after_keep,
+        MIN_REDRAWS,
+    );
+    vec![
+        family("card_drawn_win_rate", deltas, sampled_cards(cards)),
+        family(
+            "play_draw_split",
+            play_draw(split).into_iter().collect(),
+            play_draw_compared,
+        ),
+        family(
+            "redraw_outcome",
+            redraw(mull).into_iter().collect(),
+            redraw_compared,
+        ),
+        family("benchmark_card_threat", threats, eligible),
+    ]
+}
+
 /// `hypotheses(cards, bench_cards, split, mull)` (`reports/hypotheses.py:193-206`): card
 /// deltas (top three per direction), dead cards, play/draw, redraw, then up to three
 /// benchmark threats.

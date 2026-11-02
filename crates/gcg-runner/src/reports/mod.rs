@@ -14,21 +14,25 @@
 //! embedded data.
 
 pub mod aggregate;
+pub mod gzip;
 pub mod hypotheses;
+pub mod identity;
 pub mod pyregex;
 pub mod replay_doc;
 pub mod results;
 pub mod schema;
+pub mod set;
 pub mod stats;
 pub mod summary;
 pub mod writer;
 
 pub use replay_doc::{Resimulation, replay_document_with};
 pub use results::{
-    CardFacts, MissingCard, ResultsData, build_results, build_results_with, replay_name,
-    select_replays,
+    CardFacts, MissingCard, ResultsData, SearchReport, SeatEffort, build_results,
+    build_results_with, replay_name, select_replays,
 };
 pub use schema::{json_from_value, validate_results};
+pub use set::{Compression, SetOptions, select_extremes, write_report_set};
 pub use summary::render_summary;
 pub use writer::{
     TimingHost, games_ndjson, reproduce_command, timing_json, to_json_text, write_atomic,

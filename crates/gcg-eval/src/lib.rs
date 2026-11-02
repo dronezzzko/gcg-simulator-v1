@@ -10,6 +10,7 @@
 pub mod ablation;
 pub mod agent_spec;
 pub mod bench_cmd;
+pub mod benchmark_opts;
 pub mod build_info;
 pub mod calibrate;
 pub mod cli;
@@ -34,5 +35,6 @@ pub mod specs;
 pub mod stats;
 pub mod trace;
 pub mod tune;
+pub mod validate_cmd;
 
 pub use contracts::*;

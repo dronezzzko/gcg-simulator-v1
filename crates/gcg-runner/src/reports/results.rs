@@ -17,7 +17,7 @@ use super::aggregate::{
     card_stats,
 };
 use super::hypotheses::{self, ALPHA, MIN_GAMES};
-use crate::{BenchmarkConfig, BenchmarkRun, GameRecord};
+use crate::{BenchmarkConfig, BenchmarkRun, GameRecord, SchemaVersion};
 
 /// `DRAW_REPLAYS` (`reports/results.py:27`).
 pub const DRAW_REPLAYS: u32 = 1;
@@ -73,14 +73,86 @@ impl fmt::Display for MissingCard {
 
 impl std::error::Error for MissingCard {}
 
+/// Search effort totals of one seat over every game of a run (`ai.effort` of results 1.2.0,
+/// PLAN §12.7): deterministic counts.
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug, Default)]
+pub struct SeatEffort {
+    pub iterations: u64,
+    pub applies_tree: u64,
+    pub applies_rollout: u64,
+    pub applies_aux: u64,
+}
+
+/// The strengthened-search block of results 1.2.0 (PLAN §12.7), which only the binary that
+/// built the agents knows (docs/port/contracts.md O9): `ai.search` (`algorithm` is always
+/// `gcg-search`) and the per-seat `ai.effort`.
+#[derive(Clone, PartialEq, Eq, Hash, Debug)]
+pub struct SearchReport {
+    /// `"reference strong"` (`standard`) or `"reference standard"` (`fast`).
+    pub mapping: &'static str,
+    pub iterations_per_option: u32,
+    pub min_iterations: u32,
+    pub max_iterations: u32,
+    pub aux_apply_cap: u64,
+    /// The enabled mechanism flags; written sorted.
+    pub mechanisms: Vec<String>,
+    /// Seat 0, then seat 1.
+    pub effort: [SeatEffort; 2],
+}
+
+impl SearchReport {
+    /// `ai.search`.
+    #[must_use]
+    pub fn search_json(&self) -> Json {
+        let mut budget = Json::object();
+        budget.set("iterations_per_option", self.iterations_per_option);
+        budget.set("min_iterations", self.min_iterations);
+        budget.set("max_iterations", self.max_iterations);
+        budget.set("aux_apply_cap", self.aux_apply_cap);
+        let mut mechanisms = self.mechanisms.clone();
+        mechanisms.sort();
+        let mut o = Json::object();
+        o.set("algorithm", "gcg-search");
+        o.set("mapping", self.mapping);
+        o.set("budget", budget);
+        o.set(
+            "mechanisms",
+            Json::Array(mechanisms.into_iter().map(Json::Str).collect()),
+        );
+        o
+    }
+
+    /// `ai.effort`: one object per seat, seat 0 first.
+    #[must_use]
+    pub fn effort_json(&self) -> Json {
+        Json::Array(
+            self.effort
+                .iter()
+                .zip([0_u8, 1])
+                .map(|(e, seat)| {
+                    let mut o = Json::object();
+                    o.set("seat", seat);
+                    o.set("iterations", e.iterations);
+                    o.set("applies_tree", e.applies_tree);
+                    o.set("applies_rollout", e.applies_rollout);
+                    o.set("applies_aux", e.applies_aux);
+                    o
+                })
+                .collect(),
+        )
+    }
+}
+
 /// The data `build_results` reads besides the run: `versions()` (`reports/versions.py:55-75`,
 /// `gcg_data::versions`), `conflict_resolutions` for the two decks (`reports/results.py:181-186`,
-/// `gcg_data::conflict_resolutions`) and the facts of every card in either deck.
+/// `gcg_data::conflict_resolutions`) and the facts of every card in either deck; for results
+/// 1.2.0 also the [`SearchReport`] ([`ResultsData::with_search`]).
 #[derive(Clone, PartialEq, Debug)]
 pub struct ResultsData {
     versions: Json,
     conflict_resolutions: Json,
     cards: BTreeMap<Box<str>, CardFacts>,
+    search: Option<SearchReport>,
 }
 
 impl ResultsData {
@@ -111,7 +183,21 @@ impl ResultsData {
             versions,
             conflict_resolutions,
             cards,
+            search: None,
         })
+    }
+
+    /// This data with the search block of results 1.2.0; a 1.1.0 run ignores it.
+    #[must_use]
+    pub fn with_search(mut self, search: SearchReport) -> Self {
+        self.search = Some(search);
+        self
+    }
+
+    /// The search block, when given.
+    #[must_use]
+    pub const fn search(&self) -> Option<&SearchReport> {
+        self.search.as_ref()
     }
 
     /// The data of the embedded packaged sources, as Python's `build_results` reads it
@@ -135,6 +221,7 @@ impl ResultsData {
                 ("benchmark", &cfg.benchmark_deck),
             ]),
             cards: probe.cards,
+            search: None,
         })
     }
 
@@ -287,8 +374,21 @@ fn config_block(c: &BenchmarkConfig) -> Json {
 }
 
 /// `_ai_block(run)` (`reports/results.py:122-130`). With no game (Python's `IndexError`) the
-/// agents are `null`, which the schema rejects before any file is written.
-fn ai_block(run: &BenchmarkRun) -> Json {
+/// agents are `null`, which the schema rejects before any file is written. Results 1.2.0 add
+/// `search` and `effort` from the data's [`SearchReport`] (PLAN §12.7); without one the
+/// 1.2.0 schema rejects the document.
+fn ai_block(run: &BenchmarkRun, data: &ResultsData) -> Json {
+    let mut o = ai_block_v1_1(run);
+    if run.config.schema == SchemaVersion::V1_2
+        && let Some(search) = data.search()
+    {
+        o.set("search", search.search_json());
+        o.set("effort", search.effort_json());
+    }
+    o
+}
+
+fn ai_block_v1_1(run: &BenchmarkRun) -> Json {
     let first = run.games().next();
     let mut o = Json::object();
     o.set("factory", run.agent_factory.as_str());
@@ -336,11 +436,22 @@ struct Aggregates {
     mull: Mulligan,
 }
 
+/// `versions` for the run's schema: gcg-data's `versions()` with `results_schema` naming the
+/// version written (1.1.0 unchanged).
+fn versions_block(run: &BenchmarkRun, data: &ResultsData) -> Json {
+    let mut v = data.versions().clone();
+    if run.config.schema != SchemaVersion::V1_1 && matches!(v, Json::Object(_)) {
+        v.set("results_schema", run.config.schema.as_str());
+    }
+    v
+}
+
 /// `build_results(run)` (`reports/results.py:145-189`) with gcg-data's values in `data`: the
 /// content of `results.json`, keys in Python's insertion order (every writer sorts them).
-/// `schema` and `schema_version` name `run.config.schema`; only 1.1.0 has a schema file
-/// before Phase 6 (PLAN §12.7, docs/port/contracts.md O9), so a 1.2.0 document fails
-/// `validate_results` and is never written.
+/// `schema`, `schema_version` and `versions.results_schema` name `run.config.schema`. A 1.1.0
+/// document is Python's; a 1.2.0 document (PLAN §12.7) adds `ai.search` and `ai.effort` from
+/// [`ResultsData::with_search`], without which it fails `validate_results` and is never
+/// written.
 #[must_use]
 pub fn build_results_with(run: &BenchmarkRun, data: &ResultsData) -> Json {
     let games: Vec<&GameRecord> = run.games().collect();
@@ -365,10 +476,10 @@ pub fn build_results_with(run: &BenchmarkRun, data: &ResultsData) -> Json {
     let mut o = Json::object();
     o.set("schema", config.schema.id());
     o.set("schema_version", config.schema.as_str());
-    o.set("versions", data.versions().clone());
+    o.set("versions", versions_block(run, data));
     o.set("config", config_block(config));
     o.set("seeds", seeds_block(config));
-    o.set("ai", ai_block(run));
+    o.set("ai", ai_block(run, data));
     o.set("decks", decks);
     o.set("results", results);
     o.set("splits", agg.split.to_json());

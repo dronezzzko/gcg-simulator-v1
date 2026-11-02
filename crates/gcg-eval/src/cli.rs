@@ -797,6 +797,11 @@ fn compare_runs_parser() -> Parser {
         help("second report directory"),
     ));
     p.push(path_option("--out", "out", "also write the report here"));
+    p.push(Action::flag(
+        "--allow-mixed",
+        "allow_mixed",
+        "compare runs whose AI identity or data and code versions differ (W-91)".to_owned(),
+    ));
     p
 }
 
@@ -1006,9 +1011,29 @@ pub fn build_parser() -> Parser {
                 parser: evidence_parser(),
             },
             SubCommand {
+                name: "validate",
+                help: Some("the deck report of W-71 to W-78 (A30)"),
+                parser: crate::validate_cmd::parser(PROG),
+            },
+            SubCommand {
                 name: "env",
                 help: Some("build, CPU tiers and CPU features as JSON"),
                 parser: env,
+            },
+            SubCommand {
+                name: "benchmark",
+                help: Some("gcg-sim benchmark with opt-in analysis, compression, resume"),
+                parser: crate::benchmark_opts::benchmark_parser(),
+            },
+            SubCommand {
+                name: "replay-game",
+                help: Some("re-simulate and verify one game of a games.ndjson"),
+                parser: crate::benchmark_opts::replay_game_parser(),
+            },
+            SubCommand {
+                name: "replay-check",
+                help: Some("gcg-sim replay with the data, rules and code version check"),
+                parser: crate::benchmark_opts::replay_check_parser(),
             },
         ],
     ));
@@ -1034,11 +1059,16 @@ pub enum Command {
     Regret(RegretArgs),
     Tune(TuneArgs),
     Calibrate(CalibrateArgs),
-    CompareRuns(CompareRunsArgs),
+    /// The arguments and `--allow-mixed` (W-91).
+    CompareRuns(CompareRunsArgs, bool),
     Overlap(OverlapArgs),
     Gates(GatesArgs),
     Evidence(EvidenceArgs),
+    Validate(crate::validate_cmd::ValidateArgs),
     Env,
+    Benchmark(crate::benchmark_opts::EvalBenchArgs),
+    ReplayGame(crate::benchmark_opts::ReplayGameArgs),
+    ReplayCheck(crate::benchmark_opts::ReplayCheckArgs),
 }
 
 /// The text of a parsed string (lossy for paths that are not UTF-8).
@@ -1367,11 +1397,14 @@ fn phase6_command(name: &str, ns: &Namespace, sub: &Parser, columns: i64) -> Res
             bins: u32_opt(ns, "bins", "--bins", sub, columns)?,
             opts: run_options(ns, sub, columns, false)?,
         }),
-        "compare-runs" => Command::CompareRuns(CompareRunsArgs {
-            a: need_path(ns, "run_a"),
-            b: need_path(ns, "run_b"),
-            out: get_path(ns, "out"),
-        }),
+        "compare-runs" => Command::CompareRuns(
+            CompareRunsArgs {
+                a: need_path(ns, "run_a"),
+                b: need_path(ns, "run_b"),
+                out: get_path(ns, "out"),
+            },
+            flag(ns, "allow_mixed"),
+        ),
         "decks" => {
             if !flag(ns, "overlap") {
                 return Err(usage(sub, columns, "the decks command needs --overlap"));
@@ -1415,6 +1448,7 @@ fn phase6_command(name: &str, ns: &Namespace, sub: &Parser, columns: i64) -> Res
                 Command::Evidence(EvidenceArgs::Check { paths })
             }
         }
+        "validate" => Command::Validate(crate::validate_cmd::args(ns, sub, columns)?),
         _ => Command::Env,
     })
 }
@@ -1480,6 +1514,13 @@ pub fn command(ns: &Namespace, columns: i64) -> Result<Command, Exit> {
             },
         })),
         "env" => Ok(Command::Env),
+        "benchmark" => crate::benchmark_opts::bench_args(ns, sub, columns).map(Command::Benchmark),
+        "replay-game" => {
+            crate::benchmark_opts::replay_game_args(ns, sub, columns).map(Command::ReplayGame)
+        }
+        "replay-check" => Ok(Command::ReplayCheck(
+            crate::benchmark_opts::replay_check_args(ns),
+        )),
         other => phase6_command(other, ns, sub, columns),
     }
 }
@@ -1665,15 +1706,22 @@ fn run_command(
         Command::Regret(args) => crate::regret::run(args, cancel, tty, out, err),
         Command::Tune(args) => crate::tune::run(args, cancel, tty, out, err),
         Command::Calibrate(args) => crate::calibrate::run(args, cancel, tty, out, err),
-        Command::CompareRuns(args) => crate::compare_runs::run(args, out),
+        Command::CompareRuns(args, allow_mixed) => {
+            crate::benchmark_opts::guard_runs(&args.a, &args.b, *allow_mixed, err)?;
+            crate::compare_runs::run(args, out)
+        }
         Command::Overlap(args) => crate::overlap::run(args, out),
         Command::Gates(args) => crate::gates::run(args, out),
         Command::Evidence(args) => crate::evidence::run(args, out),
+        Command::Validate(args) => crate::validate_cmd::run(args, out),
         Command::Env => {
             let doc: Json = crate::env::current();
             let _ = writeln!(out, "{}", dumps(&doc, indented(2)));
             Ok(())
         }
+        Command::Benchmark(args) => crate::benchmark_opts::benchmark(args, cancel, tty, out, err),
+        Command::ReplayGame(args) => crate::benchmark_opts::replay_game(args, out),
+        Command::ReplayCheck(args) => crate::benchmark_opts::replay_check(args, out),
     }
 }
 

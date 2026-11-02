@@ -103,11 +103,20 @@ pub(crate) fn world(
     determinize_into(cx.st, cx.player, cx.seeds[k], out)
 }
 
+/// The reference policy's scores of a node's moves (`policy.option_scores`, in the moves'
+/// order), the input of the priors.
+///
+/// # Errors
+/// The scorer's engine error.
+pub(crate) fn node_scores(cx: &NodeCx<'_>) -> Result<Vec<f64>, EngineError> {
+    let options: Vec<Action> = cx.moves.iter().map(|&(_, a)| a).collect();
+    option_scores(cx.s, cx.dec, &options, &cx.knobs)
+}
+
 /// `_add_children(node, s, dec, moves, cfg)` (`ai/mcts.py:305-317`): priors over the node's
 /// moves, scored in `s`; an existing child keeps its first prior.
 pub(crate) fn priors(cx: &mut NodeCx<'_>) -> Result<(), EngineError> {
-    let options: Vec<Action> = cx.moves.iter().map(|&(_, a)| a).collect();
-    let scores = option_scores(cx.s, cx.dec, &options, &cx.knobs)?;
+    let scores = node_scores(cx)?;
     let top = py_max(&scores);
     let weights: Vec<f64> = scores
         .iter()

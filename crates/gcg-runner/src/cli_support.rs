@@ -26,11 +26,11 @@ use crate::argparse::pypath::path_str;
 use crate::config::DEFAULT_TURN_LIMIT;
 use crate::replay::{check_replay, getitem, py_str_value, resimulate, seat_key};
 use crate::reports::aggregate::Outcomes;
-use crate::reports::write_reports;
+use crate::reports::{ResultsData, SetOptions, TimingHost, replay_document_with, write_report_set};
 use crate::run::run_benchmark;
 use crate::{
-    AgentFactory, BenchmarkConfig, Format, ReplayError, ReportError, RunError, SchemaVersion,
-    Workers,
+    AgentFactory, BenchmarkConfig, Format, GameRecord, ReplayError, ReportError, RunError,
+    SchemaVersion, Workers,
 };
 
 /// Why a command failed: `CliError(message)` (`cli.py:36-37`, printed as `error: {message}`,
@@ -373,9 +373,23 @@ pub fn benchmark_command(
         RunError::Interrupted => CliError::Interrupted,
         RunError::GameFailure(m) => CliError::text(&format!("simulation failed: {m}")),
     })?;
-    let paths = write_reports(&run, &config.out_dir, cancel, &mut |record| {
-        resimulate(record, &run.config)
-    })
+    // The reports are written as one set (W-102): an interrupt or a failed write keeps the
+    // previous set whole.
+    let data = ResultsData::embedded(&run.config)
+        .unwrap_or_else(|missing| panic!("a parsed deck holds only known cards: {missing}"));
+    let mut replay_doc = |label: &'static str, record: &GameRecord| {
+        let sim = resimulate(record, &run.config)?;
+        Ok(replay_document_with(record, &run.config, label, &sim))
+    };
+    let paths = write_report_set(
+        &run,
+        &config.out_dir,
+        cancel,
+        &data,
+        &mut replay_doc,
+        &TimingHost::rust(),
+        SetOptions::default(),
+    )
     .map_err(|e| match e {
         ReportError::Interrupted => CliError::Interrupted,
         ReportError::Io { path, source } => CliError::Invalid(cat(&[

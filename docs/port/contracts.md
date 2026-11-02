@@ -748,8 +748,13 @@ pub mod testkit {        // C, L5 (testkit.py); helpers return Python's Assertio
     pub fn select_if_asked(st: &mut GameState, uids: &[Uid], done: Option<bool>) -> Result<(), TestkitError>;   // :332-337
     pub fn choose_option(st: &mut GameState, index: i32) -> Result<Action, TestkitError>;         // :340-341
     pub fn order(st: &mut GameState, index: usize) -> Result<Action, TestkitError>;               // :344-345 (Python default 0)
-    pub fn pass_all(st: &mut GameState, max_steps: usize) -> Result<(), TestkitError>;            // :348-360 (Python default 50)
-    pub fn to_next_turn(st: &mut GameState) -> Result<(), TestkitError>;                          // :363-380
+    pub fn pass_all(st: &mut GameState, max_steps: usize) -> Result<(), TestkitError>;            // :348-360 (Python default 50); W-113: an action step or block still pending at the cap is TestkitError::Assertion (Python stops silently)
+    pub fn to_next_turn(st: &mut GameState) -> Result<(), TestkitError>;                          // :363-380; W-113: no MAIN decision (nor the game's end) within TO_NEXT_TURN_STEPS is TestkitError::Assertion
+    // P6-N (W-113): the capped helpers that stop at the cap without failing, for the test that wants it
+    pub enum CapOutcome { Reached, Capped }
+    pub const TO_NEXT_TURN_STEPS: usize = 200;                                                    // :369
+    pub fn pass_all_allow_cap(st: &mut GameState, max_steps: usize) -> Result<CapOutcome, TestkitError>;
+    pub fn to_next_turn_allow_cap(st: &mut GameState, max_steps: usize) -> Result<CapOutcome, TestkitError>;
     pub fn zone_of(st: &GameState, uid: Uid) -> Zone;                                             // :383-384
     pub fn ap(st: &GameState, uid: Uid) -> Result<i32, TestkitError>;                             // :387-388
     pub fn hp(st: &GameState, uid: Uid) -> Result<i32, TestkitError>;                             // :391-392
@@ -758,7 +763,8 @@ pub mod testkit {        // C, L5 (testkit.py); helpers return Python's Assertio
     pub fn numbers_in(st: &GameState, player: u8, zone: Zone) -> Vec<&'static str>;              // :403-404
     pub fn legal_kinds(st: &GameState) -> Vec<ActionKind>;                                        // :407-408 (a set: deduplicated, ActionKind order)
     pub fn expect_illegal(st: &mut GameState, action: Action) -> Result<(), TestkitError>;       // :411-416
-    pub fn run_random(st: &mut GameState, seed: u64, max_actions: usize) -> Result<(), TestkitError>;   // :419-428 (Python default 5000)
+    pub fn run_random(st: &mut GameState, seed: u64, max_actions: usize) -> Result<(), TestkitError>;   // :419-428 (Python default 5000); W-113: a decision still pending after max_actions is TestkitError::Assertion
+    pub fn run_random_allow_cap(st: &mut GameState, seed: u64, max_actions: usize) -> Result<CapOutcome, TestkitError>;   // P6-N (W-113)
     pub fn names(st: &GameState, uids: &[Uid]) -> Vec<&'static str>;                             // :431-432
     pub fn card_numbers(st: &GameState, uids: &[Uid]) -> Vec<&'static str>;                      // :435-436
 
@@ -1281,6 +1287,21 @@ Differences from PLAN §10.3.5, settled here:
   bit for bit (`tests/null_config.rs`, `tests/null_config_traces.rs`). Phase 6 (P6-O) narrows
   what an `Observation` exposes and adds the W-135 compile-fail doctest. `gcg-search` has the
   dev-dependencies `gcg-diff` (path) and `serde_json`.
+- Phase 6 wave 2 integration (lead-authorised): `SearchAgent` gains the crate-private field
+  `reuse`, the `subtree_reuse` carry of P6-D (`mech/p6d/reuse.rs`), which replaces P6-D's
+  interim `ReusingAgent` and `make_reusing_agent` (both dropped); `make_agent` and
+  `make_search_agent` build a `SearchAgent` for every configuration, and the agent-free
+  `search_with_effort` still refuses `subtree_reuse`. A REDRAW or CHOOSE_FIRST decision whose
+  mechanisms simulated (P6-H) reports `DecisionTrace.search = Some(SearchStats { iterations: 0,
+  budget: 0, cap: 0, roots: [], effort })` with the simulations' engine applies (the rollout
+  policy's look-aheads included) in `effort.applies_aux`; the reference's own play/draw games
+  are not counted, so the null configuration's pre-game decisions still report `None`. Inside
+  the crate (no public change): `Mechanisms::root_applies` adds P6-E's root judgements to the
+  decision's `applies_aux`, `PregameCx.applies` carries P6-H's, and `Composed` composes the
+  packages' hooks (the priors' scores are P6-F's when a P6-F flag is on, P6-E shapes the root
+  priors and `prior_worlds` the in-tree priors; the backup is P6-D's or the reference's, then
+  P6-E's record; each `root_trees` tree carries a copy of the root findings and its own P6-F
+  state between phases, `ComposedState`, and its look-ahead applies join its effort).
 
 ## gcg-runner (owner E) — PLAN §7, §9.5, §10.3.6, §12.7, Inv 01, Inv 02
 
@@ -1550,7 +1571,7 @@ pub mod cli_support {
         pub decision_log: bool, pub replays: u32, pub schema: SchemaVersion, pub package: &'static str,
         pub code_digest: &'static str }
     pub fn benchmark_command(req: &BenchmarkRequest<'_>, factory: &dyn AgentFactory, tty: bool, cancel: &Cancel,
-                             out: &mut dyn Write, err: &mut dyn Write) -> Result<(), CliError>;   // cmd_benchmark
+                             out: &mut dyn Write, err: &mut dyn Write) -> Result<(), CliError>;   // cmd_benchmark; writes the reports as one set (reports::write_report_set, W-102; Phase 6 wave 2)
     pub fn coverage(reg: &Registry) -> Json;
     pub fn data_status(package: &str, code_digest: &str) -> Json;
     pub fn status_text(s: &Json) -> Vec<String>;
@@ -1857,6 +1878,7 @@ in `log`; an `iter` record's `decision` is the decision record's `i`.
 | 2026-11-02 | gcg-diff real-engine adapter (section "Real-engine adapter"): `RealEngine`, `RustAgents`, `Recorder`, the dispatcher name tables, `force_link` without a state, the extended `--roundtrip`, the `view::signature` JSON form, and the interface requests `InfoSetKey::to_json`, `CardMultiset::entries` (with O14's `Scenario::prepare_start`) | G (lead-authorised for EngineUnderTest) |
 | 2026-11-02 | Wave 2b integration: every `lib.rs` module and re-export line of the nine reports; gcg-engine feature `slow`; dev-dependencies `serde_json`+`sha2` (gcg-ai, gcg-ai-reference), `gcg-diff`+`serde_json` (gcg-search); gcg-engine `Derived.{rule_kinds, db}`, `view::{player_of, cost_mod_of}` (boundary), `view::traits_present` (public), the L3 `battle.rs` names L5 calls (`battle_broken` returns `Result`), `core::card_uid_for` and `Lki::only` (L4/L5 private copies dropped), `InfoSetKey::to_json`, `CardMultiset::entries`, `Scenario::prepare_start` (O14 closed); gcg-ai D1/D2 additive items and `Display for AgentError`; gcg-ai-reference `make_agent`, `AGENT_KINDS`, `mcts::is_target_decision`; gcg-search `Observation` and `search(obs, ..)` (lint rule 5), `StrengthenedConfig::{budget, knobs, agent_name}`; gcg-runner `cli_support` frozen (O11 closed), E's additive items, argparse `Converter::Int`, `ActionKind::Append`, `Value::List`; gcg-eval F's differences and `reference-benchmark --reference-preset`; gcg-diff `EngineUnderTest::force_link` doc | wave 2b integration (lead-authorised) |
 | 2026-11-02 | Phase 5 performance (lead-accepted): gcg-engine `Derived` is sparse (`ViewSlot` per written uid) and records the reads of its base pass for the confirming-pass skip (paranoid check `SkippedPass`, so `paranoid::counts()` has 6 values); `TriggerIndex.items` is a `Vec`; `UidBuf` is `gcg_core::small::SmallBuf<Uid, 24>` and `InlineVec` gains `as_mut_slice`; `payment_choices` returns a `Pays` range instead of a `Vec`; `mimalloc` is a default feature of `gcg-cli` and `gcg-eval` (system allocator with `--no-default-features`) | lead (Phase 5) |
+| 2026-11-02 | Phase 6 wave 2 integration (P6-D, P6-E, P6-F, P6-H, P6-L, P6-M, P6-N; lead-authorised): gcg-search `SearchAgent.reuse` (P6-D's `subtree_reuse` carry folded in; `ReusingAgent`, `make_reusing_agent` dropped), pre-game decisions that simulated report `SearchStats` with `applies_aux` (P6-H), root-judgement applies in `applies_aux` (P6-E, `Mechanisms::root_applies`), the composition of the packages' hooks in `mech/mod.rs` (see the gcg-search section); `gcg-search` `[[test]]` targets `p6d_scenarios`, `p6h_pregame` and the shared `tests/scenarios/main.rs`; gcg-engine testkit `CapOutcome`, `TO_NEXT_TURN_STEPS`, `pass_all_allow_cap`, `to_next_turn_allow_cap`, `run_random_allow_cap`, and `pass_all`, `to_next_turn`, `run_random` fail at their caps (P6-N, W-113); gcg-runner `cli_support::benchmark_command` writes its reports through `write_report_set` (P6-M, W-102) and P6-M's additive `reports` API (`SearchReport`, `SeatEffort`, `write_report_set`, `SetOptions`, `Compression`, the 1.2.0 schema; `gcg-sim` still writes 1.1.0, O9 open); gcg-data's `legality` module (P6-L, additive); gcg-eval `validate`, `benchmark`, `replay-game`, `replay-check`, `compare-runs --allow-mixed`; `build-support/digest-manifest.txt` lists `src/gcg_sim/data/gcgapi/products.json` (embedded by gcg-eval's `validate`, P6-L) | Phase 6 wave 2 integration (lead-authorised) |
 
 ## Review log
 

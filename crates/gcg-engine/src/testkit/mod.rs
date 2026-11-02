@@ -693,12 +693,73 @@ pub fn order(st: &mut GameState, index: usize) -> Result<Action, TestkitError> {
     act(st, A::Order, Some(a), None, None)
 }
 
+/// Whether a capped helper reached its goal or ran out of steps first (W-113).
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+pub enum CapOutcome {
+    Reached,
+    /// The step cap ran out with the goal not reached; only the `*_allow_cap` helpers return it.
+    Capped,
+}
+
+/// The step cap of `to_next_turn` (`testkit.py:369`).
+pub const TO_NEXT_TURN_STEPS: usize = 200;
+
+/// W-113: Python's helpers stop silently at their caps, so a test can pass without reaching the
+/// state it intended. The Rust helpers fail instead, naming the helper, the cap and the
+/// decision still pending; the `*_allow_cap` variants return [`CapOutcome::Capped`] for the
+/// rare test that wants to stop at the cap.
+fn cap_error(st: &GameState, helper: &str, cap: usize, goal: &str) -> TestkitError {
+    let kind = st.pending().map_or("none", |d| d.hdr.kind.as_str());
+    TestkitError::Assertion(format!(
+        "{helper} reached its step cap of {cap} before {goal}; pending={kind} \
+         (W-113: use {helper}_allow_cap to accept the cap)"
+    ))
+}
+
+fn capped(
+    st: &GameState,
+    outcome: CapOutcome,
+    helper: &str,
+    cap: usize,
+    goal: &str,
+) -> Result<(), TestkitError> {
+    match outcome {
+        CapOutcome::Reached => Ok(()),
+        CapOutcome::Capped => Err(cap_error(st, helper, cap, goal)),
+    }
+}
+
+fn passing(st: &GameState) -> bool {
+    matches!(
+        pending_kind(st),
+        Some(DecisionKind::ActionStep | DecisionKind::Block)
+    )
+}
+
 /// `pass_all(st, *, max_steps=50)` (`testkit.py:348-360`): passes action steps and declines
 /// blocks until another decision (or the end of the game).
 ///
 /// # Errors
-/// As [`act`].
+/// As [`act`]; and (W-113) when `max_steps` steps leave an action step or a block pending.
 pub fn pass_all(st: &mut GameState, max_steps: usize) -> Result<(), TestkitError> {
+    let outcome = pass_all_allow_cap(st, max_steps)?;
+    capped(
+        st,
+        outcome,
+        "pass_all",
+        max_steps,
+        "the action steps and blocks ended",
+    )
+}
+
+/// [`pass_all`] that stops at the cap without failing (W-113).
+///
+/// # Errors
+/// As [`act`].
+pub fn pass_all_allow_cap(
+    st: &mut GameState,
+    max_steps: usize,
+) -> Result<CapOutcome, TestkitError> {
     for _ in 0..max_steps {
         match pending_kind(st) {
             Some(DecisionKind::ActionStep) => {
@@ -707,24 +768,47 @@ pub fn pass_all(st: &mut GameState, max_steps: usize) -> Result<(), TestkitError
             Some(DecisionKind::Block) => {
                 act(st, A::NoBlock, None, None, None)?;
             }
-            _ => return Ok(()),
+            _ => return Ok(CapOutcome::Reached),
         }
     }
-    Ok(())
+    Ok(if passing(st) {
+        CapOutcome::Capped
+    } else {
+        CapOutcome::Reached
+    })
 }
 
 /// `to_next_turn(st)` (`testkit.py:363-380`): ends the main phase and passes through the end
 /// phase to the next MAIN decision.
 ///
 /// # Errors
-/// Python's `AssertionError` at a decision it cannot answer, or as [`act`].
+/// Python's `AssertionError` at a decision it cannot answer, or as [`act`]; and (W-113) when
+/// [`TO_NEXT_TURN_STEPS`] steps do not reach a MAIN decision or the end of the game.
 pub fn to_next_turn(st: &mut GameState) -> Result<(), TestkitError> {
+    let outcome = to_next_turn_allow_cap(st, TO_NEXT_TURN_STEPS)?;
+    capped(
+        st,
+        outcome,
+        "to_next_turn",
+        TO_NEXT_TURN_STEPS,
+        "the next main phase",
+    )
+}
+
+/// [`to_next_turn`] with a given step cap that stops at the cap without failing (W-113).
+///
+/// # Errors
+/// As [`to_next_turn`], except at the cap.
+pub fn to_next_turn_allow_cap(
+    st: &mut GameState,
+    max_steps: usize,
+) -> Result<CapOutcome, TestkitError> {
     if pending_kind(st) == Some(DecisionKind::Main) {
         end_main(st)?;
     }
-    for _ in 0..200 {
+    for _ in 0..max_steps {
         match pending_kind(st) {
-            None | Some(DecisionKind::Main) => return Ok(()),
+            None | Some(DecisionKind::Main) => return Ok(CapOutcome::Reached),
             Some(DecisionKind::ActionStep) => {
                 act(st, A::Pass, None, None, None)?;
             }
@@ -738,7 +822,10 @@ pub fn to_next_turn(st: &mut GameState) -> Result<(), TestkitError> {
             Some(_) => return Err(fail(st, "to reach the next main phase")),
         }
     }
-    Ok(())
+    Ok(match pending_kind(st) {
+        None | Some(DecisionKind::Main) => CapOutcome::Reached,
+        Some(_) => CapOutcome::Capped,
+    })
 }
 
 /// `zone_of(st, uid)` (`testkit.py:383-384`).
@@ -816,15 +903,28 @@ pub fn expect_illegal(st: &mut GameState, action: Action) -> Result<(), TestkitE
 }
 
 /// `run_random(st, seed, *, max_actions=5000)` (`testkit.py:419-428`): uniformly random legal
-/// actions with `SplitMix64(seed)`.
+/// actions with `SplitMix64(seed)` until no decision is pending (the game is over).
+///
+/// # Errors
+/// An error of `apply`; and (W-113) when `max_actions` actions leave a decision pending.
+pub fn run_random(st: &mut GameState, seed: u64, max_actions: usize) -> Result<(), TestkitError> {
+    let outcome = run_random_allow_cap(st, seed, max_actions)?;
+    capped(st, outcome, "run_random", max_actions, "the game ended")
+}
+
+/// [`run_random`] that stops at the cap without failing (W-113).
 ///
 /// # Errors
 /// An error of `apply`.
-pub fn run_random(st: &mut GameState, seed: u64, max_actions: usize) -> Result<(), TestkitError> {
+pub fn run_random_allow_cap(
+    st: &mut GameState,
+    seed: u64,
+    max_actions: usize,
+) -> Result<CapOutcome, TestkitError> {
     let mut rng = SplitMix64::new(seed);
     for _ in 0..max_actions {
         if st.pending().is_none() {
-            return Ok(());
+            return Ok(CapOutcome::Reached);
         }
         let n = options(st).len();
         if n == 0 {
@@ -833,7 +933,11 @@ pub fn run_random(st: &mut GameState, seed: u64, max_actions: usize) -> Result<(
         let a = options(st)[rng.randrange_usize(n)];
         apply_checked(st, a)?;
     }
-    Ok(())
+    Ok(if st.pending().is_none() {
+        CapOutcome::Reached
+    } else {
+        CapOutcome::Capped
+    })
 }
 
 /// `names(st, uids)` (`testkit.py:431-432`).
@@ -951,5 +1055,88 @@ mod tests {
     fn missing_arguments_print_as_none() {
         assert_eq!(fmt_opt(None), "None");
         assert_eq!(fmt_opt(Some(-2)), "-2");
+    }
+
+    const VANILLA_2_2: &str = "GD01-060";
+    /// A cost-1 【Action】 Command: holding it, a player has priority in action steps.
+    const ACTION_COMMAND: &str = "GD01-115";
+
+    /// A started scenario at MAIN of turn 3: on each side a vanilla Unit, two Resources, five
+    /// Shields and an 【Action】 Command in hand, so attacks and the end phase have action steps.
+    fn main_phase() -> GameState {
+        let reg = Registry::embedded();
+        let mut sc = Scenario::new(&reg, ScenarioOptions::default());
+        for p in 0..2 {
+            sc.add(p, VANILLA_2_2, Zone::Battle, AddOptions::default())
+                .expect("a vanilla Unit");
+            sc.resources(p, 2, 0, 0).expect("resources");
+            sc.shields(p, &[VANILLA_2_2; 5]).expect("shields");
+            sc.hand(p, &[ACTION_COMMAND]).expect("a Command");
+        }
+        sc.start(Step::Main).expect("the scenario starts");
+        assert_eq!(pending_kind(sc.state()), Some(DecisionKind::Main));
+        sc.into_state()
+    }
+
+    fn assert_cap_error(r: Result<(), TestkitError>, helper: &str, cap: usize) {
+        match r {
+            Err(TestkitError::Assertion(msg)) => assert!(
+                msg.starts_with(&format!("{helper} reached its step cap of {cap} before")),
+                "{msg}"
+            ),
+            other => panic!("{helper} past its cap of {cap}: {other:?}"),
+        }
+    }
+
+    #[test]
+    fn w113_pass_all_fails_at_its_cap_and_the_allow_cap_variant_stops() {
+        let mut st = main_phase();
+        let unit = st.zone(0, Zone::Battle)[0];
+        attack(&mut st, unit, crate::PLAYER_TARGET).expect("an attack on the player");
+        assert_eq!(pending_kind(&st), Some(DecisionKind::ActionStep));
+        let mut capped_st = st.clone();
+        assert_cap_error(pass_all(&mut capped_st, 1), "pass_all", 1);
+        let mut allowed = st.clone();
+        assert_eq!(
+            pass_all_allow_cap(&mut allowed, 1).expect("one pass"),
+            CapOutcome::Capped
+        );
+        assert!(passing(&allowed));
+        pass_all(&mut st, 50).expect("the end-phase action step ends within 50 steps");
+        assert!(!passing(&st));
+    }
+
+    #[test]
+    fn w113_to_next_turn_fails_at_its_cap_and_reaches_main_within_it() {
+        let st = main_phase();
+        let mut capped_st = st.clone();
+        assert_eq!(
+            to_next_turn_allow_cap(&mut capped_st, 0).expect("END_MAIN only"),
+            CapOutcome::Capped
+        );
+        let mut reached = st;
+        to_next_turn(&mut reached).expect("the next turn's MAIN within the cap");
+        assert_eq!(pending_kind(&reached), Some(DecisionKind::Main));
+        assert_eq!(reached.turn(), 4);
+        assert_eq!(
+            to_next_turn_allow_cap(&mut reached, TO_NEXT_TURN_STEPS).expect("again"),
+            CapOutcome::Reached
+        );
+    }
+
+    #[test]
+    fn w113_run_random_fails_when_the_game_is_not_over_at_its_cap() {
+        let st = main_phase();
+        let mut capped_st = st.clone();
+        assert_cap_error(run_random(&mut capped_st, 7, 3), "run_random", 3);
+        let mut allowed = st.clone();
+        assert_eq!(
+            run_random_allow_cap(&mut allowed, 7, 3).expect("three actions"),
+            CapOutcome::Capped
+        );
+        assert_eq!(allowed.action_count(), st.action_count() + 3);
+        let mut done = st;
+        run_random(&mut done, 7, 5000).expect("the game ends within 5000 actions");
+        assert!(done.winner().is_some());
     }
 }

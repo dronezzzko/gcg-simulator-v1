@@ -27,6 +27,16 @@ name = "null_config_search_set"
 path = "tests/null_config_search_set.rs"
 required-features = ["slow"]
 
+# P6-D's tests of the tree and budget mechanisms (crates/gcg-search/tests/scenarios/p6d_*.rs).
+[[test]]
+name = "p6d_scenarios"
+path = "tests/scenarios/p6d_main.rs"
+
+# P6-H's pre-game scenario tests (W-44, W-45; PLAN §12.3 S11, T-122).
+[[test]]
+name = "p6h_pregame"
+path = "tests/scenarios/p6h_pregame.rs"
+
 [dev-dependencies]
 # D2's null-config test compares this search with the reference (PLAN §10.4 D2). A
 # dev-dependency never enters gcg-cli's normal build (crates/gcg-cli/tests/no_reference.rs).

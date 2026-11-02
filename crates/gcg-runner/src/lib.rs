@@ -9,7 +9,9 @@
 //! the module each one lands in (`config`, `game`, `matches`, `run`, `records`, `instrument`,
 //! `reports`, `replay`, `test_agents`, `argparse`, `clock`), are in docs/port/contracts.md.
 
+pub mod analysis;
 pub mod argparse;
+pub mod checkpoint;
 pub mod cli_support;
 mod clock;
 pub mod config;

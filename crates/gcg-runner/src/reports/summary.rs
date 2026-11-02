@@ -145,12 +145,39 @@ fn capitalize(s: &str) -> String {
     })
 }
 
-/// `_headline(res, command)` (`reports/summary.py:43-55`).
+/// The "search" line of results 1.2.0 (PLAN §12.7): the strengthened search's mapping,
+/// budget and enabled mechanisms; absent from 1.1.0 documents.
+fn search_line(ai: &Json) -> Option<String> {
+    let s = ai.get("search")?;
+    let b = get(s, "budget");
+    let mechanisms: Vec<String> = items(get(s, "mechanisms"))
+        .iter()
+        .map(|m| format!("`{}`", py_str(m)))
+        .collect();
+    Some(format!(
+        "Search: `{}` ({} mapping), {} iterations per option (min {}, max {}, auxiliary apply \
+         cap {}), mechanisms: {}.",
+        py_str(get(s, "algorithm")),
+        py_str(get(s, "mapping")),
+        py_str(get(b, "iterations_per_option")),
+        py_str(get(b, "min_iterations")),
+        py_str(get(b, "max_iterations")),
+        py_str(get(b, "aux_apply_cap")),
+        if mechanisms.is_empty() {
+            "none".to_owned()
+        } else {
+            mechanisms.join(", ")
+        }
+    ))
+}
+
+/// `_headline(res, command)` (`reports/summary.py:43-55`), plus the search line of results
+/// 1.2.0.
 fn headline(res: &Json, command: &str) -> Vec<String> {
     let (d, c, ai) = (get(res, "decks"), get(res, "config"), get(res, "ai"));
     let dut = py_str(path(d, &["deck_under_test", "name"]));
     let bench = py_str(path(d, &["benchmark", "name"]));
-    vec![
+    let mut lines = vec![
         format!("# {dut} vs {bench}"),
         String::new(),
         format!(
@@ -165,9 +192,14 @@ fn headline(res: &Json, command: &str) -> Vec<String> {
             py_str(get(ai, "factory")),
         ),
         String::new(),
-        format!("Reproduce: `{command}`"),
-        String::new(),
-    ]
+    ];
+    if let Some(line) = search_line(ai) {
+        lines.push(line);
+        lines.push(String::new());
+    }
+    lines.push(format!("Reproduce: `{command}`"));
+    lines.push(String::new());
+    lines
 }
 
 /// `_results(res)` (`reports/summary.py:58-75`).

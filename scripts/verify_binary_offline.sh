@@ -4,8 +4,10 @@
 # example decks are copied into a fresh directory outside the repository, then, with networking
 # denied by sandbox-exec and an environment holding only HOME and an empty PATH (so no python,
 # python3 or uv can be found; the binary calls /usr/sbin/sysctl by absolute path, PLAN A4), it
-# runs data status, validate, the example benchmark at --workers 1 and 2 (results.json must be
-# byte-identical) and replay of a saved replay. Any failure fails the script.
+# runs data status, validate, the benchmark of every example pairing (BO1, --ai-preset fast, 2
+# matches) at --workers 1, 4 and 10 (each pairing's results.json, games.ndjson and replays must
+# be byte-identical across worker counts; W-118) and replay of every saved replay. Any failure
+# fails the script.
 #
 #   RUSTFLAGS="-C target-cpu=apple-m2" cargo build --profile dist --locked --offline -p gcg-cli
 #   scripts/verify_binary_offline.sh target/dist/gcg-sim
@@ -31,6 +33,9 @@ case "$work" in
   "$repo"/*) echo "error: the temporary directory is inside the repository" >&2; exit 2 ;;
 esac
 
+# In a subshell, so a `set -u` error fails the script under macOS /bin/bash 3.2, which exits 0
+# from it when an EXIT trap is set (as in scripts/verify_all_rust.sh).
+(
 mkdir "$work/empty" "$work/bin"
 cp "$binary" "$work/bin/gcg-sim"
 cp "$repo"/examples/decks/*.txt "$work/"
@@ -46,11 +51,26 @@ offline "$gcg" data status
 offline "$gcg" validate red-green-zeon.txt
 offline "$gcg" validate blue-white-federation.txt
 offline "$gcg" validate purple-white-tekkadan.txt
-for workers in 1 2; do
-  offline "$gcg" benchmark red-green-zeon.txt blue-white-federation.txt \
-    --matches 2 --seed 11 --workers "$workers" --out "run-w$workers"
+pairings=(
+  "red-green-zeon.txt blue-white-federation.txt"
+  "blue-white-federation.txt purple-white-tekkadan.txt"
+  "purple-white-tekkadan.txt red-green-zeon.txt"
+)
+for i in "${!pairings[@]}"; do
+  read -r dut bench <<<"${pairings[$i]}"
+  for workers in 1 4 10; do
+    offline "$gcg" benchmark "$dut" "$bench" \
+      --matches 2 --seed 11 --format bo1 --ai-preset fast --workers "$workers" \
+      --out "run-p$i-w$workers"
+  done
+  for workers in 4 10; do
+    cmp "run-p$i-w1/results.json" "run-p$i-w$workers/results.json"
+    cmp "run-p$i-w1/games.ndjson" "run-p$i-w$workers/games.ndjson"
+    diff -r "run-p$i-w1/replays" "run-p$i-w$workers/replays"
+  done
+  for replay in "run-p$i-w1"/replays/*.json; do
+    offline "$gcg" replay "$replay"
+  done
 done
-cmp run-w1/results.json run-w2/results.json
-replay="$(ls run-w1/replays/*.json | head -n 1)"
-offline "$gcg" replay "$replay"
-echo "offline binary check passed: $(basename "$binary")"
+echo "offline binary check passed: $(basename "$binary") (${#pairings[@]} pairings, workers 1/4/10)"
+)

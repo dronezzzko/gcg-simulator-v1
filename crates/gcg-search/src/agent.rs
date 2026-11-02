@@ -3,23 +3,30 @@
 //! (`Mechanisms::pregame`), otherwise the search. The only `Agent` impl for [`SearchAgent`]
 //! (lint §9.9 item 5): the true state goes only to `AgentCore::begin`, `Observation::new` and
 //! `AgentCore::finish`, and everything else reads the [`Observation`] (W-135).
+//!
+//! With `subtree_reuse` (S7, W-11) the agent carries the trees of its last search to its next
+//! decision (`SearchAgent.reuse`, `mech/p6d/reuse.rs`); the carry holds information-set keys and
+//! trees only, so it keeps the same true-state discipline.
 
 use gcg_core::rng::SplitMix64;
 use gcg_engine::{Action, DecisionKind, GameState};
 
 use gcg_ai::{
-    Agent, AgentCx, AgentError, Alternative, DecisionTrace, LogEntry, NoTrace, SearchStats,
-    SearchTracer,
+    Agent, AgentCx, AgentError, Alternative, DecisionTrace, LogEntry, NoTrace, SearchEffort,
+    SearchStats, SearchTracer,
 };
 
-use crate::mcts::{pregame, search_with_effort};
+use crate::mcts::{pregame_with_applies, search_with_carry};
+use crate::mech::p6d::reuse::Carry;
 use crate::mech::validate;
 use crate::{MechanismEffort, Observation, SearchAgent, StrengthenedConfig};
 
 impl SearchAgent {
     /// The dispatch of `MctsAgent.choose` (`ai/agents.py:85-98`) for a decision of `kind` with
     /// more than one option, over the strengthened configuration: REDRAW and CHOOSE_FIRST by
-    /// [`pregame`], otherwise the search on `obs`.
+    /// [`crate::pregame`], otherwise the search on `obs` (with `subtree_reuse`, from the agent's
+    /// carry). A pre-game decision whose mechanisms simulated (P6-H) reports their engine
+    /// applies as a search of no iterations (`applies_aux`, PLAN §12.3).
     fn decide<T: SearchTracer + ?Sized>(
         &mut self,
         kind: DecisionKind,
@@ -29,10 +36,26 @@ impl SearchAgent {
         tracer: &mut T,
     ) -> Result<(Action, Vec<Alternative>, Option<SearchStats>), AgentError> {
         if matches!(kind, DecisionKind::Redraw | DecisionKind::ChooseFirst) {
-            let (action, stats) = pregame(obs, &self.config, rng, cx)?;
-            return Ok((action, stats, None));
+            self.reuse.clear();
+            let ((action, stats), applies) = pregame_with_applies(obs, &self.config, rng, cx)?;
+            let search = (applies > 0).then(|| SearchStats {
+                iterations: 0,
+                budget: 0,
+                cap: 0,
+                roots: Vec::new(),
+                effort: SearchEffort {
+                    applies_aux: applies,
+                    ..SearchEffort::default()
+                },
+            });
+            return Ok((action, stats, search));
         }
-        let (result, effort) = search_with_effort(obs, &self.config, rng, cx, tracer)?;
+        let carry = self
+            .config
+            .mechanisms
+            .subtree_reuse
+            .then_some(&mut self.reuse);
+        let (result, effort) = search_with_carry(obs, &self.config, rng, cx, tracer, carry)?;
         self.effort.add(effort);
         Ok((result.action, result.alternatives, Some(result.stats)))
     }
@@ -58,6 +81,7 @@ impl Agent for SearchAgent {
         validate(&self.config.mechanisms).map_err(AgentError::Value)?;
         let (dec, mut rng) = self.core.begin(st, player)?;
         let (action, alternatives) = if dec.options.len() == 1 {
+            self.reuse.clear();
             (dec.options[0], Vec::new())
         } else {
             let obs = Observation::new(st, player)?;
@@ -80,6 +104,7 @@ impl Agent for SearchAgent {
         let k = self.core.decisions();
         let seed = rng.state;
         let (action, alternatives, search) = if dec.options.len() == 1 {
+            self.reuse.clear();
             (dec.options[0], Vec::new(), None)
         } else {
             let obs = Observation::new(st, player)?;
@@ -111,6 +136,7 @@ pub fn make_search_agent(cfg: &StrengthenedConfig, seed: u64, log: bool) -> Sear
         core: gcg_ai::AgentCore::new(cfg.agent_name(), seed, log),
         config: cfg.clone(),
         effort: MechanismEffort::default(),
+        reuse: Carry::default(),
     }
 }
 

@@ -11,11 +11,49 @@ use crate::contracts::{
 };
 use crate::{names, official, unicode};
 
-/// The data a validation reads: `get_card_db()`, `construction_rules()` and `banlist()`.
+/// The data a validation reads: `get_card_db()`, `construction_rules()` and `banlist()`, plus
+/// how the starter-deck exceptions stand for the deck (W-71; Python never applies them).
 pub(crate) struct Rules<'a> {
     pub(crate) db: &'a CardDb,
     pub(crate) construction: &'a ConstructionRules,
     pub(crate) banlist: &'a Banlist,
+    pub(crate) exceptions: Exceptions<'a>,
+}
+
+/// The product exceptions of one deck ([`crate::legality`]): the ids whose official decklist
+/// the deck equals (their restriction is skipped), and the `(id, product)` whose decklist the
+/// data has but the deck differs from. Both empty is Python's behaviour: no exception applies
+/// and every note says it cannot be verified.
+#[derive(Clone, Copy, Default)]
+pub(crate) struct Exceptions<'a> {
+    pub(crate) exempt: &'a [Box<str>],
+    pub(crate) differs: &'a [crate::legality::ProductException],
+}
+
+impl Exceptions<'_> {
+    /// Whether one of `exceptions` exempts the deck from the restriction that lists them.
+    fn exempts(&self, exceptions: &[RuleException]) -> bool {
+        exceptions.iter().any(|e| self.exempt.contains(&e.id))
+    }
+
+    /// `_exception_note(exceptions)` (`deck/validate.py:29-30`); an exception whose decklist
+    /// the data has and the deck differs from says so instead.
+    fn note(&self, exceptions: &[RuleException]) -> String {
+        exceptions
+            .iter()
+            .map(|e| {
+                let id = unicode::repr_str(&e.id);
+                match self.differs.iter().find(|d| d.id == e.id) {
+                    Some(d) => format!(
+                        " Exception {id} is not applied: the deck is not the unmodified official \
+                         {} decklist.",
+                        d.product
+                    ),
+                    None => format!(" Exception {id} {NOT_APPLIED}."),
+                }
+            })
+            .collect()
+    }
 }
 
 impl Rules<'static> {
@@ -24,6 +62,7 @@ impl Rules<'static> {
             db: CardDb::embedded(),
             construction: official::construction_rules(),
             banlist: official::banlist(),
+            exceptions: Exceptions::default(),
         }
     }
 }
@@ -262,7 +301,7 @@ impl Rules<'_> {
         let bl = self.banlist;
         for r in bl.restricted.iter() {
             let count = Self::main_count(deck, &r.card_number);
-            if count <= u128::from(r.max_copies) {
+            if count <= u128::from(r.max_copies) || self.exceptions.exempts(&r.exceptions) {
                 continue;
             }
             out.push(violation(
@@ -273,7 +312,7 @@ impl Rules<'_> {
                     self.label(&r.card_number),
                     r.max_copies,
                     bl.effective_date,
-                    exception_note(&r.exceptions)
+                    self.exceptions.note(&r.exceptions)
                 ),
                 vec![r.card_number.clone()],
             ));
@@ -317,6 +356,9 @@ impl Rules<'_> {
 
     /// `_attribute_violation(db, deck, rule)` (`deck/validate.py:221-240`).
     fn attribute_violation(&self, deck: &Deck, rule: &AttributePairRule) -> Option<Violation> {
+        if self.exceptions.exempts(&rule.exceptions) {
+            return None;
+        }
         let members = self.attribute_members(rule, deck);
         let total: u128 = members.iter().map(|n| Self::main_count(deck, n)).sum();
         if members.len() < 2 && total <= u128::from(rule.max_total_copies) {
@@ -352,7 +394,7 @@ impl Rules<'_> {
                 rule.description,
                 rule.max_total_copies,
                 self.banlist.effective_date,
-                exception_note(&rule.exceptions)
+                self.exceptions.note(&rule.exceptions)
             ),
             members.into_iter().map(Into::into).collect(),
         ))
@@ -413,14 +455,6 @@ impl Rules<'_> {
         }
         out
     }
-}
-
-/// `_exception_note(exceptions)` (`deck/validate.py:29-30`).
-fn exception_note(exceptions: &[RuleException]) -> String {
-    exceptions
-        .iter()
-        .map(|e| format!(" Exception {} {NOT_APPLIED}.", unicode::repr_str(&e.id)))
-        .collect()
 }
 
 /// `_type_message(cdef, in_resource_deck)` (`deck/validate.py:87-102`).
@@ -515,6 +549,7 @@ mod tests {
                 db: CardDb::embedded(),
                 construction: official::construction_rules(),
                 banlist: &banlist,
+                exceptions: Exceptions::default(),
             };
             let deck = crate::parse_deck(case["text"].as_str().expect("text"), "notes", None)
                 .expect("deck parses");

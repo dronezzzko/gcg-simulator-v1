@@ -15,7 +15,7 @@ reproducibility, and honest statistics come before speed.
 
 | Deliverable | Location |
 | --- | --- |
-| Package (src layout, `gcg-sim` console script, Python ≥3.12, uv-managed, `uv.lock`) | `pyproject.toml`, `src/gcg_sim/` |
+| Package (src layout, `gcg-sim` console script, Python ≥3.15, uv-managed, `uv.lock`) | `pyproject.toml`, `src/gcg_sim/` |
 | Offline cached dataset (gcg-api snapshot, official deck/tournament rules, rules file, overrides) | `src/gcg_sim/data/` |
 | Provenance lock + summary | `data/SOURCES.lock.json`, `docs/SOURCES.md` |
 | Conflicts report + JSON + reviewable overrides | `docs/CONFLICTS.md`, `data/conflicts.json`, `src/gcg_sim/data/overrides.json` |

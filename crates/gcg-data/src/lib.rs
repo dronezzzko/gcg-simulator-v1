@@ -11,6 +11,7 @@ mod contracts;
 mod db;
 mod deck;
 mod embedded;
+pub mod legality;
 mod model;
 pub mod names;
 pub mod official;

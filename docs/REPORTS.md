@@ -33,7 +33,8 @@ is either complete or absent.
 - **Seeds.** Each game's seed is `derive_seed(master, "match", m, "game", g)`. Each agent's seed
   is `derive_seed(master, "match", m, "game", g, "agent", seat)`. Randomness uses SplitMix64.
 - **BO3 (official BO3 Match Rules).** The first player to 2 game wins takes the match.
-  - In game 1, a seeded die roll picks who decides Player One (rule 6-2-1-4, FAQ Q9).
+  - In game 1, a seeded fair draw (`randrange(2)` of the game's RNG, `engine/game.py:153`)
+    picks who decides Player One (rule 6-2-1-4, FAQ Q9).
   - In games 2 and 3, the loser of the previous game decides.
 - **Simultaneous defeat** (`both_defeated`) is a draw in the game statistics. For BO3 match
   scoring, the turn player at the end loses that game (TRM 5.2).

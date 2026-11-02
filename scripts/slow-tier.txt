@@ -1,0 +1,16 @@
+# The slow test tier (docs/port/PLAN.md A12; docs/port/WEAKNESSES.md W-112). `cargo test` without
+# features runs the fast tier; these targets and tests need their package's `slow` feature, and
+# scripts/verify_all_rust.sh runs them (the tier-2 one in --full, after the tier-2 corpus is
+# written). crates/gcg-diff/tests/p6n_tooling.rs checks that this list equals the slow-gated
+# tests of the workspace, so a test can join the slow tier only by being listed here.
+#
+# <package> <test file>              a [[test]] target with required-features = ["slow"], or a
+#                                    test file gated with #![cfg(feature = "slow")]
+# <package> <test file>::<function>  one #[test] gated with #[cfg(feature = "slow")]
+gcg-diff tests/corpus_replay.rs
+gcg-diff tests/fuzz_long.rs
+gcg-engine tests/view_corpus.rs::tier2_views_match_python
+gcg-eval tests/e2e.rs
+gcg-eval tests/phase6_slow.rs
+gcg-eval tests/strength_reference.rs
+gcg-search tests/null_config_search_set.rs

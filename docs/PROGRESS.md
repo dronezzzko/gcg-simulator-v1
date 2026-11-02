@@ -133,7 +133,8 @@ head-to-head against the pre-change AI, tactical puzzles, blinded replay audits,
   −34%, view recomputations −40%). CB-1 (`determinize` wrote sampled identities into the true
   game's shared history) fixed in 65d6e1d: on a 63-game benchmark 2 games' final digests change
   to the values an agent-free replay reproduces; actions and winners unchanged.
-- `fast` wiring cherry-picked (results schema 1.1.0); values still provisional.
+- `fast` wiring cherry-picked (results schema 1.1.0); values still provisional at this step
+  (fixed later in this phase: docs/AI.md, "The `fast` preset").
 - Workstreams integrated, each reviewed by a fresh agent (accept), all settings default off so
   `baseline-standard` still replays the recorded game: root pruning (9684f29), search settings
   (8eb9e8a), threat-aware rollouts (a339080), evaluation feature sets (3351b78), policy settings

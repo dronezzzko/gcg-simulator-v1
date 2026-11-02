@@ -691,11 +691,12 @@ mod tests {
             panic!("a search spec")
         };
         assert!(!config.mechanisms.engine_error_leaf && config.mechanisms.portable_math);
+        assert!(parse_agent_spec("search:fast:root_trees=4").is_ok());
         assert_eq!(
-            parse_agent_spec("search:fast:root_trees=4")
+            parse_agent_spec("search:fast:opponent_buckets=8")
                 .err()
                 .as_deref(),
-            Some("mechanism root_trees (P6-D) is not available in this build")
+            Some("mechanism opponent_buckets (P6-C) is not available in this build")
         );
         assert!(parse_agent_spec("search:fast:engine_error_leaf=2").is_err());
         assert_eq!(

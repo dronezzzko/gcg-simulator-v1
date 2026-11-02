@@ -63,21 +63,132 @@ pub fn shlex_quote(s: &str) -> String {
     format!("'{}'", s.replace('\'', "'\"'\"'"))
 }
 
+/// The `ai.factory` of a run whose agents a release `gcg-sim --ai-preset {preset}` builds:
+/// `gcg_search::Preset::factory_description` (`gcg-search::make_agent('<preset>')`).
+#[must_use]
+pub fn release_factory(preset: &str) -> String {
+    format!("gcg-search::make_agent({})", gcg_data::py_repr(preset))
+}
+
+/// The directories under `decks/` of the deck copies of W-100: the deck under test, then the
+/// benchmark deck.
+pub const DECK_DIRS: [&str; 2] = ["deck_under_test", "benchmark"];
+
+/// The report-directory file that holds a deck without a source file in a 1.2.0 run
+/// (W-100): `decks/deck_under_test/{name}.txt` or `decks/benchmark/{name}.txt`, so that
+/// `load_deck` gives the deck its name back (the path's stem). `None` when the name cannot be
+/// a file stem (empty, `.`, `..`, or holding `/` or NUL).
+#[must_use]
+pub fn deck_file_name(role: crate::Role, name: &str) -> Option<String> {
+    let usable = !name.is_empty() && name != "." && name != ".." && !name.contains(['/', '\0']);
+    let dir = DECK_DIRS[usize::from(role == crate::Role::Bench)];
+    usable.then(|| format!("decks/{dir}/{name}.txt"))
+}
+
+/// Whether a deck has a source file the reproduce line can name.
+#[must_use]
+pub fn has_source(d: &gcg_data::Deck) -> bool {
+    d.source.as_deref().is_some_and(|s| !s.is_empty())
+}
+
+/// The deck files a 1.2.0 run writes beside its reports (W-100): `(file name, text)` of every
+/// deck without a source; none for a 1.1.0 run or an injected-agent run (whose reproduce line
+/// names no command).
+#[must_use]
+pub fn written_decks(run: &BenchmarkRun) -> Vec<(String, String)> {
+    let c = &run.config;
+    if c.schema != crate::SchemaVersion::V1_2 || run.agent_factory != release_factory(c.ai_preset) {
+        return Vec::new();
+    }
+    [
+        (crate::Role::Dut, &c.deck_under_test),
+        (crate::Role::Bench, &c.benchmark_deck),
+    ]
+    .into_iter()
+    .filter(|(_, d)| !has_source(d))
+    .filter_map(|(role, d)| deck_file_name(role, &d.name).map(|n| (n, deck_file_text(d))))
+    .collect()
+}
+
+/// The deck file text written for a deck without a source (W-100): one `count card_number`
+/// line per card, main deck then resource deck, which `parse_deck` reads back to the same
+/// card counts and digest.
+#[must_use]
+pub fn deck_file_text(d: &gcg_data::Deck) -> String {
+    let mut text = format!("# {} (written by the report writer; W-100)\n", d.name);
+    for cc in d.main.iter().chain(d.resources.iter()) {
+        text.push_str(&format!("{} {}\n", cc.count, cc.card_number));
+    }
+    text
+}
+
 /// `reproduce_command(run)` (`reports/writer.py:44-51`): `shlex.join` of the `gcg-sim
 /// benchmark` command line (deck sources, or names without a source; never `--workers` or
-/// `--out`; the seed in decimal).
+/// `--out`; the seed in decimal). Results 1.2.0 runs (`gcg-sim`, A23) write the corrected line
+/// of W-100 instead: a deck without a source names its copy in the report directory
+/// ([`deck_file_name`]), and a run whose agents no release preset builds says so and names the
+/// injected factory instead of printing a command that would play the default AI.
 #[must_use]
 pub fn reproduce_command(run: &BenchmarkRun) -> String {
     let c = &run.config;
-    let deck = |d: &gcg_data::Deck| match d.source.as_deref() {
+    if c.schema == crate::SchemaVersion::V1_2 {
+        return corrected_reproduce_command(run);
+    }
+    let deck = |_: crate::Role, d: &gcg_data::Deck| match d.source.as_deref() {
         Some(s) if !s.is_empty() => s.to_owned(),
         _ => d.name.to_string(),
     };
+    python_command(run, &deck)
+}
+
+/// The W-100 reproduce line (A23).
+fn corrected_reproduce_command(run: &BenchmarkRun) -> String {
+    let c = &run.config;
+    if run.agent_factory != release_factory(c.ai_preset) {
+        return format!(
+            "not reproducible with the release CLI: the agents came from the injected factory \
+             {} (results.json ai.factory), which no --ai-preset builds",
+            gcg_data::py_repr(&run.agent_factory)
+        );
+    }
+    for (role, d) in [
+        (crate::Role::Dut, &c.deck_under_test),
+        (crate::Role::Bench, &c.benchmark_deck),
+    ] {
+        if !has_source(d) && deck_file_name(role, &d.name).is_none() {
+            return format!(
+                "not reproducible with the release CLI: the deck {} has no source file and its \
+                 name cannot be a file name",
+                gcg_data::py_repr(&d.name)
+            );
+        }
+    }
+    let out = c.out_dir.to_string_lossy().into_owned();
+    let deck = |role: crate::Role, d: &gcg_data::Deck| -> String {
+        if has_source(d) {
+            return d.source.as_deref().unwrap_or_default().to_owned();
+        }
+        let name = deck_file_name(role, &d.name).unwrap_or_default();
+        if out.is_empty() {
+            name
+        } else {
+            format!("{}/{name}", out.trim_end_matches('/'))
+        }
+    };
+    python_command(run, &deck)
+}
+
+/// The `gcg-sim benchmark` line of `reports/writer.py:44-51` with each deck named by `deck`.
+fn python_command(
+    run: &BenchmarkRun,
+    deck: &dyn Fn(crate::Role, &gcg_data::Deck) -> String,
+) -> String {
+    let c = &run.config;
     let mut args = vec![
         "gcg-sim".to_owned(),
         "benchmark".to_owned(),
-        deck(&c.deck_under_test),
-        deck(&c.benchmark_deck),
+        deck(crate::Role::Dut, &c.deck_under_test),
+        deck(crate::Role::Bench, &c.benchmark_deck),
         "--matches".to_owned(),
         c.matches.to_string(),
         "--seed".to_owned(),
@@ -346,6 +457,11 @@ pub fn write_reports_with(
         &to_json_text(&timing_json(run, host)),
         cancel,
     )?;
+    // Results 1.2.0 only (W-100, A23): the copies of decks without a source file, which the
+    // corrected reproduce line names. A 1.1.0 run writes none.
+    for (rel, text) in written_decks(run) {
+        write_checked(&out.join(rel), &text, cancel)?;
+    }
     write_checked(&paths.results, &to_json_text(&results), cancel)?;
     Ok(paths)
 }

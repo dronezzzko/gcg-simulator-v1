@@ -16,6 +16,7 @@ use crate::contracts::{
     CardCount, CardDb, Deck, DeckEntry, DeckError, DeckList, MAX_EXPANDED_CARDS, SYNTHETIC_PREFIX,
     Violation, ViolationCode,
 };
+use crate::legality::Hint;
 use crate::{names, py, unicode};
 
 /// The UTF-8 byte order mark that `encoding="utf-8-sig"` strips once.
@@ -261,6 +262,73 @@ pub(crate) fn parse_deck_with(
 /// [`DeckError::Invalid`] listing the problems.
 pub fn parse_deck(text: &str, name: &str, source: Option<&str>) -> Result<Deck, DeckError> {
     parse_deck_with(CardDb::embedded(), text, name, source)
+}
+
+/// W-77: what a deck file means when a `#` follows a card on its line. The format has no
+/// end-of-line comments, because card names may contain `#` (docs/DECK_FORMAT.md), so
+/// `4 GD01-001 Gundam  # comment` is a NAME_MISMATCH and `4 GD01-001#x` an UNKNOWN_ID. A hint
+/// is given only when the text before the `#` is a valid entry: the id resolves and the name
+/// before the `#` is empty or matches the card. The violations themselves are unchanged.
+pub(crate) fn comment_hints(db: &CardDb, text: &str) -> Vec<Hint> {
+    const WHY: &str = "there are no end-of-line comments, because card names may contain '#'; \
+                       put the comment on a line of its own";
+    let mut out = Vec::new();
+    for (i, raw) in unicode::splitlines(text).into_iter().enumerate() {
+        let stripped = names::strip_invisible(raw);
+        let line = unicode::strip(&stripped);
+        if line.is_empty() || line.starts_with('#') {
+            continue;
+        }
+        let Some(m) = match_entry(line) else {
+            continue;
+        };
+        let lineno = i + 1;
+        if let Some((before, _)) = m.id.split_once('#') {
+            let resolves = resolve_card_number(m.id, db).is_some();
+            if !resolves && !before.is_empty() && resolve_card_number(before, db).is_some() {
+                out.push(Hint {
+                    line: Some(lineno),
+                    code: ViolationCode::UnknownId,
+                    text: format!(
+                        "line {lineno}: {} is a card id but {} is not: {WHY}",
+                        unicode::repr_str(before),
+                        unicode::repr_str(m.id)
+                    ),
+                });
+            }
+            continue;
+        }
+        let (Some(number), Some(name)) = (resolve_card_number(m.id, db), m.name) else {
+            continue;
+        };
+        let Some(hash) = name.find('#') else {
+            continue;
+        };
+        let Some(cdef) = db.get(number) else {
+            continue;
+        };
+        if names::names_match(name, cdef.names()) {
+            continue;
+        }
+        let before = unicode::strip(&name[..hash]);
+        let text = if before.is_empty() {
+            format!("line {lineno}: the text from '#' is read as the card's name: {WHY}")
+        } else if names::names_match(before, cdef.names()) {
+            format!(
+                "line {lineno}: {} matches {number} and the text from '#' is read as part of the \
+                 name: {WHY}",
+                unicode::repr_str(before)
+            )
+        } else {
+            continue;
+        };
+        out.push(Hint {
+            line: Some(lineno),
+            code: ViolationCode::NameMismatch,
+            text,
+        });
+    }
+    out
 }
 
 /// Run-length list of `(number, copies)` from per-entry counts, sorted by card number.

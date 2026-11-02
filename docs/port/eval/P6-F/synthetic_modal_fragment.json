@@ -1,0 +1,255 @@
+{
+ "card_numbers": [
+  "GD02-084",
+  "GD01-022"
+ ],
+ "fragment": {
+  "abilities": [
+   {
+    "ability": 4478,
+    "card_number": "GD02-084",
+    "cost_program_id": -1,
+    "def_id": 362,
+    "index": 0,
+    "program_id": 626,
+    "trigger_event": "turn_end",
+    "unit_text": false
+   },
+   {
+    "ability": 4481,
+    "card_number": "GD01-022",
+    "cost_program_id": -1,
+    "def_id": 170,
+    "index": 0,
+    "program_id": 127,
+    "trigger_event": "deployed",
+    "unit_text": false
+   }
+  ],
+  "aliases": [],
+  "always_events": [
+   "destroys_by_battle",
+   "turn_end"
+  ],
+  "base_fingerprint": "a61a7e50899ab6ff6259b0a2a082be5af45cf3fa28b5012c95597a789688748b",
+  "cards": [
+   {
+    "binding_module": null,
+    "burst_aid": -1,
+    "card_number": "GD02-084",
+    "command_aid": -1,
+    "def_id": 362,
+    "delayed": [],
+    "events": [
+     "turn_end"
+    ],
+    "field_entries": [
+     1260
+    ],
+    "gated": false,
+    "hand_entries": [],
+    "has_burst": false,
+    "name": "Lauda's Dilanza",
+    "own": [
+     1260
+    ],
+    "paired_entries": [],
+    "printed_keywords": [],
+    "script": 4480,
+    "source": "compiled",
+    "template": null,
+    "text_hash": "3973e022e93220f9",
+    "timings": [
+     "turn_end"
+    ],
+    "trash_entries": [],
+    "unit": [],
+    "unit_entries": []
+   },
+   {
+    "binding_module": null,
+    "burst_aid": -1,
+    "card_number": "GD01-022",
+    "command_aid": -1,
+    "def_id": 170,
+    "delayed": [],
+    "events": [
+     "deployed"
+    ],
+    "field_entries": [
+     1261
+    ],
+    "gated": false,
+    "hand_entries": [],
+    "has_burst": false,
+    "name": "Cancer",
+    "own": [
+     1261
+    ],
+    "paired_entries": [],
+    "printed_keywords": [],
+    "script": 4482,
+    "source": "compiled",
+    "template": null,
+    "text_hash": "3973e022e93220f9",
+    "timings": [
+     "deployed"
+    ],
+    "trash_entries": [],
+    "unit": [],
+    "unit_entries": []
+   }
+  ],
+  "continuous": [],
+  "events": [
+   [
+    170,
+    [
+     "deployed"
+    ]
+   ],
+   [
+    362,
+    [
+     "turn_end"
+    ]
+   ]
+  ],
+  "filter_sets": [],
+  "fragment_version": 1,
+  "hp_reduction_possible": false,
+  "node_content_ids": [
+   "e380a94d127e81ca",
+   "89dd23b62eae1843",
+   "bbf8a170d5e88145",
+   "f0f78ae3d14f765b",
+   "9d634090aaedae7c",
+   "cf9ea2cb7c8c5248"
+  ],
+  "nodes": [
+   {
+    "_": "ChooseMode",
+    "chooser": "you",
+    "options": [
+     [
+      "option1",
+      [
+       {
+        "$": 50
+       }
+      ]
+     ],
+     [
+      "option2",
+      [
+       {
+        "$": 1537
+       }
+      ]
+     ]
+    ]
+   },
+   {
+    "_": "Triggered",
+    "cond": {
+     "$": 13
+    },
+    "gate": "none",
+    "gate_filters": [],
+    "once_per_turn": false,
+    "steps": [
+     {
+      "$": 4477
+     }
+    ],
+    "trigger": {
+     "$": 36
+    },
+    "where": "field"
+   },
+   {
+    "_": "ModeSelect",
+    "chooser": "you",
+    "end": 5,
+    "labels": [
+     "option1",
+     "option2"
+    ],
+    "targets": [
+     1,
+     3
+    ]
+   },
+   {
+    "_": "CardScript",
+    "abilities": [
+     {
+      "$": 4478
+     }
+    ],
+    "card_number": "GD02-084",
+    "notes": "",
+    "source": "compiled",
+    "unit_abilities": []
+   },
+   {
+    "_": "Triggered",
+    "cond": {
+     "$": 13
+    },
+    "gate": "none",
+    "gate_filters": [],
+    "once_per_turn": false,
+    "steps": [
+     {
+      "$": 446
+     }
+    ],
+    "trigger": {
+     "$": 16
+    },
+    "where": "field"
+   },
+   {
+    "_": "CardScript",
+    "abilities": [
+     {
+      "$": 4481
+     }
+    ],
+    "card_number": "GD01-022",
+    "notes": "",
+    "source": "compiled",
+    "unit_abilities": []
+   }
+  ],
+  "printable_non_ascii": [],
+  "printed_keywords": [],
+  "programs": [
+   {
+    "content_id": "e86529519ad5f8d6",
+    "instrs": [
+     4479,
+     50,
+     4333,
+     1537,
+     4333
+    ],
+    "label": "GD02-084#a0"
+   }
+  ],
+  "rule_mods": [],
+  "strings": [
+   "GD02-084#a0"
+  ],
+  "var_names": []
+ },
+ "scripts": {
+  "GD01-022": "CardScript(card_number='GD01-022', abilities=(Triggered(trigger=Trigger(event=<Ev.DEPLOYED: 'deployed'>, self_only=True, subject=None, whose_turn=None, pilot_filters=(), target_filters=(), battle_only=None, by_enemy=None, include_self=True), steps=(Draw(count=2, player=<P.YOU: 'you'>, each_player=False),), cond=And(conds=()), once_per_turn=False, where=<Where.FIELD: 'field'>, gate=<Gate.NONE: 'none'>, gate_filters=()),), unit_abilities=(), source='compiled', notes='')",
+  "GD02-084": "CardScript(card_number='GD02-084', abilities=(Triggered(trigger=Trigger(event=<Ev.TURN_END: 'turn_end'>, self_only=False, subject=None, whose_turn=<P.YOU: 'you'>, pilot_filters=(), target_filters=(), battle_only=None, by_enemy=None, include_self=True), steps=(ChooseMode(options=(('option1', (Draw(count=1, player=<P.YOU: 'you'>, each_player=False),)), ('option2', (Draw(count=3, player=<P.YOU: 'you'>, each_player=False),))), chooser=<P.YOU: 'you'>),), cond=And(conds=()), once_per_turn=False, where=<Where.FIELD: 'field'>, gate=<Gate.NONE: 'none'>, gate_filters=()),), unit_abilities=(), source='compiled', notes='')"
+ },
+ "texts": {
+  "GD01-022": "\u3010Deploy\u3011Draw 2.",
+  "GD02-084": "At the end of your turn, choose 1 of the following effects and activate it:\n\u25a0Draw 1.\n\u25a0Draw 3."
+ }
+}

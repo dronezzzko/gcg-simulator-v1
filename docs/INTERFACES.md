@@ -61,7 +61,7 @@ class Violation:
 
 def parse_deck(text: str, *, name: str = "deck", source: str | None = None) -> Deck   # raises DeckError(SYNTAX/UNKNOWN_ID/NAME_MISMATCH)
 def load_deck(path: str | os.PathLike[str]) -> Deck
-def validate_deck(deck: Deck, *, banlist: bool = True) -> list[Violation]            # [] means legal
+def validate_deck(deck: Deck, *, banlist: bool = True, implemented: bool = True) -> list[Violation]  # [] means legal
 def require_legal(deck: Deck) -> None                                                # raises DeckError listing every violation
 def to_decklist(deck: Deck) -> DeckList
 def deck_digest(deck: Deck) -> str                                                   # sha256 of canonical content
@@ -144,8 +144,8 @@ version), `summary.md`, `games.ndjson`, `replays/*.json`, and `timing.json` (wal
 gcg-sim benchmark DECK_UNDER_TEST BENCHMARK_DECK --matches N [--seed S] [--workers W]
         [--format bo3|bo1] [--ai-preset fast|standard|strong] [--out DIR] [--decision-log] [--replays K]
 gcg-sim validate DECK
-gcg-sim data status
-gcg-sim replay REPLAY_JSON
+gcg-sim data status [--json]
+gcg-sim replay REPLAY_JSON [--log]
 ```
 
 Invalid input: a clear message on stderr and exit code 2 (usage) or 1 (invalid deck/data).
