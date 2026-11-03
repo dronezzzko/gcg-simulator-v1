@@ -142,8 +142,10 @@ for p in strong STANDARD Fast bogus; do
   [[ $rc == 2 ]] || { echo "--ai-preset $p: exit $rc, expected 2" >&2; exit 1; }
 done
 
-# The distributable binary runs offline without Python (T-145).
-RUSTFLAGS="-C target-cpu=apple-m2" cargo build --profile dist --locked --offline -p gcg-cli
+# The distributable binaries (T-143): the apple-m2 build replays the tier-1 corpus like the
+# native one (T-092), and gcg-sim runs offline without Python (T-145).
+scripts/build_dist.sh
+target/dist/gcg-diff corpus --tier 1 --require-all --jobs "$corpus_jobs"
 scripts/verify_binary_offline.sh target/dist/gcg-sim
 
 # Stdlib-only tool checks, the gate's own negative controls, the CLI help snapshot, generated
@@ -167,10 +169,11 @@ if [[ $full == 1 ]]; then
   uv run ruff check . && uv run ruff format --check .
   MYPYPATH=src uv run mypy --strict port/oracle
   # The documented commands (W-114, W-154) run in their own clone of HEAD, so a regeneration
-  # they document cannot change the tree under test. The tracked files they rewrite there must
-  # be the one listed: CLAUDE.md's Python traceability command writes docs/RULES_TRACEABILITY.md,
-  # which `gcg-diff traceability --write` now generates (checked above). The full Python suite
-  # runs three times among them, so a block may take hours on a shared machine.
+  # they document cannot change the tree under test. The only tracked file they may rewrite
+  # there is docs/RULES_TRACEABILITY.md, which `gcg-diff traceability --write` generates
+  # (checked above) and Python's generator would rewrite without the Rust column; the blocks
+  # that do that, like the full Python suite, carry doc-check skip markers. Any other rewritten
+  # file fails the gate.
   git clone --quiet --no-hardlinks "$work/repo" "$work/docs"
   (cd "$work/docs" && uv run python scripts/check_doc_commands.py --timeout 21600)
   rewritten="$(git -C "$work/docs" status --porcelain --untracked-files=all | cut -c4- |

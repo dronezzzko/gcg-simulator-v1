@@ -38,13 +38,15 @@ evaluation harness). Build settings:
   `-C target-cpu=native` (on the M2 Pro, `native` is `apple-m2`). The release profile
   (`Cargo.toml`) uses `opt-level = 3`, fat LTO, one codegen unit and `panic = "abort"`, and
   mimalloc is the allocator.
-- **Distributable binaries** use the `dist` profile with the `apple-m2` baseline; the binary
-  goes to `target/dist/gcg-sim`, and `scripts/verify_binary_offline.sh` runs it outside the
-  repository with networking denied and no Python on the `PATH`:
+- **Distributable binaries**: `scripts/build_dist.sh` builds `gcg-sim`, `gcg-eval` and
+  `gcg-diff` with the `dist` profile and the `apple-m2` baseline (`GCG_TARGET_CPU` picks
+  another) into `target/dist/`, next to `LICENSE-DATA` and `NOTICE.txt`.
+  `scripts/verify_binary_offline.sh` runs `gcg-sim` outside the repository with networking
+  denied and no Python on the `PATH`:
 
-  <!-- doc-check: skip a second full LTO build of gcg-sim under the dist profile; scripts/verify_all_rust.sh runs both commands -->
+  <!-- doc-check: skip a second full LTO build under the dist profile; scripts/verify_all_rust.sh runs both commands -->
   ```bash
-  RUSTFLAGS="-C target-cpu=apple-m2" cargo build --profile dist --locked --offline -p gcg-cli
+  scripts/build_dist.sh
   scripts/verify_binary_offline.sh target/dist/gcg-sim
   ```
 

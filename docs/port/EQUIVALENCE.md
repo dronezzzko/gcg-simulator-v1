@@ -59,6 +59,12 @@ views 280 and worlds 100 traces; tier 2 holds coverage 468, fuzz 500, search 144
 `paranoid` feature (every cached view recomputed and compared). Commands:
 `gcg-diff corpus --tier 1 --require-all`, `--tier 2`, `--roundtrip`, and the paranoid build.
 
+Code generation does not change a result (T-092): the distributable build of
+`scripts/build_dist.sh` (`dist` profile, `-C target-cpu=apple-m2` instead of `native`) passes
+tier 1 with `target/dist/gcg-diff corpus --tier 1 --require-all` (3804/3804, 2026-11-04, the
+crates of commit 8c89b5e), and `scripts/verify_binary_offline.sh target/dist/gcg-sim` passes
+(identical outputs at 1, 4 and 10 workers, every replay verified, no network, no Python).
+
 ### End-to-end matrix
 
 `scripts/compare_python_vs_rust.sh equivalence` with its defaults (started 2026-11-02 01:06, 30 s
