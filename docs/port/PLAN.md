@@ -106,7 +106,7 @@ authorises, so M2 starts without waiting.
 | D4 | about 2,900 rule/card tests | 3,985 collected tests; `tests/rules` 647 + `tests/cards` 2,245 = 2,892 (Inv 10 §0) | Per-test traces cover those 2,892 tests plus the engine-level AI tests |
 | D5 | `clone` about 15 µs | 17.4 µs at probe states, 21.4 µs mean in game (Inv 11 §6) | Performance targets use the measured numbers |
 | D6 | budgets are node counts | budgets are iteration counts: `clamp(ipo * n, min, max)` over the distinct root moves (`ai/config.py:55-57`). Each iteration adds at most one tree node (`ai/mcts.py:205-235`) | "node" = one MCTS iteration (§6.6) |
-| D7 | vs greedy 289/400, Wilson [0.677, 0.764] | that is the pre-change result. The shipped preset scored 292/400, [0.684, 0.771] (`docs/AI.md:352-360`). Both runs used the AI test decks of `tests/ai/decks.py` (`tests/slow/test_ai_strength.py:28-53`) | The bar stays the brief's: strengthened `standard` vs greedy needs a lower bound > 0.764, gated on the test decks (like for like) and on the panel (A25) |
+| D7 | vs greedy 289/400, Wilson [0.677, 0.764] | that is the pre-change result. The shipped preset scored 292/400, [0.684, 0.771] (`docs/python/AI.md:352-360`). Both runs used the AI test decks of `tests/ai/decks.py` (`tests/slow/test_ai_strength.py:28-53`) | The bar stays the brief's: strengthened `standard` vs greedy needs a lower bound > 0.764, gated on the test decks (like for like) and on the panel (A25) |
 | D8 | process pool | `ProcessPoolExecutor(spawn)`, with SIGINT ignored in workers (`runner/run.py:88-106`) | Rust uses threads (§7). Behaviour is kept, and W-106/W-107 are resolved by construction |
 | D9 | — | Python output does not depend on `PYTHONHASHSEED` (Inv 09 §1.4) | Oracle outputs are generated under hash seeds 1 and 2 and must agree (W-150) |
 | D10 | "information-set MCTS" | the reference reads the true state at the root (`ai/mcts.py:89-120`) and is information-set honest only by convention (W-135) | The reference and greedy are ported against `&GameState`, because their `derived()` calls on the true state fill its view cache exactly as Python's do (§4.6), and the cache is part of byte equivalence. This is a deliberate deviation from W-135's plan text, which ports them against an `Observation`; P6-O records it in the W-135 entry. The strengthened search sees only an `Observation` built in its agent adapter (§12.3) |
@@ -2796,7 +2796,7 @@ search call tree.
    computes more than once (`game.py:543-583`). Keep the option order.
 4. **Facet-versioned revalidation** (W-124), only after the §4.6 transparency proof and only if
    derived recompute still dominates. Python recomputes after every touch, and 74% of the
-   recomputes reproduce the previous view (`docs/AI.md:500-502`). The mechanism:
+   recomputes reproduce the previous view (`docs/python/AI.md:500-502`). The mechanism:
    - per-state facet counters cover each zone list, card `def_id`/`pair`/`rested`/`damage`/
      `entered_turn`, the lasting list, history, turn and active player, and the battle stack;
      every private mutator bumps its facet;

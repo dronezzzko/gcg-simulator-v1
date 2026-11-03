@@ -14,7 +14,8 @@
 //!
 //! Both presets run the same mechanisms (`SHIPPED_MECHANISMS`). The measurements behind the
 //! choice are in `docs/port/eval/M15/README.md` (bundle and leave-one-out rows, budget curves,
-//! per-game cost).
+//! per-game cost) and `docs/port/eval/M15b/README.md` (the two mechanisms added after the first
+//! final evaluation).
 
 use std::borrow::Cow;
 use std::sync::LazyLock;
@@ -27,8 +28,10 @@ use crate::{MechanismFlags, OpponentList, Preset, StrengthenedConfig};
 /// The mechanisms of both shipped presets, every field spelled out (M15 bundle,
 /// `docs/port/eval/M15/README.md`): the adaptive horizon (W-01) with the capped-rollout
 /// continuation (W-15), the tactical solver in rollouts (W-03), capped play/draw simulations
-/// excluded from the paired estimate (W-44), and a simulated line ending in an engine error
-/// scored as a loss instead of failing the real game (W-143). Everything else is the reference.
+/// excluded from the paired estimate (W-44), a simulated line ending in an engine error
+/// scored as a loss instead of failing the real game (W-143), and, from M15b
+/// (`docs/port/eval/M15b/README.md`), kill-aware damage targeting (W-26) and the solver's proved
+/// lethal at in-tree MAIN decisions (W-25). Everything else is the reference.
 const SHIPPED_MECHANISMS: MechanismFlags = MechanismFlags {
     adaptive_horizon: true,
     generalized_leaf: false,
@@ -68,7 +71,7 @@ const SHIPPED_MECHANISMS: MechanismFlags = MechanismFlags {
     exhaustive_polarity: false,
     exact_fight: false,
     opponent_knobs: false,
-    kill_aware_targeting: false,
+    kill_aware_targeting: true,
     refit_weights: false,
     phase_weights: false,
     keyword_features: false,
@@ -83,7 +86,7 @@ const SHIPPED_MECHANISMS: MechanismFlags = MechanismFlags {
     portable_math: false,
     engine_error_leaf: true,
     target_multi_rollouts: None,
-    tree_lethal_select: false,
+    tree_lethal_select: true,
 };
 
 /// `standard`: reference `strong` (`ai/config.py:98-109`) at 8 times its budget, every field
@@ -359,8 +362,10 @@ mod tests {
                 "capped_rollout_continuation",
                 "engine_error_leaf",
                 "exclude_capped_play_draw",
+                "kill_aware_targeting",
                 "root_trees",
-                "tactical_solver"
+                "tactical_solver",
+                "tree_lethal_select"
             ]
         );
     }
@@ -391,7 +396,7 @@ mod tests {
     }
 
     #[test]
-    fn shipped_presets_enable_the_m15_bundle() {
+    fn shipped_presets_enable_the_m15b_bundle() {
         for p in Preset::ALL {
             let cfg = preset_config(p);
             assert_eq!(
@@ -401,7 +406,9 @@ mod tests {
                     "capped_rollout_continuation",
                     "engine_error_leaf",
                     "exclude_capped_play_draw",
-                    "tactical_solver"
+                    "kill_aware_targeting",
+                    "tactical_solver",
+                    "tree_lethal_select"
                 ]
             );
             assert_eq!(cfg.mechanisms, SHIPPED_MECHANISMS);

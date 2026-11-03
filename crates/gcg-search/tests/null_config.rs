@@ -59,6 +59,8 @@ fn null_configurations_copy_every_reference_field() {
             "tactical_solver",
             "exclude_capped_play_draw",
             "engine_error_leaf",
+            "kill_aware_targeting",
+            "tree_lethal_select",
         ] {
             assert_eq!(c.mechanisms.set_text(flag, "true"), Some(Ok(())), "{flag}");
         }

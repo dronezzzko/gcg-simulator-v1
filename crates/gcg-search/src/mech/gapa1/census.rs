@@ -1,5 +1,5 @@
 //! W-05: the census of observation-key splits (the port of the investigation's 183-position
-//! census, `docs/AI.md:462-469`, of which only the counts survive).
+//! census, `docs/python/AI.md:462-469`, of which only the counts survive).
 //!
 //! One search runs at a position with a recording tracer. Every iteration's walk is replayed
 //! from its world (`SearchTracer::iteration` gets the world, `SearchTracer::apply` the walk's

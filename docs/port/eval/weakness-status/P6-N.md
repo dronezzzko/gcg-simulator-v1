@@ -298,12 +298,12 @@ below).
   regenerated. `gcg-sim`'s help also equals Python's (T-152). Corrections: docs/SPEC.md (Python
   ≥3.15, as `pyproject.toml` requires); docs/INTERFACES.md (`validate_deck(..., implemented: bool
   = True)`, `data status [--json]`, `replay REPLAY_JSON [--log]`); docs/PROGRESS.md (the `fast`
-  values were provisional at that step and fixed later, docs/AI.md "The `fast` preset").
+  values were provisional at that step and fixed later, docs/python/AI.md "The `fast` preset").
   The mirrored-block statement is checked by `crates/gcg-eval/tests/vectors.rs::mirrored_specs_match_selfplay`
   (the Rust generator equals Python's `mirrored_specs` on fixed masters). Not done: a snapshot of
   the public Rust API signatures (it needs rustdoc JSON, a nightly feature this stable toolchain
   lacks; docs/port/contracts.md stays the frozen signature document), and the Python-side wording
-  of `docs/AI.md:326-327` and the `mirrored_specs` docstring (lead note 6).
+  of `docs/python/AI.md:326-327` and the `mirrored_specs` docstring (lead note 6).
 - **Evidence:** `python3 scripts/cli_help_snapshot.py --check`: matches the binaries.
 - **Ablation:** no AI effect.
 
@@ -430,7 +430,7 @@ search:fast --paranoid --workers auto` and the `mixed:greedy,search:fast` one wi
 5. W-154: give `docs/port/eval/weakness-status/P6-decks.md` (line 106) a `text` fence or a
    `<!-- doc-check: skip <reason> -->` marker; until then `check_doc_commands.py` and the
    `--full` gate fail on it.
-6. Python-side documents and data (outside this package): `docs/AI.md:326-327` and the
+6. Python-side documents and data (outside this package): `docs/python/AI.md:326-327` and the
    `mirrored_specs` docstring (`ai/selfplay.py:95-97`, §12.11 post-acceptance) should say that a
    block of four holds two deals of two games; `src/gcg_sim/data/official/floor_rules.json`
    "Seeded fair coin flip" is accurate (`randrange(2)`) and stays; research artefacts

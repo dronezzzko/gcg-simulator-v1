@@ -67,7 +67,7 @@ for Python.
 | Single-thread, screening | `--ai-preset standard --matches 20 --workers 1` | 3 | 1269.5 s | 1262.3 s | 1292.2 s | 50 |
 | Full search | `--ai-preset strong --matches 20 --workers 10` | 3 | 356.0 s | 355.0 s | 356.1 s | 54 |
 
-The 100-match headline played 251 games, the same count docs/AI.md reports for this
+The 100-match headline played 251 games, the same count docs/python/AI.md reports for this
 workload. The match result was 52 DUT wins out of 100, and 124 of 251 games. A read-only planning
 workflow, made of LLM calls and file reads, ran during these measurements. No other local
 computation ran.
@@ -214,9 +214,10 @@ A match is the unit of work in the reference search. A BO1 match is one game, an
 a BO3 needs game g's loser. So a long match that starts late on an efficiency core sets the
 tail. `first_player_choice` (1.6% of the time) already runs as a help-first fork-join. That is
 the only exact intra-match parallelism the reference allows: the tree search is sequential.
-Beyond it, the tail is left to macOS thread migration, as PLAN §7.3 decides. `--workers auto`
-stays the sum of `hw.perflevelN.logicalcpu` (10 here). On this loaded machine, 10 workers were
-no slower than 8 and faster than 6.
+Beyond it, the tail is left to macOS thread migration, as PLAN §7.3 decides. On this loaded
+machine, 10 workers were no slower than 8 and faster than 6. The idle-machine measurements of
+Part 1 and Part 2 below reversed that: 6 workers were fastest on every workload, so
+`--workers auto` was changed to the fast tiers (6 here; commit d750b6c).
 
 ### Apple M6 (no M6 available)
 
@@ -224,7 +225,8 @@ no slower than 8 and faster than 6.
   `hw.perflevelN.{logicalcpu,physicalcpu,name}`, plus `hw.cachelinesize` and the
   `hw.optional.arm.*` listing. `gcg-eval env` adds `is_aarch64_feature_detected!` for 28
   features and the features the binary was compiled for. Unit tests parse a listing captured
-  on this M2 Pro and a synthetic three-tier listing in the M6 layout (2 + 4 + 6, `auto` = 12).
+  on this M2 Pro and a synthetic three-tier listing in the M6 layout (2 + 4 + 6; `auto` was 12
+  when this was written and is 6 since d750b6c, the super and performance tiers).
 - **Build.** No code path needs an optional CPU feature. On this toolchain (rustc 1.99.1),
   `rustc --print target-cpus` knows `apple-m4` and `apple-m5` but no M6 name, and `native`
   resolves to `apple-m2` here. On an M6, build with the default `native` (LLVM detects the

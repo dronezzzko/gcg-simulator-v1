@@ -60,7 +60,7 @@ records what was done, evidence, and what remains.
   deviations; 7 AI-quality findings (info): dominated moves (free Bursts, 0-AP attacks) and
   plays without effect (AP-3 on a Unit that cannot battle, resting rested Units, paying a
   cost for an effect that does nothing) are now pruned with tests; choosing the weaker of
-  two targets is documented in docs/AI.md as a remaining AI weakness.
+  two targets is documented in docs/python/AI.md as a remaining AI weakness.
 - Review 3 (105 agents): deliverables vs the request through three lenses; 28 findings
   confirmed (all minor or info), 6 refuted; all 28 fixed (ef05730, 32e9f84).
 - Recheck (25 fresh agents, one per finding): 23 resolved, 2 open (cost-only activations
@@ -86,7 +86,7 @@ records what was done, evidence, and what remains.
 
 ## Phase 7 — AI quality and the `fast` preset (done, branch `feat/ai-quality`)
 
-Goal: measured AI improvements against every known weakness in `docs/AI.md`, a `fast`
+Goal: measured AI improvements against every known weakness in `docs/python/AI.md`, a `fast`
 screening preset, output-identical engine speedups. Proxies for "closer to skilled human play":
 head-to-head against the pre-change AI, tactical puzzles, blinded replay audits, budget scaling.
 
@@ -134,7 +134,7 @@ head-to-head against the pre-change AI, tactical puzzles, blinded replay audits,
   game's shared history) fixed in 65d6e1d: on a 63-game benchmark 2 games' final digests change
   to the values an agent-free replay reproduces; actions and winners unchanged.
 - `fast` wiring cherry-picked (results schema 1.1.0); values still provisional at this step
-  (fixed later in this phase: docs/AI.md, "The `fast` preset").
+  (fixed later in this phase: docs/python/AI.md, "The `fast` preset").
 - Workstreams integrated, each reviewed by a fresh agent (accept), all settings default off so
   `baseline-standard` still replays the recorded game: root pruning (9684f29), search settings
   (8eb9e8a), threat-aware rollouts (a339080), evaluation feature sets (3351b78), policy settings
@@ -162,7 +162,7 @@ head-to-head against the pre-change AI, tactical puzzles, blinded replay audits,
   by a second agent): 15 baseline games from the `main` worktree and 15 new-standard games, same
   seeds (90031–90033, 5 BO1 games per example pairing). Confirmed implausible plays: baseline 22
   (31 flagged), new 19 (22 flagged). Classified list: `build/aiq2/audit/classified.md`.
-- Final measurements on held-out seeds, each run once (commands: `docs/AI.md`, "Strength"
+- Final measurements on held-out seeds, each run once (commands: `docs/python/AI.md`, "Strength"
   and "The fast preset"): new standard vs baseline-standard 925/1600 = 0.578 [0.554, 0.602]
   (seed 90001); examples spot check 132/240 = 0.550 (90005); strong vs new standard 209/400 =
   0.523 [0.474, 0.571] (8401; baseline figure 0.575); `tests/slow/test_ai_strength.py`

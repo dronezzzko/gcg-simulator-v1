@@ -75,9 +75,10 @@ fn the_reference_over_extends_and_a_competent_opponent_model_does_not() {
          tree_lethal_select: alone {tree_alone}, with tactical_solver + adaptive_horizon \
          {solver_horizon_tree}, with the shipped fast {fast_tree}"
     );
-    // Recorded 2026-11-03: over-extends: reference standard 16, null 16, opponent_knobs 16,
-    // tactical_solver 0, tactical_solver + adaptive_horizon 15, shipped fast 16, shipped fast
-    // without adaptive_horizon 0, shipped standard 0; tree_lethal_select alone 0, with
+    // Recorded 2026-11-03 (before M15b): over-extends: reference standard 16, null 16,
+    // opponent_knobs 16, tactical_solver 0, tactical_solver + adaptive_horizon 15, shipped fast
+    // 16, shipped fast without adaptive_horizon 0, shipped standard 0. Since M15b the shipped
+    // presets carry tree_lethal_select and the shipped fast over-extends 0 of 16; tree_lethal_select alone 0, with
     // tactical_solver + adaptive_horizon 0, with the shipped fast 0.
     //
     // Why the shipped fast over-extends: with the adaptive horizon, ending the main phase is
@@ -104,8 +105,9 @@ fn the_reference_over_extends_and_a_competent_opponent_model_does_not() {
     );
     assert_eq!(
         (solver_horizon, fast, fast_fixed_horizon),
-        (15, 16, 0),
-        "the adaptive horizon's interaction at fast-sized budgets (pinned)"
+        (15, 0, 0),
+        "the adaptive horizon's interaction at fast-sized budgets; the shipped fast carries \
+         tree_lethal_select since M15b, which removes it (pinned)"
     );
     assert!(
         solver_horizon_tree <= 3 && fast_tree <= 3,

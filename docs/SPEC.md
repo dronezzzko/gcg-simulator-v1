@@ -75,7 +75,7 @@ reproducibility, and honest statistics come before speed.
   durations), text compiler (templates) and bindings (`effects/bindings/wp_*.py`, one module per
   work package, `@card(...)`, auto-discovered).
 - `gcg_sim.ai` — `Agent` protocol (`choose(st, player) -> Action`, `decision_log()`; agents
-  receive the full state and read only their own information set, see docs/AI.md),
+  receive the full state and read only their own information set, see docs/python/AI.md),
   `make_agent(...)`, random, greedy and determinized ISMCTS agents, presets, decision log.
 - `gcg_sim.runner` — match/BO3 sequencing, per-game seed derivation, process pool.
 - `gcg_sim.reports` — statistics (Wilson), aggregation, writers, schema.

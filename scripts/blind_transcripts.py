@@ -1,4 +1,4 @@
-"""Blinded transcripts of saved games for a replay audit of the AI (docs/AI.md, "Strength").
+"""Blinded transcripts of saved games for a replay audit of the AI (docs/python/AI.md, "Strength").
 
 Each replay is first checked with ``gcg_sim.runner.replayfile.check_replay`` (it must reproduce
 its recorded outcome), then re-played from its seed and actions; every decision with more than

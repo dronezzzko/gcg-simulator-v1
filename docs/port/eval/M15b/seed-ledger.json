@@ -1,0 +1,57 @@
+{
+ "version": 1,
+ "entries": [
+  {
+   "role": "confirm",
+   "master": 30500001,
+   "command": "head-to-head",
+   "config": {
+    "challenger": "search:docs/port/eval/M15b/configs/m15b-standard-8x.json",
+    "opponent": "search:docs/port/eval/M15/configs/m15-standard-8x.json",
+    "decks": "panel",
+    "pairs": "tuning",
+    "games": 1620,
+    "choose_first": "seat0"
+   }
+  },
+  {
+   "role": "tuning",
+   "master": 10500001,
+   "command": "head-to-head",
+   "config": {
+    "challenger": "search:docs/port/eval/M15b/configs/m15b-standard-8x.json",
+    "opponent": "ref:strong",
+    "decks": "panel",
+    "pairs": "tuning",
+    "games": 1620,
+    "choose_first": "seat0"
+   }
+  },
+  {
+   "role": "dev",
+   "master": 20500001,
+   "command": "head-to-head",
+   "config": {
+    "challenger": "search:docs/port/eval/M15b/configs/m15b-standard-8x.json",
+    "opponent": "greedy",
+    "decks": "panel",
+    "pairs": "tuning",
+    "games": 420,
+    "choose_first": "seat0"
+   }
+  },
+  {
+   "role": "dev",
+   "master": 20500001,
+   "command": "head-to-head",
+   "config": {
+    "challenger": "search:docs/port/eval/M15/configs/m15-standard-8x.json",
+    "opponent": "greedy",
+    "decks": "panel",
+    "pairs": "tuning",
+    "games": 420,
+    "choose_first": "seat0"
+   }
+  }
+ ]
+}

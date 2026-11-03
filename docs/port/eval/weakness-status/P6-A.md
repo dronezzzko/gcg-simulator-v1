@@ -130,7 +130,7 @@ Reading the tables:
   measured here) and are null at the high budget (-0.030 [-0.111, +0.051];
   +0.003 against the placebo) at 1.5x the applies; four turns are null at both budgets (+0.005;
   -0.018 and +0.020 against the placebos) at 1.9x the applies. The Python history agrees: a
-  three-turn horizon at twice the budget won 51/96 on the older engine (`docs/AI.md:366-368`).
+  three-turn horizon at twice the budget won 51/96 on the older engine (`docs/python/AI.md:366-368`).
 - `adaptive_horizon` is the one mechanism that measured positive. Against the placebo it gains
   +0.025 (dev), +0.019 (confirm) and +0.025 (high budget); pooled over the 2,000 games of the
   reference-budget rows, +0.021 [-0.001, +0.042] per game (252 row-only against 211

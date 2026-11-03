@@ -13,7 +13,7 @@ fn the_target_critic_solves_the_repair_ping() {
     eprintln!(
         "W-14 repair ping: reference {reference}/24, null {null}/24, target_rollouts {critic}/24"
     );
-    // Recorded 2026-11-02: reference 7/24 (Python's shipped `standard`: 7 of 24, docs/AI.md),
+    // Recorded 2026-11-02: reference 7/24 (Python's shipped `standard`: 7 of 24, docs/python/AI.md),
     // null configuration 10/24, target_rollouts 24/24.
     assert_eq!(reference, 7, "the shipped reference standard (pinned)");
     assert!(

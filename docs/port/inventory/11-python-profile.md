@@ -199,7 +199,7 @@ column sums to 100%.
 ### 3.2 Reading the numbers
 
 - About **80%** of search time is inside the engine's `apply`. The Python docs say the same
-  ("80–83% of search time was inside the engine's `apply`", docs/AI.md:298-299). Rollouts
+  ("80–83% of search time was inside the engine's `apply`", docs/python/AI.md:298-299). Rollouts
   (`play_until_turn`, policy included) take 51%, of which `apply` is 44.5%. Tree descent
   takes 27%, and applying the root move about 10%.
 - **`view.derived` recomputation is the biggest single hotspot: about 30–34% of the total.**
@@ -643,7 +643,7 @@ Traps for anyone who uses these numbers, or who ports the hot paths for speed.
   (`--native`) would split time inside C builtins (dict/list/isinstance: 13% of cProfile
   tottime) more exactly. It could be run with `sudo -E` or on Linux.
 - **Q2.** Only one game, one seed, and one deck pair were profiled (plus `fast` for the same
-  seed). Shares should be stable (docs/AI.md reports the same 80% engine share), but other
+  seed). Shares should be stable (docs/python/AI.md reports the same 80% engine share), but other
   decks, with more lasting effects and triggers, could raise the `derived` and interp shares.
   `strong` was not profiled.
 - **Q3.** §7 shows the derived cache is transparent for one game. Whether every game is (i.e.
@@ -652,7 +652,7 @@ Traps for anyone who uses these numbers, or who ports the hot paths for speed.
   across many seeds would test it empirically.
 - **Q4.** The split of in-game `_compute` cost between the fast path (view.py:417-419) and the
   fixpoint (rounds per call) was not measured. Counting rounds per call would show whether
-  incremental invalidation (deferred in docs/AI.md:500-502) is worth doing in Rust.
+  incremental invalidation (deferred in docs/python/AI.md:500-502) is worth doing in Rust.
 - **Q5.** No Rust per-call targets are set here. Python's per-call costs (clone 17–21 µs,
   recompute 3.5–14 µs, about 0.86 ms per MCTS iteration) are the reference to beat.
 

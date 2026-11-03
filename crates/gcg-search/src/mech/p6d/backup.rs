@@ -5,7 +5,7 @@
 //! an opponent's action-step pass keeps the walk in the same node (`_unobserved_pass`,
 //! `ai/mcts.py:238-245`), so when the opponent passes in a battle's action step and again in the
 //! end phase's action step with no multi-move decision between, both passes select the same
-//! child and the reference counts that iteration twice for it (`docs/AI.md:469-474`). A cycle
+//! child and the reference counts that iteration twice for it (`docs/python/AI.md:469-474`). A cycle
 //! through a transposed node (`transpositions`) repeats a child the same way.
 
 use super::super::BackupCx;

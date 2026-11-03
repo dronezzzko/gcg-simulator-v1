@@ -112,7 +112,7 @@ Also touched, as the new fields and subcommand force: `crates/gcg-search/tests/c
      (one path is the other plus nodes that left the observation unchanged), or
      `<mover>_move:<kind>` (different moves at a decision of that kind).
   2. *The positions* are a reconstruction of the investigation's 183 (only their counts
-     survive, `docs/AI.md:462-469`): 3 positions sampled per game (`regret`'s sampler) from 60
+     survive, `docs/python/AI.md:462-469`): 3 positions sampled per game (`regret`'s sampler) from 60
      reference `standard` self-play games on the three example pairings, dev master 22710500,
      180 positions.
   3. *The scenario*, revisited (`crates/gcg-search/tests/scenarios/gapa1_w05_fusion_values.rs`):
@@ -299,7 +299,7 @@ Also touched, as the new fields and subcommand force: `crates/gcg-search/tests/c
     | expected under the rollout's sampling | 0.0752 (se 0.0056) | 0.0542 (se 0.0046) | **-0.0210 [-0.0307, -0.0113]** |
 
     The policy's own Damage picks are clearly better with the flag, which reproduces the Python
-    investigation's "regret per Damage decision -0.020" (`docs/AI.md:457-461`).
+    investigation's "regret per Damage decision -0.020" (`docs/python/AI.md:457-461`).
   - Unit test `weakness_suite::tests::a_damage_decision_is_judged_by_both_policies` (pass): the
     <Repair> ping position is a Damage decision, the block decision is not; the judgement is
     deterministic, every value lies in [0, 1], both regrets are non-negative, both pick

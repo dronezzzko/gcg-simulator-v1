@@ -84,7 +84,7 @@ def make_agent(kind: str, *, preset: str = "standard", seed: int = 0, log: bool 
     # kind: "random" | "greedy" | "mcts";  preset: "fast" | "standard" | "strong"
     # config / weights (optional, added later): replace the preset's search settings and the
     # evaluation weights, e.g. to replay the pre-change AI (gcg_sim.ai.baseline) in A/B games
-PRESETS: Mapping[str, SearchConfig]   # node-count budgets etc.; documented in docs/AI.md
+PRESETS: Mapping[str, SearchConfig]   # node-count budgets etc.; documented in docs/python/AI.md
 ```
 
 Agents are deterministic functions of (construction seed, the calls made). The MCTS agent's

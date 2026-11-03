@@ -1,0 +1,101 @@
+# Rust gate on an arm64 macOS runner (docs/port/PLAN.md §13 M17, A29; T-133).
+#
+# fmt, clippy, the workspace tests, the tier-1 differential corpus, the lints and the register
+# checks. There is no timing job: the only timing activity of the project is
+# scripts/compare_python_vs_rust.sh, run by hand on an idle machine (docs/port/BENCHMARKS.md).
+# scripts/ci_local.sh runs the same steps locally.
+#
+# Byte equivalence with Python is defined on the golden platform (docs/port/EQUIVALENCE.md):
+# the reference search takes exp, log, pow and erfc from the C library. The first test step runs
+# the libm vectors exported from Python; when they fail, the runner's C library differs, the
+# float-dependent steps are skipped, the corpus sets that replay recorded actions without floats
+# run instead, and the job fails with a message that says so.
+name: rust
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  gate:
+    runs-on: macos-15
+    env:
+      CARGO_TERM_COLOR: never
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Require an arm64 runner
+        run: |
+          uname -a
+          sysctl -n machdep.cpu.brand_string
+          test "$(uname -m)" = arm64
+
+      - name: Rust toolchain 1.99.1
+        run: |
+          rustup toolchain install 1.99.1 --profile minimal --component clippy,rustfmt
+          rustup default 1.99.1
+          rustc --version --verbose
+          cargo --version
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v6
+        with:
+          version: "0.13.6"
+
+      - name: uv sync --locked
+        run: uv sync --locked
+
+      - name: cargo fetch --locked
+        run: cargo fetch --locked
+
+      - name: Golden-platform check (libm vectors exported from Python)
+        id: golden
+        continue-on-error: true
+        run: cargo test -p gcg-core --release --locked --offline --test vectors
+
+      - name: cargo fmt --check
+        run: cargo fmt --all --check
+
+      - name: cargo clippy -D warnings
+        run: cargo clippy --workspace --all-targets --locked --offline -- -D warnings
+
+      - name: cargo clippy -D warnings (slow, paranoid and testkit features)
+        run: |
+          eval "$(cargo metadata --format-version 1 --no-deps --offline | python3 scripts/cargo_test_features.py)"
+          cargo clippy --workspace --all-targets --locked --offline --features "$SLOW,$DIAG" \
+            --target-dir target/paranoid -- -D warnings
+
+      - name: Build the release binaries
+        run: cargo build --release --locked --offline -p gcg-cli -p gcg-eval -p gcg-diff
+
+      - name: cargo test --workspace --release
+        if: steps.golden.outcome == 'success'
+        run: cargo test --workspace --release --locked --offline
+
+      - name: Differential corpus, tier 1
+        if: steps.golden.outcome == 'success'
+        run: target/release/gcg-diff corpus --tier 1 --require-all
+
+      - name: gcg-diff lints
+        run: target/release/gcg-diff lints
+
+      - name: Traceability documents current
+        run: target/release/gcg-diff traceability --check
+
+      - name: tests.json register
+        run: target/release/gcg-diff tests-json --check
+
+      - name: Non-golden platform
+        if: steps.golden.outcome != 'success'
+        run: |
+          target/release/gcg-diff corpus --tier 1 --require-all --only full,vanilla,fuzz,coverage,tests,views,worlds
+          cargo test -p gcg-search --release --locked --offline --test scenarios gapa2_portable_math
+          echo "non-golden platform: libm differs (see docs/port/EQUIVALENCE.md); search, components and baselines sets not checked" >&2
+          exit 1

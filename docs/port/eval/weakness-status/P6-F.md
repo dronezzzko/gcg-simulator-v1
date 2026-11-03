@@ -227,7 +227,7 @@ they are not run here.
   target --games 80 --per-game 2 --worlds 8 --seed 20600300 --role dev`: mean regret -0.0048
   (se 0.0044), 25 positions differing from the oracle; with `:kill_aware_targeting=true`:
   -0.0016 (se 0.0049), 25 differing. The difference (+0.0032, kill-aware slightly worse) is
-  within noise, as in Python (`docs/AI.md:457-461`). Policy-level regret is not separately
+  within noise, as in Python (`docs/python/AI.md:457-461`). Policy-level regret is not separately
   measured (the tool judges agents). Evidence files `rows/regret-*.json`.
 - **Ablation:** individual row (dev master 20600100, 400 games): 216/400 = 0.540 [0.491, 0.588]; paired difference 0.080 [0.009, 0.150]; discordant 35/19; iterations per game 9864.9 vs 9882.7; applies per game 118485.0 vs 120364.9; `docs/port/eval/P6-F/rows/dev-kill_aware_targeting-400.json`. Its confirmation: `gcg-eval ablation individual --mechanism kill_aware_targeting=true --reference standard --games 1600 --seed 30600100 --role confirm --choose-first seat0`: 817/1600 = 0.511 [0.486, 0.535]; paired difference +0.021 [-0.015, +0.057]; discordant 116/99; iterations per game 9998 vs 9886; applies per game 119288 vs 119093; `docs/port/eval/P6-F/rows/confirm-kill_aware_targeting-1600.json`.
 

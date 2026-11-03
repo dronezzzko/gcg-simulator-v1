@@ -3,7 +3,7 @@
 //!
 //! The reference's scores are hand-set (`ai/policy.py:42-47`, `:175-183`, `:288-298`); measured,
 //! its rollouts cast Commands less and activate abilities more than the search does
-//! (`docs/AI.md:453-461`). The calibrated policy keeps every reference score and adds a handful
+//! (`docs/python/AI.md:453-461`). The calibrated policy keeps every reference score and adds a handful
 //! of fitted offsets ([`OFFSETS`]): the PLAY_COMMAND and ACTIVATE bases, <Support>, the
 //! action-step plays in a battle and in the end phase, and the EX Resource penalty.
 //!

@@ -1,7 +1,7 @@
 //! `opponent_buckets{m}` (W-05, PLAN §12.3 S4): partial multiple-observer opponent nodes.
 //!
 //! The reference's single-observer tree pools an opponent node's statistics over worlds in
-//! which the opponent holds different cards (`docs/AI.md:105-110`), so its reply to a move is
+//! which the opponent holds different cards (`docs/python/AI.md:105-110`), so its reply to a move is
 //! one reply for every hand it might hold (strategy fusion). Here each opponent node keeps, per
 //! child, one slice of the statistics for each of at most four buckets of the opponent's
 //! determinised hand in the iteration's world:
