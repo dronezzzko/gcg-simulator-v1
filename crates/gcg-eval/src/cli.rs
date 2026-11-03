@@ -22,6 +22,8 @@
 //!   `evidence add|check` ([`crate::evidence`]). Lists (scales, fields, lambdas, variants,
 //!   deck sets) are comma-separated.
 //! - `env` prints [`crate::env`]'s document.
+//! - The opt-in user tools of A30 (`validate`, `benchmark`, `replay-game`, `replay-check`,
+//!   `data-status`) and `transcripts` ([`crate::transcripts`], W-119).
 
 use std::ffi::{OsStr, OsString};
 use std::io::Write;
@@ -1025,6 +1027,16 @@ pub fn build_parser() -> Parser {
                 parser: crate::validate_cmd::parser(PROG),
             },
             SubCommand {
+                name: "data-status",
+                help: Some("gcg-sim data status with sources, freshness, templates (A30)"),
+                parser: crate::data_status::parser(PROG),
+            },
+            SubCommand {
+                name: "transcripts",
+                help: Some("blinded transcripts of saved games for a replay audit (W-119)"),
+                parser: crate::transcripts::parser(PROG),
+            },
+            SubCommand {
                 name: "env",
                 help: Some("build, CPU tiers and CPU features as JSON"),
                 parser: env,
@@ -1043,6 +1055,15 @@ pub fn build_parser() -> Parser {
                 name: "replay-check",
                 help: Some("gcg-sim replay with the data, rules and code version check"),
                 parser: crate::benchmark_opts::replay_check_parser(),
+            },
+            SubCommand {
+                name: "weakness",
+                help: Some(crate::weakness_suite::HELP),
+                parser: {
+                    let mut p = crate::weakness_suite::parser();
+                    push_run_options(&mut p, &ROW_DEFAULTS);
+                    p
+                },
             },
         ],
     ));
@@ -1075,10 +1096,13 @@ pub enum Command {
     Gates(GatesArgs),
     Evidence(EvidenceArgs),
     Validate(crate::validate_cmd::ValidateArgs),
+    DataStatus(crate::data_status::DataStatusArgs),
+    Transcripts(crate::transcripts::TranscriptsArgs),
     Env,
     Benchmark(crate::benchmark_opts::EvalBenchArgs),
     ReplayGame(crate::benchmark_opts::ReplayGameArgs),
     ReplayCheck(crate::benchmark_opts::ReplayCheckArgs),
+    Weakness(crate::weakness_suite::WeaknessArgs),
 }
 
 /// The text of a parsed string (lossy for paths that are not UTF-8).
@@ -1405,6 +1429,10 @@ fn phase6_command(name: &str, ns: &Namespace, sub: &Parser, columns: i64) -> Res
             ns,
             run_options(ns, sub, columns, true)?,
         )),
+        "weakness" => Command::Weakness(crate::weakness_suite::args(
+            ns,
+            run_options(ns, sub, columns, true)?,
+        )),
         "calibrate" => Command::Calibrate(CalibrateArgs {
             file: need_path(ns, "observed"),
             agent: need_text(ns, "agent"),
@@ -1463,6 +1491,8 @@ fn phase6_command(name: &str, ns: &Namespace, sub: &Parser, columns: i64) -> Res
             }
         }
         "validate" => Command::Validate(crate::validate_cmd::args(ns, sub, columns)?),
+        "data-status" => Command::DataStatus(crate::data_status::args(ns, sub, columns)?),
+        "transcripts" => Command::Transcripts(crate::transcripts::args(ns)),
         _ => Command::Env,
     })
 }
@@ -1729,6 +1759,8 @@ fn run_command(
         Command::Gates(args) => crate::gates::run(args, out),
         Command::Evidence(args) => crate::evidence::run(args, out),
         Command::Validate(args) => crate::validate_cmd::run(args, out),
+        Command::DataStatus(args) => crate::data_status::run(args, out),
+        Command::Transcripts(args) => crate::transcripts::run(args, out),
         Command::Env => {
             let doc: Json = crate::env::current();
             let _ = writeln!(out, "{}", dumps(&doc, indented(2)));
@@ -1737,6 +1769,7 @@ fn run_command(
         Command::Benchmark(args) => crate::benchmark_opts::benchmark(args, cancel, tty, out, err),
         Command::ReplayGame(args) => crate::benchmark_opts::replay_game(args, out),
         Command::ReplayCheck(args) => crate::benchmark_opts::replay_check(args, out),
+        Command::Weakness(args) => crate::weakness_suite::run(args, cancel, tty, out, err),
     }
 }
 

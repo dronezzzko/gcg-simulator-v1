@@ -26,6 +26,7 @@ commands:
   schema-check [--expect-invalid] FILE...
   weaknesses --check FILE [--require-resolved]
   lints
+  api-snapshot (--check | --write)
 ";
 
 fn usage(msg: &str) -> ExitCode {
@@ -66,6 +67,7 @@ pub fn main(args: Vec<String>) -> ExitCode {
         "lints" => cmd_lints(&repo, rest),
         "tests-json" => cmd_tests_json(&repo, rest),
         "weaknesses" => cmd_weaknesses(&repo, rest),
+        "api-snapshot" => cmd_api_snapshot(&repo, rest),
         "-h" | "--help" | "help" => {
             print!("{USAGE}");
             ExitCode::SUCCESS
@@ -579,6 +581,21 @@ fn cmd_lints(repo: &Repo, rest: &[String]) -> ExitCode {
             verdict(&errors, "lints passed")
         }
         Err(e) => verdict(&[e], ""),
+    }
+}
+
+fn cmd_api_snapshot(repo: &Repo, rest: &[String]) -> ExitCode {
+    use crate::apisnapshot::{SNAPSHOT_FILE, check, write};
+    match rest {
+        [flag] if flag == "--check" => match check(&repo.root) {
+            Ok(problems) => verdict(&problems, "api-snapshot check passed"),
+            Err(e) => verdict(&[e], ""),
+        },
+        [flag] if flag == "--write" => match write(&repo.root) {
+            Ok(lines) => verdict(&[], &format!("wrote {SNAPSHOT_FILE} ({lines} lines)")),
+            Err(e) => verdict(&[e], ""),
+        },
+        _ => usage("api-snapshot takes --check or --write"),
     }
 }
 

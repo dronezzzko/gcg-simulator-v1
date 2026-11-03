@@ -15,8 +15,15 @@ to whole blocks, with a message. Unlike the Python tool (``ai/throughput.py``) i
 wall time times workers as busy core time. The machine is assumed to run at full performance
 (docs/port/BRIEF.md <target_hardware>), so no power state is read or reported.
 
+``--agree FIRST.json SECOND.json`` is the reproducibility check of W-126: two reports of the same
+command (two sessions on an idle machine) must agree within ``--tolerance`` (default 3%) on the
+minimum CPU seconds per game and the minimum wall time of every pairing, with equal effort
+counts; it exits 1 otherwise.
+
     python3 scripts/throughput.py search:fast --opponent ref:standard --games 8 --runs 3 \
         [--pairs a:b,c:d] [--workers 1] [--seed 7] [--binary target/release/gcg-eval] [--json FILE]
+    python3 scripts/throughput.py --agree first.json second.json [--tolerance 0.03]
+    python3 scripts/throughput.py --selftest
 """
 
 from __future__ import annotations
@@ -141,9 +148,98 @@ def summarise(runs: list[dict[str, Any]]) -> dict[str, Any]:
     return out
 
 
+COMPARED_COMMAND = ("agent", "opponent", "pairs", "games", "runs", "workers", "seed")
+
+
+def agree(first: dict[str, Any], second: dict[str, Any], tolerance: float) -> list[str]:
+    """The reproducibility check of W-126 on two reports of the same command: per pairing, the
+    minimum CPU seconds per game and the minimum wall time must agree within ``tolerance``
+    (relative to the smaller value), and the deterministic effort counts must be equal. Returns
+    one line per pairing and quantity, each starting with ``ok`` or ``FAIL``."""
+    lines: list[str] = []
+    for key in COMPARED_COMMAND:
+        a, b = first["command"].get(key), second["command"].get(key)
+        if a != b:
+            lines.append(f"FAIL command: {key} {a!r} != {b!r}")
+    if sorted(first["pairs"]) != sorted(second["pairs"]):
+        lines.append(f"FAIL pairs: {sorted(first['pairs'])} != {sorted(second['pairs'])}")
+        return lines
+    for pair in sorted(first["pairs"]):
+        sa, sb = first["pairs"][pair]["summary"], second["pairs"][pair]["summary"]
+        if sa["counts"] != sb["counts"]:
+            lines.append(f"FAIL {pair}: effort counts {sa['counts']} != {sb['counts']}")
+        for name, field in (("CPU s/game", "cpu_s_per_game"), ("wall s", "wall_s")):
+            a, b = float(sa[field]["min"]), float(sb[field]["min"])
+            diff = abs(a - b) / min(a, b) if min(a, b) > 0 else float("inf")
+            verdict = "ok" if diff <= tolerance else "FAIL"
+            lines.append(
+                f"{verdict} {pair}: minimum {name} {a:.4f} vs {b:.4f}, "
+                f"difference {100 * diff:.2f}% (tolerance {100 * tolerance:.1f}%)"
+            )
+    return lines
+
+
+def _synthetic(cpu: float, wall: float, iterations: int = 100) -> dict[str, Any]:
+    runs = [
+        {
+            "pair": "a:b",
+            "games": 4,
+            "wall_s": wall * k,
+            "cpu_s": cpu * 4 * k,
+            "load_before": [0.0, 0.0, 0.0],
+            "decisions": 10,
+            "searches": 5,
+            "iterations": iterations,
+            "applies": 1000,
+        }
+        for k in (1.0, 1.1)
+    ]
+    command = dict.fromkeys(COMPARED_COMMAND, 1) | {"pairs": "a:b"}
+    return {"command": command, "pairs": {"a:b": {"summary": summarise(runs), "runs": runs}}}
+
+
+def selftest() -> int:
+    """Block rounding, the per-pairing summary and the agreement check, on synthetic runs."""
+    problems: list[str] = []
+    if [whole_blocks(g) for g in (1, 3, 4, 5, 400)] != [4, 4, 4, 8, 400]:
+        problems.append("whole_blocks does not round up to blocks of four")
+    s = _synthetic(cpu=2.0, wall=10.0)["pairs"]["a:b"]["summary"]
+    if (s["cpu_s_per_game"]["min"], s["wall_s"]["min"], s["runs"]) != (2.0, 10.0, 2):
+        problems.append(f"summary minima: {s}")
+    base = _synthetic(cpu=2.0, wall=10.0)
+    near = agree(base, _synthetic(cpu=2.05, wall=10.2), 0.03)
+    if any(line.startswith("FAIL") for line in near) or len(near) != 2:
+        problems.append(f"2.5% and 2% differences should agree: {near}")
+    far = agree(base, _synthetic(cpu=2.1, wall=10.0), 0.03)
+    if [line.split()[0] for line in far] != ["FAIL", "ok"]:
+        problems.append(f"a 5% CPU difference should fail: {far}")
+    counts = agree(base, _synthetic(cpu=2.0, wall=10.0, iterations=101), 0.03)
+    if not counts[0].startswith("FAIL a:b: effort counts"):
+        problems.append(f"different effort counts should fail: {counts}")
+    other = _synthetic(cpu=2.0, wall=10.0)
+    other["command"]["workers"] = 2
+    if not agree(base, other, 0.03)[0].startswith("FAIL command: workers"):
+        problems.append("reports of different commands should fail")
+    for p in problems:
+        print(f"selftest: {p}", file=sys.stderr)
+    print("throughput selftest " + ("failed" if problems else "passed"))
+    return 1 if problems else 0
+
+
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=(__doc__ or "").splitlines()[0])
-    ap.add_argument("agent", help="gcg-eval agent spec of the challenger, e.g. search:fast")
+    ap.add_argument(
+        "agent", nargs="?", help="gcg-eval agent spec of the challenger, e.g. search:fast"
+    )
+    ap.add_argument(
+        "--agree",
+        nargs=2,
+        type=Path,
+        metavar=("FIRST.json", "SECOND.json"),
+        help="compare two --json reports of the same command (W-126) instead of measuring",
+    )
+    ap.add_argument("--tolerance", type=float, default=0.03, help="relative, for --agree")
+    ap.add_argument("--selftest", action="store_true", help="run the tool's own checks")
     ap.add_argument("--opponent", help="agent spec of the opponent (default: the challenger)")
     ap.add_argument("--pairs", default=",".join(DEFAULT_PAIRS), help="DECK_A:DECK_B,...")
     ap.add_argument("--games", type=int, default=8, help="games per pairing (whole blocks)")
@@ -153,6 +249,17 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--binary", type=Path, default=ROOT / "target" / "release" / "gcg-eval")
     ap.add_argument("--json", type=Path, help="also write the report here")
     args = ap.parse_args(argv)
+    if args.selftest:
+        return selftest()
+    if args.agree:
+        first, second = (json.loads(p.read_text(encoding="utf-8")) for p in args.agree)
+        lines = agree(first, second, args.tolerance)
+        print("\n".join(lines))
+        failed = any(line.startswith("FAIL") for line in lines)
+        print("throughput runs " + ("differ" if failed else "agree"))
+        return 1 if failed else 0
+    if not args.agent:
+        ap.error("the agent spec is required (or --agree / --selftest)")
     args.opponent = args.opponent or args.agent
     try:
         games = whole_blocks(args.games)

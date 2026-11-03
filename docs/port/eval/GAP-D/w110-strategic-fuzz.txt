@@ -1,0 +1,99 @@
+# W-110 strategic fuzz with the shipped presets (docs/port/PLAN.md §9.4, T-056), seed 2026,
+# Python's generated decks, invariants after every action.
+#
+# Run by scripts/verify_all_rust.sh --full on a clean clone of branch worktree-wf_9f38bb2b-c03-5
+# at 3f4aafbf3eb768b1e9413d522242261957202c99 (engine, effects, AI and fuzz sources as at 1007ca9,
+# the shipped M15 presets: crates/gcg-search/src/presets.rs unchanged), with
+# GCG_GATE_WORKERS=4. The paranoid binary is the gate's own build:
+#   cargo build --release --locked --offline -p gcg-diff --features paranoid --target-dir target/paranoid
+# Output copied verbatim from the gate log (2026-11-03; machine shared with the final evaluation,
+# load averages 8-42, so no duration here is a measurement).
+
+$ target/release/gcg-diff fuzz --games 10000 --seed 2026 --workers 4 --compare port/corpus/v1/tier1/fuzz/summary-2026-10000.json
+{
+ "games": 10000,
+ "actions": 856034,
+ "ends": {
+  "battle_damage": 10000
+ },
+ "failures": 0,
+ "cards_covered": 1064,
+ "cards_in_pool": 1064,
+ "cards_missing": []
+}
+fuzz passed
+
+$ target/release/gcg-diff fuzz --games 2000 --seed-from-commit 3f4aafbf3eb768b1e9413d522242261957202c99 --workers 4
+seed 5332448476079853097 from commit 3f4aafbf3eb768b1e9413d522242261957202c99
+{
+ "games": 2000,
+ "actions": 170998,
+ "ends": {
+  "battle_damage": 2000
+ },
+ "failures": 0,
+ "cards_covered": 1064,
+ "cards_in_pool": 1064,
+ "cards_missing": []
+}
+fuzz passed
+
+$ target/paranoid/release/gcg-diff paranoid-games
+fuzz seed 11: 16 games, 1336 actions, 0 failed
+greedy seed 1: winner 1 on turn 23 after 104 decisions
+greedy seed 2: winner 0 on turn 17 after 89 decisions
+check cached view                 105589 runs (more than 10000 required)
+check unlistened event             15074 runs (more than 1000 required)
+check no printed lethal damage     36317 runs (more than 1000 required)
+check unchanged state              35659 runs (more than 1000 required)
+check view-free reference           3396 runs (more than 1000 required)
+check skipped fixpoint pass       105974 runs (more than 1000 required)
+paranoid-games passed
+
+$ target/paranoid/release/gcg-diff fuzz --games 400 --seed 2026 --agent greedy --paranoid --workers 4
+{
+ "games": 400,
+ "actions": 31936,
+ "ends": {
+  "battle_damage": 400
+ },
+ "failures": 0,
+ "cards_covered": 1064,
+ "cards_in_pool": 1064,
+ "cards_missing": []
+}
+fuzz passed
+
+$ target/paranoid/release/gcg-diff fuzz --games 400 --seed 2026 --agent search:fast --paranoid --workers 4
+{
+ "games": 400,
+ "actions": 29781,
+ "ends": {
+  "battle_damage": 400
+ },
+ "failures": 0,
+ "cards_covered": 1064,
+ "cards_in_pool": 1064,
+ "cards_missing": []
+}
+fuzz passed
+
+$ target/paranoid/release/gcg-diff fuzz --games 200 --seed 2026 --agent mixed:greedy,search:fast --paranoid --workers 4
+{
+ "games": 200,
+ "actions": 14650,
+ "ends": {
+  "battle_damage": 200
+ },
+ "failures": 0,
+ "cards_covered": 1064,
+ "cards_in_pool": 1064,
+ "cards_missing": []
+}
+fuzz passed
+
+# Totals: 1,000 strategic paranoid games (400 greedy, 400 search:fast with the shipped M15
+# `fast`, 200 mixed), 76,367 actions, 0 failures; every game ended by battle damage (game 221 of
+# the search:fast run, the W-143 redirect cycle of Phase 4, completes). The pre-M15 release-build
+# runs of docs/port/eval/P6-N/w110-strategic-fuzz.txt played 27,490 and 14,558 actions; the
+# search:fast and mixed counts differ because the shipped `fast` changed at M15.

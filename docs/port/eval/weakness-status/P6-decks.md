@@ -103,6 +103,7 @@ pair (10 mirrored blocks, `--choose-first seat0`), master seed 7, no `--role`. S
 outside every A14 range, so no role's seeds were used and nothing entered the seed ledger. A
 deck's wins are its wins from either seat; no game was drawn or unfinished.
 
+<!-- doc-check: skip record of two 1,120-game panel runs with an elided --out path; the results are tabled below -->
 ```bash
 target/release/gcg-eval head-to-head ref:fast ref:fast --decks panel --games 1120 --seed 7 --workers 8 --out ...
 target/release/gcg-eval head-to-head greedy greedy --decks panel --games 1120 --seed 7 --workers 8 --out ...

@@ -415,12 +415,61 @@ fn w101_a_suppression_card_lists_the_suppression_interpretation() {
     assert_eq!(listed.len(), 1);
     assert_eq!(listed[0]["id"], "I-18");
     assert_eq!(listed[0]["games"], 1);
+    assert_eq!(listed[0]["card_games"], 1);
+    assert_eq!(listed[0]["engine_games"], 0, "I-18 has an engine code path");
+    let untraceable = doc["not_traceable_from_games"].as_array().expect("list");
+    // GAP-B: the rule-level I-01 has an engine code path now (`battle::attack_base`); I-04
+    // (no cards, no engine path) is still untraceable.
+    assert!(!untraceable.iter().any(|i| i == "I-01"));
+    assert!(untraceable.iter().any(|i| i == "I-04"));
     assert!(
-        doc["not_traceable_from_games"]
+        doc["engine_recorded"]
             .as_array()
             .expect("list")
             .iter()
             .any(|i| i == "I-01")
+    );
+}
+
+/// W-101 (GAP-B): a rule-level interpretation without cards is listed when the engine records
+/// its code path while the run's games are re-simulated: the setup interpretations I-05 (uids
+/// after the shuffle) and I-15 (the last placed Shield on top) run in every game, and the
+/// card-level trace is unchanged.
+#[test]
+fn w101_a_rule_level_interpretation_the_engine_records_is_listed() {
+    let run = random_run(&config(4, Format::Bo1));
+    let facts = observe_run(&run).expect("every game re-simulates");
+    let games = facts.len();
+    assert!(games >= 4);
+    for f in &facts {
+        assert!(f.interpretations.contains("I-05") && f.interpretations.contains("I-15"));
+    }
+    let doc = json(&interpretations_used(&facts));
+    let listed = doc["interpretations"].as_array().expect("list");
+    for id in ["I-05", "I-15"] {
+        let entry = listed
+            .iter()
+            .find(|i| i["id"] == id)
+            .unwrap_or_else(|| panic!("{id} listed"));
+        assert_eq!(entry["engine_games"], games);
+        assert_eq!(entry["card_games"], 0, "{id} has no cards");
+        assert_eq!(entry["games"], games);
+    }
+    // Without the engine record the same facts list no rule-level interpretation.
+    let card_only: Vec<GameFacts> = facts
+        .iter()
+        .map(|f| GameFacts {
+            interpretations: BTreeSet::new(),
+            ..f.clone()
+        })
+        .collect();
+    let doc = json(&interpretations_used(&card_only));
+    assert!(
+        doc["interpretations"]
+            .as_array()
+            .expect("list")
+            .iter()
+            .all(|i| i["card_games"] == i["games"])
     );
 }
 

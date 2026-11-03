@@ -1,0 +1,4882 @@
+# Public API of the gcg-sim library crates (docs/port/WEAKNESSES.md W-129).
+# Generated from the sources by `gcg-diff api-snapshot --write`; `gcg-diff api-snapshot --check`
+# (scripts/verify_all_rust.sh, crates/gcg-diff/tests/api_snapshot.rs) fails on any difference,
+# so a changed signature cannot go unrecorded. What is listed: crates/gcg-diff/src/apisnapshot.rs.
+
+# gcg-core
+
+## gcg_core  [crates/gcg-core/src/lib.rs]
+pub use rng::{SeedPart, SplitMix64, derive_seed}
+
+## gcg_core::libm  [crates/gcg-core/src/libm.rs]
+pub fn erfc(x: f64) -> f64
+pub fn pow(x: f64, y: f64) -> f64
+pub fn square(x: f64) -> f64
+pub fn exp(x: f64) -> f64
+pub fn ln(x: f64) -> f64
+pub fn sqrt(x: f64) -> f64
+
+## gcg_core::libm::ffi (private)  [inline in crates/gcg-core/src/libm.rs]
+unsafe extern "C" {
+    pub safe fn erfc(x: f64) -> f64
+}
+
+## gcg_core::lookup  [crates/gcg-core/src/lookup.rs]
+#[derive(Clone)] pub struct LookupMap<K, V> {
+    ..
+}
+impl<K: Hash + Eq, V> LookupMap<K, V> {
+    pub fn new() -> Self
+    pub fn with_capacity(capacity: usize) -> Self
+    pub fn insert(&mut self, key: K, value: V) -> Option<V>
+    pub fn get<Q>(&self, key: &Q) -> Option<&V> where K: Borrow<Q>, Q: Hash + Eq + ?Sized
+    pub fn get_mut<Q>(&mut self, key: &Q) -> Option<&mut V> where K: Borrow<Q>, Q: Hash + Eq + ?Sized
+    pub fn contains_key<Q>(&self, key: &Q) -> bool where K: Borrow<Q>, Q: Hash + Eq + ?Sized
+    pub fn len(&self) -> usize
+    pub fn is_empty(&self) -> bool
+}
+impl<K: Hash + Eq, V> Default for LookupMap<K, V>
+impl<K, V> fmt::Debug for LookupMap<K, V>
+
+## gcg_core::pool  [crates/gcg-core/src/pool.rs]
+#[derive(Clone, Debug, Default)] pub struct Cancel {
+    ..
+}
+impl Cancel {
+    pub fn new() -> Self
+    pub fn is_cancelled(&self) -> bool
+}
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)] pub struct Pool {
+    ..
+}
+impl Pool {
+    pub const fn new(threads: NonZeroUsize) -> Self
+    pub const fn threads(&self) -> NonZeroUsize
+    pub fn run_inline<S, T>(f: impl FnOnce(&mut S, &TaskCx<'_, S>) -> T) -> T where S: Default + Send + 'static
+    pub fn map_indexed<S, T, E>(&self, n: usize, cancel: &Cancel, task: impl Fn(usize, &mut S, &TaskCx<'_, S>) -> Result<T, E> + Sync, on_done: impl FnMut(usize)) -> Result<Vec<T>, PoolError<E>> where S: Default + Send + 'static, T: Send, E: Send
+}
+#[derive(Clone, PartialEq, Eq, Debug)] pub enum PoolError<E> {
+    Task {index: usize, error: E},
+    Cancelled,
+}
+pub struct TaskCx<'p, S> {
+    ..
+}
+impl<S> TaskCx<'_, S> {
+    pub fn superseded(&self) -> bool
+}
+impl<S: Default + Send + 'static> TaskCx<'_, S> {
+    pub fn fork_join<I, T>(&self, inputs: Vec<I>, f: Arc<dyn Fn(usize, I, &mut S) -> T + Send + Sync>) -> Vec<T> where I: Send + 'static, T: Send + 'static
+}
+
+## gcg_core::portable  [crates/gcg-core/src/portable.rs]
+pub use ::libm::{exp, log}
+
+## gcg_core::prop  [crates/gcg-core/src/prop.rs]
+pub const TEST_SEED: u64
+pub fn case_seed(name: &str, index: u32) -> u64
+pub fn check<F>(name: &str, cases: u32, mut property: F) where F: FnMut(&mut SplitMix64) -> Result<(), String>
+
+## gcg_core::pyfloat  [crates/gcg-core/src/pyfloat.rs]
+pub fn repr_f64(x: f64) -> String
+pub fn format_fixed(x: f64, prec: usize) -> String
+pub fn round_f64(x: f64, ndigits: usize) -> f64
+
+## gcg_core::pyjson  [crates/gcg-core/src/pyjson.rs]
+#[derive(Clone, Debug, PartialEq, Eq)] pub enum Key {
+    Str(String),
+    Int(i128),
+}
+impl From<&str> for Key
+impl From<String> for Key
+#[derive(Clone, Debug, PartialEq)] pub enum Json {
+    Null,
+    Bool(bool),
+    Int(i128),
+    Float(f64),
+    Str(String),
+    Array(Vec<Json>),
+    Object(Vec<(Key, Json)>),
+}
+impl Json {
+    pub fn object() -> Self
+    pub fn set(&mut self, key: impl Into<Key>, value: impl Into<Self>)
+    pub fn get(&self, key: &str) -> Option<&Self>
+}
+macro_rules! from_int { sha256:87cfbc058172cb31 }
+from_int!(i8, i16, i32, i64, u8, u16, u32, u64)
+impl From<usize> for Json
+impl From<bool> for Json
+impl From<f64> for Json
+impl From<&str> for Json
+impl From<String> for Json
+impl<T: Into<Self>> From<Option<T>> for Json
+impl<T: Into<Self>> From<Vec<T>> for Json
+#[derive(Clone, Copy, Debug)] pub struct DumpOptions {
+    pub indent: Option<usize>,
+    pub sort_keys: bool,
+    pub compact: bool,
+    pub ensure_ascii: bool,
+}
+impl DumpOptions {
+    pub const PRETTY_SORTED_UTF8: Self
+    pub const COMPACT_SORTED_ASCII: Self
+}
+pub fn dumps(value: &Json, opts: DumpOptions) -> String
+
+## gcg_core::pymath  [crates/gcg-core/src/pymath.rs]
+pub fn py_sum(values: impl IntoIterator<Item = f64>) -> f64
+pub const fn floordiv(a: i64, b: i64) -> i64
+pub const fn pymod(a: i64, b: i64) -> i64
+pub fn first_max_by<T, F>(items: impl IntoIterator<Item = T>, mut cmp: F) -> Option<T> where F: FnMut(&T, &T) -> Ordering
+pub fn first_min_by<T, F>(items: impl IntoIterator<Item = T>, mut cmp: F) -> Option<T> where F: FnMut(&T, &T) -> Ordering
+pub fn cmp_f64(a: f64, b: f64) -> Ordering
+
+## gcg_core::pyrepr  [crates/gcg-core/src/pyrepr.rs]
+#[derive(Clone, Copy, Debug)] pub enum PyRepr<'a> {
+    Int(i64),
+    UInt(u64),
+    Str(&'a str),
+    Bool(bool),
+    None,
+}
+pub fn repr_str(s: &str) -> String
+pub fn repr_tuple(items: &[PyRepr<'_>]) -> String
+
+## gcg_core::rng  [crates/gcg-core/src/rng.rs]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)] pub struct SplitMix64 {
+    pub state: u64,
+}
+impl SplitMix64 {
+    pub const fn new(seed: u64) -> Self
+    pub const fn next_u64(&mut self) -> u64
+    pub fn randrange(&mut self, n: u64) -> u64
+    pub fn randrange_usize(&mut self, n: usize) -> usize
+    pub const fn random(&mut self) -> f64
+    pub fn shuffle<T>(&mut self, items: &mut [T])
+}
+#[derive(Clone, Copy, Debug, PartialEq, Eq)] pub enum SeedPart<'a> {
+    Int(i64),
+    Str(&'a str),
+}
+impl From<i64> for SeedPart<'_>
+impl From<i32> for SeedPart<'_>
+impl From<u32> for SeedPart<'_>
+impl From<usize> for SeedPart<'_>
+impl<'a> From<&'a str> for SeedPart<'a>
+pub fn derive_seed(master: u64, path: &[SeedPart<'_>]) -> u64
+#[macro_export] macro_rules! derive_seed { sha256:e839fdd4935c5033 }
+
+## gcg_core::small  [crates/gcg-core/src/small.rs]
+#[derive(Clone, Copy, Debug)] pub struct InlineVec<T, const N: usize> {
+    ..
+}
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)] pub struct CapacityError {
+    pub capacity: usize,
+}
+impl<T: Copy + Default, const N: usize> InlineVec<T, N> {
+    pub fn new() -> Self
+    pub fn try_push(&mut self, item: T) -> Result<(), CapacityError>
+    pub fn clear(&mut self)
+}
+impl<T, const N: usize> InlineVec<T, N> {
+    pub const CAPACITY: usize
+    pub const fn len(&self) -> usize
+    pub const fn is_empty(&self) -> bool
+    pub fn as_slice(&self) -> &[T]
+    pub fn as_mut_slice(&mut self) -> &mut [T]
+}
+impl<T: Copy + Default, const N: usize> Default for InlineVec<T, N>
+impl<T: PartialEq, const N: usize> PartialEq for InlineVec<T, N>
+impl<T: Eq, const N: usize> Eq for InlineVec<T, N>
+impl<T: Hash, const N: usize> Hash for InlineVec<T, N>
+#[derive(Clone)] pub struct SmallBuf<T, const N: usize> {
+    ..
+}
+impl<T: Copy + Default, const N: usize> SmallBuf<T, N> {
+    pub fn new() -> Self
+    pub fn push(&mut self, item: T)
+    pub fn extend_from_slice(&mut self, items: &[T])
+    pub fn clear(&mut self)
+    pub fn truncate(&mut self, n: usize)
+    pub fn retain(&mut self, mut f: impl FnMut(&T) -> bool)
+    pub fn insert(&mut self, index: usize, item: T)
+    pub fn remove(&mut self, index: usize) -> T
+    pub fn pop(&mut self) -> Option<T>
+    pub fn dedup(&mut self) where T: PartialEq
+}
+impl<T, const N: usize> SmallBuf<T, N> {
+    pub fn as_slice(&self) -> &[T]
+    pub fn as_mut_slice(&mut self) -> &mut [T]
+}
+impl<T: Copy + Default, const N: usize> Default for SmallBuf<T, N>
+impl<T, const N: usize> std::ops::Deref for SmallBuf<T, N>
+impl<T, const N: usize> std::ops::DerefMut for SmallBuf<T, N>
+impl<T: Copy + Default, const N: usize> FromIterator<T> for SmallBuf<T, N>
+impl<T: Copy + Default, const N: usize> Extend<T> for SmallBuf<T, N>
+impl<'a, T: Copy + Default + 'a, const N: usize> Extend<&'a T> for SmallBuf<T, N>
+impl<'a, T, const N: usize> IntoIterator for &'a SmallBuf<T, N>
+pub struct SmallBufIter<T, const N: usize> {
+    ..
+}
+impl<T: Copy, const N: usize> Iterator for SmallBufIter<T, N>
+impl<T: Copy, const N: usize> ExactSizeIterator for SmallBufIter<T, N>
+impl<T: Copy, const N: usize> IntoIterator for SmallBuf<T, N>
+impl<T: std::fmt::Debug, const N: usize> std::fmt::Debug for SmallBuf<T, N>
+impl<T: PartialEq, const N: usize> PartialEq for SmallBuf<T, N>
+impl<T: Eq, const N: usize> Eq for SmallBuf<T, N>
+impl<T: PartialEq, const N: usize, const M: usize> PartialEq<[T; M]> for SmallBuf<T, N>
+impl<T: PartialEq, const N: usize> PartialEq<[T]> for SmallBuf<T, N>
+impl<T: PartialEq, const N: usize> PartialEq<&[T]> for SmallBuf<T, N>
+impl<T: PartialEq, const N: usize> PartialEq<Vec<T>> for SmallBuf<T, N>
+impl<T: Hash, const N: usize> Hash for SmallBuf<T, N>
+
+## gcg_core::stable_hash  [crates/gcg-core/src/stable_hash.rs]
+#[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Debug)] pub struct StableKey(pub u64)
+#[derive(Clone, Debug, Default)] pub struct StableHasher {
+    ..
+}
+impl StableHasher {
+    pub fn new() -> Self
+    pub fn update(&mut self, bytes: &[u8])
+    pub fn finish(self) -> StableKey
+}
+pub fn stable_key(bytes: &[u8]) -> StableKey
+
+## gcg_core::sys  [crates/gcg-core/src/sys/mod.rs]
+
+## gcg_core::sys::sigint  [crates/gcg-core/src/sys/sigint.rs]
+pub fn install(cancel: &Cancel) -> io::Result<()>
+
+## gcg_core::sys::topology  [crates/gcg-core/src/sys/topology.rs]
+pub const SYSCTL: &str
+#[derive(Clone, PartialEq, Eq, Hash, Debug)] pub struct PerfLevel {
+    pub name: String,
+    pub logical_cpus: u32,
+    pub physical_cpus: u32,
+}
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)] pub enum TopologySource {
+    Sysctl,
+    Fallback,
+}
+#[derive(Clone, PartialEq, Eq, Hash, Debug)] pub struct Topology {
+    pub levels: Vec<PerfLevel>,
+    pub logical_cpus: usize,
+    pub cache_line_bytes: Option<u32>,
+    pub arm_features: Vec<(String, u64)>,
+    pub source: TopologySource,
+}
+impl Topology {
+    pub fn fast_logical_cpus(&self) -> usize
+    pub fn auto_workers(&self, matches: usize) -> usize
+}
+pub fn detect() -> Topology
+pub fn parse_sysctl(query: &dyn Fn(&str) -> Option<String>, arm_listing: &str) -> Option<Topology>
+
+# gcg-data
+
+## gcg_data  [crates/gcg-data/src/lib.rs]
+pub use contracts::*
+pub use deck::{deck_digest, load_deck, parse_deck, resolve_card_number, to_decklist}
+pub use py::py_path_str
+pub use unicode::py_repr
+pub use validate::{require_legal, validate}
+pub use versions::{conflict_resolutions, data_status_parts, versions}
+
+## gcg_data::contracts (private)  [crates/gcg-data/src/contracts.rs]
+pub const EX_BASE_NUMBER: &str
+pub const EX_RESOURCE_NUMBER: &str
+pub const UNIT_VARIANT_PREFIX: &str
+pub const SYNTHETIC_PREFIX: &str
+pub const NOT_APPLIED: &str
+pub const PACKAGE: &str
+pub const RESULTS_SCHEMA_VERSION: &str
+pub const RESULTS_SCHEMA_ID: &str
+pub const MAIN_DECK_TYPES: [CardType; 4]
+pub const MAX_EXPANDED_CARDS: u128
+#[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Debug)] pub struct DefId(pub u16)
+#[repr(u8)] #[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Debug)] pub enum CardType {
+    Unit = 0,
+    Pilot = 1,
+    Command = 2,
+    Base = 3,
+    Resource = 4,
+    UnitToken = 5,
+    ExBase = 6,
+    ExResource = 7,
+}
+impl CardType {
+    pub const ALL: [Self; 8]
+    pub const fn as_str(self) -> &'static str
+    pub fn from_value(value: &str) -> Option<Self>
+    pub const fn is_token(self) -> bool
+    pub const fn is_unit(self) -> bool
+    pub const fn is_base(self) -> bool
+    pub const fn is_resource(self) -> bool
+}
+#[repr(u8)] #[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Debug)] pub enum Color {
+    Blue = 0,
+    Green = 1,
+    Red = 2,
+    White = 3,
+    Purple = 4,
+}
+impl Color {
+    pub const ALL: [Self; 5]
+    pub const fn as_str(self) -> &'static str
+    pub fn from_value(value: &str) -> Option<Self>
+}
+#[derive(Clone, PartialEq, Eq, Hash, Debug)] pub struct LinkCondition {
+    pub name_parts: Box<[Box<str>]>,
+    pub traits: Box<[Box<str>]>,
+}
+#[derive(Clone, PartialEq, Eq, Hash, Debug)] pub struct CardDef {
+    pub def_id: DefId,
+    pub card_number: Box<str>,
+    pub name: Box<str>,
+    pub card_type: CardType,
+    pub color: Option<Color>,
+    pub level: i32,
+    pub cost: i32,
+    pub ap: i32,
+    pub hp: i32,
+    pub zones: Box<[Box<str>]>,
+    pub traits: Box<[Box<str>]>,
+    pub link: Option<LinkCondition>,
+    pub effect: Box<str>,
+    pub pilot_name: Option<Box<str>>,
+    pub set_code: Box<str>,
+    pub rarity: Box<str>,
+    pub product_ids: Box<[Box<str>]>,
+    pub canonical_product_id: Box<str>,
+    pub source_title: Option<Box<str>>,
+    pub extra_names: Box<[Box<str>]>,
+    ..
+}
+impl CardDef {
+    pub fn names(&self) -> &[Box<str>]
+    pub const fn is_token(&self) -> bool
+    pub const fn is_unit_card(&self) -> bool
+    pub const fn is_pilot_capable(&self) -> bool
+}
+#[derive(Clone, PartialEq, Eq, Hash, Debug)] pub struct AppliedOverride {
+    pub conflict_id: Box<str>,
+    pub card_number: Box<str>,
+    pub decision: Box<str>,
+    pub fields: Box<[Box<str>]>,
+}
+pub struct CardDb {
+    ..
+}
+#[derive(Debug)] pub enum DataError {
+    Io {path: PathBuf, error: io::Error},
+    Json {file: Box<str>, line: usize, message: String},
+    Shape {file: Box<str>, detail: String},
+    UnknownCanonicalPrinting {card_number: Box<str>, preferred: Box<str>},
+    UnknownCardType {card_number: Box<str>, value: Box<str>},
+    UnknownColor {card_number: Box<str>, value: Box<str>},
+    UnparseableLink {card_number: Box<str>, raw: Box<str>},
+    BadModifier {card_number: Box<str>, raw: Box<str>},
+    UnknownPredicateOperator {rule_id: Box<str>, key: Box<str>},
+}
+#[derive(Clone, PartialEq, Eq, Hash, Debug)] pub struct DeckList {
+    pub main: Box<[DefId]>,
+    pub resources: Box<[DefId]>,
+}
+#[derive(Clone, PartialEq, Eq, Hash, Debug)] pub struct DeckEntry {
+    pub count: u64,
+    pub card_number: Box<str>,
+    pub written: Box<str>,
+    pub name: Option<Box<str>>,
+    pub line: usize,
+}
+#[derive(Clone, PartialEq, Eq, Hash, Debug)] pub struct CardCount {
+    pub card_number: Box<str>,
+    pub count: u128,
+}
+#[derive(Clone, PartialEq, Eq, Hash, Debug)] pub struct Deck {
+    pub name: Box<str>,
+    pub main: Box<[CardCount]>,
+    pub resources: Box<[CardCount]>,
+    pub entries: Box<[DeckEntry]>,
+    pub source: Option<Box<str>>,
+    pub digest: String,
+}
+#[repr(u8)] #[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Debug)] pub enum ViolationCode {
+    Syntax = 0,
+    UnknownId = 1,
+    NameMismatch = 2,
+    MainSize = 3,
+    ResourceSize = 4,
+    CardType = 5,
+    CopyLimit = 6,
+    Colors = 7,
+    Banned = 8,
+    Restricted = 9,
+    BannedPair = 10,
+    AttributePair = 11,
+    Unimplemented = 12,
+}
+impl ViolationCode {
+    pub const ALL: [Self; 13]
+    pub const fn as_str(self) -> &'static str
+}
+#[derive(Clone, PartialEq, Eq, Hash, Debug)] pub struct Violation {
+    pub code: ViolationCode,
+    pub message: String,
+    pub cards: Box<[Box<str>]>,
+}
+pub trait ImplementationStatus {
+    fn unimplemented_error(&self, def: DefId) -> Option<&str>
+}
+#[derive(Clone, Copy)] pub struct ValidateOptions<'a> {
+    pub banlist: bool,
+    pub implemented: Option<&'a dyn ImplementationStatus>,
+}
+#[derive(Debug)] pub enum DeckError {
+    Io {path: PathBuf, error: io::Error},
+    Decode {path: PathBuf, reason: &'static str, start: usize},
+    Invalid {deck_name: Option<Box<str>>, problems: Vec<String>, violations: Vec<Violation>},
+    TooLarge {deck_name: Box<str>, main: u128, resources: u128},
+}
+#[derive(Clone, PartialEq, Eq, Hash, Debug)] pub struct ConstructionRules {
+    pub main_size: u32,
+    pub resource_size: u32,
+    pub max_copies: u32,
+    pub main_types: Box<[Box<str>]>,
+    pub resource_types: Box<[Box<str>]>,
+    pub min_colors: u32,
+    pub max_colors: u32,
+    pub effective_date: Box<str>,
+}
+#[derive(Clone, PartialEq, Eq, Hash, Debug)] pub struct RuleException {
+    pub id: Box<str>,
+    pub description: Box<str>,
+}
+#[derive(Clone, PartialEq, Eq, Hash, Debug)] pub struct Restricted {
+    pub card_number: Box<str>,
+    pub max_copies: u32,
+    pub exceptions: Box<[RuleException]>,
+}
+#[derive(Clone, PartialEq, Eq, Hash, Debug)] pub struct BannedPair {
+    pub id: Box<str>,
+    pub cards: [Box<str>; 2],
+}
+#[derive(Clone, PartialEq, Eq, Debug)] pub struct AttributePairRule {
+    pub id: Box<str>,
+    pub description: Box<str>,
+    pub member_predicate: serde_json::Value,
+    pub enumerated: Box<[Box<str>]>,
+    pub max_total_copies: u32,
+    pub exceptions: Box<[RuleException]>,
+}
+#[derive(Clone, PartialEq, Eq, Debug)] pub struct Banlist {
+    pub effective_date: Box<str>,
+    pub banned: Box<[Box<str>]>,
+    pub restricted: Box<[Restricted]>,
+    pub banned_pairs: Box<[BannedPair]>,
+    pub attribute_rules: Box<[AttributePairRule]>,
+}
+#[derive(Clone, PartialEq, Eq, Hash, Debug)] pub struct RulesVersion {
+    pub latest_version: Box<str>,
+    pub effective_date: Box<str>,
+}
+#[derive(Clone, PartialEq, Eq, Hash, Debug)] pub struct Bo3Rules {
+    pub effective_date: Box<str>,
+}
+#[derive(Clone, PartialEq, Debug)] pub struct DataStatusParts {
+    pub versions: Json,
+    pub snapshot: Json,
+    pub banlist: Json,
+    pub conflicts: Json,
+}
+
+## gcg_data::db (private)  [crates/gcg-data/src/db.rs]
+impl fmt::Display for DataError
+impl std::error::Error for DataError
+impl CardDb {
+    pub fn embedded() -> &'static Self
+    pub fn from_sources(cards_ndjson: &str, overrides: &str) -> Result<Self, DataError>
+    pub fn len(&self) -> usize
+    pub fn is_empty(&self) -> bool
+    pub fn defs(&self) -> &[CardDef]
+    pub fn by_id(&self, id: DefId) -> &CardDef
+    pub fn get(&self, number_or_product_id: &str) -> Option<&CardDef>
+    pub fn normalize_id(&self, s: &str) -> Option<&str>
+    pub fn real_cards(&self) -> impl Iterator<Item = &CardDef>
+    pub fn unit_variant(&self, id: DefId) -> Option<&CardDef>
+    pub fn base_def_id(&self, id: DefId) -> DefId
+    pub fn token_for_key(&self, key: &str) -> Option<&CardDef>
+    pub fn ex_base(&self) -> &CardDef
+    pub fn ex_resource(&self) -> &CardDef
+    pub fn applied_overrides(&self) -> &[AppliedOverride]
+    pub fn fingerprints(&self) -> [String; 4]
+}
+
+## gcg_data::deck (private)  [crates/gcg-data/src/deck.rs]
+pub fn resolve_card_number<'a>(written: &str, db: &'a CardDb) -> Option<&'a str>
+pub fn parse_deck(text: &str, name: &str, source: Option<&str>) -> Result<Deck, DeckError>
+pub fn deck_digest(deck: &Deck) -> String
+pub fn load_deck(path: &Path) -> Result<Deck, DeckError>
+pub fn to_decklist(deck: &Deck) -> Result<DeckList, DeckError>
+impl fmt::Display for DeckError
+impl std::error::Error for DeckError
+
+## gcg_data::embedded (private)  [crates/gcg-data/src/embedded.rs]
+macro_rules! data_file { sha256:c8af1607f24abfd7 }
+
+## gcg_data::legality  [crates/gcg-data/src/legality/mod.rs]
+pub use date::IsoDate
+pub use lists::{AppliedException, BanlistEntry, BanlistHistory, ProductDecklist, ProductException, SelectError}
+pub use releases::{EventCheck, NewCardViolation, Product, ReleaseDates}
+pub use scope::{FORMAT_APPLIED, Scope, UNSUPPORTED_FORMATS}
+#[derive(Clone, PartialEq, Eq, Hash, Debug)] pub struct Hint {
+    pub line: Option<usize>,
+    pub code: ViolationCode,
+    pub text: String,
+}
+#[derive(Clone, Copy, Default, PartialEq, Eq, Debug)] pub struct ListRequest<'a> {
+    pub as_of: Option<IsoDate>,
+    pub region: Option<&'a str>,
+}
+#[derive(Clone, Copy)] pub struct LegalityOptions<'a> {
+    pub banlist: Option<ListRequest<'a>>,
+    pub implemented: Option<&'a dyn ImplementationStatus>,
+    pub event_date: Option<IsoDate>,
+}
+impl<'a> LegalityOptions<'a> {
+    pub fn new(implemented: &'a dyn ImplementationStatus) -> Self
+}
+#[derive(Clone, Copy)] pub struct LegalitySources<'a> {
+    pub db: &'a CardDb,
+    pub construction: &'a ConstructionRules,
+    pub lists: &'a BanlistHistory,
+    pub releases: &'a ReleaseDates,
+}
+impl<'a> LegalitySources<'a> {
+    pub fn packaged(releases: &'a ReleaseDates) -> Self
+}
+#[derive(Clone, PartialEq, Eq, Debug)] pub struct LegalityReport {
+    pub banlist: Option<BanlistEntry>,
+    pub rules: Vec<Violation>,
+    pub simulator: Option<Vec<Violation>>,
+    pub event: Option<EventCheck>,
+    pub exceptions: Vec<AppliedException>,
+    pub hints: Vec<Hint>,
+}
+impl LegalityReport {
+    pub fn violation_count(&self) -> usize
+    pub fn is_legal(&self) -> bool
+}
+pub fn check(deck: &Deck, src: &LegalitySources<'_>, opts: &LegalityOptions<'_>) -> Result<LegalityReport, SelectError>
+pub fn text_hints(db: &CardDb, text: &str) -> Vec<Hint>
+pub fn file_hints(db: &CardDb, path: &Path) -> Vec<Hint>
+
+## gcg_data::legality::date (private)  [crates/gcg-data/src/legality/date.rs]
+#[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Debug)] pub struct IsoDate {
+    ..
+}
+impl IsoDate {
+    pub fn parse(text: &str) -> Option<Self>
+    pub fn add_days(self, days: i64) -> Option<Self>
+    pub const fn days_until(self, later: Self) -> i64
+}
+impl fmt::Display for IsoDate
+
+## gcg_data::legality::lists (private)  [crates/gcg-data/src/legality/lists.rs]
+#[derive(Clone, PartialEq, Eq, Debug)] pub struct BanlistEntry {
+    pub effective_date: IsoDate,
+    pub regions: Box<[Box<str>]>,
+    pub list: Banlist,
+    pub current: bool,
+    pub product_exceptions: Box<[ProductException]>,
+}
+#[derive(Clone, PartialEq, Eq, Debug)] pub struct ProductException {
+    pub id: Box<str>,
+    pub product: Box<str>,
+}
+#[derive(Clone, PartialEq, Eq, Debug)] pub struct ProductDecklist {
+    pub product: Box<str>,
+    pub main: Box<[CardCount]>,
+    pub resources: Box<[CardCount]>,
+    pub source_url: Box<str>,
+    pub retrieved_at: Box<str>,
+}
+impl ProductDecklist {
+    pub fn is_unmodified(&self, deck: &Deck) -> bool
+}
+#[derive(Clone, PartialEq, Eq, Debug)] pub struct AppliedException {
+    pub id: Box<str>,
+    pub product: Box<str>,
+    pub source_url: Box<str>,
+}
+#[derive(Clone, PartialEq, Eq, Debug)] pub enum SelectError {
+    UnknownRegion {region: Box<str>, known: Box<[Box<str>]>},
+    NoList {as_of: IsoDate, region: Option<Box<str>>, earliest: Vec<(IsoDate, Box<[Box<str>]>)>},
+    Ambiguous {as_of: Option<IsoDate>, by_region: Vec<(Box<str>, Option<IsoDate>)>},
+}
+impl fmt::Display for SelectError
+impl std::error::Error for SelectError
+#[derive(Clone, PartialEq, Eq, Debug)] pub struct BanlistHistory {
+    ..
+}
+impl BanlistHistory {
+    pub fn packaged() -> &'static Self
+    pub fn from_json(text_json: &str) -> Result<Self, DataError>
+    pub fn entries(&self) -> &[BanlistEntry]
+    pub fn current(&self) -> &BanlistEntry
+    pub fn regions(&self) -> Vec<&str>
+    pub fn decklists(&self) -> &[ProductDecklist]
+    pub fn decklist(&self, product: &str) -> Option<&ProductDecklist>
+    pub fn select(&self, as_of: Option<IsoDate>, region: Option<&str>) -> Result<&BanlistEntry, SelectError>
+}
+
+## gcg_data::legality::releases  [crates/gcg-data/src/legality/releases.rs]
+pub const NEW_CARD_DAYS: i64
+#[derive(Clone, PartialEq, Eq, Debug)] pub struct Product {
+    pub product_id: Box<str>,
+    pub name: Box<str>,
+    pub set_code: Option<Box<str>>,
+    pub release_date: Option<IsoDate>,
+}
+#[derive(Clone, PartialEq, Eq, Debug)] pub struct ReleaseDates {
+    ..
+}
+#[derive(Clone, PartialEq, Eq, Debug)] pub struct NewCardViolation {
+    pub card_number: Box<str>,
+    pub released: IsoDate,
+    pub product: Box<str>,
+    pub usable_from: IsoDate,
+    pub message: String,
+}
+#[derive(Clone, PartialEq, Eq, Debug)] pub struct EventCheck {
+    pub event_date: IsoDate,
+    pub violations: Vec<NewCardViolation>,
+    pub unknown: Vec<Box<str>>,
+}
+impl ReleaseDates {
+    pub fn from_json(text_json: &str) -> Result<Self, DataError>
+    pub fn products(&self) -> &[Product]
+    pub fn first_release(&self, set_code: &str) -> Option<(&Product, IsoDate)>
+}
+pub fn number_set(card_number: &str) -> &str
+
+## gcg_data::legality::scope (private)  [crates/gcg-data/src/legality/scope.rs]
+pub const FORMAT_APPLIED: &str
+pub const UNSUPPORTED_FORMATS: [(&str, &str); 2]
+#[derive(Clone, PartialEq, Eq, Debug)] pub struct Scope {
+    pub banlist_format: Box<str>,
+    pub banlist_applies_to: Box<str>,
+    pub unchecked_rules: Box<[Box<str>]>,
+    pub unmodelled_procedures: Box<[(Box<str>, Box<str>)]>,
+    pub edition_beta_only: Box<[Box<str>]>,
+    pub edition_beta_statement_found: bool,
+}
+impl Scope {
+    pub fn new(edition_language_json: &str) -> Result<Self, DataError>
+    pub fn edition_beta_only_in<'d>(&self, deck: &'d Deck) -> Vec<&'d str>
+    pub fn to_json(&self, list: Option<&BanlistEntry>) -> Json
+}
+
+## gcg_data::model (private)  [crates/gcg-data/src/model.rs]
+impl CardDef {
+    pub fn is_vanilla(&self) -> bool
+}
+
+## gcg_data::names  [crates/gcg-data/src/names.rs]
+pub fn strip_invisible(s: &str) -> String
+pub fn normalize_name(s: &str) -> String
+pub fn names_match(written: &str, names: &[Box<str>]) -> bool
+
+## gcg_data::official  [crates/gcg-data/src/official.rs]
+pub fn construction_rules() -> &'static ConstructionRules
+pub fn banlist() -> &'static Banlist
+pub fn matches(pred: &Value, card: &CardDef, matched: Option<&str>) -> bool
+pub fn rules_version() -> &'static RulesVersion
+pub fn bo3_rules() -> &'static Bo3Rules
+
+## gcg_data::py (private)  [crates/gcg-data/src/py.rs]
+pub fn py_path_str(p: &std::path::Path) -> String
+
+## gcg_data::unicode (private)  [crates/gcg-data/src/unicode/mod.rs]
+pub fn py_repr(s: &str) -> String
+
+## gcg_data::validate (private)  [crates/gcg-data/src/validate.rs]
+pub fn validate(deck: &Deck, opts: ValidateOptions<'_>) -> Vec<Violation>
+pub fn require_legal(deck: &Deck, implemented: &dyn ImplementationStatus) -> Result<(), DeckError>
+
+## gcg_data::versions (private)  [crates/gcg-data/src/versions.rs]
+pub fn versions(package: &str, code_digest: &str) -> Json
+pub fn conflict_resolutions(decks: &[(&str, &Deck)]) -> Json
+pub fn data_status_parts(package: &str, code_digest: &str) -> DataStatusParts
+
+# gcg-effects
+
+## gcg_effects  [crates/gcg-effects/src/lib.rs]
+pub use contracts::*
+pub use dsl::*
+
+## gcg_effects::codec (private)  [crates/gcg-effects/src/codec.rs]
+impl Field for i64
+impl Field for bool
+impl Field for StrId
+impl Field for VarId
+impl Field for ValueRef
+impl Field for ParamValue
+impl Field for NodeId
+macro_rules! handle_field { sha256:3ace0e46b529191e }
+handle_field!(
+    FilterId => NodeKind::FILTER,
+    RefId => NodeKind::REF,
+    SelId => &[NodeKind::Sel],
+    CondId => NodeKind::COND,
+    StepId => NodeKind::STEP,
+    ContinuousId => NodeKind::CONTINUOUS,
+    TriggerId => &[NodeKind::Trigger],
+    RuleModId => &[NodeKind::RuleMod],
+    CostId => NodeKind::COST,
+    AbilityNodeId => NodeKind::ABILITY,
+)
+impl<T: Field> Field for Option<T>
+impl<T: Field> Field for Box<[T]>
+impl<A: Field, B: Field> Field for (A, B)
+macro_rules! enum_field { sha256:e23dd196938f023b }
+macro_rules! hook_field { sha256:a62bf5f5dfc9564a }
+
+## gcg_effects::contracts (private)  [crates/gcg-effects/src/contracts.rs]
+pub const SUPPORTED_IR_VERSION: u32
+pub const IR_REGENERATE_COMMAND: &str
+#[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Debug)] pub struct NodeId(pub u32)
+#[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Debug)] pub struct ProgramId(pub u16)
+#[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Debug)] pub struct AbilityId(pub u16)
+#[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Debug)] pub struct StrId(pub u32)
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)] pub struct VarId(pub u16)
+#[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Debug)] pub struct FilterSetId(pub u16)
+#[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Debug)] pub struct ContentId(_)
+macro_rules! node_handle { sha256:fa3fd8d91379def9 }
+node_handle!(
+    FilterId
+)
+node_handle!(
+    RefId
+)
+node_handle!(
+    SelId
+)
+node_handle!(
+    CondId
+)
+node_handle!(
+    StepId
+)
+node_handle!(
+    ContinuousId
+)
+node_handle!(
+    TriggerId
+)
+node_handle!(
+    RuleModId
+)
+node_handle!(
+    CostId
+)
+node_handle!(
+    AbilityNodeId
+)
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)] pub enum ValueRef {
+    Lit(i64),
+    Node(NodeId),
+}
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)] pub enum ParamValue {
+    Int(i64),
+    Str(StrId),
+    Node(NodeId),
+}
+#[derive(Clone, PartialEq, Eq, Hash, Debug)] pub struct Program {
+    pub label: StrId,
+    pub content_id: ContentId,
+    pub instrs: Box<[NodeId]>,
+}
+#[derive(Clone, PartialEq, Eq, Hash, Debug)] pub struct AbilityEntry {
+    pub aid: AbilityId,
+    pub card_number: StrId,
+    pub def_id: DefId,
+    pub index: u16,
+    pub unit_text: bool,
+    pub ability: AbilityNodeId,
+    pub program: Option<ProgramId>,
+    pub cost_program: Option<ProgramId>,
+    pub trigger_event: Option<Ev>,
+}
+#[repr(u8)] #[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Debug)] pub enum ScriptSource {
+    Binding = 0,
+    Compiled = 1,
+    Vanilla = 2,
+}
+impl ScriptSource {
+    pub const ALL: [Self; 3]
+    pub const fn as_str(self) -> &'static str
+}
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug, Default)] pub struct EvSet(pub u64)
+impl EvSet {
+    pub const EMPTY: Self
+    pub const fn contains(self, ev: Ev) -> bool
+    pub const fn with(self, ev: Ev) -> Self
+    pub const fn union(self, other: Self) -> Self
+}
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug, Default)] pub struct KwAmounts(pub [Option<i16>; 7])
+impl KwAmounts {
+    pub const fn get(&self, kw: Kw) -> Option<i16>
+}
+#[derive(Clone, PartialEq, Eq, Hash, Debug)] pub struct CardEntry {
+    pub def_id: DefId,
+    pub source: ScriptSource,
+    pub binding_module: Option<StrId>,
+    pub script: Option<NodeId>,
+    pub own: Box<[AbilityId]>,
+    pub unit: Box<[AbilityId]>,
+    pub command_aid: Option<AbilityId>,
+    pub burst_aid: Option<AbilityId>,
+    pub has_burst: bool,
+    pub timings: Box<[StrId]>,
+    pub field_entries: Box<[AbilityId]>,
+    pub hand_entries: Box<[AbilityId]>,
+    pub trash_entries: Box<[AbilityId]>,
+    pub paired_entries: Box<[AbilityId]>,
+    pub unit_entries: Box<[AbilityId]>,
+    pub gated: bool,
+    pub events: EvSet,
+    pub printed_keywords: KwAmounts,
+    pub delayed: Box<[(u16, NodeId, ProgramId)]>,
+    pub template: Option<StrId>,
+}
+#[repr(u8)] #[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Debug)] pub enum KeywordProgram {
+    Repair = 0,
+    Breach = 1,
+    Support = 2,
+}
+impl KeywordProgram {
+    pub const ALL: [Self; 3]
+    pub const fn as_str(self) -> &'static str
+}
+#[repr(u8)] #[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Debug)] pub enum SystemProgram {
+    Deploy = 0,
+    Pair = 1,
+    HandLimit = 2,
+}
+impl SystemProgram {
+    pub const ALL: [Self; 3]
+    pub const fn as_str(self) -> &'static str
+    pub const fn label(self) -> &'static str
+}
+#[derive(Clone, PartialEq, Eq, Hash, Debug)] pub struct FilterSet {
+    pub filters: Box<[FilterId]>,
+    pub content_id: ContentId,
+}
+#[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Debug)] pub enum ContRef {
+    StatMod {ap: i32, hp: i32},
+    KeywordGrant {kw: Kw, amount: i32},
+    AbilityGrant {card: StrId, index: i32},
+    Node(NodeId),
+}
+#[derive(Clone, Copy, PartialEq, Eq, Debug)] pub enum ContView<'a> {
+    StatMod {ap: ValueRef, hp: ValueRef},
+    KeywordGrant {keyword: Kw, amount: ValueRef},
+    TraitGrant {traits: &'a [StrId]},
+    RuleGrant {rule: RuleModId},
+    AbilityGrant {card_number: StrId, ability_index: i64},
+    CostMod {cost: ValueRef, level: ValueRef},
+}
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)] pub enum StepParams {
+    ReturnLookedBottom,
+    DeployExBase,
+    SupportUsed,
+    EB01aLookOwnTop {player: P, var: VarId},
+    EB01bLookTopOwn {player: P, var: VarId},
+    GD02bPayDeployCost {var: VarId},
+    GD03aPayCostOf {var: VarId},
+    GD03aApMinusCount {var: VarId, sel: SelId},
+    GD04aCopyKeywords {var: VarId},
+    GD04aApDownByNamedTrashUnits {name: StrId, var: VarId},
+    GD05aUseOnce {tag: i64},
+    GD05bDestroyFirstShieldAreaCards {count: i64},
+    GD05bResolvingCommandToTrash,
+}
+impl StepParams {
+    pub const fn hook(&self) -> StepHook
+}
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)] pub enum CondParams {
+    AttackTargetDamaged,
+    GD01bDestroyedWithDamage,
+    GD04bPlayedWithEx,
+    GD05aOnceFree {tag: i64},
+    GD05aDestroyedByEffect {by_you: bool},
+    GD05bPlayedWithEx,
+    ST12DestroyedByEffectDamage,
+}
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)] pub enum FilterParams {
+    IsAttackTarget,
+    GD03aHasDestroyedEffect,
+    GD03aLowestHp,
+    GD03bCondHolds {cond: CondId},
+    GD03bBattlingEnemyUnit,
+    GD04aPilotCapable,
+    GD04aHasPrintedKeyword,
+    GD04aHasPartnerInTrash {r#trait: StrId},
+    GD05bCanPair,
+}
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)] pub enum ValueParams {
+    GD03aApPer {per: i64},
+    GD03bUniqueNames {sel: SelId},
+    GD05aLowestEnemyUnitLevel,
+    ST05HighestEnemyUnitLv,
+    ST12LowestRestedEnemyLv,
+}
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)] pub enum HookParams {
+    Step(StepParams),
+    Cond(CondParams),
+    Filter(FilterParams),
+    Value(ValueParams),
+}
+pub struct Registry {
+    ..
+}
+#[derive(Clone, PartialEq, Eq, Debug)] pub enum InlineNode {
+    Arena(NodeId),
+    Detached(Node),
+}
+#[derive(Clone, PartialEq, Eq, Debug)] pub enum IrError {
+    Json {message: String},
+    Version {found: i64},
+    Schema {detail: String},
+    UnknownClass {class: String, card_number: Option<String>},
+    UnknownHook {kind: &'static str, name: String, card_number: Option<String>},
+    Malformed {path: String, detail: String},
+    DataMismatch {which: &'static str, expected: String, found: String},
+}
+
+## gcg_effects::dsl  [crates/gcg-effects/src/dsl.rs]
+#[repr(u8)] #[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Debug)] pub enum P {
+    You = 0,
+    Opp = 1,
+    Active = 2,
+    Standby = 3,
+}
+impl P {
+    pub const PY_CLASS: &'static str
+    pub const ALL: [Self; 4]
+    pub const SORTED_BY_VALUE: [Self; 4]
+    pub const fn as_str(self) -> &'static str
+    pub const fn py_name(self) -> &'static str
+    pub fn from_value(value: &str) -> Option<Self>
+}
+#[repr(u8)] #[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Debug)] pub enum Side {
+    Friendly = 0,
+    Enemy = 1,
+    Any = 2,
+}
+impl Side {
+    pub const PY_CLASS: &'static str
+    pub const ALL: [Self; 3]
+    pub const SORTED_BY_VALUE: [Self; 3]
+    pub const fn as_str(self) -> &'static str
+    pub const fn py_name(self) -> &'static str
+    pub fn from_value(value: &str) -> Option<Self>
+}
+#[repr(u8)] #[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Debug)] pub enum Loc {
+    Battle = 0,
+    Paired = 1,
+    Base = 2,
+    Shields = 3,
+    ShieldArea = 4,
+    ResourceArea = 5,
+    Hand = 6,
+    Trash = 7,
+    Deck = 8,
+    DeckTop = 9,
+    ResourceDeck = 10,
+    Removal = 11,
+    FieldUnitsAndBases = 12,
+}
+impl Loc {
+    pub const PY_CLASS: &'static str
+    pub const ALL: [Self; 13]
+    pub const SORTED_BY_VALUE: [Self; 13]
+    pub const fn as_str(self) -> &'static str
+    pub const fn py_name(self) -> &'static str
+    pub fn from_value(value: &str) -> Option<Self>
+}
+#[repr(u8)] #[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Debug)] pub enum Op {
+    Le = 0,
+    Ge = 1,
+    Eq = 2,
+    Lt = 3,
+    Gt = 4,
+    Ne = 5,
+}
+impl Op {
+    pub const PY_CLASS: &'static str
+    pub const ALL: [Self; 6]
+    pub const SORTED_BY_VALUE: [Self; 6]
+    pub const fn as_str(self) -> &'static str
+    pub const fn py_name(self) -> &'static str
+    pub fn from_value(value: &str) -> Option<Self>
+}
+#[repr(u8)] #[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Debug)] pub enum Kw {
+    Repair = 0,
+    Breach = 1,
+    Support = 2,
+    Blocker = 3,
+    FirstStrike = 4,
+    HighManeuver = 5,
+    Suppression = 6,
+}
+impl Kw {
+    pub const PY_CLASS: &'static str
+    pub const ALL: [Self; 7]
+    pub const SORTED_BY_VALUE: [Self; 7]
+    pub const fn as_str(self) -> &'static str
+    pub const fn py_name(self) -> &'static str
+    pub fn from_value(value: &str) -> Option<Self>
+}
+#[repr(u8)] #[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Debug)] pub enum Stat {
+    Lv = 0,
+    Cost = 1,
+    Ap = 2,
+    Hp = 3,
+    Damage = 4,
+    RemainingHp = 5,
+}
+impl Stat {
+    pub const PY_CLASS: &'static str
+    pub const ALL: [Self; 6]
+    pub const SORTED_BY_VALUE: [Self; 6]
+    pub const fn as_str(self) -> &'static str
+    pub const fn py_name(self) -> &'static str
+    pub fn from_value(value: &str) -> Option<Self>
+}
+#[repr(u8)] #[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Debug)] pub enum CardKind {
+    Unit = 0,
+    Pilot = 1,
+    Command = 2,
+    Base = 3,
+    Resource = 4,
+    Token = 5,
+    UnitToken = 6,
+    ExResource = 7,
+    ExBase = 8,
+    LinkUnit = 9,
+}
+impl CardKind {
+    pub const PY_CLASS: &'static str
+    pub const ALL: [Self; 10]
+    pub const SORTED_BY_VALUE: [Self; 10]
+    pub const fn as_str(self) -> &'static str
+    pub const fn py_name(self) -> &'static str
+    pub fn from_value(value: &str) -> Option<Self>
+}
+#[repr(u8)] #[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Debug)] pub enum RuleKind {
+    CantAttack = 0,
+    CantAttackPlayer = 1,
+    CantAttackUnits = 2,
+    CantBlock = 3,
+    CantBeBlocked = 4,
+    MayAttackActive = 5,
+    AttackOnDeployTurn = 6,
+    CantBeSetActive = 7,
+    StaysRestedInStartPhase = 8,
+    DeployedRested = 9,
+    CantBePaired = 10,
+    CantReceiveDamage = 11,
+    ReduceDamage = 12,
+    CantBeDestroyed = 13,
+    CantBeChosen = 14,
+    CantBeReturned = 15,
+    NoBlockerVs = 16,
+    MustAttack = 17,
+    PlayCostDelta = 18,
+    PlayLevelDelta = 19,
+    AttackTargetFixed = 20,
+    CantBeAttacked = 21,
+    ForceAttackTarget = 22,
+    ShieldAreaProtection = 23,
+    ShieldAreaReduction = 24,
+    ApCantBeReduced = 25,
+    RedirectBattleDamage = 26,
+    RestSubstitute = 27,
+    Custom = 28,
+}
+impl RuleKind {
+    pub const PY_CLASS: &'static str
+    pub const ALL: [Self; 29]
+    pub const SORTED_BY_VALUE: [Self; 29]
+    pub const fn as_str(self) -> &'static str
+    pub const fn py_name(self) -> &'static str
+    pub fn from_value(value: &str) -> Option<Self>
+}
+#[repr(u8)] #[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Debug)] pub enum DamageKind {
+    Any = 0,
+    Battle = 1,
+    Effect = 2,
+}
+impl DamageKind {
+    pub const PY_CLASS: &'static str
+    pub const ALL: [Self; 3]
+    pub const SORTED_BY_VALUE: [Self; 3]
+    pub const fn as_str(self) -> &'static str
+    pub const fn py_name(self) -> &'static str
+    pub fn from_value(value: &str) -> Option<Self>
+}
+#[repr(u8)] #[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Debug)] pub enum Ev {
+    Deployed = 0,
+    Attacks = 1,
+    Blocks = 2,
+    Blocked = 3,
+    Destroyed = 4,
+    Paired = 5,
+    Linked = 6,
+    Damaged = 7,
+    DestroysByBattle = 8,
+    DestroysShieldCard = 9,
+    DealsDamage = 10,
+    CostPaid = 11,
+    SupportUsed = 12,
+    ApReduced = 13,
+    ShieldDestroyed = 14,
+    TurnStart = 15,
+    TurnEnd = 16,
+    ExResourcePlaced = 17,
+    ResourcePlaced = 18,
+    Discarded = 19,
+    ReturnedToHand = 20,
+    CommandPlayed = 21,
+    CommandResolved = 22,
+    Rested = 23,
+    SetActive = 24,
+    Recovered = 25,
+    Drawn = 26,
+    AddedToHand = 27,
+    ShieldToHand = 28,
+    BattleEnd = 29,
+    LeftBattleArea = 30,
+    BurstActivated = 31,
+    Exiled = 32,
+}
+impl Ev {
+    pub const PY_CLASS: &'static str
+    pub const ALL: [Self; 33]
+    pub const SORTED_BY_VALUE: [Self; 33]
+    pub const fn as_str(self) -> &'static str
+    pub const fn py_name(self) -> &'static str
+    pub fn from_value(value: &str) -> Option<Self>
+}
+#[repr(u8)] #[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Debug)] pub enum Timing {
+    Main = 0,
+    Action = 1,
+    MainOrAction = 2,
+}
+impl Timing {
+    pub const PY_CLASS: &'static str
+    pub const ALL: [Self; 3]
+    pub const SORTED_BY_VALUE: [Self; 3]
+    pub const fn as_str(self) -> &'static str
+    pub const fn py_name(self) -> &'static str
+    pub fn from_value(value: &str) -> Option<Self>
+}
+#[repr(u8)] #[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Debug)] pub enum Where {
+    Field = 0,
+    Hand = 1,
+    Trash = 2,
+    Any = 3,
+}
+impl Where {
+    pub const PY_CLASS: &'static str
+    pub const ALL: [Self; 4]
+    pub const SORTED_BY_VALUE: [Self; 4]
+    pub const fn as_str(self) -> &'static str
+    pub const fn py_name(self) -> &'static str
+    pub fn from_value(value: &str) -> Option<Self>
+}
+#[repr(u8)] #[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Debug)] pub enum Gate {
+    None = 0,
+    Paired = 1,
+    Linked = 2,
+}
+impl Gate {
+    pub const PY_CLASS: &'static str
+    pub const ALL: [Self; 3]
+    pub const SORTED_BY_VALUE: [Self; 3]
+    pub const fn as_str(self) -> &'static str
+    pub const fn py_name(self) -> &'static str
+    pub fn from_value(value: &str) -> Option<Self>
+}
+#[repr(u8)] #[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Debug)] pub enum Duration {
+    ThisTurn = 0,
+    ThisBattle = 1,
+    OpponentNextTurn = 2,
+    YourNextTurn = 3,
+    WhileOnField = 4,
+}
+impl Duration {
+    pub const PY_CLASS: &'static str
+    pub const ALL: [Self; 5]
+    pub const SORTED_BY_VALUE: [Self; 5]
+    pub const fn as_str(self) -> &'static str
+    pub const fn py_name(self) -> &'static str
+    pub fn from_value(value: &str) -> Option<Self>
+}
+#[repr(u8)] #[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Debug)] pub enum StepHook {
+    ReturnLookedBottom = 0,
+    DeployExBase = 1,
+    SupportUsed = 2,
+    EB01aLookOwnTop = 3,
+    EB01bLookTopOwn = 4,
+    GD02bPayDeployCost = 5,
+    GD03aPayCostOf = 6,
+    GD03aApMinusCount = 7,
+    GD04aCopyKeywords = 8,
+    GD04aApDownByNamedTrashUnits = 9,
+    GD05aUseOnce = 10,
+    GD05bDestroyFirstShieldAreaCards = 11,
+    GD05bResolvingCommandToTrash = 12,
+}
+impl StepHook {
+    pub const ALL: [Self; 13]
+    pub const fn as_str(self) -> &'static str
+    pub fn from_name(name: &str) -> Option<Self>
+}
+#[repr(u8)] #[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Debug)] pub enum CondHook {
+    AttackTargetDamaged = 0,
+    GD01bDestroyedWithDamage = 1,
+    GD04bPlayedWithEx = 2,
+    GD05aOnceFree = 3,
+    GD05aDestroyedByEffect = 4,
+    GD05bPlayedWithEx = 5,
+    ST12DestroyedByEffectDamage = 6,
+}
+impl CondHook {
+    pub const ALL: [Self; 7]
+    pub const fn as_str(self) -> &'static str
+    pub fn from_name(name: &str) -> Option<Self>
+}
+#[repr(u8)] #[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Debug)] pub enum FilterHook {
+    IsAttackTarget = 0,
+    GD03aHasDestroyedEffect = 1,
+    GD03aLowestHp = 2,
+    GD03bCondHolds = 3,
+    GD03bBattlingEnemyUnit = 4,
+    GD04aPilotCapable = 5,
+    GD04aHasPrintedKeyword = 6,
+    GD04aHasPartnerInTrash = 7,
+    GD05bCanPair = 8,
+}
+impl FilterHook {
+    pub const ALL: [Self; 9]
+    pub const fn as_str(self) -> &'static str
+    pub fn from_name(name: &str) -> Option<Self>
+}
+#[repr(u8)] #[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Debug)] pub enum ValueHook {
+    GD03aApPer = 0,
+    GD03bUniqueNames = 1,
+    GD05aLowestEnemyUnitLevel = 2,
+    ST05HighestEnemyUnitLv = 3,
+    ST12LowestRestedEnemyLv = 4,
+}
+impl ValueHook {
+    pub const ALL: [Self; 5]
+    pub const fn as_str(self) -> &'static str
+    pub fn from_name(name: &str) -> Option<Self>
+}
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)] pub struct Count {
+    pub sel: SelId,
+}
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)] pub struct StatOf {
+    pub r#ref: RefId,
+    pub stat: Stat,
+}
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)] pub struct PlayerLevel {
+    pub player: P,
+}
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)] pub struct HandSize {
+    pub player: P,
+}
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)] pub struct ShieldCount {
+    pub player: P,
+}
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)] pub struct DeckSize {
+    pub player: P,
+}
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)] pub struct VarSize {
+    pub var: VarId,
+}
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)] pub struct EventAmount {
+    pub key: StrId,
+}
+#[derive(Clone, PartialEq, Eq, Hash, Debug)] pub struct Sum {
+    pub terms: Box<[ValueRef]>,
+}
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)] pub struct Times {
+    pub value: ValueRef,
+    pub factor: i64,
+}
+#[derive(Clone, PartialEq, Eq, Hash, Debug)] pub struct MinOf {
+    pub terms: Box<[ValueRef]>,
+}
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)] pub struct KwAmount {
+    pub keyword: Kw,
+    pub r#ref: RefId,
+}
+#[derive(Clone, PartialEq, Eq, Hash, Debug)] pub struct CustomValue {
+    pub name: ValueHook,
+    pub params: Box<[(StrId, ParamValue)]>,
+}
+#[derive(Clone, PartialEq, Eq, Hash, Debug)] pub struct IsKind {
+    pub kinds: Box<[CardKind]>,
+}
+#[derive(Clone, PartialEq, Eq, Hash, Debug)] pub struct HasTrait {
+    pub traits: Box<[StrId]>,
+}
+#[derive(Clone, PartialEq, Eq, Hash, Debug)] pub struct NameContains {
+    pub parts: Box<[StrId]>,
+}
+#[derive(Clone, PartialEq, Eq, Hash, Debug)] pub struct NameIs {
+    pub names: Box<[StrId]>,
+}
+#[derive(Clone, PartialEq, Eq, Hash, Debug)] pub struct HasColor {
+    pub colors: Box<[StrId]>,
+}
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)] pub struct StatCmp {
+    pub stat: Stat,
+    pub op: Op,
+    pub value: ValueRef,
+}
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)] pub struct IsRested {
+    pub rested: bool,
+}
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)] pub struct HasKeyword {
+    pub keyword: Kw,
+}
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)] pub struct IsLinked {
+    pub linked: bool,
+}
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)] pub struct IsPaired {
+    pub paired: bool,
+}
+#[derive(Clone, PartialEq, Eq, Hash, Debug)] pub struct PairedWith {
+    pub filters: Box<[FilterId]>,
+}
+#[derive(Clone, PartialEq, Eq, Hash, Debug)] pub struct PairedTo {
+    pub filters: Box<[FilterId]>,
+}
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)] pub struct IsToken {
+    pub token: bool,
+}
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)] pub struct IsDamaged {
+    pub damaged: bool,
+}
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)] pub struct NotRef {
+    pub r#ref: RefId,
+}
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)] pub struct IsRef {
+    pub r#ref: RefId,
+}
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)] pub struct IsAttacking {
+    pub attacking: bool,
+}
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)] pub struct IsBattling {
+    pub battling: bool,
+}
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)] pub struct HasTiming {
+    pub timing: StrId,
+}
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)] pub struct HasBurst {
+    pub burst: bool,
+}
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)] pub struct DeployedThisTurn {
+    pub value: bool,
+}
+#[derive(Clone, PartialEq, Eq, Hash, Debug)] pub struct HasZone {
+    pub zones: Box<[StrId]>,
+}
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)] pub struct LevelCmpRef {
+    pub stat: Stat,
+    pub op: Op,
+    pub r#ref: RefId,
+    pub ref_stat: Stat,
+}
+#[derive(Clone, PartialEq, Eq, Hash, Debug)] pub struct AnyOf {
+    pub filters: Box<[FilterId]>,
+}
+#[derive(Clone, PartialEq, Eq, Hash, Debug)] pub struct AllOf {
+    pub filters: Box<[FilterId]>,
+}
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)] pub struct Not {
+    pub filter: FilterId,
+}
+#[derive(Clone, PartialEq, Eq, Hash, Debug)] pub struct CustomFilter {
+    pub name: FilterHook,
+    pub params: Box<[(StrId, ParamValue)]>,
+}
+#[derive(Clone, PartialEq, Eq, Hash, Debug)] pub struct Sel {
+    pub side: Side,
+    pub loc: Loc,
+    pub filters: Box<[FilterId]>,
+    pub top_n: ValueRef,
+}
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)] pub struct This
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)] pub struct ThisCard
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)] pub struct Var {
+    pub name: VarId,
+}
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)] pub struct EventCard {
+    pub key: StrId,
+}
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)] pub struct PairedPilotOf {
+    pub r#ref: RefId,
+}
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)] pub struct PairedUnitOf {
+    pub r#ref: RefId,
+}
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)] pub struct BattlingWith {
+    pub r#ref: RefId,
+}
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)] pub struct All {
+    pub sel: SelId,
+}
+#[derive(Clone, PartialEq, Eq, Hash, Debug)] pub struct Union {
+    pub refs: Box<[RefId]>,
+}
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)] pub struct Cmp {
+    pub left: ValueRef,
+    pub op: Op,
+    pub right: ValueRef,
+}
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)] pub struct Exists {
+    pub sel: SelId,
+    pub at_least: i64,
+}
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)] pub struct IsTurn {
+    pub player: P,
+}
+#[derive(Clone, PartialEq, Eq, Hash, Debug)] pub struct RefMatches {
+    pub r#ref: RefId,
+    pub filters: Box<[FilterId]>,
+}
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)] pub struct RefEmpty {
+    pub r#ref: RefId,
+}
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)] pub struct AttackTargetIs {
+    pub kind: StrId,
+}
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)] pub struct EventFrom {
+    pub loc: Loc,
+}
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)] pub struct EventFlag {
+    pub key: StrId,
+    pub value: bool,
+}
+#[derive(Clone, PartialEq, Eq, Hash, Debug)] pub struct HappenedThisTurn {
+    pub kind: StrId,
+    pub player: P,
+    pub by: Option<P>,
+    pub at_least: i64,
+    pub filters: Box<[FilterId]>,
+    pub source_filters: Box<[FilterId]>,
+}
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)] pub struct DidLast
+#[derive(Clone, PartialEq, Eq, Hash, Debug)] pub struct And {
+    pub conds: Box<[CondId]>,
+}
+#[derive(Clone, PartialEq, Eq, Hash, Debug)] pub struct Or {
+    pub conds: Box<[CondId]>,
+}
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)] pub struct NotC {
+    pub cond: CondId,
+}
+#[derive(Clone, PartialEq, Eq, Hash, Debug)] pub struct CustomCond {
+    pub name: CondHook,
+    pub params: Box<[(StrId, ParamValue)]>,
+}
+#[derive(Clone, PartialEq, Eq, Hash, Debug)] pub struct RuleMod {
+    pub kind: RuleKind,
+    pub amount: ValueRef,
+    pub damage_kind: DamageKind,
+    pub source_filters: Box<[FilterId]>,
+    pub source_side: Side,
+    pub once_per_turn: bool,
+    pub name: StrId,
+}
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)] pub struct StatMod {
+    pub ap: ValueRef,
+    pub hp: ValueRef,
+}
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)] pub struct KeywordGrant {
+    pub keyword: Kw,
+    pub amount: ValueRef,
+}
+#[derive(Clone, PartialEq, Eq, Hash, Debug)] pub struct TraitGrant {
+    pub traits: Box<[StrId]>,
+}
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)] pub struct RuleGrant {
+    pub rule: RuleModId,
+}
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)] pub struct AbilityGrant {
+    pub card_number: StrId,
+    pub ability_index: i64,
+}
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)] pub struct CostMod {
+    pub cost: ValueRef,
+    pub level: ValueRef,
+}
+#[derive(Clone, PartialEq, Eq, Hash, Debug)] pub struct Trigger {
+    pub event: Ev,
+    pub self_only: bool,
+    pub subject: Option<SelId>,
+    pub whose_turn: Option<P>,
+    pub pilot_filters: Box<[FilterId]>,
+    pub target_filters: Box<[FilterId]>,
+    pub battle_only: Option<bool>,
+    pub by_enemy: Option<bool>,
+    pub include_self: bool,
+}
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)] pub struct RestSelf
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)] pub struct PayResources {
+    pub amount: i64,
+}
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)] pub struct RestCards {
+    pub sel: SelId,
+    pub count: i64,
+}
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)] pub struct DestroyCards {
+    pub sel: SelId,
+    pub count: i64,
+}
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)] pub struct DiscardCards {
+    pub sel: SelId,
+    pub count: i64,
+}
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)] pub struct ExileCards {
+    pub sel: SelId,
+    pub count: i64,
+}
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)] pub struct ReturnSelf
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)] pub struct DestroySelf
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)] pub struct TrashSelf
+#[derive(Clone, PartialEq, Eq, Hash, Debug)] pub struct Choose {
+    pub var: VarId,
+    pub sel: SelId,
+    pub count: ValueRef,
+    pub min_count: Option<ValueRef>,
+    pub optional: bool,
+    pub chooser: P,
+    pub distinct_from: Box<[VarId]>,
+    pub targeting: bool,
+    pub random: bool,
+    pub after_then: bool,
+}
+#[derive(Clone, PartialEq, Eq, Hash, Debug)] pub struct ChooseMode {
+    pub options: Box<[(StrId, Box<[StepId]>)]>,
+    pub chooser: P,
+}
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)] pub struct Draw {
+    pub count: ValueRef,
+    pub player: P,
+    pub each_player: bool,
+}
+#[derive(Clone, PartialEq, Eq, Hash, Debug)] pub struct Discard {
+    pub count: ValueRef,
+    pub player: P,
+    pub chooser: Option<P>,
+    pub random: bool,
+    pub filters: Box<[FilterId]>,
+    pub var: VarId,
+}
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)] pub struct Damage {
+    pub r#ref: RefId,
+    pub amount: ValueRef,
+}
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)] pub struct DamageShieldArea {
+    pub player: P,
+    pub amount: ValueRef,
+    pub cards: i64,
+}
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)] pub struct DamagePlayer {
+    pub player: P,
+    pub amount: ValueRef,
+}
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)] pub struct Destroy {
+    pub r#ref: RefId,
+}
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)] pub struct Rest {
+    pub r#ref: RefId,
+}
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)] pub struct SetActive {
+    pub r#ref: RefId,
+}
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)] pub struct ReturnToHand {
+    pub r#ref: RefId,
+}
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)] pub struct ToDeck {
+    pub r#ref: RefId,
+    pub bottom: bool,
+    pub shuffle: bool,
+}
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)] pub struct Exile {
+    pub r#ref: RefId,
+}
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)] pub struct ToTrash {
+    pub r#ref: RefId,
+}
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)] pub struct AddToHand {
+    pub r#ref: RefId,
+    pub reveal: bool,
+}
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)] pub struct DeployCard {
+    pub r#ref: RefId,
+    pub rested: bool,
+    pub pay_cost: bool,
+    pub ignore_level: bool,
+    pub as_unit: bool,
+}
+#[derive(Clone, PartialEq, Eq, Hash, Debug)] pub struct DeployToken {
+    pub token_key: StrId,
+    pub count: ValueRef,
+    pub rested: bool,
+    pub player: P,
+    pub var: VarId,
+    pub also: Box<[(StrId, i64)]>,
+}
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)] pub struct PlaceExResource {
+    pub player: P,
+    pub rested: bool,
+}
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)] pub struct PlaceResource {
+    pub player: P,
+    pub rested: bool,
+}
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)] pub struct SetResourcesActive {
+    pub count: ValueRef,
+    pub player: P,
+}
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)] pub struct RestResources {
+    pub count: ValueRef,
+    pub player: P,
+}
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)] pub struct ShieldToHand {
+    pub count: ValueRef,
+    pub player: P,
+}
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)] pub struct AddToShields {
+    pub r#ref: Option<RefId>,
+    pub count: ValueRef,
+    pub player: P,
+    pub top: bool,
+}
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)] pub struct Mill {
+    pub count: ValueRef,
+    pub player: P,
+    pub var: VarId,
+}
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)] pub struct LookTop {
+    pub count: ValueRef,
+    pub player: P,
+    pub var: VarId,
+    pub reveal: bool,
+}
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)] pub struct Arrange {
+    pub r#ref: RefId,
+    pub mode: StrId,
+    pub player: P,
+}
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)] pub struct Reveal {
+    pub r#ref: RefId,
+}
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)] pub struct Shuffle {
+    pub player: P,
+}
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)] pub struct Recover {
+    pub r#ref: RefId,
+    pub amount: ValueRef,
+}
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)] pub struct Apply {
+    pub r#ref: RefId,
+    pub effect: ContinuousId,
+    pub duration: Duration,
+    pub aux: Option<RefId>,
+}
+#[derive(Clone, PartialEq, Eq, Hash, Debug)] pub struct ApplyPlayer {
+    pub player: P,
+    pub effect: ContinuousId,
+    pub duration: Duration,
+    pub filters: Box<[FilterId]>,
+    pub uses: i64,
+}
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)] pub struct Pair {
+    pub pilot: RefId,
+    pub unit: RefId,
+}
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)] pub struct PlayCard {
+    pub r#ref: RefId,
+    pub free: bool,
+    pub ignore_level: bool,
+    pub cost_delta: ValueRef,
+}
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)] pub struct ActivateMain {
+    pub r#ref: RefId,
+}
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)] pub struct StartBattle {
+    pub attacker: RefId,
+    pub target: RefId,
+    pub damage_only: bool,
+}
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)] pub struct ChangeAttackTarget {
+    pub target: RefId,
+}
+#[derive(Clone, PartialEq, Eq, Hash, Debug)] pub struct If {
+    pub cond: CondId,
+    pub then: Box<[StepId]>,
+    pub otherwise: Box<[StepId]>,
+}
+#[derive(Clone, PartialEq, Eq, Hash, Debug)] pub struct May {
+    pub steps: Box<[StepId]>,
+    pub prompt: StrId,
+    pub player: P,
+}
+#[derive(Clone, PartialEq, Eq, Hash, Debug)] pub struct Simultaneous {
+    pub steps: Box<[StepId]>,
+}
+#[derive(Clone, PartialEq, Eq, Hash, Debug)] pub struct IfYouDo {
+    pub steps: Box<[StepId]>,
+}
+#[derive(Clone, PartialEq, Eq, Hash, Debug)] pub struct ForEach {
+    pub r#ref: RefId,
+    pub var: VarId,
+    pub steps: Box<[StepId]>,
+}
+#[derive(Clone, PartialEq, Eq, Hash, Debug)] pub struct Repeat {
+    pub times: ValueRef,
+    pub steps: Box<[StepId]>,
+}
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)] pub struct BindVar {
+    pub var: VarId,
+    pub r#ref: RefId,
+}
+#[derive(Clone, PartialEq, Eq, Hash, Debug)] pub struct DelayedTrigger {
+    pub trigger: TriggerId,
+    pub steps: Box<[StepId]>,
+    pub duration: Duration,
+    pub bind_vars: Box<[VarId]>,
+}
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)] pub struct PayCost {
+    pub amount: i64,
+    pub player: P,
+}
+#[derive(Clone, PartialEq, Eq, Hash, Debug)] pub struct CustomStep {
+    pub name: StepHook,
+    pub params: Box<[(StrId, ParamValue)]>,
+}
+#[derive(Clone, PartialEq, Eq, Hash, Debug)] pub struct Keyword {
+    pub keyword: Kw,
+    pub amount: i64,
+    pub gate: Gate,
+    pub gate_filters: Box<[FilterId]>,
+}
+#[derive(Clone, PartialEq, Eq, Hash, Debug)] pub struct Constant {
+    pub effects: Box<[ContinuousId]>,
+    pub scope: RefId,
+    pub cond: CondId,
+    pub r#where: Where,
+    pub gate: Gate,
+    pub gate_filters: Box<[FilterId]>,
+}
+#[derive(Clone, PartialEq, Eq, Hash, Debug)] pub struct Triggered {
+    pub trigger: TriggerId,
+    pub steps: Box<[StepId]>,
+    pub cond: CondId,
+    pub once_per_turn: bool,
+    pub r#where: Where,
+    pub gate: Gate,
+    pub gate_filters: Box<[FilterId]>,
+}
+#[derive(Clone, PartialEq, Eq, Hash, Debug)] pub struct Activated {
+    pub timing: Timing,
+    pub costs: Box<[CostId]>,
+    pub steps: Box<[StepId]>,
+    pub cond: CondId,
+    pub once_per_turn: bool,
+    pub r#where: Where,
+    pub gate: Gate,
+    pub gate_filters: Box<[FilterId]>,
+    pub support: i64,
+}
+#[derive(Clone, PartialEq, Eq, Hash, Debug)] pub struct Command {
+    pub timing: Timing,
+    pub steps: Box<[StepId]>,
+    pub cond: CondId,
+}
+#[derive(Clone, PartialEq, Eq, Hash, Debug)] pub struct Burst {
+    pub steps: Box<[StepId]>,
+}
+#[derive(Clone, PartialEq, Eq, Hash, Debug)] pub struct Replacement {
+    pub event: Ev,
+    pub steps: Box<[StepId]>,
+    pub scope: RefId,
+    pub cond: CondId,
+    pub once_per_turn: bool,
+    pub optional: bool,
+    pub gate: Gate,
+}
+#[derive(Clone, PartialEq, Eq, Hash, Debug)] pub struct NameAlias {
+    pub names: Box<[StrId]>,
+}
+#[derive(Clone, PartialEq, Eq, Hash, Debug)] pub struct PlayModifier {
+    pub cond: CondId,
+    pub costs: Box<[CostId]>,
+    pub level: Option<i64>,
+    pub cost: Option<i64>,
+    pub pair_filters: Box<[FilterId]>,
+}
+#[derive(Clone, PartialEq, Eq, Hash, Debug)] pub struct CardScript {
+    pub card_number: StrId,
+    pub abilities: Box<[AbilityNodeId]>,
+    pub unit_abilities: Box<[AbilityNodeId]>,
+    pub source: StrId,
+    pub notes: StrId,
+}
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)] pub struct Jump {
+    pub target: i64,
+}
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)] pub struct JumpIfNot {
+    pub cond: CondId,
+    pub target: i64,
+}
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)] pub struct AskMay {
+    pub prompt: StrId,
+    pub player: P,
+    pub target_if_no: i64,
+}
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)] pub struct JumpIfNotDid {
+    pub target: i64,
+}
+#[derive(Clone, PartialEq, Eq, Hash, Debug)] pub struct ModeSelect {
+    pub labels: Box<[StrId]>,
+    pub targets: Box<[i64]>,
+    pub chooser: P,
+    pub end: i64,
+}
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)] pub struct LoopInit {
+    pub key: VarId,
+    pub r#ref: Option<RefId>,
+    pub times: Option<ValueRef>,
+}
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)] pub struct LoopNext {
+    pub key: VarId,
+    pub var: VarId,
+    pub end: i64,
+}
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)] pub struct SetDid {
+    pub value: bool,
+}
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)] pub struct HoldRules {
+    pub delta: i64,
+}
+#[derive(Clone, PartialEq, Eq, Hash, Debug)] pub enum Node {
+    Count(Count),
+    StatOf(StatOf),
+    PlayerLevel(PlayerLevel),
+    HandSize(HandSize),
+    ShieldCount(ShieldCount),
+    DeckSize(DeckSize),
+    VarSize(VarSize),
+    EventAmount(EventAmount),
+    Sum(Sum),
+    Times(Times),
+    MinOf(MinOf),
+    KwAmount(KwAmount),
+    CustomValue(CustomValue),
+    IsKind(IsKind),
+    HasTrait(HasTrait),
+    NameContains(NameContains),
+    NameIs(NameIs),
+    HasColor(HasColor),
+    StatCmp(StatCmp),
+    IsRested(IsRested),
+    HasKeyword(HasKeyword),
+    IsLinked(IsLinked),
+    IsPaired(IsPaired),
+    PairedWith(PairedWith),
+    PairedTo(PairedTo),
+    IsToken(IsToken),
+    IsDamaged(IsDamaged),
+    NotRef(NotRef),
+    IsRef(IsRef),
+    IsAttacking(IsAttacking),
+    IsBattling(IsBattling),
+    HasTiming(HasTiming),
+    HasBurst(HasBurst),
+    DeployedThisTurn(DeployedThisTurn),
+    HasZone(HasZone),
+    LevelCmpRef(LevelCmpRef),
+    AnyOf(AnyOf),
+    AllOf(AllOf),
+    Not(Not),
+    CustomFilter(CustomFilter),
+    Sel(Sel),
+    This(This),
+    ThisCard(ThisCard),
+    Var(Var),
+    EventCard(EventCard),
+    PairedPilotOf(PairedPilotOf),
+    PairedUnitOf(PairedUnitOf),
+    BattlingWith(BattlingWith),
+    All(All),
+    Union(Union),
+    Cmp(Cmp),
+    Exists(Exists),
+    IsTurn(IsTurn),
+    RefMatches(RefMatches),
+    RefEmpty(RefEmpty),
+    AttackTargetIs(AttackTargetIs),
+    EventFrom(EventFrom),
+    EventFlag(EventFlag),
+    HappenedThisTurn(HappenedThisTurn),
+    DidLast(DidLast),
+    And(And),
+    Or(Or),
+    NotC(NotC),
+    CustomCond(CustomCond),
+    RuleMod(RuleMod),
+    StatMod(StatMod),
+    KeywordGrant(KeywordGrant),
+    TraitGrant(TraitGrant),
+    RuleGrant(RuleGrant),
+    AbilityGrant(AbilityGrant),
+    CostMod(CostMod),
+    Trigger(Trigger),
+    RestSelf(RestSelf),
+    PayResources(PayResources),
+    RestCards(RestCards),
+    DestroyCards(DestroyCards),
+    DiscardCards(DiscardCards),
+    ExileCards(ExileCards),
+    ReturnSelf(ReturnSelf),
+    DestroySelf(DestroySelf),
+    TrashSelf(TrashSelf),
+    Choose(Choose),
+    ChooseMode(ChooseMode),
+    Draw(Draw),
+    Discard(Discard),
+    Damage(Damage),
+    DamageShieldArea(DamageShieldArea),
+    DamagePlayer(DamagePlayer),
+    Destroy(Destroy),
+    Rest(Rest),
+    SetActive(SetActive),
+    ReturnToHand(ReturnToHand),
+    ToDeck(ToDeck),
+    Exile(Exile),
+    ToTrash(ToTrash),
+    AddToHand(AddToHand),
+    DeployCard(DeployCard),
+    DeployToken(DeployToken),
+    PlaceExResource(PlaceExResource),
+    PlaceResource(PlaceResource),
+    SetResourcesActive(SetResourcesActive),
+    RestResources(RestResources),
+    ShieldToHand(ShieldToHand),
+    AddToShields(AddToShields),
+    Mill(Mill),
+    LookTop(LookTop),
+    Arrange(Arrange),
+    Reveal(Reveal),
+    Shuffle(Shuffle),
+    Recover(Recover),
+    Apply(Apply),
+    ApplyPlayer(ApplyPlayer),
+    Pair(Pair),
+    PlayCard(PlayCard),
+    ActivateMain(ActivateMain),
+    StartBattle(StartBattle),
+    ChangeAttackTarget(ChangeAttackTarget),
+    If(If),
+    May(May),
+    Simultaneous(Simultaneous),
+    IfYouDo(IfYouDo),
+    ForEach(ForEach),
+    Repeat(Repeat),
+    BindVar(BindVar),
+    DelayedTrigger(DelayedTrigger),
+    PayCost(PayCost),
+    CustomStep(CustomStep),
+    Keyword(Keyword),
+    Constant(Constant),
+    Triggered(Triggered),
+    Activated(Activated),
+    Command(Command),
+    Burst(Burst),
+    Replacement(Replacement),
+    NameAlias(NameAlias),
+    PlayModifier(PlayModifier),
+    CardScript(CardScript),
+    Jump(Jump),
+    JumpIfNot(JumpIfNot),
+    AskMay(AskMay),
+    JumpIfNotDid(JumpIfNotDid),
+    ModeSelect(ModeSelect),
+    LoopInit(LoopInit),
+    LoopNext(LoopNext),
+    SetDid(SetDid),
+    HoldRules(HoldRules),
+}
+#[repr(u8)] #[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Debug)] pub enum NodeKind {
+    Count = 0,
+    StatOf = 1,
+    PlayerLevel = 2,
+    HandSize = 3,
+    ShieldCount = 4,
+    DeckSize = 5,
+    VarSize = 6,
+    EventAmount = 7,
+    Sum = 8,
+    Times = 9,
+    MinOf = 10,
+    KwAmount = 11,
+    CustomValue = 12,
+    IsKind = 13,
+    HasTrait = 14,
+    NameContains = 15,
+    NameIs = 16,
+    HasColor = 17,
+    StatCmp = 18,
+    IsRested = 19,
+    HasKeyword = 20,
+    IsLinked = 21,
+    IsPaired = 22,
+    PairedWith = 23,
+    PairedTo = 24,
+    IsToken = 25,
+    IsDamaged = 26,
+    NotRef = 27,
+    IsRef = 28,
+    IsAttacking = 29,
+    IsBattling = 30,
+    HasTiming = 31,
+    HasBurst = 32,
+    DeployedThisTurn = 33,
+    HasZone = 34,
+    LevelCmpRef = 35,
+    AnyOf = 36,
+    AllOf = 37,
+    Not = 38,
+    CustomFilter = 39,
+    Sel = 40,
+    This = 41,
+    ThisCard = 42,
+    Var = 43,
+    EventCard = 44,
+    PairedPilotOf = 45,
+    PairedUnitOf = 46,
+    BattlingWith = 47,
+    All = 48,
+    Union = 49,
+    Cmp = 50,
+    Exists = 51,
+    IsTurn = 52,
+    RefMatches = 53,
+    RefEmpty = 54,
+    AttackTargetIs = 55,
+    EventFrom = 56,
+    EventFlag = 57,
+    HappenedThisTurn = 58,
+    DidLast = 59,
+    And = 60,
+    Or = 61,
+    NotC = 62,
+    CustomCond = 63,
+    RuleMod = 64,
+    StatMod = 65,
+    KeywordGrant = 66,
+    TraitGrant = 67,
+    RuleGrant = 68,
+    AbilityGrant = 69,
+    CostMod = 70,
+    Trigger = 71,
+    RestSelf = 72,
+    PayResources = 73,
+    RestCards = 74,
+    DestroyCards = 75,
+    DiscardCards = 76,
+    ExileCards = 77,
+    ReturnSelf = 78,
+    DestroySelf = 79,
+    TrashSelf = 80,
+    Choose = 81,
+    ChooseMode = 82,
+    Draw = 83,
+    Discard = 84,
+    Damage = 85,
+    DamageShieldArea = 86,
+    DamagePlayer = 87,
+    Destroy = 88,
+    Rest = 89,
+    SetActive = 90,
+    ReturnToHand = 91,
+    ToDeck = 92,
+    Exile = 93,
+    ToTrash = 94,
+    AddToHand = 95,
+    DeployCard = 96,
+    DeployToken = 97,
+    PlaceExResource = 98,
+    PlaceResource = 99,
+    SetResourcesActive = 100,
+    RestResources = 101,
+    ShieldToHand = 102,
+    AddToShields = 103,
+    Mill = 104,
+    LookTop = 105,
+    Arrange = 106,
+    Reveal = 107,
+    Shuffle = 108,
+    Recover = 109,
+    Apply = 110,
+    ApplyPlayer = 111,
+    Pair = 112,
+    PlayCard = 113,
+    ActivateMain = 114,
+    StartBattle = 115,
+    ChangeAttackTarget = 116,
+    If = 117,
+    May = 118,
+    Simultaneous = 119,
+    IfYouDo = 120,
+    ForEach = 121,
+    Repeat = 122,
+    BindVar = 123,
+    DelayedTrigger = 124,
+    PayCost = 125,
+    CustomStep = 126,
+    Keyword = 127,
+    Constant = 128,
+    Triggered = 129,
+    Activated = 130,
+    Command = 131,
+    Burst = 132,
+    Replacement = 133,
+    NameAlias = 134,
+    PlayModifier = 135,
+    CardScript = 136,
+    Jump = 137,
+    JumpIfNot = 138,
+    AskMay = 139,
+    JumpIfNotDid = 140,
+    ModeSelect = 141,
+    LoopInit = 142,
+    LoopNext = 143,
+    SetDid = 144,
+    HoldRules = 145,
+}
+impl Node {
+    pub const fn kind(&self) -> NodeKind
+}
+impl NodeKind {
+    pub const ALL: [Self; 146]
+    pub const VALUE: &'static [Self]
+    pub const FILTER: &'static [Self]
+    pub const REF: &'static [Self]
+    pub const COND: &'static [Self]
+    pub const CONTINUOUS: &'static [Self]
+    pub const COST: &'static [Self]
+    pub const STEP: &'static [Self]
+    pub const ABILITY: &'static [Self]
+    pub const INSTR: &'static [Self]
+    pub const fn py_name(self) -> &'static str
+    pub const fn schema(self) -> &'static ClassSchema
+}
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)] pub struct FieldSchema {
+    pub name: &'static str,
+    pub annotation: &'static str,
+    pub default_repr: Option<&'static str>,
+}
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)] pub struct ClassSchema {
+    pub name: &'static str,
+    pub source: &'static str,
+    pub fields: &'static [FieldSchema],
+}
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)] pub struct EnumSchema {
+    pub name: &'static str,
+    pub source: &'static str,
+    pub members: &'static [(&'static str, &'static str)],
+}
+pub const CLASSES: &[ClassSchema]
+pub const ENUMS: &[EnumSchema]
+crate::codec::enum_field!(
+    P, Side, Loc, Op, Kw, Stat, CardKind, RuleKind, DamageKind, Ev, Timing, Where, Gate, Duration
+)
+crate::codec::hook_field!(StepHook => "step", CondHook => "cond", FilterHook => "filter", ValueHook => "value")
+
+## gcg_effects::error (private)  [crates/gcg-effects/src/error.rs]
+impl fmt::Display for IrError
+impl std::error::Error for IrError
+
+## gcg_effects::pyrepr (private)  [crates/gcg-effects/src/pyrepr.rs]
+impl ContentId {
+    pub fn as_str(&self) -> &str
+    pub fn from_hex(s: &str) -> Option<Self>
+}
+
+## gcg_effects::registry (private)  [crates/gcg-effects/src/registry.rs]
+impl Registry {
+    pub fn embedded() -> Arc<Self>
+    pub fn from_ir(ir_json: &str, db: &'static CardDb) -> Result<Self, IrError>
+    pub fn with_fragment(&self, fragment: &serde_json::Value) -> Result<Self, IrError>
+    pub fn db(&self) -> &'static CardDb
+    pub fn generation(&self) -> u32
+    pub fn node(&self, id: NodeId) -> &Node
+    pub fn program(&self, id: ProgramId) -> &Program
+    pub fn ability(&self, aid: AbilityId) -> &AbilityEntry
+    pub fn card(&self, def: DefId) -> &CardEntry
+    pub fn str(&self, id: StrId) -> &str
+    pub fn var_name(&self, v: VarId) -> &str
+    pub fn keyword_program(&self, kw: KeywordProgram) -> ProgramId
+    pub fn system_program(&self, s: SystemProgram) -> ProgramId
+    pub fn aliases(&self, def: DefId) -> &[StrId]
+    pub fn always_events(&self) -> EvSet
+    pub fn events_of(&self, def: DefId) -> EvSet
+    pub fn hp_reduction_possible(&self) -> bool
+    pub fn hook_params(&self, node: NodeId) -> Option<&HookParams>
+    pub fn cont_of(&self, n: ContinuousId) -> ContRef
+    pub fn cont_node(&self, c: ContRef) -> ContView<'_>
+    pub fn filter_set(&self, f: FilterSetId) -> &FilterSet
+    pub fn program_by_content_id(&self, cid: &ContentId) -> Option<ProgramId>
+    pub fn cont_by_content_id(&self, cid: &ContentId) -> Option<ContRef>
+    pub fn filter_set_by_content_id(&self, cid: &ContentId) -> Option<FilterSetId>
+    pub fn node_content_id(&self, id: NodeId) -> ContentId
+    pub fn filter_set_content_id(&self, f: FilterSetId) -> ContentId
+    pub fn rule_mod_repr(&self, rule: RuleModId) -> &str
+    pub fn repr(&self, id: NodeId) -> String
+    pub fn golden_json(&self, def: DefId) -> Json
+    pub fn decode_inline(&self, node: &serde_json::Value) -> Result<InlineNode, IrError>
+    pub fn var_id(&self, name: &str) -> Option<VarId>
+    pub fn str_id(&self, s: &str) -> Option<StrId>
+    pub fn filters_key(&self, filters: &[FilterId]) -> Option<FilterSetId>
+    pub fn filter_id(&self, n: NodeId) -> Option<FilterId>
+    pub fn cond_id(&self, n: NodeId) -> Option<CondId>
+    pub fn continuous_id(&self, n: NodeId) -> Option<ContinuousId>
+}
+impl ContRef {
+    pub fn repr(&self, reg: &Registry) -> String
+    pub fn content_id(&self, reg: &Registry) -> ContentId
+}
+impl ImplementationStatus for Registry
+
+# gcg-engine
+
+## gcg_engine  [crates/gcg-engine/src/lib.rs]
+pub use contracts::*
+pub use diag::CapKind
+pub use enums::*
+pub use game::{apply, concede, deck_construction_problems, deck_construction_problems_by_number, legal_actions, new_game, new_game_by_number, step}
+
+## gcg_engine::canon  [crates/gcg-engine/src/canon.rs]
+pub fn canonical_state(st: &GameState) -> Json
+pub fn state_digest(st: &GameState) -> String
+pub fn from_canonical(reg: &Arc<Registry>, snap: &StateSnapshot) -> Result<GameState, CanonError>
+impl Prompt {
+    pub fn text<'r>(&self, reg: &'r Registry) -> Cow<'r, str>
+}
+impl Tables for Registry
+
+## gcg_engine::contracts (private)  [crates/gcg-engine/src/contracts.rs]
+pub use gcg_effects::{ContRef, Duration}
+pub type Uid = u16
+pub const DEFAULT_TURN_LIMIT: i32
+pub const FIXPOINT_PASSES: usize
+pub const NO_PROGRESS_STEPS: u64
+pub const N_EVENTS: usize
+pub const EVENT_CAPACITY: usize
+pub const CONTEXT_CAPACITY: usize
+pub const ONCE_KEY_CAPACITY: usize
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)] pub struct Action {
+    pub kind: ActionKind,
+    pub a: i32,
+    pub b: i32,
+    pub c: i32,
+}
+impl Action {
+    pub const fn new(kind: ActionKind, a: i32, b: i32, c: i32) -> Self
+    pub const fn of(kind: ActionKind) -> Self
+}
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug, Default)] pub struct Span {
+    pub start: u32,
+    pub len: u32,
+}
+impl Span {
+    pub const EMPTY: Self
+}
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)] pub struct CardInstance {
+    pub def_id: DefId,
+    pub owner: u8,
+    pub zone: Zone,
+    pub rested: bool,
+    pub damage: i32,
+    pub pair: i32,
+    pub zone_seq: i32,
+    pub entered_turn: i32,
+    pub known: u8,
+}
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)] pub struct Battle {
+    pub attacker: i32,
+    pub attacker_seq: i32,
+    pub target: i32,
+    pub target_seq: i32,
+    pub defender: u8,
+    pub battle_id: i32,
+    pub blocked: bool,
+    pub damage_only: bool,
+    pub attack_triggers: bool,
+    pub ended: bool,
+}
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)] pub struct AbilityKey {
+    pub def_id: i32,
+    pub aid: i32,
+    pub unit_text: bool,
+}
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug, Default)] pub struct EventPayload(pub InlineVec<(EvKey, i32), EVENT_CAPACITY>)
+#[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Debug)] pub enum OnceElem {
+    Int(i32),
+    Cont(ContRef),
+}
+impl Default for OnceElem
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug, Default)] pub struct OnceKey(pub InlineVec<OnceElem, ONCE_KEY_CAPACITY>)
+impl PartialOrd for OnceKey
+impl Ord for OnceKey
+#[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Debug)] pub enum FpOnceElem {
+    Int(i32),
+    Cont(ContRef),
+    SelfRef,
+}
+impl Default for FpOnceElem
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug, Default)] pub struct FpOnceKey(pub InlineVec<FpOnceElem, ONCE_KEY_CAPACITY>)
+impl PartialOrd for FpOnceKey
+impl Ord for FpOnceKey
+#[derive(Clone, Copy, Debug)] pub struct Lasting {
+    pub effect: ContRef,
+    pub controller: u8,
+    pub source_uid: i32,
+    pub targets: Span,
+    pub duration: Duration,
+    pub created_turn: i32,
+    pub battle_id: i32,
+    pub player: i8,
+    pub uses: i32,
+    pub filters: Option<FilterSetId>,
+    pub aux: i32,
+    pub serial: i32,
+}
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)] pub struct TriggerInst {
+    pub program: ProgramId,
+    pub controller: u8,
+    pub host: i32,
+    pub host_seq: i32,
+    pub card_uid: i32,
+    pub ability_key: AbilityKey,
+    pub event: EventPayload,
+    pub burst: bool,
+    pub once_key: Option<OnceKey>,
+    pub optional: bool,
+}
+#[derive(Clone, Copy, Debug)] pub struct Frame {
+    pub program: ProgramId,
+    pub controller: u8,
+    pub host: i32,
+    pub host_seq: i32,
+    pub card_uid: i32,
+    pub kind: FrameKind,
+    pub event: EventPayload,
+    pub pc: u16,
+    pub vars: Span,
+    pub did: bool,
+    pub answer: bool,
+    pub waiting: bool,
+    pub buf: Span,
+    pub ints: Span,
+    pub once_key: Option<OnceKey>,
+    pub acted: bool,
+}
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)] pub struct VarEntry {
+    pub var: VarId,
+    pub items: Span,
+}
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)] pub enum IntKey {
+    HoldRules,
+    Loop(VarId),
+    RestI,
+    RestAs(u16),
+    ExUsed,
+}
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)] pub struct IntEntry {
+    pub key: IntKey,
+    pub value: i32,
+}
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)] pub struct HistoryEvent {
+    pub kind: HistKind,
+    pub player: u8,
+    pub by: i8,
+    pub uid: i32,
+    pub def_id: i32,
+    pub source: i32,
+}
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)] pub enum HistKindRef {
+    Known(HistKind),
+    Other(StrId),
+}
+impl HistKindRef {
+    pub fn decode(text: &str, id: StrId) -> Self
+    pub fn matches(self, kind: HistKind) -> bool
+}
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)] pub enum Prompt {
+    Engine(EnginePrompt),
+    Ask(StrId),
+    Choose(VarId),
+}
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)] pub struct DecisionHdr {
+    pub player: u8,
+    pub kind: DecisionKind,
+    pub prompt: Prompt,
+    pub context: InlineVec<(CtxKey, i32), CONTEXT_CAPACITY>,
+}
+#[derive(Clone, Copy, Debug)] pub struct DecisionView<'a> {
+    pub hdr: &'a DecisionHdr,
+    pub options: &'a [Action],
+}
+#[derive(Clone, Copy, Debug)] pub struct FrameVars<'a> {
+    ..
+}
+#[derive(Clone, PartialEq, Eq, Hash, Debug, Default)] pub struct TestOverrides {
+    pub force_link: Box<[Box<str>]>,
+}
+pub struct GameConst {
+    ..
+}
+#[derive(Clone, PartialEq, Eq, Hash, Debug)] pub struct ZoneLists {
+    ..
+}
+#[derive(Clone)] pub struct GameState {
+    ..
+}
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)] pub struct Ctx {
+    pub controller: u8,
+    pub host: i32,
+    pub card_uid: i32,
+    pub vars: CtxVars,
+    pub event: EventPayload,
+}
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)] pub enum CtxVars {
+    Empty,
+    Frame(u16),
+}
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)] pub struct ViewKey {
+    pub active: u8,
+    pub turn: i32,
+    pub n_battles: u32,
+    pub battle: Option<(i32, i32, bool)>,
+    pub n_history: u32,
+}
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)] pub struct RuleInst {
+    pub rule: RuleModId,
+    pub controller: u8,
+    pub source: i32,
+    pub key: RuleKey,
+    pub aux: i32,
+}
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)] pub enum RuleKey {
+    Constant {aid: AbilityId, host: Uid},
+    Lasting {effect: ContRef, serial: i32},
+}
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)] pub struct TraitsRef {
+    pub def: DefId,
+    pub granted: Span,
+}
+#[derive(Clone, PartialEq, Eq, Debug)] pub struct TriggerIndex {
+    ..
+}
+pub struct Derived {
+    ..
+}
+#[derive(Clone, Copy, Debug)] pub struct Traits<'a> {
+    pub printed: &'a [Box<str>],
+    pub granted: &'a [StrId],
+}
+#[derive(Clone, Copy, Debug)] pub struct Names<'a> {
+    pub names: &'a [Box<str>],
+    pub aliases: &'a [StrId],
+}
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)] pub struct NewGameOptions {
+    pub chooser: Option<u8>,
+    pub turn_limit: i32,
+    pub max_actions: i64,
+    pub validate: bool,
+}
+impl Default for NewGameOptions
+#[derive(Clone, PartialEq, Eq, Hash, Debug)] pub struct UnimplementedCardError {
+    pub card_number: Box<str>,
+    pub reason: Box<str>,
+}
+#[derive(Clone, PartialEq, Eq, Hash, Debug)] pub enum EngineError {
+    Internal(String),
+    Value(String),
+    Index(String),
+    Key(String),
+    Assertion(String),
+    Unimplemented(UnimplementedCardError),
+    RedirectCycle {uids: Box<[Uid]>},
+    Overflow {what: &'static str},
+    Capacity {what: &'static str, capacity: usize},
+    NoProgress {steps: u64},
+}
+impl EngineError {
+    pub const fn py_class(&self) -> &'static str
+}
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)] pub enum IllegalActionError {
+    NoDecision,
+    Illegal {action: Action, kind: DecisionKind},
+}
+#[derive(Clone, PartialEq, Eq, Hash, Debug)] pub enum ApplyError {
+    Illegal(IllegalActionError),
+    Engine(EngineError),
+}
+#[derive(Clone, PartialEq, Eq, Hash, Debug)] pub struct DeckConstructionError {
+    pub player: u8,
+    pub problems: Vec<String>,
+}
+#[derive(Clone, PartialEq, Eq, Hash, Debug)] pub enum NewGameError {
+    Construction(DeckConstructionError),
+    Unimplemented(UnimplementedCardError),
+    Engine(EngineError),
+}
+#[derive(Clone, PartialEq, Debug)] pub struct StateSnapshot {
+    pub state: serde_json::Value,
+    pub continuous: serde_json::Value,
+    pub filter_sets: serde_json::Value,
+    pub rules_checked: i64,
+}
+#[derive(Clone, PartialEq, Eq, Hash, Debug)] pub enum CanonError {
+    Shape {path: String, detail: String},
+    UnknownContent {kind: &'static str, id: String},
+    Value {path: String, detail: String},
+}
+#[derive(Clone, PartialEq, Eq, Hash, Debug)] pub struct InvariantViolation {
+    pub errors: Vec<String>,
+}
+#[derive(Clone, PartialEq, Eq, Hash, Debug)] pub enum CheckError {
+    Violation(InvariantViolation),
+    Engine(EngineError),
+}
+#[derive(Clone, PartialEq, Eq, Hash, Debug)] pub struct CardMultiset(_)
+#[derive(Clone, PartialEq, Eq, Hash, Debug)] pub struct InfoSetKey {
+    ..
+}
+#[cfg(feature = "testkit")] #[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)] pub struct ScenarioOptions {
+    pub active: u8,
+    pub turn: i32,
+    pub seed: u64,
+    pub deck_size: usize,
+}
+#[cfg(feature = "testkit")] impl Default for ScenarioOptions
+#[cfg(feature = "testkit")] #[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)] pub struct AddOptions<'a> {
+    pub rested: bool,
+    pub damage: i32,
+    pub pilot: Option<&'a str>,
+    pub deployed_this_turn: bool,
+    pub known: bool,
+}
+#[cfg(feature = "testkit")] impl Default for AddOptions<'_>
+#[cfg(feature = "testkit")] pub struct Scenario {
+    ..
+}
+#[cfg(feature = "testkit")] #[derive(Clone, Copy, Debug)] pub struct FrameArgs<'a> {
+    pub controller: u8,
+    pub host: i32,
+    pub card_uid: i32,
+    pub kind: FrameKind,
+    pub event: EventPayload,
+    pub vars: &'a [(VarId, &'a [i32])],
+}
+#[cfg(feature = "testkit")] #[derive(Clone, Copy, PartialEq, Eq, Debug)] pub struct LastingArgs<'a> {
+    pub player: i8,
+    pub uses: i32,
+    pub filters: &'a [gcg_effects::FilterId],
+    pub aux: i32,
+}
+#[cfg(feature = "testkit")] impl Default for LastingArgs<'_>
+#[cfg(feature = "testkit")] #[derive(Clone, PartialEq, Eq, Hash, Debug)] pub enum TestkitError {
+    Assertion(String),
+    Value(String),
+    UnknownCard(Box<str>),
+    Apply(ApplyError),
+    Engine(EngineError),
+}
+
+## gcg_engine::diag  [crates/gcg-engine/src/diag.rs]
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)] pub enum CapKind {
+    Turns,
+    Decisions,
+}
+impl CapKind {
+    pub const fn as_str(self) -> &'static str
+}
+impl GameState {
+    pub fn cap_kind(&self) -> Option<CapKind>
+}
+#[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Debug)] pub enum Interpretation {
+    I01,
+    I02,
+    I03,
+    I05,
+    I06,
+    I10,
+    I14,
+    I15,
+    I16,
+    I18,
+}
+impl Interpretation {
+    pub const ALL: [Self; 10]
+    pub const fn id(self) -> &'static str
+}
+pub fn interpretation_runs() -> [u64; Interpretation::ALL.len()]
+pub fn non_converged_views() -> u64
+
+## gcg_engine::enums (private)  [crates/gcg-engine/src/enums.rs]
+#[repr(u8)] #[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Debug)] pub enum Zone {
+    Deck = 0,
+    ResourceDeck = 1,
+    ResourceArea = 2,
+    Battle = 3,
+    Shield = 4,
+    Base = 5,
+    Removal = 6,
+    Hand = 7,
+    Trash = 8,
+    Resolving = 9,
+    Outside = 10,
+    Paired = 11,
+}
+impl Zone {
+    pub const PY_CLASS: &'static str
+    pub const ALL: [Self; 12]
+    pub const fn value(self) -> u8
+    pub const fn py_name(self) -> &'static str
+    pub const fn from_value(value: i64) -> Option<Self>
+    pub const fn index(self) -> usize
+    pub const fn is_public(self) -> bool
+    pub const fn is_field(self) -> bool
+}
+#[repr(u8)] #[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Debug)] pub enum Phase {
+    Setup = 0,
+    Start = 1,
+    Draw = 2,
+    Resource = 3,
+    Main = 4,
+    End = 5,
+    GameOver = 6,
+}
+impl Phase {
+    pub const PY_CLASS: &'static str
+    pub const ALL: [Self; 7]
+    pub const fn value(self) -> u8
+    pub const fn py_name(self) -> &'static str
+    pub const fn from_value(value: i64) -> Option<Self>
+}
+#[repr(u8)] #[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Debug)] pub enum Step {
+    SetupChooseFirst = 0,
+    SetupDraw = 1,
+    SetupRedrawP1 = 2,
+    SetupRedrawP2 = 3,
+    SetupShields = 4,
+    ActiveStep = 10,
+    StartStep = 11,
+    StartStepDone = 12,
+    DrawStep = 20,
+    DrawStepDone = 21,
+    ResourceStep = 30,
+    ResourceStepDone = 31,
+    Main = 40,
+    AttackTriggers = 50,
+    AttackEndCheck = 51,
+    Block = 52,
+    BlockEndCheck = 53,
+    BattleAction = 54,
+    BattleActionEndCheck = 55,
+    Damage = 56,
+    DamageDone = 57,
+    BattleEnd = 58,
+    BattleEndDone = 59,
+    EndAction = 60,
+    EndStep = 61,
+    HandStep = 62,
+    CleanupStep = 63,
+    TurnEnd = 64,
+    EndStepDone = 65,
+    HandStepDone = 66,
+    CleanupStepDone = 67,
+    GameOver = 99,
+}
+impl Step {
+    pub const PY_CLASS: &'static str
+    pub const ALL: [Self; 32]
+    pub const fn value(self) -> u8
+    pub const fn py_name(self) -> &'static str
+    pub const fn from_value(value: i64) -> Option<Self>
+}
+#[repr(u8)] #[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Debug)] pub enum DecisionKind {
+    ChooseFirst = 0,
+    Redraw = 1,
+    Main = 2,
+    Block = 3,
+    ActionStep = 4,
+    OrderTrigger = 5,
+    Burst = 6,
+    YesNo = 7,
+    Select = 8,
+    Excess = 9,
+    Discard = 10,
+    Arrange = 11,
+    Payment = 12,
+}
+impl DecisionKind {
+    pub const PY_CLASS: &'static str
+    pub const ALL: [Self; 13]
+    pub const SORTED_BY_VALUE: [Self; 13]
+    pub const fn as_str(self) -> &'static str
+    pub const fn py_name(self) -> &'static str
+    pub fn from_value(value: &str) -> Option<Self>
+}
+#[repr(u8)] #[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Debug)] pub enum ActionKind {
+    GoFirst = 0,
+    Keep = 1,
+    Redraw = 2,
+    PlayUnit = 3,
+    PlayBase = 4,
+    Pair = 5,
+    PlayCommand = 6,
+    Activate = 7,
+    Attack = 8,
+    EndMain = 9,
+    Block = 10,
+    NoBlock = 11,
+    Pass = 12,
+    Select = 13,
+    Done = 14,
+    Yes = 15,
+    No = 16,
+    Order = 17,
+}
+impl ActionKind {
+    pub const PY_CLASS: &'static str
+    pub const ALL: [Self; 18]
+    pub const SORTED_BY_VALUE: [Self; 18]
+    pub const fn as_str(self) -> &'static str
+    pub const fn py_name(self) -> &'static str
+    pub fn from_value(value: &str) -> Option<Self>
+}
+#[repr(u8)] #[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Debug)] pub enum EndReason {
+    BattleDamage = 0,
+    DeckOut = 1,
+    Concede = 2,
+    BothDefeated = 3,
+    TurnLimit = 4,
+}
+impl EndReason {
+    pub const PY_CLASS: &'static str
+    pub const ALL: [Self; 5]
+    pub const SORTED_BY_VALUE: [Self; 5]
+    pub const fn as_str(self) -> &'static str
+    pub const fn py_name(self) -> &'static str
+    pub fn from_value(value: &str) -> Option<Self>
+}
+#[repr(u8)] #[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Debug)] pub enum HistKind {
+    Activate = 0,
+    Attack = 1,
+    Block = 2,
+    BurstRevealed = 3,
+    CommandActivated = 4,
+    CostPaid = 5,
+    Deployed = 6,
+    Destroyed = 7,
+    DestroysByBattle = 8,
+    DestroysByBattlePaired = 9,
+    Discard = 10,
+    Draw = 11,
+    ExExiled = 12,
+    ExResource = 13,
+    Excess = 14,
+    Paired = 15,
+    Play = 16,
+    PlayedWithEx = 17,
+    PlayerDamage = 18,
+    ResourceSetActive = 19,
+    ShieldDestroyed = 20,
+    ShieldToHand = 21,
+}
+impl HistKind {
+    pub const ALL: [Self; 22]
+    pub const fn as_str(self) -> &'static str
+    pub fn from_value(value: &str) -> Option<Self>
+}
+#[repr(u8)] #[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Debug, Default)] pub enum EvKey {
+    Amount = 0,
+    AsCommand = 1,
+    Attacker = 2,
+    Battle = 3,
+    Blocker = 4,
+    Breach = 5,
+    By = 6,
+    ByEffect = 7,
+    Defender = 8,
+    ExResource = 9,
+    ExUsed = 10,
+    FromLoc = 11,
+    Group = 12,
+    Linked = 13,
+    Pilot = 14,
+    Player = 15,
+    Source = 16,
+    Subject = 17,
+    Target = 18,
+    Token = 19,
+}
+impl EvKey {
+    pub const ALL: [Self; 20]
+    pub const fn as_str(self) -> &'static str
+    pub fn from_value(value: &str) -> Option<Self>
+}
+#[repr(u8)] #[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Debug)] pub enum FrameKind {
+    ActivateMainSub = 0,
+    Activated = 1,
+    Burst = 2,
+    Command = 3,
+    PlaySub = 4,
+    System = 5,
+    Trigger = 6,
+}
+impl FrameKind {
+    pub const ALL: [Self; 7]
+    pub const fn as_str(self) -> &'static str
+    pub fn from_value(value: &str) -> Option<Self>
+}
+#[repr(u8)] #[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Debug)] pub enum EnginePrompt {
+    ActionStep = 0,
+    BattleAreaExcess = 1,
+    Block = 2,
+    ChoosePlayerOne = 3,
+    ChooseMode = 4,
+    Discard = 5,
+    MainPhase = 6,
+    NextCardTopFirst = 7,
+    OrderTopFirst = 8,
+    OrderTriggers = 9,
+    Redraw = 10,
+    RestInstead = 11,
+    Top0OrBottom1 = 12,
+    YouMay = 13,
+}
+impl EnginePrompt {
+    pub const ALL: [Self; 14]
+    pub const fn as_str(self) -> &'static str
+    pub fn from_value(value: &str) -> Option<Self>
+}
+#[repr(u8)] #[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Debug, Default)] pub enum CtxKey {
+    All = 0,
+    Card = 1,
+    Count = 2,
+    Max = 3,
+    Min = 4,
+    Mode = 5,
+    Order = 6,
+    Owner = 7,
+    RestSub = 8,
+    Zone = 9,
+}
+impl CtxKey {
+    pub const ALL: [Self; 10]
+    pub const fn as_str(self) -> &'static str
+    pub fn from_value(value: &str) -> Option<Self>
+}
+pub const PUBLIC_ZONES: [Zone; 7]
+pub const FIELD_ZONES: [Zone; 5]
+pub const ORDERED_ZONES: [Zone; 3]
+pub const TOKEN_ZONES: [Zone; 4]
+pub const HIDDEN_ZONES: [Zone; 4]
+pub const LISTED_ZONES: [Zone; 11]
+pub const NO_ARG: i32
+pub const PLAYER_TARGET: i32
+pub const N_ZONES: usize
+pub const BOTH_KNOW: u8
+pub const HAND_LIMIT: usize
+pub const BATTLE_LIMIT: usize
+pub const BASE_LIMIT: usize
+pub const RESOURCE_LIMIT: usize
+pub const EX_RESOURCE_LIMIT: usize
+pub const SHIELD_COUNT: usize
+pub const START_HAND: usize
+pub const REDUCE_ONCE_TAG: i32
+pub const PREVENT_ONCE_TAG: i32
+pub const REST_SUB_TAG: i32
+pub const SUPPORT_AID: i32
+pub const ALT_PLAY_BASE: i32
+pub const MAX_ACTIONS_DEFAULT: i64
+pub const MAIN_DECK_SIZE: usize
+pub const RESOURCE_DECK_SIZE: usize
+pub const MAX_COPIES: usize
+pub const MAX_COLORS: usize
+pub const BURST_PROMPT: &str
+pub const HOLD_RULES: &str
+#[cfg(feature = "testkit")] pub const FILLER_UNIT: &str
+#[cfg(feature = "testkit")] pub const FILLER_RESOURCE: &str
+pub const STATE_JSON_KEYS: [&str; 34]
+pub const FRAME_JSON_KEYS: [&str; 16]
+pub const DECISION_JSON_KEYS: [&str; 5]
+
+## gcg_engine::error (private)  [crates/gcg-engine/src/error.rs]
+impl fmt::Display for UnimplementedCardError
+impl Error for UnimplementedCardError
+impl fmt::Display for EngineError
+impl Error for EngineError
+impl fmt::Display for IllegalActionError
+impl Error for IllegalActionError
+impl fmt::Display for ApplyError
+impl Error for ApplyError
+impl From<EngineError> for ApplyError
+impl From<IllegalActionError> for ApplyError
+impl fmt::Display for DeckConstructionError
+impl Error for DeckConstructionError
+impl fmt::Display for NewGameError
+impl Error for NewGameError
+impl From<EngineError> for NewGameError
+impl fmt::Display for CanonError
+impl Error for CanonError
+impl fmt::Display for InvariantViolation
+impl Error for InvariantViolation
+impl fmt::Display for CheckError
+impl Error for CheckError
+impl From<EngineError> for CheckError
+
+## gcg_engine::game (private)  [crates/gcg-engine/src/game.rs]
+pub fn deck_construction_problems(db: &CardDb, deck: &DeckList) -> Vec<String>
+pub fn deck_construction_problems_by_number(db: &CardDb, main: &[&str], resources: &[&str]) -> Vec<String>
+pub fn new_game(reg: &Arc<Registry>, decks: [&DeckList; 2], seed: u64, opts: NewGameOptions) -> Result<GameState, NewGameError>
+pub fn new_game_by_number(reg: &Arc<Registry>, decks: [(&[&str], &[&str]); 2], seed: u64, opts: NewGameOptions) -> Result<GameState, NewGameError>
+pub fn concede(st: &mut GameState, player: u8)
+pub fn legal_actions(st: &GameState) -> &[Action]
+pub fn apply(st: &mut GameState, action: Action, check: bool) -> Result<(), ApplyError>
+pub fn step(st: &GameState, action: Action) -> Result<GameState, ApplyError>
+
+## gcg_engine::invariants  [crates/gcg-engine/src/invariants.rs]
+pub use crate::LISTED_ZONES
+pub fn check(st: &GameState, initial: Option<&CardMultiset>) -> Result<(), CheckError>
+pub fn initial_multiset(st: &GameState) -> CardMultiset
+impl CardMultiset {
+    pub fn entries(&self) -> &[((u8, DefId), u32)]
+}
+
+## gcg_engine::observe  [crates/gcg-engine/src/observe.rs]
+pub use crate::HIDDEN_ZONES
+pub fn is_hidden_from(st: &GameState, uid: Uid, observer: u8) -> bool
+pub fn unknown_instances(st: &GameState, observer: u8, owner: u8) -> Vec<Uid>
+pub fn unknown_pools(st: &GameState, observer: u8, owner: u8) -> (Vec<DefId>, Vec<DefId>)
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug, Default)] pub struct FitAdjustments {
+    pub pads: u64,
+    pub trims: u64,
+}
+pub fn fit_adjustments() -> FitAdjustments
+pub fn determinize(st: &GameState, observer: u8, seed: u64) -> Result<GameState, EngineError>
+pub fn determinize_into(st: &GameState, observer: u8, seed: u64, out: &mut GameState) -> Result<(), EngineError>
+pub fn permute_hidden(st: &GameState, observer: u8, seed: u64) -> GameState
+#[derive(Clone, PartialEq, Eq, Debug, Default)] pub struct HiddenPools {
+    pub main_slots: Vec<Uid>,
+    pub res_slots: Vec<Uid>,
+    pub main: Vec<DefId>,
+    pub res: Vec<DefId>,
+}
+impl HiddenPools {
+    pub fn slots(&self) -> Vec<Uid>
+}
+pub fn exact_pools(st: &GameState, observer: u8, owner: u8) -> Result<HiddenPools, EngineError>
+pub fn assign_hidden(s: &mut GameState, observer: u8, ids: &[(Uid, DefId)]) -> Result<(), EngineError>
+pub fn determinize_exact_into(st: &GameState, observer: u8, seed: u64, keep: &[Uid], out: &mut GameState) -> Result<(), EngineError>
+pub fn determinize_exact(st: &GameState, observer: u8, seed: u64) -> Result<GameState, EngineError>
+pub fn with_decklists(st: &GameState, main: [Box<[DefId]>; 2], resource: [Box<[DefId]>; 2]) -> Result<GameState, EngineError>
+pub fn information_set_key(st: &GameState, observer: u8) -> InfoSetKey
+impl InfoSetKey {
+    pub fn to_json(&self, reg: &Registry) -> Json
+}
+
+## gcg_engine::paranoid #[cfg(feature = "paranoid")]  [crates/gcg-engine/src/paranoid.rs]
+#[derive(Clone, Copy, PartialEq, Eq, Debug)] pub enum Check {
+    CachedView,
+    UnlistenedEvent,
+    NoPrintedLethalDamage,
+    UnchangedState,
+    ViewFreeReference,
+    SkippedPass,
+}
+impl Check {
+    pub const ALL: [Self; 6]
+    pub const fn name(self) -> &'static str
+}
+#[derive(Clone, PartialEq, Eq, Debug)] pub struct MovedHost {
+    pub card_number: Box<str>,
+    pub queued_seq: i32,
+    pub resolved_seq: i32,
+}
+pub fn moved_hosts() -> Vec<MovedHost>
+pub fn counts() -> [u64; 6]
+
+## gcg_engine::procedures  [crates/gcg-engine/src/procedures.rs]
+pub fn declare_attack(st: &mut GameState, attacker: Uid, target: i32) -> Result<(), EngineError>
+pub fn eligible_blockers(st: &GameState, b: &Battle) -> Result<Vec<Uid>, EngineError>
+pub fn main_options(st: &GameState) -> Result<Vec<Action>, EngineError>
+pub fn action_step_options(st: &GameState, p: u8) -> Result<Vec<Action>, EngineError>
+pub fn activated_list(st: &GameState, p: u8, timing: Timing) -> Result<Vec<(Uid, i32, i32)>, EngineError>
+pub fn command_playable(st: &GameState, p: u8, uid: Uid, timing: Timing) -> Result<bool, EngineError>
+pub fn set_rested_for_trial(st: &mut GameState, uid: Uid, rested: bool)
+
+## gcg_engine::state (private)  [crates/gcg-engine/src/state.rs]
+impl GameState {
+    pub fn pending(&self) -> Option<DecisionView<'_>>
+    pub fn cards(&self) -> &[CardInstance]
+    pub fn card(&self, uid: Uid) -> &CardInstance
+    pub fn zone(&self, p: u8, z: Zone) -> &[Uid]
+    pub fn seed(&self) -> u64
+    pub fn rng_state(&self) -> u64
+    pub fn turn(&self) -> i32
+    pub fn active(&self) -> u8
+    pub fn standby(&self) -> u8
+    pub fn first_player(&self) -> u8
+    pub fn setup_chooser(&self) -> u8
+    pub fn phase(&self) -> Phase
+    pub fn step(&self) -> Step
+    pub fn priority(&self) -> u8
+    pub fn passes(&self) -> i32
+    pub fn battle(&self) -> Option<&Battle>
+    pub fn battles(&self) -> &[Battle]
+    pub fn frames(&self) -> &[Frame]
+    pub fn frame_vars(&self, f: &Frame) -> FrameVars<'_>
+    pub fn frame_buf(&self, f: &Frame) -> &[i32]
+    pub fn frame_ints(&self, f: &Frame) -> &[IntEntry]
+    pub fn pending_triggers(&self) -> &[TriggerInst]
+    pub fn batches(&self) -> impl Iterator<Item = &[TriggerInst]> + '_
+    pub fn lasting(&self) -> &[Lasting]
+    pub fn delayed(&self) -> &[Lasting]
+    pub fn lasting_targets(&self, l: &Lasting) -> &[(Uid, i32)]
+    pub fn once_used(&self) -> &[OnceKey]
+    pub fn history(&self) -> &[HistoryEvent]
+    pub fn history_epoch(&self) -> u32
+    pub fn winner(&self) -> Option<i8>
+    pub fn game_over(&self) -> bool
+    pub fn end_reason(&self) -> Option<EndReason>
+    pub fn decklists(&self) -> [&[DefId]; 2]
+    pub fn resource_decklists(&self) -> [&[DefId]; 2]
+    pub fn redraws(&self) -> [bool; 2]
+    pub fn version(&self) -> u64
+    pub fn action_count(&self) -> i64
+    pub fn event_group(&self) -> i64
+    pub fn turn_limit(&self) -> i32
+    pub fn max_actions(&self) -> i64
+    pub fn rules_checked(&self) -> i64
+    pub fn registry(&self) -> &Arc<Registry>
+    pub fn db(&self) -> &'static CardDb
+    pub fn def_of(&self, uid: Uid) -> &'static CardDef
+    pub fn clone_from_state(&mut self, src: &Self)
+}
+
+## gcg_engine::testkit #[cfg(feature = "testkit")]  [crates/gcg-engine/src/testkit/mod.rs]
+impl Scenario {
+    pub fn new(reg: &Arc<Registry>, opts: ScenarioOptions) -> Scenario
+    pub fn add(&mut self, player: u8, number: &str, zone: Zone, opts: AddOptions<'_>) -> Result<Uid, TestkitError>
+    pub fn add_raw(&mut self, player: u8, number: &str, zone: Zone) -> Result<Uid, TestkitError>
+    pub fn hand(&mut self, player: u8, numbers: &[&str]) -> Result<Vec<Uid>, TestkitError>
+    pub fn trash(&mut self, player: u8, numbers: &[&str]) -> Result<Vec<Uid>, TestkitError>
+    pub fn shields(&mut self, player: u8, numbers: &[&str]) -> Result<Vec<Uid>, TestkitError>
+    pub fn deck(&mut self, player: u8, numbers: &[&str])
+    pub fn resources(&mut self, player: u8, n: usize, rested: usize, ex: usize) -> Result<Vec<Uid>, TestkitError>
+    pub fn base(&mut self, player: u8, number: Option<&str>, damage: i32) -> Result<Uid, TestkitError>
+    pub fn resource_deck(&mut self, player: u8, n: usize) -> Result<(), TestkitError>
+    pub fn force_link(&mut self, unit_numbers: &[&str])
+    pub fn prepare_start(&mut self, step: Step) -> Result<(), TestkitError>
+    pub fn start(&mut self, step: Step) -> Result<(), TestkitError>
+    pub fn state(&self) -> &GameState
+    pub fn state_mut(&mut self) -> &mut GameState
+    pub fn into_state(self) -> GameState
+}
+pub fn vanilla_deck(db: &CardDb, color: &str, resource: &str) -> Result<DeckList, TestkitError>
+pub fn act(st: &mut GameState, kind: ActionKind, a: Option<i32>, b: Option<i32>, c: Option<i32>) -> Result<Action, TestkitError>
+pub fn has_action(st: &GameState, kind: ActionKind, a: Option<i32>, b: Option<i32>) -> bool
+pub fn play(st: &mut GameState, uid: Uid, onto: Option<Uid>, ex: i32) -> Result<Action, TestkitError>
+pub fn activate(st: &mut GameState, host: Uid, ability: Option<i32>, ex: i32) -> Result<Action, TestkitError>
+pub fn attack(st: &mut GameState, attacker: Uid, target: i32) -> Result<Action, TestkitError>
+pub fn end_main(st: &mut GameState) -> Result<Action, TestkitError>
+pub fn block(st: &mut GameState, blocker: Option<Uid>) -> Result<Action, TestkitError>
+pub fn pass(st: &mut GameState) -> Result<Action, TestkitError>
+pub fn yes(st: &mut GameState) -> Result<Action, TestkitError>
+pub fn no(st: &mut GameState) -> Result<Action, TestkitError>
+pub fn yes_if_asked(st: &mut GameState) -> Result<(), TestkitError>
+pub fn select(st: &mut GameState, uids: &[Uid], done: Option<bool>) -> Result<(), TestkitError>
+pub fn arrange_if_asked(st: &mut GameState) -> Result<(), TestkitError>
+pub fn select_if_asked(st: &mut GameState, uids: &[Uid], done: Option<bool>) -> Result<(), TestkitError>
+pub fn choose_option(st: &mut GameState, index: i32) -> Result<Action, TestkitError>
+pub fn order(st: &mut GameState, index: usize) -> Result<Action, TestkitError>
+#[derive(Clone, Copy, PartialEq, Eq, Debug)] pub enum CapOutcome {
+    Reached,
+    Capped,
+}
+pub const TO_NEXT_TURN_STEPS: usize
+pub fn pass_all(st: &mut GameState, max_steps: usize) -> Result<(), TestkitError>
+pub fn pass_all_allow_cap(st: &mut GameState, max_steps: usize) -> Result<CapOutcome, TestkitError>
+pub fn to_next_turn(st: &mut GameState) -> Result<(), TestkitError>
+pub fn to_next_turn_allow_cap(st: &mut GameState, max_steps: usize) -> Result<CapOutcome, TestkitError>
+pub fn zone_of(st: &GameState, uid: Uid) -> Zone
+pub fn ap(st: &GameState, uid: Uid) -> Result<i32, TestkitError>
+pub fn hp(st: &GameState, uid: Uid) -> Result<i32, TestkitError>
+pub fn keywords(st: &GameState, uid: Uid) -> Result<Vec<(Kw, i32)>, TestkitError>
+pub fn uids_in(st: &GameState, player: u8, zone: Zone) -> Vec<Uid>
+pub fn numbers_in(st: &GameState, player: u8, zone: Zone) -> Vec<&'static str>
+pub fn legal_kinds(st: &GameState) -> Vec<ActionKind>
+pub fn expect_illegal(st: &mut GameState, action: Action) -> Result<(), TestkitError>
+pub fn run_random(st: &mut GameState, seed: u64, max_actions: usize) -> Result<(), TestkitError>
+pub fn run_random_allow_cap(st: &mut GameState, seed: u64, max_actions: usize) -> Result<CapOutcome, TestkitError>
+pub fn names(st: &GameState, uids: &[Uid]) -> Vec<&'static str>
+pub fn card_numbers(st: &GameState, uids: &[Uid]) -> Vec<&'static str>
+pub fn install_view(st: &GameState, view_from: &GameState, key: ViewKey) -> Result<(), EngineError>
+pub fn set_force_link(st: &mut GameState, units: &[&str])
+pub fn snapshot(st: &GameState) -> StateSnapshot
+
+## gcg_engine::testkit::engine  [crates/gcg-engine/src/testkit/engine.rs]
+pub fn push_frame(st: &mut GameState, program: ProgramId, args: FrameArgs<'_>) -> Result<usize, EngineError>
+pub fn advance(st: &mut GameState) -> Result<(), EngineError>
+pub fn add_lasting(st: &mut GameState, effect: ContinuousId, controller: u8, source: i32, targets: &[(Uid, i32)], duration: Duration, o: LastingArgs<'_>) -> Result<(), EngineError>
+pub fn add_lasting_effect(st: &mut GameState, cont: ContRef, controller: u8, source: i32, targets: &[(Uid, i32)], duration: Duration, o: LastingArgs<'_>) -> Result<(), EngineError>
+pub fn draw(st: &mut GameState, p: u8, n: i64, by_effect: bool) -> Result<i64, EngineError>
+pub fn card_type(st: &GameState, uid: Uid) -> CardType
+pub fn deploy_cards(st: &mut GameState, cards: &[Uid], rested: bool, by: i32, ex_used: i32) -> Result<(), EngineError>
+pub fn touch(st: &mut GameState)
+pub fn move_card(st: &mut GameState, uid: Uid, dst: Zone, bottom: bool, reveal: bool, rested: bool) -> Result<(), EngineError>
+pub fn remove_from_game(st: &mut GameState, uid: Uid) -> Result<(), EngineError>
+pub fn new_card(st: &mut GameState, def: DefId, owner: u8, zone: Zone, rested: bool) -> Result<Uid, EngineError>
+pub fn shuffle_deck(st: &mut GameState, p: u8)
+pub fn record(st: &mut GameState, kind: HistKind, player: u8, by: i8, uid: i32, source: i32)
+pub fn apply_damage(st: &mut GameState, uid: Uid, amount: i64, source: i32, battle: bool, by: i32) -> Result<i64, EngineError>
+pub fn pay_generic(st: &mut GameState, p: u8, cost: i64, ex_used: i32) -> Result<bool, EngineError>
+pub fn once_add(st: &mut GameState, key: &[i32]) -> Result<(), EngineError>
+
+## gcg_engine::types (private)  [crates/gcg-engine/src/types.rs]
+impl fmt::Display for Action
+impl Action {
+    pub fn to_json(&self) -> Json
+}
+impl EventPayload {
+    pub fn get(&self, key: EvKey) -> Option<i32>
+}
+impl DecisionHdr {
+    pub fn ctx(&self, key: CtxKey) -> i32
+}
+impl<'a> FrameVars<'a> {
+    pub fn get(&self, var: VarId) -> Option<&'a [i32]>
+    pub fn iter(&self) -> impl Iterator<Item = (VarId, &'a [i32])> + 'a
+}
+impl OnceKey {
+    pub fn contains_int(&self, x: i32) -> bool
+    pub fn with_self(&self, uid: i32) -> FpOnceKey
+}
+
+## gcg_engine::view  [crates/gcg-engine/src/view/mod.rs]
+pub use derived::{derived, same_values, trigger_index}
+pub use eval::{matches, stat}
+pub use query::{abilities_of, ap_of, cost_of, has_kw, hp_of, is_linked, keywords, kw_amount, level_of, link_satisfied, link_satisfied_unpatched, names_of, play_cost, play_level, rules_all, rules_of, traits_of, traits_present}
+pub use signature::signature
+impl Ctx {
+    pub fn new(controller: u8, host: i32, card_uid: i32, vars: CtxVars, event: EventPayload) -> Ctx
+    pub fn ev(&self, key: EvKey, default: i32) -> i32
+}
+impl Derived {
+    pub fn empty() -> Derived
+    pub fn key(&self) -> ViewKey
+    pub fn converged(&self) -> bool
+}
+impl TriggerIndex {
+    pub fn get(&self, ev: Ev) -> &[(Uid, gcg_effects::AbilityId)]
+}
+impl<'a> Traits<'a> {
+    pub fn iter(&self, reg: &'a Registry) -> impl Iterator<Item = &'a str> + 'a
+}
+impl<'a> Names<'a> {
+    pub fn iter(&self, reg: &'a Registry) -> impl Iterator<Item = &'a str> + 'a
+}
+
+## gcg_engine::view::derived (private)  [crates/gcg-engine/src/view/derived.rs]
+pub fn derived(st: &GameState) -> Result<Arc<Derived>, EngineError>
+pub fn same_values(a: &Derived, b: &Derived) -> bool
+pub fn trigger_index<'a>(st: &GameState, dv: &'a Derived) -> &'a TriggerIndex
+
+## gcg_engine::view::eval (private)  [crates/gcg-engine/src/view/eval.rs]
+pub fn stat(st: &GameState, dv: &Derived, uid: Uid, s: Stat) -> i32
+pub fn matches(st: &GameState, dv: &Derived, ctx: &Ctx, uid: Uid, filters: &[FilterId]) -> Result<bool, EngineError>
+
+## gcg_engine::view::query (private)  [crates/gcg-engine/src/view/query.rs]
+pub fn ap_of(st: &GameState, dv: &Derived, uid: Uid) -> i32
+pub fn hp_of(st: &GameState, dv: &Derived, uid: Uid) -> i32
+pub fn level_of(st: &GameState, uid: Uid) -> i32
+pub fn cost_of(st: &GameState, uid: Uid) -> i32
+pub fn play_cost(st: &GameState, dv: &Derived, uid: Uid) -> Result<i32, EngineError>
+pub fn play_level(st: &GameState, dv: &Derived, uid: Uid) -> i32
+pub fn keywords(dv: &Derived, uid: Uid) -> KwAmounts
+pub fn has_kw(dv: &Derived, uid: Uid, kw: Kw) -> bool
+pub fn kw_amount(dv: &Derived, uid: Uid, kw: Kw) -> i32
+pub fn traits_of<'a>(st: &'a GameState, dv: &'a Derived, uid: Uid) -> Traits<'a>
+pub fn traits_present(dv: &Derived, uid: Uid) -> Option<Traits<'_>>
+pub fn rules_of(dv: &Derived, uid: Uid, kind: RuleKind) -> impl Iterator<Item = &RuleInst> + '_
+pub fn rules_all(dv: &Derived, uid: Uid) -> &[RuleInst]
+pub fn is_linked(dv: &Derived, uid: Uid) -> bool
+pub fn abilities_of(dv: &Derived, uid: Uid) -> &[AbilityId]
+pub fn link_satisfied(st: &GameState, unit: &CardDef, pilot: &CardDef) -> bool
+pub fn link_satisfied_unpatched(reg: &Registry, unit: &CardDef, pilot: &CardDef) -> bool
+pub fn names_of<'a>(reg: &'a Registry, cd: &'a CardDef) -> Names<'a>
+
+## gcg_engine::view::signature (private)  [crates/gcg-engine/src/view/signature.rs]
+pub fn signature(st: &GameState, dv: &Derived) -> Json
+
+# gcg-ai
+
+## gcg_ai  [crates/gcg-ai/src/lib.rs]
+pub use actions::{RestPrune, action_key, attack_can_matter, canonical, ex_used, prune_dominated, rest_prune}
+pub use agent::{apply_unchecked, uid_argument}
+pub use contracts::*
+pub use evaluation::{burst_density, evaluate, evaluate_with, features, logistic, logistic_with, role_features, score}
+pub use fingerprint::merge_equivalent
+pub use greedy::make_greedy_agent
+pub use log::{card_label, describe, log_entry}
+pub use math::FloatMath
+pub use noop::{SPENDING, without_effect, without_effect_with}
+pub use playout::{play_to_end, play_to_end_with, play_until_turn}
+pub use policy::{choose, choose_with, option_scores, pick, pick_with}
+pub use random::make_random_agent
+pub use setup::{first_player_choice, first_player_choice_with, mulligan_choice, opening_score}
+
+## gcg_ai::actions  [crates/gcg-ai/src/actions.rs]
+pub fn ex_used(a: Action) -> i32
+pub fn action_key(st: &GameState, dec: &DecisionView<'_>, a: Action) -> MoveKey
+pub fn canonical(st: &GameState, dec: &DecisionView<'_>) -> Vec<(MoveKey, Action)>
+pub fn attack_can_matter(st: &GameState, player: u8, attacker: Uid) -> Result<bool, EngineError>
+#[derive(Clone, Copy, PartialEq, Eq, Debug)] pub enum RestPrune {
+    Pruned,
+    RestTrigger,
+    WhileRested,
+}
+pub fn rest_prune(st: &GameState, dec: &DecisionView<'_>, moves: &[(MoveKey, Action)]) -> Result<Option<RestPrune>, EngineError>
+pub fn prune_dominated(st: &GameState, dec: &DecisionView<'_>, moves: Vec<(MoveKey, Action)>, f: PruneFlags) -> Result<Vec<(MoveKey, Action)>, EngineError>
+
+## gcg_ai::agent  [crates/gcg-ai/src/agent.rs]
+impl AgentCore {
+    pub fn begin<'s>(&mut self, st: &'s GameState, player: u8) -> Result<(DecisionView<'s>, SplitMix64), AgentError>
+    pub fn finish(&mut self, st: &GameState, player: u8, chosen: Action, alts: &[Alternative]) -> Action
+}
+pub fn uid_argument(dec: &DecisionView<'_>) -> bool
+impl fmt::Display for AgentError
+impl std::error::Error for AgentError
+impl From<gcg_engine::EngineError> for AgentError
+impl From<gcg_engine::ApplyError> for AgentError
+pub fn apply_unchecked(st: &mut GameState, action: Action) -> Result<(), gcg_engine::EngineError>
+
+## gcg_ai::contracts (private)  [crates/gcg-ai/src/contracts.rs]
+pub trait Agent: Send {
+    fn name(&self) -> &str
+    fn choose(&mut self, st: &GameState, player: u8, cx: &mut AgentCx<'_>) -> Result<Action, AgentError>
+    fn choose_traced(&mut self, st: &GameState, player: u8, cx: &mut AgentCx<'_>, tracer: &mut dyn SearchTracer) -> Result<(Action, Option<DecisionTrace>), AgentError> { .. }
+    fn decision_log(&self) -> &[LogEntry]
+    fn effort(&self) -> Option<AgentEffort> { .. }
+}
+pub struct AgentCx<'a> {
+    pub scratch: &'a mut Scratch,
+    pub par: &'a TaskCx<'a, Scratch>,
+    pub cancel: &'a Cancel,
+}
+#[repr(align(128))] #[derive(Default)] pub struct Scratch {
+    ..
+}
+#[derive(Clone, PartialEq, Eq, Hash, Debug)] pub enum AgentError {
+    NoDecision {agent: Box<str>, player: u8},
+    Value(String),
+    Assertion(String),
+    Engine(EngineError),
+    Illegal(IllegalActionError),
+    Interrupted,
+}
+impl AgentError {
+    pub const fn py_class(&self) -> &'static str
+}
+pub const LOG_ALTERNATIVES: usize
+#[derive(Clone, Copy, PartialEq, Debug)] pub struct Alternative {
+    pub action: Action,
+    pub value: f64,
+    pub visits: u32,
+}
+#[derive(Clone, Debug)] pub struct AgentCore {
+    ..
+}
+impl AgentCore {
+    pub fn new(name: impl Into<Box<str>>, seed: u64, log: bool) -> Self
+    pub fn name(&self) -> &str
+    pub const fn seed(&self) -> u64
+    pub const fn log_enabled(&self) -> bool
+    pub const fn decisions(&self) -> u64
+    pub fn entries(&self) -> &[LogEntry]
+}
+#[derive(Clone, PartialEq, Debug)] pub struct LogEntry {
+    pub turn: i32,
+    pub player: u8,
+    pub decision: DecisionKind,
+    pub chosen: Action,
+    pub label: Option<Box<str>>,
+    pub alternatives: Vec<LogAlternative>,
+}
+#[derive(Clone, PartialEq, Debug)] pub struct LogAlternative {
+    pub action: Action,
+    pub label: Option<Box<str>>,
+    pub value: f64,
+    pub visits: u32,
+}
+#[derive(Clone, Copy, PartialEq, Debug)] pub struct PolicyKnobs {
+    pub burst_yes_score: f64,
+    pub rule_polarity_table: bool,
+    pub zero_ap_face: bool,
+}
+pub const BASELINE_KNOBS: PolicyKnobs
+impl Default for PolicyKnobs
+pub const FEATURES: [&str; 14]
+pub const N_FEATURES: usize
+pub const ROLE_FEATURES: [&str; 17]
+#[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Debug)] pub enum FeatureSet {
+    Base,
+    Roles,
+}
+impl FeatureSet {
+    pub const ALL: [Self; 2]
+    pub const fn as_str(self) -> &'static str
+    pub fn from_value(value: &str) -> Option<Self>
+    pub const fn names(self) -> &'static [&'static str]
+}
+#[derive(Clone, PartialEq, Debug)] pub struct Weights {
+    ..
+}
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)] pub struct WeightsError {
+    pub expected: usize,
+    pub got: usize,
+}
+impl fmt::Display for WeightsError
+impl std::error::Error for WeightsError
+impl Weights {
+    pub fn new(values: Vec<f64>, feature_set: FeatureSet) -> Result<Self, WeightsError>
+    pub fn values(&self) -> &[f64]
+    pub const fn feature_set(&self) -> FeatureSet
+    pub fn as_pairs(&self) -> impl Iterator<Item = (&'static str, f64)> + '_
+}
+pub static HAND_WEIGHTS: Weights
+pub static TUNED_WEIGHTS: Weights
+pub static ROLE_WEIGHTS: Weights
+pub static DEFAULT_WEIGHTS: &Weights
+pub type Density = [f64; 2]
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)] pub struct MoveKey {
+    pub kind: ActionKind,
+    pub a: i64,
+    pub b: i64,
+    pub variant: i32,
+}
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug, Default)] pub struct PruneFlags {
+    pub strict_attacks: bool,
+    pub rest_targets: bool,
+}
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug, Default)] pub struct NoopFlags {
+    pub branch_choices: bool,
+    pub resource_aware: bool,
+}
+#[derive(Clone, PartialEq, Debug)] pub struct SearchResult {
+    pub action: Action,
+    pub alternatives: Vec<Alternative>,
+    pub stats: SearchStats,
+}
+#[derive(Clone, PartialEq, Eq, Hash, Debug)] pub struct SearchStats {
+    pub iterations: u32,
+    pub budget: u32,
+    pub cap: u32,
+    pub roots: Vec<MoveKey>,
+    pub effort: SearchEffort,
+}
+#[derive(Clone, PartialEq, Debug)] pub struct DecisionTrace {
+    pub k: u64,
+    pub seed: u64,
+    pub rng_after: u64,
+    pub alternatives: Vec<Alternative>,
+    pub search: Option<SearchStats>,
+}
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug, Default)] pub struct SearchEffort {
+    pub applies_tree: u64,
+    pub applies_rollout: u64,
+    pub applies_aux: u64,
+    pub worlds: u64,
+    pub rollouts_capped: u64,
+}
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug, Default)] pub struct AgentEffort {
+    pub decisions: u64,
+    pub searches: u64,
+    pub iterations: u64,
+    pub applies_tree: u64,
+    pub applies_rollout: u64,
+    pub applies_aux: u64,
+    pub worlds: u64,
+    pub rollouts_capped: u64,
+}
+impl AgentEffort {
+    pub fn record(&mut self, search: Option<&SearchStats>)
+    pub const fn plus(&self, o: &Self) -> Self
+    pub const fn applies(&self) -> u64
+}
+#[derive(Clone, PartialEq, Eq, Hash, Debug)] pub struct SearchSettings {
+    pub preset: &'static str,
+    pub mapping: &'static str,
+    pub iterations_per_option: u32,
+    pub min_iterations: u32,
+    pub max_iterations: u32,
+    pub aux_apply_cap: u64,
+    pub mechanisms: Vec<&'static str>,
+    pub weights: String,
+}
+#[derive(Clone, Copy, PartialEq, Debug)] pub struct IterTrace {
+    pub n: u32,
+    pub child: u32,
+    pub visit: u32,
+    pub fresh: bool,
+    pub path_len: u32,
+    pub applies_walk: u32,
+    pub applies_rollout: u32,
+    pub leaf: f64,
+    pub terminal: bool,
+    pub total_before: f64,
+    pub total_after: f64,
+}
+pub trait SearchTracer {
+    fn iteration(&mut self, world: &GameState, it: &IterTrace)
+    fn apply(&mut self, n: u32, j: u32, action: Action, after: &GameState)
+}
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug, Default)] pub struct NoTrace
+impl SearchTracer for NoTrace
+pub const GREEDY_MULLIGAN_SAMPLES: u32
+pub const GREEDY_MAX_DECISIONS: u32
+#[derive(Clone, Debug)] pub struct RandomAgent {
+    ..
+}
+impl RandomAgent {
+    pub fn new(seed: u64, log: bool) -> Self
+}
+#[derive(Clone, Debug)] pub struct GreedyAgent {
+    ..
+}
+impl GreedyAgent {
+    pub fn new(seed: u64, log: bool, weights: Weights) -> Self
+}
+
+## gcg_ai::evaluation  [crates/gcg-ai/src/evaluation.rs]
+pub const BASE_LIFE_HP: f64
+pub const DANGER_LIFE: f64
+pub const RACE_CAP: i64
+pub fn burst_density(st: &GameState, observer: u8) -> Density
+pub fn features(st: &GameState, player: u8, density: Density) -> Result<Vec<f64>, EngineError>
+pub fn role_features(st: &GameState, density: Density) -> Result<Vec<f64>, EngineError>
+pub fn logistic(z: f64) -> f64
+pub fn logistic_with(z: f64, math: FloatMath) -> f64
+pub fn score(st: &GameState, player: u8, w: &Weights, density: Density) -> Result<f64, EngineError>
+pub fn evaluate(st: &GameState, player: u8, w: &Weights, density: Density) -> Result<f64, EngineError>
+pub fn evaluate_with(st: &GameState, player: u8, w: &Weights, density: Density, math: FloatMath) -> Result<f64, EngineError>
+
+## gcg_ai::fingerprint (private)  [crates/gcg-ai/src/fingerprint.rs]
+pub fn merge_equivalent(st: &GameState, dec: &DecisionView<'_>, moves: Vec<(MoveKey, Action)>) -> Result<Vec<(MoveKey, Action)>, EngineError>
+
+## gcg_ai::greedy (private)  [crates/gcg-ai/src/greedy.rs]
+impl Agent for GreedyAgent
+pub fn make_greedy_agent(seed: u64, log: bool, weights: Weights) -> Box<dyn Agent>
+
+## gcg_ai::log  [crates/gcg-ai/src/log.rs]
+pub fn log_entry(st: &GameState, player: u8, chosen: Action, alts: &[Alternative]) -> LogEntry
+impl LogEntry {
+    pub fn to_json(&self) -> Json
+}
+pub fn card_label(st: &GameState, uid: i32, observer: u8) -> String
+pub fn describe(st: &GameState, dec: &DecisionView<'_>, action: Action, observer: u8) -> String
+
+## gcg_ai::math  [crates/gcg-ai/src/math.rs]
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)] pub enum FloatMath {
+    Platform,
+    Portable,
+}
+impl FloatMath {
+    pub fn exp(self, x: f64) -> f64
+    pub fn ln(self, x: f64) -> f64
+    pub fn square(self, x: f64) -> f64
+    pub fn sqrt(self, x: f64) -> f64
+}
+
+## gcg_ai::noop  [crates/gcg-ai/src/noop.rs]
+pub const SPENDING: [ActionKind; 2]
+pub fn without_effect(st: &GameState, player: u8, dec: &DecisionView<'_>, moves: &[(MoveKey, Action)], seed: u64, knobs: &PolicyKnobs, f: NoopFlags, w: &Weights) -> Result<Vec<MoveKey>, EngineError>
+pub fn without_effect_with(st: &GameState, player: u8, dec: &DecisionView<'_>, moves: &[(MoveKey, Action)], seed: u64, knobs: &PolicyKnobs, f: NoopFlags, w: &Weights, math: FloatMath) -> Result<Vec<MoveKey>, EngineError>
+
+## gcg_ai::playout  [crates/gcg-ai/src/playout.rs]
+pub fn play_until_turn(st: &mut GameState, turn: i32, mut rng: Option<&mut SplitMix64>, temperature: f64, max_decisions: u32, knobs: &PolicyKnobs) -> Result<u32, EngineError>
+pub fn play_to_end(st: &mut GameState, rng: Option<&mut SplitMix64>, temperature: f64, max_decisions: u32, knobs: &PolicyKnobs) -> Result<u32, EngineError>
+pub fn play_to_end_with(st: &mut GameState, mut rng: Option<&mut SplitMix64>, temperature: f64, max_decisions: u32, knobs: &PolicyKnobs, math: FloatMath) -> Result<u32, EngineError>
+
+## gcg_ai::policy  [crates/gcg-ai/src/policy.rs]
+pub const EX_PENALTY: f64
+pub const LETHAL: f64
+pub const CLEAR_THE_WAY: f64
+pub const MUST_BLOCK: f64
+pub const KEEPABLE_TOP: f64
+pub const IDLE_ATTACK: f64
+pub fn choose(st: &GameState, rng: Option<&mut SplitMix64>, temperature: f64, knobs: &PolicyKnobs) -> Result<Action, EngineError>
+pub fn choose_with(st: &GameState, rng: Option<&mut SplitMix64>, temperature: f64, knobs: &PolicyKnobs, math: FloatMath) -> Result<Action, EngineError>
+pub fn pick(options: &[Action], scores: &[f64], rng: Option<&mut SplitMix64>, temperature: f64) -> usize
+pub fn pick_with(options: &[Action], scores: &[f64], rng: Option<&mut SplitMix64>, temperature: f64, math: FloatMath) -> usize
+pub fn option_scores(st: &GameState, dec: &DecisionView<'_>, options: &[Action], knobs: &PolicyKnobs) -> Result<Vec<f64>, EngineError>
+
+## gcg_ai::random (private)  [crates/gcg-ai/src/random.rs]
+impl Agent for RandomAgent
+pub fn make_random_agent(seed: u64, log: bool) -> Box<dyn Agent>
+
+## gcg_ai::scratch (private)  [crates/gcg-ai/src/scratch.rs]
+impl Scratch {
+    pub fn clone_state(&mut self, src: &GameState) -> GameState
+    pub fn recycle_state(&mut self, st: GameState)
+}
+
+## gcg_ai::setup  [crates/gcg-ai/src/setup.rs]
+pub fn opening_score(hand: &[&CardDef], first: bool, reg: &Registry) -> f64
+pub fn mulligan_choice(st: &GameState, player: u8, samples: u32, rng: &mut SplitMix64) -> (Action, Vec<Alternative>)
+pub fn first_player_choice(st: &GameState, player: u8, games: u32, rng: &mut SplitMix64, knobs: &PolicyKnobs, cx: &mut AgentCx<'_>) -> Result<(Action, Vec<Alternative>), AgentError>
+pub fn first_player_choice_with(st: &GameState, player: u8, games: u32, rng: &mut SplitMix64, knobs: &PolicyKnobs, cx: &mut AgentCx<'_>, math: FloatMath) -> Result<(Action, Vec<Alternative>), AgentError>
+
+## gcg_ai::targeting  [crates/gcg-ai/src/targeting.rs]
+#[repr(i8)] #[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Debug)] pub enum Polarity {
+    Harms = -1,
+    Unknown = 0,
+    Helps = 1,
+}
+impl Polarity {
+    pub const fn value(self) -> i32
+}
+pub const fn rule_polarity_of(kind: RuleKind) -> Polarity
+pub fn choice_polarity(st: &GameState, rule_table: bool) -> Polarity
+pub fn choice_rule_lasts_this_battle(st: &GameState) -> bool
+pub fn rule_lasts_this_battle_at(reg: &Registry, instrs: &[NodeId], pc: usize) -> bool
+pub fn command_harms_enemy_units(reg: &Registry, def: DefId) -> bool
+pub fn polarity_at(reg: &Registry, instrs: &[NodeId], pc: usize, rule_table: bool) -> Polarity
+pub fn first_step(reg: &Registry, instrs: &[NodeId], pc: usize) -> Option<usize>
+pub fn node_ref(node: &Node) -> Option<RefId>
+pub const REF_KINDS: [&str; 30]
+
+## gcg_ai::values  [crates/gcg-ai/src/values.rs]
+pub const LINK_BONUS: f64
+pub const PAIR_BONUS: f64
+pub const KEYWORD_BONUS: f64
+pub fn hp_left(st: &GameState, dv: &Derived, uid: Uid) -> i64
+pub fn keyword_count(dv: &Derived, uid: Uid) -> usize
+pub fn unit_value(st: &GameState, dv: &Derived, uid: Uid) -> f64
+pub fn card_worth(cd: &CardDef) -> f64
+pub fn pile_value(st: &GameState, dv: &Derived, uid: Uid) -> f64
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)] pub struct Fight {
+    pub kills: bool,
+    pub dies: bool,
+}
+pub fn fight(st: &GameState, dv: &Derived, attacker: Uid, defender: Uid) -> Fight
+pub fn ready_blockers(st: &GameState, dv: &Derived, player: u8, exclude: i32) -> Vec<Uid>
+pub fn life(st: &GameState, dv: &Derived, player: u8) -> f64
+pub fn exposed(st: &GameState, player: u8) -> bool
+pub const fn int_f64(n: i64) -> f64
+
+# gcg-ai-reference
+
+## gcg_ai_reference  [crates/gcg-ai-reference/src/lib.rs]
+pub use agent::{AGENT_KINDS, make_agent, make_reference_agent}
+pub use contracts::*
+pub use mcts::{is_target_decision, search}
+
+## gcg_ai_reference::agent (private)  [crates/gcg-ai-reference/src/agent.rs]
+pub const AGENT_KINDS: [&str; 3]
+impl Agent for ReferenceAgent
+pub fn make_reference_agent(cfg: &ReferenceConfig, seed: u64, log: bool, w: &Weights) -> Box<dyn Agent>
+pub fn make_agent(kind: &str, preset: &str, seed: u64, log: bool, config: Option<&ReferenceConfig>, weights: Option<&Weights>) -> Result<Box<dyn Agent>, AgentError>
+
+## gcg_ai_reference::contracts (private)  [crates/gcg-ai-reference/src/contracts.rs]
+pub const WIN_DECAY: f64
+pub const LEAF_FLOOR: f64
+pub const TIE_TOLERANCE: f64
+pub const AGENT_PREFIX: &str
+pub const FACTORY_DESCRIPTION: &str
+#[derive(Clone, PartialEq, Debug)] pub struct ReferenceConfig {
+    pub name: Cow<'static, str>,
+    pub max_iterations: u32,
+    pub min_iterations: u32,
+    pub iterations_per_option: u32,
+    pub exploration: f64,
+    pub prior_weight: f64,
+    pub prior_temperature: f64,
+    pub horizon_turns: i32,
+    pub rollout_temperature: f64,
+    pub value_scale: f64,
+    pub max_rollout_decisions: u32,
+    pub first_player_games: u32,
+    pub mulligan_samples: u32,
+    pub policy_burst_yes_score: f64,
+    pub noop_branch_choices: bool,
+    pub noop_resource_aware: bool,
+    pub strict_attack_prune: bool,
+    pub prune_noop_rest_targets: bool,
+    pub merge_equivalent_moves: bool,
+    pub observation_keys: bool,
+    pub target_extension: f64,
+    pub target_extension_z: f64,
+    pub policy_rule_polarity_table: bool,
+    pub policy_zero_ap_face: bool,
+}
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)] pub enum ConfigError {
+    HorizonTooLong {horizon_turns: i32},
+}
+impl fmt::Display for ConfigError
+impl std::error::Error for ConfigError
+impl ReferenceConfig {
+    pub const fn new(name: &'static str, max_iterations: u32, min_iterations: u32, iterations_per_option: u32) -> Self
+    pub const fn check(&self) -> Result<(), ConfigError>
+    pub fn budget(&self, n_options: usize) -> u32
+    pub const fn knobs(&self) -> PolicyKnobs
+    pub fn agent_name(&self) -> String
+}
+pub static FAST: ReferenceConfig
+pub static STANDARD: ReferenceConfig
+pub static STRONG: ReferenceConfig
+pub static PRESETS: [(&str, &ReferenceConfig); 3]
+pub static BASELINE_STANDARD: ReferenceConfig
+pub static BASELINE_STRONG: ReferenceConfig
+pub static BASELINE_PRESETS: [(&str, &ReferenceConfig); 2]
+pub static BASELINE_WEIGHTS: &Weights
+pub static TUNING_CONFIG: ReferenceConfig
+pub fn reference_preset(name: &str) -> Option<&'static ReferenceConfig>
+pub fn baseline_preset(name: &str) -> Option<&'static ReferenceConfig>
+#[derive(Clone, Debug)] pub struct ReferenceAgent {
+    ..
+}
+impl ReferenceAgent {
+    pub fn new(config: ReferenceConfig, seed: u64, log: bool, weights: Weights) -> Self
+}
+
+## gcg_ai_reference::mcts  [crates/gcg-ai-reference/src/mcts.rs]
+pub fn is_target_decision(dec: &DecisionView<'_>) -> bool
+pub fn search<T: SearchTracer + ?Sized>(st: &GameState, player: u8, cfg: &ReferenceConfig, w: &Weights, rng: &mut SplitMix64, cx: &mut AgentCx<'_>, tracer: &mut T) -> Result<SearchResult, AgentError>
+
+# gcg-search
+
+## gcg_search  [crates/gcg-search/src/lib.rs]
+pub use agent::{make_agent, make_search_agent}
+pub use contracts::*
+pub use flags::{FlagValue, MechanismFlags, OpponentList}
+pub use mcts::{pregame, search, search_with_effort}
+pub use mech::gapa1::api as gapa1
+pub use mech::p6g::api as p6g
+pub use observation::Observation
+pub use presets::{preset_config, reference_mapping, search_settings, weights_id}
+
+## gcg_search::agent (private)  [crates/gcg-search/src/agent.rs]
+impl SearchAgent {
+    pub const fn mechanism_effort(&self) -> MechanismEffort
+}
+impl Agent for SearchAgent
+pub fn make_search_agent(cfg: &StrengthenedConfig, seed: u64, log: bool) -> SearchAgent
+pub fn make_agent(cfg: &StrengthenedConfig, seed: u64, log: bool) -> Box<dyn Agent>
+
+## gcg_search::contracts (private)  [crates/gcg-search/src/contracts.rs]
+pub const AGENT_PREFIX: &str
+#[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Debug)] pub enum Preset {
+    Standard,
+    Fast,
+}
+impl Preset {
+    pub const ALL: [Self; 2]
+    pub const DEFAULT: Self
+    pub const fn as_str(self) -> &'static str
+    pub fn from_value(value: &str) -> Option<Self>
+    pub const fn agent_name(self) -> &'static str
+    pub const fn factory_description(self) -> &'static str
+    pub const fn mapping(self) -> &'static str
+    pub const fn help(self) -> &'static str
+}
+#[derive(Clone, PartialEq, Eq, Hash, Debug)] pub struct UnknownPreset {
+    pub value: String,
+}
+impl FromStr for Preset
+#[derive(Clone, PartialEq, Debug)] pub struct StrengthenedConfig {
+    pub name: Cow<'static, str>,
+    pub max_iterations: u32,
+    pub min_iterations: u32,
+    pub iterations_per_option: u32,
+    pub exploration: f64,
+    pub prior_weight: f64,
+    pub prior_temperature: f64,
+    pub horizon_turns: i32,
+    pub rollout_temperature: f64,
+    pub value_scale: f64,
+    pub max_rollout_decisions: u32,
+    pub first_player_games: u32,
+    pub mulligan_samples: u32,
+    pub policy_burst_yes_score: f64,
+    pub noop_branch_choices: bool,
+    pub noop_resource_aware: bool,
+    pub strict_attack_prune: bool,
+    pub prune_noop_rest_targets: bool,
+    pub merge_equivalent_moves: bool,
+    pub observation_keys: bool,
+    pub target_extension: f64,
+    pub target_extension_z: f64,
+    pub policy_rule_polarity_table: bool,
+    pub policy_zero_ap_face: bool,
+    pub weights: Weights,
+    pub mechanisms: MechanismFlags,
+}
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug, Default)] pub struct MechanismEffort {
+    pub engine_error_leaves: u64,
+    pub horizon_extensions: u64,
+    pub capped_continued: u64,
+    pub capped_unsettled: u64,
+    pub belief_reweighted_worlds: u64,
+    pub opponent_view_worlds: u64,
+}
+impl MechanismEffort {
+    pub const fn add(&mut self, other: Self)
+    pub const fn since(self, earlier: Self) -> Self
+}
+#[derive(Clone, Debug)] pub struct SearchAgent {
+    ..
+}
+
+## gcg_search::flags (private)  [crates/gcg-search/src/flags.rs]
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)] pub enum OpponentList {
+    Known,
+    Archetype,
+}
+impl OpponentList {
+    pub const fn as_str(self) -> &'static str
+    pub fn from_value(text: &str) -> Option<Self>
+}
+#[derive(Clone, Copy, PartialEq, Debug)] pub enum FlagValue {
+    Bool(bool),
+    Count(Option<u32>),
+    Share(f64),
+    List(OpponentList),
+}
+impl FlagValue {
+    pub fn is_on(self) -> bool
+}
+impl FlagField for bool
+impl FlagField for Option<u32>
+impl FlagField for f64
+impl FlagField for OpponentList
+macro_rules! mechanism_flags { sha256:5749cdf8c67fcafb }
+mechanism_flags! {
+    ["P6-A"] adaptive_horizon: bool,
+    ["P6-A"] generalized_leaf: bool,
+    ["P6-A"] capped_rollout_continuation: bool,
+    ["P6-B"] tactical_solver: bool,
+    ["P6-B"] lethal_root: bool,
+    ["P6-B"] threat_leaf: bool,
+    ["P6-B"] critical_extension: bool,
+    ["P6-B"] effective_blockers: bool,
+    ["P6-B"] solver_can_kill: bool,
+    ["P6-C"] opponent_buckets: Option<u32>,
+    ["P6-C"] belief_worlds: Option<u32>,
+    ["P6-C"] belief_last_n: Option<u32>,
+    ["P6-C"] exact_pools: bool,
+    ["P6-C"] opponent_view_share: f64,
+    ["P6-C"] opponent_list: OpponentList,
+    ["P6-D"] root_trees: Option<u32>,
+    ["P6-D"] visited_set_backup: bool,
+    ["P6-D"] in_tree_filters: bool,
+    ["P6-D"] transpositions: bool,
+    ["P6-D"] subtree_reuse: bool,
+    ["P6-D"] macro_multi_pick: bool,
+    ["P6-D"] prior_worlds: Option<u32>,
+    ["P6-E"] ex_variants: bool,
+    ["P6-E"] typed_fingerprint: bool,
+    ["P6-E"] prune_worlds: Option<u32>,
+    ["P6-E"] branch_all_selects: bool,
+    ["P6-E"] rest_prune_worlds: bool,
+    ["P6-E"] target_rollouts: bool,
+    ["P6-E"] real_idle_line: bool,
+    ["P6-F"] calibrated_policy: bool,
+    ["P6-F"] modal_lookahead: bool,
+    ["P6-F"] yes_no_lookahead: bool,
+    ["P6-F"] end_phase_actions: bool,
+    ["P6-F"] burst_decline_list: bool,
+    ["P6-F"] order_trigger_scorer: bool,
+    ["P6-F"] exhaustive_polarity: bool,
+    ["P6-F"] exact_fight: bool,
+    ["P6-F"] opponent_knobs: bool,
+    ["P6-F"] kill_aware_targeting: bool,
+    ["P6-G"] refit_weights: bool,
+    ["P6-G"] phase_weights: bool,
+    ["P6-G"] keyword_features: bool,
+    ["P6-G"] ability_count_features: bool,
+    ["P6-G"] hand_slots: bool,
+    ["P6-G"] burst_shield_probability: bool,
+    ["P6-G"] no_tempo_feature: bool,
+    ["P6-G"] determinized_fit: bool,
+    ["P6-G"] leaf_density: bool,
+    ["P6-H"] exclude_capped_play_draw: bool,
+    ["P6-H"] paired_mulligan: bool,
+    ["P6-O"] portable_math: bool,
+    ["P6-O"] engine_error_leaf: bool,
+    ["GAP-A1"] target_multi_rollouts: Option<u32>,
+    ["GAP-A1"] tree_lethal_select: bool,
+}
+impl MechanismFlags {
+    pub const NULL: Self
+    pub fn enabled(&self) -> Vec<&'static str>
+}
+
+## gcg_search::mcts  [crates/gcg-search/src/mcts.rs]
+pub const AUX_APPLIES_PER_ITERATION: u64
+pub fn is_target_decision(dec: &DecisionView<'_>) -> bool
+pub fn search<T: SearchTracer + ?Sized>(obs: &Observation<'_>, cfg: &StrengthenedConfig, rng: &mut SplitMix64, cx: &mut AgentCx<'_>, tracer: &mut T) -> Result<SearchResult, AgentError>
+pub fn search_with_effort<T: SearchTracer + ?Sized>(obs: &Observation<'_>, cfg: &StrengthenedConfig, rng: &mut SplitMix64, cx: &mut AgentCx<'_>, tracer: &mut T) -> Result<(SearchResult, MechanismEffort), AgentError>
+pub fn pregame(obs: &Observation<'_>, cfg: &StrengthenedConfig, rng: &mut SplitMix64, cx: &mut AgentCx<'_>) -> Result<(Action, Vec<Alternative>), AgentError>
+
+## gcg_search::mech::gapa1::api (private)  [crates/gcg-search/src/mech/gapa1/api.rs]
+pub use super::census::SplitCensus
+pub use super::damage::DamageJudgement
+pub const ORACLE_MAX_DECISIONS: u32
+pub fn proved_lethal(st: &GameState, player: u8, cfg: &StrengthenedConfig, world_seeds: &[u64]) -> Result<Option<Action>, EngineError>
+pub fn lethal_on_state(st: &GameState, player: u8, cfg: &StrengthenedConfig) -> Result<Option<Action>, EngineError>
+pub fn without_effect(st: &GameState, player: u8, action: Action, cfg: &StrengthenedConfig, seed: u64) -> Result<bool, EngineError>
+pub fn is_damage_decision(st: &GameState, cfg: &StrengthenedConfig) -> bool
+pub fn damage_judgement(st: &GameState, player: u8, cfg: &StrengthenedConfig, worlds: u32, seed: u64) -> Result<Option<DamageJudgement>, EngineError>
+pub fn split_census(st: &GameState, player: u8, cfg: &StrengthenedConfig, seed: u64, cx: &mut AgentCx<'_>) -> Result<(SplitCensus, SearchResult), AgentError>
+
+## gcg_search::mech::gapa1::census (private)  [crates/gcg-search/src/mech/gapa1/census.rs]
+#[derive(Clone, Debug, Default, PartialEq, Eq)] pub struct SplitCensus {
+    pub iterations: u32,
+    pub searcher_nodes: u32,
+    pub observation_keys: u32,
+    pub splits: u32,
+    pub causes: Vec<(String, u32)>,
+}
+
+## gcg_search::mech::gapa1::damage (private)  [crates/gcg-search/src/mech/gapa1/damage.rs]
+#[derive(Clone, Debug, PartialEq)] pub struct DamageJudgement {
+    pub amount: i64,
+    pub options: Vec<Action>,
+    pub values: Vec<f64>,
+    pub shared_pick: usize,
+    pub shared_probs: Vec<f64>,
+    pub kill_pick: usize,
+    pub kill_probs: Vec<f64>,
+    pub pick_diffs: Vec<f64>,
+}
+impl DamageJudgement {
+    pub fn regret(&self, pick: usize) -> f64
+    pub fn expected_regret(&self, probs: &[f64]) -> f64
+}
+
+## gcg_search::mech::p6g (private)  [crates/gcg-search/src/mech/p6g/mod.rs]
+#[derive(Clone, Copy, PartialEq, Eq, Debug)] pub enum LeafPoint {
+    TurnStart,
+}
+pub const LEAF_POINT: LeafPoint
+impl LeafPoint {
+    pub const fn as_str(self) -> &'static str
+    pub fn holds(self, previous_turn: Option<i32>, st: &GameState) -> bool
+}
+
+## gcg_search::mech::p6g::features (private)  [crates/gcg-search/src/mech/p6g/features.rs]
+pub const N_BASE: usize
+pub const HAND_DIFFS: std::ops::Range<usize>
+pub const N_HAND: usize
+pub const N_KW: usize
+pub const N_ABILITY: usize
+pub const N_BURST: usize
+pub const HAND_START: usize
+pub const KW_START: usize
+pub const ABILITY_START: usize
+pub const BURST_START: usize
+pub const N_FEATURES: usize
+pub const NAMES: [&str; N_FEATURES]
+pub const fn kw_feature(kw: Kw) -> usize
+pub fn hand_slot(t: CardType) -> Result<usize, EngineError>
+pub fn superset(st: &GameState, density: Density) -> Result<Vec<f64>, EngineError>
+
+## gcg_search::mech::p6g::model (private)  [crates/gcg-search/src/mech/p6g/model.rs]
+#[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Debug)] pub struct ModelSpec {
+    pub keywords: bool,
+    pub abilities: bool,
+    pub hand_slots: bool,
+    pub burst: bool,
+    pub determinized: bool,
+    pub intercept: bool,
+    pub phase: bool,
+}
+impl ModelSpec {
+    pub const fn of(flags: &MechanismFlags) -> Option<Self>
+    pub fn key(&self) -> String
+    pub fn parse_key(key: &str) -> Option<Self>
+    pub fn columns(&self) -> Vec<usize>
+    pub fn names(&self) -> Vec<&'static str>
+}
+#[derive(Clone, PartialEq, Debug)] pub struct Model {
+    pub spec: ModelSpec,
+    pub columns: Vec<usize>,
+    pub edges: Vec<i32>,
+    pub weights: Vec<Vec<f64>>,
+}
+impl Model {
+    pub fn bin(&self, turn: i32) -> usize
+    pub fn score(&self, x: &[f64], turn: i32) -> f64
+}
+pub fn table_text(header: &[String], models: &[Model]) -> String
+pub fn parse_table(text: &str) -> Result<Vec<Model>, String>
+pub fn embedded(spec: &ModelSpec) -> Result<&'static Model, String>
+pub fn embedded_models() -> Result<&'static [Model], String>
+
+## gcg_search::mech::p6g::api (private)  [inline in crates/gcg-search/src/mech/p6g/mod.rs]
+pub use super::features::{N_FEATURES, NAMES, hand_slot, kw_feature}
+pub use super::model::{Model, ModelSpec, embedded_models, parse_table, table_text}
+pub use super::{LEAF_POINT, LeafPoint}
+pub fn leaf_features(world: &GameState, searcher: u8) -> Result<Vec<f64>, EngineError>
+pub fn determinized_features(obs: &Observation<'_>, seed: u64) -> Result<Vec<f64>, EngineError>
+pub fn true_state_features(st: &GameState) -> Result<Vec<f64>, EngineError>
+
+## gcg_search::observation (private)  [crates/gcg-search/src/observation.rs]
+pub struct Observation<'a> {
+    ..
+}
+impl<'a> Observation<'a> {
+    pub fn new(st: &'a GameState, player: u8) -> Result<Self, EngineError>
+    pub const fn player(&self) -> u8
+}
+
+## gcg_search::presets (private)  [crates/gcg-search/src/presets.rs]
+pub fn preset_config(p: Preset) -> &'static StrengthenedConfig
+pub fn reference_mapping(p: Preset) -> &'static StrengthenedConfig
+pub fn weights_id(w: &Weights) -> String
+pub fn search_settings(preset: Preset, cfg: &StrengthenedConfig) -> SearchSettings
+impl StrengthenedConfig {
+    pub fn budget(&self, n_options: usize) -> u32
+    pub const fn knobs(&self) -> PolicyKnobs
+    pub fn agent_name(&self) -> String
+    pub fn check_mechanisms(&self) -> Result<(), String>
+}
+
+# gcg-runner
+
+## gcg_runner  [crates/gcg-runner/src/lib.rs]
+pub use config::{agent_seed, dut_seat, game_seed, own_turn, seat_decks, workers_used}
+pub use contracts::*
+pub use game::{play_game, replay}
+pub use matches::play_match
+pub use records::log_entry_from_json
+pub use run::run_benchmark
+
+## gcg_runner::analysis  [crates/gcg-runner/src/analysis.rs]
+pub const ANALYSIS_FORMAT: &str
+pub const ANALYSIS_VERSION: u32
+pub const BOOTSTRAP_REPLICATES: u32
+pub const INTERPRETATIONS: &str
+#[derive(Clone, Copy, PartialEq, Eq, Debug)] pub struct AnalysisOptions {
+    pub swiss_draws: bool,
+    pub bootstrap_replicates: u32,
+}
+impl Default for AnalysisOptions
+pub fn wins_only(wins: u64, draws: u64, n: u64) -> Json
+pub fn quantile7(sorted: &[f64], q: f64) -> Option<f64>
+pub fn interpolated(values: &[i64]) -> Json
+#[derive(Clone, Copy, PartialEq, Eq, Debug, Default)] pub struct Stratum {
+    pub exposed_events: u64,
+    pub exposed: u64,
+    pub unexposed_events: u64,
+    pub unexposed: u64,
+}
+#[derive(Clone, Copy, PartialEq, Debug)] pub struct MhDifference {
+    pub difference: f64,
+    pub se: f64,
+    pub ci95: (f64, f64),
+    pub informative_strata: u64,
+}
+impl MhDifference {
+    pub fn to_json(&self) -> Json
+}
+pub fn mantel_haenszel(strata: &[Stratum]) -> Option<MhDifference>
+pub fn holm_adjusted(p: &[f64], m: usize) -> Vec<f64>
+pub fn holm_padded(p: &[f64], m: usize) -> Vec<bool>
+#[derive(Clone, PartialEq, Debug)] pub struct Clustered {
+    pub rate: Option<f64>,
+    pub wilson: Option<(f64, f64)>,
+    pub clustered: Option<(f64, f64)>,
+    pub bootstrap: Option<(f64, f64)>,
+    pub design_effect: Option<f64>,
+}
+pub fn clustered_rate(clusters: &[(u64, u64)], replicates: u32, seed: u64) -> Clustered
+impl Clustered {
+    pub fn to_json(&self) -> Json
+}
+#[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Debug)] pub enum Fate {
+    DiscardedForCost,
+    UsedByEffect,
+    InHandAtEnd,
+    HandLimit,
+    OpponentDiscard,
+    Unknown,
+}
+impl Fate {
+    pub const ALL: [Self; 6]
+    pub const fn as_str(self) -> &'static str
+}
+#[derive(Clone, Copy, PartialEq, Debug)] pub struct Opening {
+    pub redrew: bool,
+    pub first: bool,
+    pub hand_score: f64,
+    pub played_score: f64,
+    pub threshold: Option<f64>,
+}
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)] pub enum CapKind {
+    Turns,
+    Decisions,
+}
+impl CapKind {
+    pub const fn as_str(self) -> &'static str
+}
+#[derive(Clone, PartialEq, Debug, Default)] pub struct GameFacts {
+    pub never_played: Vec<(Box<str>, Fate)>,
+    pub bench_observed: BTreeSet<Box<str>>,
+    pub bench_drawn: BTreeSet<Box<str>>,
+    pub bench_played: Vec<(Box<str>, i32)>,
+    pub used: BTreeSet<Box<str>>,
+    pub interpretations: BTreeSet<&'static str>,
+    pub opening: Option<Opening>,
+    pub cap: Option<CapKind>,
+    pub decisions: u64,
+}
+pub fn observe_game(record: &GameRecord, cfg: &BenchmarkConfig) -> Result<GameFacts, ReplayError>
+pub fn observe_run(run: &BenchmarkRun) -> Result<Vec<GameFacts>, ReplayError>
+pub fn length_stratified(games: &[&GameRecord], deck: &Deck) -> Json
+pub fn clustered_rates(run: &BenchmarkRun, replicates: u32) -> Json
+pub fn outcomes(run: &BenchmarkRun) -> Json
+pub fn hypothesis_families(games: &[&GameRecord], run: &BenchmarkRun, data: &ResultsData) -> Json
+pub fn distributions(games: &[&GameRecord], deck: &Deck) -> Json
+pub fn never_played(games: &[&GameRecord], facts: &[GameFacts], deck: &Deck) -> Json
+pub fn benchmark_observed(games: &[&GameRecord], facts: &[GameFacts], deck: &Deck) -> Json
+pub fn interpretations_used(facts: &[GameFacts]) -> Json
+pub fn double_defeats(run: &BenchmarkRun, swiss: bool) -> Json
+pub fn mulligan_confound(games: &[&GameRecord], facts: &[GameFacts]) -> Json
+pub fn swap_tests(results: &Json, run: &BenchmarkRun) -> (Json, Vec<(String, String)>)
+pub fn diagnostics_json(run: &BenchmarkRun, facts: &[GameFacts]) -> Json
+pub fn analysis_json(run: &BenchmarkRun, data: &ResultsData, results: &Json, facts: &[GameFacts], opts: AnalysisOptions) -> (Json, Vec<(String, String)>)
+
+## gcg_runner::argparse  [crates/gcg-runner/src/argparse/mod.rs]
+pub use pyint::PyInt
+pub use pystr::PyStr
+#[derive(Clone, PartialEq, Eq, Debug)] pub enum Value {
+    None,
+    Bool(bool),
+    Str(PyStr),
+    Path(PyStr),
+    Int(PyInt),
+    Auto,
+    List(Vec<Value>),
+}
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)] pub enum Converter {
+    Str,
+    Path,
+    PositiveInt,
+    NonNegativeInt,
+    Seed,
+    Workers,
+    Int,
+}
+#[derive(Clone, Debug)] pub enum ActionKind {
+    Help,
+    StoreTrue,
+    Store {convert: Converter, choices: Option<Vec<&'static str>>},
+    Append {convert: Converter, choices: Option<Vec<&'static str>>},
+    SubParsers(Vec<SubCommand>),
+}
+#[derive(Clone, Debug)] pub struct SubCommand {
+    pub name: &'static str,
+    pub help: Option<&'static str>,
+    pub parser: Parser,
+}
+#[derive(Clone, Debug)] pub struct Action {
+    pub option_strings: Vec<&'static str>,
+    pub dest: Option<&'static str>,
+    pub kind: ActionKind,
+    pub required: bool,
+    pub help: Option<String>,
+    pub default: Option<Value>,
+}
+impl Action {
+    pub const fn positional(dest: &'static str, convert: Converter, help: Option<String>) -> Self
+    pub fn option(option: &'static str, dest: &'static str, convert: Converter, choices: Option<Vec<&'static str>>, default: Value, help: String) -> Self
+    pub fn append(option: &'static str, dest: &'static str, convert: Converter, choices: Option<Vec<&'static str>>, help: String) -> Self
+    pub fn flag(option: &'static str, dest: &'static str, help: String) -> Self
+    pub const fn subcommands(dest: &'static str, commands: Vec<SubCommand>) -> Self
+}
+#[derive(Clone, Debug)] pub struct Parser {
+    pub prog: String,
+    pub description: Option<&'static str>,
+    pub actions: Vec<Action>,
+}
+impl Parser {
+    pub fn new(prog: &str, description: Option<&'static str>) -> Self
+    pub fn push(&mut self, action: Action)
+    pub fn subcommand(&self, name: &str) -> Option<&Self>
+    pub fn format_usage(&self, columns: i64) -> String
+    pub fn format_help(&self, columns: i64) -> String
+    pub fn error(&self, message: &PyStr, columns: i64) -> Exit
+    pub fn parse_args(&self, args: Vec<PyStr>, columns: i64) -> Result<Namespace, Exit>
+}
+#[derive(Clone, PartialEq, Eq, Debug)] pub struct Exit {
+    pub status: u8,
+    pub stdout: Vec<u8>,
+    pub stderr: Vec<u8>,
+}
+#[derive(Clone, PartialEq, Eq, Debug, Default)] pub struct Namespace {
+    ..
+}
+impl Namespace {
+    pub fn get(&self, dest: &str) -> Option<&Value>
+    pub fn entries(&self) -> &[(&'static str, Value)]
+}
+
+## gcg_runner::argparse::difflib  [crates/gcg-runner/src/argparse/difflib.rs]
+pub fn close_match<'p>(word: &[u32], possibilities: &[&'p [u32]]) -> Option<&'p [u32]>
+
+## gcg_runner::argparse::pyint  [crates/gcg-runner/src/argparse/pyint.rs]
+pub const MAX_STR_DIGITS: usize
+#[derive(Clone, PartialEq, Eq, Hash, Debug, Default)] pub struct PyInt {
+    ..
+}
+impl PyInt {
+    pub fn from_u64(v: u64) -> Self
+    pub const fn is_negative(&self) -> bool
+    pub fn is_zero(&self) -> bool
+    pub fn bit_length(&self) -> usize
+    pub fn to_u64(&self) -> Option<u64>
+    pub fn cmp_i64(&self, other: i64) -> Ordering
+    pub fn to_decimal(&self) -> String
+    pub fn py_str(&self) -> Option<String>
+}
+pub fn parse_int(text: &PyStr, base: u32) -> Option<PyInt>
+
+## gcg_runner::argparse::pypath  [crates/gcg-runner/src/argparse/pypath.rs]
+pub fn path_str(text: &PyStr) -> PyStr
+
+## gcg_runner::argparse::pystr  [crates/gcg-runner/src/argparse/pystr.rs]
+#[derive(Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Debug, Default)] pub struct PyStr(_)
+impl PyStr {
+    pub const fn new() -> Self
+    pub fn from_text(s: &str) -> Self
+    pub const fn from_code_points(cps: Vec<u32>) -> Self
+    pub fn from_bytes(bytes: &[u8]) -> Self
+    pub fn from_os(s: &OsStr) -> Self
+    pub fn to_surrogateescape_bytes(&self) -> Vec<u8>
+    pub fn to_stderr_bytes(&self) -> Vec<u8>
+    pub fn to_os_string(&self) -> OsString
+    pub fn to_string_opt(&self) -> Option<String>
+    pub fn code_points(&self) -> &[u32]
+    pub fn len(&self) -> usize
+    pub fn is_empty(&self) -> bool
+    pub fn eq_str(&self, s: &str) -> bool
+    pub fn starts_with(&self, prefix: &Self) -> bool
+    pub fn at(&self, i: usize) -> Option<u32>
+    pub fn slice(&self, start: usize, end: usize) -> Self
+    pub fn partition_eq(&self) -> (Self, Option<Self>)
+    pub fn contains_char(&self, ch: char) -> bool
+    pub fn push_str(&mut self, s: &str)
+    pub fn push_py(&mut self, s: &Self)
+    pub fn repr(&self) -> Self
+}
+impl From<&str> for PyStr
+
+## gcg_runner::argparse::textwrap  [crates/gcg-runner/src/argparse/textwrap.rs]
+pub fn wrap(text: &str, width: usize) -> Vec<String>
+pub fn fill_lines(text: &str, width: usize, initial_indent: &str, subsequent_indent: &str) -> Vec<String>
+
+## gcg_runner::argparse::unicode (private)  [crates/gcg-runner/src/argparse/unicode.rs]
+pub fn is_space(cp: u32) -> bool
+pub fn decimal(cp: u32) -> Option<u8>
+
+## gcg_runner::argparse::unicode_tables  [crates/gcg-runner/src/argparse/unicode_tables.rs]
+pub const UNIDATA_VERSION: &str
+pub const SPACE: &[(u32, u32)]
+pub const DECIMAL: &[(u32, u32, u8)]
+
+## gcg_runner::checkpoint  [crates/gcg-runner/src/checkpoint.rs]
+pub const CHECKPOINT_FILE: &str
+pub const CHECKPOINT_FORMAT: &str
+pub const CHECKPOINT_VERSION: u32
+#[derive(Debug)] pub enum ResumeError {
+    Run(RunError),
+    Checkpoint(String),
+}
+impl fmt::Display for ResumeError
+pub fn config_identity(cfg: &BenchmarkConfig, factory: &str) -> Json
+pub fn config_digest(identity: &Json) -> String
+pub fn match_line(record: &MatchRecord, seconds: f64) -> String
+pub fn parse_match_line(line: &str) -> Result<(MatchRecord, f64), String>
+pub fn load(path: &Path, identity: &Json) -> Result<BTreeMap<u32, (MatchRecord, f64)>, String>
+pub fn run_resumable(cfg: &BenchmarkConfig, f: &dyn AgentFactory, progress: &mut dyn FnMut(u32, u32), cancel: &Cancel, path: &Path) -> Result<BenchmarkRun, ResumeError>
+pub fn checkpoint_path(out: &Path) -> PathBuf
+
+## gcg_runner::cli_support  [crates/gcg-runner/src/cli_support.rs]
+#[derive(Clone, PartialEq, Eq, Debug)] pub enum CliError {
+    Invalid(PyStr),
+    Interrupted,
+}
+pub fn read_deck(path: &PyStr) -> Result<Deck, CliError>
+pub fn deck_colors(deck: &Deck, db: &CardDb) -> String
+pub fn legal_deck(path: &PyStr, implemented: &dyn ImplementationStatus) -> Result<Deck, CliError>
+pub fn validate_command(path: &PyStr, out: &mut dyn Write) -> Result<(), CliError>
+#[derive(Clone, Copy, PartialEq, Eq, Debug)] pub struct ProgressPrinter {
+    ..
+}
+impl ProgressPrinter {
+    pub const fn new(tty: bool) -> Self
+    pub fn print(&mut self, done: u32, total: u32, stream: &mut dyn Write)
+}
+pub fn rate_line(label: &str, block: &Outcomes) -> String
+pub fn writable_dir(path: &PyStr) -> Result<(), CliError>
+#[derive(Clone, Copy, Debug)] pub struct BenchmarkRequest<'a> {
+    pub deck_under_test: &'a PyStr,
+    pub benchmark_deck: &'a PyStr,
+    pub matches: u32,
+    pub seed: u64,
+    pub workers: Workers,
+    pub format: Format,
+    pub ai_preset: &'static str,
+    pub out: &'a PyStr,
+    pub decision_log: bool,
+    pub replays: u32,
+    pub schema: SchemaVersion,
+    pub package: &'static str,
+    pub code_digest: &'static str,
+}
+pub fn benchmark_command(req: &BenchmarkRequest<'_>, factory: &dyn AgentFactory, tty: bool, cancel: &Cancel, out: &mut dyn Write, err: &mut dyn Write) -> Result<(), CliError>
+pub fn coverage(reg: &Registry) -> Json
+pub fn data_status(package: &str, code_digest: &str, schema: SchemaVersion) -> Json
+pub fn status_text(s: &Json) -> Vec<String>
+pub fn data_status_command(json: bool, package: &str, code_digest: &str, schema: SchemaVersion, out: &mut dyn Write)
+pub fn replay_command(path: &PyStr, log: bool, out: &mut dyn Write) -> Result<(), CliError>
+
+## gcg_runner::config  [crates/gcg-runner/src/config.rs]
+pub const AI_PRESETS: [&str; 3]
+pub const DEFAULT_TURN_LIMIT: i32
+impl BenchmarkConfig {
+    pub fn problems(&self) -> Vec<String>
+    pub const fn games_per_match(&self) -> u32
+    pub const fn wins_needed(&self) -> u32
+}
+pub const fn dut_seat(m: u32) -> u8
+pub fn seat_decks(cfg: &BenchmarkConfig, m: u32) -> Result<[DeckList; 2], DeckError>
+pub fn game_seed(master: u64, m: u32, g: u32) -> u64
+pub fn agent_seed(master: u64, m: u32, g: u32, seat: u8) -> u64
+pub const fn own_turn(turn: i32, seat: u8, first_player: u8) -> i32
+pub fn workers_used(cfg: &BenchmarkConfig, topology: &Topology) -> u32
+
+## gcg_runner::contracts (private)  [crates/gcg-runner/src/contracts.rs]
+pub const EXIT_OK: u8
+pub const EXIT_INVALID: u8
+pub const EXIT_USAGE: u8
+pub const EXIT_INTERRUPTED: u8
+pub const INTERRUPTED_MESSAGE: &str
+pub const DEFAULT_OUT_DIR: &str
+pub const DEFAULT_REPLAYS: u32
+#[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Debug)] pub enum Role {
+    Dut,
+    Bench,
+}
+impl Role {
+    pub const fn as_str(self) -> &'static str
+}
+#[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Debug)] pub enum Outcome {
+    Dut,
+    Bench,
+    Draw,
+}
+impl Outcome {
+    pub const fn as_str(self) -> &'static str
+}
+#[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Debug)] pub enum Format {
+    Bo3,
+    Bo1,
+}
+impl Format {
+    pub const ALL: [Self; 2]
+    pub const fn as_str(self) -> &'static str
+    pub fn from_value(value: &str) -> Option<Self>
+    pub const fn games_per_match(self) -> u32
+    pub const fn wins_needed(self) -> u32
+}
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)] pub enum Workers {
+    Count(u32),
+    Auto,
+}
+#[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Debug)] pub enum SchemaVersion {
+    V1_1,
+    V1_2,
+}
+impl SchemaVersion {
+    pub const fn as_str(self) -> &'static str
+    pub const fn id(self) -> &'static str
+}
+#[derive(Clone, PartialEq, Debug)] pub struct BenchmarkConfig {
+    pub deck_under_test: Deck,
+    pub benchmark_deck: Deck,
+    pub matches: u32,
+    pub seed: u64,
+    pub workers: Workers,
+    pub format: Format,
+    pub ai_preset: &'static str,
+    pub out_dir: PathBuf,
+    pub decision_log: bool,
+    pub replays: u32,
+    pub turn_limit: i32,
+    pub max_actions: i64,
+    pub schema: SchemaVersion,
+    pub package: &'static str,
+    pub code_digest: &'static str,
+}
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)] pub struct AgentSpec {
+    pub role: Role,
+    pub seat: u8,
+    pub preset: &'static str,
+    pub seed: u64,
+    pub log: bool,
+}
+pub trait AgentFactory: Sync {
+    fn make(&self, spec: &AgentSpec) -> Result<Box<dyn Agent>, AgentError>
+    fn describe(&self) -> String
+    fn search_block(&self) -> Option<SearchSettings> { .. }
+}
+#[derive(Clone, PartialEq, Eq, Hash, Debug)] pub struct PlayEvent {
+    pub card_number: Box<str>,
+    pub turn: i32,
+    pub own_turn: i32,
+}
+#[derive(Clone, PartialEq, Eq, Hash, Debug)] pub struct DutCardEvents {
+    pub initial_hand: Vec<Box<str>>,
+    pub redrew: bool,
+    pub opening_hand: Vec<Box<str>>,
+    pub drawn: Vec<Box<str>>,
+    pub played: Vec<PlayEvent>,
+    pub never_played: Vec<Box<str>>,
+    pub in_hand_at_end: Vec<Box<str>>,
+}
+#[derive(Clone, PartialEq, Debug)] pub struct GameRecord {
+    pub match_index: u32,
+    pub game_index: u32,
+    pub seed: u64,
+    pub agent_seeds: [u64; 2],
+    pub agents: [Box<str>; 2],
+    pub dut_seat: u8,
+    pub chooser: Option<u8>,
+    pub chooser_seat: u8,
+    pub first_player: u8,
+    pub dut_on_play: bool,
+    pub winner: Outcome,
+    pub end_reason: EndReason,
+    pub match_point: Option<Role>,
+    pub turns: i32,
+    pub active_at_end: u8,
+    pub actions: Vec<Action>,
+    pub redraws: [bool; 2],
+    pub dut_cards: DutCardEvents,
+    pub bench_seen: Vec<Box<str>>,
+    pub final_state_sha256: String,
+    pub turn_limit: i32,
+    pub max_actions: i64,
+    pub decision_log: Option<Vec<LogEntry>>,
+    pub effort: [Option<AgentEffort>; 2],
+}
+impl GameRecord {
+    pub const fn bench_seat(&self) -> u8
+}
+#[derive(Clone, PartialEq, Debug)] pub struct MatchRecord {
+    pub match_index: u32,
+    pub dut_seat: u8,
+    pub games: Vec<GameRecord>,
+    pub winner: Outcome,
+    pub dut_points: u32,
+    pub bench_points: u32,
+}
+#[derive(Clone, PartialEq, Debug)] pub struct RunTiming {
+    pub started_at: String,
+    pub finished_at: String,
+    pub wall_seconds: f64,
+    pub match_seconds: Vec<f64>,
+    pub workers: u32,
+    pub topology: Topology,
+}
+#[derive(Clone, PartialEq, Debug)] pub struct BenchmarkRun {
+    pub config: BenchmarkConfig,
+    pub matches: Vec<MatchRecord>,
+    pub timing: RunTiming,
+    pub agent_factory: String,
+    pub search: Option<SearchSettings>,
+}
+impl BenchmarkRun {
+    pub fn games(&self) -> impl Iterator<Item = &GameRecord> + '_
+}
+#[derive(Clone, PartialEq, Eq, Hash, Debug)] pub enum RunError {
+    GameFailure(String),
+    Interrupted,
+}
+#[derive(Clone, PartialEq, Eq, Hash, Debug)] pub struct ReportPaths {
+    pub out_dir: PathBuf,
+    pub results: PathBuf,
+    pub summary: PathBuf,
+    pub games: PathBuf,
+    pub replays: Vec<PathBuf>,
+    pub timing: PathBuf,
+}
+#[derive(Clone, PartialEq, Eq, Hash, Debug)] pub struct SchemaError {
+    pub pointer: String,
+    pub message: String,
+}
+#[derive(Debug)] pub enum ReportError {
+    Io {path: PathBuf, source: io::Error},
+    Schema(SchemaError),
+    Replay(ReplayError),
+    Interrupted,
+}
+pub const REPLAY_FORMAT: &str
+pub const REPLAY_VERSION: u32
+#[derive(Clone, PartialEq, Eq, Hash, Debug)] pub struct ReplayCheck {
+    pub ok: bool,
+    pub mismatches: Vec<String>,
+    pub winner_seat: Option<i8>,
+    pub end_reason: Option<EndReason>,
+    pub turns: i32,
+    pub final_state_sha256: String,
+    pub log: Vec<String>,
+}
+#[derive(Clone, PartialEq, Eq, Hash, Debug)] pub enum ReplayError {
+    NotReplay,
+    Unimplemented(UnimplementedCardError),
+    ExtraActions,
+    Illegal {index: usize, action: Action},
+    Malformed {py_class: &'static str, detail: String},
+    Engine(EngineError),
+}
+#[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Debug)] pub enum TestAgentKind {
+    Random,
+    Illegal,
+}
+impl TestAgentKind {
+    pub const ALL: [Self; 2]
+    pub const fn as_str(self) -> &'static str
+    pub const fn factory_description(self) -> &'static str
+}
+#[derive(Clone, Debug)] pub struct TestRandomAgent {
+    ..
+}
+impl TestRandomAgent {
+    pub const fn new(seed: u64, log: bool) -> Self
+}
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug, Default)] pub struct TestIllegalAgent
+pub const ILLEGAL_ACTION: Action
+
+## gcg_runner::game  [crates/gcg-runner/src/game.rs]
+impl fmt::Display for RunError
+impl std::error::Error for RunError
+pub const fn result_label(winner_seat: i8, dut: u8) -> Outcome
+pub fn match_point_of(winner: Option<i8>, end_reason: Option<EndReason>, active: u8, dut: u8, format: Format) -> Result<Option<Role>, RunError>
+pub fn match_point(st: &GameState, dut: u8, format: Format) -> Result<Option<Role>, RunError>
+pub const fn match_loser_seat(record: &GameRecord) -> Option<u8>
+pub fn play_game(cfg: &BenchmarkConfig, m: u32, g: u32, chooser: Option<u8>, f: &dyn AgentFactory, cx: &mut AgentCx<'_>) -> Result<GameRecord, RunError>
+pub fn replay(record: &GameRecord, cfg: &BenchmarkConfig) -> Result<GameState, ReplayError>
+
+## gcg_runner::matches  [crates/gcg-runner/src/matches.rs]
+pub fn play_match(cfg: &BenchmarkConfig, m: u32, f: &dyn AgentFactory, cx: &mut AgentCx<'_>) -> Result<MatchRecord, RunError>
+
+## gcg_runner::records (private)  [crates/gcg-runner/src/records.rs]
+impl PlayEvent {
+    pub fn to_json(&self) -> Json
+}
+impl DutCardEvents {
+    pub fn to_json(&self) -> Json
+}
+impl GameRecord {
+    pub fn to_json(&self) -> Json
+    pub fn from_json(v: &Value) -> Result<Self, SchemaError>
+}
+impl MatchRecord {
+    pub fn to_json(&self) -> Json
+}
+pub fn log_entry_from_json(v: &Value) -> Result<LogEntry, SchemaError>
+
+## gcg_runner::replay  [crates/gcg-runner/src/replay.rs]
+pub fn describe_action(st: &GameState, dec: &DecisionView<'_>, a: Action) -> String
+pub fn resimulate(record: &GameRecord, cfg: &BenchmarkConfig) -> Result<Resimulation, ReplayError>
+pub fn replay_document(record: &GameRecord, cfg: &BenchmarkConfig, label: &str) -> Result<Json, ReplayError>
+pub fn check_replay(doc: &Value) -> Result<ReplayCheck, ReplayError>
+
+## gcg_runner::reports  [crates/gcg-runner/src/reports/mod.rs]
+pub use replay_doc::{Resimulation, replay_document_with}
+pub use results::{CardFacts, MissingCard, ResultsData, build_results, build_results_with, effort_json, replay_name, search_json, select_replays}
+pub use schema::{json_from_value, validate_results}
+pub use set::{Compression, SetOptions, select_extremes, write_report_set}
+pub use summary::render_summary
+pub use writer::{TimingHost, games_ndjson, reproduce_command, timing_json, to_json_text, write_atomic, write_reports, write_reports_with}
+
+## gcg_runner::reports::aggregate  [crates/gcg-runner/src/reports/aggregate.rs]
+#[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Debug)] pub enum DutResult {
+    Win,
+    Loss,
+    Draw,
+}
+impl DutResult {
+    pub const ALL: [Self; 3]
+    pub const fn as_str(self) -> &'static str
+    pub const fn of(g: &GameRecord) -> Self
+}
+#[derive(Clone, PartialEq, Debug)] pub struct Outcomes {
+    pub n: u64,
+    pub dut_wins: u64,
+    pub bench_wins: u64,
+    pub draws: u64,
+    pub dut_win_rate: Rate,
+}
+impl Outcomes {
+    pub fn of(winners: impl IntoIterator<Item = Outcome>) -> Self
+    pub fn of_games<'a>(games: impl IntoIterator<Item = &'a GameRecord>) -> Self
+    pub fn of_matches(matches: &[MatchRecord]) -> Self
+    pub fn to_json(&self) -> Json
+}
+#[derive(Clone, PartialEq, Debug)] pub struct Splits {
+    pub on_play: Outcomes,
+    pub on_draw: Outcomes,
+    pub by_game_number: Vec<(String, Outcomes)>,
+}
+impl Splits {
+    pub fn of(games: &[&GameRecord], games_per_match: u32) -> Self
+    pub fn to_json(&self) -> Json
+}
+pub fn end_reasons(games: &[&GameRecord]) -> Json
+pub fn draws(games: &[&GameRecord]) -> Json
+pub fn game_length(games: &[&GameRecord]) -> Json
+#[derive(Clone, PartialEq, Debug)] pub struct Mulligan {
+    pub dut_redraw_rate: Rate,
+    pub win_rate_after_redraw: Rate,
+    pub win_rate_after_keep: Rate,
+    pub bench_redraw_rate: Rate,
+}
+impl Mulligan {
+    pub fn of(games: &[&GameRecord]) -> Self
+    pub fn to_json(&self) -> Json
+}
+#[derive(Clone, PartialEq, Debug)] pub struct CardStats {
+    pub card_number: Box<str>,
+    pub name: Box<str>,
+    pub card_type: &'static str,
+    pub level: i32,
+    pub cost: i32,
+    pub copies: u128,
+    pub drawn_games: u64,
+    pub drawn_game_rate: Option<f64>,
+    pub drawn_copies: u64,
+    pub copies_per_game: Option<f64>,
+    pub opening_games: u64,
+    pub opening_game_rate: Option<f64>,
+    pub played_games: u64,
+    pub plays: u64,
+    pub rate_when_drawn: Option<f64>,
+    pub own_turn: Distribution,
+    pub by_own_turn: Vec<(i64, u64)>,
+    pub win_rate_when_drawn: Rate,
+    pub win_rate_when_not_drawn: Rate,
+    pub win_rate_when_played: Rate,
+    pub win_rate_when_drawn_not_played: Rate,
+    pub held: HeldNeverPlayed,
+    pub in_initial_hand_games: u64,
+    pub redrawn_games: u64,
+    pub mulligan_rate: Option<f64>,
+}
+#[derive(Clone, Copy, PartialEq, Debug)] pub struct HeldNeverPlayed {
+    pub copies: u64,
+    pub rate_of_drawn_copies: Option<f64>,
+    pub games: u64,
+    pub in_hand_at_end_copies: u64,
+}
+impl CardStats {
+    pub fn to_json(&self) -> Json
+}
+pub fn card_stats(games: &[&GameRecord], deck: &Deck, data: &ResultsData) -> Vec<CardStats>
+#[derive(Clone, PartialEq, Debug)] pub struct BenchCardStats {
+    pub card_number: Box<str>,
+    pub name: Box<str>,
+    pub card_type: &'static str,
+    pub copies: u128,
+    pub seen_games: u64,
+    pub seen_rate: Option<f64>,
+    pub dut_loss_rate_when_seen: Rate,
+    pub dut_loss_rate_when_not_seen: Rate,
+    pub loss_rate_lift: Option<f64>,
+    pub rank_eligible: bool,
+}
+impl BenchCardStats {
+    pub fn to_json(&self) -> Json
+}
+pub fn bench_card_stats(games: &[&GameRecord], deck: &Deck, min_games: u64, data: &ResultsData) -> Vec<BenchCardStats>
+
+## gcg_runner::reports::gzip  [crates/gcg-runner/src/reports/gzip.rs]
+pub fn crc32(bytes: &[u8]) -> u32
+pub fn deflate(data: &[u8]) -> Vec<u8>
+pub fn gzip(data: &[u8]) -> Vec<u8>
+
+## gcg_runner::reports::hypotheses  [crates/gcg-runner/src/reports/hypotheses.rs]
+pub const MIN_GAMES: u64
+pub const MIN_REDRAWS: u64
+pub const MIN_DELTA: f64
+pub const MIN_SPLIT_DELTA: f64
+pub const DEAD_CARD_RATE: f64
+pub const PER_DIRECTION: usize
+pub const ALPHA: f64
+#[derive(Clone, PartialEq, Debug)] pub enum Evidence {
+    Compare {a: Rate, b: Rate, delta: f64, ci95_separated: bool, p_value: f64, comparisons: Option<usize>},
+    Dead {drawn_copies: u64, held: HeldNeverPlayed},
+}
+impl Evidence {
+    pub fn to_json(&self) -> Json
+}
+#[derive(Clone, PartialEq, Debug)] pub struct Hypothesis {
+    pub id: String,
+    pub kind: &'static str,
+    pub statement: String,
+    pub sample_size: u64,
+    pub evidence: Evidence,
+}
+impl Hypothesis {
+    pub fn to_json(&self) -> Json
+}
+#[derive(Clone, PartialEq, Debug)] pub struct FamilyTest {
+    pub id: String,
+    pub delta: f64,
+    pub p_rounded: f64,
+    pub p_unrounded: f64,
+}
+#[derive(Clone, PartialEq, Debug)] pub struct Family {
+    pub family: &'static str,
+    pub size: usize,
+    pub tests: Vec<FamilyTest>,
+}
+pub fn family_tests(cards: &[CardStats], bench_cards: &[BenchCardStats], split: &Splits, mull: &Mulligan) -> Vec<Family>
+pub fn hypotheses(cards: &[CardStats], bench_cards: &[BenchCardStats], split: &Splits, mull: &Mulligan) -> Vec<Hypothesis>
+
+## gcg_runner::reports::identity  [crates/gcg-runner/src/reports/identity.rs]
+pub const AI_FIELDS: [&str; 5]
+pub const VERSION_FIELDS: [&str; 10]
+#[derive(Clone, PartialEq, Eq, Debug)] pub struct Difference {
+    pub field: String,
+    pub a: String,
+    pub b: String,
+}
+impl std::fmt::Display for Difference
+pub fn run_differences(a: &Value, b: &Value) -> Vec<Difference>
+pub fn check_comparable(a: &Value, b: &Value, names: [&str; 2], allow_mixed: bool) -> Result<Vec<String>, String>
+pub fn version_differences(recorded: &Value, current: &Json) -> Vec<Difference>
+
+## gcg_runner::reports::pyregex  [crates/gcg-runner/src/reports/pyregex.rs]
+pub const DIGIT_RANGES: [(u32, u32); 72]
+pub fn is_decimal_digit(c: char) -> bool
+#[derive(Clone, PartialEq, Eq, Hash, Debug)] pub struct PatternError {
+    pub pattern: String,
+    pub message: String,
+}
+impl fmt::Display for PatternError
+impl std::error::Error for PatternError
+#[derive(Clone, Debug)] pub struct Regex {
+    ..
+}
+impl Regex {
+    pub fn new(pattern: &str) -> Result<Self, PatternError>
+    pub fn is_match(&self, text: &str) -> bool
+    pub fn is_match_at_start(&self, text: &str) -> bool
+}
+
+## gcg_runner::reports::replay_doc  [crates/gcg-runner/src/reports/replay_doc.rs]
+impl fmt::Display for ReplayError
+impl std::error::Error for ReplayError
+#[derive(Clone, PartialEq, Eq, Hash, Debug)] pub struct Resimulation {
+    pub winner_seat: Option<i8>,
+    pub log: Vec<String>,
+}
+pub fn replay_document_with(record: &GameRecord, cfg: &BenchmarkConfig, label: &str, sim: &Resimulation) -> Json
+
+## gcg_runner::reports::results  [crates/gcg-runner/src/reports/results.rs]
+pub const DRAW_REPLAYS: u32
+pub const NOTES: [&str; 4]
+#[derive(Clone, PartialEq, Eq, Hash, Debug)] pub struct CardFacts {
+    pub name: Box<str>,
+    pub card_type: CardType,
+    pub level: i32,
+    pub cost: i32,
+    pub color: Option<Color>,
+}
+impl CardFacts {
+    pub fn of(def: &CardDef) -> Self
+}
+#[derive(Clone, PartialEq, Eq, Hash, Debug)] pub struct MissingCard(pub Box<str>)
+impl fmt::Display for MissingCard
+impl std::error::Error for MissingCard
+pub fn search_json(s: &SearchSettings) -> Json
+pub fn effort_json(run: &BenchmarkRun) -> Json
+#[derive(Clone, PartialEq, Debug)] pub struct ResultsData {
+    ..
+}
+impl ResultsData {
+    pub fn new(cfg: &BenchmarkConfig, versions: Json, conflict_resolutions: Json, lookup: impl Fn(&str) -> Option<CardFacts>) -> Result<Self, MissingCard>
+    pub fn embedded(cfg: &BenchmarkConfig) -> Result<Self, MissingCard>
+    pub fn card(&self, number: &str) -> &CardFacts
+    pub const fn versions(&self) -> &Json
+    pub const fn conflict_resolutions(&self) -> &Json
+}
+pub fn replay_name(label: &str, g: &GameRecord) -> String
+pub fn select_replays(run: &BenchmarkRun) -> Vec<(&'static str, &GameRecord)>
+pub fn versions_for(mut versions: Json, schema: SchemaVersion) -> Json
+pub fn build_results_with(run: &BenchmarkRun, data: &ResultsData) -> Json
+pub fn build_results(run: &BenchmarkRun) -> Json
+
+## gcg_runner::reports::schema  [crates/gcg-runner/src/reports/schema.rs]
+pub const RESULTS_SCHEMA_V1_1: &str
+pub const RESULTS_SCHEMA_V1_2: &str
+pub const SUPPORTED_KEYWORDS: [&str; 26]
+impl fmt::Display for SchemaError
+impl std::error::Error for SchemaError
+pub fn json_from_value(v: &Value) -> Json
+#[derive(Debug)] pub struct Schema {
+    ..
+}
+#[derive(Clone, PartialEq, Eq, Hash, Debug)] pub struct CompileError {
+    pub pointer: String,
+    pub message: String,
+}
+impl fmt::Display for CompileError
+impl std::error::Error for CompileError
+impl Schema {
+    pub fn compile(text: &str) -> Result<Self, CompileError>
+    pub fn validate(&self, instance: &Json) -> Result<(), SchemaError>
+}
+pub fn is_date(s: &str) -> bool
+pub fn results_schema_v1_1() -> &'static Schema
+pub fn results_schema_v1_2() -> &'static Schema
+pub const fn results_schema_text(v: SchemaVersion) -> &'static str
+pub fn validate_results(doc: &Json, v: SchemaVersion) -> Result<(), SchemaError>
+
+## gcg_runner::reports::set  [crates/gcg-runner/src/reports/set.rs]
+pub const EXTREME_REPLAY_FILE: &str
+pub const REPORT_FILES: [&str; 9]
+pub struct Compression<'a> {
+    pub file: &'a str,
+    pub encode: &'a dyn Fn(&[u8]) -> Vec<u8>,
+}
+#[derive(Default)] pub struct SetOptions<'a> {
+    pub compress: Option<Compression<'a>>,
+    pub extremes: bool,
+    pub extra_files: Vec<(String, Vec<u8>)>,
+    pub timing_extra: Vec<(String, Json)>,
+    pub after_file: Option<&'a mut dyn FnMut(&Path) -> bool>,
+}
+pub fn select_extremes(run: &BenchmarkRun) -> Vec<(&'static str, &'static str, &GameRecord)>
+pub fn extreme_replay_name(kind: &str, result: &str, g: &GameRecord) -> String
+pub fn is_report_entry(name: &str) -> bool
+pub fn write_report_set(run: &BenchmarkRun, out: &Path, cancel: &Cancel, data: &ResultsData, replay_doc: &mut dyn FnMut(&'static str, &GameRecord) -> Result<Json, ReplayError>, host: &TimingHost, mut opts: SetOptions<'_>) -> Result<ReportPaths, ReportError>
+
+## gcg_runner::reports::stats  [crates/gcg-runner/src/reports/stats.rs]
+pub const DIGITS: usize
+pub const Z95: f64
+pub fn div(num: u64, den: u64) -> f64
+pub fn wilson(successes: u64, n: u64, z: f64) -> Option<(f64, f64)>
+pub fn rnd(x: f64) -> f64
+pub fn ratio(num: u64, den: u64) -> Option<f64>
+#[derive(Clone, Copy, PartialEq, Debug)] pub struct Rate {
+    pub successes: u64,
+    pub n: u64,
+    pub rate: Option<f64>,
+    pub ci95: Option<(f64, f64)>,
+}
+impl Rate {
+    pub fn new(successes: u64, n: u64) -> Self
+    pub fn to_json(&self) -> Json
+}
+pub fn intervals_overlap(a: &Rate, b: &Rate) -> bool
+pub fn two_proportion_p(a: &Rate, b: &Rate) -> f64
+pub fn holm(p_values: &[f64], alpha: f64) -> Vec<bool>
+pub fn percentile(sorted_values: &[i64], q: f64) -> i64
+#[derive(Clone, PartialEq, Debug)] pub struct Distribution {
+    pub n: u64,
+    pub mean: Option<f64>,
+    pub median: Option<i64>,
+    pub min: Option<i64>,
+    pub max: Option<i64>,
+    pub p10: Option<i64>,
+    pub p90: Option<i64>,
+}
+impl Distribution {
+    pub fn of(values: &[i64]) -> Self
+    pub fn to_json(&self) -> Json
+}
+
+## gcg_runner::reports::summary  [crates/gcg-runner/src/reports/summary.rs]
+pub const TOP_BENCH_CARDS: usize
+pub fn render_summary(results: &Json, command: &str) -> String
+
+## gcg_runner::reports::writer  [crates/gcg-runner/src/reports/writer.rs]
+pub const REPLAY_FILE: &str
+pub const TIMING_NOTE: &str
+pub fn to_json_text(doc: &Json) -> String
+pub fn games_ndjson(run: &BenchmarkRun) -> String
+pub fn shlex_quote(s: &str) -> String
+pub fn release_factory(preset: &str) -> String
+pub const DECK_DIRS: [&str; 2]
+pub fn deck_file_name(role: crate::Role, name: &str) -> Option<String>
+pub fn has_source(d: &gcg_data::Deck) -> bool
+pub fn written_decks(run: &BenchmarkRun) -> Vec<(String, String)>
+pub fn deck_file_text(d: &gcg_data::Deck) -> String
+pub fn reproduce_command(run: &BenchmarkRun) -> String
+#[derive(Clone, PartialEq, Eq, Hash, Debug)] pub struct TimingHost {
+    pub python: String,
+    pub platform: String,
+}
+impl TimingHost {
+    pub fn rust() -> Self
+}
+pub fn timing_json(run: &BenchmarkRun, host: &TimingHost) -> Json
+impl fmt::Display for ReportError
+impl std::error::Error for ReportError
+pub fn write_atomic(path: &Path, text: &str) -> Result<(), ReportError>
+pub fn is_replay_file_name(name: &str) -> bool
+pub fn write_reports_with(run: &BenchmarkRun, out: &Path, cancel: &Cancel, data: &ResultsData, replay_doc: &mut dyn FnMut(&'static str, &GameRecord) -> Result<Json, ReplayError>, host: &TimingHost) -> Result<ReportPaths, ReportError>
+pub fn write_reports(run: &BenchmarkRun, out: &Path, cancel: &Cancel, resimulate: &mut dyn FnMut(&GameRecord) -> Result<Resimulation, ReplayError>) -> Result<ReportPaths, ReportError>
+
+## gcg_runner::run  [crates/gcg-runner/src/run.rs]
+pub fn run_benchmark(cfg: &BenchmarkConfig, f: &dyn AgentFactory, progress: &mut dyn FnMut(u32, u32), cancel: &Cancel) -> Result<BenchmarkRun, RunError>
+
+## gcg_runner::test_agents  [crates/gcg-runner/src/test_agents.rs]
+impl Agent for TestRandomAgent
+impl Agent for TestIllegalAgent
+pub fn factory(kind: TestAgentKind) -> Box<dyn AgentFactory>

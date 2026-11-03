@@ -674,6 +674,9 @@ pub(super) fn h_to_deck(
         }
         set_did(st, fi, !targets.is_empty());
         if ins.shuffle {
+            if !targets.is_empty() {
+                crate::diag::note_interpretation(crate::diag::Interpretation::I06);
+            }
             owners.sort();
             for p in owners {
                 core_::shuffle_deck(st, p);
@@ -701,6 +704,7 @@ pub(super) fn h_to_deck(
         if together.is_empty() {
             return Ok(Status::Next);
         }
+        crate::diag::note_interpretation(crate::diag::Interpretation::I06);
         for &u in &together {
             let c = &mut st.cards[usize::from(u)];
             c.known &= 1 << c.owner;

@@ -17,7 +17,8 @@
 //!   entry), lift in both directions, and draw/play statistics of benchmark cards.
 //! - W-98: unrounded means and interpolated (Hyndman-Fan type 7) p10, median and p90.
 //! - W-101: the interpretations of `docs/port/audit/interpretations.json` whose cards were used
-//!   in the run's games.
+//!   in the run's games, or whose engine code path ran while a game was re-simulated
+//!   (`gcg_engine::diag::interpretation_runs`).
 //! - W-109: double defeats and how they were scored, and with `--swiss-draws` the match
 //!   results with a double-defeat decider scored as Swiss draws.
 //! - W-147: the AI's mulligan rule: opening scores and thresholds of kept and redrawn hands and
@@ -35,6 +36,7 @@ use gcg_core::pyjson::Json;
 use gcg_core::{SeedPart, SplitMix64, derive_seed};
 use gcg_data::{CardDef, Deck};
 use gcg_effects::Registry;
+use gcg_engine::diag::{Interpretation, interpretation_runs};
 use gcg_engine::{
     ActionKind, ApplyError, DecisionKind, EndReason, FrameKind, GameState, HistKind,
     NewGameOptions, Phase, Uid, Zone, apply, canon, new_game,
@@ -435,6 +437,9 @@ pub struct GameFacts {
     /// Card numbers (either deck) that were played, deployed, paired, activated, attacked
     /// with or revealed as a Burst (W-101).
     pub used: BTreeSet<Box<str>>,
+    /// The interpretation ids whose engine code path ran in the game (W-101,
+    /// `gcg_engine::diag::Interpretation`).
+    pub interpretations: BTreeSet<&'static str>,
     pub opening: Option<Opening>,
     pub cap: Option<CapKind>,
     pub decisions: u64,
@@ -501,6 +506,7 @@ pub fn observe_game(record: &GameRecord, cfg: &BenchmarkConfig) -> Result<GameFa
         validate: true,
     };
     let reg = Registry::embedded();
+    let runs_before = interpretation_runs();
     let mut st = new_game(&reg, [&decks[0], &decks[1]], record.seed, opts)
         .map_err(crate::replay::new_game_replay_error)?;
     let (dut, bench) = (record.dut_seat, record.bench_seat());
@@ -662,6 +668,13 @@ pub fn observe_game(record: &GameRecord, cfg: &BenchmarkConfig) -> Result<GameFa
         .collect();
     never.sort();
     facts.never_played = never;
+    let runs_after = interpretation_runs();
+    facts.interpretations = Interpretation::ALL
+        .iter()
+        .zip(runs_before.iter().zip(&runs_after))
+        .filter(|(_, (before, after))| after > before)
+        .map(|(i, _)| i.id())
+        .collect();
     facts.decisions = count(record.actions.len());
     if record.end_reason == EndReason::TurnLimit {
         facts.cap = Some(if st.action_count() > st.max_actions() {
@@ -1107,25 +1120,33 @@ fn interpretation_cards() -> Vec<(String, String, Vec<String>)> {
         .unwrap_or_default()
 }
 
-/// W-101: the interpretations whose cards were used in the run's games.
+/// W-101: the interpretations whose cards were used in the run's games, or whose engine code
+/// path ran in them. `games` counts the games with either; `card_games` the card-level trace
+/// and `engine_games` the engine record (`null` for an interpretation without an engine code
+/// path).
 #[must_use]
 pub fn interpretations_used(facts: &[GameFacts]) -> Json {
     let mut used = Vec::new();
     let mut untraceable = Vec::new();
+    let anchored: Vec<&'static str> = Interpretation::ALL.iter().map(|i| i.id()).collect();
     for (id, topic, cards) in interpretation_cards() {
-        if cards.is_empty() {
+        let engine = anchored.contains(&id.as_str());
+        if cards.is_empty() && !engine {
             untraceable.push(Json::Str(id));
             continue;
         }
-        let games = count(
-            facts
-                .iter()
-                .filter(|f| cards.iter().any(|c| f.used.contains(c.as_str())))
-                .count(),
-        );
+        let by_card = |f: &GameFacts| cards.iter().any(|c| f.used.contains(c.as_str()));
+        let by_engine = |f: &GameFacts| f.interpretations.contains(id.as_str());
+        let games = count(facts.iter().filter(|f| by_card(f) || by_engine(f)).count());
         if games == 0 {
             continue;
         }
+        let card_games = count(facts.iter().filter(|f| by_card(f)).count());
+        let engine_games = if engine {
+            Json::from(count(facts.iter().filter(|f| by_engine(f)).count()))
+        } else {
+            Json::Null
+        };
         let by: Vec<Json> = cards
             .iter()
             .filter(|c| facts.iter().any(|f| f.used.contains(c.as_str())))
@@ -1136,17 +1157,30 @@ pub fn interpretations_used(facts: &[GameFacts]) -> Json {
         o.set("topic", topic.as_str());
         o.set("games", games);
         o.set("cards", Json::Array(by));
+        o.set("card_games", card_games);
+        o.set("engine_games", engine_games);
         used.push(o);
     }
     let mut o = Json::object();
     o.set("interpretations", Json::Array(used));
     o.set("not_traceable_from_games", Json::Array(untraceable));
     o.set(
+        "engine_recorded",
+        Json::Array(
+            anchored
+                .iter()
+                .map(|&id| Json::Str(id.to_owned()))
+                .collect(),
+        ),
+    );
+    o.set(
         "note",
         "an interpretation of docs/port/audit/interpretations.json is listed when one of its \
          cards was played, deployed, paired, activated, attacked with or revealed as a Burst in \
-         a game of this run (a card-level trace: the interpretation's code path may still not \
-         have run). Rule-level interpretations without cards cannot be traced from the games",
+         a game of this run (card_games: a card-level trace, whose code path may still not have \
+         run), or when the engine recorded its code path while the game was re-simulated \
+         (engine_games; the interpretations of engine_recorded). Interpretations with neither \
+         cards nor an engine code path cannot be traced from the games",
     );
     o
 }

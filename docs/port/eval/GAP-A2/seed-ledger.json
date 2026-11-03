@@ -1,0 +1,121 @@
+{
+ "version": 1,
+ "entries": [
+  {
+   "role": "dev",
+   "master": 22721300,
+   "command": "head-to-head",
+   "config": {
+    "challenger": "search:fast",
+    "opponent": "ref:standard",
+    "pair": "docs/port/eval/GAP-A2/decks/coverage-white-blue.txt:docs/port/eval/GAP-A2/decks/coverage-white-blue.txt",
+    "games": 100,
+    "choose_first": "seat0"
+   }
+  },
+  {
+   "role": "dev",
+   "master": 22721400,
+   "command": "ablation",
+   "config": {
+    "row": "individual",
+    "mechanism": "portable_math=true",
+    "challenger": "search:null-standard:portable_math=true",
+    "opponent": "ref:standard",
+    "decks": "panel",
+    "pairs": "tuning",
+    "games": 400,
+    "choose_first": "seat0"
+   }
+  },
+  {
+   "role": "dev",
+   "master": 22721400,
+   "command": "ablation",
+   "config": {
+    "row": "individual",
+    "mechanism": "portable_math=false",
+    "challenger": "search:null-standard:portable_math=false",
+    "opponent": "ref:standard",
+    "decks": "panel",
+    "pairs": "tuning",
+    "games": 400,
+    "choose_first": "seat0"
+   }
+  },
+  {
+   "role": "dev",
+   "master": 22721500,
+   "command": "ablation",
+   "config": {
+    "row": "leave-one-out",
+    "mechanism": "portable_math=false",
+    "challenger": "search:fast:portable_math=true",
+    "opponent": "search:fast:portable_math=true,portable_math=false",
+    "decks": "panel",
+    "pairs": "tuning",
+    "games": 400,
+    "choose_first": "seat0"
+   }
+  },
+  {
+   "role": "dev",
+   "master": 22721600,
+   "command": "ablation",
+   "config": {
+    "row": "leave-one-out",
+    "mechanism": "portable_math=false",
+    "challenger": "search:standard:iterations_per_option=256,min_iterations=640,max_iterations=2560,portable_math=true",
+    "opponent": "search:standard:iterations_per_option=256,min_iterations=640,max_iterations=2560,portable_math=true,portable_math=false",
+    "decks": "panel",
+    "pairs": "tuning",
+    "games": 400,
+    "choose_first": "seat0"
+   }
+  },
+  {
+   "role": "dev",
+   "master": 22721500,
+   "command": "ablation",
+   "config": {
+    "row": "leave-one-out",
+    "mechanism": "capped_rollout_continuation=false",
+    "challenger": "search:fast",
+    "opponent": "search:fast:capped_rollout_continuation=false",
+    "decks": "panel",
+    "pairs": "tuning",
+    "games": 400,
+    "choose_first": "seat0"
+   }
+  },
+  {
+   "role": "dev",
+   "master": 22721600,
+   "command": "ablation",
+   "config": {
+    "row": "leave-one-out",
+    "mechanism": "capped_rollout_continuation=false",
+    "challenger": "search:standard:iterations_per_option=256,min_iterations=640,max_iterations=2560",
+    "opponent": "search:standard:iterations_per_option=256,min_iterations=640,max_iterations=2560,capped_rollout_continuation=false",
+    "decks": "panel",
+    "pairs": "tuning",
+    "games": 400,
+    "choose_first": "seat0"
+   }
+  },
+  {
+   "role": "confirm",
+   "master": 30721801,
+   "command": "fidelity",
+   "config": {
+    "agents": [
+     "search:fast",
+     "search:standard"
+    ],
+    "pair": "red-green-zeon:blue-white-federation,tests/data/decks/red-green-zeon-weakened.txt:blue-white-federation,purple-white-tekkadan:blue-white-federation,docs/port/eval/P6-D/decks/purple-white-tekkadan-weakened.txt:blue-white-federation,docs/port/eval/P6-D/decks/blue-white-federation-weakened.txt:blue-white-federation",
+    "games": 200,
+    "choose_first": "seat0"
+   }
+  }
+ ]
+}

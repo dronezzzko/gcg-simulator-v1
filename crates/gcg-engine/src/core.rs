@@ -228,10 +228,14 @@ fn move_single(
     if db.by_id(c.def_id).is_token() && !TOKEN_ZONES.contains(&dst) {
         c.zone = Zone::Outside;
         c.known = BOTH_KNOW;
+        crate::diag::note_interpretation(crate::diag::Interpretation::I02);
         return Ok(());
     }
     c.zone = dst;
     let owner = c.owner;
+    if dst == Zone::Shield && !bottom {
+        crate::diag::note_interpretation(crate::diag::Interpretation::I15);
+    }
     if matches!(dst, Zone::Deck | Zone::Shield | Zone::ResourceDeck) && !bottom {
         st.zones.insert(owner, dst, 0, uid)
     } else {

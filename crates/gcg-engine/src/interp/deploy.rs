@@ -426,6 +426,7 @@ fn place_ex_resource(
         .filter(|&&u| core_::card_type(st, u) == CardType::ExResource)
         .count();
     if area.len() >= RESOURCE_LIMIT || n_ex >= EX_RESOURCE_LIMIT {
+        crate::diag::note_interpretation(crate::diag::Interpretation::I03);
         return Ok(false);
     }
     let uid = core_::new_card(st, ex_def, p, Zone::ResourceArea, rested)?;
@@ -475,6 +476,7 @@ pub(crate) fn place_resource(
         return Ok(false);
     };
     if st.zone(p, Zone::ResourceArea).len() >= RESOURCE_LIMIT {
+        crate::diag::note_interpretation(crate::diag::Interpretation::I03);
         return Ok(false);
     }
     core_::move_card(

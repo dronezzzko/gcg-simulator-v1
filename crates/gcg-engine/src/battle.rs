@@ -371,6 +371,7 @@ fn destroy_battle(st: &mut GameState, victims: &Victims) -> Result<UidBuf, Engin
 /// deals battle damage to the Base; Bases deal none back (resolution rules-internal:base-ap
 /// in docs/CONFLICTS.md).
 fn attack_base(st: &mut GameState, attacker: Uid, base: Uid) -> Result<(), EngineError> {
+    crate::diag::note_interpretation(crate::diag::Interpretation::I01);
     let dv = view::derived(st)?;
     let ap = view::ap_of(st, &dv, attacker);
     let by = i32::from(st.cards[usize::from(attacker)].owner);
@@ -476,6 +477,9 @@ pub(crate) fn damage_step(st: &mut GameState) -> Result<(), EngineError> {
             by: i32::from(a_owner),
         };
         if let Some(base) = base {
+            if view::has_kw(&dv, attacker, Kw::Suppression) {
+                crate::diag::note_interpretation(crate::diag::Interpretation::I18);
+            }
             attack_base(st, attacker, base)?; // rules 8-5-2-4, 8-5-2-4-2
         } else if has_shields {
             let ap = view::ap_of(st, &dv, attacker);
@@ -503,6 +507,8 @@ pub(crate) fn damage_step(st: &mut GameState) -> Result<(), EngineError> {
                 let by = by_i8(i32::from(a_owner))?;
                 core::record(st, HistKind::PlayerDamage, defender, by, b.attacker, NO_ARG);
                 core::set_winner(st, &[defender], EndReason::BattleDamage);
+            } else {
+                crate::diag::note_interpretation(crate::diag::Interpretation::I16);
             }
         }
         return Ok(());

@@ -29,7 +29,7 @@ mod tests;
 use std::sync::Mutex;
 
 use gcg_ai::{MoveKey, NoopFlags, PruneFlags, SPENDING, canonical, merge_equivalent};
-use gcg_ai::{ex_used, policy::EX_PENALTY, without_effect};
+use gcg_ai::{ex_used, policy::EX_PENALTY, without_effect_with};
 use gcg_core::pymath::py_sum;
 use gcg_engine::observe::determinize;
 use gcg_engine::{Action, EngineError, GameState};
@@ -218,6 +218,7 @@ pub(crate) fn root_moves<M: Mechanisms + ?Sized>(
                     max_decisions: noop::MAX_DECISIONS,
                     node_cap: noop::BRANCH_NODE_CAP,
                     record_idle: false,
+                    math: crate::mech::math_of(cfg).float(),
                 },
                 &cfg.weights,
             )?;
@@ -225,7 +226,7 @@ pub(crate) fn root_moves<M: Mechanisms + ?Sized>(
             info.penalised = found.penalised;
             found.idle
         } else {
-            without_effect(
+            without_effect_with(
                 st,
                 cx.player,
                 dec,
@@ -237,6 +238,7 @@ pub(crate) fn root_moves<M: Mechanisms + ?Sized>(
                     resource_aware: cfg.noop_resource_aware,
                 },
                 &cfg.weights,
+                crate::mech::math_of(cfg).float(),
             )?
         };
         let kept: Vec<(MoveKey, Action)> = moves

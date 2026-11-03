@@ -9,8 +9,12 @@
 # Every step fails the gate (set -euo pipefail; scripts/verify_all_rust_selftest.sh injects a
 # failing step and a failing pipeline into a copy and checks that the copy fails). Nothing is
 # skipped: the slow tests that read the regenerated tier-2 corpus ($SLOW_TIER2) run in --full
-# right after that corpus is written. Lines of later milestones join when their command lands
-# (`gcg-eval benchmark` of M12.M: the A30 identity below is still commented out).
+# right after that corpus is written.
+#
+# GCG_GATE_WORKERS=N caps the workers of the corpus replays, the fuzz runs and the Python trace
+# and census runs on a machine shared with other work (defaults: one corpus job per online CPU,
+# `auto` fuzz workers, 8 Python workers). No output depends on it. The identity runs at 1, 4
+# and 10 workers keep their counts.
 set -euo pipefail
 
 repo="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
@@ -21,6 +25,12 @@ case "${1:-}" in
   --full) full=1 ;;
   *) echo "usage: scripts/verify_all_rust.sh [--full]" >&2; exit 2 ;;
 esac
+gate_workers="${GCG_GATE_WORKERS:-}"
+if [[ -n "$gate_workers" && ! "$gate_workers" =~ ^[1-9][0-9]*$ ]]; then
+  echo "GCG_GATE_WORKERS must be a positive integer, got '$gate_workers'" >&2; exit 2; fi
+rust_workers="${gate_workers:-auto}"
+py_workers="${gate_workers:-8}"
+corpus_jobs="${gate_workers:-$(getconf _NPROCESSORS_ONLN)}"
 work="$(mktemp -d)"
 trap 'rm -rf "$work"' EXIT
 
@@ -53,27 +63,31 @@ cargo test --release --locked --offline -p gcg-engine --features paranoid,testki
 target/release/gcg-diff lints
 target/release/gcg-diff selftest
 target/release/gcg-diff selftest --real-engine
-target/release/gcg-diff corpus --tier 1 --parse-only --require-all
-target/release/gcg-diff corpus --tier 1 --mock --require-all
-target/release/gcg-diff corpus --tier 1 --mock --roundtrip --require-all
-target/release/gcg-diff corpus --tier 1 --require-all
-target/release/gcg-diff corpus --tier 1 --roundtrip --require-all
-target/paranoid/release/gcg-diff corpus --tier 1 --require-all --paranoid
+target/release/gcg-diff corpus --tier 1 --parse-only --require-all --jobs "$corpus_jobs"
+target/release/gcg-diff corpus --tier 1 --mock --require-all --jobs "$corpus_jobs"
+target/release/gcg-diff corpus --tier 1 --mock --roundtrip --require-all --jobs "$corpus_jobs"
+target/release/gcg-diff corpus --tier 1 --require-all --jobs "$corpus_jobs"
+target/release/gcg-diff corpus --tier 1 --roundtrip --require-all --jobs "$corpus_jobs"
+target/paranoid/release/gcg-diff corpus --tier 1 --require-all --paranoid --jobs "$corpus_jobs"
 target/release/gcg-diff coverage --check
 target/release/gcg-diff traceability --check
 target/release/gcg-diff tests-json --check
 target/release/gcg-diff weaknesses --check docs/port/WEAKNESSES.md
+target/release/gcg-diff api-snapshot --check
 
 # Fuzz with invariants after every action (PLAN §9.4): Python's seed-2026 games, a
 # commit-derived seed, and the W-110 strategic games in the paranoid build.
-target/release/gcg-diff fuzz --games 10000 --seed 2026 --workers auto \
+target/release/gcg-diff fuzz --games 10000 --seed 2026 --workers "$rust_workers" \
   --compare port/corpus/v1/tier1/fuzz/summary-2026-10000.json
-target/release/gcg-diff fuzz --games 2000 --seed-from-commit "$(git rev-parse HEAD)" --workers auto
+target/release/gcg-diff fuzz --games 2000 --seed-from-commit "$(git rev-parse HEAD)" \
+  --workers "$rust_workers"
 target/paranoid/release/gcg-diff paranoid-games
-target/paranoid/release/gcg-diff fuzz --games 400 --seed 2026 --agent greedy --paranoid --workers auto
-target/paranoid/release/gcg-diff fuzz --games 400 --seed 2026 --agent search:fast --paranoid --workers auto
+target/paranoid/release/gcg-diff fuzz --games 400 --seed 2026 --agent greedy --paranoid \
+  --workers "$rust_workers"
+target/paranoid/release/gcg-diff fuzz --games 400 --seed 2026 --agent search:fast --paranoid \
+  --workers "$rust_workers"
 target/paranoid/release/gcg-diff fuzz --games 200 --seed 2026 --agent mixed:greedy,search:fast \
-  --paranoid --workers auto
+  --paranoid --workers "$rust_workers"
 
 # Evaluation registers: the held-out overlap bound and the evidence directory.
 target/release/gcg-eval decks --overlap --check >/dev/null
@@ -109,11 +123,11 @@ for kind in w ref-w; do
   done
 done
 for w in 4 10; do cmp build/h2h-w1.json "build/h2h-w$w.json"; done
-# (from M12.M) A30: gcg-eval benchmark without an opt-in option writes gcg-sim's bytes.
-#   target/release/gcg-eval benchmark examples/decks/red-green-zeon.txt \
-#     examples/decks/blue-white-federation.txt --matches 4 --seed 7 --ai-preset fast \
-#     --workers 4 --decision-log --out build/eval-bench >/dev/null
-#   diff -r -x timing.json build/w4 build/eval-bench
+# A30 (T-153): gcg-eval benchmark without an opt-in option writes gcg-sim's bytes.
+target/release/gcg-eval benchmark examples/decks/red-green-zeon.txt \
+  examples/decks/blue-white-federation.txt --matches 4 --seed 7 --ai-preset fast \
+  --workers 4 --decision-log --out build/eval-bench >/dev/null
+diff -r -x timing.json build/w4 build/eval-bench
 for f in build/w1/replays/*.json build/ref-w1/replays/*.json; do
   target/release/gcg-sim replay "$f" >/dev/null; done
 target/release/gcg-diff schema-check build/w1/results.json build/ref-w1/results.json
@@ -133,9 +147,11 @@ RUSTFLAGS="-C target-cpu=apple-m2" cargo build --profile dist --locked --offline
 scripts/verify_binary_offline.sh target/dist/gcg-sim
 
 # Stdlib-only tool checks, the gate's own negative controls, the CLI help snapshot, generated
-# counts and the freshness summary (W-114, W-118, W-120's check, W-129, W-128, W-115, W-153).
+# counts and the freshness summary (W-114, W-118, W-120's check, W-129, W-128, W-115, W-153,
+# W-126's agreement check).
 python3 scripts/check_doc_commands.py --selftest
 python3 scripts/cli_help_snapshot.py --check
+python3 scripts/throughput.py --selftest
 scripts/verify_all_rust_selftest.sh
 python3 scripts/check_claude_settings.py --selftest
 python3 scripts/doc_counts.py --check
@@ -150,15 +166,27 @@ if [[ $full == 1 ]]; then
   uv sync --locked
   uv run ruff check . && uv run ruff format --check .
   MYPYPATH=src uv run mypy --strict port/oracle
-  uv run python scripts/check_doc_commands.py
+  # The documented commands (W-114, W-154) run in their own clone of HEAD, so a regeneration
+  # they document cannot change the tree under test. The tracked files they rewrite there must
+  # be the one listed: CLAUDE.md's Python traceability command writes docs/RULES_TRACEABILITY.md,
+  # which `gcg-diff traceability --write` now generates (checked above). The full Python suite
+  # runs three times among them, so a block may take hours on a shared machine.
+  git clone --quiet --no-hardlinks "$work/repo" "$work/docs"
+  (cd "$work/docs" && uv run python scripts/check_doc_commands.py --timeout 21600)
+  rewritten="$(git -C "$work/docs" status --porcelain --untracked-files=all | cut -c4- |
+    awk '$0 != "docs/RULES_TRACEABILITY.md"')"
+  if [[ -n "$rewritten" ]]; then
+    echo "the documented commands rewrote files of the tree:" >&2; echo "$rewritten" >&2; exit 1; fi
+  if ! git -C "$work/docs" diff --quiet -- docs/RULES_TRACEABILITY.md; then
+    echo "note: CLAUDE.md's Python traceability command rewrites docs/RULES_TRACEABILITY.md"; fi
   uv run python scripts/blind_transcripts.py --selftest
   uv run python scripts/fuzz_census.py --selftest
-  uv run python scripts/fuzz_census.py --games 10000 --seed 2026 --workers 8 \
+  uv run python scripts/fuzz_census.py --games 10000 --seed 2026 --workers "$py_workers" \
     --check docs/port/eval/P6-N/fuzz-census-2026-10000.json
   uv run python scripts/test_census.py --check docs/port/eval/P6-N/test-execution.json
-  PYTHONHASHSEED=1 uv run python port/oracle/traces.py --check --tier 1
-  PYTHONHASHSEED=2 uv run python port/oracle/traces.py --check --tier 1
-  uv run python port/oracle/traces.py --check --tier 1 --nocache
+  PYTHONHASHSEED=1 uv run python port/oracle/traces.py --check --tier 1 --workers "$py_workers"
+  PYTHONHASHSEED=2 uv run python port/oracle/traces.py --check --tier 1 --workers "$py_workers"
+  uv run python port/oracle/traces.py --check --tier 1 --nocache --workers "$py_workers"
   uv run python port/oracle/traces.py vectors --check
   uv run python port/oracle/census.py --check
   uv run python port/oracle/eval_decks.py --check
@@ -171,8 +199,8 @@ if [[ $full == 1 ]]; then
   COMPARE_OUT="build/comparison" scripts/compare_python_vs_rust.sh equivalence --matches 2 \
     --seeds 1 --formats bo1 --pairs red-green-zeon:blue-white-federation --workers 1 \
     --decision-logs off
-  uv run python port/oracle/traces.py --write --tier 2
-  target/release/gcg-diff corpus --tier 2 --require-all
+  uv run python port/oracle/traces.py --write --tier 2 --workers "$py_workers"
+  target/release/gcg-diff corpus --tier 2 --require-all --jobs "$corpus_jobs"
   cargo test --workspace --release --locked --offline --features "$SLOW_TIER2"
 fi
 

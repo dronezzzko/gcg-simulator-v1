@@ -17,6 +17,7 @@ pub mod cli;
 pub mod compare;
 pub mod compare_runs;
 mod contracts;
+pub mod data_status;
 pub mod decks;
 pub mod env;
 pub mod evidence;
@@ -34,8 +35,10 @@ pub mod selfplay;
 pub mod specs;
 pub mod stats;
 pub mod trace;
+pub mod transcripts;
 pub mod tune;
 pub mod tune_ext;
 pub mod validate_cmd;
+pub mod weakness_suite;
 
 pub use contracts::*;

@@ -92,6 +92,17 @@ fn line_of(text: &str, offset: usize) -> usize {
 /// kept, so offsets map to the same lines).
 #[must_use]
 pub fn strip_comments_and_strings(text: &str) -> String {
+    blank_spans(text, true)
+}
+
+/// `text` with only its comments replaced by spaces; string and char literals stay, at the same
+/// offsets as in [`strip_comments_and_strings`].
+#[must_use]
+pub fn strip_comments(text: &str) -> String {
+    blank_spans(text, false)
+}
+
+fn blank_spans(text: &str, literals: bool) -> String {
     let b = text.as_bytes();
     let mut out: Vec<u8> = b.to_vec();
     let blank = |out: &mut Vec<u8>, from: usize, to: usize| {
@@ -152,7 +163,9 @@ pub fn strip_comments_and_strings(text: &str) -> String {
                     .windows(close.len())
                     .position(|w| w == close.as_slice())
                     .map_or(b.len(), |p| j + 1 + p + close.len());
-                blank(&mut out, i, end);
+                if literals {
+                    blank(&mut out, i, end);
+                }
                 i = end;
             }
             b'"' => {
@@ -161,7 +174,9 @@ pub fn strip_comments_and_strings(text: &str) -> String {
                     j += if b[j] == b'\\' { 2 } else { 1 };
                 }
                 let end = (j + 1).min(b.len());
-                blank(&mut out, i, end);
+                if literals {
+                    blank(&mut out, i, end);
+                }
                 i = end;
             }
             b'\'' => {
@@ -176,7 +191,9 @@ pub fn strip_comments_and_strings(text: &str) -> String {
                 };
                 match end {
                     Some(e) => {
-                        blank(&mut out, i, e);
+                        if literals {
+                            blank(&mut out, i, e);
+                        }
                         i = e;
                     }
                     None => i += 1,

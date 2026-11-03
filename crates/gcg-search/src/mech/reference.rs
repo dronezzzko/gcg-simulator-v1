@@ -3,8 +3,9 @@
 //! function is the reference search's, float for float.
 
 use gcg_ai::{
-    Alternative, MoveKey, NoopFlags, PruneFlags, SPENDING, canonical, first_player_choice,
-    merge_equivalent, mulligan_choice, option_scores, prune_dominated, score, without_effect,
+    Alternative, Density, MoveKey, NoopFlags, PruneFlags, SPENDING, burst_density, canonical,
+    first_player_choice_with, merge_equivalent, mulligan_choice, option_scores, prune_dominated,
+    score, without_effect_with,
 };
 use gcg_core::pymath::py_sum;
 use gcg_engine::observe::determinize_into;
@@ -12,7 +13,7 @@ use gcg_engine::{Action, DecisionKind, EngineError, GameState};
 
 use super::{
     BackupCx, Budget, ChildIdx, HorizonDecision, LeafCx, NodeCx, PregameCx, RolloutCx, RootCx,
-    WorldCx,
+    WorldCx, math_of,
 };
 use crate::mcts::is_target_decision;
 use crate::tree::Child;
@@ -37,7 +38,8 @@ pub(crate) fn py_max(values: &[f64]) -> f64 {
 
 /// `ai/mcts.py:89-110`: `prune_dominated`, then (when a spending move is present, after one
 /// draw for its seed) the moves `without_effect` finds idle are dropped unless none would be
-/// left, then `merge_equivalent`.
+/// left, then `merge_equivalent`. The no-effect check's evaluation uses the configuration's
+/// math (`without_effect_with`; the reference's `without_effect` at `Math::Platform`).
 pub(crate) fn root_moves(cx: &mut RootCx<'_>) -> Result<Vec<(MoveKey, Action)>, EngineError> {
     let (st, dec, cfg) = (cx.st, cx.dec, cx.cfg);
     let mut moves = prune_dominated(
@@ -51,7 +53,7 @@ pub(crate) fn root_moves(cx: &mut RootCx<'_>) -> Result<Vec<(MoveKey, Action)>, 
     )?;
     if moves.iter().any(|(_, a)| SPENDING.contains(&a.kind)) {
         let seed = cx.rng.next_u64();
-        let idle = without_effect(
+        let idle = without_effect_with(
             st,
             cx.player,
             dec,
@@ -63,6 +65,7 @@ pub(crate) fn root_moves(cx: &mut RootCx<'_>) -> Result<Vec<(MoveKey, Action)>, 
                 resource_aware: cfg.noop_resource_aware,
             },
             &cfg.weights,
+            math_of(cfg).float(),
         )?;
         let kept: Vec<(MoveKey, Action)> = moves
             .iter()
@@ -92,6 +95,11 @@ pub(crate) fn budget(cx: &RootCx<'_>, n_moves: usize) -> Budget {
         iterations
     };
     Budget { iterations, cap }
+}
+
+/// `burst_density(st, player)` of the root (`ai/mcts.py:120`).
+pub(crate) fn density(cx: &RootCx<'_>) -> Density {
+    burst_density(cx.st, cx.player)
 }
 
 /// `determinize(st, player, world_seeds[k])` (`ai/mcts.py:126`, `:143`).
@@ -214,7 +222,9 @@ pub(crate) fn backup(cx: &mut BackupCx<'_>) {
     }
 }
 
-/// `ai/agents.py:90-95`: REDRAW by `mulligan_choice`, CHOOSE_FIRST by `first_player_choice`.
+/// `ai/agents.py:90-95`: REDRAW by `mulligan_choice`, CHOOSE_FIRST by `first_player_choice`
+/// with the configuration's math (`first_player_choice_with`; the reference's at
+/// `Math::Platform`). `mulligan_choice` makes no libm call.
 pub(crate) fn pregame(
     cx: &mut PregameCx<'_, '_>,
 ) -> Result<(Action, Vec<Alternative>), AgentError> {
@@ -226,12 +236,13 @@ pub(crate) fn pregame(
             cx.rng,
         ));
     }
-    first_player_choice(
+    first_player_choice_with(
         cx.st,
         cx.player,
         cx.cfg.first_player_games,
         cx.rng,
         &cx.cfg.knobs(),
         cx.agent,
+        math_of(cx.cfg).float(),
     )
 }

@@ -41,6 +41,7 @@ under the floor). `B_mid` = `B_full` without `subtree_reuse` (added as a diagnos
 the bundle against the bundle with all its mechanisms off (the null configuration with
 `engine_error_leaf`) at `iterations_per_option=256,min_iterations=640,max_iterations=2560`.
 
+<!-- doc-check: skip a template with placeholders (on, bundle) for 400- and 1,600-game rows that take hours; the rows are recorded below -->
 ```bash
 gcg-eval ablation leave-one-out \
   --bundle search:standard:iterations_per_option=256,min_iterations=640,max_iterations=2560,<on> \
@@ -90,6 +91,7 @@ pre-game only) and `engine_error_leaf` (W-143, the pre-M15 default).
 
 ## Step 3: `standard` budget curve against `ref:strong` (tuning 11500100)
 
+<!-- doc-check: skip record of a 1,600-game budget curve that takes hours and rewrites the committed curve and ledger -->
 ```bash
 gcg-eval budget-curve search:standard:adaptive_horizon=true,capped_rollout_continuation=true,tactical_solver=true,exclude_capped_play_draw=true \
   ref:strong --scales 1,2,4,8 --games 400 --seed 11500100 --role tuning \
@@ -130,6 +132,7 @@ tuning-pair estimate (0.568 at 8x with the bundle) sits close to the rate the ga
 
 ## Step 4: `fast` budget curve against `ref:standard` (tuning 11500200)
 
+<!-- doc-check: skip record of a 2,000-game budget curve that takes hours and rewrites the committed curve and ledger -->
 ```bash
 gcg-eval budget-curve search:fast:adaptive_horizon=true,capped_rollout_continuation=true,tactical_solver=true,exclude_capped_play_draw=true \
   ref:standard --scales 0.5,0.75,1,1.5,2 --games 400 --seed 11500200 --role tuning \

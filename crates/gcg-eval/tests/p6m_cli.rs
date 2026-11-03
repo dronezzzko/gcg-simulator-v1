@@ -180,8 +180,9 @@ fn the_shipped_factory_is_gcg_sims() {
     );
 }
 
-/// W-134's `--opponent-list` is plumbed to the strengthened search's `opponent_list` flag; the
-/// `archetype` mechanism is P6-C's, so this build refuses it instead of ignoring it.
+/// W-134's `--opponent-list` is plumbed to the strengthened search's `opponent_list` flag: with
+/// `archetype` (provided by GAP-B, `mech/p6c/archetype.rs`) the benchmark runs, and its
+/// results name the mode in the factory and the enabled mechanisms.
 #[test]
 fn w134_opponent_list_reaches_the_search_flag() {
     let dir = scratch("opponent-list");
@@ -191,13 +192,16 @@ fn w134_opponent_list_reaches_the_search_flag() {
     cmd.extend(args.iter().map(String::as_str));
     cmd.extend(["--opponent-list", "archetype"]);
     let o = gcg_eval(&cmd);
-    assert_eq!(o.status.code(), Some(1));
-    let err = text(&o.stderr);
+    assert_eq!(o.status.code(), Some(0), "{}", text(&o.stderr));
+    let results = fs::read_to_string(out.join("results.json")).expect("results.json");
     assert!(
-        err.contains("mechanism opponent_list (P6-C) is not available in this build"),
-        "{err}"
+        results.contains("gcg-search::make_agent('fast', opponent_list='archetype')"),
+        "the factory names the mode"
     );
-    assert!(!out.join("results.json").exists());
+    assert!(
+        results.contains("\"opponent_list\""),
+        "the mechanism is listed"
+    );
     let _ = fs::remove_dir_all(&dir);
 }
 

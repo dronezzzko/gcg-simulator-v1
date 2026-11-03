@@ -52,6 +52,7 @@ round-robin over the 15 tuning pairs of `docs/port/eval/panel.json`, forced play
 (`--choose-first seat0`, A24), dev-role master 20600100 (A14) for every row, so all rows share
 their deals. The command of each row:
 
+<!-- doc-check: skip a template with placeholders (flag, ledger) for 400-game rows that take hours; the rows are recorded below -->
 ```bash
 target/release/gcg-eval ablation individual --mechanism <flag>=true --reference standard \
   --games 400 --seed 20600100 --role dev --ledger <ledger> --workers 6 --choose-first seat0 \

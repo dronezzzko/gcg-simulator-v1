@@ -693,11 +693,14 @@ mod tests {
         assert!(!config.mechanisms.engine_error_leaf && config.mechanisms.portable_math);
         assert!(parse_agent_spec("search:fast:root_trees=4").is_ok());
         assert!(parse_agent_spec("search:fast:opponent_buckets=8").is_ok());
-        assert_eq!(
+        let Ok(AgentDesc::Search { config }) =
             parse_agent_spec("search:fast:opponent_list=archetype")
-                .err()
-                .as_deref(),
-            Some("mechanism opponent_list (P6-C) is not available in this build")
+        else {
+            panic!("W-134's archetype mode is provided")
+        };
+        assert_eq!(
+            config.mechanisms.opponent_list,
+            gcg_search::OpponentList::Archetype
         );
         assert!(parse_agent_spec("search:fast:engine_error_leaf=2").is_err());
         assert_eq!(

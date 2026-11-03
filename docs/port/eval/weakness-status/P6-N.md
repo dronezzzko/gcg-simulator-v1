@@ -367,8 +367,8 @@ below).
   already formatted; `MYPYPATH=src uv run mypy --strict port/oracle`: no issues in 33 files;
   `uv run mypy`: no issues in 101 files. `check_doc_commands.py --list`: the two inventory blocks
   are skipped with reasons. New: `docs/port/eval/weakness-status/P6-decks.md` (line 106) holds a
-  ```bash block with `--out ...` and no marker, so `check_doc_commands.py` (criterion 10) fails
-  on it.
+  bash-fenced block with `--out ...` and no marker, so `check_doc_commands.py` (criterion 10)
+  fails on it.
 - **Ablation:** no AI effect.
 
 ### W-160 — The Python-vs-Rust equivalence harness

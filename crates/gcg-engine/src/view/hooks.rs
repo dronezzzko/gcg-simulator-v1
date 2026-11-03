@@ -37,12 +37,14 @@ pub(crate) fn cond(
     };
     match p {
         CondParams::AttackTargetDamaged => attack_target_damaged(st),
-        CondParams::GD01bDestroyedWithDamage => Ok(destroyed_with_damage(ctx)),
-        CondParams::GD04bPlayedWithEx => Ok(gd04b_played_with_ex(st, ctx)),
+        CondParams::GD01bDestroyedWithDamage => Ok(destroyed(st, ctx, Cause::WithDamage)),
+        CondParams::GD04bPlayedWithEx => Ok(played_with_ex(st, ctx, ExScope::AfterNewestPlay)),
         CondParams::GD05aOnceFree { tag } => once_free(st, ctx, tag),
-        CondParams::GD05aDestroyedByEffect { by_you } => Ok(destroyed_by_effect(ctx, by_you)),
-        CondParams::GD05bPlayedWithEx => Ok(gd05b_played_with_ex(st, ctx)),
-        CondParams::ST12DestroyedByEffectDamage => Ok(destroyed_by_effect_damage(st, ctx)),
+        CondParams::GD05aDestroyedByEffect { by_you } => {
+            Ok(destroyed(st, ctx, Cause::ByEffect { by_you }))
+        }
+        CondParams::GD05bPlayedWithEx => Ok(played_with_ex(st, ctx, ExScope::NewestOfTheCard)),
+        CondParams::ST12DestroyedByEffectDamage => Ok(destroyed(st, ctx, Cause::ByEffectDamage)),
     }
 }
 
@@ -115,23 +117,82 @@ fn attack_target_damaged(st: &GameState) -> Result<bool, EngineError> {
     }
 }
 
-/// #8 `wp_gd01_b_destroyed_with_damage` (`effects/bindings/wp_gd01_b.py:117-123`):
-/// `ctx.ev("battle", 0) == 1 or ctx.ev("by") == NO_ARG`.
-fn destroyed_with_damage(ctx: &Ctx) -> bool {
-    ctx.ev(EvKey::Battle, 0) == 1 || ctx.ev(EvKey::By, NO_ARG) == NO_ARG
+/// How a destroyed card was destroyed (W-64: the three destroyed-cause conditions are one
+/// predicate, [`destroyed`], with each card's exact test as this parameter; interpretation I-10
+/// of `docs/port/audit/interpretations.json`, `docs/ASSUMPTIONS.md:68`).
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+enum Cause {
+    /// #8 `wp_gd01_b_destroyed_with_damage` (`effects/bindings/wp_gd01_b.py:117-123`):
+    /// `ctx.ev("battle", 0) == 1 or ctx.ev("by") == NO_ARG` (battle damage, or damage with no
+    /// acting player: effect damage destroys "with damage").
+    WithDamage,
+    /// #27 `wp_gd05_a_destroyed_by_effect` (`effects/bindings/wp_gd05_a.py:122-131`): no battle
+    /// and an acting player (a "destroy" effect), with `by="you"` by the controller.
+    ByEffect { by_you: bool },
+    /// #33 `wp_st12_14_destroyed_by_effect_damage` (`effects/bindings/wp_st12_14.py:83-93`): no
+    /// battle, no acting player, and the instruction before the top frame's `pc` is a `Damage`
+    /// (the flattened program layout, PLAN §5.2).
+    ByEffectDamage,
 }
 
-/// #23 `wp_gd04_b_played_with_ex` (`effects/bindings/wp_gd04_b.py:52-60`): the newest "play"
-/// record of `ctx.card_uid` is followed directly by its "played_with_ex" record.
-fn gd04b_played_with_ex(st: &GameState, ctx: &Ctx) -> bool {
+/// W-64: the destroyed-cause predicate of the destruction event in `ctx` (see [`Cause`]).
+fn destroyed(st: &GameState, ctx: &Ctx, cause: Cause) -> bool {
+    let battle = ctx.ev(EvKey::Battle, 0);
+    let by = ctx.ev(EvKey::By, NO_ARG);
+    let held = match cause {
+        Cause::WithDamage => battle == 1 || by == NO_ARG,
+        Cause::ByEffect { by_you } => {
+            battle == 0 && by >= 0 && (!by_you || by == i32::from(ctx.controller))
+        }
+        Cause::ByEffectDamage => battle == 0 && by < 0 && previous_instr_is_damage(st),
+    };
+    crate::diag::note_interpretation(crate::diag::Interpretation::I10);
+    held
+}
+
+/// The instruction before the top frame's `pc` is a `Damage` (#33's frame test).
+fn previous_instr_is_damage(st: &GameState) -> bool {
+    let Some(f) = st.frames().last() else {
+        return false;
+    };
+    let reg = &**st.registry();
+    let instrs = &reg.program(f.program).instrs;
+    let pc = usize::from(f.pc);
+    0 < pc && pc <= instrs.len() && matches!(reg.node(instrs[pc - 1]), Node::Damage(_))
+}
+
+/// Which "play" record a `played_with_ex` hook reads (W-64: #23 and #31 are one scan,
+/// [`played_with_ex`], with each card's exact semantics as this parameter).
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+enum ExScope {
+    /// #23 `wp_gd04_b_played_with_ex` (`effects/bindings/wp_gd04_b.py:52-60`): the newest
+    /// "play" record of `ctx.card_uid` is followed directly by its "played_with_ex" record.
+    AfterNewestPlay,
+    /// #31 `wp_gd05_b_played_with_ex` (`effects/bindings/wp_gd05_b.py:115-125`): newest first,
+    /// the first record of `ctx.card_uid` that is "played_with_ex" (True) or "play" (False).
+    NewestOfTheCard,
+}
+
+/// W-64: whether the card of `ctx` was played with an EX Resource, newest record first; the
+/// records of other cards are skipped, and the card's newest "play" record decides unless
+/// `scope` lets a newer "played_with_ex" record of the card decide first.
+fn played_with_ex(st: &GameState, ctx: &Ctx, scope: ExScope) -> bool {
     let uid = ctx.card_uid;
     let history = st.history();
     for i in (0..history.len()).rev() {
         let h = &history[i];
-        if h.kind == HistKind::Play && h.uid == uid {
-            return history
-                .get(i + 1)
-                .is_some_and(|n| n.kind == HistKind::PlayedWithEx && n.uid == uid);
+        if h.uid != uid {
+            continue;
+        }
+        match (h.kind, scope) {
+            (HistKind::Play, ExScope::AfterNewestPlay) => {
+                return history
+                    .get(i + 1)
+                    .is_some_and(|n| n.kind == HistKind::PlayedWithEx && n.uid == uid);
+            }
+            (HistKind::Play, ExScope::NewestOfTheCard) => return false,
+            (HistKind::PlayedWithEx, ExScope::NewestOfTheCard) => return true,
+            _ => {}
         }
     }
     false
@@ -153,49 +214,6 @@ fn once_free(st: &GameState, ctx: &Ctx, tag: i64) -> Result<bool, EngineError> {
         OnceElem::Int(st.card(host).zone_seq),
     ])?;
     Ok(!st.once_contains(&key))
-}
-
-/// #27 `wp_gd05_a_destroyed_by_effect` (`effects/bindings/wp_gd05_a.py:122-131`): destroyed
-/// by a "destroy" effect (no battle, an acting player), with `by="you"` by the controller.
-fn destroyed_by_effect(ctx: &Ctx, by_you: bool) -> bool {
-    let by = ctx.ev(EvKey::By, NO_ARG);
-    if ctx.ev(EvKey::Battle, 0) != 0 || by < 0 {
-        return false;
-    }
-    !by_you || by == i32::from(ctx.controller)
-}
-
-/// #31 `wp_gd05_b_played_with_ex` (`effects/bindings/wp_gd05_b.py:115-125`): newest first,
-/// the first record of `ctx.card_uid` that is "played_with_ex" (True) or "play" (False).
-fn gd05b_played_with_ex(st: &GameState, ctx: &Ctx) -> bool {
-    for h in st.history().iter().rev() {
-        if h.uid != ctx.card_uid {
-            continue;
-        }
-        if h.kind == HistKind::PlayedWithEx {
-            return true;
-        }
-        if h.kind == HistKind::Play {
-            return false;
-        }
-    }
-    false
-}
-
-/// #33 `wp_st12_14_destroyed_by_effect_damage` (`effects/bindings/wp_st12_14.py:83-93`): no
-/// battle, no acting player, and the instruction before the top frame's `pc` is a `Damage`
-/// (the flattened program layout, PLAN §5.2).
-fn destroyed_by_effect_damage(st: &GameState, ctx: &Ctx) -> bool {
-    if ctx.ev(EvKey::Battle, 0) != 0 || ctx.ev(EvKey::By, NO_ARG) >= 0 {
-        return false;
-    }
-    let Some(f) = st.frames().last() else {
-        return false;
-    };
-    let reg = &**st.registry();
-    let instrs = &reg.program(f.program).instrs;
-    let pc = usize::from(f.pc);
-    0 < pc && pc <= instrs.len() && matches!(reg.node(instrs[pc - 1]), Node::Damage(_))
 }
 
 // ---------------------------------------------------------------------------------------------
@@ -431,20 +449,170 @@ mod tests {
         assert!(!battling_enemy_unit(&st, 0).unwrap(), "a friendly target");
     }
 
+    /// The pre-W-64 bodies of the three destroyed-cause hooks and the two `played_with_ex`
+    /// hooks, kept verbatim as the oracles of the consolidated ones.
+    mod before_w64 {
+        use super::super::previous_instr_is_damage;
+        use crate::{Ctx, EvKey, GameState, HistKind, NO_ARG};
+
+        pub(super) fn destroyed_with_damage(ctx: &Ctx) -> bool {
+            ctx.ev(EvKey::Battle, 0) == 1 || ctx.ev(EvKey::By, NO_ARG) == NO_ARG
+        }
+
+        pub(super) fn destroyed_by_effect(ctx: &Ctx, by_you: bool) -> bool {
+            let by = ctx.ev(EvKey::By, NO_ARG);
+            if ctx.ev(EvKey::Battle, 0) != 0 || by < 0 {
+                return false;
+            }
+            !by_you || by == i32::from(ctx.controller)
+        }
+
+        pub(super) fn destroyed_by_effect_damage(st: &GameState, ctx: &Ctx) -> bool {
+            if ctx.ev(EvKey::Battle, 0) != 0 || ctx.ev(EvKey::By, NO_ARG) >= 0 {
+                return false;
+            }
+            previous_instr_is_damage(st)
+        }
+
+        pub(super) fn gd04b_played_with_ex(st: &GameState, ctx: &Ctx) -> bool {
+            let uid = ctx.card_uid;
+            let history = st.history();
+            for i in (0..history.len()).rev() {
+                let h = &history[i];
+                if h.kind == HistKind::Play && h.uid == uid {
+                    return history
+                        .get(i + 1)
+                        .is_some_and(|n| n.kind == HistKind::PlayedWithEx && n.uid == uid);
+                }
+            }
+            false
+        }
+
+        pub(super) fn gd05b_played_with_ex(st: &GameState, ctx: &Ctx) -> bool {
+            for h in st.history().iter().rev() {
+                if h.uid != ctx.card_uid {
+                    continue;
+                }
+                if h.kind == HistKind::PlayedWithEx {
+                    return true;
+                }
+                if h.kind == HistKind::Play {
+                    return false;
+                }
+            }
+            false
+        }
+    }
+
+    /// #33 through the consolidated predicate, checked against the pre-W-64 body on every
+    /// call (the frame states of `st12_damage_hook_reads_the_instruction_before_pc`).
+    fn destroyed_by_effect_damage(st: &GameState, c: &Ctx) -> bool {
+        let held = destroyed(st, c, Cause::ByEffectDamage);
+        assert_eq!(held, before_w64::destroyed_by_effect_damage(st, c));
+        held
+    }
+
+    fn gd04b_played_with_ex(st: &GameState, c: &Ctx) -> bool {
+        played_with_ex(st, c, ExScope::AfterNewestPlay)
+    }
+
+    fn gd05b_played_with_ex(st: &GameState, c: &Ctx) -> bool {
+        played_with_ex(st, c, ExScope::NewestOfTheCard)
+    }
+
     #[test]
     fn destruction_hooks_read_the_event() {
+        let st = state();
+        let with_damage = |c: &Ctx| destroyed(&st, c, Cause::WithDamage);
+        let by_effect = |c: &Ctx, by_you| destroyed(&st, c, Cause::ByEffect { by_you });
         let none = ctx(0, 0, EventPayload::default());
-        assert!(destroyed_with_damage(&none), "ev('by') defaults to -1");
+        assert!(with_damage(&none), "ev('by') defaults to -1");
         let battle = ctx(0, 0, event(&[(EvKey::Battle, 1), (EvKey::By, 1)]));
-        assert!(destroyed_with_damage(&battle));
+        assert!(with_damage(&battle));
         let effect = ctx(0, 0, event(&[(EvKey::Battle, 0), (EvKey::By, 1)]));
-        assert!(!destroyed_with_damage(&effect));
-        assert!(destroyed_by_effect(&effect, false));
-        assert!(!destroyed_by_effect(&effect, true), "by the opponent");
+        assert!(!with_damage(&effect));
+        assert!(by_effect(&effect, false));
+        assert!(!by_effect(&effect, true), "by the opponent");
         let mine = ctx(1, 0, event(&[(EvKey::Battle, 0), (EvKey::By, 1)]));
-        assert!(destroyed_by_effect(&mine, true));
-        assert!(!destroyed_by_effect(&battle, false));
-        assert!(!destroyed_by_effect(&none, false), "no acting player");
+        assert!(by_effect(&mine, true));
+        assert!(!by_effect(&battle, false));
+        assert!(!by_effect(&none, false), "no acting player");
+    }
+
+    /// W-64: the consolidated predicate equals each pre-W-64 body on every combination of the
+    /// event's `battle` and `by` values, the controller, and a top frame whose previous
+    /// instruction is or is not a `Damage`.
+    #[test]
+    fn w64_the_destroyed_cause_predicate_is_the_three_hooks() {
+        let mut checked = 0;
+        for frames in [false, true] {
+            let mut st = state();
+            if !frames {
+                st.frames.clear();
+            }
+            for battle in [None, Some(0), Some(1), Some(2)] {
+                for by in [None, Some(-1), Some(0), Some(1)] {
+                    for controller in 0..2u8 {
+                        let mut ev = Vec::new();
+                        if let Some(b) = battle {
+                            ev.push((EvKey::Battle, b));
+                        }
+                        if let Some(b) = by {
+                            ev.push((EvKey::By, b));
+                        }
+                        let c = ctx(controller, 0, event(&ev));
+                        assert_eq!(
+                            destroyed(&st, &c, Cause::WithDamage),
+                            before_w64::destroyed_with_damage(&c)
+                        );
+                        for by_you in [false, true] {
+                            assert_eq!(
+                                destroyed(&st, &c, Cause::ByEffect { by_you }),
+                                before_w64::destroyed_by_effect(&c, by_you)
+                            );
+                        }
+                        assert_eq!(
+                            destroyed(&st, &c, Cause::ByEffectDamage),
+                            before_w64::destroyed_by_effect_damage(&st, &c)
+                        );
+                        checked += 1;
+                    }
+                }
+            }
+        }
+        assert_eq!(checked, 64);
+    }
+
+    /// W-64: the consolidated scan equals both pre-W-64 bodies on every history of up to five
+    /// records over two uids and three record kinds.
+    #[test]
+    fn w64_the_played_with_ex_scan_is_the_two_hooks() {
+        let kinds = [HistKind::Play, HistKind::PlayedWithEx, HistKind::Draw];
+        let mut st = state();
+        let c = ctx(0, 5, EventPayload::default());
+        let mut histories = 0;
+        for len in 0..=5u32 {
+            for code in 0..6u32.pow(len) {
+                st.history.clear();
+                let mut x = code;
+                for _ in 0..len {
+                    let kind = kinds[(x % 3) as usize];
+                    let uid = if (x / 3) % 2 == 0 { 5 } else { 7 };
+                    st.history.push(record(kind, uid));
+                    x /= 6;
+                }
+                assert_eq!(
+                    gd04b_played_with_ex(&st, &c),
+                    before_w64::gd04b_played_with_ex(&st, &c)
+                );
+                assert_eq!(
+                    gd05b_played_with_ex(&st, &c),
+                    before_w64::gd05b_played_with_ex(&st, &c)
+                );
+                histories += 1;
+            }
+        }
+        assert_eq!(histories, 9331);
     }
 
     #[test]

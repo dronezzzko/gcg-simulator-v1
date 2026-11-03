@@ -82,6 +82,8 @@ const SHIPPED_MECHANISMS: MechanismFlags = MechanismFlags {
     paired_mulligan: false,
     portable_math: false,
     engine_error_leaf: true,
+    target_multi_rollouts: None,
+    tree_lethal_select: false,
 };
 
 /// `standard`: reference `strong` (`ai/config.py:98-109`) at 8 times its budget, every field
@@ -421,10 +423,8 @@ mod tests {
             cfg.mechanisms.set_text("opponent_list", "archetype"),
             Some(Ok(()))
         );
-        assert_eq!(
-            cfg.check_mechanisms(),
-            Err("mechanism opponent_list (P6-C) is not available in this build".to_owned())
-        );
+        // W-134 (GAP-B): the archetype mode is provided.
+        assert_eq!(cfg.check_mechanisms(), Ok(()));
         assert_eq!(
             cfg.mechanisms.set_text("opponent_list", "known"),
             Some(Ok(()))

@@ -8,8 +8,9 @@
 //! `gcg-sim benchmark` writes (T-153), as one set (W-102,
 //! `gcg_runner::reports::write_report_set`). The opt-in options:
 //!
-//! - `--analysis` writes `analysis.json` (W-90, W-92-W-96, W-98, W-101, W-109, W-147) and, for
-//!   its swap tests, `variants/*.txt`; `--swiss-draws` adds the Swiss scoring of W-109 to it;
+//! - `--analysis` writes `analysis.json` (W-90, W-92-W-96, W-98, W-101, W-109, W-147), with
+//!   the validator's `scope` block (W-75, W-76), and, for its swap tests, `variants/*.txt`;
+//!   `--swiss-draws` adds the Swiss scoring of W-109 to it;
 //! - `--compress` replaces `games.ndjson` by `games.ndjson.zst` (builds with the `zstd`
 //!   feature) or `games.ndjson.gz` (the in-house gzip writer), which decompress to the same
 //!   bytes (W-99);
@@ -27,6 +28,7 @@ use std::path::{Path, PathBuf};
 use gcg_ai::{Agent, AgentError, SearchSettings};
 use gcg_core::pool::Cancel;
 use gcg_core::pyjson::Json;
+use gcg_data::legality::BanlistHistory;
 use gcg_data::py_path_str;
 use gcg_effects::Registry;
 use gcg_engine::{EndReason, MAX_ACTIONS_DEFAULT, canon};
@@ -568,6 +570,15 @@ pub fn compression() -> (&'static str, Encoder) {
     }
 }
 
+/// The `scope` block of `analysis.json` (W-75, W-76): what the deck validation of the run
+/// applied and what it does not model. `gcg-sim benchmark`'s validation applies the current
+/// Banned & Restricted list (`require_legal`, `deck/validate.py:292-300`), which is
+/// [`BanlistHistory::packaged`]'s current list.
+#[must_use]
+pub fn analysis_scope() -> Json {
+    crate::validate_cmd::packaged_scope().to_json(Some(BanlistHistory::packaged().current()))
+}
+
 /// `gcg-eval benchmark`.
 ///
 /// # Errors
@@ -633,8 +644,9 @@ pub fn benchmark(
                 swiss_draws: args.opt.swiss_draws,
                 ..Default::default()
             };
-            let (doc, variants) =
+            let (mut doc, variants) =
                 gcg_runner::analysis::analysis_json(&run, &data, &results, &facts, opts);
+            doc.set("scope", analysis_scope());
             extra_files.push(("analysis.json".to_owned(), to_json_text(&doc).into_bytes()));
             extra_files.extend(variants.into_iter().map(|(n, t)| (n, t.into_bytes())));
             extra_lines.push(("analysis", "analysis.json"));

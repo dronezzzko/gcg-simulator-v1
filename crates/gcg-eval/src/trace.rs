@@ -11,8 +11,13 @@
 //! extension of `ai/mcts.py:172-178`), `early_stop` (iterations below the cap) and the effort
 //! counts (applies by purpose, worlds, capped rollouts). For greedy it adds
 //! `greedy_cap_hits`: how many of the moves greedy scored were cut by its 200-decision
-//! turn completion and scored mid-turn ([`greedy_cap_hits`], W-22). Prune exceptions are not
-//! reported: the agents do not expose them.
+//! turn completion and scored mid-turn ([`greedy_cap_hits`], W-22). For a search it adds
+//! `rest_prune`: which branch of the reference's Rest-target prune decides the decision
+//! (`"pruned"`, or the exception that keeps the moves, `"rest_trigger"` or `"while_rested"`),
+//! `null` where the prune does not apply ([`rest_prune_branch`], W-13). It replays the prune's
+//! own computation at the decision, like `greedy_cap_hits`, so the agents' decisions do not
+//! change. It is the prune's branch at that position: a configuration with
+//! `prune_noop_rest_targets` off (the `baseline-*` reference presets) does not run the prune.
 //!
 //! Lines are ordered by game, then seat, then decision counter, so the file is the same for
 //! any worker count. [`TracingFactory`] adds the traces to the benchmark pipeline without
@@ -22,8 +27,8 @@ use std::sync::{Arc, Mutex};
 
 use gcg_ai::{
     Agent, AgentCx, AgentEffort, AgentError, BASELINE_KNOBS, DecisionTrace, GREEDY_MAX_DECISIONS,
-    LogEntry, NoTrace, PruneFlags, SearchSettings, SearchTracer, canonical, play_until_turn,
-    prune_dominated,
+    LogEntry, NoTrace, PruneFlags, RestPrune, SearchSettings, SearchTracer, canonical,
+    play_until_turn, prune_dominated, rest_prune,
 };
 use gcg_core::SplitMix64;
 use gcg_core::pyjson::{DumpOptions, Json, dumps};
@@ -83,10 +88,30 @@ pub fn greedy_cap_hits(
     Ok(Some(hits))
 }
 
+/// The branch of the reference's Rest-target prune (`gcg_ai::rest_prune`) at `st`'s pending
+/// decision over its canonical moves, the moves the search's root prune receives
+/// (`ai/mcts.py:89-94`): `"pruned"`, `"rest_trigger"` or `"while_rested"` (the W-13 exception),
+/// or `None` where the prune does not apply or would change nothing.
+///
+/// # Errors
+/// An engine error of the replayed prune.
+pub fn rest_prune_branch(st: &GameState) -> Result<Option<&'static str>, EngineError> {
+    let Some(dec) = st.pending() else {
+        return Ok(None);
+    };
+    Ok(
+        rest_prune(st, &dec, &canonical(st, &dec))?.map(|b| match b {
+            RestPrune::Pruned => "pruned",
+            RestPrune::RestTrigger => "rest_trigger",
+            RestPrune::WhileRested => "while_rested",
+        }),
+    )
+}
+
 /// One trace line without its game keys.
 ///
 /// # Errors
-/// An engine error of the greedy cap count.
+/// An engine error of the greedy cap count or of the Rest-target prune's replay.
 pub fn decision_json(
     st: &GameState,
     player: u8,
@@ -154,6 +179,11 @@ pub fn decision_json(
         _ => None,
     };
     o.set("greedy_cap_hits", caps);
+    let rest = match trace {
+        Some(t) if t.search.is_some() => rest_prune_branch(st)?,
+        _ => None,
+    };
+    o.set("rest_prune", rest);
     Ok(o)
 }
 

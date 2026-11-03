@@ -27,6 +27,16 @@ impl Math {
         }
     }
 
+    /// The provider of the shared `gcg-ai` functions the search calls (their `_with`
+    /// variants: the no-effect check's evaluation, the play/draw simulations), so that
+    /// `portable_math` reaches every float path of the search (W-137).
+    pub(crate) const fn float(self) -> gcg_ai::FloatMath {
+        match self {
+            Self::Platform => gcg_ai::FloatMath::Platform,
+            Self::Portable => gcg_ai::FloatMath::Portable,
+        }
+    }
+
     pub(crate) fn exp(self, x: f64) -> f64 {
         match self {
             Self::Platform => libm::exp(x),

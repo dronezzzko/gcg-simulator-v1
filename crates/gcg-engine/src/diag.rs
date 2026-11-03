@@ -1,6 +1,7 @@
 //! Engine diagnostics that change no game and no output (docs/port/PLAN.md §12.2 P6-J): which
-//! safety cap ended a game (W-46) and how many derived views reached the fixpoint cap without
-//! converging (W-48). Nothing here is serialised, hashed or read by the engine itself.
+//! safety cap ended a game (W-46), how many derived views reached the fixpoint cap without
+//! converging (W-48) and which interpretation-tagged code paths ran (W-101). Nothing here is
+//! serialised, hashed or read by the engine itself.
 
 use std::cell::Cell;
 
@@ -80,6 +81,97 @@ pub(crate) fn assert_live_step(step: crate::Step) {
 
 thread_local! {
     static NON_CONVERGED: Cell<u64> = const { Cell::new(0) };
+    static INTERPRETATION_RUNS: [Cell<u64>; Interpretation::ALL.len()] =
+        const { [const { Cell::new(0) }; Interpretation::ALL.len()] };
+}
+
+/// W-101: the interpretations of `docs/port/audit/interpretations.json` (W-56) whose code path
+/// records when it applies. Each variant names the code path; [`note_interpretation`] counts
+/// it on the running thread, and [`interpretation_runs`] reads the counts. The other
+/// interpretations of the table have no single engine code path: compile-time readings of the
+/// card text (I-19, I-24, I-26), data overrides (I-25), and card-specific resolutions traced by
+/// their cards (`gcg-runner` `analysis::interpretations_used`).
+#[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Debug)]
+pub enum Interpretation {
+    /// I-01: an attack on a Base (`battle::attack_base`): the Base deals no battle damage back.
+    I01,
+    /// I-02: a token arriving outside the token zones leaves the game (`core::move_single`).
+    I02,
+    /// I-03: a Resource or EX Resource placement at the cap does nothing
+    /// (`interp::deploy::place_resource`, `place_ex_resource`).
+    I03,
+    /// I-05: the uids of a new game are assigned after the seeded shuffle and cut
+    /// (`game::new_game`).
+    I05,
+    /// I-06: several cards placed into one deck at once are ordered by their owner, or a
+    /// shuffle orders them with the seeded RNG (`interp::cards::h_to_deck`).
+    I06,
+    /// I-10: a destroyed-cause condition reads the destruction event (`view::hooks::destroyed`).
+    I10,
+    /// I-14: a targeted choice from the removal area is no target choice
+    /// (`interp::choose::is_target_choice`).
+    I14,
+    /// I-15: a card placed into the Shields goes on top (`core::move_single`).
+    I15,
+    /// I-16: an attack with 0 AP on a player with no Base and no Shields does not defeat
+    /// (`battle::damage_step`).
+    I16,
+    /// I-18: <Suppression> on an attack that hits a Base does nothing (`battle::damage_step`).
+    I18,
+}
+
+impl Interpretation {
+    /// Every anchored interpretation, in id order.
+    pub const ALL: [Self; 10] = [
+        Self::I01,
+        Self::I02,
+        Self::I03,
+        Self::I05,
+        Self::I06,
+        Self::I10,
+        Self::I14,
+        Self::I15,
+        Self::I16,
+        Self::I18,
+    ];
+
+    /// The id in `docs/port/audit/interpretations.json`.
+    #[must_use]
+    pub const fn id(self) -> &'static str {
+        match self {
+            Self::I01 => "I-01",
+            Self::I02 => "I-02",
+            Self::I03 => "I-03",
+            Self::I05 => "I-05",
+            Self::I06 => "I-06",
+            Self::I10 => "I-10",
+            Self::I14 => "I-14",
+            Self::I15 => "I-15",
+            Self::I16 => "I-16",
+            Self::I18 => "I-18",
+        }
+    }
+
+    const fn index(self) -> usize {
+        self as usize
+    }
+}
+
+/// W-101: one run of the interpretation-tagged code path `i` on this thread.
+#[inline]
+pub(crate) fn note_interpretation(i: Interpretation) {
+    INTERPRETATION_RUNS.with(|runs| {
+        let c = &runs[i.index()];
+        c.set(c.get().saturating_add(1));
+    });
+}
+
+/// W-101: how often each anchored interpretation's code path has run on this thread, in
+/// [`Interpretation::ALL`] order. Callers read it before and after a game; it never changes
+/// one.
+#[must_use]
+pub fn interpretation_runs() -> [u64; Interpretation::ALL.len()] {
+    INTERPRETATION_RUNS.with(|runs| std::array::from_fn(|i| runs[i].get()))
 }
 
 /// W-48: the fixpoint of a view computation stopped at `FIXPOINT_PASSES` without converging.
@@ -108,6 +200,27 @@ mod tests {
             .join()
             .expect("joins");
         assert_eq!(other, 0);
+    }
+
+    #[test]
+    fn interpretation_counters_belong_to_their_thread_and_count_by_id() {
+        let before = interpretation_runs();
+        note_interpretation(Interpretation::I16);
+        note_interpretation(Interpretation::I16);
+        let after = interpretation_runs();
+        for (k, i) in Interpretation::ALL.iter().enumerate() {
+            let want = u64::from(*i == Interpretation::I16) * 2;
+            assert_eq!(after[k] - before[k], want, "{}", i.id());
+        }
+        let other = std::thread::spawn(interpretation_runs)
+            .join()
+            .expect("joins");
+        assert!(other.iter().all(|&n| n == 0));
+        let mut ids: Vec<&str> = Interpretation::ALL.iter().map(|i| i.id()).collect();
+        let sorted = ids.clone();
+        ids.sort();
+        ids.dedup();
+        assert_eq!(ids, sorted, "ids are distinct and in order");
     }
 
     #[test]

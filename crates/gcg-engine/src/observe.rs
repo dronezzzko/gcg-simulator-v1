@@ -3,7 +3,9 @@
 //! order and Shields are hidden. A player knows a card's identity when its `known` bit is set;
 //! every other identity is drawn from that owner's decklist minus the cards the player knows.
 
+use std::cell::Cell;
 use std::collections::BTreeMap;
+use std::sync::Arc;
 
 use gcg_core::pyjson::Json;
 use gcg_core::rng::{SeedPart, SplitMix64, derive_seed};
@@ -92,10 +94,49 @@ pub fn unknown_pools(st: &GameState, observer: u8, owner: u8) -> (Vec<DefId>, Ve
     (sorted_elements(&main), sorted_elements(&res))
 }
 
+thread_local! {
+    static FIT_ADJUSTMENTS: Cell<FitAdjustments> = const {
+        Cell::new(FitAdjustments { pads: 0, trims: 0 })
+    };
+}
+
+/// W-08: how often `_fit` changed a pool's size on this thread since it started. A pool whose
+/// size differs from its hidden slots holds a multiset the real game cannot contain: a padded
+/// pool repeats cards, a trimmed one drops the cards past the slot count. Nothing reads it
+/// inside a game, and no output contains it.
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug, Default)]
+pub struct FitAdjustments {
+    /// Pools shorter than their slots, padded by repetition.
+    pub pads: u64,
+    /// Pools longer than their slots, trimmed to the first `n`.
+    pub trims: u64,
+}
+
+/// W-08: the pads and trims `_fit` made on this thread so far (see [`FitAdjustments`]).
+#[must_use]
+pub fn fit_adjustments() -> FitAdjustments {
+    FIT_ADJUSTMENTS.with(Cell::get)
+}
+
+fn note_fit(pad: bool) {
+    FIT_ADJUSTMENTS.with(|c| {
+        let mut a = c.get();
+        if pad {
+            a.pads = a.pads.saturating_add(1);
+        } else {
+            a.trims = a.trims.saturating_add(1);
+        }
+        c.set(a);
+    });
+}
+
 /// `_fit(pool, n)` (`engine/observe.py:98-110`): the first `n` of the sorted pool, or the pool
-/// padded by repetition from its start.
+/// padded by repetition from its start. Every pad and trim is counted ([`fit_adjustments`]).
 fn fit(mut pool: Vec<DefId>, n: usize) -> Result<Vec<DefId>, EngineError> {
     if pool.len() >= n {
+        if pool.len() > n {
+            note_fit(false);
+        }
         pool.truncate(n);
         return Ok(pool);
     }
@@ -104,6 +145,7 @@ fn fit(mut pool: Vec<DefId>, n: usize) -> Result<Vec<DefId>, EngineError> {
             "cannot determinize: empty pool for hidden cards".to_owned(),
         ));
     }
+    note_fit(true);
     let base = pool.len();
     let mut i = 0;
     while pool.len() < n {
@@ -213,6 +255,268 @@ pub fn permute_hidden(st: &GameState, observer: u8, seed: u64) -> GameState {
     s.rng = SplitMix64::new(derive_seed(seed, &[SeedPart::Str("permuted-rng")]));
     s.touch();
     s
+}
+
+// ---------------------------------------------------------------------------------------------
+// Exact pools and identity assignment (W-08, W-134, W-139; additive, unused by the reference)
+
+/// W-08: the cards of `owner` hidden from an observer, wherever they lie, and the identities
+/// they can be by card conservation.
+///
+/// The slots are `owner`'s cards (by [`crate::CardInstance::owner`], not by the zone list that
+/// holds them) in a hidden zone of either player whose identity the observer does not know, in
+/// uid order; a slot in a Resource Deck is a resource slot. The pools are [`unknown_pools`]:
+/// `owner`'s decklists minus every card of `owner` the observer can see. Each owner's cards are
+/// exactly its decklists (tokens are never hidden), so the pools hold as many cards as the
+/// slots, and an assignment from them is a multiset the real game can contain.
+#[derive(Clone, PartialEq, Eq, Debug, Default)]
+pub struct HiddenPools {
+    /// Hidden non-resource slots of `owner`, in uid order.
+    pub main_slots: Vec<Uid>,
+    /// Hidden slots of `owner` in a Resource Deck, in uid order.
+    pub res_slots: Vec<Uid>,
+    /// The main-deck pool, sorted.
+    pub main: Vec<DefId>,
+    /// The resource pool, sorted.
+    pub res: Vec<DefId>,
+}
+
+impl HiddenPools {
+    /// Every slot: the main slots, then the resource slots.
+    #[must_use]
+    pub fn slots(&self) -> Vec<Uid> {
+        self.main_slots
+            .iter()
+            .chain(&self.res_slots)
+            .copied()
+            .collect()
+    }
+}
+
+/// W-08: [`HiddenPools`] of `owner` for `observer`.
+///
+/// # Errors
+/// [`EngineError::Value`] when the pools hold a different number of cards than the slots (a
+/// conservation failure: a hidden card outside its owner's decklists).
+pub fn exact_pools(st: &GameState, observer: u8, owner: u8) -> Result<HiddenPools, EngineError> {
+    let bit = 1 << observer;
+    let mut slots: Vec<Uid> = (0..2u8)
+        .flat_map(|side| {
+            HIDDEN_ZONES
+                .iter()
+                .flat_map(move |&z| st.zone(side, z).iter().copied())
+        })
+        .filter(|&u| {
+            let c = st.card(u);
+            c.owner == owner && c.known & bit == 0
+        })
+        .collect();
+    slots.sort();
+    let (res_slots, main_slots): (Vec<Uid>, Vec<Uid>) = slots
+        .iter()
+        .partition(|&&u| st.card(u).zone == Zone::ResourceDeck);
+    let (main, res) = unknown_pools(st, observer, owner);
+    if main.len() + res.len() != main_slots.len() + res_slots.len() {
+        return Err(EngineError::Value(format!(
+            "cannot determinize exactly: player {owner} has {} hidden cards and {} unseen \
+             decklist cards",
+            main_slots.len() + res_slots.len(),
+            main.len() + res.len()
+        )));
+    }
+    Ok(HiddenPools {
+        main_slots,
+        res_slots,
+        main,
+        res,
+    })
+}
+
+/// Removes one copy of `def_id` from the sorted `pool`, or returns `false`.
+fn take_one(pool: &mut Vec<DefId>, def_id: DefId) -> bool {
+    pool.binary_search(&def_id)
+        .map(|i| {
+            pool.remove(i);
+        })
+        .is_ok()
+}
+
+/// The identities of `p`'s slots from its pools shuffled by `rng` (owner by owner, the main
+/// pool and then the resource pool, as `determinize`). When a resource card lies outside a
+/// Resource Deck (or a main-deck card inside one), the pool longer than its slots gives its
+/// last cards to the other slots, which are then shuffled again; no card is repeated or
+/// dropped.
+fn exact_ids(p: HiddenPools, rng: &mut SplitMix64) -> Vec<(Uid, DefId)> {
+    let HiddenPools {
+        main_slots,
+        res_slots,
+        mut main,
+        mut res,
+    } = p;
+    rng.shuffle(&mut main);
+    rng.shuffle(&mut res);
+    if res.len() > res_slots.len() {
+        main.extend(res.drain(res_slots.len()..));
+        rng.shuffle(&mut main);
+    } else if main.len() > main_slots.len() {
+        res.extend(main.drain(main_slots.len()..));
+        rng.shuffle(&mut res);
+    }
+    main_slots
+        .into_iter()
+        .zip(main)
+        .chain(res_slots.into_iter().zip(res))
+        .collect()
+}
+
+/// Checks that every listed card is hidden from `observer` and every identity a definition.
+fn check_hidden(s: &GameState, observer: u8, ids: &[(Uid, DefId)]) -> Result<(), EngineError> {
+    let db_len = s.db().len();
+    for &(uid, def_id) in ids {
+        if usize::from(uid) >= s.cards.len() || !is_hidden_from(s, uid, observer) {
+            return Err(EngineError::Value(format!(
+                "card {uid} is not hidden from player {observer}"
+            )));
+        }
+        if usize::from(def_id.0) >= db_len {
+            return Err(EngineError::Value(format!(
+                "def_id {} is not a definition of the card database",
+                def_id.0
+            )));
+        }
+    }
+    Ok(())
+}
+
+/// W-08 (P6-C interface request 1): sets the identity of each listed card, every one of which
+/// must lie in a hidden zone with an identity `observer` does not know, then rewrites the
+/// history to the new identities and touches the state, as `determinize` does. The game
+/// generator is unchanged.
+///
+/// # Errors
+/// [`EngineError::Value`] for a card that is not hidden from `observer` or an identity outside
+/// the card database; the state is then unchanged.
+pub fn assign_hidden(
+    s: &mut GameState,
+    observer: u8,
+    ids: &[(Uid, DefId)],
+) -> Result<(), EngineError> {
+    check_hidden(s, observer, ids)?;
+    for &(uid, def_id) in ids {
+        s.cards[usize::from(uid)].def_id = def_id;
+    }
+    own_history(s);
+    s.touch();
+    Ok(())
+}
+
+/// W-08: [`determinize_into`] with exact pools: every card of either owner hidden from
+/// `observer` (wherever it lies) takes an identity from its owner's [`exact_pools`], so the
+/// world's hidden multiset of each owner is the true one and nothing is padded or trimmed.
+/// The cards of `keep` (hidden from `observer`) keep their identities: they leave the slots,
+/// and one copy of each leaves its owner's pool.
+///
+/// The draws are `determinize`'s (`SplitMix64(seed)`, owner 0 then owner 1, the main pool then
+/// the resource pool, an owner without slots drawing nothing; the history rewritten, the
+/// generator `SplitMix64(derive_seed(seed, "hidden-rng"))`, one touch), so where every hidden
+/// card lies in its owner's zones, `_fit` neither pads nor trims and `keep` is empty, the world
+/// is `determinize`'s.
+///
+/// # Errors
+/// A conservation failure of [`exact_pools`], or a kept card that is not hidden from
+/// `observer` or whose identity is not in its owner's pool. On an error `out` holds a partly
+/// determinized copy.
+pub fn determinize_exact_into(
+    st: &GameState,
+    observer: u8,
+    seed: u64,
+    keep: &[Uid],
+    out: &mut GameState,
+) -> Result<(), EngineError> {
+    out.clone_from_state(st);
+    let mut rng = SplitMix64::new(seed);
+    for owner in 0u8..2 {
+        let mut p = exact_pools(out, observer, owner)?;
+        for &uid in keep {
+            if usize::from(uid) >= out.cards.len() || !is_hidden_from(out, uid, observer) {
+                return Err(EngineError::Value(format!(
+                    "kept card {uid} is not hidden from player {observer}"
+                )));
+            }
+            let c = out.card(uid);
+            if c.owner != owner {
+                continue;
+            }
+            let def_id = out.db().base_def_id(c.def_id);
+            let (slots, pools) = if c.zone == Zone::ResourceDeck {
+                (&mut p.res_slots, [&mut p.res, &mut p.main])
+            } else {
+                (&mut p.main_slots, [&mut p.main, &mut p.res])
+            };
+            slots.retain(|&u| u != uid);
+            let [first, second] = pools;
+            if !take_one(first, def_id) && !take_one(second, def_id) {
+                return Err(EngineError::Value(format!(
+                    "kept card {uid} is not in player {owner}'s unseen decklist cards"
+                )));
+            }
+        }
+        if p.main_slots.is_empty() && p.res_slots.is_empty() {
+            continue;
+        }
+        for (uid, def_id) in exact_ids(p, &mut rng) {
+            out.cards[usize::from(uid)].def_id = def_id;
+        }
+    }
+    own_history(out);
+    out.rng = SplitMix64::new(derive_seed(seed, &[SeedPart::Str("hidden-rng")]));
+    out.touch();
+    Ok(())
+}
+
+/// W-08: [`determinize_exact_into`] into a new state, keeping no identity.
+///
+/// # Errors
+/// As [`determinize_exact_into`].
+pub fn determinize_exact(
+    st: &GameState,
+    observer: u8,
+    seed: u64,
+) -> Result<GameState, EngineError> {
+    let mut out = st.clone();
+    determinize_exact_into(st, observer, seed, &[], &mut out)?;
+    Ok(out)
+}
+
+/// W-134 (P6-C interface request 1): a copy of `st` whose game uses the decklists `main` and
+/// `resource` (sorted here, as `game.py:151-152` stores them): `determinize`, the pools and
+/// the listened events follow them; the test overrides stay. The cards are unchanged.
+///
+/// # Errors
+/// [`EngineError::Internal`] for a def_id outside the card database.
+pub fn with_decklists(
+    st: &GameState,
+    main: [Box<[DefId]>; 2],
+    resource: [Box<[DefId]>; 2],
+) -> Result<GameState, EngineError> {
+    let sorted = |mut v: Box<[DefId]>| {
+        v.sort();
+        v
+    };
+    let [m0, m1] = main;
+    let [r0, r1] = resource;
+    let old = &st.konst;
+    let mut konst = crate::GameConst::new(
+        Arc::clone(&old.reg),
+        [sorted(m0), sorted(m1)],
+        [sorted(r0), sorted(r1)],
+        old.turn_limit,
+        old.max_actions,
+    )?;
+    konst.test_overrides.clone_from(&old.test_overrides);
+    let mut out = st.clone();
+    out.konst = Arc::new(konst);
+    Ok(out)
 }
 
 /// The prompt of a decision in a form that is equal exactly when the serialised prompt texts

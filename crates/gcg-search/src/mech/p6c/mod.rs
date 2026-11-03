@@ -4,13 +4,14 @@
 //! | --- | --- | --- |
 //! | `opponent_buckets{m}` | W-05 | `buckets.rs`: opponent nodes select by the statistics of their world's bucket once it has `m` visits |
 //! | `belief_worlds{M}`, `belief_last_n{N}` | W-07 | `belief.rs`: M candidate worlds per world, weighted by the opponent's last public decision under the playout policy's softmax |
-//! | `opponent_view_share` | W-139 | `view.rs`: a share of worlds re-determinises the searcher's hidden cards from the opponent's view; opponent nodes select by those iterations |
+//! | `opponent_view_share` | W-139 | `view.rs`: a share of worlds re-determinises the searcher's hidden cards from the opponent's view (keeping the cards the root options name); opponent nodes select by those iterations |
+//! | `exact_pools` | W-08 | every world (and every candidate and opponent-view world) is determinised with conservation-exact pools (`observe::determinize_exact_into`), never padded or trimmed |
+//! | `opponent_list = archetype` | W-134 | `archetype.rs`: the opponent's unseen cards come from a posterior over a prior of candidate decklists, never from its true decklist; the root's Burst density follows the posterior |
 //!
-//! `exact_pools` (W-08) and `opponent_list = archetype` (W-134) are not provided: both need the
-//! world's hidden identities (or its decklists) set to values `determinize` cannot produce, and
-//! the engine has no public API for it (`gcg_engine::GameState` keeps its cards private; the
-//! interface change is proposed in `docs/port/eval/weakness-status/P6-C.md`). They stay refused
-//! by `validate`.
+//! The world of index k is built in this order: the source state (the information-set state,
+//! or with `archetype` that state with the opponent decklists of the candidate world k draws),
+//! the candidate draw of `belief_worlds` (or one world) determinised from that source (exactly
+//! with `exact_pools`), then for an opponent-view index the redraw of `view.rs`.
 //!
 //! Everything here reads the information-set state, the worlds determinised from it and the
 //! world seeds `W[0:cap]` the core drew from the per-decision generator, so the results depend
@@ -18,27 +19,35 @@
 //! no function of this module runs (`Composed` calls the reference), so the null configuration
 //! is untouched.
 
+pub(crate) mod archetype;
 pub(crate) mod belief;
 pub(crate) mod buckets;
 pub(crate) mod view;
 
 #[cfg(test)]
+mod gapb_tests;
+#[cfg(test)]
 mod tests;
 
 use std::cell::RefCell;
 use std::collections::BTreeMap;
+use std::sync::Arc;
 
-use gcg_engine::{EngineError, GameState};
+use gcg_ai::Density;
+use gcg_engine::observe::{determinize_exact_into, determinize_into};
+use gcg_engine::{EngineError, GameState, Uid};
 
 use super::{BackupCx, ChildIdx, NodeCx, RootCx, WorldCx, reference};
-use crate::MechanismFlags;
 use crate::tree::{Child, ChildKey};
+use crate::{MechanismFlags, OpponentList};
 
 /// The mechanism flags this package implements.
-pub(crate) const PROVIDES: [&str; 4] = [
+pub(crate) const PROVIDES: [&str; 6] = [
     "belief_last_n",
     "belief_worlds",
+    "exact_pools",
     "opponent_buckets",
+    "opponent_list",
     "opponent_view_share",
 ];
 
@@ -62,7 +71,12 @@ pub(crate) fn check(f: &MechanismFlags) -> Result<(), String> {
 
 /// Whether a P6-C flag changes how worlds are built.
 pub(crate) fn shapes_worlds(f: &MechanismFlags) -> bool {
-    f.belief_worlds.is_some() || f.opponent_view_share > 0.0
+    f.belief_worlds.is_some() || f.opponent_view_share > 0.0 || f.exact_pools || archetype_on(f)
+}
+
+/// Whether the opponent's unseen cards come from a prior of candidate lists (W-134).
+pub(crate) fn archetype_on(f: &MechanismFlags) -> bool {
+    f.opponent_list == OpponentList::Archetype
 }
 
 /// Whether a P6-C flag changes the selection or the backup of opponent nodes.
@@ -102,9 +116,12 @@ pub(crate) struct Slices {
 pub(crate) struct Search {
     /// The searching player, from the root or the first world.
     pub(crate) player: Option<u8>,
-    /// `opponent_view_share`: no option of the root decision names a card hidden from the
-    /// opponent, so opponent-view worlds keep every root move legal (`view.rs`).
+    /// `opponent_view_share` is on: opponent-view worlds are built at this decision.
     pub(crate) view_ok: bool,
+    /// The cards the root options name that the opponent cannot identify: an opponent-view
+    /// world keeps their identities so that every root move plays the card it names
+    /// (`view.rs`).
+    pub(crate) view_keep: Vec<Uid>,
     /// The root node and its children's visits when the tree started (`subtree_reuse` keeps
     /// visits; the k-th new visit of a root child plays in world k).
     pub(crate) root: Option<u32>,
@@ -123,6 +140,13 @@ pub(crate) struct Search {
     pub(crate) reweighted: u64,
     /// Opponent-view worlds built (diagnostic).
     pub(crate) view_worlds: u64,
+    /// Opponent-view worlds that kept the identities of cards the root options name
+    /// (diagnostic).
+    pub(crate) view_kept_worlds: u64,
+    /// `opponent_list = archetype`: the prior (the packaged lists unless a test set one).
+    pub(crate) prior: Option<Arc<archetype::Prior>>,
+    /// `opponent_list = archetype`: the posterior of this decision, once computed.
+    pub(crate) posterior: Option<Box<archetype::Posterior>>,
 }
 
 /// [`Search`] behind a `RefCell`: the mechanisms take `&self`, and each search runs on one
@@ -135,6 +159,7 @@ impl Shared {
         Self(RefCell::new(Search {
             player: None,
             view_ok: false,
+            view_keep: Vec::new(),
             root: None,
             base: Vec::new(),
             iter_view: false,
@@ -144,7 +169,18 @@ impl Shared {
             applies: 0,
             reweighted: 0,
             view_worlds: 0,
+            view_kept_worlds: 0,
+            prior: None,
+            posterior: None,
         }))
+    }
+
+    /// A search whose `opponent_list = archetype` mode uses `prior` (tests).
+    #[cfg(test)]
+    pub(crate) fn with_prior(prior: archetype::Prior) -> Self {
+        let s = Self::new();
+        s.with_mut(|x| x.prior = Some(Arc::new(prior)));
+        s
     }
 
     pub(crate) const fn from_search(s: Search) -> Self {
@@ -162,7 +198,10 @@ impl Shared {
         Search {
             player: s.player,
             view_ok: s.view_ok,
+            view_keep: s.view_keep.clone(),
             evidence: s.evidence,
+            prior: s.prior.clone(),
+            posterior: s.posterior.clone(),
             ..Search::default()
         }
     }
@@ -190,16 +229,85 @@ impl Shared {
 /// Notes the root decision before its root moves: the searching player and, with
 /// `opponent_view_share`, whether opponent-view worlds may be used at it.
 pub(crate) fn note_root(f: &MechanismFlags, cx: &RootCx<'_>, shared: &Shared) {
-    let view_ok = f.opponent_view_share > 0.0 && view::root_allows(cx.st, cx.dec, cx.player);
+    let view_ok = f.opponent_view_share > 0.0;
+    let keep = if view_ok {
+        view::named_hidden(cx.st, cx.dec, cx.player)
+    } else {
+        Vec::new()
+    };
     shared.with_mut(|s| {
         s.player = Some(cx.player);
         s.view_ok = view_ok;
+        s.view_keep = keep;
     });
 }
 
-/// World `k` (`determinize(st, player, W[k])` in the reference): with `belief_worlds` the
-/// candidate the opponent's reconstructed decision weighs (`belief.rs`), then, for an
-/// opponent-view index, re-determinised from the opponent's view (`view.rs`).
+/// Computes the posterior of `opponent_list = archetype` at the information-set state `st` of
+/// `player`, once per search.
+///
+/// # Errors
+/// The prior's or `with_decklists`' errors.
+fn ensure_posterior(st: &GameState, player: u8, shared: &Shared) -> Result<(), EngineError> {
+    if shared.with(|s| s.posterior.is_some()) {
+        return Ok(());
+    }
+    let prior = match shared.with(|s| s.prior.clone()) {
+        Some(p) => p,
+        None => archetype::default_prior(st)?,
+    };
+    let p = Box::new(archetype::Posterior::of(st, player, &prior)?);
+    shared.with_mut(|s| {
+        s.prior = Some(prior);
+        s.posterior = Some(p);
+    });
+    Ok(())
+}
+
+/// The root's Burst density (`ai/mcts.py:120`): with `opponent_list = archetype` the
+/// posterior's (`archetype.rs`), else the reference's.
+///
+/// # Errors
+/// The posterior's errors.
+pub(crate) fn density(
+    f: &MechanismFlags,
+    cx: &RootCx<'_>,
+    shared: &Shared,
+) -> Result<Density, EngineError> {
+    if archetype_on(f) {
+        ensure_posterior(cx.st, cx.player, shared)?;
+        Ok(shared.with(|s| {
+            s.posterior
+                .as_ref()
+                .map_or_else(|| reference::density(cx), |p| p.density)
+        }))
+    } else {
+        Ok(reference::density(cx))
+    }
+}
+
+/// One world of `source` with seed `seed` into `out`: `determinize` (the reference), or with
+/// `exact_pools` its conservation-exact form.
+///
+/// # Errors
+/// `determinize`'s errors, or the exact pools' conservation failure.
+fn base_world(
+    exact: bool,
+    source: &GameState,
+    player: u8,
+    seed: u64,
+    out: &mut GameState,
+) -> Result<(), EngineError> {
+    if exact {
+        determinize_exact_into(source, player, seed, &[], out)
+    } else {
+        determinize_into(source, player, seed, out)
+    }
+}
+
+/// World `k` (`determinize(st, player, W[k])` in the reference): from the source state of
+/// `opponent_list` (`archetype.rs`), with `belief_worlds` the candidate the opponent's
+/// reconstructed decision weighs (`belief.rs`), each determinised exactly with `exact_pools`,
+/// then, for an opponent-view index, re-determinised from the opponent's view (`view.rs`).
 ///
 /// # Errors
 /// `determinize`'s errors.
@@ -211,29 +319,42 @@ pub(crate) fn world(
     shared: &Shared,
 ) -> Result<(), EngineError> {
     shared.with_mut(|s| s.player = Some(cx.player));
-    match f.belief_worlds {
-        Some(m) => {
-            let evidence = shared.with_mut(|s| {
-                *s.evidence
-                    .get_or_insert_with(|| belief::Evidence::of(cx.st, cx.player))
-            });
-            match evidence {
-                Some(e) => {
-                    let (scored, changed) = belief::world(cx, k, m, &e, out)?;
-                    shared.with_mut(|s| {
-                        s.applies += scored;
-                        s.reweighted += u64::from(changed);
-                    });
-                }
-                None => reference::world(cx, k, out)?,
-            }
+    if archetype_on(f) {
+        ensure_posterior(cx.st, cx.player, shared)?;
+    }
+    let evidence = f.belief_worlds.and_then(|_| {
+        shared.with_mut(|s| {
+            *s.evidence
+                .get_or_insert_with(|| belief::Evidence::of(cx.st, cx.player))
+        })
+    });
+    let belief = shared.with(|s| -> Result<Option<(u64, bool)>, EngineError> {
+        let source: &GameState = match &s.posterior {
+            Some(p) => &p.entries[p.draw(cx.seeds[k])].state,
+            None => cx.st,
+        };
+        let player = cx.player;
+        let build =
+            |seed: u64, out: &mut GameState| base_world(f.exact_pools, source, player, seed, out);
+        match (f.belief_worlds, evidence) {
+            (Some(m), Some(e)) => belief::world(cx, k, m, &e, out, &build).map(Some),
+            _ => build(cx.seeds[k], out).map(|()| None),
         }
-        None => reference::world(cx, k, out)?,
+    })?;
+    if let Some((scored, changed)) = belief {
+        shared.with_mut(|s| {
+            s.applies += scored;
+            s.reweighted += u64::from(changed);
+        });
     }
     let view = shared.with(|s| s.view_ok) && view::is_view_world(k, f.opponent_view_share);
     if view {
-        view::redraw(out, cx.player, cx.seeds[k])?;
-        shared.with_mut(|s| s.view_worlds += 1);
+        let keep = shared.with(|s| s.view_keep.clone());
+        view::redraw(out, cx.player, cx.seeds[k], &keep, f.exact_pools)?;
+        shared.with_mut(|s| {
+            s.view_worlds += 1;
+            s.view_kept_worlds += u64::from(!keep.is_empty());
+        });
     }
     Ok(())
 }

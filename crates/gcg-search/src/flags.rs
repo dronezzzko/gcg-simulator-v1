@@ -379,6 +379,19 @@ mechanism_flags! {
     /// `EngineError` is scored as a loss for the searching player and counted, instead of
     /// failing the real game (W-143, W-110).
     ["P6-O"] engine_error_leaf: bool,
+
+    // GAP-A1 residual mechanisms (docs/port/eval/weakness-gaps.md; W-14, W-25).
+    /// `Some(R)`: at an effect-target root decision every iteration plays `R` rollouts from the
+    /// end of its walk and backs up their mean, and the decision's budget is divided by `R`, so
+    /// the rollouts are counted in iterations (W-14 plan item 2: several rollouts per world
+    /// instead of more worlds).
+    ["GAP-A1"] target_multi_rollouts: Option<u32>,
+    /// At an in-tree MAIN decision of the turn player (either side, below the root), the first
+    /// move of a lethal line that P6-B's tactical solver proves on the iteration's world is
+    /// selected, so the tree's players are as competent at lethal as `tactical_solver` makes the
+    /// rollouts' (W-25: below the root the opponent's replies otherwise follow the shared
+    /// policy's priors). The solver's applies share P6-B's per-decision cap.
+    ["GAP-A1"] tree_lethal_select: bool,
 }
 
 impl MechanismFlags {
@@ -437,6 +450,8 @@ impl MechanismFlags {
         paired_mulligan: false,
         portable_math: false,
         engine_error_leaf: false,
+        target_multi_rollouts: None,
+        tree_lethal_select: false,
     };
 
     /// The enabled mechanisms, sorted by name (results schema 1.2.0 `ai.search.mechanisms`,

@@ -9,14 +9,16 @@
 //!
 //! Exactness: `score` is CPython's Neumaier-compensated `sum()` of the rounded products in
 //! feature order (`gcg_core::pymath::py_sum`), `logistic` calls the platform libm `exp`, and
-//! the `_race` divisions and `ceil`s follow the Python form.
+//! the `_race` divisions and `ceil`s follow the Python form. `logistic_with` and
+//! `evaluate_with` take the floating-point library (`crate::math`, W-137); the frozen
+//! `logistic` and `evaluate` are them at [`FloatMath::Platform`].
 
-use gcg_core::libm;
 use gcg_core::pymath::py_sum;
 use gcg_data::CardType;
 use gcg_effects::{Kw, RuleKind};
 use gcg_engine::{Derived, EngineError, GameState, Zone, observe, view};
 
+use crate::math::FloatMath;
 use crate::targeting::command_harms_enemy_units;
 use crate::values::{hp_left, int_f64};
 use crate::{Density, FeatureSet, N_FEATURES, ROLE_FEATURES, Weights};
@@ -269,10 +271,17 @@ pub fn role_features(st: &GameState, density: Density) -> Result<Vec<f64>, Engin
 /// libm `exp`; `logistic(-0.0)` takes the `z >= 0` branch.
 #[must_use]
 pub fn logistic(z: f64) -> f64 {
+    logistic_with(z, FloatMath::Platform)
+}
+
+/// [`logistic`] with the `exp` of `math` (W-137): at [`FloatMath::Platform`] it is
+/// [`logistic`], bit for bit.
+#[must_use]
+pub fn logistic_with(z: f64, math: FloatMath) -> f64 {
     if z >= 0.0 {
-        return 1.0 / (1.0 + libm::exp(-z));
+        return 1.0 / (1.0 + math.exp(-z));
     }
-    let e = libm::exp(z);
+    let e = math.exp(z);
     e / (1.0 + e)
 }
 
@@ -315,6 +324,21 @@ pub fn evaluate(
     w: &Weights,
     density: Density,
 ) -> Result<f64, EngineError> {
+    evaluate_with(st, player, w, density, FloatMath::Platform)
+}
+
+/// [`evaluate`] with the logistic of `math` (W-137): at [`FloatMath::Platform`] it is
+/// [`evaluate`], bit for bit.
+///
+/// # Errors
+/// Any error of the derived view.
+pub fn evaluate_with(
+    st: &GameState,
+    player: u8,
+    w: &Weights,
+    density: Density,
+    math: FloatMath,
+) -> Result<f64, EngineError> {
     if let Some(winner) = st.winner() {
         if i32::from(winner) == i32::from(player) {
             return Ok(1.0);
@@ -325,5 +349,5 @@ pub fn evaluate(
             0.5
         });
     }
-    Ok(logistic(score(st, player, w, density)?))
+    Ok(logistic_with(score(st, player, w, density)?, math))
 }

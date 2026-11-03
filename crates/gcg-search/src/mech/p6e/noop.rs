@@ -20,7 +20,7 @@
 //! returned as *penalised*: the root prior lowers it (fail-safe, W-12).
 
 use gcg_ai::{Density, MoveKey, PolicyKnobs, SPENDING, Weights, apply_unchecked, burst_density};
-use gcg_ai::{evaluate, option_scores, pick};
+use gcg_ai::{FloatMath, evaluate_with, option_scores, pick};
 use gcg_engine::{
     Action, ActionKind, DecisionKind, DecisionView, EngineError, GameState, Uid, Zone,
 };
@@ -53,6 +53,8 @@ pub(crate) struct Opts {
     pub(crate) node_cap: usize,
     /// Record the actions of the idle lines ([`judge_traced`]; the unit tests).
     pub(crate) record_idle: bool,
+    /// The evaluation's floating-point library in the branch check (`portable_math`, W-137).
+    pub(crate) math: FloatMath,
 }
 
 /// One move's judgement in one world.
@@ -359,8 +361,9 @@ impl Judging<'_> {
                 }
             };
             let player = self.player;
-            if evaluate(&line, player, weights, density)?
-                > evaluate(&idled, player, weights, density)?
+            let math = self.opts.math;
+            if evaluate_with(&line, player, weights, density, math)?
+                > evaluate_with(&idled, player, weights, density, math)?
             {
                 return Ok(true);
             }

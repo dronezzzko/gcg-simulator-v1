@@ -61,6 +61,7 @@ tuning pairs of `docs/port/eval/panel.json`, forced play/draw (`--choose-first s
 
 Commands:
 
+<!-- doc-check: skip a template with placeholders (field=value, row, on, off) for 400-game rows that take hours; the rows are recorded below -->
 ```bash
 target/release/gcg-eval ablation individual --mechanism <field=value,...> --reference standard \
   --games 400 --seed 20100100 --role dev --ledger docs/port/eval/P6-A/seed-ledger.json \

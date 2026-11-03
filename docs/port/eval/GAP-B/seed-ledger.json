@@ -1,0 +1,95 @@
+{
+ "version": 1,
+ "entries": [
+  {
+   "role": "dev",
+   "master": 22800001,
+   "command": "ablation",
+   "config": {
+    "row": "individual",
+    "mechanism": "exact_pools=true",
+    "challenger": "search:null-standard:exact_pools=true",
+    "opponent": "ref:standard",
+    "decks": "panel",
+    "pairs": "tuning",
+    "games": 400,
+    "choose_first": "seat0"
+   }
+  },
+  {
+   "role": "dev",
+   "master": 22800001,
+   "command": "ablation",
+   "config": {
+    "row": "individual",
+    "mechanism": "opponent_list=archetype",
+    "challenger": "search:null-standard:opponent_list=archetype",
+    "opponent": "ref:standard",
+    "decks": "panel",
+    "pairs": "tuning",
+    "games": 400,
+    "choose_first": "seat0"
+   }
+  },
+  {
+   "role": "dev",
+   "master": 22800001,
+   "command": "ablation",
+   "config": {
+    "row": "individual",
+    "mechanism": "opponent_view_share=0.25",
+    "challenger": "search:null-standard:opponent_view_share=0.25",
+    "opponent": "ref:standard",
+    "decks": "panel",
+    "pairs": "tuning",
+    "games": 400,
+    "choose_first": "seat0"
+   }
+  },
+  {
+   "role": "dev",
+   "master": 22800002,
+   "command": "ablation",
+   "config": {
+    "row": "leave-one-out",
+    "mechanism": "opponent_view_share=0",
+    "challenger": "search:standard:iterations_per_option=256,min_iterations=640,max_iterations=2560,opponent_view_share=0.25",
+    "opponent": "search:standard:iterations_per_option=256,min_iterations=640,max_iterations=2560,opponent_view_share=0.25,opponent_view_share=0",
+    "decks": "panel",
+    "pairs": "tuning",
+    "games": 400,
+    "choose_first": "seat0"
+   }
+  },
+  {
+   "role": "dev",
+   "master": 22800002,
+   "command": "ablation",
+   "config": {
+    "row": "leave-one-out",
+    "mechanism": "opponent_list=known",
+    "challenger": "search:standard:iterations_per_option=256,min_iterations=640,max_iterations=2560,opponent_list=archetype",
+    "opponent": "search:standard:iterations_per_option=256,min_iterations=640,max_iterations=2560,opponent_list=archetype,opponent_list=known",
+    "decks": "panel",
+    "pairs": "tuning",
+    "games": 400,
+    "choose_first": "seat0"
+   }
+  },
+  {
+   "role": "dev",
+   "master": 22800001,
+   "command": "ablation",
+   "config": {
+    "row": "individual",
+    "mechanism": "exact_pools=false",
+    "challenger": "search:null-standard:exact_pools=false",
+    "opponent": "ref:standard",
+    "decks": "panel",
+    "pairs": "tuning",
+    "games": 400,
+    "choose_first": "seat0"
+   }
+  }
+ ]
+}

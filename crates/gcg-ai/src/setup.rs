@@ -3,7 +3,6 @@
 
 use std::sync::Arc;
 
-use gcg_core::libm::{sqrt, square};
 use gcg_core::pymath::py_sum;
 use gcg_core::rng::SplitMix64;
 use gcg_data::{CardDef, CardType, DefId};
@@ -12,7 +11,8 @@ use gcg_engine::observe::determinize;
 use gcg_engine::view::link_satisfied_unpatched;
 use gcg_engine::{Action, ActionKind, GameState, Zone};
 
-use crate::playout::play_to_end;
+use crate::math::FloatMath;
+use crate::playout::play_to_end_with;
 use crate::{AgentCx, AgentError, Alternative, PolicyKnobs, Scratch};
 
 /// `OPENING_TURNS` (`ai/setup.py:22`).
@@ -197,16 +197,18 @@ fn simulate(
     choice: Action,
     seed: u64,
     knobs: &PolicyKnobs,
+    math: FloatMath,
 ) -> Result<f64, AgentError> {
     let mut det = determinize(st, player, seed)?;
     gcg_engine::apply(&mut det, choice, true)?;
     let mut rng = SplitMix64::new(seed);
-    play_to_end(
+    play_to_end_with(
         &mut det,
         Some(&mut rng),
         FIRST_PLAYER_TEMPERATURE,
         MAX_GAME_DECISIONS,
         knobs,
+        math,
     )?;
     Ok(match det.winner() {
         Some(w) if i32::from(w) == i32::from(player) => 1.0,
@@ -235,6 +237,27 @@ pub fn first_player_choice(
     knobs: &PolicyKnobs,
     cx: &mut AgentCx<'_>,
 ) -> Result<(Action, Vec<Alternative>), AgentError> {
+    first_player_choice_with(st, player, games, rng, knobs, cx, FloatMath::Platform)
+}
+
+/// [`first_player_choice`] with `math` in the simulations' Gumbel draws and the paired
+/// variance (W-137): at [`FloatMath::Platform`] it is [`first_player_choice`], bit for bit.
+///
+/// # Errors
+/// As [`first_player_choice`].
+#[allow(
+    clippy::too_many_arguments,
+    reason = "the frozen first_player_choice inputs plus the floating-point library"
+)]
+pub fn first_player_choice_with(
+    st: &GameState,
+    player: u8,
+    games: u32,
+    rng: &mut SplitMix64,
+    knobs: &PolicyKnobs,
+    cx: &mut AgentCx<'_>,
+    math: FloatMath,
+) -> Result<(Action, Vec<Alternative>), AgentError> {
     let first = Action::new(ActionKind::GoFirst, i32::from(player), -1, -1);
     let second = Action::new(ActionKind::GoFirst, 1 - i32::from(player), -1, -1);
     let seeds: Vec<u64> = (0..games).map(|_| rng.next_u64()).collect();
@@ -252,7 +275,7 @@ pub fn first_player_choice(
         if cancel.is_cancelled() {
             return Err(AgentError::Interrupted);
         }
-        simulate(&state, player, choice, seed, &knobs)
+        simulate(&state, player, choice, seed, &knobs, math)
     });
     let results = cx.par.fork_join(inputs, job);
     let mut scores = Vec::with_capacity(results.len());
@@ -280,8 +303,8 @@ pub fn first_player_choice(
     }
     let len = diffs.len() as f64;
     let mean = py_sum(diffs.iter().copied()) / len;
-    let var = py_sum(diffs.iter().map(|&x| square(x - mean))) / (len - 1.0);
-    let se = sqrt(var / len);
+    let var = py_sum(diffs.iter().map(|&x| math.square(x - mean))) / (len - 1.0);
+    let se = math.sqrt(var / len);
     let chosen = if mean < 0.0 && -mean > SIGNIFICANCE * se {
         second
     } else {

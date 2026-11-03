@@ -12,7 +12,6 @@
 //! the derived view exactly where Python does (`_main`, `_block`, `_excess` and `_select`
 //! after its mode check), so the view cache of `st` fills as Python's does (PLAN §4.6).
 
-use gcg_core::libm;
 use gcg_core::rng::SplitMix64;
 use gcg_data::CardType;
 use gcg_effects::{Kw, RuleKind};
@@ -23,6 +22,7 @@ use gcg_engine::{
 
 use crate::PolicyKnobs;
 use crate::actions::{attack_can_matter, ex_used};
+use crate::math::FloatMath;
 use crate::targeting::{self, Polarity};
 use crate::values::{
     card_worth, exposed, fight, hp_left, int_f64, life, pile_value, ready_blockers, unit_value,
@@ -56,6 +56,21 @@ pub fn choose(
     temperature: f64,
     knobs: &PolicyKnobs,
 ) -> Result<Action, EngineError> {
+    choose_with(st, rng, temperature, knobs, FloatMath::Platform)
+}
+
+/// [`choose`] with the Gumbel draws of [`pick_with`] at `math` (W-137): at
+/// [`FloatMath::Platform`] it is [`choose`], bit for bit.
+///
+/// # Errors
+/// As [`choose`].
+pub fn choose_with(
+    st: &GameState,
+    rng: Option<&mut SplitMix64>,
+    temperature: f64,
+    knobs: &PolicyKnobs,
+    math: FloatMath,
+) -> Result<Action, EngineError> {
     let Some(dec) = st.pending() else {
         return Err(EngineError::Assertion(String::new()));
     };
@@ -70,7 +85,7 @@ pub fn choose(
             EngineError::Index("tuple index out of range".into())
         });
     }
-    Ok(dec.options[pick(dec.options, &scores, rng, temperature)])
+    Ok(dec.options[pick_with(dec.options, &scores, rng, temperature, math)])
 }
 
 /// `pick(options, scores, rng, temperature)` (`ai/policy.py:86-101`): the index of the chosen
@@ -88,6 +103,19 @@ pub fn pick(
     scores: &[f64],
     rng: Option<&mut SplitMix64>,
     temperature: f64,
+) -> usize {
+    pick_with(options, scores, rng, temperature, FloatMath::Platform)
+}
+
+/// [`pick`] with the `ln` of `math` in the Gumbel draws (W-137): at [`FloatMath::Platform`] it
+/// is [`pick`], bit for bit.
+#[must_use]
+pub fn pick_with(
+    options: &[Action],
+    scores: &[f64],
+    rng: Option<&mut SplitMix64>,
+    temperature: f64,
+    math: FloatMath,
 ) -> usize {
     debug_assert_eq!(options.len(), scores.len());
     // `rng is None or temperature <= 0.0`, with a NaN temperature sampling as in Python.
@@ -111,7 +139,7 @@ pub fn pick(
         if u == 0.0 {
             u = 1e-300;
         }
-        let v = s / temperature - libm::ln(-libm::ln(u));
+        let v = s / temperature - math.ln(-math.ln(u));
         if v > best_v {
             best_i = i;
             best_v = v;

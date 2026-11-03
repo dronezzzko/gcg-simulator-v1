@@ -444,6 +444,54 @@ fn rests_a_rested_enemy(st: &GameState, dec: &DecisionView<'_>, a: Action) -> bo
     c.owner != dec.hdr.player && c.zone == Zone::Battle && c.rested
 }
 
+/// Which branch of the Rest-target prune decides a SELECT ([`rest_prune`]).
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+pub enum RestPrune {
+    /// The prune drops the moves that rest an already rested enemy Unit.
+    Pruned,
+    /// `_resting_can_trigger` keeps them: a delayed effect, or a Rested trigger of a card in
+    /// play (`ai/actions.py:205-211`).
+    RestTrigger,
+    /// The "while rested" exception keeps them: resting an active enemy candidate changes the
+    /// derived view in the trial determinisation (`_resting_changes_more_than_the_unit`,
+    /// `ai/actions.py:214-232`; W-13).
+    WhileRested,
+}
+
+/// The Rest-target prune of [`prune_dominated`] (`ai/actions.py:250-258`) at `dec` over
+/// `moves`, as the decision trace counts it (W-13): `None` when the prune does not apply (not a
+/// SELECT of uids for an effect whose chosen enemy Unit is only rested) or would change nothing
+/// (no move rests a rested enemy Unit, or every move does, which `kept or moves` keeps);
+/// otherwise the branch that decides, with its exceptions checked in the prune's order.
+/// Analysis only: no agent calls it, and it computes exactly what the prune computes, so a
+/// trace that calls it leaves every decision unchanged.
+///
+/// # Errors
+/// The engine's error from the view or the trial determinisation.
+pub fn rest_prune(
+    st: &GameState,
+    dec: &DecisionView<'_>,
+    moves: &[(MoveKey, Action)],
+) -> Result<Option<RestPrune>, EngineError> {
+    if dec.hdr.kind != DecisionKind::Select || !uid_argument(dec) || !chosen_only_to_rest(st) {
+        return Ok(None);
+    }
+    let dropped = moves
+        .iter()
+        .filter(|m| rests_a_rested_enemy(st, dec, m.1))
+        .count();
+    if dropped == 0 || dropped == moves.len() {
+        return Ok(None);
+    }
+    Ok(Some(if resting_can_trigger(st)? {
+        RestPrune::RestTrigger
+    } else if resting_changes_more_than_the_unit(st, dec)? {
+        RestPrune::WhileRested
+    } else {
+        RestPrune::Pruned
+    }))
+}
+
 /// `prune_dominated(st, dec, moves, strict_attacks=, rest_targets=)` (`ai/actions.py:242-277`):
 /// the first matching branch decides, and at least one move is always kept (`kept or moves`).
 /// The conditions are evaluated in Python's order, so the view calls on `st` happen exactly

@@ -310,6 +310,7 @@ pub fn new_game(
     )?;
     let mut st = GameState::new(Arc::new(konst), seed);
     st.rng = rng;
+    crate::diag::note_interpretation(crate::diag::Interpretation::I05);
     for p in 0u8..2 {
         for &def in &main_ids[usize::from(p)] {
             let uid = crate::core::new_card(&mut st, def, p, Zone::Deck, false)?;

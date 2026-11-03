@@ -10,6 +10,7 @@
 mod contracts;
 
 pub mod agents;
+pub mod apisnapshot;
 pub mod cli;
 pub mod corpus;
 pub mod coverage;

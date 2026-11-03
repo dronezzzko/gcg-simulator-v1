@@ -18,8 +18,9 @@
 //! `prior_worlds` and `visited_set_backup` dispatch through [`Composed`] (`mech/p6d/`).
 //!
 //! P6-C's hidden-information mechanisms (`mech/p6c/`) dispatch through [`Composed`] too: the
-//! worlds (`belief_worlds`, `opponent_view_share`), the selection at opponent nodes and the
-//! backup (`opponent_buckets`, `opponent_view_share`).
+//! worlds (`belief_worlds`, `opponent_view_share`, `exact_pools`, `opponent_list`), the root's
+//! Burst density (`opponent_list`), the selection at opponent nodes and the backup
+//! (`opponent_buckets`, `opponent_view_share`).
 //!
 //! # Composition order
 //!
@@ -30,8 +31,13 @@
 //! - `root_moves`: P6-A's leaf-constant check (W-02), P6-C's note of the root, P6-E's root moves
 //!   (or the reference's), then P6-B's `lethal_root` on those moves.
 //! - `root_applies`: P6-E's plus P6-B's. `aux_applies`: P6-F's, P6-A's, P6-B's and P6-C's.
-//! - `budget`: P6-E's `target_rollouts` budget (or the reference's), then P6-B's solver cap and
-//!   `critical_extension`.
+//! - `budget`: P6-E's `target_rollouts` budget (or the reference's), then GAP-A1's division by
+//!   the rollouts per iteration (`target_multi_rollouts`), then P6-B's solver cap (also set for
+//!   GAP-A1's `tree_lethal_select`) and `critical_extension`. `rollouts`: GAP-A1's
+//!   `target_multi_rollouts` (or the reference's one).
+//! - `density`: P6-C's posterior density under `opponent_list = archetype` (or the reference's).
+//! - `select`: GAP-A1's `tree_lethal_select` at an in-tree MAIN decision with a proved lethal
+//!   (with P6-C's note), else as below.
 //! - `world`: P6-C's worlds (or the reference's). P6-B's `lethal_root` builds its worlds through
 //!   this method, so it sees P6-C's.
 //! - `priors`: P6-E, P6-D and P6-F as before, then P6-C's note. `select`: P6-C at opponent
@@ -56,6 +62,9 @@
 
 #[cfg(test)]
 mod compose_tests;
+pub(crate) mod gapa1;
+#[cfg(test)]
+mod gapa2;
 pub(crate) mod p6a;
 pub(crate) mod p6b;
 pub(crate) mod p6c;
@@ -218,6 +227,19 @@ pub(crate) trait Mechanisms {
     /// The budget for `n_moves` root moves (`ai/mcts.py:121-124`).
     fn budget(&self, cx: &RootCx<'_>, n_moves: usize) -> Budget {
         reference::budget(cx, n_moves)
+    }
+
+    /// The Burst density of the root's information-set state (`ai/mcts.py:120`), which every
+    /// leaf of the search reads.
+    fn density(&self, cx: &RootCx<'_>) -> Result<Density, EngineError> {
+        Ok(reference::density(cx))
+    }
+
+    /// The rollouts every iteration of this decision plays from the end of its walk; the line's
+    /// value is their mean. The reference plays one (`ai/mcts.py:211-213`).
+    fn rollouts(&self, cx: &RootCx<'_>) -> u32 {
+        let _ = cx;
+        1
     }
 
     /// World `k` into `out` (`determinize(st, player, world_seeds[k])`).
@@ -406,19 +428,35 @@ impl Mechanisms for Composed<'_> {
         self.p6e.applies() + self.p6b.root_applies()
     }
 
-    /// The budget of P6-E (or the reference's), then P6-B's solver cap and
-    /// `critical_extension`.
+    /// The budget of P6-E (or the reference's), then GAP-A1's division by the rollouts per
+    /// iteration, then P6-B's solver cap and `critical_extension`.
     fn budget(&self, cx: &RootCx<'_>, n_moves: usize) -> Budget {
-        let b = if self.flags.target_rollouts {
+        let mut b = if self.flags.target_rollouts {
             p6e::budget(cx, n_moves, &self.p6e)
         } else {
             reference::budget(cx, n_moves)
         };
-        if p6b::any_on(self.flags) {
+        if gapa1::divides_budget(self.flags) {
+            b = gapa1::budget(gapa1::rollouts(self.flags, cx), b);
+        }
+        if p6b::any_on(self.flags) || self.flags.tree_lethal_select {
             p6b::budget(&self.p6b, self.flags, cx, b)
         } else {
             b
         }
+    }
+
+    /// P6-C's density under `opponent_list = archetype` (W-134), else the reference's.
+    fn density(&self, cx: &RootCx<'_>) -> Result<Density, EngineError> {
+        if p6c::archetype_on(self.flags) {
+            p6c::density(self.flags, cx, &self.p6c)
+        } else {
+            Ok(reference::density(cx))
+        }
+    }
+
+    fn rollouts(&self, cx: &RootCx<'_>) -> u32 {
+        gapa1::rollouts(self.flags, cx)
     }
 
     fn world(
@@ -446,6 +484,14 @@ impl Mechanisms for Composed<'_> {
     }
 
     fn select(&self, cx: &mut NodeCx<'_>) -> ChildIdx {
+        if self.flags.tree_lethal_select
+            && let Some(i) = gapa1::lethal_select(&self.p6b, cx)
+        {
+            if p6c::shapes_tree(self.flags) {
+                p6c::after_select(self.flags, cx, i, &self.p6c);
+            }
+            return i;
+        }
         if p6c::shapes_tree(self.flags)
             && let Some(i) = p6c::select(self.flags, cx, &self.p6c)
         {
@@ -599,7 +645,8 @@ pub(crate) const fn math_of(cfg: &StrengthenedConfig) -> Math {
 
 /// Whether a package has implemented the mechanism `name`.
 fn available(name: &str) -> bool {
-    p6a::PROVIDES.contains(&name)
+    gapa1::PROVIDES.contains(&name)
+        || p6a::PROVIDES.contains(&name)
         || p6b::PROVIDES.contains(&name)
         || p6c::PROVIDES.contains(&name)
         || p6d::PROVIDES.contains(&name)

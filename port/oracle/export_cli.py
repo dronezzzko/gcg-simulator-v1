@@ -72,7 +72,9 @@ RUST_PRESET_HELP = (
     "sub-variants and hypothetical builds. Both start from the budgets of the Python presets "
     "strong (standard) and standard (fast); docs/AI.md has the table"
 )
-RUST_WORKERS_HELP = "worker processes; auto uses one per performance-core CPU (at most one per match)"
+RUST_WORKERS_HELP = (
+    "worker processes; auto uses one per performance-core CPU (at most one per match)"
+)
 
 HELP_WIDTHS = ("1", "20", "40", "60", "79", "80", "81", "100", "120", "200")
 ERROR_WIDTHS = ("40", "80", "200")

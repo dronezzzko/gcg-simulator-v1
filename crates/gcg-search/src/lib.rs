@@ -21,6 +21,7 @@ pub use agent::{make_agent, make_search_agent};
 pub use contracts::*;
 pub use flags::{FlagValue, MechanismFlags, OpponentList};
 pub use mcts::{pregame, search, search_with_effort};
+pub use mech::gapa1::api as gapa1;
 pub use mech::p6g::api as p6g;
 pub use observation::Observation;
 pub use presets::{preset_config, reference_mapping, search_settings, weights_id};

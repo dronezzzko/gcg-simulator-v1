@@ -21,14 +21,20 @@
 //! once that has [`MIN_VISITS`] visits, in every iteration, so the searcher's own lines face an
 //! opponent that plays from its information set.
 //!
-//! Root moves name cards by uid. A redrawn world gives the searcher's hidden hand cards other
-//! identities, so opponent-view worlds are used only at decisions where no option of the root
-//! decision names a card hidden from the opponent ([`root_allows`]); elsewhere every world is
-//! the usual one. Keeping the named cards' identities while redrawing the rest needs an engine
-//! API to set hidden identities, which the engine does not offer (`p6c/mod.rs`).
+//! Root moves name cards by uid, and a redrawn world would give the searcher's hidden hand
+//! cards other identities, so a root move that plays a hand card would play another card. At a
+//! decision where no option of the root decision names a card hidden from the opponent
+//! ([`root_allows`]: blocks, attacks, activations, the end of a phase) the redraw is the one
+//! above. At every other decision the cards the root options name keep their identities
+//! ([`named_hidden`]) and the rest is redrawn around them with conservation-exact pools
+//! (`observe::determinize_exact_into` with those cards kept: one copy of each leaves its
+//! owner's pool), so every root move plays the card it names. The kept cards are the residue
+//! of the searcher's private information the opponent's nodes still see in those worlds: the
+//! cards the searcher could play now, whichever it plays. With `exact_pools` every redraw uses
+//! the exact pools.
 
 use gcg_core::rng::{SeedPart, derive_seed};
-use gcg_engine::observe::{determinize, is_hidden_from};
+use gcg_engine::observe::{determinize, determinize_exact_into, is_hidden_from};
 use gcg_engine::{DecisionView, EngineError, GameState, Uid};
 
 /// The opponent-view visits an opponent node needs before its slice drives selection.
@@ -43,29 +49,55 @@ pub(crate) fn is_view_world(k: usize, share: f64) -> bool {
     ((k + 1.0) * share).floor() > (k * share).floor()
 }
 
-/// Whether no option of the root decision `dec` names (as its first or second argument) a card
-/// that the opponent of `player` cannot identify.
-pub(crate) fn root_allows(st: &GameState, dec: &DecisionView<'_>, player: u8) -> bool {
+/// The cards that options of the root decision `dec` name (as their first or second argument)
+/// and that the opponent of `player` cannot identify, in uid order.
+pub(crate) fn named_hidden(st: &GameState, dec: &DecisionView<'_>, player: u8) -> Vec<Uid> {
     let opponent = 1 - player;
     let n = st.cards().len();
     let hidden = |x: i32| {
         Uid::try_from(x)
             .ok()
-            .filter(|&u| usize::from(u) < n)
-            .is_some_and(|u| is_hidden_from(st, u, opponent))
+            .filter(|&u| usize::from(u) < n && is_hidden_from(st, u, opponent))
     };
-    !dec.options.iter().any(|o| hidden(o.a) || hidden(o.b))
+    let mut out: Vec<Uid> = dec
+        .options
+        .iter()
+        .flat_map(|o| [hidden(o.a), hidden(o.b)])
+        .flatten()
+        .collect();
+    out.sort();
+    out.dedup();
+    out
+}
+
+/// Whether no option of the root decision `dec` names (as its first or second argument) a card
+/// that the opponent of `player` cannot identify (the decisions whose opponent-view worlds keep
+/// no identity).
+#[cfg(test)]
+pub(crate) fn root_allows(st: &GameState, dec: &DecisionView<'_>, player: u8) -> bool {
+    named_hidden(st, dec, player).is_empty()
 }
 
 /// The world `out` (a world of `player`'s information set) re-determinised from the
-/// opponent's view with the seed of `world_seed`.
+/// opponent's view with the seed of `world_seed`, the cards of `keep` keeping their
+/// identities; with `exact` (or any card kept) from conservation-exact pools.
 ///
 /// # Errors
-/// `determinize`'s error.
-pub(crate) fn redraw(out: &mut GameState, player: u8, world_seed: u64) -> Result<(), EngineError> {
+/// `determinize`'s error, or the exact pools' conservation failure.
+pub(crate) fn redraw(
+    out: &mut GameState,
+    player: u8,
+    world_seed: u64,
+    keep: &[Uid],
+    exact: bool,
+) -> Result<(), EngineError> {
     let seed = derive_seed(world_seed, &[SeedPart::Str("opponent-view")]);
-    *out = determinize(out, 1 - player, seed)?;
-    Ok(())
+    if keep.is_empty() && !exact {
+        *out = determinize(out, 1 - player, seed)?;
+        return Ok(());
+    }
+    let world = out.clone();
+    determinize_exact_into(&world, 1 - player, seed, keep, out)
 }
 
 #[cfg(test)]

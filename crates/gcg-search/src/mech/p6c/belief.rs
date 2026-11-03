@@ -27,6 +27,7 @@
 //! `1 / (1 + Σ exp(score / T))` over the castable cards of the candidate hand.
 //!
 //! **Candidates and resampling.** Candidate `j` of world `k` is `determinize(st, player, s_j)`
+//! (from the source state and with the pools of `opponent_list` and `exact_pools`, `p6c::world`)
 //! with `s_0 = W[k]` (the reference's world) and `s_j = derive_seed(W[k], "belief", j)`. The
 //! resampling offset is `u_k = frac(u + k (√5 - 1) / 2)`, `u` the first `random()` of
 //! `SplitMix64(derive_seed(W[0], "belief-resample"))` (the tree's seed), and world k is the
@@ -38,7 +39,7 @@ use gcg_core::pymath::py_sum;
 use gcg_core::rng::{SeedPart, SplitMix64, derive_seed};
 use gcg_data::{CardDef, CardType};
 use gcg_effects::Timing;
-use gcg_engine::observe::{determinize_into, is_hidden_from};
+use gcg_engine::observe::is_hidden_from;
 use gcg_engine::{BATTLE_LIMIT, EngineError, GameState, Phase, Zone};
 
 use super::buckets::{command_timing, resources};
@@ -168,29 +169,32 @@ pub(crate) fn resample(weights: &[f64], u: f64) -> usize {
 }
 
 /// World `k` into `out`: the candidate of `m` that the resampling draws, by the likelihood of
-/// `evidence`. Returns the candidates scored and whether the world differs from the
-/// reference's (candidate 0).
+/// `evidence`. `build(seed, out)` determinises one candidate (the reference's
+/// `determinize_into(cx.st, cx.player, seed, out)`, or the source and pools of
+/// `opponent_list` and `exact_pools`, `p6c::world`). Returns the candidates scored and whether
+/// the world differs from the reference's (candidate 0).
 ///
 /// # Errors
-/// `determinize`'s error.
+/// `build`'s error.
 pub(crate) fn world(
     cx: &WorldCx<'_>,
     k: usize,
     m: u32,
     evidence: &Evidence,
     out: &mut GameState,
+    build: &dyn Fn(u64, &mut GameState) -> Result<(), EngineError>,
 ) -> Result<(u64, bool), EngineError> {
     let seed = cx.seeds[k];
     let math = math_of(cx.cfg);
     let mut weights = Vec::with_capacity(m as usize);
     for j in 0..m {
-        determinize_into(cx.st, cx.player, candidate_seed(seed, j), out)?;
+        build(candidate_seed(seed, j), out)?;
         weights.push(evidence.likelihood(out, cx.player, cx.cfg.prior_temperature, math));
     }
     let chosen = resample(&weights, offset(cx.seeds[0], k));
     let chosen_j = u32::try_from(chosen).expect("candidates fit in u32");
     if chosen_j + 1 != m {
-        determinize_into(cx.st, cx.player, candidate_seed(seed, chosen_j), out)?;
+        build(candidate_seed(seed, chosen_j), out)?;
     }
     Ok((u64::from(m), chosen != 0))
 }

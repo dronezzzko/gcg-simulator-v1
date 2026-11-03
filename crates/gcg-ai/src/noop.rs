@@ -14,7 +14,8 @@ use gcg_engine::{
 };
 
 use crate::agent::apply_unchecked;
-use crate::evaluation::{burst_density, evaluate};
+use crate::evaluation::{burst_density, evaluate_with};
+use crate::math::FloatMath;
 use crate::policy;
 use crate::{Density, MoveKey, NoopFlags, PolicyKnobs, Weights};
 
@@ -177,6 +178,7 @@ fn a_branch_beats_idling(
     spent: i32,
     weights: &Weights,
     density: Density,
+    math: FloatMath,
 ) -> Result<bool, EngineError> {
     let player = lines.player;
     for mut line in branches(lines.world, action, player, lines.knobs)? {
@@ -193,7 +195,8 @@ fn a_branch_beats_idling(
                 idled
             }
         };
-        if evaluate(&line, player, weights, density)? > evaluate(&idled, player, weights, density)?
+        if evaluate_with(&line, player, weights, density, math)?
+            > evaluate_with(&idled, player, weights, density, math)?
         {
             return Ok(true);
         }
@@ -306,6 +309,40 @@ pub fn without_effect(
     f: NoopFlags,
     w: &Weights,
 ) -> Result<Vec<MoveKey>, EngineError> {
+    without_effect_with(
+        st,
+        player,
+        dec,
+        moves,
+        seed,
+        knobs,
+        f,
+        w,
+        FloatMath::Platform,
+    )
+}
+
+/// [`without_effect`] with the evaluation's logistic at `math` in the branch check
+/// (`_a_branch_beats_idling`, W-137): at [`FloatMath::Platform`] it is [`without_effect`], bit
+/// for bit.
+///
+/// # Errors
+/// As [`without_effect`].
+#[allow(
+    clippy::too_many_arguments,
+    reason = "the frozen without_effect inputs plus the floating-point library"
+)]
+pub fn without_effect_with(
+    st: &GameState,
+    player: u8,
+    dec: &DecisionView<'_>,
+    moves: &[(MoveKey, Action)],
+    seed: u64,
+    knobs: &PolicyKnobs,
+    f: NoopFlags,
+    w: &Weights,
+    math: FloatMath,
+) -> Result<Vec<MoveKey>, EngineError> {
     let spending: Vec<(MoveKey, Action)> = moves
         .iter()
         .copied()
@@ -337,7 +374,7 @@ pub fn without_effect(
         }
         if f.branch_choices {
             let d = *density.get_or_insert_with(|| burst_density(st, player));
-            if a_branch_beats_idling(&lines, action, spent, w, d)? {
+            if a_branch_beats_idling(&lines, action, spent, w, d, math)? {
                 continue;
             }
         }

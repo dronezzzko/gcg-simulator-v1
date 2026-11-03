@@ -36,6 +36,7 @@ Build with `cargo build --release -p gcg-eval`; `$D` is any scratch directory, `
 `search:standard` and `search:fast`) use no P6-G flag, so their games do not depend on the
 weights table; D3's agent uses the round-1 bundle of this table.
 
+<!-- doc-check: skip regeneration recipe: needs $D and $L set, plays 10,200 self-play games over hours and rewrites the embedded weights.txt -->
 ```bash
 # D1a: standard self-play on the panel's 15 tuning pairs (6,000 games, 104,334 positions)
 target/release/gcg-eval tune-leaf --agent search:standard --games 6000 --seed 10700100 \
@@ -89,6 +90,7 @@ fits on D1b and D1a with `--test-positions $D/d2-fast-panel.bin --lambdas
 0.3,1,3,10,30,100,300,1000,3000`, and `fit-fast-selfplay.json` fits on D2 alone with `--seed
 10700300`.
 
+<!-- doc-check: skip regeneration recipe: needs $D and $L set and plays 2,100 self-play games over hours -->
 ```bash
 # D3, round 2 of W-34 (needs the round-1 weights.txt): self-play of the round-1 bundle
 target/release/gcg-eval tune-leaf --agent search:standard:determinized_fit=true,keyword_features=true,ability_count_features=true,hand_slots=true,burst_shield_probability=true,phase_weights=true \

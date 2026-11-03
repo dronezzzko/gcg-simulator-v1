@@ -115,7 +115,11 @@ const fn is_public_target_loc(loc: Loc) -> bool {
 /// `is_target_choice(ins)` (`interp.py:366-368`): rule 10-2-2-1, choosing a card in a public
 /// location for "choose"/"you may choose".
 fn is_target_choice(reg: &Registry, ins: &Choose) -> Result<bool, EngineError> {
-    Ok(ins.targeting && is_public_target_loc(sel_node(reg, ins.sel)?.loc))
+    let loc = sel_node(reg, ins.sel)?.loc;
+    if ins.targeting && loc == Loc::Removal {
+        crate::diag::note_interpretation(crate::diag::Interpretation::I14);
+    }
+    Ok(ins.targeting && is_public_target_loc(loc))
 }
 
 /// `choice_short(st, ctx, ins, exclude=frozenset())` (`interp.py:371-388`): a mandatory

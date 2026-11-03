@@ -6,6 +6,11 @@ mod aiport;
 #[path = "../common/mod.rs"]
 mod common;
 
+mod gapa1_w05_fusion_values;
+mod gapa1_w14_multi_rollout;
+mod gapa1_w25_over_extension;
+mod gapa1_weakness_scenarios;
+
 mod p6c_common;
 mod p6c_w05_fusion;
 mod p6c_w07_open_resources;
@@ -28,3 +33,5 @@ mod p6b_support;
 mod p6b_w03_last_blocker;
 mod p6b_w16_fast_lethal;
 mod p6b_w32_cant_block;
+
+mod gapa2_portable_math;

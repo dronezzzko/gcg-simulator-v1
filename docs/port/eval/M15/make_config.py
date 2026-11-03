@@ -137,6 +137,8 @@ FLAGS_OFF: dict[str, object] = {
     "paired_mulligan": False,
     "portable_math": False,
     "engine_error_leaf": True,
+    "target_multi_rollouts": None,
+    "tree_lethal_select": False,
 }
 
 BUDGET_FIELDS = ("iterations_per_option", "min_iterations", "max_iterations")

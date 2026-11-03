@@ -10,7 +10,8 @@ use gcg_core::rng::SplitMix64;
 use gcg_engine::{ApplyError, EngineError, GameState, apply};
 
 use crate::PolicyKnobs;
-use crate::policy::choose;
+use crate::math::FloatMath;
+use crate::policy::{choose, choose_with};
 
 /// `play_until_turn(st, turn, rng, temperature, max_decisions, knobs=BASELINE_KNOBS)`
 /// (`ai/playout.py:12-26`): apply policy moves until the game ends, `st.turn` reaches `turn`,
@@ -43,14 +44,37 @@ pub fn play_until_turn(
 /// Any error of the policy or of `apply(check=False)`.
 pub fn play_to_end(
     st: &mut GameState,
-    mut rng: Option<&mut SplitMix64>,
+    rng: Option<&mut SplitMix64>,
     temperature: f64,
     max_decisions: u32,
     knobs: &PolicyKnobs,
 ) -> Result<u32, EngineError> {
+    play_to_end_with(
+        st,
+        rng,
+        temperature,
+        max_decisions,
+        knobs,
+        FloatMath::Platform,
+    )
+}
+
+/// [`play_to_end`] with the policy's Gumbel draws at `math` ([`choose_with`], W-137): at
+/// [`FloatMath::Platform`] it is [`play_to_end`], bit for bit.
+///
+/// # Errors
+/// As [`play_to_end`].
+pub fn play_to_end_with(
+    st: &mut GameState,
+    mut rng: Option<&mut SplitMix64>,
+    temperature: f64,
+    max_decisions: u32,
+    knobs: &PolicyKnobs,
+    math: FloatMath,
+) -> Result<u32, EngineError> {
     let mut n = 0;
     while st.winner().is_none() && n < max_decisions && st.pending().is_some() {
-        let action = choose(st, rng.as_deref_mut(), temperature, knobs)?;
+        let action = choose_with(st, rng.as_deref_mut(), temperature, knobs, math)?;
         apply(st, action, false).map_err(engine_error)?;
         n += 1;
     }

@@ -39,7 +39,7 @@ class NormalizeError(Exception):
     """A report file does not have the shape the normaliser masks."""
 
 
-@dataclass(frozen=True, slots=True)
+@dataclass(frozen=True)
 class Span:
     start: int
     end: int

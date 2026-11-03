@@ -21,18 +21,24 @@
 //! `macro_multi_pick` change the moves of a tree node (W-11, W-138); `transpositions` keys the
 //! walk's nodes by the searcher's observation (S7); `prior_worlds` refreshes a node's priors in
 //! its first K worlds (W-140, through `Mechanisms::priors`).
+//!
+//! `Mechanisms::rollouts` (GAP-A1's `target_multi_rollouts`, W-14) sets how many rollouts an
+//! iteration plays from the end of its walk: the reference plays one; with more, rollout `j > 0`
+//! starts from a copy of the walk's end with the generator
+//! `derive_seed(rollout_seed, "multi-rollout", j)` (so the k-th visit of every root move shares
+//! them too) and the line's value is the `py_sum` mean of the rollouts' leaf values.
 
 use std::sync::Arc;
 
 use gcg_core::pool::Cancel;
 use gcg_core::pymath::py_sum;
-use gcg_core::rng::SplitMix64;
+use gcg_core::rng::{SeedPart, SplitMix64, derive_seed};
 use gcg_engine::{Action, ActionKind, CtxKey, DecisionKind, DecisionView, EngineError, GameState};
 
 use gcg_ai::{
     AgentCx, AgentError, Alternative, Density, IterTrace, MoveKey, NoTrace, PolicyKnobs, Scratch,
-    SearchEffort, SearchResult, SearchStats, SearchTracer, apply_unchecked, burst_density,
-    canonical, uid_argument,
+    SearchEffort, SearchResult, SearchStats, SearchTracer, apply_unchecked, canonical,
+    uid_argument,
 };
 
 use crate::mech::p6d::reuse::{self, Carry, Kept};
@@ -198,6 +204,11 @@ struct Search<'c, M: Mechanisms, T: SearchTracer + ?Sized> {
     counted: Vec<u32>,
     /// The auxiliary applies this tree may spend (`macro_multi_pick`).
     aux_cap: u64,
+    /// The rollouts of every iteration (`Mechanisms::rollouts`; one in the reference).
+    rollouts: u32,
+    /// The running iteration's rollout seed (`R[k]`), from which the extra rollouts of
+    /// `rollouts > 1` derive theirs.
+    rollout_seed: u64,
 }
 
 impl<M: Mechanisms, T: SearchTracer + ?Sized> Search<'_, M, T> {
@@ -446,12 +457,48 @@ impl<M: Mechanisms, T: SearchTracer + ?Sized> Search<'_, M, T> {
             };
             self.descend(node, s)?;
         }
+        if self.rollouts > 1 {
+            return self.rollouts_mean(s, rng);
+        }
+        self.rollout_leaf(s, rng)
+    }
+
+    /// One rollout from `s` and its leaf value (`ai/mcts.py:211-213`, `:254-264`).
+    fn rollout_leaf(
+        &mut self,
+        s: &mut GameState,
+        rng: &mut SplitMix64,
+    ) -> Result<f64, EngineError> {
         let (decisions, capped) = self.rollout(s, rng)?;
         if capped {
             self.effort.rollouts_capped += 1;
         }
         let mut leaf = self.leaf_cx(s, decisions, capped);
         self.mech.leaf_value(&mut leaf)
+    }
+
+    /// `self.rollouts` rollouts from the walk's end `s` (each from the same state and horizon;
+    /// rollout 0 with `rng`, rollout `j` with `derive_seed(rollout_seed, "multi-rollout", j)`),
+    /// and the `py_sum` mean of their leaf values; `s` ends as the last rollout left it.
+    fn rollouts_mean(
+        &mut self,
+        s: &mut GameState,
+        rng: &mut SplitMix64,
+    ) -> Result<f64, EngineError> {
+        let start = s.clone();
+        let horizon = self.line_horizon;
+        let mut values = Vec::with_capacity(self.rollouts as usize);
+        values.push(self.rollout_leaf(s, rng)?);
+        for j in 1..self.rollouts {
+            s.clone_from_state(&start);
+            self.line_horizon = horizon;
+            let seed = derive_seed(
+                self.rollout_seed,
+                &[SeedPart::Str("multi-rollout"), SeedPart::Int(i64::from(j))],
+            );
+            values.push(self.rollout_leaf(s, &mut SplitMix64::new(seed))?);
+        }
+        Ok(py_sum(values) / f64::from(self.rollouts))
     }
 
     /// `_iterate(ctx, first, fresh, s, rng)` (`ai/mcts.py:205-217`) with the root apply of
@@ -573,6 +620,8 @@ struct RootData<'d> {
     density: Density,
     root: &'d Moves,
     keys: &'d [ChildKey],
+    /// The rollouts of every iteration (`Mechanisms::rollouts`).
+    rollouts: u32,
 }
 
 /// One tree of a decision with its worlds and root bookkeeping, owned so that a root-tree job
@@ -633,6 +682,8 @@ impl<'c, M: Mechanisms, T: SearchTracer + ?Sized> Search<'c, M, T> {
             walked: Vec::new(),
             counted: Vec::new(),
             aux_cap: data.aux_cap,
+            rollouts: d.rollouts,
+            rollout_seed: 0,
         }
     }
 
@@ -766,6 +817,7 @@ fn iterations<M: Mechanisms, T: SearchTracer + ?Sized>(
         search.applies_walk = 0;
         search.applies_rollout = 0;
         search.world = ku;
+        search.rollout_seed = data.rollout_seeds[ku];
         let before = search.tree.children[child as usize].total;
         let (leaf, terminal) = search.iterate(
             child,
@@ -954,6 +1006,8 @@ struct Prepared {
     budget: Budget,
     density: Density,
     effort: SearchEffort,
+    /// The rollouts of every iteration (`Mechanisms::rollouts`).
+    rollouts: u32,
 }
 
 /// The decision of `st` for `player`, or the reference's assertion error.
@@ -1004,8 +1058,9 @@ fn prepare<M: Mechanisms>(
             },
         }));
     }
-    let density = burst_density(st, player);
+    let density = mech.density(&root_cx)?;
     let budget = mech.budget(&root_cx, root_moves.len());
+    let rollouts = mech.rollouts(&root_cx);
     let mut root = Moves::single(root_moves);
     if cfg.mechanisms.macro_multi_pick && macros::covers(dec) {
         let aux_cap = AUX_APPLIES_PER_ITERATION * u64::from(budget.cap);
@@ -1027,6 +1082,7 @@ fn prepare<M: Mechanisms>(
         budget,
         density,
         effort,
+        rollouts,
     }))
 }
 
@@ -1091,6 +1147,7 @@ pub(crate) fn run<M: Mechanisms, T: SearchTracer + ?Sized>(
         density: p.density,
         root: &p.root,
         keys: &p.keys,
+        rollouts: p.rollouts,
     };
     let kept = match <[_; 1]>::try_from(kept) {
         Ok([one]) => one,
@@ -1176,6 +1233,7 @@ struct TreeShared {
     decision_seed: u64,
     budget: Budget,
     cancel: Cancel,
+    rollouts: u32,
 }
 
 /// `root_trees{k}` (S1): `k` trees of `ceil(B/k)` iterations each, seeded
@@ -1224,6 +1282,7 @@ fn run_trees(
         decision_seed: rng.next_u64(),
         budget: per,
         cancel: cx.cancel.clone(),
+        rollouts: p.rollouts,
     });
     let mut jobs: Vec<TreeJob> = kept
         .into_iter()
@@ -1252,6 +1311,7 @@ fn run_trees(
                 density: phase.density,
                 root: &phase.root,
                 keys: &keys,
+                rollouts: phase.rollouts,
             };
             let mut data = match data {
                 TreeState::Running(data) => *data,

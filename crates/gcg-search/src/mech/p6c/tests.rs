@@ -27,7 +27,7 @@ use crate::{
 
 /// The searched decisions of the D2 vectors (`crates/gcg-ai/tests/vectors/search/`), as
 /// `(state, player, per-decision seed)`.
-fn searched_states() -> Vec<(GameState, u8, u64)> {
+pub(super) fn searched_states() -> Vec<(GameState, u8, u64)> {
     let path = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
         .join("../gcg-ai/tests/vectors/search/decisions.ndjson");
     let reg = Registry::embedded();
@@ -59,7 +59,7 @@ fn searched_states() -> Vec<(GameState, u8, u64)> {
 }
 
 /// `fast` (the reference `standard` budget) with every mechanism off but `on`.
-fn config(on: &[(&str, &str)]) -> StrengthenedConfig {
+pub(super) fn config(on: &[(&str, &str)]) -> StrengthenedConfig {
     let mut cfg = reference_mapping(Preset::Fast).clone();
     cfg.mechanisms = MechanismFlags::NULL;
     for &(f, v) in on {
@@ -71,7 +71,7 @@ fn config(on: &[(&str, &str)]) -> StrengthenedConfig {
 
 /// One search of `cfg` at the information-set state `info` of `player`, with the package
 /// state it left.
-fn search_info(
+pub(super) fn search_info(
     info: &GameState,
     player: u8,
     cfg: &StrengthenedConfig,
@@ -103,7 +103,7 @@ fn search_info(
 }
 
 /// One search of `cfg` at the observation of `player` of the true state `st`.
-fn search(
+pub(super) fn search(
     st: &GameState,
     player: u8,
     cfg: &StrengthenedConfig,
@@ -113,7 +113,16 @@ fn search(
     search_info(obs.info(), player, cfg, seed)
 }
 
-fn bits(r: &SearchResult) -> Vec<(gcg_engine::Action, u64, u32)> {
+/// The reference's candidate world builder of `belief::world`: `determinize_into(st, player,
+/// seed, out)`.
+fn reference_build(
+    st: &GameState,
+    player: u8,
+) -> impl Fn(u64, &mut GameState) -> Result<(), gcg_engine::EngineError> + '_ {
+    move |seed, out| gcg_engine::observe::determinize_into(st, player, seed, out)
+}
+
+pub(super) fn bits(r: &SearchResult) -> Vec<(gcg_engine::Action, u64, u32)> {
     r.alternatives
         .iter()
         .map(|a| (a.action, a.value.to_bits(), a.visits))
@@ -150,16 +159,14 @@ fn settings_that_do_nothing_are_refused() {
     let mut cfg = reference_mapping(Preset::Fast).clone();
     assert_eq!(cfg.mechanisms.set_text("belief_last_n", "1"), Some(Ok(())));
     assert!(cfg.check_mechanisms().is_err());
-    for refused in [("exact_pools", "true"), ("opponent_list", "archetype")] {
+    // W-08 and W-134 (GAP-B): both are provided now.
+    for provided in [("exact_pools", "true"), ("opponent_list", "archetype")] {
         let mut cfg = reference_mapping(Preset::Fast).clone();
-        assert_eq!(cfg.mechanisms.set_text(refused.0, refused.1), Some(Ok(())));
         assert_eq!(
-            cfg.check_mechanisms(),
-            Err(format!(
-                "mechanism {} (P6-C) is not available in this build",
-                refused.0
-            ))
+            cfg.mechanisms.set_text(provided.0, provided.1),
+            Some(Ok(()))
         );
+        assert_eq!(cfg.check_mechanisms(), Ok(()), "{provided:?}");
     }
 }
 
@@ -302,7 +309,7 @@ fn an_opponent_view_iteration_trains_only_the_opponent() {
 }
 
 /// `sc` with five filler Shields and a filler deck for both players.
-fn filled(mut sc: Scenario) -> GameState {
+pub(super) fn filled(mut sc: Scenario) -> GameState {
     for p in 0..2u8 {
         sc.shields(p, &["GD01-060"; 5]).expect("shields");
         sc.deck(p, &["GD01-060"; 20]);
@@ -311,7 +318,7 @@ fn filled(mut sc: Scenario) -> GameState {
     sc.into_state()
 }
 
-fn add(sc: &mut Scenario, player: u8, number: &str, zone: Zone, known: bool) {
+pub(super) fn add(sc: &mut Scenario, player: u8, number: &str, zone: Zone, known: bool) {
     sc.add(
         player,
         number,
@@ -350,7 +357,7 @@ fn buckets_read_castable_tricks_and_blockers() {
 }
 
 /// The embedded registry.
-fn registry() -> std::sync::Arc<Registry> {
+pub(super) fn registry() -> std::sync::Arc<Registry> {
     Registry::embedded()
 }
 
@@ -407,7 +414,7 @@ fn opponent_view_worlds_need_root_options_the_opponent_can_identify() {
     let mut changed = 0;
     for seed in 0..32u64 {
         redrawn.clone_from_state(&world);
-        view::redraw(&mut redrawn, 0, seed).expect("a redraw");
+        view::redraw(&mut redrawn, 0, seed, &[], false).expect("a redraw");
         let hand = |s: &GameState| -> Vec<gcg_data::DefId> {
             s.zone(0, Zone::Hand)
                 .iter()
@@ -428,7 +435,7 @@ fn opponent_view_worlds_need_root_options_the_opponent_can_identify() {
 
 /// Two true states with one information set of `player`: the second has the opponent's hidden
 /// cards drawn again.
-fn alternatives(st: &GameState, player: u8) -> [GameState; 2] {
+pub(super) fn alternatives(st: &GameState, player: u8) -> [GameState; 2] {
     [
         determinize(st, player, 0xA11CE).expect("a world"),
         permute_hidden(st, player, 0xB0B),
@@ -591,10 +598,12 @@ fn belief_worlds_are_candidates_of_the_world_seed() {
                 seeds: &seeds,
             };
             let mut out = obs.info().clone();
-            let (scored, changed) = belief::world(&cx, k, 4, &e, &mut out).expect("a world");
+            let build = reference_build(obs.info(), *player);
+            let (scored, changed) =
+                belief::world(&cx, k, 4, &e, &mut out, &build).expect("a world");
             assert_eq!(scored, 4);
             let mut again = obs.info().clone();
-            belief::world(&cx, k, 4, &e, &mut again).expect("a world");
+            belief::world(&cx, k, 4, &e, &mut again, &build).expect("a world");
             assert_eq!(canonical_state(&again), canonical_state(&out));
             let reference = determinize(obs.info(), *player, seeds[k]).expect("a world");
             assert_eq!(
@@ -793,7 +802,8 @@ fn w07_belief_worlds_infer_the_trick_from_the_open_resources() {
             let mut w = info.clone();
             match m {
                 Some(m) => {
-                    belief::world(&cx, k, m, &e, &mut w).expect("a world");
+                    let build = reference_build(info, 0);
+                    belief::world(&cx, k, m, &e, &mut w, &build).expect("a world");
                 }
                 None => crate::mech::reference::world(&mut cx, k, &mut w).expect("a world"),
             }
@@ -822,7 +832,7 @@ fn w07_belief_worlds_infer_the_trick_from_the_open_resources() {
 /// Unit next turn: without the trick the two Units trade, with it only the attacker is
 /// destroyed. No option of the root decision names a hidden card, so opponent-view worlds are
 /// used.
-fn w139_held_trick() -> GameState {
+pub(super) fn w139_held_trick() -> GameState {
     let reg = registry();
     let mut sc = Scenario::new(&reg, ScenarioOptions::default());
     sc.add(

@@ -156,6 +156,7 @@ fn the_ported_no_effect_check_with_its_options_off_is_the_reference() {
                     max_decisions: noop::MAX_DECISIONS,
                     node_cap: noop::BRANCH_NODE_CAP,
                     record_idle: false,
+                    math: gcg_ai::FloatMath::Platform,
                 },
                 &ROLE_WEIGHTS,
             )
@@ -305,6 +306,7 @@ const fn opts(fail_safe: bool, real_idle: bool, max_decisions: usize) -> noop::O
         max_decisions,
         node_cap: noop::BRANCH_NODE_CAP,
         record_idle: true,
+        math: gcg_ai::FloatMath::Platform,
     }
 }
 

@@ -127,6 +127,8 @@ pub const NULL_MECHANISMS: MechanismFlags = MechanismFlags {
     paired_mulligan: false,
     portable_math: false,
     engine_error_leaf: false,
+    target_multi_rollouts: None,
+    tree_lethal_select: false,
 };
 
 /// A REDRAW or CHOOSE_FIRST choice and its alternatives.
