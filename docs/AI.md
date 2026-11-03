@@ -120,7 +120,8 @@ play/draw (`docs/port/eval/M15/README.md`, steps 3-5):
 The 2x floor was then measured on an idle M2 Pro with `gcg-sim` itself
 (`docs/port/BENCHMARKS.md`, Part 2): `standard` 133.7 s against Python `strong`'s 356.0 s for 20
 BO3 matches at the best worker count (2.66x), `fast` 76.9 s against Python `standard`'s 972.0 s
-for 100 matches (12.6x).
+for 100 matches (12.6x). With the M15b mechanisms (final timing, commit 8c89b5e) they are
+148.6 s (2.40x) and 82.1 s (11.8x).
 
 Per-game cost of the shipped presets on the Part 2 workload (`docs/port/eval/M15/README.md`,
 "Cost of each scale"; instructions retired, which load does not change): `standard` 128.5G

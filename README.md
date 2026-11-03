@@ -263,10 +263,10 @@ on the workload `benchmark examples/decks/red-green-zeon.txt
 examples/decks/blue-white-federation.txt --format bo3 --seed 1`; it is the project's only
 timing activity, and it lives outside the crates. At equal work (Rust `gcg-eval
 reference-benchmark` at the reference budgets): 23.5x at the best worker count and 20.3x at 10
-workers for the 100-match screening headline, 45.1x single-threaded, and 24.2x for the full
-search. Shipped presets against the Python preset each starts from: `fast` 12.6x (best
-workers) and 11.0x (10 workers) for the headline and 24.1x single-threaded; `standard`, which
-spends 8 times the reference `strong` budget, 2.66x for the full search. Tables, machine,
+workers for the 100-match screening headline, 45.3x single-threaded, and 24.7x for the full
+search. Shipped presets against the Python preset each starts from: `fast` 11.8x (best
+workers) and 10.4x (10 workers) for the headline and 21.2x single-threaded; `standard`, which
+spends 8 times the reference `strong` budget, 2.40x for the full search. Tables, machine,
 versions, the profile and the Phase 5 optimisation log:
 [`docs/port/BENCHMARKS.md`](docs/port/BENCHMARKS.md).
 

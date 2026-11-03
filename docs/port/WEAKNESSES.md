@@ -2223,7 +2223,7 @@ The row kinds are:
   - the sparse derived view in recycled buffers: 14.75G to 6.75G;
   - then down to 4.65G, including the skip of the confirming pass, with a `paranoid` skipped-pass check (105,974 runs).
 
-  `view::derived` fell from 62.5% to 43.3% of the samples. M10 timing: Part 1 headline 23.5x, Part 2 `standard` full search 2.66x (`docs/port/progress.md`).
+  `view::derived` fell from 62.5% to 43.3% of the samples. M10 timing: Part 1 headline 23.5x, Part 2 `standard` full search 2.66x; final timing (8c89b5e, with the M15b mechanisms): 23.5x and 2.40x (`docs/port/BENCHMARKS.md`).
 - **Evidence:** `docs/port/BENCHMARKS.md` (the Phase 5 log); the paranoid checks; tier 1 3804/3804 and tier 2 4154/4154.
 - **Ablation:** no AI effect (row J). Phase 5's changes are output-identical by the same corpus evidence.
 

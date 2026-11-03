@@ -14,7 +14,7 @@ Machine-readable test status: `docs/port/tests.json`.
 | Rust | rustc 1.99.1 (58cf8f9c3 2026-10-13), LLVM 23.1.1, stable, rustup minimal + clippy + rustfmt |
 | Tools | hyperfine, samply (Homebrew); xctrace (Xcode) |
 
-## Phase 0 — Discovery and baseline (in progress)
+## Phase 0 — Discovery and baseline (done)
 
 - Branch `rust-port` created from `main` at d9d41af.
 - Rust toolchain, hyperfine and samply installed.
@@ -68,7 +68,7 @@ engine critical path is sequential (L1→L5); the R1 numbering hazard (effect_ke
 numbering in once-keys could make Python's own root merges depend on worker history) is probed
 in Phase 2.
 
-## Phase 2 — Oracle harness (in progress)
+## Phase 2 — Oracle harness (done)
 
 ### M2a — contracts (done)
 
@@ -118,7 +118,7 @@ selftest`: 22 negative controls fired; tier 2 (build/oracle/tier2) parse-only 41
 Open: O14 (`Scenario::prepare_start` so the real engine can answer `before16`); the engine-side
 replay, `explain`, `trace-search`, fuzz and traceability land with the engine (wave 2b).
 
-## Phase 3 — Implementation (engine, AI, runner, eval landed; gate items open)
+## Phase 3 — Implementation (done; the open traceability item closed in Phase 4)
 
 ### M5.2–M8 — engine layers L2–L5, reference AI, runner and CLI, gcg-eval, real-engine diff
 
@@ -151,7 +151,7 @@ engine trace (card data, deck construction) need native Rust tests tagged `// gc
 (gcg-data), then `gcg-diff traceability --write`. Phase 4 matrix, probe, fuzz, paranoid runs,
 AI test ports and parity tests follow.
 
-## Phase 4 — Equivalence (in progress)
+## Phase 4 — Equivalence (done)
 
 ### Phase 4 test completion (workflow wf_c6937f85-9a4, five worktree agents, merged)
 
@@ -187,7 +187,7 @@ Phase 6: the strengthened search scores a simulated line that ends in an engine 
 of failing the real game (AI only; W-143, W-110). End-to-end matrix and the numbering-shift
 probe still running.
 
-## Phase 5 — Performance (code done; official timing pending an idle machine)
+## Phase 5 — Performance (done; gate M10, final timing in Phase 8)
 
 - Phase 5 agent (worktree): profile-driven, output-identical optimisations, one commit each,
   measured by instructions retired (load-independent) on single-thread reference runs:
@@ -241,3 +241,70 @@ every later commit) and every package's three-preset smoke cover the current cod
 - GPU: not adopted (evaluation 0.9%, policy 5.4% of time; not batchable in the sequential
   reference search). M6: runtime detection, three-tier topology and build notes in
   BENCHMARKS.md (no M6 available; nothing measured on one).
+
+## Phase 6 — AI strength (done; final evaluation in Phase 8)
+
+### M11–M14, M12.J/K/L/M/N — tooling and mechanisms (done)
+
+- M11 (8ae4767): `gcg-eval` evaluation tools (paired head-to-head statistics, ablation rows,
+  budget curves, fidelity, regret, tune, calibrate, gates for E1–E4, evidence manifests, seed
+  roles with held-out refusal and the ledger); five new legal decks and the pre-registered panel
+  (docs/port/eval/panel.json, PAIRS.md: 28 pairs, 13 held-out); `gcg-search` Mechanisms
+  extension points, `MechanismFlags::NULL` replaying the reference, the Observation built from
+  a determinisation (W-135).
+- M13 (8af9b0e) and M14 (e14c839): every strength package (P6-A … P6-H) behind its own flag,
+  each with scenario tests (reference failing, mechanism succeeding) and individual ablation
+  rows in docs/port/eval/; M12.J/K/L/M/N (ac95836, 7614bec, 8af9b0e): engine hardening, data
+  preservation, validator, reporting and tooling items; O9 (9ec31c0): results schema 1.2.0.
+- The null configuration replays the reference bit for bit after every wave
+  (`crates/gcg-search/tests/null_config.rs`).
+
+### M15 — tuned presets (done, 82b0b34)
+
+- Bundle (adaptive_horizon, capped_rollout_continuation, tactical_solver,
+  exclude_capped_play_draw, engine_error_leaf) against null at 2x shipped standard: confirm
+  854/1600, +0.068 [+0.030, +0.105]. Budget curves on the tuning pairs set `standard` = 8x the
+  reference `strong` budget (1024/2560/10240) and `fast` = 1.5x the reference `standard` budget
+  (96/240/960). Evidence: docs/port/eval/M15/.
+
+### WEAKNESSES outcomes and gap closing (done, 1007ca9, b8483dc)
+
+- Every one of the 164 items has a recorded outcome (docs/port/WEAKNESSES.md); the residual
+  gaps (docs/port/eval/weakness-gaps.md) were closed or measured in b8483dc (GAP-A1, A2, B, C,
+  D status files in docs/port/eval/weakness-status/).
+
+### Final evaluation 1 (archived, aeaaf61) and M15b (done, 8c89b5e)
+
+- Final evaluation 1 (M15 presets, eval masters 90200001–6): E1 0.5596 [0.5504, 0.5688],
+  E2 0.5510, E3 400/400 and 11173/11200, E4 0.7675 [0.7237] (test decks) and 0.7728 [0.7649]
+  (panel). Too close to the bars, and the 27 panel losses to random were not documented with
+  replays, so it was not accepted (docs/port/eval/final-1/README.md).
+- Follow-up, on tuning-pair evidence only (tuning, dev and confirm seeds; no eval or review
+  seed, no held-out pair, nothing from the final-1 games): M15b adds `kill_aware_targeting`
+  (W-26) and `tree_lethal_select` (W-25) to both presets. Against the M15 `standard` 831/1620 =
+  0.513 [0.489, 0.537]; against `ref:strong` 950/1620 = 0.586; against greedy 338/420 vs
+  328/420 on the same deals (docs/port/eval/M15b/README.md).
+
+**Gate.** `cargo test --workspace --release`: 1320 passed after the pinned M15b expectations
+were updated (the W-25 scenario, the portable-math keys, the Rust replay vectors that Python
+re-verified); slow gcg-search tests 306 passed; corpus tier 1 3804/3804; lints, traceability,
+API snapshot and doc checks pass. Final evaluation 2 is recorded under Phase 8.
+
+## Phase 8 — Documentation, final timing and final evaluation
+
+### Documentation (done, 8c89b5e)
+
+- README rewritten for the Rust implementation; docs/AI.md for the Rust presets and search, the
+  Python document moved to docs/python/AI.md (D14a); docs/port/ARCHITECTURE.md; CLAUDE.md and
+  both skills for the Rust workflow; `.github/workflows/rust.yml` (arm64 macOS, no timing jobs)
+  and `scripts/ci_local.sh`; `crates/gcg-search/tests/ai_md_presets.rs` checks docs/AI.md's
+  preset tables against presets.rs.
+
+### Final timing (done)
+
+- Idle machine, commit 8c89b5e (code digest 5240d597…), 6 workers as measured best:
+  Part 1 headline 23.5x (best) / 20.3x (10 workers), single-thread 45.3x, full search 24.7x;
+  Part 2 `fast` headline 11.8x / 10.4x, single-thread 21.2x; `standard` full search 2.40x
+  (148.6 s against 356.0 s; the M15b mechanisms cost 11%). `scripts/compare_python_vs_rust.sh
+  report`: "all 8 configurations present, current and at least 2x". Tables in
+  docs/port/BENCHMARKS.md.

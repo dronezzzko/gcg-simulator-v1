@@ -254,25 +254,30 @@ So no Metal code was written; it would also need `unsafe` Objective-C bindings.
 
 ## Part 1: equal-work speedup (reference search)
 
-Measured 2026-11-02 on an idle machine. Commit 34b3107 was built with
-`cargo build --release --locked` (plain release, mimalloc, `target-cpu=native`). Every Rust
-run recorded the binary's code digest `f903072548180a9164b792cb1a7d13086dffcc3d4da699e53d6ccbf6afb6deeb`
-(`build/comparison/env.txt`). The Rust binary is `gcg-eval reference-benchmark
---reference-preset …`: the reference search at the exact reference budgets. Its outputs are
-byte-identical to Python's (docs/port/EQUIVALENCE.md).
+Measured 2026-11-03 on an idle machine (the final timing session). Commit 8c89b5e was
+built with `cargo build --release --locked` (plain release, mimalloc, `target-cpu=native`).
+Every Rust run recorded the binary's code digest
+`5240d5974830c3fdfe5efdb6d8e9593d1fa954108a3aafe4350cddf191168997` (`build/comparison/env.txt`).
+The Rust binary is `gcg-eval reference-benchmark --reference-preset …`: the reference search
+at the exact reference budgets. Its outputs are byte-identical to Python's
+(docs/port/EQUIVALENCE.md).
 
 The best worker count was found the same way as for Python: one run each of the 20-match
-screening workload. For the reference search, 6 workers took 8.5 s, 8 took 9.6 s, 10 took
-9.6 s and auto (10) took 9.5 s, so the best is 6. A match is the unit of work, and a match
-that starts late on one of the 4 efficiency cores finishes about 2.1x later than on a
-performance core. With 6 workers, the scheduler keeps all of them on the 6 performance cores.
+screening workload (the M10 session, commit 34b3107). For the reference search, 6 workers took
+8.5 s, 8 took 9.6 s, 10 took 9.6 s and auto (then 10) took 9.5 s, so the best is 6. A match is
+the unit of work, and a match that starts late on one of the 4 efficiency cores finishes about
+2.1x later than on a performance core. With 6 workers, the scheduler keeps all of them on the
+6 performance cores.
 
 | Pair | Configuration | Python | Rust | Python median | Rust median (min, max) | Speedup |
 | --- | --- | --- | --- | ---: | ---: | ---: |
-| A (screening) | headline, best workers | `standard` m100 w10 | ref `standard` m100 w6 | 972.0 s | 41.3 s (41.2, 41.4) | **23.5x** |
-| A (screening) | headline, 10 workers | `standard` m100 w10 | ref `standard` m100 w10 | 972.0 s | 47.9 s (47.8, 47.9) | **20.3x** |
-| A (screening) | single-thread | `standard` m20 w1 | ref `standard` m20 w1 | 1269.5 s | 28.2 s (28.1, 28.2) | **45.1x** |
-| B (full search) | best workers | `strong` m20 w10 | ref `strong` m20 w6 | 356.0 s | 14.7 s (14.5, 15.8) | **24.2x** |
+| A (screening) | headline, best workers | `standard` m100 w10 | ref `standard` m100 w6 | 972.0 s | 41.3 s (41.2, 41.8) | **23.5x** |
+| A (screening) | headline, 10 workers | `standard` m100 w10 | ref `standard` m100 w10 | 972.0 s | 47.8 s (47.8, 47.9) | **20.3x** |
+| A (screening) | single-thread | `standard` m20 w1 | ref `standard` m20 w1 | 1269.5 s | 28.0 s (28.0, 28.2) | **45.3x** |
+| B (full search) | best workers | `strong` m20 w10 | ref `strong` m20 w6 | 356.0 s | 14.4 s (14.4, 14.4) | **24.7x** |
+
+The reference search did not change after M10 (commit 34b3107), and its medians moved by at
+most 0.3 s: 41.3, 47.9, 28.2 and 14.7 s then.
 
 Rust ran 5 runs per configuration (hyperfine, fresh `--out` each run). Python ran 3 runs,
 from the Phase 0 baseline above. Commands:
@@ -298,23 +303,25 @@ Both effects are structural. Neither is a slow path, and every configuration cle
 
 ## Part 2: shipped presets
 
-The same machine and protocol. Commit 34b3107 was built as above, and the binary is
+The same machine, session and protocol. Commit 8c89b5e was built as above, and the binary is
 `gcg-sim benchmark --ai-preset fast|standard`, which runs the strengthened search with the
-tuned budgets of docs/port/eval/M15. The best-worker search for the presets on the 20-match
-`fast` workload took 16.6 s at 6 workers, 18.0 s at 8, 17.8 s at 10 and 17.8 s at auto, so
-the best is 6.
+budgets of docs/port/eval/M15 and the mechanism bundle of docs/port/eval/M15b. The
+best-worker search for the presets on the 20-match `fast` workload (M10) took 16.6 s at
+6 workers, 18.0 s at 8, 17.8 s at 10 and 17.8 s at auto, so the best is 6.
 
 | Pair | Configuration | Python | Rust | Python median | Rust median (min, max) | Speedup |
 | --- | --- | --- | --- | ---: | ---: | ---: |
-| `fast` vs Python `standard` | headline, best workers | `standard` m100 w10 | `fast` m100 w6 | 972.0 s | 76.9 s (76.9, 77.2) | **12.6x** |
-| `fast` vs Python `standard` | headline, 10 workers | `standard` m100 w10 | `fast` m100 w10 | 972.0 s | 88.0 s (87.9, 88.3) | **11.0x** |
-| `fast` vs Python `standard` | single-thread | `standard` m20 w1 | `fast` m20 w1 | 1269.5 s | 52.7 s (52.6, 52.7) | **24.1x** |
-| `standard` vs Python `strong` | full search, best workers | `strong` m20 w10 | `standard` m20 w6 | 356.0 s | 133.7 s (133.6, 134.1) | **2.66x** |
+| `fast` vs Python `standard` | headline, best workers | `standard` m100 w10 | `fast` m100 w6 | 972.0 s | 82.1 s (82.0, 83.0) | **11.8x** |
+| `fast` vs Python `standard` | headline, 10 workers | `standard` m100 w10 | `fast` m100 w10 | 972.0 s | 93.8 s (93.6, 94.0) | **10.4x** |
+| `fast` vs Python `standard` | single-thread | `standard` m20 w1 | `fast` m20 w1 | 1269.5 s | 60.0 s (59.9, 60.0) | **21.2x** |
+| `standard` vs Python `strong` | full search, best workers | `strong` m20 w10 | `standard` m20 w6 | 356.0 s | 148.6 s (148.5, 148.8) | **2.40x** |
 
 Rust ran 5 runs per configuration, except `standard`, which ran 3. The `standard` row is the
 budget constraint of PLAN §12.8: `standard` spends 8x the reference `strong` budget, plus the
-adopted mechanisms (about 10x its instructions per game), and so stays 2.66x faster than
-Python `strong`. A first session at 10 workers gave 150.0 s (2.37x). Commands:
+adopted mechanisms (about 10x its instructions per game at M10), and so stays 2.40x faster than
+Python `strong`. The two mechanisms M15b added (`kill_aware_targeting`, `tree_lethal_select`)
+cost 11% on `standard` and 7% on `fast`: M10 (commit 34b3107, the M15 bundle) measured
+133.7 s (2.66x) and 76.9 s (12.6x). Commands:
 
 ```text
 scripts/compare_python_vs_rust.sh best-workers rust-presets
