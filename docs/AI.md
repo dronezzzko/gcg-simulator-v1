@@ -345,7 +345,29 @@ target/release/gcg-eval gates --check \
 
 ## Measured strength
 
-<!-- lead: final evaluation 2 table -->
+### Evaluation 2 (final)
+
+The shipped presets of M15b (binaries built at 8c89b5e), eval-role masters 90300001-90300006
+run once, forced play/draw, `--workers 6`; reports, the documented losses and `gates.json` in
+`docs/port/eval/final-2/` (commands in its `README.md`):
+
+| Gate | Result | Brief bar | Plan A26 (also held-out pairs alone) |
+| --- | --- | --- | --- |
+| E1 `standard` vs ref `strong` | 6408/11200 = 0.5721 [0.5630, 0.5813]; held-out 2920/5200 = 0.5615 [0.5480, 0.5750]; no held-out pair UB < 0.5 (weakest pair 0.530) | pooled LB >= 0.55: pass | held-out LB 0.548: fail (by 0.002) |
+| E2 `fast` vs ref `standard` | 6254/11200 = 0.5584 [0.5492, 0.5676]; held-out 2880/5200 = 0.5538 [0.5403, 0.5673]; no pair UB < 0.5 (weakest 0.505) | pass | pass |
+| E3 `standard` vs random, test decks | 400/400 | pass | pass |
+| E3 `standard` vs random, panel | 11186/11200, held-out 5192/5200; the 14 losses are verified replays (`e3-losses/`) | pass (losses documented) | pass |
+| E4 `standard` vs greedy, test decks | 304/400 = 0.760 [0.7158, 0.7993] | LB > 0.764: fail | fail |
+| E4 `standard` vs greedy, panel | 8774/11200 = 0.7834 [0.7757, 0.7909]; held-out 4048/5200 = 0.7785 [0.7670, 0.7895] | pass | pass |
+
+Against evaluation 1 (below) every gate moved up: E1 by 1.3 points, E2 by 0.7, E4 on the panel
+by 1.1, and the losses to random fell from 27 to 14. E4 on the two AI test decks stays near
+0.76 in both evaluations: there the strengthened `standard` beats `greedy` about 4 points more
+often than the reference does (304 against 289 of 400), short of the roughly 8 points a lower
+bound above 0.764 needs at 400 games (about 323/400). The inspection notes of the losses and the misses are in
+`docs/port/eval/notes.md`. The reviewer's rerun on review-role seeds is in
+`docs/port/REVIEW.md`.
+
 
 ### Evaluation 1
 

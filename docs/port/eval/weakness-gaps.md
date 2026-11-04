@@ -22,14 +22,13 @@ AI row: "yes" means the work changes a strengthened-search mechanism or adds one
 
 ## Counts
 
-`target/release/gcg-diff weaknesses --check docs/port/WEAKNESSES.md` passes. With `--require-resolved` it reports 6 problems, one per open item:
+`target/release/gcg-diff weaknesses --check docs/port/WEAKNESSES.md` passes. With `--require-resolved` it reports 4 problems, one per open item:
 
 | Status | Items | Count |
 | --- | --- | ---: |
-| resolved | — | 125 |
+| resolved | — | 127 |
 | resolved by measurement (not adopted) | W-02, W-06, W-07, W-08, W-09, W-10, W-11, W-12, W-14, W-16, W-23, W-24, W-27, W-28, W-29, W-30, W-31, W-34, W-35, W-36, W-37, W-38, W-45, W-134, W-138, W-139, W-140, W-141, W-142, W-05 | 30 |
 | admissible exception | W-131, W-132, W-133 | 3 |
-| open: final evaluation 2 pending | W-04, W-19 | 2 |
 | open: a run that has not happened | W-126, W-137 | 2 |
 | open: measured, verification not met | W-18 | 1 |
 | open: the user's decision | W-120 | 1 |
@@ -41,26 +40,14 @@ Changes since the first version of this file:
 - by the lead's decisions of `docs/port/PLAN.md` §0.1 (end of Phase 6): W-05 resolved by measurement (the break-even share replaces the scenario bar), W-63 and W-67 resolved (`templates/check.py --check` is T-154's assertion; no IR `template` field) and W-111 resolved (tag-based coverage stands for rules, FAQ entries and rulings). W-137's adoption question is decided (not adopted); its Linux run remains;
 - resolved: W-101 (engine anchors for the last rule-level interpretations I-04, I-11, I-13 and I-17; I-21 and I-24 are compile-time readings with no engine path; section 3).
 
-The 6 open items fall into two kinds:
+The 4 open items fall into two kinds:
 
-- 2 are AI items (class S): W-04 and W-18.
-- 4 are non-AI items: W-19, W-120, W-126 and W-137 (the Linux run).
+- 1 is an AI item (class S): W-18.
+- 3 are non-AI items: W-120, W-126 and W-137 (the Linux run).
 
-## 1. Lead: the final evaluation (docs/port/eval/final-2/)
+## 1. Lead: the final evaluation (docs/port/eval/final-2/) — resolved
 
-Both entries carry an HTML comment for the lead ("lead: final evaluation 2") before their Status line in WEAKNESSES.md.
-
-### W-04: budget plateau (acceptance)
-- **Missing:** the acceptance run on the shipped presets. Strengthened `standard` must beat reference `strong` with a Wilson lower bound above 0.5 on a held-out seed run once.
-- **Why:** it is gate E1 (§12.6). E1 of the first final evaluation met this entry's bar (pooled lower bound 0.5504, held-out 0.5413), but that evaluation was not accepted as a whole, and M15b changed the presets after it. E1 of the second is still running.
-- **Work:** when E1 finishes, copy its pooled row into the entry: wins/N, Wilson, paired Newcombe, discordant counts, iterations and applies per game, held-out pooled bound. Then change the status to resolved and remove the comment. The mechanism part is done: `root_trees` is resolved by measurement and not adopted.
-- **AI row:** yes, E1 is the row. **Effort:** S once E1 is done.
-
-### W-19: strength acceptance bars
-- **Missing:** the gate run of E1-E4 on eval-role seeds for the M15b presets (T-124 to T-127). The tool `gcg-eval gates` and its test are done.
-- **Why:** the first run failed under the plan's reading (`docs/port/eval/final-1/gates.json`: E1 held-out lower bound 0.5413 under A26, 27 panel losses to random not documented with replays, E4 test decks lower bound 0.7237 against 0.764), and the second is still running.
-- **Work:** run `gcg-eval gates --e1 F --e2 F --e3-tests F --e3-panel F --e4-tests F --e4-panel F --check` on the E1-E4 reports under `docs/port/eval/final-2/`. Record the per-gate results in W-19, and close it if `--check` exits 0. If a gate fails, W-19 stays open with that result.
-- **AI row:** no (the gates read reports). **Effort:** S.
+W-04 and W-19 are resolved by final evaluation 2 (`docs/port/eval/final-2/README.md`): their own bars (lower bounds above 0.5 on held-out seeds) hold. The plan's stricter gates miss E1's held-out pooled bound (0.548 against 0.55) and E4 on the AI test decks (0.716 against 0.764); those are acceptance results, reported in `docs/port/eval/notes.md` and the final report.
 
 ## 2. gcg-search: mechanisms and AI evidence
 

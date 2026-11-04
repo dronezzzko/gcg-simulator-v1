@@ -276,7 +276,18 @@ versions, the profile and the Phase 5 optimisation log:
 
 ## Measured strength
 
-<!-- lead: final evaluation numbers -->
+Final evaluation 2 of the shipped presets (`docs/port/eval/final-2/README.md`): eval-role
+seeds never used for tuning, BO1 games in mirrored blocks with play and draw balanced, the 28
+pairs of an 8-deck panel at 400 games each (13 pairs held out from all tuning), and the AI
+test decks of the Python suite.
+
+| Comparison | Result (Wilson 95%) | Bar |
+| --- | --- | --- |
+| `standard` vs reference `strong` | 6408/11200 = 0.572 [0.563, 0.581]; held-out pairs 0.562 [0.548, 0.575] | lower bound at least 0.55: met (held-out pairs alone: 0.548) |
+| `fast` vs reference `standard` | 6254/11200 = 0.558 [0.549, 0.568] | point estimate at least 0.5, no pair below: met |
+| `standard` vs random | 400/400 on the test decks; 11186/11200 on the panel, every loss saved as a verified replay | met |
+| `standard` vs greedy | panel 8774/11200 = 0.783 [0.776, 0.791]; test decks 304/400 = 0.760 [0.716, 0.799] | lower bound above 0.764: met on the panel, not on the test decks |
+
 
 The strength measurements of both presets against the reference search, random and greedy,
 with the evaluation protocol and the gates, are in [`docs/AI.md`](docs/AI.md).

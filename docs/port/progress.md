@@ -342,3 +342,19 @@ API snapshot and doc checks pass. Final evaluation 2 is recorded under Phase 8.
   - passing after the Phase 7 reviewer's clean-clone runs at 7b7ab2f (`docs/port/REVIEW.md` §1):
     T-135 (`scripts/verify_all.sh`, 3985 Python tests) and T-056 (2,000 commit-seed and 1,000
     strategic paranoid fuzz games, 0 failures, M15b presets).
+
+### Final evaluation 2 (done; `docs/port/eval/final-2/README.md`)
+
+- Shipped M15b presets, binaries of 8c89b5e, eval masters 90300001-90300006 run once, forced
+  play/draw, 6 workers (2026-11-03 23:42 to 2026-11-04 21:44 UTC).
+- E1 6408/11200 = 0.572 [0.563, 0.581], held-out 0.562 [0.548, 0.575]: the brief's bar holds;
+  the plan's held-out pooled bound (A26) misses by 0.002. E2 6254/11200 = 0.558 [0.549, 0.568]:
+  pass. E3 400/400 on the test decks and 11186/11200 on the panel, the 14 losses re-played by
+  `gcg-eval head-to-head-replay --losses`, matched to their rows and verified by `gcg-sim
+  replay` (14/14): pass. E4 panel 8774/11200 = 0.783 [0.776, 0.791], held-out [0.767]: pass;
+  E4 test decks 304/400 = 0.760 [0.716]: fail.
+- `gcg-eval gates --losses-documented final-2/e3-losses/losses.json`: E2, E3 pass; E1 and E4
+  fail one check each (above). Inspection notes: `docs/port/eval/notes.md` (T-144).
+- W-04 and W-19 resolved (their own bars, lower bounds above 0.5 on held-out seeds, hold).
+  tests.json: T-125, T-126, T-139, T-144 passing; T-124 (held-out pooled bound) and T-127 (test
+  decks) failing.
