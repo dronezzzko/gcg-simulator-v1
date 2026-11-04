@@ -99,3 +99,27 @@ jobs:
           cargo test -p gcg-search --release --locked --offline --test scenarios gapa2_portable_math
           echo "non-golden platform: libm differs (see docs/port/EQUIVALENCE.md); search, components and baselines sets not checked" >&2
           exit 1
+
+  # W-137 item 2: the strengthened search's portable_math results are recorded bits that hold on
+  # every IEEE-754 platform. This job checks them on Linux x86-64 (glibc libm), where the
+  # reference search's platform-libm results are not expected to match the golden platform.
+  portable-math-linux:
+    runs-on: ubuntu-24.04
+    env:
+      CARGO_TERM_COLOR: never
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Rust toolchain 1.99.1
+        run: |
+          rustup toolchain install 1.99.1 --profile minimal
+          rustup default 1.99.1
+          rustc --version --verbose
+          uname -a
+
+      - name: cargo fetch --locked
+        run: cargo fetch --locked
+
+      - name: Portable-math keys (gapa2_portable_math)
+        run: cargo test -p gcg-search --release --locked --offline --test scenarios gapa2_portable_math

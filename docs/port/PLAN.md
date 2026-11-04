@@ -94,6 +94,15 @@ authorises, so M2 starts without waiting.
 | A32 (6): W-122 bytecode | Not deleted (the lead did not create it); W-122 is resolved by the lint, as planned | The brief: ask before deleting files you did not create |
 | §15 lead items | W-100 default (A23) accepted. Probe outcome R1: decided when measured. D14a: decided at M11 | — |
 
+Lead decisions at the end of Phase 6 (2026-11-04, after the gap-closing records):
+
+| Item | Decision | Authority |
+| --- | --- | --- |
+| W-05 scenario bar | The measured break-even trick share (0.497 under `ROLE_WEIGHTS`, `gapa1_w05_fusion_values.rs`) replaces the 13-of-16 bar: at a share of one half the two moves differ by 0.0002 in the search's own evaluation, so the bar has no reliably right answer. The mechanism (`opponent_buckets`) measured null and is not adopted | Brief step 22: keep only changes with a measured non-negative effect, record the outcome |
+| W-111 rules, FAQ, rulings | Tag-based coverage stands: every tagged Python test is replayed decision by decision against Python's own trace (3213/3213 per-test traces), so a passing tagged test reproduces Python's behaviour exactly. Per-rule code-path probes are not added | GAP-B's recommendation; the cost (about 395 rules over the whole engine) buys no equivalence evidence the traces do not give |
+| W-63, W-67, T-154 | `port/oracle/templates/check.py --check` (in `scripts/verify_all_rust.sh --full`) is the assertion that every template reproduces its binding cards byte for byte, and `docs/port/audit/templates.json` the checked report. The IR gets no `cards[].template` field: it would change the IR bytes, and so every corpus trace's `ir_sha256`, for a field no Rust code path reads | Rust runs the exported scripts, not the templates (§2.4); the IR is the equivalence artefact |
+| W-137 item 3 | `portable_math` is not adopted in the presets: its rows are null, and adopting it after the final evaluation would change the evaluated presets' bits. The presets take `exp` and `ln` from the platform library; bit identity across platforms is claimed only with `portable_math` on. Item 2 (the Linux x86-64 run) is the `portable-math-linux` job of `.github/workflows/rust.yml`, which runs once the user approves a push | §12.4: adopt only with a measured non-negative row; the evaluated presets stay the shipped ones |
+
 ## 1. Assumptions and decisions
 
 ### 1.1 Deviations of the repository from the brief's orientation

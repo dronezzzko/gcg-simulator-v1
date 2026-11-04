@@ -22,29 +22,28 @@ AI row: "yes" means the work changes a strengthened-search mechanism or adds one
 
 ## Counts
 
-`target/release/gcg-diff weaknesses --check docs/port/WEAKNESSES.md` passes. With `--require-resolved` it reports 13 problems, one per open item:
+`target/release/gcg-diff weaknesses --check docs/port/WEAKNESSES.md` passes. With `--require-resolved` it reports 9 problems, one per open item:
 
 | Status | Items | Count |
 | --- | --- | ---: |
-| resolved | — | 119 |
-| resolved by measurement (not adopted) | W-02, W-06, W-07, W-08, W-09, W-10, W-11, W-12, W-14, W-16, W-23, W-24, W-27, W-28, W-29, W-30, W-31, W-34, W-35, W-36, W-37, W-38, W-45, W-134, W-138, W-139, W-140, W-141, W-142 | 29 |
+| resolved | — | 122 |
+| resolved by measurement (not adopted) | W-02, W-06, W-07, W-08, W-09, W-10, W-11, W-12, W-14, W-16, W-23, W-24, W-27, W-28, W-29, W-30, W-31, W-34, W-35, W-36, W-37, W-38, W-45, W-134, W-138, W-139, W-140, W-141, W-142, W-05 | 30 |
 | admissible exception | W-131, W-132, W-133 | 3 |
 | open: final evaluation 2 pending | W-04, W-19 | 2 |
 | open: a run or audit that has not happened | W-17, W-18, W-126, W-137, W-154 | 5 |
-| open: the lead's decision | W-05, W-111 | 2 |
-| open: remaining work | W-63, W-67, W-101 | 3 |
+| open: remaining work | W-101 | 1 |
 | open: the user's decision | W-120 | 1 |
 
 Changes since the first version of this file:
 
 - resolved: W-13, W-25, W-26, W-64, W-75, W-76, W-88, W-104, W-110, W-118, W-119 and W-145 (the gap-closing records and M15b), and W-129 (Phase 8 documentation, commit 8c89b5e);
-- resolved by measurement (not adopted): W-08, W-14, W-31, W-36, W-134, W-139 and W-142.
+- resolved by measurement (not adopted): W-08, W-14, W-31, W-36, W-134, W-139 and W-142;
+- by the lead's decisions of `docs/port/PLAN.md` §0.1 (end of Phase 6): W-05 resolved by measurement (the break-even share replaces the scenario bar), W-63 and W-67 resolved (`templates/check.py --check` is T-154's assertion; no IR `template` field) and W-111 resolved (tag-based coverage stands for rules, FAQ entries and rulings). W-137's adoption question is decided (not adopted); its Linux run remains.
 
-The 13 open items fall into three kinds:
+The 9 open items fall into two kinds:
 
-- 4 are AI items (class S): W-04, W-05, W-17 and W-18.
-- W-137 has a non-AI part (the Linux run) and an AI part (adopting `portable_math`).
-- 8 are non-AI items: W-19, W-63, W-67, W-101, W-111, W-120, W-126 and W-154.
+- 3 are AI items (class S): W-04, W-17 and W-18.
+- 6 are non-AI items: W-19, W-101, W-120, W-126, W-137 (the Linux run) and W-154.
 
 ## 1. Lead: the final evaluation (docs/port/eval/final-2/)
 
@@ -64,7 +63,9 @@ Both entries carry an HTML comment for the lead ("lead: final evaluation 2") bef
 
 ## 2. gcg-search: mechanisms and AI evidence
 
-### W-05: strategy fusion (the scenario bar)
+### W-05: strategy fusion (the scenario bar) — decided, resolved by measurement
+
+- **Decision (lead, `docs/port/PLAN.md` §0.1):** the measured break-even share replaces the bar. The entry below is kept as the record of what was missing.
 - **Missing:** the scenario bar: strengthened avoids the attack in at least 13 of 16 seeds. Measured: 16/16 attacks for the reference and `opponent_buckets=4` and `=8`.
 - **Why:** under `ROLE_WEIGHTS` the two moves tie at a trick share of 0.497 (`gapa1_w05_fusion_values.rs`), so at a share of one half they differ by 0.0002 in the search's own evaluation. No setting of the search makes 13 of 16 a reliable result. The census half is done: every observation-key split has a key that removes it (`transpositions`, measured null), so 0 splits have neither (`gcg-eval weakness census`, GAP-A1).
 - **Work:** the lead records whether the measured break-even share replaces the bar. Otherwise the item waits for a leaf evaluation that prices the bounce; the W-34 and W-35 refits measured null or negative.
@@ -95,6 +96,8 @@ Both entries carry an HTML comment for the lead ("lead: final evaluation 2") bef
 - **AI row:** no (it measures the shipped presets). **Effort:** M (compute: `standard` at 8x).
 
 ### W-137: determinism contract (strengthened-search math)
+
+- **Decision (lead, `docs/port/PLAN.md` §0.1):** `portable_math` is not adopted (item 2 below). Item 1, the Linux run, is the `portable-math-linux` job of `.github/workflows/rust.yml`; it runs once the user approves a push.
 - **Missing:**
   1. Item 2: the cross-platform run on Linux x86-64 of `crates/gcg-search/tests/scenarios/gapa2_portable_math.rs` and the tier-1 scenario tests. The test passes on macOS arm64.
   2. Item 3: adopting `portable_math` in the presets. Its rows are measured null (GAP-A2: no winner changed in 1,200 games against the controls), so it is adoptable by §12.4. M15b left it off.
@@ -118,7 +121,9 @@ Both entries carry an HTML comment for the lead ("lead: final evaluation 2") bef
   - The tier-1 and tier-2 corpus must stay at 100%.
 - **AI row:** no (A13: a counter that the AI does not read). **Effort:** M.
 
-### W-111: execution coverage of rules, FAQ entries and rulings
+### W-111: execution coverage of rules, FAQ entries and rulings — decided, resolved
+
+- **Decision (lead, `docs/port/PLAN.md` §0.1):** tag-based coverage stands (the first option below).
 - **Missing:** the lead's decision for rules, FAQ entries and rulings. They stay tag-based, while the verification's bar is 100% execution evidence for every one. Cards have execution evidence.
 - **Why:** execution of a rule's code path needs per-rule code-path ids: about 395 testable rules over about 14,600 lines of `gcg-engine/src` (GAP-B).
 - **Work:** one of:
@@ -128,7 +133,9 @@ Both entries carry an HTML comment for the lead ("lead: final evaluation 2") bef
 
 ## 4. gcg-eval and gcg-data: opt-in tools (A30)
 
-### W-63 and W-67: the IR `template` field and T-154
+### W-63 and W-67: the IR `template` field and T-154 — decided, resolved
+
+- **Decision (lead, `docs/port/PLAN.md` §0.1):** the second option below: `templates/check.py --check` and the checked report stand for both; no IR `template` field.
 - **Missing:**
   - The IR `cards[].template` field, written by `port/oracle/export_ir.py`.
   - T-154: `export_ir.py` asserts that every template reproduces its binding cards byte for byte.
