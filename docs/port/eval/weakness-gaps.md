@@ -22,15 +22,15 @@ AI row: "yes" means the work changes a strengthened-search mechanism or adds one
 
 ## Counts
 
-`target/release/gcg-diff weaknesses --check docs/port/WEAKNESSES.md` passes. With `--require-resolved` it reports 8 problems, one per open item:
+`target/release/gcg-diff weaknesses --check docs/port/WEAKNESSES.md` passes. With `--require-resolved` it reports 7 problems, one per open item:
 
 | Status | Items | Count |
 | --- | --- | ---: |
-| resolved | — | 123 |
+| resolved | — | 124 |
 | resolved by measurement (not adopted) | W-02, W-06, W-07, W-08, W-09, W-10, W-11, W-12, W-14, W-16, W-23, W-24, W-27, W-28, W-29, W-30, W-31, W-34, W-35, W-36, W-37, W-38, W-45, W-134, W-138, W-139, W-140, W-141, W-142, W-05 | 30 |
 | admissible exception | W-131, W-132, W-133 | 3 |
 | open: final evaluation 2 pending | W-04, W-19 | 2 |
-| open: a run or audit that has not happened | W-17, W-126, W-137, W-154 | 4 |
+| open: a run that has not happened | W-126, W-137, W-154 | 3 |
 | open: measured, verification not met | W-18 | 1 |
 | open: the user's decision | W-120 | 1 |
 
@@ -41,9 +41,9 @@ Changes since the first version of this file:
 - by the lead's decisions of `docs/port/PLAN.md` §0.1 (end of Phase 6): W-05 resolved by measurement (the break-even share replaces the scenario bar), W-63 and W-67 resolved (`templates/check.py --check` is T-154's assertion; no IR `template` field) and W-111 resolved (tag-based coverage stands for rules, FAQ entries and rulings). W-137's adoption question is decided (not adopted); its Linux run remains;
 - resolved: W-101 (engine anchors for the last rule-level interpretations I-04, I-11, I-13 and I-17; I-21 and I-24 are compile-time readings with no engine path; section 3).
 
-The 8 open items fall into two kinds:
+The 7 open items fall into two kinds:
 
-- 3 are AI items (class S): W-04, W-17 and W-18.
+- 2 are AI items (class S): W-04 and W-18.
 - 5 are non-AI items: W-19, W-120, W-126, W-137 (the Linux run) and W-154.
 
 ## 1. Lead: the final evaluation (docs/port/eval/final-2/)
@@ -72,16 +72,9 @@ Both entries carry an HTML comment for the lead ("lead: final evaluation 2") bef
 - **Work:** the lead records whether the measured break-even share replaces the bar. Otherwise the item waits for a leaf evaluation that prices the bounce; the W-34 and W-35 refits measured null or negative.
 - **AI row:** no for the decision; yes for a new evaluation. **Effort:** S as a decision.
 
-### W-17: the blinded audit
-- **Missing:** step (3)'s auditors: people or agents who did not generate the games classify the implausible plays in the transcripts of the committed sample, and the confirmed count per game with its Wilson interval.
-- **Why:** an audit needs auditors who did not generate the games, so no package could do it. Everything else is done (GAP-A1): the `gcg-eval weakness scenarios` suite of 22 frozen WK scenarios, the 120-game sample with every replay in `docs/port/eval/GAP-A1/audit/runs/`, its rule-based candidate count (`docs/port/eval/GAP-A1/weakness/audit-report.json`) and the transcript generator.
-- **Work:**
-  - Write the transcripts with `bash docs/port/eval/GAP-A1/audit/make_sample.sh transcripts OUT KEY`, or with `gcg-eval transcripts OUT KEY --run docs/port/eval/GAP-A1/audit/runs/...` (W-119).
-  - Have the auditors classify passivity, questionable attacks, wasted effects, bad targets and missed lethals; the flags of the audit report are candidates, not verdicts.
-  - Commit the classification under `docs/port/eval/` and record the count per game with its Wilson interval in W-17.
-  - The sample and the suite scores used the M15 presets. A rescore with the M15b presets is `gcg-eval weakness scenarios --agents ref:standard,search:fast,search:standard --seeds 16`.
-  - Optional: the WK7 removal-target scenario gives the searcher no Shields, so every target loses; a variant with Shields would make it a real target choice.
-- **AI row:** no new mechanism (the audit measures the shipped presets). **Effort:** M.
+### W-17: the blinded audit — resolved
+
+- **Resolution (2026-11-04):** the audit ran on the shipped M15b presets with five auditor agents that did not generate the games (`docs/port/eval/final-2/audit/README.md`): confirmed implausible plays per fully read game 1.33 (shipped `standard`) against 2.50 (reference), games with a confirmed missed lethal 0/60 against 2/60. Full reads cover a stratified 12 of the 120 games (a recorded deviation); every rule-flagged turn is checked.
 
 ### W-18: fidelity on the shipped M15b presets
 
