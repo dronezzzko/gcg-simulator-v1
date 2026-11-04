@@ -30,7 +30,8 @@ AI row: "yes" means the work changes a strengthened-search mechanism or adds one
 | resolved by measurement (not adopted) | W-02, W-06, W-07, W-08, W-09, W-10, W-11, W-12, W-14, W-16, W-23, W-24, W-27, W-28, W-29, W-30, W-31, W-34, W-35, W-36, W-37, W-38, W-45, W-134, W-138, W-139, W-140, W-141, W-142, W-05 | 30 |
 | admissible exception | W-131, W-132, W-133 | 3 |
 | open: final evaluation 2 pending | W-04, W-19 | 2 |
-| open: a run or audit that has not happened | W-17, W-18, W-126, W-137, W-154 | 5 |
+| open: a run or audit that has not happened | W-17, W-126, W-137, W-154 | 4 |
+| open: measured, verification not met | W-18 | 1 |
 | open: the user's decision | W-120 | 1 |
 
 Changes since the first version of this file:
@@ -83,17 +84,19 @@ Both entries carry an HTML comment for the lead ("lead: final evaluation 2") bef
 - **AI row:** no new mechanism (the audit measures the shipped presets). **Effort:** M.
 
 ### W-18: fidelity on the shipped M15b presets
-- **Missing:** `gcg-eval fidelity` on the M15b presets with held-out seeds (T-131).
-- **Why:** the run on the M15 presets met the verification on confirm seed 30721801 (Spearman 0.9, Kendall 0.8; `docs/port/eval/GAP-A2/fidelity-fast-standard-m15.json`). M15b then added `kill_aware_targeting` and `tree_lethal_select` to both presets, so the measured presets are no longer the shipped ones. GAP-A2 used a confirm master because eval and review masters stay with the final evaluation and the reviewer.
-- **Work:** after final evaluation 2, run this command from a release build of HEAD with a fresh eval master recorded in the ledger:
+
+- **Measured (2026-11-04):** `gcg-eval fidelity search:fast search:standard` with the five variants of the command below, eval master 90300007 (run once; ledger `docs/port/eval/final-2/seed-ledger-fidelity.json`), report `docs/port/eval/final-2/fidelity-fast-standard.json`. `w18_fidelity_check.py`: Spearman 0.9, Kendall tau-b 0.8, pairwise agreement 0.9, same best variant; `fast` favours the same deck wherever `standard` resolves a matchup; the paired difference of `blue-white-federation-weakened` is -0.075 [-0.146, -0.003] ("Verification: NOT met"). The other four intervals include 0.
+- **Missing:** a `fast` preset whose paired differences all pass on held-out seeds.
+- **Why:** on that variant `fast` (59/200) wins less than `standard` (74/200) on the same deals. On the M15 presets the same protocol met the verification on a confirm seed.
+- **Work:** tune `fast` (for example a larger budget, docs/port/eval/M15 budget curves) on tuning seeds against this protocol, then rerun E2 and the fidelity check on fresh eval seeds. This changes the evaluated preset, so it is a new strength round.
+- **AI row:** yes (a preset change). **Effort:** M-L (compute: the E2 rerun).
+
+  The command of the run:
 
   ```text
-  gcg-eval fidelity search:fast search:standard --variants red-green-zeon,tests/data/decks/red-green-zeon-weakened.txt,purple-white-tekkadan,docs/port/eval/P6-D/decks/purple-white-tekkadan-weakened.txt,docs/port/eval/P6-D/decks/blue-white-federation-weakened.txt --against blue-white-federation --games 200 --seed <eval master> --role eval --ledger docs/port/eval/seed-ledger.json --workers auto --out docs/port/eval/final-2/fidelity-fast-standard.json
+  gcg-eval fidelity search:fast search:standard --variants red-green-zeon,tests/data/decks/red-green-zeon-weakened.txt,purple-white-tekkadan,docs/port/eval/P6-D/decks/purple-white-tekkadan-weakened.txt,docs/port/eval/P6-D/decks/blue-white-federation-weakened.txt --against blue-white-federation --games 200 --seed 90300007 --role eval --ledger docs/port/eval/final-2/seed-ledger-fidelity.json --workers 3 --out docs/port/eval/final-2/fidelity-fast-standard.json
   uv run python docs/port/eval/GAP-A2/w18_fidelity_check.py docs/port/eval/final-2/fidelity-fast-standard.json
   ```
-
-  Record Spearman, Kendall and the per-variant paired differences in W-18, and mark T-131. A confirm-role run with a fresh master is the fallback if the lead keeps eval masters for E1-E4 only.
-- **AI row:** no (it measures the shipped presets). **Effort:** M (compute: `standard` at 8x).
 
 ### W-137: determinism contract (strengthened-search math)
 
