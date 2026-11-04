@@ -211,7 +211,7 @@ Answer: the single tree is flat from 0.5x to 2x (0.502, 0.502, 0.510) and gains 
     fuzz-deck games per configuration at a reduced budget, 90 of 191 searches reused a subtree
     (`subtree_reuse`), 97 of 201 (`+ transpositions`), 97 of 196 (`+ root_trees=2`); without
     the flag none; every game repeats action for action. Pass.
-  - `p6d_reuse::the_flag_without_the_carry_is_refused`; `mech::p6d::reuse::tests::
+  - `p6d_reuse::the_concrete_search_agent_carries_its_trees`; `mech::p6d::reuse::tests::
     kept_trees_go_only_to_the_predicted_decision`. Pass.
 - **Ablation:** rows `in_tree_filters=true`, `transpositions=true`, `subtree_reuse=true` in the
   table above. The `subtree_reuse` row ran at `2503285`, before its predicted-transition apply

@@ -62,7 +62,8 @@ cargo clippy --workspace --all-targets --locked --offline --features "$SLOW,$DIA
   --target-dir target/paranoid -- -D warnings
 
 step "Build the release binaries"
-cargo build --release --locked --offline -p gcg-cli -p gcg-eval -p gcg-diff
+cargo build --release --locked --offline -p gcg-cli -p gcg-eval
+cargo build --release --locked --offline -p gcg-diff
 
 if [[ $golden == 1 ]]; then
   step "cargo test --workspace --release"

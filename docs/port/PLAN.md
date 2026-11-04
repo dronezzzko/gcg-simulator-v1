@@ -1273,8 +1273,13 @@ and compares it with them (W-129).
 4. **Outputs.** Agent names differ (`search-*` vs `mcts-*`, A9), and a test asserts that no
    `gcg-sim` output contains `mcts-`. `gcg-sim` writes schema 1.2.0 with
    `ai.search.algorithm = "gcg-search"`.
-5. **Reviewer check.** The reference constants exist only in `gcg-ai-reference/src/config.rs`,
-   which the Phase 7 reviewer reads next to `ai/config.py:80-111` and `ai/baseline.py:18-73`.
+5. **Reviewer check.** The reference constants are in `gcg-ai-reference/src/contracts.rs`
+   (`PRESETS`, `BASELINE_PRESETS`, `TUNING_CONFIG`; as built, there is no `config.rs`), which the
+   Phase 7 reviewer reads next to `ai/config.py:80-111` and `ai/baseline.py:18-73`.
+   `gcg-search/src/presets.rs` (`mapped_reference`) repeats the budgets of reference `standard`
+   and `strong` as the shipped presets' starting point, because `gcg-search` cannot depend on
+   the reference crate; `crates/gcg-search/tests/null_config.rs` pins that copy to the
+   reference (`reference_mapping` equals the renamed null configuration of each).
 
 ### 6.6 What a "node" is
 
@@ -3531,7 +3536,7 @@ cargo tree -p gcg-cli -e normal --offline | grep -c gcg-ai-reference   # prints 
 The reviewer also does four checks by reading:
 
 - `ai/config.py:80-111`, `ai/baseline.py:18-73` and `ai/tuning.py:50-57` next to
-  `gcg-ai-reference/src/config.rs`;
+  `gcg-ai-reference/src/contracts.rs`;
 - that `gcg-sim` accepts only `standard` and `fast`;
 - `docs/port/eval/seed-ledger.json` and `panel.json`, for disjoint seeds and pairs;
 - every `unsafe` block and every WEAKNESSES.md status.
@@ -3654,7 +3659,7 @@ evidence. `gcg-diff tests-json --check` compares this list with the file.
 | T-003 | M9, M15 | 1/4/10-worker identity for reference, strengthened, greedy, random and test agents (§9.11, §8.8) |
 | T-004 | M9 | Rust `gcg-sim replay` on every Python and Rust replay; Python replay on Rust replays |
 | T-005 | M7 | `crates/gcg-cli/tests/presets.rs`; the verify-script exit-2 loop |
-| T-006 | M16 | reviewer reading of `config.rs` vs `ai/config.py`, `ai/baseline.py`, `ai/tuning.py`; reachability test |
+| T-006 | M16 | reviewer reading of `gcg-ai-reference/src/contracts.rs` vs `ai/config.py`, `ai/baseline.py`, `ai/tuning.py`; reachability test |
 | T-007 | M15 | `gcg-diff weaknesses --check docs/port/WEAKNESSES.md` |
 | T-008 | M16 | E1-E4 on review-role seeds; `gcg-eval gates --check docs/port/eval/review` |
 | T-009 | M9 | `crates/gcg-effects/tests/coverage.rs` + `gcg-diff coverage --check` |

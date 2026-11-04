@@ -779,6 +779,11 @@ equivalence_selftest() {
 [[ $# -ge 1 ]] || die "usage: $0 env|best-workers|python|part1|part2|equivalence|report"
 command="$1"
 shift
+if [[ "$command" == "-h" || "$command" == "--help" ]]; then
+  # The usage block at the top of this file.
+  sed -n '5,15p' "${BASH_SOURCE[0]}" | sed 's/^#  //; s/^#//'
+  exit 0
+fi
 best=10
 if [[ "${1:-}" == "--best" ]]; then
   [[ $# -ge 2 ]] || die "--best needs a worker count"

@@ -165,8 +165,8 @@ differences are listed in [`docs/port/EQUIVALENCE.md`](docs/port/EQUIVALENCE.md)
    different seeds from the screen.
 
 Never compare or pool a `fast` rate with a `standard` rate: they are different measurements.
-On the M2 Pro, 100 BO3 matches of the comparison workload took 76.9 s with `fast` at 6
-workers, and 20 BO3 matches took 133.7 s with `standard` at 6 workers
+On the M2 Pro, 100 BO3 matches of the comparison workload took 82.1 s with `fast` at 6
+workers, and 20 BO3 matches took 148.6 s with `standard` at 6 workers
 (`docs/port/BENCHMARKS.md`, Part 2). The
 [`gcg-benchmark`](.claude/skills/gcg-benchmark/SKILL.md) Claude Code skill walks through this
 workflow with adequate sample sizes.

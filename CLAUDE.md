@@ -15,7 +15,8 @@ Rust 1.99 stable (`export PATH=$HOME/.cargo/bin:$PATH` if `cargo` is not found).
 ```bash
 cargo fmt --all --check
 cargo clippy --workspace --all-targets --locked --offline -- -D warnings
-cargo build --release --locked --offline -p gcg-cli -p gcg-eval -p gcg-diff
+cargo build --release --locked --offline -p gcg-cli -p gcg-eval
+cargo build --release --locked --offline -p gcg-diff
 target/release/gcg-diff lints
 target/release/gcg-diff traceability --check
 target/release/gcg-diff tests-json --check

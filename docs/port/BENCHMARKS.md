@@ -43,7 +43,7 @@ Rust codebase contains no benchmark suite, timing test or timing-dependent logic
 | CPU | Apple M2 Pro, 10 cores: 6 performance + 4 efficiency (cache line 128 B) |
 | Memory | 32 GB (34,359,738,368 bytes) |
 | OS | macOS 27.2 (26B123) |
-| Python | 3.15.1 (uv 0.13.6) |
+| Python | 3.15.1 (uv 0.13.6 for the Python baseline; 0.13.7 in the final session's `env.txt`, which runs no Python timing) |
 | Rust | rustc 1.99.1 (58cf8f9c3 2026-10-13), LLVM 23.1.1 |
 | hyperfine | 2.0.0 |
 

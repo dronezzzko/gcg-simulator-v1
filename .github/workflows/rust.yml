@@ -73,7 +73,9 @@ jobs:
             --target-dir target/paranoid -- -D warnings
 
       - name: Build the release binaries
-        run: cargo build --release --locked --offline -p gcg-cli -p gcg-eval -p gcg-diff
+        run: |
+          cargo build --release --locked --offline -p gcg-cli -p gcg-eval
+          cargo build --release --locked --offline -p gcg-diff
 
       - name: cargo test --workspace --release
         if: steps.golden.outcome == 'success'

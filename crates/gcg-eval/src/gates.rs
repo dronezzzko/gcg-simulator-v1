@@ -11,7 +11,7 @@
 //! | --- | --- | --- | --- |
 //! | E1 | `search:standard` vs `ref:strong` | panel | pooled-all lower >= 0.55; pooled held-out lower >= 0.55; no held-out pair upper < 0.5 |
 //! | E2 | `search:fast` vs `ref:standard` | panel | pooled point >= 0.5, all and held-out; no pair upper < 0.5 |
-//! | E3 | `search:standard` vs `random` | tests and panel | every game won (tests, and each panel pair, held-out pairs listed on their own), or every loss documented with an existing replay |
+//! | E3 | `search:standard` vs `random` | tests and panel | every game won (tests, and each panel pair, held-out pairs listed on their own), or every loss documented with a replay that `check_replay` verifies and that reproduces the loss's outcome row (challenger seat, winner, turns) |
 //! | E4 | `search:standard` vs `greedy` | tests and panel | tests lower > 0.764; pooled lower > 0.764 over all pairs and over the held-out pairs |
 //!
 //! Each report is checked against its gate before its numbers count: the agent specs, the
@@ -80,6 +80,19 @@ pub struct Report {
     pub role: Option<String>,
     pub choose_first: Option<String>,
     pub pairs: Vec<PairStats>,
+    /// Every game the challenger did not win: `(index, challenger seat, winner, turns)` of its
+    /// outcome row, which a documented loss's replay must reproduce.
+    pub loss_rows: Vec<LossRow>,
+}
+
+/// The outcome row of a game the challenger did not win (`winner` -1: a draw or an unfinished
+/// game).
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+pub struct LossRow {
+    pub index: u64,
+    pub challenger: i64,
+    pub winner: i64,
+    pub turns: i64,
 }
 
 fn s(v: &Value, key: &str) -> Option<String> {
@@ -114,6 +127,7 @@ impl Report {
             .ok_or("no by_pair rows")?;
         let mut pairs = Vec::new();
         let mut positions = Vec::new();
+        let mut loss_rows = Vec::new();
         for r in rows {
             let decks = r
                 .get("decks")
@@ -161,7 +175,14 @@ impl Report {
             if winner == chal {
                 pairs[k].wins += 1;
             } else {
-                pairs[k].losses.push(u64::try_from(index).unwrap_or(0));
+                let index = u64::try_from(index).unwrap_or(0);
+                pairs[k].losses.push(index);
+                loss_rows.push(LossRow {
+                    index,
+                    challenger: chal,
+                    winner,
+                    turns: int(4).ok_or_else(|| format!("outcome {index} has no turns"))?,
+                });
             }
         }
         Ok(Self {
@@ -173,6 +194,7 @@ impl Report {
             role: s(v, "role"),
             choose_first: s(v, "choose_first"),
             pairs,
+            loss_rows,
         })
     }
 
@@ -330,10 +352,44 @@ pub fn load_losses(path: &Path) -> Result<Vec<Loss>, String> {
         .collect()
 }
 
+/// A loss is documented when the losses file names a replay for it that `check_replay`
+/// verifies and that reproduces the game's outcome row: the challenger's seat is the replay's
+/// `dut` seat, and the replayed winner seat (none for a draw) and turns equal the row's.
 fn documented(r: &Report, index: u64, losses: &[Loss]) -> bool {
+    let Some(row) = r.loss_rows.iter().find(|x| x.index == index) else {
+        return false;
+    };
     losses
         .iter()
-        .any(|l| l.report == r.path && l.index == index && Path::new(&l.replay).is_file())
+        .filter(|l| l.report == r.path && l.index == index)
+        .any(|l| replay_reproduces(&l.replay, row))
+}
+
+fn replay_reproduces(path: &str, row: &LossRow) -> bool {
+    let Ok(text) = std::fs::read_to_string(path) else {
+        return false;
+    };
+    let Ok(doc) = serde_json::from_str::<Value>(&text) else {
+        return false;
+    };
+    let Ok(check) = gcg_runner::replay::check_replay(&doc) else {
+        return false;
+    };
+    let dut_seat = doc
+        .get("seats")
+        .and_then(Value::as_array)
+        .and_then(|seats| {
+            seats
+                .iter()
+                .find(|s| s.get("role").and_then(Value::as_str) == Some("dut"))
+        })
+        .and_then(|s| s.get("seat"))
+        .and_then(Value::as_i64);
+    let winner = check.winner_seat.map_or(-1, |w| i64::from(w).max(-1));
+    check.ok
+        && dut_seat == Some(row.challenger)
+        && winner == row.winner
+        && i64::from(check.turns) == row.turns
 }
 
 /// E1's or E2's statistic checks on a panel report.

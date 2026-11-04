@@ -51,11 +51,11 @@ keep each run's `--out` directory (e.g. `runs/<dut>-vs-<benchmark>-<preset>-s1`)
 - Same `--seed` ⇒ byte-identical `results.json`, `games.ndjson` and replays regardless of
   `--workers`.
 - Measured cost on an Apple M2 Pro (`docs/port/BENCHMARKS.md`, Part 2; red-green-zeon against
-  blue-white-federation, BO3, 6 workers): 100 matches took 76.9 s with `fast`; 20 matches took
-  133.7 s with `standard`. `standard`'s budget is about 10.7 times `fast`'s (1024 / 2560 /
-  10240 against 96 / 240 / 960 iterations per option / minimum / maximum, `docs/AI.md`), and on
-  this workload it executed 128.5G instructions per game against `fast`'s 15.5G
-  (`docs/port/eval/M15/README.md`, "Cost of each scale").
+  blue-white-federation, BO3, 6 workers): 100 matches took 82.1 s with `fast`; 20 matches took
+  148.6 s with `standard`. `standard`'s budget is about 10.7 times `fast`'s (1024 / 2560 /
+  10240 against 96 / 240 / 960 iterations per option / minimum / maximum, `docs/AI.md`); with
+  the M15 mechanisms it executed 128.5G instructions per game on this workload against `fast`'s
+  15.5G (`docs/port/eval/M15/README.md`, "Cost of each scale").
 
 ## 3. Read the report
 

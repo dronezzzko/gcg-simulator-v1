@@ -461,29 +461,54 @@ fn w19_gates_compute_e1_to_e4_and_fail_below_a_bar() {
     assert_eq!(by_name("pooled lower bound, all pairs")["pass"], true);
     assert_eq!(by_name("pooled lower bound, held-out pairs")["pass"], false);
 
-    // One loss to random fails E3 until it is documented with an existing replay.
+    // One loss to random fails E3 until it is documented with a replay that `check_replay`
+    // verifies and that reproduces the loss's outcome row. The committed fixture replay (the
+    // `dut` seat 0 loses to seat 1 after 25 turns) stands for that game, so its row says so.
     let mut lossy = good(400, 400);
     lossy[3].3 = 399;
-    let e3l = write_report(
-        &dir,
-        "e3l.json",
-        &build("search:standard", "random", "panel", lossy),
-    );
+    let loss_index = 3 * 400 + 399;
+    let mut lossy = build("search:standard", "random", "panel", lossy);
+    lossy["outcomes"][loss_index] = json!([loss_index, 3, 0, 1, 25, 0, 100]);
+    let e3l = write_report(&dir, "e3l.json", &lossy);
     let args = all(&e1, &e3l);
     let argv: Vec<&str> = args.iter().map(String::as_str).collect();
     let failed = gcg_eval(&argv, &dir);
     assert!(stderr(&failed).contains("E3"), "{}", stderr(&failed));
-    let loss_index = 3 * 400 + 399;
-    let replay = write_report(&dir, "loss-replay.json", &json!({}));
-    let losses = write_report(
-        &dir,
-        "losses.json",
-        &json!({"losses": [{"report": s(&e3l), "index": loss_index, "replay": s(&replay)}]}),
-    );
-    let mut args = all(&e1, &e3l);
-    args.extend(["--losses-documented".to_owned(), s(&losses).to_owned()]);
-    let argv: Vec<&str> = args.iter().map(String::as_str).collect();
-    let documented = gcg_eval(&argv, &dir);
+    let fixture: Value = serde_json::from_str(
+        &std::fs::read_to_string(
+            Path::new(env!("CARGO_MANIFEST_DIR"))
+                .join("tests/fixtures/gapc-transcript-replay.json"),
+        )
+        .expect("the fixture replay"),
+    )
+    .expect("JSON");
+    let mut tampered = fixture.clone();
+    tampered["expected"]["turns"] = json!(24);
+    let mut other_seat = lossy.clone();
+    other_seat["outcomes"][loss_index] = json!([loss_index, 3, 1, 0, 25, 0, 100]);
+    let e3o = write_report(&dir, "e3o.json", &other_seat);
+    let gate_with = |report: &Path, replay: &Value, name: &str| {
+        let replay = write_report(&dir, &format!("{name}-replay.json"), replay);
+        let losses = write_report(
+            &dir,
+            &format!("{name}-losses.json"),
+            &json!({"losses": [{"report": s(report), "index": loss_index, "replay": s(&replay)}]}),
+        );
+        let mut args = all(&e1, report);
+        args.extend(["--losses-documented".to_owned(), s(&losses).to_owned()]);
+        let argv: Vec<&str> = args.iter().map(String::as_str).collect();
+        gcg_eval(&argv, &dir)
+    };
+    for (name, report, replay) in [
+        ("empty", &e3l, json!({})),
+        ("tampered", &e3l, tampered),
+        ("other-seat", &e3o, fixture.clone()),
+    ] {
+        let out = gate_with(report, &replay, name);
+        assert_eq!(out.status.code(), Some(1), "{name}: {}", stderr(&out));
+        assert!(stderr(&out).contains("E3"), "{name}: {}", stderr(&out));
+    }
+    let documented = gate_with(&e3l, &fixture, "valid");
     assert_eq!(documented.status.code(), Some(0), "{}", stderr(&documented));
 
     // A report of the wrong agents or of a steering role never counts.

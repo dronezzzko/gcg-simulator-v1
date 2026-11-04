@@ -246,7 +246,6 @@ Newcombe 95% interval and the McNemar discordant counts.
 | `tactical_solver` | dev 20200100: 212/400 (0.530, [0.481, 0.578]), +0.060 [-0.007, +0.126], 30/18; confirmation at twice the budget (confirm 30200200): 811/1600 (0.507, [0.482, 0.531]), +0.014 [-0.023, +0.050], 116/105 | 215/400 (0.537, [0.488, 0.586]), +0.075 [+0.009, +0.140], 31/16 | `docs/port/eval/P6-B/rows/dev-tactical_solver-400.json`, `docs/port/eval/M15/rows/dev-loo-tactical_solver-400.json` |
 | `exclude_capped_play_draw` | agents, dev 20800044: 212/400 (0.530, [0.481, 0.578]), +0.060 [-0.007, +0.126], 30/18; identical to the null control game for game (0 of 400 changed) | agents, dev 21500250: 216/400 (0.540, [0.491, 0.588]), +0.080 [+0.002, +0.156], 40/24; identical to that protocol's placebo (0 of 400 changed) | `docs/port/eval/weakness-status/P6-H.md`, `docs/port/eval/M15/rows/dev-loo-agents-exclude_capped_play_draw-400.json` |
 | `engine_error_leaf` | the null configuration with the flag replays all 661 searched decisions of the tier-1 `search` set with 0 error leaves (`crates/gcg-search/tests/null_config_search_set.rs`) | 207/400 (0.517, [0.469, 0.566]), +0.035 [-0.032, +0.101], 27/20; identical to the placebo game for game (0 of 400 changed) | `docs/port/eval/weakness-status/P6-O.md`, `docs/port/eval/M15/rows/dev-loo-engine_error_leaf-400.json` |
-
 | `kill_aware_targeting` (M15b) | P6-F, dev 20600100: 216/400 (0.540, [0.491, 0.588]), +0.080 [+0.009, +0.150], 35/19; confirmation (confirm 30600100): 817/1600 (0.511, [0.486, 0.535]), +0.021 [-0.015, +0.057], 116/99 | `B_core` with it against `B_core` at twice the pre-M15 budget, dev 22710100: 207/400 (0.517), +0.035 [-0.040, +0.109], 33/26; confirmation (confirm 30271100): 830/1600 (0.519, [0.494, 0.543]), +0.037 [+0.001, +0.074], 129/99 | `docs/port/eval/weakness-status/P6-F.md`, `docs/port/eval/weakness-status/GAP-A1.md` |
 | `tree_lethal_select` (M15b) | dev 22710300: 217/400 (0.542), +0.085 [+0.016, +0.153], 34/17; confirmation (confirm 30271800): 843/1600 (0.527, [0.502, 0.551]), +0.054 [+0.018, +0.089], 128/85 | from the shipped `fast` (confirm 30271810): +0.021 [-0.014, +0.056]; from `B_core` at twice the budget (confirm 30271820): +0.007 [-0.029, +0.044] | `docs/port/eval/weakness-status/GAP-A1.md` |
 
@@ -369,10 +368,22 @@ plan's strict reading for evaluation 1.
 
 ## Known weaknesses
 
-The open AI items are listed with their remaining work in
-[`docs/port/WEAKNESSES.md`](port/WEAKNESSES.md) and `docs/port/eval/weakness-gaps.md`, among
-them strategy fusion at opponent nodes (W-05), close target choices (W-14), remaining
-implausible plays (W-17), the opponent modelled with the searcher's own policy (W-25) and the
-evaluation's transfer to unseen decks (W-36). Decks that need long, precise lines may still be
-underrated: check a few replays (`gcg-sim replay FILE --log`) before trusting a surprising
-matchup result.
+[`docs/port/WEAKNESSES.md`](port/WEAKNESSES.md) records every item's outcome, and
+`docs/port/eval/weakness-gaps.md` the remaining work of the open ones. For the search:
+
+- Open: the `fast` preset's fidelity to `standard` (W-18): on held-out seeds it ranks deck
+  variants like `standard` (Spearman 0.9, the same best variant) but loses 7.5 points more
+  than `standard` on one weakened variant (-0.075 [-0.146, -0.003]), so confirm screened
+  survivors with `standard`. W-04 and W-19 hold the strength gates ("Measured strength"
+  above).
+- Measured and not adopted, so still present in the shipped search: strategy fusion at
+  opponent nodes (W-05), close target choices between similar units (W-14), the evaluation's
+  transfer to unseen decks (W-36, no refit ships) and the other "resolved by measurement" items
+  of the register. Each mechanism that targets them is implemented, scenario-tested and
+  measured null or negative at game level.
+- The blinded audit (W-17, `docs/port/eval/final-2/audit/README.md`) still finds about 1.3
+  clear mistakes per game in the shipped `standard` (2.5 for the reference), mostly passivity
+  early in the game; it found no missed lethal in 60 games.
+
+Decks that need long, precise lines may still be underrated: check a few replays
+(`gcg-sim replay FILE --log`) before trusting a surprising matchup result.

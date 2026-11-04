@@ -543,7 +543,7 @@ The row kinds are:
   - Unit tests `mech::p6d::transpose::tests::keys_ignore_identities_hidden_from_the_searcher` and `two_orders_of_the_same_deployments_share_a_key`.
   - Determinism: `p6d_determinism::every_mechanism_repeats_across_runs_and_thread_counts` and `the_bundle_repeats_in_another_process`.
   - `p6d_reuse::consecutive_own_decisions_start_from_the_kept_subtree`: 90 of 191 searches reused a subtree, 97 of 201 with `transpositions` and 97 of 196 with `root_trees=2`; none did without the flag.
-  - `p6d_reuse::the_flag_without_the_carry_is_refused` and `mech::p6d::reuse::tests::kept_trees_go_only_to_the_predicted_decision`.
+  - `p6d_reuse::the_concrete_search_agent_carries_its_trees` and `mech::p6d::reuse::tests::kept_trees_go_only_to_the_predicted_decision`.
   - All of the above pass.
   - Regret (W-43 tool, 120 positions, oracle `ref:strong` at twice its budget, dev 24600003, `docs/port/eval/P6-D/regret-*.json`):
 

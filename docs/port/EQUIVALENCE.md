@@ -96,6 +96,17 @@ blue-white-federation; `scripts/compare_python_vs_rust.sh equivalence --matches 
 e14c839 (after the Phase 5 optimisations and both strengthened-search waves), so it also shows
 that the optimised reference search is unchanged at full benchmark scale.
 
+**Phase 7, fresh review seeds at HEAD** (`docs/port/REVIEW.md` §5): the reviewer reran the
+comparison from a clean clone with the Rust binaries of commit 7b7ab2f (after every
+optimisation and every strengthened-search change) on review-role seeds 91208815, 91671342 and
+91093576: all three reference presets, `bo1` and `bo3`, `--matches 10`, `--workers 1`, `4` and
+`10`, over the first two example pairings with the decision log off (36 configurations) and the
+third with it on (6), plus the 100-match headline on seed 91208815. Python baselines identical
+under both hash seeds 43/43; Rust identical **129/129**; the 500 saved replays of the first
+Python and Rust runs verify with `gcg-sim replay`. The matrix above (324/324) predates Phase 5;
+this run and the corpus (tier 1 and tier 2 at 100% after every later commit) cover the code
+that ships.
+
 ### Numbering-shift probe (PLAN §8.9, R1)
 
 The reference's equivalent-move fingerprint reads once-per-turn records, and lasting-rule once

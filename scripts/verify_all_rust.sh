@@ -52,12 +52,20 @@ cargo fmt --all --check
 cargo clippy --workspace --all-targets --locked --offline -- -D warnings
 cargo clippy --workspace --all-targets --locked --offline --features "$SLOW,$DIAG" \
   --target-dir target/paranoid -- -D warnings
-cargo build --release --locked --offline -p gcg-cli -p gcg-eval -p gcg-diff
+# gcg-diff builds on its own: it enables gcg-engine/testkit, which one build would unify into
+# gcg-sim and gcg-eval (A31: they ship without it).
+cargo build --release --locked --offline -p gcg-cli -p gcg-eval
+cargo build --release --locked --offline -p gcg-diff
 cargo build --release --locked --offline -p gcg-diff --features paranoid --target-dir target/paranoid
 cargo test --workspace --release --locked --offline
 cargo test --workspace --release --locked --offline --features "$SLOW_OFFLINE"
 cargo test --release --locked --offline -p gcg-engine --features paranoid,testkit \
   --target-dir target/paranoid
+# The opt-in zstd output (W-99) and the system allocator (--no-default-features), each in its
+# own target directory so the release binaries above keep the shipped features.
+cargo test --release --locked --offline -p gcg-eval --features zstd --target-dir target/zstd
+cargo test --release --locked --offline -p gcg-cli -p gcg-eval --no-default-features \
+  --target-dir target/sysalloc
 
 # Differential corpus, negative controls, coverage, traceability and the registers.
 target/release/gcg-diff lints

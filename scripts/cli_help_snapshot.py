@@ -51,7 +51,7 @@ def snapshot(bin_dir: Path) -> str:
         binary = bin_dir / name
         if not binary.is_file():
             raise SystemExit(
-                f"{binary} not found: cargo build --release -p gcg-cli -p gcg-eval -p gcg-diff"
+                f"{binary} not found: cargo build --release -p gcg-cli -p gcg-eval, then -p gcg-diff"
             )
         todo: list[list[str]] = [[]]
         while todo:

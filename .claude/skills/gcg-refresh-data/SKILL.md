@@ -57,7 +57,8 @@ git status --short                                  # must be clean
 uv sync --locked
 uv run python -m gcg_sim.tools.sources --check      # the current lock verifies
 uv run python port/oracle/export_ir.py --check      # the embedded effect IR is current
-cargo build --release --locked --offline -p gcg-cli -p gcg-eval -p gcg-diff
+cargo build --release --locked --offline -p gcg-cli -p gcg-eval
+cargo build --release --locked --offline -p gcg-diff
 ```
 
 Record the current pins for the final report. They are in the header of `docs/SOURCES.md`:
@@ -446,7 +447,8 @@ uv build
 scripts/verify_wheel_offline.sh "$(ls dist/gcg_sim-*.whl | tail -n 1)"
 cargo fmt --all --check
 cargo clippy --workspace --all-targets --locked --offline -- -D warnings
-cargo build --release --locked --offline -p gcg-cli -p gcg-eval -p gcg-diff
+cargo build --release --locked --offline -p gcg-cli -p gcg-eval
+cargo build --release --locked --offline -p gcg-diff
 cargo test --workspace --release --locked --offline
 target/release/gcg-diff corpus --tier 1 --require-all
 target/release/gcg-diff coverage --check

@@ -29,9 +29,14 @@ if grep -q "not a recognized processor" <<<"$cfg"; then
   die "rustc does not know target-cpu $cpu"
 fi
 
+# Two builds: gcg-diff enables gcg-engine/testkit, which one build would unify into gcg-sim and
+# gcg-eval (PLAN A31: the shipped binaries carry no test-only feature).
 RUSTFLAGS="-C target-cpu=$cpu" \
-  cargo build --profile dist --locked --offline -p gcg-cli -p gcg-eval -p gcg-diff \
-  || die "dist build failed"
+  cargo build --profile dist --locked --offline -p gcg-cli -p gcg-eval \
+  || die "dist build of gcg-sim and gcg-eval failed"
+RUSTFLAGS="-C target-cpu=$cpu" \
+  cargo build --profile dist --locked --offline -p gcg-diff \
+  || die "dist build of gcg-diff failed"
 for bin in gcg-sim gcg-eval gcg-diff; do
   [[ -x "target/dist/$bin" ]] || die "target/dist/$bin was not built"
 done
