@@ -22,28 +22,28 @@ AI row: "yes" means the work changes a strengthened-search mechanism or adds one
 
 ## Counts
 
-`target/release/gcg-diff weaknesses --check docs/port/WEAKNESSES.md` passes. With `--require-resolved` it reports 9 problems, one per open item:
+`target/release/gcg-diff weaknesses --check docs/port/WEAKNESSES.md` passes. With `--require-resolved` it reports 8 problems, one per open item:
 
 | Status | Items | Count |
 | --- | --- | ---: |
-| resolved | — | 122 |
+| resolved | — | 123 |
 | resolved by measurement (not adopted) | W-02, W-06, W-07, W-08, W-09, W-10, W-11, W-12, W-14, W-16, W-23, W-24, W-27, W-28, W-29, W-30, W-31, W-34, W-35, W-36, W-37, W-38, W-45, W-134, W-138, W-139, W-140, W-141, W-142, W-05 | 30 |
 | admissible exception | W-131, W-132, W-133 | 3 |
 | open: final evaluation 2 pending | W-04, W-19 | 2 |
 | open: a run or audit that has not happened | W-17, W-18, W-126, W-137, W-154 | 5 |
-| open: remaining work | W-101 | 1 |
 | open: the user's decision | W-120 | 1 |
 
 Changes since the first version of this file:
 
 - resolved: W-13, W-25, W-26, W-64, W-75, W-76, W-88, W-104, W-110, W-118, W-119 and W-145 (the gap-closing records and M15b), and W-129 (Phase 8 documentation, commit 8c89b5e);
 - resolved by measurement (not adopted): W-08, W-14, W-31, W-36, W-134, W-139 and W-142;
-- by the lead's decisions of `docs/port/PLAN.md` §0.1 (end of Phase 6): W-05 resolved by measurement (the break-even share replaces the scenario bar), W-63 and W-67 resolved (`templates/check.py --check` is T-154's assertion; no IR `template` field) and W-111 resolved (tag-based coverage stands for rules, FAQ entries and rulings). W-137's adoption question is decided (not adopted); its Linux run remains.
+- by the lead's decisions of `docs/port/PLAN.md` §0.1 (end of Phase 6): W-05 resolved by measurement (the break-even share replaces the scenario bar), W-63 and W-67 resolved (`templates/check.py --check` is T-154's assertion; no IR `template` field) and W-111 resolved (tag-based coverage stands for rules, FAQ entries and rulings). W-137's adoption question is decided (not adopted); its Linux run remains;
+- resolved: W-101 (engine anchors for the last rule-level interpretations I-04, I-11, I-13 and I-17; I-21 and I-24 are compile-time readings with no engine path; section 3).
 
-The 9 open items fall into two kinds:
+The 8 open items fall into two kinds:
 
 - 3 are AI items (class S): W-04, W-17 and W-18.
-- 6 are non-AI items: W-19, W-101, W-120, W-126, W-137 (the Linux run) and W-154.
+- 5 are non-AI items: W-19, W-120, W-126, W-137 (the Linux run) and W-154.
 
 ## 1. Lead: the final evaluation (docs/port/eval/final-2/)
 
@@ -112,7 +112,15 @@ Both entries carry an HTML comment for the lead ("lead: final evaluation 2") bef
 
 ## 3. gcg-engine: interface changes
 
-### W-101: interpretation-tagged code paths
+### W-101: interpretation-tagged code paths — resolved
+
+- **Resolution:** the engine anchors the last four rule-level readings, each tested in the scenario of its Python test with a control that does not record it (`crates/gcg-engine/tests/gapb_interpretations.rs`):
+  - I-04 at an `Apply` on an `All` selection (`crates/gcg-engine/src/interp/lasting.rs:76-78`);
+  - I-11 at the playability walk of a mode selection (`crates/gcg-engine/src/interp/choose.rs:79`) and at the mode choice (`crates/gcg-engine/src/interp/mod.rs:696`);
+  - I-13 where a card becomes its Unit variant (`crates/gcg-engine/src/interp/deploy.rs:139`) and where a variant leaves the battle area (`crates/gcg-engine/src/core.rs:220-226`);
+  - I-17 where a linked pairing emits LINKED (`crates/gcg-engine/src/interp/play.rs:92-93`).
+
+  I-21 has no engine code path: the compiler puts a "Then" part inside its leading "If"/"If you do" block (`src/gcg_sim/effects/compiler/grammar.py:1641-1645`, `:1660-1680`), and the engine runs that block's `JumpIfNot` or `JumpIfNotDid` as it runs every other (`crates/gcg-engine/src/interp/mod.rs:602-621`). I-21 and I-24 are the two interpretations in `not_traceable_from_games`. 14 of the 27 are anchored, 12 of the 14 rule-level ones. The tier-1 corpus stays at 3804/3804; the tier-2 corpus is the lead's run after the merge. The entry below is kept as the record of what was missing.
 - **Missing:** engine anchors for the rule-level interpretations I-04 (lasting "all your Units"), I-11 (modal Commands), I-13 (deploy as an APx･HPy Unit), I-17 (【When Linked】 on pairing) and I-21 ("If"/"Then"). I-24 is a compile-time reading with no engine path. The card-level interpretations keep the card trace, which over-approximates.
 - **Why:** GAP-B anchored 10 of the 27 (I-01, I-02, I-03, I-05, I-06, I-10, I-14, I-15, I-16, I-18; 8 of the 14 rule-level ones) through `gcg_engine::diag::Interpretation`. The others need their code paths identified in `crates/gcg-engine/src/`.
 - **Work:**
@@ -245,5 +253,5 @@ The register lags behind the package evidence. `gcg-diff tests-json --check` che
   - T-133: the CI run after the user approves the push.
   - T-135 (W-154): `scripts/verify_all.sh` on a clean clone, M16.
   - T-154 (W-63, W-67): the `export_ir.py` assertion.
-  - T-106 and T-007 need `gcg-diff weaknesses --check --require-resolved` to pass: 13 problems today.
+  - T-106 and T-007 need `gcg-diff weaknesses --check --require-resolved` to pass: 8 problems today.
 - **P6-C's status file cites the wrong register ids.** It cites T-105 for W-05's unit test, T-107 for W-07's scenario and T-139 for W-139's unit test. The register's ids are T-109 (W-05), T-110 (W-07) and T-123 (W-139). WEAKNESSES.md uses the register's ids.

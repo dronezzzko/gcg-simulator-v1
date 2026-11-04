@@ -136,6 +136,7 @@ pub(super) fn h_deploy_card(
             {
                 st.cards[usize::from(u)].def_id = variant.def_id;
                 st.touch();
+                crate::diag::note_interpretation(crate::diag::Interpretation::I13);
             }
         }
     }

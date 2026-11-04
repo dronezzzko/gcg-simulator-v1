@@ -73,6 +73,9 @@ pub(super) fn h_apply(
     ins: &Apply,
 ) -> Result<Status, EngineError> {
     let targets = refs(st, fi, ins.r#ref)?;
+    if matches!(reg.node(ins.r#ref.node()), Node::All(_)) {
+        crate::diag::note_interpretation(crate::diag::Interpretation::I04);
+    }
     apply_to(
         st,
         reg,

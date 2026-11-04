@@ -76,6 +76,7 @@ fn walk(
                 continue;
             }
             Node::ModeSelect(m) => {
+                crate::diag::note_interpretation(crate::diag::Interpretation::I11);
                 for &t in &m.targets {
                     if walk(st, reg, instrs, t, ctx)? {
                         return Ok(true);

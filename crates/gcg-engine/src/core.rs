@@ -218,7 +218,11 @@ fn move_single(
     let turn = st.turn;
     let c = &mut st.cards[i];
     if dst != Zone::Battle {
-        c.def_id = db.base_def_id(c.def_id); // a Unit variant is the printed card again
+        let printed = db.base_def_id(c.def_id);
+        if printed != c.def_id {
+            crate::diag::note_interpretation(crate::diag::Interpretation::I13);
+        }
+        c.def_id = printed; // a Unit variant is the printed card again
     }
     c.zone_seq = incr(c.zone_seq, "zone_seq")?;
     c.damage = 0;

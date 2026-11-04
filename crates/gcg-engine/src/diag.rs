@@ -89,8 +89,8 @@ thread_local! {
 /// records when it applies. Each variant names the code path; [`note_interpretation`] counts
 /// it on the running thread, and [`interpretation_runs`] reads the counts. The other
 /// interpretations of the table have no single engine code path: compile-time readings of the
-/// card text (I-19, I-24, I-26), data overrides (I-25), and card-specific resolutions traced by
-/// their cards (`gcg-runner` `analysis::interpretations_used`).
+/// card text (I-19, I-21, I-24, I-26), data overrides (I-25), and card-specific resolutions
+/// traced by their cards (`gcg-runner` `analysis::interpretations_used`).
 #[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Debug)]
 pub enum Interpretation {
     /// I-01: an attack on a Base (`battle::attack_base`): the Base deals no battle damage back.
@@ -100,6 +100,9 @@ pub enum Interpretation {
     /// I-03: a Resource or EX Resource placement at the cap does nothing
     /// (`interp::deploy::place_resource`, `place_ex_resource`).
     I03,
+    /// I-04: a lasting effect on an `All` selection holds the cards the selection names when it
+    /// resolves (`interp::lasting::h_apply`); a card that arrives later does not get it.
+    I04,
     /// I-05: the uids of a new game are assigned after the seeded shuffle and cut
     /// (`game::new_game`).
     I05,
@@ -108,6 +111,13 @@ pub enum Interpretation {
     I06,
     /// I-10: a destroyed-cause condition reads the destruction event (`view::hooks::destroyed`).
     I10,
+    /// I-11: a modal effect is playable, and a mode is offered, only if the mode's mandatory
+    /// targets can all be chosen; with no such mode the effect does nothing
+    /// (`interp::choose::targets_available`, `interp::h_mode`).
+    I11,
+    /// I-13: a card deployed as its "(APx･HPy) Unit" variant is that Unit in the battle area
+    /// and the printed card anywhere else (`interp::deploy::h_deploy_card`, `core::move_single`).
+    I13,
     /// I-14: a targeted choice from the removal area is no target choice
     /// (`interp::choose::is_target_choice`).
     I14,
@@ -116,22 +126,29 @@ pub enum Interpretation {
     /// I-16: an attack with 0 AP on a player with no Base and no Shields does not defeat
     /// (`battle::damage_step`).
     I16,
+    /// I-17: the LINKED event (【When Linked】) is emitted only by a pairing that is linked
+    /// (`interp::play::pair`).
+    I17,
     /// I-18: <Suppression> on an attack that hits a Base does nothing (`battle::damage_step`).
     I18,
 }
 
 impl Interpretation {
     /// Every anchored interpretation, in id order.
-    pub const ALL: [Self; 10] = [
+    pub const ALL: [Self; 14] = [
         Self::I01,
         Self::I02,
         Self::I03,
+        Self::I04,
         Self::I05,
         Self::I06,
         Self::I10,
+        Self::I11,
+        Self::I13,
         Self::I14,
         Self::I15,
         Self::I16,
+        Self::I17,
         Self::I18,
     ];
 
@@ -142,12 +159,16 @@ impl Interpretation {
             Self::I01 => "I-01",
             Self::I02 => "I-02",
             Self::I03 => "I-03",
+            Self::I04 => "I-04",
             Self::I05 => "I-05",
             Self::I06 => "I-06",
             Self::I10 => "I-10",
+            Self::I11 => "I-11",
+            Self::I13 => "I-13",
             Self::I14 => "I-14",
             Self::I15 => "I-15",
             Self::I16 => "I-16",
+            Self::I17 => "I-17",
             Self::I18 => "I-18",
         }
     }

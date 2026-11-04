@@ -90,6 +90,7 @@ fn pair(st: &mut GameState, pilot: Uid, unit: Uid, by: i32) -> Result<(), Engine
         ],
     )?;
     if linked {
+        crate::diag::note_interpretation(crate::diag::Interpretation::I17);
         let owner = st.cards[usize::from(unit)].owner;
         core_::emit(
             st,

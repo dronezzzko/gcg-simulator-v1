@@ -418,17 +418,16 @@ fn w101_a_suppression_card_lists_the_suppression_interpretation() {
     assert_eq!(listed[0]["card_games"], 1);
     assert_eq!(listed[0]["engine_games"], 0, "I-18 has an engine code path");
     let untraceable = doc["not_traceable_from_games"].as_array().expect("list");
-    // GAP-B: the rule-level I-01 has an engine code path now (`battle::attack_base`); I-04
-    // (no cards, no engine path) is still untraceable.
-    assert!(!untraceable.iter().any(|i| i == "I-01"));
-    assert!(untraceable.iter().any(|i| i == "I-04"));
-    assert!(
-        doc["engine_recorded"]
-            .as_array()
-            .expect("list")
-            .iter()
-            .any(|i| i == "I-01")
-    );
+    // GAP-B: the rule-level I-01 has an engine code path now (`battle::attack_base`), and
+    // W-101 anchored I-04, I-11, I-13 and I-17. The two rule-level readings left without cards
+    // and without an engine path are the compile-time I-21 ("If"/"Then") and I-24 (Pilot text
+    // routing).
+    assert!(!untraceable.iter().any(|i| i == "I-01" || i == "I-04"));
+    assert_eq!(untraceable, &["I-21", "I-24"]);
+    let recorded = doc["engine_recorded"].as_array().expect("list");
+    for id in ["I-01", "I-04", "I-11", "I-13", "I-17"] {
+        assert!(recorded.iter().any(|i| i == id), "{id} engine-recorded");
+    }
 }
 
 /// W-101 (GAP-B): a rule-level interpretation without cards is listed when the engine records

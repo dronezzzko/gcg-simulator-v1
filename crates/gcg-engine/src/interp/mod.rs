@@ -693,6 +693,7 @@ fn h_mode(
 ) -> Result<Status, EngineError> {
     let player = player_of(st, &ctx_of(st, fi)?, ins.chooser);
     let program = st.frames[fi].program;
+    crate::diag::note_interpretation(crate::diag::Interpretation::I11);
     let mut opts = Vec::new();
     for i in 0..ins.labels.len() {
         let start = *ins
