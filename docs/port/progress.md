@@ -308,3 +308,34 @@ API snapshot and doc checks pass. Final evaluation 2 is recorded under Phase 8.
   (148.6 s against 356.0 s; the M15b mechanisms cost 11%). `scripts/compare_python_vs_rust.sh
   report`: "all 8 configurations present, current and at least 2x". Tables in
   docs/port/BENCHMARKS.md.
+
+### Registers and remaining deliverables (2026-11-04)
+
+- `scripts/build_dist.sh` (T-143): apple-m2 dist binaries with LICENSE-DATA and NOTICE.txt;
+  `target/dist/gcg-diff corpus --tier 1 --require-all` 3804/3804 (T-092);
+  `scripts/verify_binary_offline.sh target/dist/gcg-sim` passed (T-145). `verify_all_rust.sh`
+  runs all three.
+- WEAKNESSES reconciled with the gap-closing and M15b records (eeecfb5); lead decisions for
+  W-05, W-63/W-67 (T-154), W-111 and W-137's adoption in PLAN §0.1 (d362c11); W-101 anchors
+  (93cc30d; tier 1 3804/3804, tier 2 4154/4154 after the merge); W-17 blinded audit (c54fc87);
+  W-18 fidelity measured on eval master 90300007, verification not met (7b7ab2f).
+- `gcg-eval head-to-head-replay` (276f497) writes verified replays of head-to-head games; the
+  27 E3 panel losses of final evaluation 1 re-play and verify 27/27.
+- tests.json, with the evidence behind each change:
+  - passing: T-013 (BENCHMARKS M6 section, topology fixtures); T-034 (`census.py --check`;
+    every census maximum within its capacity, e.g. event payload 8 of 10, once key 6 of 6);
+    T-059 (the components vectors are the gcg-ai tests `search_components.rs`,
+    `search_engine.rs` and `policy_*.rs`, not a corpus set as PLAN's appendix names it);
+    T-075 (`crates/gcg-cli/tests/interrupt.rs`); T-092, T-143, T-145 (above); T-096–T-103 (the
+    final timing report, all 8 at least 2x; T-011 stays with the reviewer's rerun); T-105
+    (BENCHMARKS Phase 5 log); T-106 (`gcg-diff weaknesses --check`); T-107–T-123 (the scenario
+    files of `crates/gcg-search/tests/scenarios/`, 306 slow gcg-search tests passed at the
+    M15b gate); T-128 (`gcg-eval decks --overlap --check`, P6-decks); T-129 (schema-check in
+    the gate); T-130 (`ai_md_presets.rs`); T-132 (M15 budget curves, BENCHMARKS Part 2);
+    T-137, T-138, T-140–T-142 (the Phase 8 documents); T-149 (`head_to_head.rs` balance
+    tests); T-153 (the gate's byte comparison and `p6m_cli.rs`); T-154 (lead decision:
+    `templates/check.py --check`, exit 0); T-155 (`pytest port/oracle/tests/refresh_news`: 9
+    passed).
+  - failing: T-007 (7 WEAKNESSES items open); T-104 and T-148 (zero allocation after warm-up
+    is not reached: about 150 allocations per MCTS iteration, BENCHMARKS "Where the time
+    goes"); T-131 (W-18's verification not met).
