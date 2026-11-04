@@ -227,6 +227,8 @@ target/release/gcg-eval head-to-head search:fast ref:standard --decks examples -
   `search:<preset>`, `search:FILE.json`, with `:field=value` overrides) in mirrored blocks of four
   BO1 games on deck pairs, with Wilson intervals per pair and pooled; `--role` checks the seed
   against its role's range and records it in the seed ledger.
+- `head-to-head-replay`: re-plays games of a `head-to-head --out` report (`--index I` or
+  `--losses`), checks each against its row and writes it as a `gcg-sim replay` file.
 - Evaluation and tuning tools: `compare`, `preset-benchmark`, `ablation`, `budget-curve`,
   `fidelity`, `regret`, `tune`, `tune-leaf`, `calibrate`, `compare-runs`, `decks`, `gates`,
   `evidence`, `transcripts`, `weakness` and `env`.

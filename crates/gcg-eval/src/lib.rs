@@ -24,6 +24,7 @@ pub mod evidence;
 pub mod factories;
 pub mod fidelity;
 pub mod gates;
+pub mod h2h_replay;
 pub mod head_to_head;
 pub mod ledger;
 pub mod overlap;

@@ -136,7 +136,7 @@ pub enum PlayError {
     Interrupted,
 }
 
-/// What a game shows its observer. Both methods default to doing nothing.
+/// What a game shows its observer. Every method defaults to doing nothing.
 pub trait Observer {
     /// Before the decision of `player` at `st` (also for a CHOOSE_FIRST the harness answers).
     ///
@@ -152,6 +152,12 @@ pub trait Observer {
     /// harness answers), with the agent's report when the game is traced.
     fn after(&mut self, st: &GameState, player: u8, action: Action, trace: Option<&DecisionTrace>) {
         let _ = (st, player, action, trace);
+    }
+
+    /// After `action` was applied, for every decision (a CHOOSE_FIRST the harness answers
+    /// included), so the calls give the game's action list in order.
+    fn applied(&mut self, action: Action) {
+        let _ = action;
     }
 }
 
@@ -233,6 +239,7 @@ pub fn run_game_with(
             action
         };
         apply(&mut st, action, true)?;
+        observer.applied(action);
         decisions += 1;
     }
     Ok((st, decisions))
@@ -363,6 +370,19 @@ pub fn play_observed(
     cx: &mut AgentCx<'_>,
     observer: &mut dyn Observer,
 ) -> Result<GameResult, GameError> {
+    play_observed_final(spec, choose_first, cx, observer).map(|(result, _)| result)
+}
+
+/// [`play_observed`] with the game's final state.
+///
+/// # Errors
+/// As [`run_game_with`].
+pub fn play_observed_final(
+    spec: &MirroredSpec,
+    choose_first: ChooseFirst,
+    cx: &mut AgentCx<'_>,
+    observer: &mut dyn Observer,
+) -> Result<(GameResult, GameState), GameError> {
     struct Both<'o> {
         effort: EffortObserver,
         inner: &'o mut dyn Observer,
@@ -381,6 +401,9 @@ pub fn play_observed(
             self.effort.after(st, player, action, trace);
             self.inner.after(st, player, action, trace);
         }
+        fn applied(&mut self, action: Action) {
+            self.inner.applied(action);
+        }
     }
     let mut agents = spec_agents(spec);
     let decks = [&spec.decks[0], &spec.decks[1]];
@@ -397,10 +420,11 @@ pub fn play_observed(
         true,
         &mut both,
     )?;
-    Ok(GameResult {
+    let result = GameResult {
         outcome: outcome_of(spec, &st, decisions),
         effort: both.effort.effort,
-    })
+    };
+    Ok((result, st))
 }
 
 /// [`play_observed`] without an observer of its own.

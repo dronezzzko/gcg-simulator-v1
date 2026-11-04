@@ -11,7 +11,8 @@
 //!   the strengthened search configured by FILE ([`crate::search_config`]); `--ai-preset`
 //!   (`standard`, `fast`) only labels the run (PLAN §12.8). Both benchmark commands take the
 //!   opt-in `--decision-trace FILE` (W-21), which leaves their reports byte-identical.
-//! - `head-to-head CHALLENGER OPPONENT` ([`crate::head_to_head`]).
+//! - `head-to-head CHALLENGER OPPONENT` ([`crate::head_to_head`]), and
+//!   `head-to-head-replay REPORT` ([`crate::h2h_replay`]), its games as replay files.
 //! - `compare CHALLENGER OPPONENT` is `python -m gcg_sim.ai.compare` ([`crate::compare`]): its
 //!   `type=int` options convert after parsing, so with several errors the first reported can
 //!   differ from Python's, and `prog` is `gcg-eval compare`.
@@ -958,6 +959,11 @@ pub fn build_parser() -> Parser {
                 parser: head_to_head_parser(),
             },
             SubCommand {
+                name: "head-to-head-replay",
+                help: Some("games of a head-to-head report as verified replay files"),
+                parser: crate::h2h_replay::parser(PROG),
+            },
+            SubCommand {
                 name: "compare",
                 help: Some("python -m gcg_sim.ai.compare"),
                 parser: compare_parser(),
@@ -1082,6 +1088,7 @@ pub enum Command {
         search_config: PathBuf,
     },
     HeadToHead(HeadToHeadArgs),
+    HeadToHeadReplay(crate::h2h_replay::ReplayArgs),
     Compare(CompareArgs),
     Ablation(AblationArgs),
     BudgetCurve(BudgetCurveArgs),
@@ -1545,6 +1552,9 @@ pub fn command(ns: &Namespace, columns: i64) -> Result<Command, Exit> {
                 decision_trace: get_path(ns, "decision_trace"),
             }))
         }
+        "head-to-head-replay" => {
+            crate::h2h_replay::args(ns, sub, columns).map(Command::HeadToHeadReplay)
+        }
         "compare" => Ok(Command::Compare(CompareArgs {
             challenger: need_text(ns, "challenger"),
             opponent: need_text(ns, "opponent"),
@@ -1734,6 +1744,7 @@ fn run_command(
             benchmark(args, SchemaVersion::V1_1, &factory, cancel, tty, out, err)
         }
         Command::HeadToHead(args) => run_head_to_head(args, cancel, tty, out, err),
+        Command::HeadToHeadReplay(args) => crate::h2h_replay::run(args, cancel, tty, out, err),
         Command::Compare(args) => {
             let workers = args.workers();
             let mut play = |specs: &[crate::MirroredSpec]| {

@@ -83,19 +83,22 @@ options:
 
 $ gcg-eval --help
 usage: gcg-eval [-h]
-                {reference-benchmark,preset-benchmark,head-to-head,compare,ablation,budget-curve,fidelity,regret,tune,tune-leaf,calibrate,compare-runs,decks,gates,evidence,validate,data-status,transcripts,env,benchmark,replay-game,replay-check,weakness} ...
+                {reference-benchmark,preset-benchmark,head-to-head,head-to-head-replay,compare,ablation,budget-curve,fidelity,regret,tune,tune-leaf,calibrate,compare-runs,decks,gates,evidence,validate,data-status,transcripts,env,benchmark,replay-game,replay-check,weakness} ...
 
 Evaluation harness of the gcg-sim port: the reference search, head-to-head
 comparisons of agents and the tuning tools.
 
 positional arguments:
-  {reference-benchmark,preset-benchmark,head-to-head,compare,ablation,budget-curve,fidelity,regret,tune,tune-leaf,calibrate,compare-runs,decks,gates,evidence,validate,data-status,transcripts,env,benchmark,replay-game,replay-check,weakness}
+  {reference-benchmark,preset-benchmark,head-to-head,head-to-head-replay,compare,ablation,budget-curve,fidelity,regret,tune,tune-leaf,calibrate,compare-runs,decks,gates,evidence,validate,data-status,transcripts,env,benchmark,replay-game,replay-check,weakness}
     reference-benchmark
                         the benchmark pipeline with the reference search and
                         its presets
     preset-benchmark    the gcg-sim benchmark pipeline with a search
                         configuration file
     head-to-head        two agents in mirrored blocks of four on deck pairs
+    head-to-head-replay
+                        games of a head-to-head report as verified replay
+                        files
     compare             python -m gcg_sim.ai.compare
     ablation            an individual or leave-one-out ablation row
     budget-curve        a search at scaled budgets against a fixed opponent
@@ -237,6 +240,32 @@ options:
   --decision-trace DECISION_TRACE
                         also write every decision's search trace here (NDJSON;
                         W-21)
+
+$ gcg-eval head-to-head-replay --help
+usage: gcg-eval head-to-head-replay [-h] [--index INDEX] [--losses]
+                                    [--challenger CHALLENGER]
+                                    [--opponent OPPONENT] --out OUT
+                                    report
+
+Re-play games of a head-to-head --out report and write each as a gcg-sim
+replay file, after checking that it reproduces its row (PLAN §12.6).
+
+positional arguments:
+  report                a report written by head-to-head --out
+
+options:
+  -h, --help            show this help message and exit
+  --index INDEX         the outcome index of a game to re-play (repeatable)
+  --losses              re-play every game the challenger did not win (losses,
+                        draws, unfinished games)
+  --challenger CHALLENGER
+                        play the challenger with this agent spec instead of
+                        the report's (the games must still reproduce their
+                        rows)
+  --opponent OPPONENT   play the opponent with this agent spec instead of the
+                        report's (the games must still reproduce their rows)
+  --out OUT             directory for the game-<index>.json replays and
+                        index.json
 
 $ gcg-eval compare --help
 usage: gcg-eval compare [-h] [--games GAMES] [--seed SEED] [--workers WORKERS]
