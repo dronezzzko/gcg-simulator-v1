@@ -22,15 +22,15 @@ AI row: "yes" means the work changes a strengthened-search mechanism or adds one
 
 ## Counts
 
-`target/release/gcg-diff weaknesses --check docs/port/WEAKNESSES.md` passes. With `--require-resolved` it reports 7 problems, one per open item:
+`target/release/gcg-diff weaknesses --check docs/port/WEAKNESSES.md` passes. With `--require-resolved` it reports 6 problems, one per open item:
 
 | Status | Items | Count |
 | --- | --- | ---: |
-| resolved | — | 124 |
+| resolved | — | 125 |
 | resolved by measurement (not adopted) | W-02, W-06, W-07, W-08, W-09, W-10, W-11, W-12, W-14, W-16, W-23, W-24, W-27, W-28, W-29, W-30, W-31, W-34, W-35, W-36, W-37, W-38, W-45, W-134, W-138, W-139, W-140, W-141, W-142, W-05 | 30 |
 | admissible exception | W-131, W-132, W-133 | 3 |
 | open: final evaluation 2 pending | W-04, W-19 | 2 |
-| open: a run that has not happened | W-126, W-137, W-154 | 3 |
+| open: a run that has not happened | W-126, W-137 | 2 |
 | open: measured, verification not met | W-18 | 1 |
 | open: the user's decision | W-120 | 1 |
 
@@ -41,10 +41,10 @@ Changes since the first version of this file:
 - by the lead's decisions of `docs/port/PLAN.md` §0.1 (end of Phase 6): W-05 resolved by measurement (the break-even share replaces the scenario bar), W-63 and W-67 resolved (`templates/check.py --check` is T-154's assertion; no IR `template` field) and W-111 resolved (tag-based coverage stands for rules, FAQ entries and rulings). W-137's adoption question is decided (not adopted); its Linux run remains;
 - resolved: W-101 (engine anchors for the last rule-level interpretations I-04, I-11, I-13 and I-17; I-21 and I-24 are compile-time readings with no engine path; section 3).
 
-The 7 open items fall into two kinds:
+The 6 open items fall into two kinds:
 
 - 2 are AI items (class S): W-04 and W-18.
-- 5 are non-AI items: W-19, W-120, W-126, W-137 (the Linux run) and W-154.
+- 4 are non-AI items: W-19, W-120, W-126 and W-137 (the Linux run).
 
 ## 1. Lead: the final evaluation (docs/port/eval/final-2/)
 
@@ -164,11 +164,9 @@ No item is open here. W-104 is resolved by the decision recorded in `docs/port/e
   - or record that the idle-machine harness sessions meet the criterion. The two `scripts/compare_python_vs_rust.sh` sessions at 34b3107 have medians within 0.35% (GAP-D). The final timing session at 8c89b5e recorded minima of 47.8 s and 28.0 s for the reference `standard` at m100 w10 and m20 w1, against 47.8 s and 28.1 s at M10, and the reference search did not change between the two (`docs/port/BENCHMARKS.md`, Part 1).
 - **AI row:** no. **Effort:** S.
 
-### W-154: the Python gate with the port committed
-- **Missing:** the clean-clone run of `scripts/verify_all.sh` (the Python gate, `pytest -m "" -n auto`) with the port committed (T-135, an M16 step).
-- **Why:** it is scheduled for M16. Everything else of the verification passes: the doc-check markers are in place (GAP-D), and on a clean clone at 54c2bd2 `ruff check`, `ruff format --check` and the documented commands of the whole repository passed (19 run, 11 skipped, 0 failed).
-- **Work:** at M16, run `scripts/verify_all.sh` on a clean clone of HEAD and record it in `docs/port/progress.md` and W-154.
-- **AI row:** no. **Effort:** M (compute).
+### W-154: the Python gate with the port committed — resolved
+
+- **Resolution:** the Phase 7 reviewer's clean-clone run of `scripts/verify_all.sh` at 7b7ab2f passed (3985 Python tests; `docs/port/REVIEW.md` §1, C2).
 
 ## 7. The user's decision
 
@@ -189,7 +187,7 @@ The presets changed again at M15b (commit 8c89b5e: `kill_aware_targeting` and `t
 - **W-152:** seat symmetry with `search:fast` (`phase6_slow::w152_seats_and_first_player_are_symmetric`; M15 `search:fast` 198/400 at 54c2bd2).
 - **W-110:** the 1,000 strategic paranoid fuzz games (`docs/port/eval/GAP-D/w110-strategic-fuzz.txt`) used the M15 `search:fast`.
 
-Work: run `cargo test --release --offline -p gcg-eval --features slow --test phase6_slow` and the three paranoid fuzz lines of `scripts/verify_all_rust.sh`; the full gate runs both. AI row: no. Effort: S-M (compute).
+Re-verified on the M15b presets by the Phase 7 reviewer's `scripts/verify_all_rust.sh --full` at 7b7ab2f (`docs/port/REVIEW.md` §1, C1): the slow tier, `phase6_slow` included, passed, and the 2,000 commit-seed and 1,000 strategic paranoid fuzz games had 0 failures.
 
 Already re-run on the M15b presets (2026-11-04, the crates of HEAD):
 

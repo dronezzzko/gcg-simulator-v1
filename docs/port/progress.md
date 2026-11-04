@@ -339,3 +339,6 @@ API snapshot and doc checks pass. Final evaluation 2 is recorded under Phase 8.
   - failing: T-007 (7 WEAKNESSES items open); T-104 and T-148 (zero allocation after warm-up
     is not reached: about 150 allocations per MCTS iteration, BENCHMARKS "Where the time
     goes"); T-131 (W-18's verification not met).
+  - passing after the Phase 7 reviewer's clean-clone runs at 7b7ab2f (`docs/port/REVIEW.md` §1):
+    T-135 (`scripts/verify_all.sh`, 3985 Python tests) and T-056 (2,000 commit-seed and 1,000
+    strategic paranoid fuzz games, 0 failures, M15b presets).
