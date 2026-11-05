@@ -3,10 +3,10 @@
 Brief step 26 and PLAN §13 M16. The reviewer wrote none of the port's code. This file records
 what was checked, how, and every finding. The lead fixes; the reviewer re-verifies.
 
-**Status (2026-11-05, after round 2): partial sign-off; not signed off as a whole.** Both
-rounds are complete. Section 7 says exactly what is signed off and what is not. The blocker
-R-01 (E4 against greedy on the AI test decks) cannot be fixed without a new strength round; the
-lead reports it to the user as an unmet acceptance criterion.
+**Status (2026-11-05, after round 3, HEAD `6fbdb1e`): partial sign-off; not signed off as a
+whole.** All three rounds are complete. Section 8 states exactly what is signed off and what is
+not. The blocker R-01 (E4 against greedy on the AI test decks) cannot be fixed without a new
+strength round; the lead reports it to the user as an unmet acceptance criterion.
 
 ## 1. Scope and method
 
@@ -379,7 +379,7 @@ verification is met; the lead can close W-126 with this record.
 From this review's evidence the lead can set T-001 (G1), T-006 (§3 a and b), T-011 (§6.1), T-134
 (G1's documented-command step) and T-156 (G2) to passing, and close W-126 (§6.2).
 
-### 6.5 Status of every finding after round 2
+### 6.5 Status of every finding after round 2 (superseded by §7.3)
 
 | ID | Severity | Status | Evidence |
 | --- | --- | --- | --- |
@@ -403,47 +403,137 @@ From this review's evidence the lead can set T-001 (G1), T-006 (§3 a and b), T-
 | R-18 | minor | **resolved** | The gate runs `--features zstd` (145 passed) and `--no-default-features` (189 passed) in their own target directories (G1) |
 | R-19 | minor (new) | **unresolved** | W-126's documented command uses `--workers auto` (`docs/port/eval/weakness-gaps.md:157`, `docs/port/eval/weakness-status/GAP-D.md:180`), but `scripts/throughput.py` declares `--workers` as an integer and exits 2 (`invalid int value: 'auto'`). Accept `auto` or change the documented command to `--workers 6` |
 
-## 7. Sign-off
+## 7. Round 3 (2026-11-05, HEAD `6fbdb1e`)
 
-Reviewed: code at `2d425db` (round 2) and `7b7ab2f` (round 1; the two differ only in the gate
-tool's E3 replay check, tests, scripts, CI and documents).
+`6fbdb1e` changes `crates/gcg-eval/src/gates.rs` (R-11), `crates/gcg-eval/src/head_to_head.rs`
+(R-10), their tests (`crates/gcg-eval/tests/phase6.rs`, `seed_roles.rs`),
+`scripts/build_dist.sh`, `scripts/verify_all_rust.sh`, `scripts/compare_python_vs_rust.sh` and
+documents. Everything below ran from a fresh clean clone of `6fbdb1e`
+(`/var/folders/0b/bb2yzbwn76l2y5lcblwyy6y80000gn/T/tmp.Glcf65zxkn/repo3`) on the idle machine.
+
+### 7.1 Gate after the last edit (T-001)
+
+`scripts/verify_all_rust.sh --full`: **exit 0**, "verify_all_rust passed" (12:10-15:39 UTC, its
+own clone: "verifying 6fbdb1e"). Tests, 0 failed and 0 ignored in every tier: default 1333,
+slow offline 1357, `gcg-engine` paranoid 263, `--features zstd` 146, `--no-default-features`
+190, tier-2 slow 1334 (485 `test result` lines, 4623 passes). The new tests ran and passed:
+`w19_gates_compute_e1_to_e4_and_fail_below_a_bar` and
+`a_renamed_copy_of_a_held_out_deck_is_still_held_out`, each `... ok` in all five `gcg-eval`
+test runs (default, slow, zstd, system allocator, tier 2). Lints; 22 and 36 negative controls; tier-1
+corpus 3804/3804 in all six modes and with the apple-m2 check build
+(`target/dist-check/dist/gcg-diff`); coverage, traceability, tests.json, weaknesses and
+API-snapshot checks; fuzz 10,000, 2,000, 400, 400 and 200 games with 0 failures; `paranoid-games`;
+schema checks; `build_dist.sh` ("target/dist/{gcg-sim,gcg-eval,LICENSE-DATA,NOTICE.txt}, check
+tool target/dist-check/dist/gcg-diff"); `verify_binary_offline.sh`; doc counts; documented
+commands "20 blocks run, 19 skipped, 0 failed"; equivalence smoke 3/3; tier 2 regenerated and
+4154/4154.
+
+### 7.2 The specific checks
+
+- **R-11 (gates).** From the main tree with the `6fbdb1e` `gcg-eval`, `gcg-eval gates` on the
+  review reports with `--losses-documented`:
+  - the unmodified `docs/port/eval/review/e3-panel-losses/losses-documented.json`: E3 pass
+    (`--check` "gates not passed: E4");
+  - the round-2 swap (loss 7107 given loss 5047's replay; 5047 keeps its own): E3 fail,
+    undocumented `[7107]`;
+  - a two-way swap (5047 and 7107 exchange replays): E3 fail, undocumented `[5047, 7107]`;
+  - the tampered copies (6006's last actions cut, 2464's seed changed): E3 fail,
+    undocumented `[2464, 6006]`; the empty replay for 8403: E3 fail, undocumented `[8403]`.
+- **R-10 (held-out guard).** `gcg-eval head-to-head random random --pair COPY:red-green-zeon
+  --role dev --seed 20000003 --games 4` with a renamed byte copy of
+  `examples/decks/eval/blue-red-tempo.txt`: exit 1, "--role dev may not play the held-out pair
+  my-tempo:red-green-zeon (PLAN §12.5)". A renamed copy of `green-white-link` under `--role
+  tuning`: refused the same way. Control `red-green-zeon:blue-white-federation` under `--role
+  dev`: exit 0. The scratch ledger records only the control's master.
+- **R-09 (dist).** `scripts/build_dist.sh` (exit 0): `target/dist/` holds `gcg-sim`, `gcg-eval`,
+  `LICENSE-DATA` and `NOTICE.txt` (next to cargo's own profile files), no `gcg-diff`; the
+  apple-m2 `gcg-diff` is `target/dist-check/dist/gcg-diff`, which `verify_all_rust.sh:156` uses.
+  `nm` finds 0 testkit symbols in the dist `gcg-sim` and `gcg-eval`.
+- **R-12.** `scripts/compare_python_vs_rust.sh equivalence --help`: exit 0, prints the
+  equivalence usage; `--help`: exit 0.
+- **R-19.** `docs/port/eval/weakness-status/GAP-D.md:180` uses `--workers 6`;
+  `docs/port/eval/weakness-gaps.md` records W-126 as resolved; WEAKNESSES W-126's status cites
+  §6.2. `git grep -n "throughput.py.*--workers"` finds no `--workers auto` left.
+- **R-03.** `docs/port/WEAKNESSES.md`'s status definition now reads "The weakness itself
+  therefore remains in the shipped AI: the entry records that the measured remedy does not help
+  at game level".
+- **Registers at `6fbdb1e`.** `gcg-diff weaknesses --check --require-resolved`: open W-18,
+  W-19, W-120, W-137. tests.json: 147 passing, 8 failing (T-007, T-008, T-014, T-104, T-124,
+  T-127, T-131, T-148), 3 not started (T-133, T-146, T-147).
+- **Timing.** Not re-run: the round-3 code changes are the E3 loss check of `gcg-eval gates` and
+  the held-out test of `gcg-eval head-to-head`'s deck-pair selection, neither of which runs in
+  the timed workloads (`gcg-sim benchmark`, `gcg-eval reference-benchmark`). The `gcg-sim`
+  binaries of `2d425db` and `6fbdb1e` differ only in the embedded code digest, which hashes every
+  crate's sources (`e5f73ad8...` against `7a80d105...`). The §6.1 numbers therefore stand for
+  the timed code. `report`'s digest check would ask for a re-run if timing evidence of
+  `6fbdb1e` itself is wanted.
+
+### 7.3 Final status of every finding
+
+| ID | Severity | Final status | Evidence |
+| --- | --- | --- | --- |
+| R-01 | blocker | **unresolved; reported to the user** as an unmet acceptance criterion | E4 on the AI test decks fails on all three seed sets (review LB 0.7184; finals 0.7237, 0.7158); review held-out panel LB 0.7623 (§4). It needs a new strength round |
+| R-02 | major | **unresolved** | Open: W-18 (fidelity verification not met), W-19 (E4, R-01), W-120 (the user's decision), W-137 (Linux run needs the push). W-04, W-126 and W-154 are resolved |
+| R-03 | major | **resolved in the documents; interpretation for the user** | WEAKNESSES.md's definition and `docs/AI.md:402-414` agree that a "resolved by measurement" weakness remains in the shipped AI. Whether 30 such items satisfy "every item resolved" is the user's call (final report) |
+| R-04 | minor | resolved | §6.5 |
+| R-05 | major | resolved | §6.5 |
+| R-06 | minor | resolved | §6.5 |
+| R-07 | minor | resolved | §6.5 |
+| R-08 | minor | resolved | §6.5 |
+| R-09 | minor | **resolved** | §7.2: no `gcg-diff` in `target/dist/`, 0 testkit symbols in the shipped binaries |
+| R-10 | minor | **resolved** | §7.2: renamed copies refused under `dev` and `tuning`; test `a_renamed_copy_of_a_held_out_deck_is_still_held_out` passes (§7.1) |
+| R-11 | minor | **resolved** | §7.2: one-way and two-way swaps, tampered and empty replays refused, the genuine file accepted; test `w19_gates_compute_e1_to_e4_and_fail_below_a_bar` passes (§7.1) |
+| R-12 | minor | **resolved** | §7.2 |
+| R-13 | minor | **accepted limitation; for the final report** | Zero allocation not reached (T-104, T-148 failing); documented in BENCHMARKS |
+| R-14 | minor | **accepted deviation; for the final report** | The `erfc` FFI (PLAN A2); Miri does not apply to an FFI call |
+| R-15 | minor | resolved | §6.5 |
+| R-16 | minor | resolved | §6.1 (and §7.2's timing note) |
+| R-17 | minor | **unresolved; needs the user** | `rust.yml` has never run; `ci_local.sh` passes at `2d425db` (G2) |
+| R-18 | minor | resolved | §6.4 and §7.1 (zstd 146, system allocator 190) |
+| R-19 | minor | **resolved** | §7.2 |
+
+## 8. Sign-off
+
+Reviewed: `6fbdb1e` (round 3), `2d425db` (round 2, timing) and `7b7ab2f` (round 1, strength and
+equivalence runs). Engine, effect, AI and search code are the same in all three; the later
+commits change `gcg-eval`'s gates and deck-pair selection, tests, scripts, CI and documents.
 
 **Signed off (verified by the reviewer's own runs and readings):**
 
-- Build and gates: `scripts/verify_all_rust.sh --full` (G1, C1), `scripts/verify_all.sh` (C2,
-  3985 passed), `scripts/ci_local.sh` (G2, C17); fmt, clippy, every test tier, the
-  differential corpus at 100% (tier 1 and tier 2, also paranoid), fuzz with invariants and
-  results-schema validation.
-- Equivalence of the reference search with Python: 129/129 byte-identical on fresh review
-  seeds (43 configurations, all three reference presets, bo1/bo3, decision log off/on,
-  workers 1/4/10, the 100-match headline), plus the corpus. This is exact, not statistical.
-  The full 108-configuration matrix was not re-run on the final code.
-- Identical outputs for any worker count (C11, the gate, §5), and every saved replay verifies.
+- Build and gates: `scripts/verify_all_rust.sh --full` at `6fbdb1e` (§7.1; also at `2d425db` and
+  `7b7ab2f`), `scripts/verify_all.sh` (C2, 3985 passed), `scripts/ci_local.sh` (G2, C17): fmt,
+  clippy, every test tier, the differential corpus at 100% (tier 1 and tier 2, also paranoid),
+  fuzz with invariants, results-schema validation.
+- Exact (not statistical) equivalence of the reference search with Python: 129/129
+  byte-identical on fresh review seeds (43 configurations, all three reference presets, bo1/bo3,
+  decision log off/on, workers 1/4/10, the 100-match headline), plus the corpus. The full
+  108-configuration matrix was not re-run on the final code.
+- Identical outputs for any worker count (C11, the gates, §5), and every saved replay verifies.
 - Exactly two `gcg-sim` presets (`standard` default, `fast`); every other value exits 2; the
-  reference search is reachable only through `gcg-eval` and its budgets and parameters equal
-  Python's exactly (§3 a, b).
-- Speed: all 8 configurations of both parts of the external comparison are at least 2x on the
-  idle M2 Pro with the final binaries (23.59x, 20.34x, 45.31x, 24.66x; 11.82x, 10.37x, 21.25x,
-  2.40x; `report` exit 0, §6.1).
+  reference search is reachable only through `gcg-eval`, with Python's exact budgets and
+  parameters (§3 a, b).
+- Speed: all 8 configurations of both parts at least 2x on the idle M2 Pro (23.59x, 20.34x,
+  45.31x, 24.66x; 11.82x, 10.37x, 21.25x, 2.40x; `report` exit 0; §6.1, with §7.2's note).
 - No timing-based benchmarks, timing assertions or wall-clock-dependent behaviour in the crates
   (§3 g); one `unsafe` block, with its safety argument and tests (§3 d, R-14).
 - 1152/1152 cards implemented and enforced; traceability current; the Python oracle untouched.
-- Disjoint tuning and evaluation seeds and pairs (§3 c, with R-10's caveat).
-- Strength gates E1, E2 and E3 on fresh review seeds (§4).
+- Disjoint tuning and evaluation seeds and pairs (§3 c), now with a guard that also catches
+  renamed copies (R-10).
+- Strength gates E1, E2 and E3 on fresh review seeds (§4), E3's losses documented with verified
+  replays under the stricter replay check (R-11).
 - W-126's reproducibility criterion (§6.2).
-- The other findings resolved in §6.5.
+- Every finding marked resolved in §7.3.
 
 **Not signed off:**
 
 - **E4 (R-01).** `standard` against greedy does not reach a Wilson lower bound above 0.764 on
   the AI test decks (three independent seed sets), nor on the review's held-out panel pairs.
-  This acceptance criterion is unmet, and the lead reports it to the user.
-- **"Every WEAKNESSES item resolved" (R-02, R-03).** W-18, W-19, W-120 and W-137 are open (W-126
-  needs its record). Whether the 30 "resolved by measurement" items count as resolved is the
-  user's decision.
+  This acceptance criterion is unmet; the lead reports it to the user.
+- **"Every WEAKNESSES item resolved" (R-02, R-03).** W-18, W-19, W-120 and W-137 are open, and
+  whether the 30 "resolved by measurement" items count as resolved is the user's decision.
 - **CI on GitHub (R-17)**, which needs the user's approval of a push.
-- **The remaining minor items:** R-09's A31 wording, R-10, R-11's swap gap, R-12's
-  `equivalence --help`, R-19, and R-13/R-14 for the final report.
+- R-13 and R-14 are accepted, documented limitations; they are not defects, but the final report
+  must state them.
 
 The acceptance criterion "reviewer sign-off with every finding resolved" is therefore **not
 met**. The reviewer signs off on the items listed above as verified, and on nothing else.
