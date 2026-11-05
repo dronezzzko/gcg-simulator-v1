@@ -388,3 +388,9 @@ API snapshot and doc checks pass. Final evaluation 2 is recorded under Phase 8.
   the pair's decks; R-11), the held-out guard compares card multisets (R-10), `target/dist`
   holds only the shipped binaries (R-09), `equivalence --help` (R-12), the throughput command
   (R-19), the "not adopted" definition says the weakness remains (R-03).
+
+### Final report (`docs/port/FINAL_REPORT.md`)
+
+- Written from the committed records; T-146 and T-147 (`git status --porcelain
+  --untracked-files=all` empty) passing. Not complete against the brief: E4 on the AI test decks,
+  four open WEAKNESSES items (W-18, W-19, W-120, W-137), partial sign-off, CI never run.
