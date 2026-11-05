@@ -22,14 +22,13 @@ AI row: "yes" means the work changes a strengthened-search mechanism or adds one
 
 ## Counts
 
-`target/release/gcg-diff weaknesses --check docs/port/WEAKNESSES.md` passes. With `--require-resolved` it reports 3 problems, one per open item:
+`target/release/gcg-diff weaknesses --check docs/port/WEAKNESSES.md` passes. With `--require-resolved` it reports 2 problems, one per open item:
 
 | Status | Items | Count |
 | --- | --- | ---: |
-| resolved | — | 128 |
+| resolved | — | 129 |
 | resolved by measurement (not adopted) | W-02, W-06, W-07, W-08, W-09, W-10, W-11, W-12, W-14, W-16, W-23, W-24, W-27, W-28, W-29, W-30, W-31, W-34, W-35, W-36, W-37, W-38, W-45, W-134, W-138, W-139, W-140, W-141, W-142, W-05 | 30 |
 | admissible exception | W-131, W-132, W-133 | 3 |
-| open: a run that has not happened | W-137 | 1 |
 | open: measured, verification not met | W-18, W-19 | 2 |
 
 Changes since the first version of this file:
@@ -39,10 +38,7 @@ Changes since the first version of this file:
 - by the lead's decisions of `docs/port/PLAN.md` §0.1 (end of Phase 6): W-05 resolved by measurement (the break-even share replaces the scenario bar), W-63 and W-67 resolved (`templates/check.py --check` is T-154's assertion; no IR `template` field) and W-111 resolved (tag-based coverage stands for rules, FAQ entries and rulings). W-137's adoption question is decided (not adopted); its Linux run remains;
 - resolved: W-101 (engine anchors for the last rule-level interpretations I-04, I-11, I-13 and I-17; I-21 and I-24 are compile-time readings with no engine path; section 3).
 
-The 3 open items fall into two kinds:
-
-- 2 are AI items (class S): W-18 and W-19.
-- 1 is a non-AI item: W-137 (the Linux run).
+The 2 open items are AI items (class S): W-18 and W-19.
 
 ## 1. Lead: the final evaluation (docs/port/eval/final-2/, docs/port/eval/review/)
 
@@ -84,20 +80,9 @@ W-04 is resolved by final evaluation 2 and the reviewer's review-seed run: `stan
   uv run python docs/port/eval/GAP-A2/w18_fidelity_check.py docs/port/eval/final-2/fidelity-fast-standard.json
   ```
 
-### W-137: determinism contract (strengthened-search math)
+### W-137: determinism contract (strengthened-search math) — resolved
 
-- **Decision (lead, `docs/port/PLAN.md` §0.1):** `portable_math` is not adopted (item 2 below). Item 1, the Linux run, is the `portable-math-linux` job of `.github/workflows/rust.yml`; it runs once the user approves a push.
-- **Missing:**
-  1. Item 2: the cross-platform run on Linux x86-64 of `crates/gcg-search/tests/scenarios/gapa2_portable_math.rs` and the tier-1 scenario tests. The test passes on macOS arm64.
-  2. Item 3: adopting `portable_math` in the presets. Its rows are measured null (GAP-A2: no winner changed in 1,200 games against the controls), so it is adoptable by §12.4. M15b left it off.
-- **Why:**
-  - `.github/workflows/rust.yml` has one job, on `macos-15`, and no push is recorded (A29, M17). T-133 names only that runner; the Linux matrix job is optional in the plan (`docs/port/PLAN.md:3027-3029`).
-  - Adoption is a preset decision. With the flag off, the shipped presets take `exp` and `ln` from the platform library, so their bit-identity across platforms is not claimed.
-- **Work:**
-  - Add a Linux x86-64 job (or a one-off run) of `cargo test -p gcg-search --release --locked --offline --test scenarios` and record the result. It needs the user's approval of the push.
-  - Decide on adoption. If adopted: run `gcg-eval ablation leave-one-out --bundle search:standard:portable_math=true --mechanism portable_math=false` with a placebo on the same master (about 2.5 hours at 4 workers), update `crates/gcg-search/src/presets.rs`, `tests/null_config.rs`, the portable-math keys and `crates/gcg-cli/tests/vectors/parity/rust-replays.json`.
-  - Item 1 is done: `portable_math` reaches every float path of the strengthened search, including the shared `gcg-ai` code (`gcg_ai::FloatMath`).
-- **AI row:** yes, for item 3. **Effort:** S (item 2, after the push), M (item 3).
+- **Resolution (2026-11-05):** `portable_math` is not adopted (lead decision), and the Linux x86-64 run passed: GitHub Actions run 42070860469 (PR #6), job `portable-math-linux`, `gapa2_portable_math` 3 passed.
 
 ## 3. gcg-engine: interface changes
 

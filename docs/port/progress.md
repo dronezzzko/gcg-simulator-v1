@@ -397,3 +397,8 @@ API snapshot and doc checks pass. Final evaluation 2 is recorded under Phase 8.
 - End decisions (user, 2026-11-05): E4 accepted as reported; W-120 applied (0464c47); worktrees
   and branches removed, cited commits tagged `port-evidence/*`; the push was refused (token lacks
   the `workflow` scope), so CI (T-133) has not run.
+- CI (PR #6): the first run failed `w127_the_port_evaluation_docs_cite_only_reachable_commits`
+  (23 cited commits only on local tags); with the 23 `port-evidence/*` tags and
+  `port/rust-port-history` pushed (user-approved), run 42070860469 passed both jobs: macOS gate
+  1341 tests, corpus 3804/3804; Linux x86-64 `gapa2_portable_math` 3 passed. T-133 passing;
+  W-137 resolved.
