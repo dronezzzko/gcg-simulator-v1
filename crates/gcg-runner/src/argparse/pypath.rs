@@ -1,8 +1,8 @@
 //! `str(pathlib.Path(text))` on POSIX (CPython 3.15.1 `Lib/pathlib/__init__.py:251-301`,
 //! `Lib/posixpath.py:142-162`): the parser's `type=Path` arguments print and open as this
-//! normalised text (Inv 01 hazard 49): `./gcg-sim-out/` is `gcg-sim-out`, `a//b` is `a/b`,
+//! normalised text: `./gcg-sim-out/` is `gcg-sim-out`, `a//b` is `a/b`,
 //! `''` is `.`, and exactly two leading slashes are kept. Checked against vectors exported by
-//! `port/oracle/export_cli.py`.
+//! `oracle/export_cli.py`.
 
 use std::path::Path;
 

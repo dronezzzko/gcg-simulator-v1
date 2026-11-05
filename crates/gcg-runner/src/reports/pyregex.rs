@@ -13,7 +13,7 @@ use std::fmt;
 
 /// Python's `\d` for `str` patterns: the Unicode decimal digits (category `Nd`), as Python
 /// 3.15's `re` matches them (checked against `stats.json` `digit_ranges`, exported by
-/// `port/oracle/export_records.py`).
+/// `oracle/export_records.py`).
 pub const DIGIT_RANGES: [(u32, u32); 72] = [
     (0x30, 0x39),
     (0x660, 0x669),

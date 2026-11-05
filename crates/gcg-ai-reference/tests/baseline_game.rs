@@ -1,5 +1,5 @@
-//! `tests/ai/test_baseline.py`, ported: the `baseline-standard` configuration replays the game
-//! recorded at commit bc38ab4 (Inv 07 §17). `new_game(DECKS, 4242)`, agents
+//! `tests/ai/test_baseline.py` in Rust: the `baseline-standard` configuration replays the game
+//! recorded at commit bc38ab4. `new_game(DECKS, 4242)`, agents
 //! `make_agent("mcts", seed=17+seat, log=True, config=BASELINE_PRESETS["standard"],
 //! weights=BASELINE_WEIGHTS)`, every decision applied with `check=True`; the outcome is
 //! `(winner, turn, len(actions)) == (1, 20, 115)` and the SHA-256 of

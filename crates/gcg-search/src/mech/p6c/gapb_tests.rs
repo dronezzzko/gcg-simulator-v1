@@ -1,4 +1,4 @@
-//! GAP-B's unit tests of P6-C's world mechanisms (docs/port/eval/weakness-status/GAP-B.md):
+//! GAP-B's unit tests of P6-C's world mechanisms (docs/dev/eval/weakness-status/GAP-B.md):
 //!
 //! - W-08 `exact_pools`: the strengthened world of the moved-card scenario holds each owner's
 //!   true hidden multiset where the reference pads, and on the searched decisions of the D2

@@ -1,9 +1,9 @@
-//! `gcg-eval weakness MODE` (docs/port/eval/weakness-gaps.md, GAP-A1: W-05, W-17, W-26): the
+//! `gcg-eval weakness MODE` (docs/dev/eval/weakness-gaps.md, GAP-A1: W-05, W-17, W-26): the
 //! deterministic weakness measurements. No mode changes a search or a game; each reads states
 //! and plays the existing agents unchanged.
 //!
 //! - `scenarios` (W-17 step 2): the frozen scenarios of `--scenarios` (default
-//!   `docs/port/eval/GAP-A1/weakness/scenarios.json`, written by
+//!   `docs/dev/eval/GAP-A1/weakness/scenarios.json`, written by
 //!   `crates/gcg-search/tests/scenarios/gapa1_weakness_scenarios.rs`), one or more per WK
 //!   category, scored for each agent of `--agents` over the agent seeds `1..=--seeds`. A
 //!   `choice` scenario is solved when the agent's decision is one of `want`; a `turn` scenario
@@ -73,7 +73,7 @@ use crate::stats::rate_json;
 pub const WEAKNESS_FORMAT: &str = "gcg-eval-weakness";
 pub const WEAKNESS_VERSION: u32 = 1;
 /// The default scenario file (relative to the repository root, like the ledger).
-pub const DEFAULT_SCENARIOS: &str = "docs/port/eval/GAP-A1/weakness/scenarios.json";
+pub const DEFAULT_SCENARIOS: &str = "docs/dev/eval/GAP-A1/weakness/scenarios.json";
 /// The scenario file format.
 pub const SCENARIOS_FORMAT: &str = "gcg-eval-weakness-scenarios";
 /// The defender of a `turn` scenario and its seed offset.

@@ -1,5 +1,5 @@
-//! P6-J data tripwires over the exported effect IR (docs/port/PLAN.md §12.2 P6-J;
-//! docs/port/eval/weakness-status/P6-J.md): W-143 (battle-damage redirect sources), W-158
+//! P6-J data tripwires over the exported effect IR (docs/dev/PLAN.md §12.2 P6-J;
+//! docs/dev/eval/weakness-status/P6-J.md): W-143 (battle-damage redirect sources), W-158
 //! (non-literal damage-prevention thresholds, plus the registry-build rejection), W-159
 //! (turn-history filters on characteristics that can change), W-161 (ToDeck selectors that can
 //! pick a paired Pilot with its Unit) and W-50 (the `always` events derived from the IR).

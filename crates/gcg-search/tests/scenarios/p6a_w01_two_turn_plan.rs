@@ -1,5 +1,5 @@
 //! W-01 (two-turn rollout horizon): a two-turn plan whose payoff lies beyond the reference
-//! horizon (docs/port/WEAKNESSES.md W-01, PLAN §12.3 S2).
+//! horizon (docs/dev/WEAKNESSES.md W-01, PLAN §12.3 S2).
 //!
 //! Player 0 is to move in turn T at Lv.3 (three Resources and a Resource deck). It has DINN
 //! (GD01-064, 3/2) in play, one Shield, and holds DINN (Commander Type) (GD03-047, Lv.4, cost 2,

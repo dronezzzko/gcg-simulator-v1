@@ -1,7 +1,7 @@
-//! T-046, the touch catalogue (PLAN §4.4; Inv 05 §3.2, Inv 06a §4, Inv 06b §6, §15, §18).
+//! T-046, the touch catalogue (PLAN §4.4).
 //! `version` counts Python's `touch()` calls and is serialised and digested, so every touch
 //! site must match Python one for one. Against `tests/fixtures/engine_vectors.ndjson`
-//! (`port/oracle/export_engine_vectors.py`):
+//! (`oracle/export_engine_vectors.py`):
 //!
 //! - `new_game` leaves version 120: one `new_card` touch per card of 2 x (50 + 10);
 //! - the setup accounting: SETUP_DRAW +10, +11 per redraw (5 + 5 moves and the shuffle),
@@ -9,7 +9,7 @@
 //!   resource), so the first MAIN decision has version 149 + 11 x (players who redrew), for
 //!   every redraw plan, both first players and three deck pairs, each with Python's digest;
 //! - the "always option 0" games: Python's version and action count before every decision and
-//!   the final facts (Inv 06b §18: seed 12345 ends at version 357, digest `5ce28ed9…31e9a`);
+//!   the final facts (seed 12345 ends at version 357, digest `5ce28ed9…31e9a`);
 //! - each touching primitive's version delta on one Scenario, equal to Python's and to the
 //!   delta the inventory documents, with Python's digest after it.
 
@@ -115,7 +115,7 @@ fn first_option_games_touch_as_python_before_every_decision() {
         assert_eq!(st.event_group(), int(&f["event_group"]), "{id}");
         assert_eq!(st.rng_state(), u64_of(&f["rng"]), "{id}");
     }
-    // Inv 06b §18.
+    // The recorded final facts.
     let inv = recs
         .iter()
         .find(|r| r["id"] == "rgz-bwf/12345")

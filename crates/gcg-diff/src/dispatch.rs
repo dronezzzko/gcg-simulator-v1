@@ -1,8 +1,8 @@
 //! The name dispatcher of the real-engine replay (PLAN §8.2 `call`/`probe` records;
-//! docs/port/contracts.md, gcg-diff section): a recorded call names the Python function the
+//! docs/dev/contracts.md, gcg-diff section): a recorded call names the Python function the
 //! test reached (`<module>.<function>`, `testkit.<function>`, `Scenario.<method>`), and this
 //! module runs the Rust function with Python's parameters and encodes the result as
-//! `port/oracle/pytest_trace.py` (`TestTrace.enc`, `enc_result`) and `port/oracle/traces.py`
+//! `oracle/pytest_trace.py` (`TestTrace.enc`, `enc_result`) and `oracle/traces.py`
 //! (`generate_view`) encode Python's. A name without an entry is an error, which the replay
 //! counts as a divergence, never as a skip.
 //!
@@ -850,7 +850,7 @@ pub fn call(e: &mut RealEngine, c: &CallSpec) -> Res<Value> {
     }
     if f == "core.clear_listen_cache" {
         // `GameConst.listened` belongs to one game and its own registry, so Python's cleared
-        // cache and Rust's per-game set give the same events (docs/port/contracts.md,
+        // cache and Rust's per-game set give the same events (docs/dev/contracts.md,
         // gcg-engine testkit section); the record's after16 checks that nothing changed.
         a.done(&[])?;
         return Ok(Value::Null);

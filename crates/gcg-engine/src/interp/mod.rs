@@ -1,4 +1,4 @@
-//! Layer L4 of the engine (docs/port/PLAN.md §5.3-§5.4, §10.1; workstream B2): the effect
+//! Layer L4 of the engine (docs/dev/PLAN.md §5.3-§5.4, §10.1; workstream B2): the effect
 //! interpreter of `engine/interp.py`, which executes the flat programs of the IR one
 //! instruction at a time, plus the 13 custom step hooks (`effects/builtins.py` and
 //! `effects/bindings/*.py`) and the three system programs.
@@ -7,16 +7,15 @@
 //! waiting (`decide`); `resume` consumes the chosen action and continues. Custom steps never
 //! request choices (`interp.py:1-6`).
 //!
-//! Every function is a port of the Python function its doc comment names, statement by
+//! Every function reproduces the Python function its doc comment names, statement by
 //! statement: each `derived()` call, `touch()`, `next_group()`, RNG draw, decision option
-//! order and iteration order is Python's (Inv 06a §12-§16). A frame is addressed by its index
+//! order and iteration order is Python's. A frame is addressed by its index
 //! `fi` in `st.frames` and re-read after any call that can push frames, which is how Python's
 //! `f` stays valid when a sub-frame is pushed (PLAN §5.4). The registry is held through one
 //! `Arc` clone per `run_top_frame`/`resume`, so handlers borrow IR nodes while they mutate the
 //! state.
 //!
-//! Python sources are cited relative to `src/gcg_sim/`; "Inv 06a" is
-//! docs/port/inventory/06a-engine-core-interp.md.
+//! Python sources are cited relative to `src/gcg_sim/`.
 
 mod cards;
 mod choose;
@@ -36,10 +35,10 @@ use crate::{
     MoveOpts, NO_ARG, Prompt, PushFrame, Span, Uid, Zone,
 };
 
-// The layer boundary of L4 (docs/port/contracts.md, gcg-engine internal boundary).
+// The layer boundary of L4 (docs/dev/contracts.md, gcg-engine internal boundary).
 #[allow(
     unused_imports,
-    reason = "called by layer L5 (game, testkit) and C's tests (docs/port/contracts.md); they land after L4"
+    reason = "called by layer L5 (game, testkit) and C's tests (docs/dev/contracts.md); they land after L4"
 )]
 pub(crate) use self::{
     cards::draw,
@@ -98,7 +97,7 @@ fn by_of(p: u8) -> i8 {
 
 /// The uid in an int slot (`f.vars` items, `Action.a`, `f.host`) as an index of `st.cards`.
 /// Python indexes `st.cards[x]`; every interpreter site that does so holds a uid there
-/// (Inv 06a hazard 3), so an out-of-range value is Python's `IndexError`.
+///, so an out-of-range value is Python's `IndexError`.
 fn to_uid(st: &GameState, x: i32) -> Result<Uid, EngineError> {
     match Uid::try_from(x) {
         Ok(u) if usize::from(u) < st.cards.len() => Ok(u),
@@ -194,7 +193,7 @@ fn idx_i32(i: usize) -> Result<i32, EngineError> {
 }
 
 /// `ctx_of(f)` (`interp.py:57-58`): the frame's controller, host, card and event, sharing the
-/// frame's vars (`CtxVars::Frame`, so hook writes are visible to later steps, Inv 06a §12.2).
+/// frame's vars (`CtxVars::Frame`, so hook writes are visible to later steps).
 /// `Ctx.__init__`'s `card_uid = card_uid if card_uid != -1 else host` (`view.py:42`) applies.
 fn ctx_of(st: &GameState, fi: usize) -> Result<Ctx, EngineError> {
     let f = &st.frames[fi];
@@ -243,14 +242,14 @@ fn in_play(st: &GameState, uids: &[Uid]) -> Vec<Uid> {
 /// (`interp.py:61-88`). `host_seq` is the host's `zone_seq` (0 without a host) and the vars
 /// are copied into the new frame. Python also appends every event value whose key starts with
 /// `"it"` followed by digits to `vars["it"]` (`:84-86`); no [`crate::EvKey`] has that form
-/// (Inv 06a §12.2, unit-tested below), so that loop has nothing to do. Returns the new frame's
+/// (unit-tested below), so that loop has nothing to do. Returns the new frame's
 /// index (Python returns the frame).
 ///
 /// # Errors
 /// Python's `IndexError` for a host outside `st.cards`; arena overflow.
 #[allow(
     dead_code,
-    reason = "called by layer L5 (game, testkit) and C's tests (docs/port/contracts.md); they land after L4"
+    reason = "called by layer L5 (game, testkit) and C's tests (docs/dev/contracts.md); they land after L4"
 )]
 pub(crate) fn push_frame(
     st: &mut GameState,
@@ -339,14 +338,14 @@ fn rules_held(st: &GameState, fi: usize) -> bool {
 /// `run_top_frame(st)` (`interp.py:109-132`): executes the top frame until it finishes, waits
 /// for a decision or pushes a sub-frame. After every instruction: the `acted` rule, `pc += 1`
 /// on `Next`, the game-over check, rules management unless the frame holds
-/// `__hold_rules` (also after `Wait`, Inv 06a hazard 20), the game-over check again, and a
+/// `__hold_rules` (also after `Wait`), the game-over check again, and a
 /// return on `Wait`/`Pushed`. A frame that runs off its end is popped and finished.
 ///
 /// # Errors
 /// `IndexError` without frames; any error of a handler or of rules management.
 #[allow(
     dead_code,
-    reason = "called by layer L5 (game, testkit) and C's tests (docs/port/contracts.md); they land after L4"
+    reason = "called by layer L5 (game, testkit) and C's tests (docs/dev/contracts.md); they land after L4"
 )]
 pub(crate) fn run_top_frame(st: &mut GameState) -> Result<(), EngineError> {
     let reg = Arc::clone(st.registry());
@@ -544,7 +543,7 @@ fn execute_synth(
 /// end; any error of the resumer or of rules management.
 #[allow(
     dead_code,
-    reason = "called by layer L5 (game, testkit) and C's tests (docs/port/contracts.md); they land after L4"
+    reason = "called by layer L5 (game, testkit) and C's tests (docs/dev/contracts.md); they land after L4"
 )]
 pub(crate) fn resume(st: &mut GameState, action: Action) -> Result<(), EngineError> {
     let reg = Arc::clone(st.registry());
@@ -583,7 +582,7 @@ pub(crate) fn resume(st: &mut GameState, action: Action) -> Result<(), EngineErr
 /// program (`system:deploy`, `system:pair`, `system:hand_limit`; PLAN §5.2).
 #[allow(
     dead_code,
-    reason = "called by layer L5 (game, testkit) and C's tests (docs/port/contracts.md); they land after L4"
+    reason = "called by layer L5 (game, testkit) and C's tests (docs/dev/contracts.md); they land after L4"
 )]
 pub(crate) fn system_program(st: &GameState, s: SystemProgram) -> ProgramId {
     st.registry().system_program(s)

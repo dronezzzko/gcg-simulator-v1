@@ -1,4 +1,4 @@
-//! The weakness scenario tests of Phase 6 (docs/port/PLAN.md §9.8, §12.2): one module per
+//! The weakness scenario tests of Phase 6 (docs/dev/PLAN.md §9.8, §12.2): one module per
 //! scenario-shaped WEAKNESSES item, `<package>_<w-id>_<name>.rs`, built with the Rust testkit.
 
 #[path = "../aiport/mod.rs"]

@@ -1,4 +1,4 @@
-//! Shared helpers of P6-F's scenario tests (docs/port/PLAN.md §9.8): positions on the Rust
+//! Shared helpers of P6-F's scenario tests (docs/dev/PLAN.md §9.8): positions on the Rust
 //! testkit, the reference configuration as the strengthened search's null configuration (which
 //! replays the reference bit for bit, `tests/null_config.rs`) with P6-F flags switched on, and
 //! agent seeds 1..=16 played through the shared `Agent` interface.
@@ -94,11 +94,11 @@ pub fn solves(cfg: &StrengthenedConfig, solved: impl Fn(&StrengthenedConfig, u64
     SEEDS.map(|seed| u32::from(solved(cfg, seed))).sum()
 }
 
-/// The registry with the synthetic cards of `docs/port/eval/P6-F/<name>` (written by
+/// The registry with the synthetic cards of `docs/dev/eval/P6-F/<name>` (written by
 /// `synthetic_cards.py`), which must override exactly `cards`.
 pub fn fragment_registry(name: &str, cards: &[&str]) -> std::sync::Arc<Registry> {
     let path = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-        .join("../../docs/port/eval/P6-F")
+        .join("../../docs/dev/eval/P6-F")
         .join(name);
     let doc: serde_json::Value =
         serde_json::from_str(&std::fs::read_to_string(path).expect("the fragment")).expect("JSON");

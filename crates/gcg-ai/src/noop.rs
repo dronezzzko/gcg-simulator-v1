@@ -297,7 +297,7 @@ fn resources_only_paid(played: &GameState, idled: &GameState, player: u8) -> boo
 /// The engine's error from the determinisation, an `apply` or the policy.
 #[allow(
     clippy::too_many_arguments,
-    reason = "the frozen signature (docs/port/contracts.md, gcg-ai)"
+    reason = "the frozen signature (docs/dev/contracts.md, gcg-ai)"
 )]
 pub fn without_effect(
     st: &GameState,

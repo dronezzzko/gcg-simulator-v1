@@ -1,9 +1,9 @@
-//! Contract types of `gcg-ai` (docs/port/PLAN.md §6.1, §6.3, §6.6, §10.3.5), owned by the lead
+//! Contract types of `gcg-ai` (docs/dev/PLAN.md §6.1, §6.3, §6.6, §10.3.5), owned by the lead
 //! (§10.1 S).
 //!
 //! Workstreams D1 (policy, values, targeting, evaluation, playouts, greedy, random) and D2
 //! (agent core, decision log, move keys, pruning, merging, fingerprints, the no-effect check,
-//! pre-game choices) implement the functions frozen in docs/port/contracts.md (gcg-ai section)
+//! pre-game choices) implement the functions frozen in docs/dev/contracts.md (gcg-ai section)
 //! with real bodies; only the lead edits this file (§10.6 change protocol). Fields marked
 //! `pub(crate)` are the lead's starting layout of an opaque type: its named owner may change
 //! them in its landing diff, because no other crate can observe them.
@@ -12,8 +12,7 @@
 //! Python objects (`ai/evaluation.py:82-129`), so that no preset can be paired with a wrong
 //! copy of them (PLAN §6.4).
 //!
-//! Python sources are cited relative to `src/gcg_sim/`; Inv 07 is
-//! docs/port/inventory/07-ai-search.md and Inv 08 docs/port/inventory/08-ai-policy-eval.md.
+//! Python sources are cited relative to `src/gcg_sim/`.
 
 use std::borrow::Cow;
 use std::fmt;
@@ -57,7 +56,7 @@ pub trait Agent: Send {
     /// strengthened agents (D2), override it and return `Some`: each implements both methods
     /// over one generic function that takes the tracer as `&mut T`, so `choose` keeps
     /// [`NoTrace`] monomorphised. A `None` on a decision whose trace has an agent block is a
-    /// divergence (docs/port/contracts.md, gcg-diff section).
+    /// divergence (docs/dev/contracts.md, gcg-diff section).
     ///
     /// # Errors
     /// As `choose`.
@@ -109,7 +108,7 @@ pub struct AgentCx<'a> {
 #[derive(Default)]
 #[allow(
     dead_code,
-    reason = "filled and read by workstream D2's search (docs/port/contracts.md)"
+    reason = "filled and read by workstream D2's search (docs/dev/contracts.md)"
 )]
 pub struct Scratch {
     /// Recycled states for `GameState::clone_from_state` and `determinize_into` (PLAN §4.5).
@@ -165,7 +164,7 @@ impl AgentError {
 pub const LOG_ALTERNATIVES: usize = 5;
 
 /// `Alternative(action, value, visits)` (`ai/base.py:34-40`): one candidate move with its
-/// statistics, value from the chooser's point of view. Sources (Inv 07 §14): the MCTS mean;
+/// statistics, value from the chooser's point of view. Sources: the MCTS mean;
 /// the mulligan's `(keep, current, 1)` and `(redraw, 0.9 * average, samples)`; play/draw score
 /// means with `games` visits; greedy `evaluate` with 1 visit; random `1.0 / n` with 0 visits.
 #[derive(Clone, Copy, PartialEq, Debug)]
@@ -177,7 +176,7 @@ pub struct Alternative {
 
 /// `AgentCore` (`ai/base.py:43-76`): seed, decision counter and decision log shared by the
 /// random, greedy, reference and strengthened agents. `begin` and `finish` (D2, `agent.rs`)
-/// are frozen in docs/port/contracts.md.
+/// are frozen in docs/dev/contracts.md.
 #[derive(Clone, Debug)]
 pub struct AgentCore {
     pub(crate) name: Box<str>,
@@ -1035,7 +1034,7 @@ mod tests {
     }
 
     /// Tests, `gcg-diff` and tools build their `AgentCx` outside the pool with
-    /// `Pool::run_inline` (docs/port/contracts.md, gcg-ai section).
+    /// `Pool::run_inline` (docs/dev/contracts.md, gcg-ai section).
     #[test]
     fn an_agent_context_can_be_built_outside_the_pool() {
         let cancel = Cancel::new();

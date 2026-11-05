@@ -1,4 +1,4 @@
-//! `gcg-eval env` (docs/port/PLAN.md §7.4, §11.6): the build (package, `code_digest`, target,
+//! `gcg-eval env` (docs/dev/PLAN.md §7.4, §11.6): the build (package, `code_digest`, target,
 //! the CPU features it was compiled for), the CPU tiers from `sysctl` (`hw.perflevelN`), the
 //! `hw.optional.arm.*` listing, and the features `is_aarch64_feature_detected!` reports, as
 //! JSON. `scripts/compare_python_vs_rust.sh` reads its `code_digest` (`need_rust`). Nothing

@@ -1,5 +1,5 @@
 //! Helpers shared by the gcg-data fixture tests. The fixtures under `tests/vectors/` are
-//! written by `port/oracle/export_data.py` and `port/oracle/export_unicode.py` from the Python
+//! written by `oracle/export_data.py` and `oracle/export_unicode.py` from the Python
 //! reference; `--check` keeps them current.
 
 #![allow(
@@ -15,7 +15,7 @@ use serde_json::{Value, json};
 pub fn fixture(name: &str) -> Value {
     let path = format!("{}/tests/vectors/{name}", env!("CARGO_MANIFEST_DIR"));
     let text = std::fs::read_to_string(&path)
-        .unwrap_or_else(|e| panic!("{path}: {e} (run port/oracle/export_data.py)"));
+        .unwrap_or_else(|e| panic!("{path}: {e} (run oracle/export_data.py)"));
     serde_json::from_str(&text).unwrap_or_else(|e| panic!("{path}: {e}"))
 }
 

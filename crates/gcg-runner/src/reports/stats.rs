@@ -1,7 +1,6 @@
 //! Deterministic statistics helpers (`reports/stats.py`): Wilson score intervals, rounded rate
 //! blocks, ratios, the pooled two-proportion z-test, the Holm-Bonferroni step-down and
-//! nearest-rank distributions. Every operation runs on IEEE `f64` in Python's order
-//! (docs/port/inventory/02-reports.md §4).
+//! nearest-rank distributions. Every operation runs on IEEE `f64` in Python's order.
 //!
 //! Python's `int / int` is correctly rounded. Here both operands are counts of games or copies
 //! (at most `u32::MAX` matches of three games), far below `2^53`, so `a as f64 / b as f64` is

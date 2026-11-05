@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Normalise a gcg-sim report directory for a Python-vs-Rust byte comparison (W-160).
 
-Exactly three implementation fields are masked (docs/port/PLAN.md A6, A7): results.json
+Exactly three implementation fields are masked (docs/dev/PLAN.md A6, A7): results.json
 `versions.package`, `versions.code_digest` and `ai.factory`, and their renderings in summary.md
 (`factory `...`` in the headline, `gcg-sim <package>;` in the Versions section). Each is replaced
 by exact text substitution of its value; every other byte of every file is copied unchanged, so

@@ -1,5 +1,5 @@
 //! `gcg-sim` command transcripts against Python's (T-072, T-078; PLAN §10.4 E gate): for every
-//! case of `tests/vectors/commands.json` (written by `port/oracle/export_cli.py` from
+//! case of `tests/vectors/commands.json` (written by `oracle/export_cli.py` from
 //! `gcg_sim.cli.main`, run from the repository root), the `gcg-sim` binary run the same way
 //! gives the same exit status, stdout and stderr, byte for byte. Python's `versions.package`
 //! and `versions.code_digest` (the `data status` header and JSON) are replaced by the Rust

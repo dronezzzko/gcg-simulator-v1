@@ -1,9 +1,9 @@
-//! P6-G's fitted evaluation models (docs/port/PLAN.md §12.3 S10; W-34, W-35, W-36, W-142): which
+//! P6-G's fitted evaluation models (docs/dev/PLAN.md §12.3 S10; W-34, W-35, W-36, W-142): which
 //! columns of the superset vector a model reads ([`ModelSpec`]), and the fitted weights, one
 //! vector per phase bin, embedded from `weights.txt`.
 //!
 //! `weights.txt` is written by `gcg-eval tune-leaf` (the fit's report and regeneration command
-//! are in `docs/port/eval/P6-G/`); its lines are
+//! are in `docs/dev/eval/P6-G/`); its lines are
 //!
 //! ```text
 //! # comment

@@ -1,4 +1,4 @@
-//! Engine diagnostics that change no game and no output (docs/port/PLAN.md §12.2 P6-J): which
+//! Engine diagnostics that change no game and no output (docs/dev/PLAN.md §12.2 P6-J): which
 //! safety cap ended a game (W-46), how many derived views reached the fixpoint cap without
 //! converging (W-48) and which interpretation-tagged code paths ran (W-101). Nothing here is
 //! serialised, hashed or read by the engine itself.
@@ -9,7 +9,7 @@ use crate::{EndReason, GameState};
 
 /// The engine safety cap that ended a game (W-46). Python reports both as
 /// `EndReason.TURN_LIMIT` (`engine/game.py:325-332`, `:737-742`), and so does every output of
-/// the port that must equal Python's; this only tells the two apart, for diagnostics.
+/// the Rust engine that must equal Python's; this only tells the two apart, for diagnostics.
 #[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)]
 pub enum CapKind {
     /// `_next_turn` at `turn >= turn_limit` (`game.py:325-332`).
@@ -85,7 +85,7 @@ thread_local! {
         const { [const { Cell::new(0) }; Interpretation::ALL.len()] };
 }
 
-/// W-101: the interpretations of `docs/port/audit/interpretations.json` (W-56) whose code path
+/// W-101: the interpretations of `docs/dev/audit/interpretations.json` (W-56) whose code path
 /// records when it applies. Each variant names the code path; [`note_interpretation`] counts
 /// it on the running thread, and [`interpretation_runs`] reads the counts. The other
 /// interpretations of the table have no single engine code path: compile-time readings of the
@@ -152,7 +152,7 @@ impl Interpretation {
         Self::I18,
     ];
 
-    /// The id in `docs/port/audit/interpretations.json`.
+    /// The id in `docs/dev/audit/interpretations.json`.
     #[must_use]
     pub const fn id(self) -> &'static str {
         match self {

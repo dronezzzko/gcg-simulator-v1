@@ -1,5 +1,5 @@
 //! The replay of the per-test records (PLAN §8.2, §8.7) on a synthetic trace in the form
-//! `port/oracle/pytest_trace.py` writes: the `MockEngine` of the unmutated trace replays it
+//! `oracle/pytest_trace.py` writes: the `MockEngine` of the unmutated trace replays it
 //! cleanly, and each mutated copy diverges at the mutated record and field (the scenario
 //! build and its digests, a `calls_reproduce: false` snapshot, the pending decision before an
 //! apply, errors of calls, probes and view signatures, and a failed `new_game`).

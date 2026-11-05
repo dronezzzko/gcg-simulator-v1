@@ -1,4 +1,4 @@
-//! The only wall-clock code of the port (docs/port/PLAN.md §9.9, §11.8; brief constraints):
+//! The only wall-clock code of the crates (docs/dev/PLAN.md §9.9, §11.8):
 //! the `timing.json` values of [`crate::RunTiming`], written for CLI parity only and never
 //! read back, compared or used to decide anything (PLAN A17). `runner/run.py:29-38` measures
 //! the same values with `datetime.now(UTC)` and `time.perf_counter()`.

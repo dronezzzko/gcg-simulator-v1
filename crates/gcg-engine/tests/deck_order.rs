@@ -1,4 +1,4 @@
-//! T-151: `new_game` keeps the caller's deck order (`engine/game.py:107-158`; Inv 06b §5). It
+//! T-151: `new_game` keeps the caller's deck order (`engine/game.py:107-158`). It
 //! shuffles each main deck from the order it is given and leaves the resource deck in that
 //! order, so one deck multiset in two orders gives two different games from the same seed,
 //! each equal to Python's (`tests/fixtures/engine_vectors.ndjson`, `deck_order` records): the

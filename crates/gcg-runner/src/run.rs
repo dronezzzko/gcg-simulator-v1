@@ -1,5 +1,5 @@
 //! Running a benchmark: matches on the worker threads of `gcg_core::pool`, returned in match
-//! order (`runner/run.py`; docs/port/inventory/01-rng-runner-cli.md §2.6; PLAN §7).
+//! order (`runner/run.py`; PLAN §7).
 //!
 //! Every match is a pure function of (configuration, master seed, match index), so the results
 //! never depend on the number of workers or on completion order. One match is one pool task

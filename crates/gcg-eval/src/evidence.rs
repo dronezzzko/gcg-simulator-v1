@@ -1,17 +1,17 @@
-//! The evidence directory and its check (docs/port/PLAN.md §12.10; W-127): every number the
-//! port uses as evidence comes from a committed `gcg-eval` command whose raw output is
-//! committed in `docs/port/eval/evidence/` with the exact command and the commit it ran at,
-//! and the port's evaluation documents cite only commits that resolve.
+//! The evidence directory and its check (docs/dev/PLAN.md §12.10; W-127): every number the
+//! project uses as evidence comes from a committed `gcg-eval` command whose raw output is
+//! committed in `docs/dev/eval/evidence/` with the exact command and the commit it ran at,
+//! and the evaluation documents cite only commits that resolve.
 //!
 //! - `gcg-eval evidence add FILE --command TEXT` records FILE (a report written with `--out`
-//!   under the evidence directory) in `docs/port/eval/evidence/MANIFEST.json`: the path, the
+//!   under the evidence directory) in `docs/dev/eval/evidence/MANIFEST.json`: the path, the
 //!   command, the commit (`git rev-parse HEAD`), whether the tree had uncommitted changes
 //!   (`git status --porcelain`), and the file's SHA-256. Re-adding a file replaces its entry.
-//! - `gcg-eval evidence check [PATH...]` (default `docs/port/eval`) checks every manifest
+//! - `gcg-eval evidence check [PATH...]` (default `docs/dev/eval`) checks every manifest
 //!   entry (the file exists and its SHA-256 matches; its commit resolves) and every `.md` and
 //!   `.json` file under the paths: each commit cited as `commit <sha>` (or `commits <sha>`) in
 //!   Markdown or as a `"commit"` string in JSON must resolve with `git cat-file -e
-//!   <sha>^{commit}`, and each backticked `docs/port/eval/...` path in Markdown must exist.
+//!   <sha>^{commit}`, and each backticked `docs/dev/eval/...` path in Markdown must exist.
 //!   It exits 1 on any failure.
 //!
 //! Reports stay plain JSON: the zstd encoder is an opt-in feature of the build (W-99), and a
@@ -31,11 +31,11 @@ use sha2::{Digest, Sha256};
 use crate::bench_cmd::CommandError;
 
 /// The evidence directory.
-pub const EVIDENCE_DIR: &str = "docs/port/eval/evidence";
+pub const EVIDENCE_DIR: &str = "docs/dev/eval/evidence";
 /// Its manifest.
-pub const MANIFEST: &str = "docs/port/eval/evidence/MANIFEST.json";
+pub const MANIFEST: &str = "docs/dev/eval/evidence/MANIFEST.json";
 /// The default check root.
-pub const CHECK_ROOT: &str = "docs/port/eval";
+pub const CHECK_ROOT: &str = "docs/dev/eval";
 /// The manifest format.
 pub const MANIFEST_FORMAT: &str = "gcg-eval-evidence-manifest";
 pub const MANIFEST_VERSION: u32 = 1;
@@ -109,7 +109,7 @@ pub fn markdown_commits(text: &str) -> Vec<(usize, String)> {
     out
 }
 
-/// The backticked `docs/port/eval/...` paths of a Markdown text, with line numbers.
+/// The backticked `docs/dev/eval/...` paths of a Markdown text, with line numbers.
 #[must_use]
 pub fn markdown_paths(text: &str) -> Vec<(usize, String)> {
     let mut out = Vec::new();
@@ -117,7 +117,7 @@ pub fn markdown_paths(text: &str) -> Vec<(usize, String)> {
         let mut parts = line.split('`');
         parts.next();
         while let Some(inside) = parts.next() {
-            if inside.starts_with("docs/port/eval/")
+            if inside.starts_with("docs/dev/eval/")
                 && !inside.contains(' ')
                 && !inside.contains('*')
             {
@@ -360,14 +360,14 @@ mod tests {
         let text = "Measured at commit 3fbb8aa and commits `6daf17f`.\n\
                     Not a commit: commitment deadbeef1; `commit` alone.\n\
                     A seed 90000001 and a digest `0123456789abcdef0123` are not commits.\n\
-                    See `docs/port/eval/evidence/x.json` and `docs/port/eval/*.md`.\n";
+                    See `docs/dev/eval/evidence/x.json` and `docs/dev/eval/*.md`.\n";
         assert_eq!(
             markdown_commits(text),
             [(1, "3fbb8aa".to_owned()), (1, "6daf17f".to_owned())]
         );
         assert_eq!(
             markdown_paths(text),
-            [(4, "docs/port/eval/evidence/x.json".to_owned())]
+            [(4, "docs/dev/eval/evidence/x.json".to_owned())]
         );
         assert!(is_sha("3fbb8aa") && !is_sha("3fbb8a") && !is_sha("3FBB8AA") && !is_sha("xyzxyzx"));
     }

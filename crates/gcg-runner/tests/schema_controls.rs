@@ -1,7 +1,7 @@
 //! Schema negative controls (T-076; PLAN §9.5): every document in
 //! `tests/vectors/invalid-results/` is a Python `results.json` with one mutation that breaks one
 //! assertion keyword of `results.v1.schema.json`, as jsonschema judged it
-//! (`port/oracle/export_parity.py --section invalid`). The 1.1.0 validator must reject each
+//! (`oracle/export_parity.py --section invalid`). The 1.1.0 validator must reject each
 //! one, at the location jsonschema reports or inside it, and accept the unmutated base. The
 //! controls cover every keyword the schema uses except the five annotations, so a keyword the
 //! validator silently ignored would let its control through. `gcg-diff schema-check

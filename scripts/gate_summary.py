@@ -1,4 +1,4 @@
-"""Freshness lines for the Rust gate summary (docs/port/WEAKNESSES.md W-115, W-153).
+"""Freshness lines for the Rust gate summary (docs/dev/WEAKNESSES.md W-115, W-153).
 
 Standard library only (``scripts/verify_all_rust.sh`` runs it with the system ``python3``).
 Both checks are informational: the script exits 0 whatever it finds and 1 only when a file it

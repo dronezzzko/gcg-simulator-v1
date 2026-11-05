@@ -1,14 +1,14 @@
-//! Every report file regenerated from the records that `port/oracle/export_records.py` exported
+//! Every report file regenerated from the records that `oracle/export_records.py` exported
 //! from real Python benchmark runs (random test agent and the reference `fast` preset; BO1 and
 //! BO3; decision log on and off; turn-limit draws; no replays; a quoted deck path; a seed of
 //! `2**64 - 1`) and from the hand-built runs of tests/reports, compared byte for byte with the
-//! files Python wrote (docs/port/PLAN.md §10.4 E gate, first item).
+//! files Python wrote (docs/dev/PLAN.md §10.4 E gate, first item).
 //!
 //! The inputs are `games.ndjson` (read back with `GameRecord::from_json`), the match grouping,
 //! the config and the gcg-data values of `run.json`; the frozen entry points (`build_results`,
 //! `write_reports`) read the embedded gcg-data values instead, and the tests check that they
 //! equal the exported ones. Replay documents take the re-simulation (log and winner seat) from
-//! Python's replay file, because the engine is not ported yet; every other field of the replay
+//! Python's replay file, because this test runs without the engine; every other field of the replay
 //! is rebuilt from the record.
 
 use std::collections::{BTreeMap, BTreeSet};

@@ -1,14 +1,14 @@
-//! Deck sets (docs/port/PLAN.md §2.4, §10.4 F, §12.5) and `compare`'s deck references
+//! Deck sets (docs/dev/PLAN.md §2.4, §10.4 F, §12.5) and `compare`'s deck references
 //! (`ai/compare.py:116-124`).
 //!
 //! `tests` (`tests/ai/decks.py` `DECKS`) and `tuning` (`ai/tuning.py:89-93` `TUNING_DECKS`) are
-//! embedded: `port/oracle/export_decks.py` writes them as deck files under
+//! embedded: `oracle/export_decks.py` writes them as deck files under
 //! `crates/gcg-eval/decks/` and checks that each parses back to the Python `DeckList`.
 //! `examples` (`examples/decks/*.txt`) and `eval` (`examples/decks/eval/*.txt`) are read at run
 //! time relative to the working directory, as Python's `load_decks("examples")` is, and from
 //! the copies `build.rs` embeds when the working directory has no `examples/decks/` (W-123);
 //! `panel` is `examples` then `eval` (8 decks, 28 pairs). The held-out split of the panel is
-//! read from `docs/port/eval/panel.json` ([`Panel`]).
+//! read from `docs/dev/eval/panel.json` ([`Panel`]).
 
 use std::path::{Path, PathBuf};
 
@@ -21,7 +21,7 @@ pub const EXAMPLES_DIR: &str = "examples/decks";
 /// The evaluation decks (PLAN §12.5).
 pub const EVAL_DIR: &str = "examples/decks/eval";
 /// The pre-registered held-out split (PLAN §12.5, X16).
-pub const PANEL_FILE: &str = "docs/port/eval/panel.json";
+pub const PANEL_FILE: &str = "docs/dev/eval/panel.json";
 
 /// `tests/ai/decks.py` `DECKS`, in order.
 const TESTS: [(&str, &str); 2] = [
@@ -150,7 +150,7 @@ pub fn dir_decks(dir: &Path) -> Result<Vec<NamedDeck>, String> {
     paths.iter().map(|(_, p)| deck_file(p)).collect()
 }
 
-/// The decks of a set, named (docs/port/contracts.md gcg-eval `load_decks`).
+/// The decks of a set, named (docs/dev/contracts.md gcg-eval `load_decks`).
 ///
 /// # Errors
 /// A deck of `examples` or `eval` does not load.
@@ -230,7 +230,7 @@ pub fn resolve_deck(name: &str) -> Result<NamedDeck, String> {
     ))
 }
 
-/// The pre-registered panel split (`docs/port/eval/panel.json`, PLAN §12.5, X16): the held-out
+/// The pre-registered panel split (`docs/dev/eval/panel.json`, PLAN §12.5, X16): the held-out
 /// decks and the pairs with their held-out flag. A pair is held out when it contains a
 /// held-out deck or when a pair entry flags it (either source suffices, so a split written
 /// either way refuses the same pairs).

@@ -3,7 +3,7 @@
 //!
 //! Every fingerprint is compared for equality only (the `seen` set of `merge_equivalent`), so
 //! the `sorted` calls of Python, which make the comparisons order-insensitive, may use any
-//! total order whose equality is Python's `==` (Inv 07 §9). Once keys keep Python's element
+//! total order whose equality is Python's `==`. Once keys keep Python's element
 //! positions (`OnceKey::with_self`); the effect of a lasting rule key is a `ContRef` that never
 //! equals a uid, where Python compares its process-local number (PLAN D11, §8.9).
 

@@ -2,7 +2,7 @@
 
 This describes the Python package in `src/gcg_sim`: the reference oracle for the differential
 tests and the generator of the effect IR that the binaries embed. The architecture of the Rust
-crates is in [`docs/port/ARCHITECTURE.md`](port/ARCHITECTURE.md).
+crates is in [`docs/dev/ARCHITECTURE.md`](dev/ARCHITECTURE.md).
 
 The oracle is a deterministic rules engine for the Gundam Card Game (Comprehensive Rules Ver. 1.9.0),
 a typed effect DSL with a text compiler and per-card bindings, search-based AI players, a

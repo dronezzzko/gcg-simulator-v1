@@ -422,7 +422,7 @@ fn write_replays(
 ///
 /// `cancel` is checked before and after each file (PLAN §7.5): an interrupt stops the
 /// remaining writes and returns [`ReportError::Interrupted`], as Python's `KeyboardInterrupt`
-/// does even after some files were written (Inv 01 hazard 54).
+/// does even after some files were written.
 ///
 /// # Errors
 /// [`ReportError::Schema`], [`ReportError::Replay`] (the replay document's error),

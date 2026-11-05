@@ -1,5 +1,5 @@
 //! `opening_score(hand, first)` (`ai/setup.py:30-60`) on the sampled hands of
-//! `opening.ndjson` (`port/oracle/export_policy_vectors.py`), bit for bit. The function is
+//! `opening.ndjson` (`oracle/export_policy_vectors.py`), bit for bit. The function is
 //! D2's (`setup.rs`); D1 exports its vectors with the policy set (PLAN §10.4 D1).
 
 mod policy_support;

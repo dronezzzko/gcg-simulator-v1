@@ -1,4 +1,4 @@
-//! An argparse-compatible parser for the fixed structure of `gcg-sim` (docs/port/PLAN.md
+//! An argparse-compatible parser for the fixed structure of `gcg-sim` (docs/dev/PLAN.md
 //! §10.4 E, A30, T-072, T-152), shared by `gcg-sim` (`crates/gcg-cli/src/cli.rs` builds its
 //! parser) and `gcg-eval`: the parsing algorithm, messages, usage and help of CPython
 //! 3.15.1's `argparse` (`Lib/argparse.py`) for the features `cli.py:68-95` uses, and nothing
@@ -7,18 +7,18 @@
 //! subcommands (`add_subparsers(dest=..., required=True)`), with `allow_abbrev`,
 //! `suggest_on_error` and `exit_on_error` at their defaults. There are no mutually exclusive
 //! groups, `nargs` other than the default, `fromfile_prefix_chars`, deprecated arguments or
-//! parser-level defaults, so their code paths are not ported.
+//! parser-level defaults, so their code paths are not reproduced.
 //!
 //! Output is byte-identical to Python's for a non-TTY stdout at any `COLUMNS` (transcripts of
-//! `port/oracle/export_cli.py`). Two documented differences remain on a terminal: Python
+//! `oracle/export_cli.py`). Two documented differences remain on a terminal: Python
 //! colours help and errors (3.15's `color=True`) and, without `COLUMNS`, wraps to the
-//! terminal's width; this port never colours and wraps to 80 columns, because reading the
+//! terminal's width; this implementation never colours and wraps to 80 columns, because reading the
 //! terminal size needs an `ioctl`, which safe Rust cannot make.
 //!
 //! The module depends on no other `gcg-*` code except `gcg-core::lookup` and gcg-data's
 //! Python text rules (`gcg_data::py_repr`, `gcg_data::py_path_str`), which [`PyStr::repr`]
 //! and [`pypath::path_str`] extend to lone surrogates. It lives in `gcg-runner`, because
-//! `gcg-eval` cannot depend on the `gcg-sim` crate (docs/port/contracts.md, open item O11).
+//! `gcg-eval` cannot depend on the `gcg-sim` crate (docs/dev/contracts.md, open item O11).
 
 pub mod difflib;
 mod format;
@@ -191,7 +191,7 @@ pub struct Action {
     pub default: Option<Value>,
 }
 
-/// `nargs` of the actions this port supports.
+/// `nargs` of the actions this implementation supports.
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
 enum Nargs {
     /// `nargs=None`: one value.

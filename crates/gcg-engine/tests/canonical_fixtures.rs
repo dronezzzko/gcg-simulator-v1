@@ -1,5 +1,5 @@
 //! T-045 (M5.1 gate) through the public API: the Python fixture snapshots of
-//! `tests/fixtures/states.ndjson` (`port/oracle/export_state_fixtures.py`) rebuild with
+//! `tests/fixtures/states.ndjson` (`oracle/export_state_fixtures.py`) rebuild with
 //! `canon::from_canonical`, re-serialise with `canon::canonical_state` to Python's bytes, and
 //! `canon::state_digest` equals Python's `state_digest` (PLAN §4.7-§4.8).
 

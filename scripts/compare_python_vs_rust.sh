@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# External Python-vs-Rust comparison (docs/port/BENCHMARKS.md; docs/port/PLAN.md §8.8, §8.9,
+# External Python-vs-Rust comparison (docs/dev/BENCHMARKS.md; docs/dev/PLAN.md §8.8, §8.9,
 # §11.5). This is the only timing-based activity in the project; it lives outside the Rust crates.
 #
 #   scripts/compare_python_vs_rust.sh env
@@ -153,7 +153,7 @@ record_best() {
   printf '%s\n' "$2" >"$out/best-$1.txt"
 }
 
-# Long configurations get 3 runs, short ones 5 (protocol in docs/port/BENCHMARKS.md).
+# Long configurations get 3 runs, short ones 5 (protocol in docs/dev/BENCHMARKS.md).
 cmd_python() {
   local best="$1"
   [[ "$best" =~ ^[0-9]+$ ]] || die "python needs a numeric --best (Python has no --workers auto)"
@@ -611,7 +611,7 @@ cmd_equivalence() {
   done
   if [[ -n "$probe" ]]; then
     [[ "$probe" =~ ^[1-9][0-9]*$ ]] || die "--offset-probe needs a positive offset, got '$probe'"
-    [[ -f port/oracle/offset_hook/sitecustomize.py ]] || die "--offset-probe needs port/oracle/offset_hook/sitecustomize.py"
+    [[ -f oracle/offset_hook/sitecustomize.py ]] || die "--offset-probe needs oracle/offset_hook/sitecustomize.py"
   fi
   if [[ "$python_only" == 1 ]]; then
     need_python
@@ -655,7 +655,7 @@ cmd_equivalence() {
             target="$dir/python-h1.norm"
             if [[ -n "$probe" ]]; then
               python_run "$dir/python-off$probe" "$stamp" PYTHONHASHSEED=1 \
-                PYTHONPATH="$repo/port/oracle/offset_hook" GCG_ORACLE_EFFECT_OFFSET="$probe" \
+                PYTHONPATH="$repo/oracle/offset_hook" GCG_ORACLE_EFFECT_OFFSET="$probe" \
                 -- "${args[@]}" --ai-preset "$preset" --workers 10 ${extra[@]+"${extra[@]}"}
               normalize "$dir/python-off$probe" "$dir/python-off$probe.norm"
               if compare_norm "$target" "$dir/python-off$probe.norm" "$dir/diff-offset.txt"; then

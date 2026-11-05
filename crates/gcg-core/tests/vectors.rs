@@ -1,5 +1,5 @@
 //! Property tests against vectors exported from the Python reference
-//! (`uv run python port/oracle/export_vectors.py`).
+//! (`uv run python oracle/export_vectors.py`).
 
 use gcg_core::pyfloat::{format_fixed, repr_f64, round_f64};
 use gcg_core::pyjson::{DumpOptions, Json, Key, dumps};

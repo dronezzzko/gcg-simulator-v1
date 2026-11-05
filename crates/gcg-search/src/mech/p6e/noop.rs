@@ -1,5 +1,5 @@
 //! The strengthened no-effect check (`prune_worlds`, `branch_all_selects`, `real_idle_line`;
-//! W-12, W-141; docs/port/PLAN.md §12.3 S6): `ai/noop.py` (ported in `gcg_ai::noop`) with
+//! W-12, W-141; docs/dev/PLAN.md §12.3 S6): `ai/noop.py` (reproduced in `gcg_ai::noop`) with
 //!
 //! - **worlds** (`prune_worlds{K}`): the move is judged in each of the first K search worlds
 //!   instead of one world seeded from the search generator, and it is pruned only when it is

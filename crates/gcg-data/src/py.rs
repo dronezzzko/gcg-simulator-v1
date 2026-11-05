@@ -1,6 +1,6 @@
 //! Python semantics on JSON-loaded values and paths that the data layer reproduces: `str()`,
 //! `repr()`, truthiness, `int()`, `int == value`, `str(pathlib.Path(p))` and `PurePath.stem`
-//! (Inv 03 §10 H1, H4, H9, H12).
+//!.
 
 use std::fmt::Write as _;
 
@@ -86,7 +86,7 @@ pub(crate) fn as_py_int(v: &Value) -> Option<i128> {
 }
 
 /// `int(s)` for a `str` in base 10: surrounding whitespace, one optional sign, decimal digits
-/// of any script (Inv 03 §10 H4) with single underscores between them. `None` where Python
+/// of any script with single underscores between them. `None` where Python
 /// raises `ValueError` and where the value does not fit an `i128`.
 pub(crate) fn int_of_str(s: &str) -> Option<i128> {
     let t = unicode::strip(s);
@@ -171,7 +171,7 @@ pub(crate) fn to_json(v: &Value) -> Json {
     }
 }
 
-/// `str(pathlib.PurePosixPath(p))` (Inv 03 §10 H12): `.` components and repeated or trailing
+/// `str(pathlib.PurePosixPath(p))`: `.` components and repeated or trailing
 /// slashes dropped, exactly two leading slashes kept, `"."` for an empty result.
 pub(crate) fn path_str(p: &str) -> String {
     let (root, rel) = if !p.starts_with('/') {
@@ -189,7 +189,7 @@ pub(crate) fn path_str(p: &str) -> String {
     if out.is_empty() { ".".to_owned() } else { out }
 }
 
-/// `str(pathlib.Path(p))` (Inv 03 §10 H12; `deck/parse.py:111-114` names a deck file this
+/// `str(pathlib.Path(p))` (`deck/parse.py:111-114` names a deck file this
 /// way in its errors): [`path_str`] of the path's text. A path that is not valid UTF-8 is read
 /// lossily; Python's `surrogateescape` text has no Rust `String` form.
 #[must_use]

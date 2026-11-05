@@ -1,0 +1,1895 @@
+{
+ "version": 1,
+ "generator": "oracle/p6k_audit.py",
+ "interpretations": [
+  {
+   "id": "I-01",
+   "topic": "Bases deal no battle damage to the attacking Unit (every Base has 0 AP)",
+   "anchor": "docs/ASSUMPTIONS.md:54",
+   "conflicts": [
+    "rules-internal:base-ap"
+   ],
+   "tags": {
+    "rule": [
+     "8-5-2-4",
+     "3-5-4"
+    ],
+    "card": [],
+    "ruling": [],
+    "faq": []
+   },
+   "python_tests": [
+    "tests/cards/test_wp_gd03_b.py::test_gd03_132_destroyed_with_aeug_link_unit_rests_enemy_with_4_or_less_hp",
+    "tests/cards/test_wp_gd04_b.py::test_gd04_123_no_battle_damage_from_lv4_or_lower_while_zeon_rested",
+    "tests/cards/test_wp_st05_08.py::test_st07_015_no_battle_damage_from_lv3_enemy_while_cb_unit_rested",
+    "tests/rules/test_battle.py::test_base_takes_the_damage_of_an_attack_on_the_player",
+    "tests/rules/test_battle.py::test_shield_area_is_checked_when_the_damage_step_begins",
+    "tests/rules/test_faq.py::test_q32_attack_on_player_hits_base_then_shield_then_player",
+    "tests/rules/test_faq.py::test_q37_base_takes_the_attack_instead_of_a_shield",
+    "tests/rules/test_pairing.py::test_base_with_zero_ap_is_destroyed_when_its_hp_reaches_zero"
+   ],
+   "rust_traces": [
+    "tests/cards/test_wp_gd03_b.py::test_gd03_132_destroyed_with_aeug_link_unit_rests_enemy_with_4_or_less_hp",
+    "tests/cards/test_wp_gd04_b.py::test_gd04_123_no_battle_damage_from_lv4_or_lower_while_zeon_rested",
+    "tests/cards/test_wp_st05_08.py::test_st07_015_no_battle_damage_from_lv3_enemy_while_cb_unit_rested",
+    "tests/rules/test_battle.py::test_base_takes_the_damage_of_an_attack_on_the_player",
+    "tests/rules/test_battle.py::test_shield_area_is_checked_when_the_damage_step_begins",
+    "tests/rules/test_faq.py::test_q32_attack_on_player_hits_base_then_shield_then_player",
+    "tests/rules/test_faq.py::test_q37_base_takes_the_attack_instead_of_a_shield",
+    "tests/rules/test_pairing.py::test_base_with_zero_ap_is_destroyed_when_its_hp_reaches_zero"
+   ],
+   "review_snapshot": {
+    "rulings": [],
+    "faq": []
+   }
+  },
+  {
+   "id": "I-02",
+   "topic": "Exile = removal area; tokens leave the game; an EX Resource paid as a cost counts as exiled (GD05-018)",
+   "anchor": "docs/ASSUMPTIONS.md:56",
+   "conflicts": [
+    "rules-internal:remove-exile-terminology"
+   ],
+   "tags": {
+    "rule": [
+     "5-12",
+     "5-17-2-5"
+    ],
+    "card": [
+     "EXR-001",
+     "GD05-018"
+    ],
+    "ruling": [],
+    "faq": []
+   },
+   "python_tests": [
+    "tests/cards/test_wp_gd04_b.py::test_gd04_130_exile_command_from_trash_gives_enemy_ap_minus_1",
+    "tests/cards/test_wp_gd05_a.py::test_gd05_018_choice_is_optional_and_lasts_only_this_turn",
+    "tests/cards/test_wp_gd05_a.py::test_gd05_018_deploy_places_three_ex_resources",
+    "tests/cards/test_wp_gd05_a.py::test_gd05_018_ex_resources_capped_at_five",
+    "tests/cards/test_wp_gd05_a.py::test_gd05_018_exiled_ex_resource_reduces_enemy_damage_to_chosen_unit_by_3",
+    "tests/cards/test_wp_gd05_a.py::test_gd05_018_trigger_from_paying_for_a_command_resolves_after_it",
+    "tests/cards/test_wp_gd05_a.py::test_gd05_018_trigger_from_paying_for_a_unit_resolves_with_its_deploy_trigger",
+    "tests/cards/test_wp_gd05_a.py::test_gd05_018_two_copies_each_trigger_and_reductions_add_up",
+    "tests/cards/test_wp_gd05_a.py::test_gd05_018_two_ex_resources_exiled_at_once_trigger_once",
+    "tests/cards/test_wp_tokens.py::test_t010_sword_strike_blocks",
+    "tests/cards/test_wp_tokens.py::test_t011_fatum_blocks",
+    "tests/cards/test_wp_tokens.py::test_t029_can_be_attacked_and_leaves_the_game_when_destroyed",
+    "tests/rules/test_cardinfo.py::test_exiled_cards_are_placed_into_the_removal_area",
+    "tests/rules/test_damage.py::test_a_destroyed_token_still_fulfils_when_destroyed_triggers",
+    "tests/rules/test_damage.py::test_a_unit_token_attacks_and_is_destroyed_by_battle_damage_like_a_real_unit",
+    "tests/rules/test_damage.py::test_a_unit_token_can_be_paired_with_a_pilot",
+    "tests/rules/test_damage.py::test_a_unit_token_returned_to_the_hand_leaves_the_game",
+    "tests/rules/test_damage.py::test_an_effect_deploying_a_base_replaces_the_base_already_in_play",
+    "tests/rules/test_damage.py::test_destroyed_paired_unit_token_leaves_the_game_and_its_pilot_is_trashed",
+    "tests/rules/test_damage.py::test_unit_tokens_count_toward_the_battle_area_limit",
+    "tests/rules/test_faq.py::test_q104_unit_tokens_count_toward_the_six_unit_limit",
+    "tests/rules/test_zones.py::test_removed_cards_go_face_up_to_their_owners_removal_area"
+   ],
+   "rust_traces": [
+    "tests/cards/test_wp_gd04_b.py::test_gd04_130_exile_command_from_trash_gives_enemy_ap_minus_1",
+    "tests/cards/test_wp_gd05_a.py::test_gd05_018_choice_is_optional_and_lasts_only_this_turn",
+    "tests/cards/test_wp_gd05_a.py::test_gd05_018_deploy_places_three_ex_resources",
+    "tests/cards/test_wp_gd05_a.py::test_gd05_018_ex_resources_capped_at_five",
+    "tests/cards/test_wp_gd05_a.py::test_gd05_018_exiled_ex_resource_reduces_enemy_damage_to_chosen_unit_by_3",
+    "tests/cards/test_wp_gd05_a.py::test_gd05_018_trigger_from_paying_for_a_command_resolves_after_it",
+    "tests/cards/test_wp_gd05_a.py::test_gd05_018_trigger_from_paying_for_a_unit_resolves_with_its_deploy_trigger",
+    "tests/cards/test_wp_gd05_a.py::test_gd05_018_two_copies_each_trigger_and_reductions_add_up",
+    "tests/cards/test_wp_gd05_a.py::test_gd05_018_two_ex_resources_exiled_at_once_trigger_once",
+    "tests/cards/test_wp_tokens.py::test_t010_sword_strike_blocks",
+    "tests/cards/test_wp_tokens.py::test_t011_fatum_blocks",
+    "tests/cards/test_wp_tokens.py::test_t029_can_be_attacked_and_leaves_the_game_when_destroyed",
+    "tests/rules/test_cardinfo.py::test_exiled_cards_are_placed_into_the_removal_area",
+    "tests/rules/test_damage.py::test_a_destroyed_token_still_fulfils_when_destroyed_triggers",
+    "tests/rules/test_damage.py::test_a_unit_token_attacks_and_is_destroyed_by_battle_damage_like_a_real_unit",
+    "tests/rules/test_damage.py::test_a_unit_token_can_be_paired_with_a_pilot",
+    "tests/rules/test_damage.py::test_a_unit_token_returned_to_the_hand_leaves_the_game",
+    "tests/rules/test_damage.py::test_an_effect_deploying_a_base_replaces_the_base_already_in_play",
+    "tests/rules/test_damage.py::test_destroyed_paired_unit_token_leaves_the_game_and_its_pilot_is_trashed",
+    "tests/rules/test_damage.py::test_unit_tokens_count_toward_the_battle_area_limit",
+    "tests/rules/test_faq.py::test_q104_unit_tokens_count_toward_the_six_unit_limit",
+    "tests/rules/test_zones.py::test_removed_cards_go_face_up_to_their_owners_removal_area"
+   ],
+   "review_snapshot": {
+    "rulings": [
+     "GD05-018:Q348",
+     "GD05-018:Q349",
+     "GD05-018:Q350",
+     "GD05-018:Q483",
+     "GD05-018:Q484",
+     "GD05-018:Q485"
+    ],
+    "faq": []
+   }
+  },
+  {
+   "id": "I-03",
+   "topic": "Placing beyond 15 Resources / 5 EX Resources does nothing",
+   "anchor": "docs/ASSUMPTIONS.md:59",
+   "conflicts": [
+    "faq:Q19"
+   ],
+   "tags": {
+    "rule": [
+     "4-4-2",
+     "4-4-2-1"
+    ],
+    "card": [],
+    "ruling": [],
+    "faq": [
+     "Q19"
+    ]
+   },
+   "python_tests": [
+    "tests/cards/test_wp_gd05_a.py::test_gd05_018_ex_resources_capped_at_five",
+    "tests/rules/test_faq.py::test_q19_at_most_five_ex_resources",
+    "tests/rules/test_faq.py::test_q19_resource_area_holds_at_most_15_cards",
+    "tests/rules/test_zones.py::test_effect_cannot_place_a_sixteenth_resource",
+    "tests/rules/test_zones.py::test_resource_area_holds_at_most_five_ex_resources",
+    "tests/rules/test_zones.py::test_resource_step_respects_the_limit_of_fifteen",
+    "tests/slow/test_robustness.py::test_ten_thousand_random_games_hold_invariants"
+   ],
+   "rust_traces": [
+    "tests/cards/test_wp_gd05_a.py::test_gd05_018_ex_resources_capped_at_five",
+    "tests/rules/test_faq.py::test_q19_at_most_five_ex_resources",
+    "tests/rules/test_faq.py::test_q19_resource_area_holds_at_most_15_cards",
+    "tests/rules/test_zones.py::test_effect_cannot_place_a_sixteenth_resource",
+    "tests/rules/test_zones.py::test_resource_area_holds_at_most_five_ex_resources[4-5]",
+    "tests/rules/test_zones.py::test_resource_area_holds_at_most_five_ex_resources[5-5]",
+    "tests/rules/test_zones.py::test_resource_step_respects_the_limit_of_fifteen[10-5-False]",
+    "tests/rules/test_zones.py::test_resource_step_respects_the_limit_of_fifteen[14-0-True]",
+    "tests/rules/test_zones.py::test_resource_step_respects_the_limit_of_fifteen[15-0-False]"
+   ],
+   "review_snapshot": {
+    "rulings": [],
+    "faq": [
+     "Q19"
+    ]
+   }
+  },
+  {
+   "id": "I-04",
+   "topic": "Lasting 'all your Units' effects apply only to Units present at resolution",
+   "anchor": "docs/ASSUMPTIONS.md:60",
+   "conflicts": [
+    "faq:Q105"
+   ],
+   "tags": {
+    "rule": [],
+    "card": [],
+    "ruling": [],
+    "faq": [
+     "Q105"
+    ]
+   },
+   "python_tests": [
+    "tests/cards/test_wp_gd01_b.py::test_gd01_105_units_in_play_get_ap_plus_2_this_turn",
+    "tests/cards/test_wp_st01_04.py::test_st01_016_unit_linked_after_activation_gets_nothing",
+    "tests/rules/test_faq.py::test_q105_all_your_units_buff_does_not_reach_units_deployed_later"
+   ],
+   "rust_traces": [
+    "tests/cards/test_wp_gd01_b.py::test_gd01_105_units_in_play_get_ap_plus_2_this_turn",
+    "tests/cards/test_wp_st01_04.py::test_st01_016_unit_linked_after_activation_gets_nothing",
+    "tests/rules/test_faq.py::test_q105_all_your_units_buff_does_not_reach_units_deployed_later"
+   ],
+   "review_snapshot": {
+    "rulings": [],
+    "faq": [
+     "Q105"
+    ]
+   }
+  },
+  {
+   "id": "I-05",
+   "topic": "uids are assigned after the seeded shuffle and cut",
+   "anchor": "docs/ASSUMPTIONS.md:61",
+   "conflicts": [],
+   "tags": {
+    "rule": [],
+    "card": [],
+    "ruling": [],
+    "faq": []
+   },
+   "python_tests": [
+    "tests/rules/test_turn.py::test_decks_are_shuffled_and_placed_face_down",
+    "tests/rules/test_zones.py::test_trash_cards_shuffled_into_the_deck_lose_their_position"
+   ],
+   "rust_traces": [
+    "tests/rules/test_turn.py::test_decks_are_shuffled_and_placed_face_down",
+    "tests/rules/test_zones.py::test_trash_cards_shuffled_into_the_deck_lose_their_position"
+   ],
+   "review_snapshot": {
+    "rulings": [],
+    "faq": []
+   }
+  },
+  {
+   "id": "I-06",
+   "topic": "Owner-ordered simultaneous placement into private zones; random orders use the seeded RNG",
+   "anchor": "docs/ASSUMPTIONS.md:63",
+   "conflicts": [],
+   "tags": {
+    "rule": [
+     "4-1-6",
+     "4-1-7"
+    ],
+    "card": [],
+    "ruling": [],
+    "faq": []
+   },
+   "python_tests": [
+    "tests/cards/test_wp_gd02_b.py::test_gd02_104_keeps_one_on_top_bottoms_rest_then_draws_with_newtype_pilot",
+    "tests/rules/test_zones.py::test_order_of_public_cards_placed_into_a_private_location_is_hidden",
+    "tests/rules/test_zones.py::test_owner_orders_cards_placed_into_a_location_together",
+    "tests/rules/test_zones.py::test_randomly_placed_cards_are_not_ordered_by_anyone",
+    "tests/rules/test_zones.py::test_trash_cards_shuffled_into_the_deck_lose_their_position"
+   ],
+   "rust_traces": [
+    "tests/cards/test_wp_gd02_b.py::test_gd02_104_keeps_one_on_top_bottoms_rest_then_draws_with_newtype_pilot",
+    "tests/rules/test_zones.py::test_order_of_public_cards_placed_into_a_private_location_is_hidden",
+    "tests/rules/test_zones.py::test_owner_orders_cards_placed_into_a_location_together",
+    "tests/rules/test_zones.py::test_randomly_placed_cards_are_not_ordered_by_anyone",
+    "tests/rules/test_zones.py::test_trash_cards_shuffled_into_the_deck_lose_their_position"
+   ],
+   "review_snapshot": {
+    "rulings": [],
+    "faq": []
+   }
+  },
+  {
+   "id": "I-07",
+   "topic": "【Once per Turn】 is used up only when the effect performs an action",
+   "anchor": "docs/ASSUMPTIONS.md:65",
+   "conflicts": [
+    "ambiguous:once-per-turn-declined-may"
+   ],
+   "tags": {
+    "rule": [
+     "10-1-3",
+     "10-3-3-1"
+    ],
+    "card": [
+     "GD02-002",
+     "GD03-076"
+    ],
+    "ruling": [
+     "GD02-002:Q197"
+    ],
+    "faq": []
+   },
+   "python_tests": [
+    "tests/cards/test_wp_eb01_a.py::test_eb01_004_once_per_turn_is_not_used_when_no_target_could_be_chosen",
+    "tests/cards/test_wp_gd01_b.py::test_gd01_125_deploy_is_optional",
+    "tests/cards/test_wp_gd02_a.py::test_gd02_002_once_per_turn",
+    "tests/cards/test_wp_gd02_a.py::test_gd02_002_q197_already_active_does_not_use_once_per_turn",
+    "tests/cards/test_wp_gd02_a.py::test_gd02_002_requires_link",
+    "tests/cards/test_wp_gd02_a.py::test_gd02_002_set_active_after_destroying_a_unit_in_battle",
+    "tests/cards/test_wp_gd02_a.py::test_gd02_009_without_target_it_does_not_activate_or_use_once_per_turn",
+    "tests/cards/test_wp_gd02_a.py::test_gd02_022_without_age_unit_once_per_turn_is_not_used",
+    "tests/cards/test_wp_gd03_a.py::test_gd03_076_may_return_unit_dealt_battle_damage",
+    "tests/cards/test_wp_gd03_a.py::test_gd03_076_once_per_turn",
+    "tests/cards/test_wp_gd03_a.py::test_gd03_076_once_per_turn_not_used_up_when_nothing_was_returned",
+    "tests/cards/test_wp_gd03_a.py::test_gd03_076_optional",
+    "tests/cards/test_wp_gd03_a.py::test_gd03_076_unit_destroyed_by_the_battle_damage_is_not_returned",
+    "tests/rules/test_effects.py::test_effects_do_as_much_as_possible_and_you_may_declines",
+    "tests/rules/test_effects.py::test_triggered_effect_needs_every_target_of_its_choice",
+    "tests/rules/test_effects.py::test_triggered_effect_without_a_choosable_target_does_not_activate",
+    "tests/rules/test_faq.py::test_q100_no_target_means_the_card_or_effect_cannot_be_used"
+   ],
+   "rust_traces": [
+    "tests/cards/test_wp_eb01_a.py::test_eb01_004_once_per_turn_is_not_used_when_no_target_could_be_chosen",
+    "tests/cards/test_wp_gd01_b.py::test_gd01_125_deploy_is_optional",
+    "tests/cards/test_wp_gd02_a.py::test_gd02_002_once_per_turn",
+    "tests/cards/test_wp_gd02_a.py::test_gd02_002_q197_already_active_does_not_use_once_per_turn",
+    "tests/cards/test_wp_gd02_a.py::test_gd02_002_requires_link",
+    "tests/cards/test_wp_gd02_a.py::test_gd02_002_set_active_after_destroying_a_unit_in_battle",
+    "tests/cards/test_wp_gd02_a.py::test_gd02_009_without_target_it_does_not_activate_or_use_once_per_turn",
+    "tests/cards/test_wp_gd02_a.py::test_gd02_022_without_age_unit_once_per_turn_is_not_used",
+    "tests/cards/test_wp_gd03_a.py::test_gd03_076_may_return_unit_dealt_battle_damage",
+    "tests/cards/test_wp_gd03_a.py::test_gd03_076_once_per_turn",
+    "tests/cards/test_wp_gd03_a.py::test_gd03_076_once_per_turn_not_used_up_when_nothing_was_returned",
+    "tests/cards/test_wp_gd03_a.py::test_gd03_076_optional",
+    "tests/cards/test_wp_gd03_a.py::test_gd03_076_unit_destroyed_by_the_battle_damage_is_not_returned",
+    "tests/rules/test_effects.py::test_effects_do_as_much_as_possible_and_you_may_declines",
+    "tests/rules/test_effects.py::test_triggered_effect_needs_every_target_of_its_choice",
+    "tests/rules/test_effects.py::test_triggered_effect_without_a_choosable_target_does_not_activate",
+    "tests/rules/test_faq.py::test_q100_no_target_means_the_card_or_effect_cannot_be_used"
+   ],
+   "review_snapshot": {
+    "rulings": [
+     "GD02-002:Q197",
+     "GD03-076:Q235"
+    ],
+    "faq": []
+   }
+  },
+  {
+   "id": "I-08",
+   "topic": "Delayed 'During this turn, when ...' triggers repeat",
+   "anchor": "docs/ASSUMPTIONS.md:66",
+   "conflicts": [],
+   "tags": {
+    "rule": [
+     "10-1-6-1-1"
+    ],
+    "card": [
+     "GD04-002"
+    ],
+    "ruling": [],
+    "faq": []
+   },
+   "python_tests": [
+    "tests/cards/test_wp_gd03_b.py::test_gd03_120_applies_to_every_battle_kill_this_turn",
+    "tests/cards/test_wp_gd04_a.py::test_gd04_002_delayed_effect_fires_for_every_destruction_this_turn",
+    "tests/cards/test_wp_gd04_a.py::test_gd04_002_deploy_rests_an_enemy_when_an_earth_federation_unit_destroys",
+    "tests/cards/test_wp_gd04_a.py::test_gd04_002_earth_federation_units_get_ap_during_your_turn_only",
+    "tests/cards/test_wp_gd04_a.py::test_gd04_002_no_rest_without_the_deploy_effect_this_turn",
+    "tests/cards/test_wp_st12_14.py::test_st12_001_once_per_turn",
+    "tests/cards/test_wp_st12_14.py::test_st12_001_once_per_turn_when_destroyed_in_the_second_battle",
+    "tests/cards/test_wp_st12_14.py::test_st13_012_draws_once_per_turn",
+    "tests/cards/test_wp_st12_14.py::test_st14_016_link_gives_enemy_lv5_or_lower_ap_minus_1_once_per_turn",
+    "tests/rules/test_effects.py::test_triggered_effect_activates_every_time_unless_once_per_turn"
+   ],
+   "rust_traces": [
+    "tests/cards/test_wp_gd03_b.py::test_gd03_120_applies_to_every_battle_kill_this_turn",
+    "tests/cards/test_wp_gd04_a.py::test_gd04_002_delayed_effect_fires_for_every_destruction_this_turn",
+    "tests/cards/test_wp_gd04_a.py::test_gd04_002_deploy_rests_an_enemy_when_an_earth_federation_unit_destroys",
+    "tests/cards/test_wp_gd04_a.py::test_gd04_002_earth_federation_units_get_ap_during_your_turn_only",
+    "tests/cards/test_wp_gd04_a.py::test_gd04_002_no_rest_without_the_deploy_effect_this_turn",
+    "tests/cards/test_wp_st12_14.py::test_st12_001_once_per_turn",
+    "tests/cards/test_wp_st12_14.py::test_st12_001_once_per_turn_when_destroyed_in_the_second_battle",
+    "tests/cards/test_wp_st12_14.py::test_st13_012_draws_once_per_turn",
+    "tests/cards/test_wp_st12_14.py::test_st14_016_link_gives_enemy_lv5_or_lower_ap_minus_1_once_per_turn",
+    "tests/rules/test_effects.py::test_triggered_effect_activates_every_time_unless_once_per_turn"
+   ],
+   "review_snapshot": {
+    "rulings": [],
+    "faq": []
+   }
+  },
+  {
+   "id": "I-09",
+   "topic": "'During this battle' effects outside a battle do nothing",
+   "anchor": "docs/ASSUMPTIONS.md:67",
+   "conflicts": [
+    "ambiguous:during-this-battle-without-battle"
+   ],
+   "tags": {
+    "rule": [
+     "8-2-3",
+     "8-6-1"
+    ],
+    "card": [
+     "EB01-070",
+     "GD01-058",
+     "GD01-082",
+     "GD02-105",
+     "GD02-106",
+     "GD02-119"
+    ],
+    "ruling": [],
+    "faq": []
+   },
+   "python_tests": [
+    "tests/cards/test_wp_eb01_b.py::test_burst_adds_this_card_to_hand",
+    "tests/cards/test_wp_eb01_b.py::test_eb01_070_can_choose_an_enemy_unit",
+    "tests/cards/test_wp_eb01_b.py::test_eb01_070_needs_link",
+    "tests/cards/test_wp_eb01_b.py::test_eb01_070_on_your_turn_the_cost_is_paid_for_nothing",
+    "tests/cards/test_wp_eb01_b.py::test_eb01_070_opponents_turn_ap_plus_1_during_battle",
+    "tests/cards/test_wp_eb01_b.py::test_eb01_070_outside_a_battle_the_bonus_does_not_outlive_the_turn",
+    "tests/cards/test_wp_gd01_a.py::test_gd01_058_action_gives_a_lv4_unit_of_either_side_ap_plus_one_during_battle",
+    "tests/cards/test_wp_gd01_a.py::test_gd01_058_outside_a_battle_the_bonus_does_not_last_into_later_turns",
+    "tests/cards/test_wp_gd01_b.py::test_gd01_082_ap_reduction_ends_with_the_battle",
+    "tests/cards/test_wp_gd01_b.py::test_gd01_082_paired_action_gives_enemy_ap_minus_1_during_battle",
+    "tests/cards/test_wp_gd01_b.py::test_gd01_082_unpaired_cannot_activate",
+    "tests/cards/test_wp_gd01_b.py::test_gd01_082_used_in_end_phase_does_not_outlast_the_turn",
+    "tests/cards/test_wp_gd02_b.py::test_gd02_105_cannot_be_played_in_the_main_phase",
+    "tests/cards/test_wp_gd02_b.py::test_gd02_105_needs_a_unit_token",
+    "tests/cards/test_wp_gd02_b.py::test_gd02_105_token_takes_no_battle_damage_from_enemy_unit",
+    "tests/cards/test_wp_gd02_b.py::test_gd02_106_base_is_protected_too",
+    "tests/cards/test_wp_gd02_b.py::test_gd02_106_breach_control_without_white_wolf",
+    "tests/cards/test_wp_gd02_b.py::test_gd02_106_breach_damage_from_lv3_unit_is_prevented",
+    "tests/cards/test_wp_gd02_b.py::test_gd02_106_lasts_only_for_this_battle",
+    "tests/cards/test_wp_gd02_b.py::test_gd02_106_lv4_attacker_still_destroys_shield",
+    "tests/cards/test_wp_gd02_b.py::test_gd02_106_played_in_end_phase_does_not_protect_later_battles",
+    "tests/cards/test_wp_gd02_b.py::test_gd02_106_shield_area_safe_from_lv3_or_lower_attacker",
+    "tests/cards/test_wp_gd02_b.py::test_gd02_119_enemy_gets_ap_minus_three_during_this_battle",
+    "tests/cards/test_wp_gd02_b.py::test_gd02_119_played_in_end_phase_does_not_outlive_the_turn",
+    "tests/cards/test_wp_gd02_b.py::test_gd02_119_without_gjallarhorn_link_unit_does_nothing",
+    "tests/cards/test_wp_gd03_b.py::test_gd03_115_no_battle_damage_from_2_ap_enemy_during_this_battle",
+    "tests/cards/test_wp_gd03_b.py::test_gd03_115_played_outside_a_battle_grants_nothing_lasting",
+    "tests/cards/test_wp_gd04_b.py::test_gd04_113_outside_a_battle_has_no_lasting_effect",
+    "tests/cards/test_wp_gd05_b.py::test_gd05_119_enemy_battling_lv5_unit_gets_ap_minus_3_this_battle",
+    "tests/cards/test_wp_st01_04.py::test_st02_013_played_outside_a_battle_has_no_lasting_effect",
+    "tests/cards/test_wp_st01_04.py::test_st03_014_played_outside_a_battle_has_no_lasting_effect",
+    "tests/cards/test_wp_st01_04.py::test_st04_010_attack_enemy_ap_minus_2_during_battle",
+    "tests/cards/test_wp_st09_11.py::test_st10_015_enemy_gets_ap_minus_3_during_this_battle",
+    "tests/cards/test_wp_st09_11.py::test_st10_015_played_outside_battle_does_not_persist_past_the_turn",
+    "tests/cards/test_wp_st12_14.py::test_st12_006_action_suppression_during_this_battle",
+    "tests/cards/test_wp_st12_14.py::test_st12_006_suppression_activated_outside_a_battle_does_not_persist",
+    "tests/cards/test_wp_st12_14.py::test_st12_014_granted_effect_ends_with_the_battle",
+    "tests/cards/test_wp_st12_14.py::test_st12_014_played_outside_a_battle_grants_nothing_lasting",
+    "tests/cards/test_wp_st12_14.py::test_st14_011_attack_reduces_ap_by_rested_enemy_count_during_this_battle",
+    "tests/rules/test_battle.py::test_action_step_choices_are_action_commands_activate_action_or_pass",
+    "tests/rules/test_battle.py::test_activate_action_effect_is_unavailable_without_its_cost",
+    "tests/rules/test_battle.py::test_activate_action_effect_pays_its_cost_and_resolves",
+    "tests/rules/test_battle.py::test_activated_during_this_battle_bonus_ends_with_the_battle",
+    "tests/rules/test_battle.py::test_battle_runs_attack_block_action_damage_and_battle_end_steps_in_order",
+    "tests/rules/test_battle.py::test_during_this_battle_effect_applies_from_the_attack_step",
+    "tests/rules/test_battle.py::test_during_this_battle_effect_does_not_reach_the_next_battle",
+    "tests/rules/test_battle.py::test_during_this_battle_effect_outside_a_battle_does_not_outlast_the_turn"
+   ],
+   "rust_traces": [
+    "tests/cards/test_wp_eb01_b.py::test_burst_adds_this_card_to_hand[EB01-061]",
+    "tests/cards/test_wp_eb01_b.py::test_burst_adds_this_card_to_hand[EB01-062]",
+    "tests/cards/test_wp_eb01_b.py::test_burst_adds_this_card_to_hand[EB01-063]",
+    "tests/cards/test_wp_eb01_b.py::test_burst_adds_this_card_to_hand[EB01-064]",
+    "tests/cards/test_wp_eb01_b.py::test_burst_adds_this_card_to_hand[EB01-065]",
+    "tests/cards/test_wp_eb01_b.py::test_burst_adds_this_card_to_hand[EB01-066]",
+    "tests/cards/test_wp_eb01_b.py::test_burst_adds_this_card_to_hand[EB01-067]",
+    "tests/cards/test_wp_eb01_b.py::test_burst_adds_this_card_to_hand[EB01-068]",
+    "tests/cards/test_wp_eb01_b.py::test_burst_adds_this_card_to_hand[EB01-069]",
+    "tests/cards/test_wp_eb01_b.py::test_burst_adds_this_card_to_hand[EB01-070]",
+    "tests/cards/test_wp_eb01_b.py::test_burst_adds_this_card_to_hand[EB01-071]",
+    "tests/cards/test_wp_eb01_b.py::test_burst_adds_this_card_to_hand[EB01-072]",
+    "tests/cards/test_wp_eb01_b.py::test_burst_adds_this_card_to_hand[EB01-077]",
+    "tests/cards/test_wp_eb01_b.py::test_burst_adds_this_card_to_hand[EB01-081]",
+    "tests/cards/test_wp_eb01_b.py::test_eb01_070_can_choose_an_enemy_unit",
+    "tests/cards/test_wp_eb01_b.py::test_eb01_070_needs_link",
+    "tests/cards/test_wp_eb01_b.py::test_eb01_070_on_your_turn_the_cost_is_paid_for_nothing",
+    "tests/cards/test_wp_eb01_b.py::test_eb01_070_opponents_turn_ap_plus_1_during_battle",
+    "tests/cards/test_wp_eb01_b.py::test_eb01_070_outside_a_battle_the_bonus_does_not_outlive_the_turn",
+    "tests/cards/test_wp_gd01_a.py::test_gd01_058_action_gives_a_lv4_unit_of_either_side_ap_plus_one_during_battle",
+    "tests/cards/test_wp_gd01_a.py::test_gd01_058_outside_a_battle_the_bonus_does_not_last_into_later_turns",
+    "tests/cards/test_wp_gd01_b.py::test_gd01_082_ap_reduction_ends_with_the_battle",
+    "tests/cards/test_wp_gd01_b.py::test_gd01_082_paired_action_gives_enemy_ap_minus_1_during_battle",
+    "tests/cards/test_wp_gd01_b.py::test_gd01_082_unpaired_cannot_activate",
+    "tests/cards/test_wp_gd01_b.py::test_gd01_082_used_in_end_phase_does_not_outlast_the_turn",
+    "tests/cards/test_wp_gd02_b.py::test_gd02_105_cannot_be_played_in_the_main_phase",
+    "tests/cards/test_wp_gd02_b.py::test_gd02_105_needs_a_unit_token",
+    "tests/cards/test_wp_gd02_b.py::test_gd02_105_token_takes_no_battle_damage_from_enemy_unit",
+    "tests/cards/test_wp_gd02_b.py::test_gd02_106_base_is_protected_too",
+    "tests/cards/test_wp_gd02_b.py::test_gd02_106_breach_control_without_white_wolf",
+    "tests/cards/test_wp_gd02_b.py::test_gd02_106_breach_damage_from_lv3_unit_is_prevented",
+    "tests/cards/test_wp_gd02_b.py::test_gd02_106_lasts_only_for_this_battle",
+    "tests/cards/test_wp_gd02_b.py::test_gd02_106_lv4_attacker_still_destroys_shield",
+    "tests/cards/test_wp_gd02_b.py::test_gd02_106_played_in_end_phase_does_not_protect_later_battles",
+    "tests/cards/test_wp_gd02_b.py::test_gd02_106_shield_area_safe_from_lv3_or_lower_attacker",
+    "tests/cards/test_wp_gd02_b.py::test_gd02_119_enemy_gets_ap_minus_three_during_this_battle",
+    "tests/cards/test_wp_gd02_b.py::test_gd02_119_played_in_end_phase_does_not_outlive_the_turn",
+    "tests/cards/test_wp_gd02_b.py::test_gd02_119_without_gjallarhorn_link_unit_does_nothing",
+    "tests/cards/test_wp_gd03_b.py::test_gd03_115_no_battle_damage_from_2_ap_enemy_during_this_battle",
+    "tests/cards/test_wp_gd03_b.py::test_gd03_115_played_outside_a_battle_grants_nothing_lasting",
+    "tests/cards/test_wp_gd04_b.py::test_gd04_113_outside_a_battle_has_no_lasting_effect",
+    "tests/cards/test_wp_gd05_b.py::test_gd05_119_enemy_battling_lv5_unit_gets_ap_minus_3_this_battle",
+    "tests/cards/test_wp_st01_04.py::test_st02_013_played_outside_a_battle_has_no_lasting_effect",
+    "tests/cards/test_wp_st01_04.py::test_st03_014_played_outside_a_battle_has_no_lasting_effect",
+    "tests/cards/test_wp_st01_04.py::test_st04_010_attack_enemy_ap_minus_2_during_battle",
+    "tests/cards/test_wp_st09_11.py::test_st10_015_enemy_gets_ap_minus_3_during_this_battle",
+    "tests/cards/test_wp_st09_11.py::test_st10_015_played_outside_battle_does_not_persist_past_the_turn",
+    "tests/cards/test_wp_st12_14.py::test_st12_006_action_suppression_during_this_battle",
+    "tests/cards/test_wp_st12_14.py::test_st12_006_suppression_activated_outside_a_battle_does_not_persist",
+    "tests/cards/test_wp_st12_14.py::test_st12_014_granted_effect_ends_with_the_battle",
+    "tests/cards/test_wp_st12_14.py::test_st12_014_played_outside_a_battle_grants_nothing_lasting",
+    "tests/cards/test_wp_st12_14.py::test_st14_011_attack_reduces_ap_by_rested_enemy_count_during_this_battle",
+    "tests/rules/test_battle.py::test_action_step_choices_are_action_commands_activate_action_or_pass",
+    "tests/rules/test_battle.py::test_activate_action_effect_is_unavailable_without_its_cost",
+    "tests/rules/test_battle.py::test_activate_action_effect_pays_its_cost_and_resolves",
+    "tests/rules/test_battle.py::test_activated_during_this_battle_bonus_ends_with_the_battle",
+    "tests/rules/test_battle.py::test_battle_runs_attack_block_action_damage_and_battle_end_steps_in_order",
+    "tests/rules/test_battle.py::test_during_this_battle_effect_applies_from_the_attack_step",
+    "tests/rules/test_battle.py::test_during_this_battle_effect_does_not_reach_the_next_battle",
+    "tests/rules/test_battle.py::test_during_this_battle_effect_outside_a_battle_does_not_outlast_the_turn"
+   ],
+   "review_snapshot": {
+    "rulings": [
+     "EB01-070:Q326",
+     "GD01-058:Q134",
+     "GD02-106:Q192"
+    ],
+    "faq": []
+   }
+  },
+  {
+   "id": "I-10",
+   "topic": "Destruction cause: effect damage destroys 'with damage', 'destroyed by an effect' means destroy effects only",
+   "anchor": "docs/ASSUMPTIONS.md:68",
+   "conflicts": [],
+   "tags": {
+    "rule": [],
+    "card": [],
+    "ruling": [
+     "GD05-035:Q361",
+     "ST12-001:Q437",
+     "ST12-003:Q439",
+     "GD04-101:Q287",
+     "GD05-054:Q368"
+    ],
+    "faq": []
+   },
+   "python_tests": [
+    "tests/cards/test_wp_gd04_b.py::test_gd04_101_q287_effect_damage_still_destroys",
+    "tests/cards/test_wp_gd05_a.py::test_gd05_035_breach_destroying_a_shield_triggers",
+    "tests/cards/test_wp_gd05_a.py::test_gd05_035_breach_destroying_the_base_triggers",
+    "tests/cards/test_wp_gd05_a.py::test_gd05_054_draws_once_per_turn_when_a_unit_is_destroyed_by_an_effect",
+    "tests/cards/test_wp_gd05_a.py::test_gd05_054_no_draw_for_effect_damage_or_battle_destruction",
+    "tests/cards/test_wp_st12_14.py::test_st12_001_q437_triggers_when_destroying_with_effect_damage",
+    "tests/cards/test_wp_st12_14.py::test_st12_003_q439_triggers_when_destroying_with_effect_damage"
+   ],
+   "rust_traces": [
+    "tests/cards/test_wp_gd04_b.py::test_gd04_101_q287_effect_damage_still_destroys",
+    "tests/cards/test_wp_gd05_a.py::test_gd05_035_breach_destroying_a_shield_triggers",
+    "tests/cards/test_wp_gd05_a.py::test_gd05_035_breach_destroying_the_base_triggers",
+    "tests/cards/test_wp_gd05_a.py::test_gd05_054_draws_once_per_turn_when_a_unit_is_destroyed_by_an_effect",
+    "tests/cards/test_wp_gd05_a.py::test_gd05_054_no_draw_for_effect_damage_or_battle_destruction",
+    "tests/cards/test_wp_st12_14.py::test_st12_001_q437_triggers_when_destroying_with_effect_damage",
+    "tests/cards/test_wp_st12_14.py::test_st12_003_q439_triggers_when_destroying_with_effect_damage"
+   ],
+   "review_snapshot": {
+    "rulings": [],
+    "faq": []
+   }
+  },
+  {
+   "id": "I-11",
+   "topic": "Modal Commands need a mode whose targets can all be chosen",
+   "anchor": "docs/ASSUMPTIONS.md:69",
+   "conflicts": [],
+   "tags": {
+    "rule": [],
+    "card": [],
+    "ruling": [
+     "ST12-015:Q450",
+     "ST12-015:Q451",
+     "ST14-013:Q469"
+    ],
+    "faq": []
+   },
+   "python_tests": [
+    "tests/cards/test_wp_st12_14.py::test_st12_015_q450_mode_1_needs_an_enemy_lv2_or_lower",
+    "tests/cards/test_wp_st12_14.py::test_st12_015_q451_mode_2_needs_friendly_and_enemy_lv5_or_higher",
+    "tests/cards/test_wp_st12_14.py::test_st14_013_q469_not_playable_without_enemy_units"
+   ],
+   "rust_traces": [
+    "tests/cards/test_wp_st12_14.py::test_st12_015_q450_mode_1_needs_an_enemy_lv2_or_lower",
+    "tests/cards/test_wp_st12_14.py::test_st12_015_q451_mode_2_needs_friendly_and_enemy_lv5_or_higher[False]",
+    "tests/cards/test_wp_st12_14.py::test_st12_015_q451_mode_2_needs_friendly_and_enemy_lv5_or_higher[True]",
+    "tests/cards/test_wp_st12_14.py::test_st14_013_q469_not_playable_without_enemy_units"
+   ],
+   "review_snapshot": {
+    "rulings": [],
+    "faq": []
+   }
+  },
+  {
+   "id": "I-12",
+   "topic": "Attack-target constraint priority (GD04-107 outranks 'if possible' attractors)",
+   "anchor": "docs/ASSUMPTIONS.md:70",
+   "conflicts": [],
+   "tags": {
+    "rule": [],
+    "card": [
+     "GD04-107"
+    ],
+    "ruling": [
+     "GD05-086:Q388"
+    ],
+    "faq": []
+   },
+   "python_tests": [
+    "tests/cards/test_wp_gd04_b.py::test_gd04_107_burst_adds_to_hand",
+    "tests/cards/test_wp_gd04_b.py::test_gd04_107_q289_outranks_if_possible_attractors",
+    "tests/cards/test_wp_gd04_b.py::test_gd04_107_q290_several_chosen_units_attacker_picks_one",
+    "tests/cards/test_wp_gd04_b.py::test_gd04_107_q298_later_attacks_must_target_chosen_unit_current_one_unchanged",
+    "tests/cards/test_wp_gd04_b.py::test_gd04_107_q299_chosen_unit_gone_frees_attackers",
+    "tests/cards/test_wp_gd04_b.py::test_gd04_107_q300_active_chosen_unit_frees_attackers",
+    "tests/cards/test_wp_gd04_b.py::test_gd04_107_q301_active_chosen_unit_binds_attackers_allowed_to_hit_active",
+    "tests/cards/test_wp_gd05_b.py::test_gd05_086_several_attractors_attacker_chooses_one_of_them"
+   ],
+   "rust_traces": [
+    "tests/cards/test_wp_gd04_b.py::test_gd04_107_burst_adds_to_hand",
+    "tests/cards/test_wp_gd04_b.py::test_gd04_107_q289_outranks_if_possible_attractors",
+    "tests/cards/test_wp_gd04_b.py::test_gd04_107_q290_several_chosen_units_attacker_picks_one",
+    "tests/cards/test_wp_gd04_b.py::test_gd04_107_q298_later_attacks_must_target_chosen_unit_current_one_unchanged",
+    "tests/cards/test_wp_gd04_b.py::test_gd04_107_q299_chosen_unit_gone_frees_attackers",
+    "tests/cards/test_wp_gd04_b.py::test_gd04_107_q300_active_chosen_unit_frees_attackers",
+    "tests/cards/test_wp_gd04_b.py::test_gd04_107_q301_active_chosen_unit_binds_attackers_allowed_to_hit_active",
+    "tests/cards/test_wp_gd05_b.py::test_gd05_086_several_attractors_attacker_chooses_one_of_them"
+   ],
+   "review_snapshot": {
+    "rulings": [
+     "GD04-107:Q289",
+     "GD04-107:Q290",
+     "GD04-107:Q298",
+     "GD04-107:Q299",
+     "GD04-107:Q300",
+     "GD04-107:Q301"
+    ],
+    "faq": []
+   }
+  },
+  {
+   "id": "I-13",
+   "topic": "'Deploy it as an (APx･HPy) Unit'",
+   "anchor": "docs/ASSUMPTIONS.md:71",
+   "conflicts": [],
+   "tags": {
+    "rule": [],
+    "card": [],
+    "ruling": [
+     "GD05-089:Q389",
+     "GD05-089:Q390"
+    ],
+    "faq": []
+   },
+   "python_tests": [
+    "tests/cards/test_wp_gd05_b.py::test_gd05_089_deployed_as_unit_can_be_paired",
+    "tests/cards/test_wp_gd05_b.py::test_gd05_089_deployed_as_unit_is_lv6"
+   ],
+   "rust_traces": [
+    "tests/cards/test_wp_gd05_b.py::test_gd05_089_deployed_as_unit_can_be_paired",
+    "tests/cards/test_wp_gd05_b.py::test_gd05_089_deployed_as_unit_is_lv6"
+   ],
+   "review_snapshot": {
+    "rulings": [],
+    "faq": []
+   }
+  },
+  {
+   "id": "I-14",
+   "topic": "Removal-area cards are not targets (10-2-2-1, read literally)",
+   "anchor": "src/gcg_sim/engine/interp.py:1051-1055",
+   "conflicts": [],
+   "tags": {
+    "rule": [
+     "10-2-2-1"
+    ],
+    "card": [],
+    "ruling": [],
+    "faq": []
+   },
+   "python_tests": [
+    "tests/cards/test_wp_st12_14.py::test_st13_015_needs_3_unit_cards_in_trash",
+    "tests/rules/test_effects.py::test_targets_are_chosen_only_from_public_locations"
+   ],
+   "rust_traces": [
+    "tests/cards/test_wp_st12_14.py::test_st13_015_needs_3_unit_cards_in_trash",
+    "tests/rules/test_effects.py::test_targets_are_chosen_only_from_public_locations"
+   ],
+   "review_snapshot": {
+    "rulings": [],
+    "faq": []
+   }
+  },
+  {
+   "id": "I-15",
+   "topic": "The last placed Shield is on top",
+   "anchor": "docs/CONFLICTS.md (faq:Q8)",
+   "conflicts": [
+    "faq:Q8"
+   ],
+   "tags": {
+    "rule": [],
+    "card": [],
+    "ruling": [],
+    "faq": [
+     "Q8"
+    ]
+   },
+   "python_tests": [
+    "tests/rules/test_faq.py::test_q8_top_deck_card_becomes_the_bottom_shield",
+    "tests/rules/test_turn.py::test_six_shields_are_placed_from_the_top_of_the_deck",
+    "tests/rules/test_zones.py::test_shields_are_taken_from_the_deck_one_at_a_time_and_placed_face_down"
+   ],
+   "rust_traces": [
+    "tests/rules/test_faq.py::test_q8_top_deck_card_becomes_the_bottom_shield",
+    "tests/rules/test_turn.py::test_six_shields_are_placed_from_the_top_of_the_deck",
+    "tests/rules/test_zones.py::test_shields_are_taken_from_the_deck_one_at_a_time_and_placed_face_down"
+   ],
+   "review_snapshot": {
+    "rulings": [],
+    "faq": [
+     "Q8"
+    ]
+   }
+  },
+  {
+   "id": "I-16",
+   "topic": "A 0-AP attack on a player with no Base and no Shields does not defeat",
+   "anchor": "src/gcg_sim/engine/core.py:18-19",
+   "conflicts": [
+    "rules-internal:zero-ap-player-damage"
+   ],
+   "tags": {
+    "rule": [],
+    "card": [],
+    "ruling": [],
+    "faq": []
+   },
+   "python_tests": [
+    "tests/rules/test_battle.py::test_zero_ap_unit_may_attack_but_cannot_destroy_a_shield",
+    "tests/rules/test_damage.py::test_zero_ap_attack_on_a_player_with_empty_shield_area_deals_no_damage"
+   ],
+   "rust_traces": [
+    "tests/rules/test_battle.py::test_zero_ap_unit_may_attack_but_cannot_destroy_a_shield",
+    "tests/rules/test_damage.py::test_zero_ap_attack_on_a_player_with_empty_shield_area_deals_no_damage"
+   ],
+   "review_snapshot": {
+    "rulings": [],
+    "faq": []
+   }
+  },
+  {
+   "id": "I-17",
+   "topic": "【When Linked】 triggers only on pairing",
+   "anchor": "docs/CONFLICTS.md (rules-internal:when-linked-set)",
+   "conflicts": [
+    "rules-internal:when-linked-set"
+   ],
+   "tags": {
+    "rule": [
+     "13-2-11-1"
+    ],
+    "card": [],
+    "ruling": [],
+    "faq": []
+   },
+   "python_tests": [
+    "tests/cards/test_wp_eb01_a.py::test_eb01_034_when_linked_look_top_three",
+    "tests/cards/test_wp_eb01_b.py::test_eb01_065_when_linked_grants_breach_1_this_turn",
+    "tests/cards/test_wp_eb01_b.py::test_eb01_086_first_gg_link_each_turn_gains_repair_2",
+    "tests/cards/test_wp_gd01_b.py::test_gd01_088_when_linked_draws_1",
+    "tests/cards/test_wp_gd02_b.py::test_gd02_087_pairing_without_link_does_not_trigger",
+    "tests/cards/test_wp_gd03_b.py::test_gd03_084_when_linked_repair_and_draw_for_jupitris",
+    "tests/cards/test_wp_gd03_b.py::test_gd03_087_when_linked_rests_enemy_lv3_or_lower",
+    "tests/cards/test_wp_gd04_a.py::test_gd04_009_when_linked_sets_a_lv4_white_base_team_unit_active",
+    "tests/cards/test_wp_st05_08.py::test_st06_001_when_linked_with_another_clan_unit_gains_first_strike",
+    "tests/cards/test_wp_st05_08.py::test_st06_009_when_linked_may_add_clan_top_card",
+    "tests/cards/test_wp_st09_11.py::test_st09_003_when_linked_damages_all_units_with_5_or_less_ap",
+    "tests/cards/test_wp_st09_11.py::test_st10_007_when_linked_development_adds_command_lv4_or_lower",
+    "tests/cards/test_wp_st09_11.py::test_st10_011_when_linked_rests_enemy_up_to_paired_unit_lv",
+    "tests/rules/test_keywords.py::test_when_linked_activates_when_a_link_pilot_is_paired",
+    "tests/rules/test_keywords.py::test_when_linked_does_not_activate_for_a_non_link_pilot"
+   ],
+   "rust_traces": [
+    "tests/cards/test_wp_eb01_a.py::test_eb01_034_when_linked_look_top_three",
+    "tests/cards/test_wp_eb01_b.py::test_eb01_065_when_linked_grants_breach_1_this_turn",
+    "tests/cards/test_wp_eb01_b.py::test_eb01_086_first_gg_link_each_turn_gains_repair_2",
+    "tests/cards/test_wp_gd01_b.py::test_gd01_088_when_linked_draws_1",
+    "tests/cards/test_wp_gd02_b.py::test_gd02_087_pairing_without_link_does_not_trigger",
+    "tests/cards/test_wp_gd03_b.py::test_gd03_084_when_linked_repair_and_draw_for_jupitris",
+    "tests/cards/test_wp_gd03_b.py::test_gd03_087_when_linked_rests_enemy_lv3_or_lower",
+    "tests/cards/test_wp_gd04_a.py::test_gd04_009_when_linked_sets_a_lv4_white_base_team_unit_active",
+    "tests/cards/test_wp_st05_08.py::test_st06_001_when_linked_with_another_clan_unit_gains_first_strike",
+    "tests/cards/test_wp_st05_08.py::test_st06_009_when_linked_may_add_clan_top_card",
+    "tests/cards/test_wp_st09_11.py::test_st09_003_when_linked_damages_all_units_with_5_or_less_ap",
+    "tests/cards/test_wp_st09_11.py::test_st10_007_when_linked_development_adds_command_lv4_or_lower",
+    "tests/cards/test_wp_st09_11.py::test_st10_011_when_linked_rests_enemy_up_to_paired_unit_lv",
+    "tests/rules/test_keywords.py::test_when_linked_activates_when_a_link_pilot_is_paired",
+    "tests/rules/test_keywords.py::test_when_linked_does_not_activate_for_a_non_link_pilot"
+   ],
+   "review_snapshot": {
+    "rulings": [],
+    "faq": []
+   }
+  },
+  {
+   "id": "I-18",
+   "topic": "<Suppression> with a Base present does nothing",
+   "anchor": "docs/CONFLICTS.md (ambiguous:suppression-with-base)",
+   "conflicts": [
+    "ambiguous:suppression-with-base"
+   ],
+   "tags": {
+    "rule": [],
+    "card": [
+     "EB01-045",
+     "EB01-049",
+     "GD02-036",
+     "GD03-034",
+     "GD03-049",
+     "GD04-049",
+     "GD04-066",
+     "GD04-067",
+     "GD04-094",
+     "GD05-038",
+     "GD05-049",
+     "GD05-067",
+     "GD05-068",
+     "ST05-001",
+     "ST09-004",
+     "ST12-006",
+     "ST14-001"
+    ],
+    "ruling": [],
+    "faq": []
+   },
+   "python_tests": [
+    "tests/cards/test_wp_eb01_a.py::test_eb01_045_when_paired_returns_an_enemy_unit_with_repair",
+    "tests/cards/test_wp_eb01_b.py::test_eb01_049_gains_suppression_with_friendly_gg_blocker",
+    "tests/cards/test_wp_eb01_b.py::test_eb01_049_no_suppression_without_gg_blocker",
+    "tests/cards/test_wp_gd02_a.py::test_gd02_036_attack_needs_a_neo_zeon_pilot",
+    "tests/cards/test_wp_gd02_a.py::test_gd02_036_attack_with_neo_zeon_pilot_deals_2_to_damaged_enemy",
+    "tests/cards/test_wp_gd02_a.py::test_gd02_036_when_linked_gains_suppression_this_turn",
+    "tests/cards/test_wp_gd03_a.py::test_gd03_034_deploy_deals_3_and_suppression",
+    "tests/cards/test_wp_gd03_a.py::test_gd03_049_destroys_enemy_with_lowest_current_hp",
+    "tests/cards/test_wp_gd03_a.py::test_gd03_049_needs_10_cb_cards_in_trash",
+    "tests/cards/test_wp_gd03_a.py::test_gd03_049_tied_lowest_hp_chooser_picks_one",
+    "tests/cards/test_wp_gd04_a.py::test_gd04_049_attacking_a_unit_does_nothing",
+    "tests/cards/test_wp_gd04_a.py::test_gd04_049_exile_7_vulture_cards_to_destroy_a_lv8_or_lower_unit",
+    "tests/cards/test_wp_gd04_a.py::test_gd04_049_must_exile_exactly_seven",
+    "tests/cards/test_wp_gd04_a.py::test_gd04_049_six_vulture_cards_do_nothing",
+    "tests/cards/test_wp_gd04_a.py::test_gd04_049_unpaired_does_nothing",
+    "tests/cards/test_wp_gd04_a.py::test_gd04_066_activating_a_command_gives_an_enemy_ap_minus_2",
+    "tests/cards/test_wp_gd04_a.py::test_gd04_066_burst_activating_a_command_main_triggers",
+    "tests/cards/test_wp_gd04_a.py::test_gd04_066_main_of_a_paired_command_activated_by_an_effect_triggers",
+    "tests/cards/test_wp_gd04_a.py::test_gd04_066_opponent_commands_do_not_trigger",
+    "tests/cards/test_wp_gd04_a.py::test_gd04_067_can_choose_from_the_opponent_trash",
+    "tests/cards/test_wp_gd04_a.py::test_gd04_067_conditional_keywords_do_not_count",
+    "tests/cards/test_wp_gd04_a.py::test_gd04_067_copies_every_keyword_of_the_chosen_unit_card",
+    "tests/cards/test_wp_gd04_b.py::test_gd04_094_units_without_suppression_stay_in_trash",
+    "tests/cards/test_wp_gd04_b.py::test_gd04_094_when_linked_adds_purple_suppression_unit_from_trash",
+    "tests/cards/test_wp_gd05_a.py::test_gd05_038_needs_three_active_cb_units",
+    "tests/cards/test_wp_gd05_a.py::test_gd05_038_rest_three_cb_units_to_deal_4_once_per_turn",
+    "tests/cards/test_wp_gd05_a.py::test_gd05_038_suppression_during_link",
+    "tests/cards/test_wp_gd05_a.py::test_gd05_049_declining_destroys_nothing",
+    "tests/cards/test_wp_gd05_a.py::test_gd05_049_destroy_own_unit_then_opponent_destroys_a_non_battling_unit",
+    "tests/cards/test_wp_gd05_a.py::test_gd05_049_suppression_destroys_two_shields",
+    "tests/cards/test_wp_gd05_a.py::test_gd05_067_attack_rests_an_enemy_and_suppression_follows",
+    "tests/cards/test_wp_gd05_a.py::test_gd05_067_loses_suppression_when_the_rested_enemy_leaves",
+    "tests/cards/test_wp_gd05_a.py::test_gd05_068_linked_attack_gets_ap_2_during_this_battle",
+    "tests/cards/test_wp_gd05_a.py::test_gd05_068_main_activated_by_an_effect_also_grants_suppression",
+    "tests/cards/test_wp_gd05_a.py::test_gd05_068_q376_main_of_a_paired_special_move_command_activated_by_dragon_gundam",
+    "tests/cards/test_wp_gd05_a.py::test_gd05_068_special_move_command_grants_suppression_this_turn",
+    "tests/cards/test_wp_gd05_a.py::test_gd05_068_unlinked_attack_gets_no_bonus",
+    "tests/cards/test_wp_st05_08.py::test_st05_001_damaged_gains_suppression_and_destroys_two_shields",
+    "tests/cards/test_wp_st05_08.py::test_st05_001_deploy_damages_and_pumps_another_unit",
+    "tests/cards/test_wp_st05_08.py::test_st05_001_deploy_never_chooses_itself",
+    "tests/cards/test_wp_st05_08.py::test_st05_001_undamaged_has_no_suppression",
+    "tests/cards/test_wp_st09_11.py::test_st09_004_ex_base_grants_suppression",
+    "tests/cards/test_wp_st09_11.py::test_st09_004_no_base_no_suppression_but_blocks",
+    "tests/cards/test_wp_st12_14.py::test_st12_006_action_suppression_during_this_battle",
+    "tests/cards/test_wp_st12_14.py::test_st12_006_first_strike_needs_pair_and_4_trash_cards",
+    "tests/cards/test_wp_st12_14.py::test_st12_006_paired_exiles_4_for_first_strike",
+    "tests/cards/test_wp_st12_14.py::test_st12_006_q440_can_activate_while_having_first_strike",
+    "tests/cards/test_wp_st12_14.py::test_st12_006_q441_second_activation_adds_no_second_suppression",
+    "tests/cards/test_wp_st12_14.py::test_st12_006_suppression_activated_outside_a_battle_does_not_persist",
+    "tests/cards/test_wp_st12_14.py::test_st12_012_when_linked_keeps_one_on_top_and_trashes_the_other",
+    "tests/cards/test_wp_st12_14.py::test_st14_001_freeze_spares_your_units_and_repeats_each_enemy_start_phase",
+    "tests/cards/test_wp_st12_14.py::test_st14_001_lowest_lv_is_taken_among_rested_units",
+    "tests/cards/test_wp_st12_14.py::test_st14_001_q462_all_tied_lowest_lv_rested_units_stay_rested",
+    "tests/cards/test_wp_st12_14.py::test_st14_001_q463_effects_may_set_them_active_outside_the_start_phase",
+    "tests/cards/test_wp_st12_14.py::test_st14_001_suppression",
+    "tests/rules/test_keywords.py::test_suppression_does_not_apply_while_a_base_takes_the_damage"
+   ],
+   "rust_traces": [
+    "tests/cards/test_wp_eb01_a.py::test_eb01_045_when_paired_returns_an_enemy_unit_with_repair",
+    "tests/cards/test_wp_eb01_b.py::test_eb01_049_gains_suppression_with_friendly_gg_blocker",
+    "tests/cards/test_wp_eb01_b.py::test_eb01_049_no_suppression_without_gg_blocker[EB01-056]",
+    "tests/cards/test_wp_eb01_b.py::test_eb01_049_no_suppression_without_gg_blocker[GD01-072]",
+    "tests/cards/test_wp_gd02_a.py::test_gd02_036_attack_needs_a_neo_zeon_pilot",
+    "tests/cards/test_wp_gd02_a.py::test_gd02_036_attack_with_neo_zeon_pilot_deals_2_to_damaged_enemy",
+    "tests/cards/test_wp_gd02_a.py::test_gd02_036_when_linked_gains_suppression_this_turn",
+    "tests/cards/test_wp_gd03_a.py::test_gd03_034_deploy_deals_3_and_suppression",
+    "tests/cards/test_wp_gd03_a.py::test_gd03_049_destroys_enemy_with_lowest_current_hp",
+    "tests/cards/test_wp_gd03_a.py::test_gd03_049_needs_10_cb_cards_in_trash",
+    "tests/cards/test_wp_gd03_a.py::test_gd03_049_tied_lowest_hp_chooser_picks_one",
+    "tests/cards/test_wp_gd04_a.py::test_gd04_049_attacking_a_unit_does_nothing",
+    "tests/cards/test_wp_gd04_a.py::test_gd04_049_exile_7_vulture_cards_to_destroy_a_lv8_or_lower_unit",
+    "tests/cards/test_wp_gd04_a.py::test_gd04_049_must_exile_exactly_seven",
+    "tests/cards/test_wp_gd04_a.py::test_gd04_049_six_vulture_cards_do_nothing",
+    "tests/cards/test_wp_gd04_a.py::test_gd04_049_unpaired_does_nothing",
+    "tests/cards/test_wp_gd04_a.py::test_gd04_066_activating_a_command_gives_an_enemy_ap_minus_2",
+    "tests/cards/test_wp_gd04_a.py::test_gd04_066_burst_activating_a_command_main_triggers",
+    "tests/cards/test_wp_gd04_a.py::test_gd04_066_main_of_a_paired_command_activated_by_an_effect_triggers",
+    "tests/cards/test_wp_gd04_a.py::test_gd04_066_opponent_commands_do_not_trigger",
+    "tests/cards/test_wp_gd04_a.py::test_gd04_067_can_choose_from_the_opponent_trash",
+    "tests/cards/test_wp_gd04_a.py::test_gd04_067_conditional_keywords_do_not_count",
+    "tests/cards/test_wp_gd04_a.py::test_gd04_067_copies_every_keyword_of_the_chosen_unit_card",
+    "tests/cards/test_wp_gd04_b.py::test_gd04_094_units_without_suppression_stay_in_trash",
+    "tests/cards/test_wp_gd04_b.py::test_gd04_094_when_linked_adds_purple_suppression_unit_from_trash",
+    "tests/cards/test_wp_gd05_a.py::test_gd05_038_needs_three_active_cb_units",
+    "tests/cards/test_wp_gd05_a.py::test_gd05_038_rest_three_cb_units_to_deal_4_once_per_turn",
+    "tests/cards/test_wp_gd05_a.py::test_gd05_038_suppression_during_link",
+    "tests/cards/test_wp_gd05_a.py::test_gd05_049_declining_destroys_nothing",
+    "tests/cards/test_wp_gd05_a.py::test_gd05_049_destroy_own_unit_then_opponent_destroys_a_non_battling_unit",
+    "tests/cards/test_wp_gd05_a.py::test_gd05_049_suppression_destroys_two_shields",
+    "tests/cards/test_wp_gd05_a.py::test_gd05_067_attack_rests_an_enemy_and_suppression_follows",
+    "tests/cards/test_wp_gd05_a.py::test_gd05_067_loses_suppression_when_the_rested_enemy_leaves",
+    "tests/cards/test_wp_gd05_a.py::test_gd05_068_linked_attack_gets_ap_2_during_this_battle",
+    "tests/cards/test_wp_gd05_a.py::test_gd05_068_main_activated_by_an_effect_also_grants_suppression",
+    "tests/cards/test_wp_gd05_a.py::test_gd05_068_q376_main_of_a_paired_special_move_command_activated_by_dragon_gundam",
+    "tests/cards/test_wp_gd05_a.py::test_gd05_068_special_move_command_grants_suppression_this_turn",
+    "tests/cards/test_wp_gd05_a.py::test_gd05_068_unlinked_attack_gets_no_bonus",
+    "tests/cards/test_wp_st05_08.py::test_st05_001_damaged_gains_suppression_and_destroys_two_shields",
+    "tests/cards/test_wp_st05_08.py::test_st05_001_deploy_damages_and_pumps_another_unit",
+    "tests/cards/test_wp_st05_08.py::test_st05_001_deploy_never_chooses_itself",
+    "tests/cards/test_wp_st05_08.py::test_st05_001_undamaged_has_no_suppression",
+    "tests/cards/test_wp_st09_11.py::test_st09_004_ex_base_grants_suppression",
+    "tests/cards/test_wp_st09_11.py::test_st09_004_no_base_no_suppression_but_blocks",
+    "tests/cards/test_wp_st12_14.py::test_st12_006_action_suppression_during_this_battle",
+    "tests/cards/test_wp_st12_14.py::test_st12_006_first_strike_needs_pair_and_4_trash_cards",
+    "tests/cards/test_wp_st12_14.py::test_st12_006_paired_exiles_4_for_first_strike",
+    "tests/cards/test_wp_st12_14.py::test_st12_006_q440_can_activate_while_having_first_strike",
+    "tests/cards/test_wp_st12_14.py::test_st12_006_q441_second_activation_adds_no_second_suppression",
+    "tests/cards/test_wp_st12_14.py::test_st12_006_suppression_activated_outside_a_battle_does_not_persist",
+    "tests/cards/test_wp_st12_14.py::test_st12_012_when_linked_keeps_one_on_top_and_trashes_the_other",
+    "tests/cards/test_wp_st12_14.py::test_st14_001_freeze_spares_your_units_and_repeats_each_enemy_start_phase",
+    "tests/cards/test_wp_st12_14.py::test_st14_001_lowest_lv_is_taken_among_rested_units",
+    "tests/cards/test_wp_st12_14.py::test_st14_001_q462_all_tied_lowest_lv_rested_units_stay_rested",
+    "tests/cards/test_wp_st12_14.py::test_st14_001_q463_effects_may_set_them_active_outside_the_start_phase",
+    "tests/cards/test_wp_st12_14.py::test_st14_001_suppression",
+    "tests/rules/test_keywords.py::test_suppression_does_not_apply_while_a_base_takes_the_damage"
+   ],
+   "review_snapshot": {
+    "rulings": [
+     "GD03-049:Q224",
+     "GD03-049:Q225",
+     "GD04-067:Q275",
+     "GD04-067:Q276",
+     "GD04-067:Q277",
+     "GD05-067:Q375",
+     "GD05-068:Q376",
+     "ST09-004:Q259",
+     "ST12-006:Q440",
+     "ST12-006:Q441",
+     "ST14-001:Q462",
+     "ST14-001:Q463",
+     "ST14-001:Q464"
+    ],
+    "faq": []
+   }
+  },
+  {
+   "id": "I-19",
+   "topic": "The old <Breach> reminder wording is ignored",
+   "anchor": "docs/CONFLICTS.md (ambiguous:breach-reminder)",
+   "conflicts": [
+    "ambiguous:breach-reminder"
+   ],
+   "tags": {
+    "rule": [],
+    "card": [
+     "EB01-021",
+     "EB01-022",
+     "EB01-024",
+     "EB01-027",
+     "EB01-028",
+     "EB01-035",
+     "EB01-040",
+     "EB01-064",
+     "EB01-065",
+     "GD01-027",
+     "GD01-029",
+     "GD01-030",
+     "GD01-034",
+     "GD01-041",
+     "GD01-054",
+     "GD01-092",
+     "GD01-127",
+     "GD02-001",
+     "GD02-022",
+     "GD02-027",
+     "GD02-033",
+     "GD02-037",
+     "GD02-089",
+     "GD03-015",
+     "GD03-018",
+     "GD03-026",
+     "GD03-088",
+     "GD03-090",
+     "GD04-006",
+     "GD04-018",
+     "GD04-019",
+     "GD04-021",
+     "GD04-022",
+     "GD04-037",
+     "GD04-044",
+     "ST02-001",
+     "ST02-012",
+     "ST04-007",
+     "ST06-005",
+     "ST06-015",
+     "ST09-003"
+    ],
+    "ruling": [],
+    "faq": []
+   },
+   "python_tests": [
+    "tests/cards/test_wp_eb01_a.py::test_eb01_021_gg_pilot_places_a_rested_resource",
+    "tests/cards/test_wp_eb01_a.py::test_eb01_021_needs_a_gg_pilot",
+    "tests/cards/test_wp_eb01_a.py::test_eb01_021_needs_two_gg_unit_cards_in_trash",
+    "tests/cards/test_wp_eb01_a.py::test_eb01_022_end_of_turn_trade_for_three_tokens",
+    "tests/cards/test_wp_eb01_a.py::test_eb01_022_may_keep_the_unit",
+    "tests/cards/test_wp_eb01_a.py::test_eb01_022_needs_a_gg_pilot",
+    "tests/cards/test_wp_eb01_a.py::test_eb01_024_attack_damages_a_low_level_enemy_blocker",
+    "tests/cards/test_wp_eb01_a.py::test_eb01_024_ignores_blockers_above_lv5",
+    "tests/cards/test_wp_eb01_a.py::test_eb01_027_development_2_grants_breach_1_this_turn",
+    "tests/cards/test_wp_eb01_a.py::test_eb01_028_needs_plutone_rested",
+    "tests/cards/test_wp_eb01_a.py::test_eb01_028_not_when_attacking_the_player",
+    "tests/cards/test_wp_eb01_a.py::test_eb01_028_rested_plutone_gives_breach_2_to_a_unit_attacking_a_unit",
+    "tests/cards/test_wp_eb01_a.py::test_eb01_035_gains_breach_when_another_gg_lv3_unit_is_deployed",
+    "tests/cards/test_wp_eb01_a.py::test_eb01_035_ignores_other_levels_and_itself",
+    "tests/cards/test_wp_eb01_a.py::test_eb01_040_deploy_does_nothing_with_one_enemy_player",
+    "tests/cards/test_wp_eb01_b.py::test_burst_adds_this_card_to_hand",
+    "tests/cards/test_wp_eb01_b.py::test_eb01_064_breach_1_while_unit_has_repair",
+    "tests/cards/test_wp_eb01_b.py::test_eb01_064_no_breach_without_repair",
+    "tests/cards/test_wp_eb01_b.py::test_eb01_065_no_effect_without_link",
+    "tests/cards/test_wp_eb01_b.py::test_eb01_065_when_linked_grants_breach_1_this_turn",
+    "tests/cards/test_wp_gd01_a.py::test_breach_amount_damages_enemy_base",
+    "tests/cards/test_wp_gd01_a.py::test_breach_damages_shield_area_after_destroying_a_unit",
+    "tests/cards/test_wp_gd01_a.py::test_gd01_027_deploy_with_nine_zeon_units_in_trash_does_nothing",
+    "tests/cards/test_wp_gd01_a.py::test_gd01_027_deploy_with_ten_zeon_units_in_trash_damages_all_blockers",
+    "tests/cards/test_wp_gd01_a.py::test_gd01_029_attack_destroys_enemy_blocker_lv3_or_lower",
+    "tests/cards/test_wp_gd01_a.py::test_gd01_034_gains_breach_three_only_while_paired",
+    "tests/cards/test_wp_gd01_a.py::test_gd01_054_gains_breach_three_with_five_ap",
+    "tests/cards/test_wp_gd01_a.py::test_gd01_054_loses_breach_when_ap_is_reduced_below_five",
+    "tests/cards/test_wp_gd01_b.py::test_base_burst_deploys_it_and_adds_next_shield_to_hand",
+    "tests/cards/test_wp_gd01_b.py::test_base_played_replaces_ex_base_and_adds_top_shield_to_hand",
+    "tests/cards/test_wp_gd01_b.py::test_burst_adds_card_to_hand",
+    "tests/cards/test_wp_gd01_b.py::test_gd01_092_non_zeon_unit_gains_nothing",
+    "tests/cards/test_wp_gd01_b.py::test_gd01_092_zeon_unit_gains_breach_1",
+    "tests/cards/test_wp_gd01_b.py::test_gd01_127_needs_zaft_unit_with_5_or_more_ap",
+    "tests/cards/test_wp_gd01_b.py::test_gd01_127_used_in_end_phase_does_not_outlast_the_turn",
+    "tests/cards/test_wp_gd01_b.py::test_gd01_127_zaft_unit_gains_breach_3_during_battle",
+    "tests/cards/test_wp_gd02_a.py::test_gd02_001_another_titans_unit_destroying_a_shield_also_counts",
+    "tests/cards/test_wp_gd02_a.py::test_gd02_001_breach_destroying_a_shield_is_destruction_with_damage",
+    "tests/cards/test_wp_gd02_a.py::test_gd02_001_breach_destroying_the_base_recovers",
+    "tests/cards/test_wp_gd02_a.py::test_gd02_001_needs_a_cyber_newtype_pilot",
+    "tests/cards/test_wp_gd02_a.py::test_gd02_001_non_titans_attacker_does_not_count",
+    "tests/cards/test_wp_gd02_a.py::test_gd02_001_recovers_when_it_destroys_a_shield",
+    "tests/cards/test_wp_gd02_a.py::test_gd02_001_recovers_when_it_destroys_the_enemy_base",
+    "tests/cards/test_wp_gd02_a.py::test_gd02_022_once_per_turn",
+    "tests/cards/test_wp_gd02_a.py::test_gd02_022_placing_ex_resource_gives_breach_2",
+    "tests/cards/test_wp_gd02_a.py::test_gd02_022_without_age_unit_once_per_turn_is_not_used",
+    "tests/cards/test_wp_gd02_a.py::test_gd02_027_breach_3_after_destroying_a_unit",
+    "tests/cards/test_wp_gd02_a.py::test_gd02_033_breach_5_with_another_zeon_link_unit",
+    "tests/cards/test_wp_gd02_a.py::test_gd02_033_itself_linked_or_unlinked_zeon_units_do_not_count",
+    "tests/cards/test_wp_gd02_a.py::test_gd02_037_four_shields_does_nothing",
+    "tests/cards/test_wp_gd02_a.py::test_gd02_037_q177_base_is_not_a_shield",
+    "tests/cards/test_wp_gd02_a.py::test_gd02_037_three_shields_deals_2_to_enemy_with_5_or_less_ap",
+    "tests/cards/test_wp_gd02_b.py::test_gd02_089_other_zeon_link_unit_gains_breach",
+    "tests/cards/test_wp_gd02_b.py::test_gd02_089_unlinked_zeon_unit_is_not_chosen",
+    "tests/cards/test_wp_gd03_a.py::test_gd03_015_exile_three_titans_cards_for_breach_4",
+    "tests/cards/test_wp_gd03_a.py::test_gd03_015_needs_three_titans_cards",
+    "tests/cards/test_wp_gd03_a.py::test_gd03_018_attack_deals_5_to_a_blocker",
+    "tests/cards/test_wp_gd03_a.py::test_gd03_026_breach_3",
+    "tests/cards/test_wp_gd03_b.py::test_gd03_088_linked_age_system_gets_ap_and_breach",
+    "tests/cards/test_wp_gd03_b.py::test_gd03_088_linked_non_age_system_gets_nothing",
+    "tests/cards/test_wp_gd03_b.py::test_gd03_090_attack_grants_breach_to_cyclops_unit",
+    "tests/cards/test_wp_gd04_a.py::test_gd04_006_cannot_activate_without_another_active_league_militaire_unit",
+    "tests/cards/test_wp_gd04_a.py::test_gd04_006_rest_another_league_militaire_unit_to_rest_an_enemy",
+    "tests/cards/test_wp_gd04_a.py::test_gd04_018_other_academy_unit_damaged_by_enemy_places_ex_resource_once",
+    "tests/cards/test_wp_gd04_a.py::test_gd04_018_pharact_itself_or_opponent_turn_does_not_trigger",
+    "tests/cards/test_wp_gd04_a.py::test_gd04_019_declining_still_looks_and_bottoms_all_three",
+    "tests/cards/test_wp_gd04_a.py::test_gd04_019_destroyed_adds_a_lv5_or_lower_cb_unit_and_bottoms_the_rest",
+    "tests/cards/test_wp_gd04_a.py::test_gd04_021_no_offer_without_an_ex_resource",
+    "tests/cards/test_wp_gd04_a.py::test_gd04_021_pairs_the_command_from_the_trash_after_it_resolves",
+    "tests/cards/test_wp_gd04_a.py::test_gd04_022_linked_makes_all_lv3_or_lower_units_deploy_rested",
+    "tests/cards/test_wp_gd04_a.py::test_gd04_022_linked_tokens_are_not_deployed_rested",
+    "tests/cards/test_wp_gd04_a.py::test_gd04_022_unit_is_already_rested_when_its_deploy_effect_resolves",
+    "tests/cards/test_wp_gd04_a.py::test_gd04_022_unlinked_or_tokens_are_not_deployed_rested",
+    "tests/cards/test_wp_gd04_a.py::test_gd04_022_your_unit_tokens_gain_breach",
+    "tests/cards/test_wp_gd04_a.py::test_gd04_037_no_keywords_without_a_super_soldier_pilot",
+    "tests/cards/test_wp_gd04_a.py::test_gd04_037_red_super_soldier_pilot_grants_first_strike_only",
+    "tests/cards/test_wp_gd04_a.py::test_gd04_042_breach_destroying_the_base_triggers",
+    "tests/cards/test_wp_gd04_a.py::test_gd04_044_attacking_a_damaged_unit_gains_breach_3_this_battle",
+    "tests/cards/test_wp_gd04_a.py::test_gd04_044_attacking_an_undamaged_unit_gains_nothing",
+    "tests/cards/test_wp_st01_04.py::test_breach_damages_first_shield_area_card",
+    "tests/cards/test_wp_st01_04.py::test_pilot_command_pairs_and_links",
+    "tests/cards/test_wp_st01_04.py::test_st02_001_may_attack_active_enemy_lv4_or_lower",
+    "tests/cards/test_wp_st01_04.py::test_st02_012_breach_adds_to_existing_breach",
+    "tests/cards/test_wp_st01_04.py::test_st02_012_friendly_unit_gains_breach_3_this_turn",
+    "tests/cards/test_wp_st01_04.py::test_st03_001_shield_destroyed_by_breach_is_not_battle_damage",
+    "tests/cards/test_wp_st05_08.py::test_base_burst_deploys_it_and_its_deploy_adds_a_shield",
+    "tests/cards/test_wp_st05_08.py::test_base_deploy_adds_top_shield_to_hand",
+    "tests/cards/test_wp_st05_08.py::test_st06_005_attack_pumps_one_to_two_clan_units_and_breach",
+    "tests/cards/test_wp_st05_08.py::test_st06_005_may_choose_only_one",
+    "tests/cards/test_wp_st05_08.py::test_st06_015_breach_3_from_kaneban_hits_the_shield_area",
+    "tests/cards/test_wp_st05_08.py::test_st06_015_linking_clan_unit_gains_breach_3_once_per_turn",
+    "tests/cards/test_wp_st05_08.py::test_st06_015_pairing_without_link_does_not_trigger",
+    "tests/cards/test_wp_st09_11.py::test_st09_003_needs_five_purple_cards_in_trash",
+    "tests/cards/test_wp_st09_11.py::test_st09_003_when_linked_damages_all_units_with_5_or_less_ap"
+   ],
+   "rust_traces": [
+    "tests/cards/test_wp_eb01_a.py::test_eb01_021_gg_pilot_places_a_rested_resource",
+    "tests/cards/test_wp_eb01_a.py::test_eb01_021_needs_a_gg_pilot",
+    "tests/cards/test_wp_eb01_a.py::test_eb01_021_needs_two_gg_unit_cards_in_trash",
+    "tests/cards/test_wp_eb01_a.py::test_eb01_022_end_of_turn_trade_for_three_tokens",
+    "tests/cards/test_wp_eb01_a.py::test_eb01_022_may_keep_the_unit",
+    "tests/cards/test_wp_eb01_a.py::test_eb01_022_needs_a_gg_pilot",
+    "tests/cards/test_wp_eb01_a.py::test_eb01_024_attack_damages_a_low_level_enemy_blocker",
+    "tests/cards/test_wp_eb01_a.py::test_eb01_024_ignores_blockers_above_lv5",
+    "tests/cards/test_wp_eb01_a.py::test_eb01_027_development_2_grants_breach_1_this_turn",
+    "tests/cards/test_wp_eb01_a.py::test_eb01_028_needs_plutone_rested",
+    "tests/cards/test_wp_eb01_a.py::test_eb01_028_not_when_attacking_the_player",
+    "tests/cards/test_wp_eb01_a.py::test_eb01_028_rested_plutone_gives_breach_2_to_a_unit_attacking_a_unit",
+    "tests/cards/test_wp_eb01_a.py::test_eb01_035_gains_breach_when_another_gg_lv3_unit_is_deployed",
+    "tests/cards/test_wp_eb01_a.py::test_eb01_035_ignores_other_levels_and_itself",
+    "tests/cards/test_wp_eb01_a.py::test_eb01_040_deploy_does_nothing_with_one_enemy_player",
+    "tests/cards/test_wp_eb01_b.py::test_burst_adds_this_card_to_hand[EB01-061]",
+    "tests/cards/test_wp_eb01_b.py::test_burst_adds_this_card_to_hand[EB01-062]",
+    "tests/cards/test_wp_eb01_b.py::test_burst_adds_this_card_to_hand[EB01-063]",
+    "tests/cards/test_wp_eb01_b.py::test_burst_adds_this_card_to_hand[EB01-064]",
+    "tests/cards/test_wp_eb01_b.py::test_burst_adds_this_card_to_hand[EB01-065]",
+    "tests/cards/test_wp_eb01_b.py::test_burst_adds_this_card_to_hand[EB01-066]",
+    "tests/cards/test_wp_eb01_b.py::test_burst_adds_this_card_to_hand[EB01-067]",
+    "tests/cards/test_wp_eb01_b.py::test_burst_adds_this_card_to_hand[EB01-068]",
+    "tests/cards/test_wp_eb01_b.py::test_burst_adds_this_card_to_hand[EB01-069]",
+    "tests/cards/test_wp_eb01_b.py::test_burst_adds_this_card_to_hand[EB01-070]",
+    "tests/cards/test_wp_eb01_b.py::test_burst_adds_this_card_to_hand[EB01-071]",
+    "tests/cards/test_wp_eb01_b.py::test_burst_adds_this_card_to_hand[EB01-072]",
+    "tests/cards/test_wp_eb01_b.py::test_burst_adds_this_card_to_hand[EB01-077]",
+    "tests/cards/test_wp_eb01_b.py::test_burst_adds_this_card_to_hand[EB01-081]",
+    "tests/cards/test_wp_eb01_b.py::test_eb01_064_breach_1_while_unit_has_repair",
+    "tests/cards/test_wp_eb01_b.py::test_eb01_064_no_breach_without_repair",
+    "tests/cards/test_wp_eb01_b.py::test_eb01_065_no_effect_without_link",
+    "tests/cards/test_wp_eb01_b.py::test_eb01_065_when_linked_grants_breach_1_this_turn",
+    "tests/cards/test_wp_gd01_a.py::test_breach_amount_damages_enemy_base[GD01-030-2]",
+    "tests/cards/test_wp_gd01_a.py::test_breach_amount_damages_enemy_base[GD01-041-3]",
+    "tests/cards/test_wp_gd01_a.py::test_breach_damages_shield_area_after_destroying_a_unit[GD01-030-2]",
+    "tests/cards/test_wp_gd01_a.py::test_breach_damages_shield_area_after_destroying_a_unit[GD01-041-3]",
+    "tests/cards/test_wp_gd01_a.py::test_gd01_027_deploy_with_nine_zeon_units_in_trash_does_nothing",
+    "tests/cards/test_wp_gd01_a.py::test_gd01_027_deploy_with_ten_zeon_units_in_trash_damages_all_blockers",
+    "tests/cards/test_wp_gd01_a.py::test_gd01_029_attack_destroys_enemy_blocker_lv3_or_lower",
+    "tests/cards/test_wp_gd01_a.py::test_gd01_034_gains_breach_three_only_while_paired",
+    "tests/cards/test_wp_gd01_a.py::test_gd01_054_gains_breach_three_with_five_ap",
+    "tests/cards/test_wp_gd01_a.py::test_gd01_054_loses_breach_when_ap_is_reduced_below_five",
+    "tests/cards/test_wp_gd01_b.py::test_base_burst_deploys_it_and_adds_next_shield_to_hand[GD01-123]",
+    "tests/cards/test_wp_gd01_b.py::test_base_burst_deploys_it_and_adds_next_shield_to_hand[GD01-124]",
+    "tests/cards/test_wp_gd01_b.py::test_base_burst_deploys_it_and_adds_next_shield_to_hand[GD01-125]",
+    "tests/cards/test_wp_gd01_b.py::test_base_burst_deploys_it_and_adds_next_shield_to_hand[GD01-126]",
+    "tests/cards/test_wp_gd01_b.py::test_base_burst_deploys_it_and_adds_next_shield_to_hand[GD01-127]",
+    "tests/cards/test_wp_gd01_b.py::test_base_burst_deploys_it_and_adds_next_shield_to_hand[GD01-128]",
+    "tests/cards/test_wp_gd01_b.py::test_base_burst_deploys_it_and_adds_next_shield_to_hand[GD01-129]",
+    "tests/cards/test_wp_gd01_b.py::test_base_burst_deploys_it_and_adds_next_shield_to_hand[GD01-130]",
+    "tests/cards/test_wp_gd01_b.py::test_base_played_replaces_ex_base_and_adds_top_shield_to_hand[GD01-124]",
+    "tests/cards/test_wp_gd01_b.py::test_base_played_replaces_ex_base_and_adds_top_shield_to_hand[GD01-126]",
+    "tests/cards/test_wp_gd01_b.py::test_base_played_replaces_ex_base_and_adds_top_shield_to_hand[GD01-127]",
+    "tests/cards/test_wp_gd01_b.py::test_base_played_replaces_ex_base_and_adds_top_shield_to_hand[GD01-128]",
+    "tests/cards/test_wp_gd01_b.py::test_base_played_replaces_ex_base_and_adds_top_shield_to_hand[GD01-130]",
+    "tests/cards/test_wp_gd01_b.py::test_burst_adds_card_to_hand[GD01-087]",
+    "tests/cards/test_wp_gd01_b.py::test_burst_adds_card_to_hand[GD01-088]",
+    "tests/cards/test_wp_gd01_b.py::test_burst_adds_card_to_hand[GD01-089]",
+    "tests/cards/test_wp_gd01_b.py::test_burst_adds_card_to_hand[GD01-090]",
+    "tests/cards/test_wp_gd01_b.py::test_burst_adds_card_to_hand[GD01-091]",
+    "tests/cards/test_wp_gd01_b.py::test_burst_adds_card_to_hand[GD01-092]",
+    "tests/cards/test_wp_gd01_b.py::test_burst_adds_card_to_hand[GD01-093]",
+    "tests/cards/test_wp_gd01_b.py::test_burst_adds_card_to_hand[GD01-094]",
+    "tests/cards/test_wp_gd01_b.py::test_burst_adds_card_to_hand[GD01-095]",
+    "tests/cards/test_wp_gd01_b.py::test_burst_adds_card_to_hand[GD01-096]",
+    "tests/cards/test_wp_gd01_b.py::test_burst_adds_card_to_hand[GD01-097]",
+    "tests/cards/test_wp_gd01_b.py::test_burst_adds_card_to_hand[GD01-098]",
+    "tests/cards/test_wp_gd01_b.py::test_burst_adds_card_to_hand[GD01-105]",
+    "tests/cards/test_wp_gd01_b.py::test_gd01_092_non_zeon_unit_gains_nothing",
+    "tests/cards/test_wp_gd01_b.py::test_gd01_092_zeon_unit_gains_breach_1",
+    "tests/cards/test_wp_gd01_b.py::test_gd01_127_needs_zaft_unit_with_5_or_more_ap",
+    "tests/cards/test_wp_gd01_b.py::test_gd01_127_used_in_end_phase_does_not_outlast_the_turn",
+    "tests/cards/test_wp_gd01_b.py::test_gd01_127_zaft_unit_gains_breach_3_during_battle",
+    "tests/cards/test_wp_gd02_a.py::test_gd02_001_another_titans_unit_destroying_a_shield_also_counts",
+    "tests/cards/test_wp_gd02_a.py::test_gd02_001_breach_destroying_a_shield_is_destruction_with_damage",
+    "tests/cards/test_wp_gd02_a.py::test_gd02_001_breach_destroying_the_base_recovers",
+    "tests/cards/test_wp_gd02_a.py::test_gd02_001_needs_a_cyber_newtype_pilot",
+    "tests/cards/test_wp_gd02_a.py::test_gd02_001_non_titans_attacker_does_not_count",
+    "tests/cards/test_wp_gd02_a.py::test_gd02_001_recovers_when_it_destroys_a_shield",
+    "tests/cards/test_wp_gd02_a.py::test_gd02_001_recovers_when_it_destroys_the_enemy_base",
+    "tests/cards/test_wp_gd02_a.py::test_gd02_022_once_per_turn",
+    "tests/cards/test_wp_gd02_a.py::test_gd02_022_placing_ex_resource_gives_breach_2",
+    "tests/cards/test_wp_gd02_a.py::test_gd02_022_without_age_unit_once_per_turn_is_not_used",
+    "tests/cards/test_wp_gd02_a.py::test_gd02_027_breach_3_after_destroying_a_unit",
+    "tests/cards/test_wp_gd02_a.py::test_gd02_033_breach_5_with_another_zeon_link_unit",
+    "tests/cards/test_wp_gd02_a.py::test_gd02_033_itself_linked_or_unlinked_zeon_units_do_not_count",
+    "tests/cards/test_wp_gd02_a.py::test_gd02_037_four_shields_does_nothing",
+    "tests/cards/test_wp_gd02_a.py::test_gd02_037_q177_base_is_not_a_shield",
+    "tests/cards/test_wp_gd02_a.py::test_gd02_037_three_shields_deals_2_to_enemy_with_5_or_less_ap",
+    "tests/cards/test_wp_gd02_b.py::test_gd02_089_other_zeon_link_unit_gains_breach",
+    "tests/cards/test_wp_gd02_b.py::test_gd02_089_unlinked_zeon_unit_is_not_chosen",
+    "tests/cards/test_wp_gd03_a.py::test_gd03_015_exile_three_titans_cards_for_breach_4",
+    "tests/cards/test_wp_gd03_a.py::test_gd03_015_needs_three_titans_cards",
+    "tests/cards/test_wp_gd03_a.py::test_gd03_018_attack_deals_5_to_a_blocker",
+    "tests/cards/test_wp_gd03_a.py::test_gd03_026_breach_3",
+    "tests/cards/test_wp_gd03_b.py::test_gd03_088_linked_age_system_gets_ap_and_breach",
+    "tests/cards/test_wp_gd03_b.py::test_gd03_088_linked_non_age_system_gets_nothing",
+    "tests/cards/test_wp_gd03_b.py::test_gd03_090_attack_grants_breach_to_cyclops_unit",
+    "tests/cards/test_wp_gd04_a.py::test_gd04_006_cannot_activate_without_another_active_league_militaire_unit",
+    "tests/cards/test_wp_gd04_a.py::test_gd04_006_rest_another_league_militaire_unit_to_rest_an_enemy",
+    "tests/cards/test_wp_gd04_a.py::test_gd04_018_other_academy_unit_damaged_by_enemy_places_ex_resource_once",
+    "tests/cards/test_wp_gd04_a.py::test_gd04_018_pharact_itself_or_opponent_turn_does_not_trigger",
+    "tests/cards/test_wp_gd04_a.py::test_gd04_019_declining_still_looks_and_bottoms_all_three",
+    "tests/cards/test_wp_gd04_a.py::test_gd04_019_destroyed_adds_a_lv5_or_lower_cb_unit_and_bottoms_the_rest",
+    "tests/cards/test_wp_gd04_a.py::test_gd04_021_no_offer_without_an_ex_resource",
+    "tests/cards/test_wp_gd04_a.py::test_gd04_021_pairs_the_command_from_the_trash_after_it_resolves",
+    "tests/cards/test_wp_gd04_a.py::test_gd04_022_linked_makes_all_lv3_or_lower_units_deploy_rested",
+    "tests/cards/test_wp_gd04_a.py::test_gd04_022_linked_tokens_are_not_deployed_rested",
+    "tests/cards/test_wp_gd04_a.py::test_gd04_022_unit_is_already_rested_when_its_deploy_effect_resolves",
+    "tests/cards/test_wp_gd04_a.py::test_gd04_022_unlinked_or_tokens_are_not_deployed_rested",
+    "tests/cards/test_wp_gd04_a.py::test_gd04_022_your_unit_tokens_gain_breach",
+    "tests/cards/test_wp_gd04_a.py::test_gd04_037_no_keywords_without_a_super_soldier_pilot",
+    "tests/cards/test_wp_gd04_a.py::test_gd04_037_red_super_soldier_pilot_grants_first_strike_only",
+    "tests/cards/test_wp_gd04_a.py::test_gd04_042_breach_destroying_the_base_triggers",
+    "tests/cards/test_wp_gd04_a.py::test_gd04_044_attacking_a_damaged_unit_gains_breach_3_this_battle",
+    "tests/cards/test_wp_gd04_a.py::test_gd04_044_attacking_an_undamaged_unit_gains_nothing",
+    "tests/cards/test_wp_st01_04.py::test_breach_damages_first_shield_area_card[ST02-001-5]",
+    "tests/cards/test_wp_st01_04.py::test_breach_damages_first_shield_area_card[ST04-007-3]",
+    "tests/cards/test_wp_st01_04.py::test_pilot_command_pairs_and_links[ST01-012-ST01-004]",
+    "tests/cards/test_wp_st01_04.py::test_pilot_command_pairs_and_links[ST01-013-ST01-003]",
+    "tests/cards/test_wp_st01_04.py::test_pilot_command_pairs_and_links[ST02-012-ST02-003]",
+    "tests/cards/test_wp_st01_04.py::test_pilot_command_pairs_and_links[ST02-013-ST02-004]",
+    "tests/cards/test_wp_st01_04.py::test_pilot_command_pairs_and_links[ST03-012-ST03-002]",
+    "tests/cards/test_wp_st01_04.py::test_pilot_command_pairs_and_links[ST03-014-ST03-009]",
+    "tests/cards/test_wp_st01_04.py::test_pilot_command_pairs_and_links[ST04-013-ST04-003]",
+    "tests/cards/test_wp_st01_04.py::test_pilot_command_pairs_and_links[ST04-014-ST04-009]",
+    "tests/cards/test_wp_st01_04.py::test_st02_001_may_attack_active_enemy_lv4_or_lower",
+    "tests/cards/test_wp_st01_04.py::test_st02_012_breach_adds_to_existing_breach",
+    "tests/cards/test_wp_st01_04.py::test_st02_012_friendly_unit_gains_breach_3_this_turn",
+    "tests/cards/test_wp_st01_04.py::test_st03_001_shield_destroyed_by_breach_is_not_battle_damage",
+    "tests/cards/test_wp_st05_08.py::test_base_burst_deploys_it_and_its_deploy_adds_a_shield[ST05-015]",
+    "tests/cards/test_wp_st05_08.py::test_base_burst_deploys_it_and_its_deploy_adds_a_shield[ST06-014]",
+    "tests/cards/test_wp_st05_08.py::test_base_burst_deploys_it_and_its_deploy_adds_a_shield[ST06-015]",
+    "tests/cards/test_wp_st05_08.py::test_base_burst_deploys_it_and_its_deploy_adds_a_shield[ST07-015]",
+    "tests/cards/test_wp_st05_08.py::test_base_burst_deploys_it_and_its_deploy_adds_a_shield[ST08-014]",
+    "tests/cards/test_wp_st05_08.py::test_base_burst_deploys_it_and_its_deploy_adds_a_shield[ST08-015]",
+    "tests/cards/test_wp_st05_08.py::test_base_deploy_adds_top_shield_to_hand[ST05-015]",
+    "tests/cards/test_wp_st05_08.py::test_base_deploy_adds_top_shield_to_hand[ST06-014]",
+    "tests/cards/test_wp_st05_08.py::test_base_deploy_adds_top_shield_to_hand[ST06-015]",
+    "tests/cards/test_wp_st05_08.py::test_base_deploy_adds_top_shield_to_hand[ST07-015]",
+    "tests/cards/test_wp_st05_08.py::test_base_deploy_adds_top_shield_to_hand[ST08-015]",
+    "tests/cards/test_wp_st05_08.py::test_st06_005_attack_pumps_one_to_two_clan_units_and_breach",
+    "tests/cards/test_wp_st05_08.py::test_st06_005_may_choose_only_one",
+    "tests/cards/test_wp_st05_08.py::test_st06_015_breach_3_from_kaneban_hits_the_shield_area",
+    "tests/cards/test_wp_st05_08.py::test_st06_015_linking_clan_unit_gains_breach_3_once_per_turn",
+    "tests/cards/test_wp_st05_08.py::test_st06_015_pairing_without_link_does_not_trigger",
+    "tests/cards/test_wp_st09_11.py::test_st09_003_needs_five_purple_cards_in_trash",
+    "tests/cards/test_wp_st09_11.py::test_st09_003_when_linked_damages_all_units_with_5_or_less_ap"
+   ],
+   "review_snapshot": {
+    "rulings": [
+     "GD01-027:Q128",
+     "GD01-054:Q133",
+     "GD02-001:Q171",
+     "GD02-037:Q177",
+     "GD03-015:Q213",
+     "GD04-019:Q475",
+     "GD04-021:Q267",
+     "ST09-003:Q258"
+    ],
+    "faq": []
+   }
+  },
+  {
+   "id": "I-20",
+   "topic": "'Pay its cost to deploy it' skips the Lv. check",
+   "anchor": "docs/CONFLICTS.md (ambiguous:pay-its-cost-to-deploy)",
+   "conflicts": [
+    "ambiguous:pay-its-cost-to-deploy"
+   ],
+   "tags": {
+    "rule": [],
+    "card": [
+     "GD02-096",
+     "GD02-110",
+     "GD03-051",
+     "GD03-130",
+     "GD04-050"
+    ],
+    "ruling": [],
+    "faq": []
+   },
+   "python_tests": [
+    "tests/cards/test_wp_gd02_b.py::test_gd02_096_choice_is_optional",
+    "tests/cards/test_wp_gd02_b.py::test_gd02_096_pays_cost_to_deploy_vagan_unit_from_trash",
+    "tests/cards/test_wp_gd02_b.py::test_gd02_096_pays_the_cost_as_modified_in_the_trash",
+    "tests/cards/test_wp_gd02_b.py::test_gd02_096_unpayable_cost_leaves_card_in_trash",
+    "tests/cards/test_wp_gd02_b.py::test_gd02_110_needs_an_eligible_unit_card_in_trash",
+    "tests/cards/test_wp_gd02_b.py::test_gd02_110_pays_cost_to_deploy_and_deploy_effect_triggers",
+    "tests/cards/test_wp_gd02_b.py::test_gd02_110_unpayable_cost_leaves_unit_in_trash",
+    "tests/cards/test_wp_gd03_a.py::test_gd03_051_not_deployed_when_cost_cannot_be_paid",
+    "tests/cards/test_wp_gd03_a.py::test_gd03_051_pays_cost_to_deploy_from_trash_and_its_deploy_triggers",
+    "tests/cards/test_wp_gd03_a.py::test_gd03_058_costs_one_less_from_trash_level_unchanged",
+    "tests/cards/test_wp_gd03_b.py::test_gd03_130_burst_deploy_on_opponent_turn_offers_no_choice",
+    "tests/cards/test_wp_gd03_b.py::test_gd03_130_deploy_on_your_turn_pays_to_deploy_vagan_from_trash",
+    "tests/cards/test_wp_gd03_b.py::test_gd03_130_unpayable_cost_leaves_the_card_in_trash",
+    "tests/cards/test_wp_gd04_a.py::test_gd04_050_paired_attack_pays_to_deploy_a_minerva_squad_unit_from_trash",
+    "tests/cards/test_wp_gd04_a.py::test_gd04_050_unpaired_attack_offers_nothing"
+   ],
+   "rust_traces": [
+    "tests/cards/test_wp_gd02_b.py::test_gd02_096_choice_is_optional",
+    "tests/cards/test_wp_gd02_b.py::test_gd02_096_pays_cost_to_deploy_vagan_unit_from_trash",
+    "tests/cards/test_wp_gd02_b.py::test_gd02_096_pays_the_cost_as_modified_in_the_trash",
+    "tests/cards/test_wp_gd02_b.py::test_gd02_096_unpayable_cost_leaves_card_in_trash",
+    "tests/cards/test_wp_gd02_b.py::test_gd02_110_needs_an_eligible_unit_card_in_trash",
+    "tests/cards/test_wp_gd02_b.py::test_gd02_110_pays_cost_to_deploy_and_deploy_effect_triggers",
+    "tests/cards/test_wp_gd02_b.py::test_gd02_110_unpayable_cost_leaves_unit_in_trash",
+    "tests/cards/test_wp_gd03_a.py::test_gd03_051_not_deployed_when_cost_cannot_be_paid",
+    "tests/cards/test_wp_gd03_a.py::test_gd03_051_pays_cost_to_deploy_from_trash_and_its_deploy_triggers",
+    "tests/cards/test_wp_gd03_a.py::test_gd03_058_costs_one_less_from_trash_level_unchanged",
+    "tests/cards/test_wp_gd03_b.py::test_gd03_130_burst_deploy_on_opponent_turn_offers_no_choice",
+    "tests/cards/test_wp_gd03_b.py::test_gd03_130_deploy_on_your_turn_pays_to_deploy_vagan_from_trash",
+    "tests/cards/test_wp_gd03_b.py::test_gd03_130_unpayable_cost_leaves_the_card_in_trash",
+    "tests/cards/test_wp_gd04_a.py::test_gd04_050_paired_attack_pays_to_deploy_a_minerva_squad_unit_from_trash",
+    "tests/cards/test_wp_gd04_a.py::test_gd04_050_unpaired_attack_offers_nothing"
+   ],
+   "review_snapshot": {
+    "rulings": [
+     "GD02-110:Q193",
+     "GD03-051:Q227",
+     "GD03-130:Q255"
+    ],
+    "faq": []
+   }
+  },
+  {
+   "id": "I-21",
+   "topic": "'If ...' / 'If you do' govern a following 'Then'",
+   "anchor": "docs/ASSUMPTIONS.md, rulings Q175, Q233",
+   "conflicts": [],
+   "tags": {
+    "rule": [],
+    "card": [],
+    "ruling": [
+     "GD02-021:Q175",
+     "GD03-072:Q233"
+    ],
+    "faq": []
+   },
+   "python_tests": [
+    "tests/cards/test_wp_gd02_a.py::test_gd02_021_q175_no_discard_no_draw_even_at_lv7",
+    "tests/cards/test_wp_gd03_a.py::test_gd03_072_no_discard_without_another_tsa_unit",
+    "tests/rules/test_effects.py::test_if_you_do_also_governs_the_following_then_part",
+    "tests/rules/test_effects.py::test_leading_condition_also_governs_the_then_part"
+   ],
+   "rust_traces": [
+    "tests/cards/test_wp_gd02_a.py::test_gd02_021_q175_no_discard_no_draw_even_at_lv7",
+    "tests/cards/test_wp_gd03_a.py::test_gd03_072_no_discard_without_another_tsa_unit",
+    "tests/rules/test_effects.py::test_if_you_do_also_governs_the_following_then_part",
+    "tests/rules/test_effects.py::test_leading_condition_also_governs_the_then_part"
+   ],
+   "review_snapshot": {
+    "rulings": [],
+    "faq": []
+   }
+  },
+  {
+   "id": "I-22",
+   "topic": "Resolutions that remove a player decision (ST14-015, GD03-129, GD03-076)",
+   "anchor": "src/gcg_sim/engine/interp.py:1033-1038",
+   "conflicts": [],
+   "tags": {
+    "rule": [],
+    "card": [
+     "GD03-076",
+     "GD03-129",
+     "ST14-015"
+    ],
+    "ruling": [],
+    "faq": []
+   },
+   "python_tests": [
+    "tests/cards/test_wp_gd03_a.py::test_gd03_076_may_return_unit_dealt_battle_damage",
+    "tests/cards/test_wp_gd03_a.py::test_gd03_076_once_per_turn",
+    "tests/cards/test_wp_gd03_a.py::test_gd03_076_once_per_turn_not_used_up_when_nothing_was_returned",
+    "tests/cards/test_wp_gd03_a.py::test_gd03_076_optional",
+    "tests/cards/test_wp_gd03_a.py::test_gd03_076_unit_destroyed_by_the_battle_damage_is_not_returned",
+    "tests/cards/test_wp_gd03_b.py::test_gd03_129_battle_damage_does_not_trigger",
+    "tests/cards/test_wp_gd03_b.py::test_gd03_129_declining_keeps_base_active",
+    "tests/cards/test_wp_gd03_b.py::test_gd03_129_effect_damage_to_tekkadan_may_rest_base_to_mill",
+    "tests/cards/test_wp_st12_14.py::test_st14_015_burst_places_ex_resource",
+    "tests/cards/test_wp_st12_14.py::test_st14_015_places_rested_resource_then_sets_one_active",
+    "tests/cards/test_wp_st12_14.py::test_st14_015_resource_set_active_by_another_effect_this_turn",
+    "tests/cards/test_wp_st12_14.py::test_st14_015_second_copy_in_a_turn_does_not_set_active"
+   ],
+   "rust_traces": [
+    "tests/cards/test_wp_gd03_a.py::test_gd03_076_may_return_unit_dealt_battle_damage",
+    "tests/cards/test_wp_gd03_a.py::test_gd03_076_once_per_turn",
+    "tests/cards/test_wp_gd03_a.py::test_gd03_076_once_per_turn_not_used_up_when_nothing_was_returned",
+    "tests/cards/test_wp_gd03_a.py::test_gd03_076_optional",
+    "tests/cards/test_wp_gd03_a.py::test_gd03_076_unit_destroyed_by_the_battle_damage_is_not_returned",
+    "tests/cards/test_wp_gd03_b.py::test_gd03_129_battle_damage_does_not_trigger",
+    "tests/cards/test_wp_gd03_b.py::test_gd03_129_declining_keeps_base_active",
+    "tests/cards/test_wp_gd03_b.py::test_gd03_129_effect_damage_to_tekkadan_may_rest_base_to_mill",
+    "tests/cards/test_wp_st12_14.py::test_st14_015_burst_places_ex_resource",
+    "tests/cards/test_wp_st12_14.py::test_st14_015_places_rested_resource_then_sets_one_active",
+    "tests/cards/test_wp_st12_14.py::test_st14_015_resource_set_active_by_another_effect_this_turn",
+    "tests/cards/test_wp_st12_14.py::test_st14_015_second_copy_in_a_turn_does_not_set_active"
+   ],
+   "review_snapshot": {
+    "rulings": [
+     "GD03-076:Q235"
+    ],
+    "faq": []
+   }
+  },
+  {
+   "id": "I-23",
+   "topic": "Multiplayer wording in 1v1 ('each enemy player' = the opponent)",
+   "anchor": "docs/ASSUMPTIONS.md:57",
+   "conflicts": [
+    "ambiguous:multiplayer-vocabulary"
+   ],
+   "tags": {
+    "rule": [],
+    "card": [
+     "EB01-002",
+     "EB01-005",
+     "EB01-009",
+     "EB01-023",
+     "EB01-025",
+     "EB01-040",
+     "EB01-041",
+     "EB01-044",
+     "EB01-055",
+     "EB01-058",
+     "EB01-059",
+     "EB01-062",
+     "EB01-074",
+     "EB01-078",
+     "EB01-082",
+     "EB01-090",
+     "GD04-128",
+     "GD05-046",
+     "GD05-049",
+     "GD05-107",
+     "ST10-001",
+     "ST10-008",
+     "ST12-013",
+     "ST13-009",
+     "ST14-001",
+     "ST14-003",
+     "ST14-006",
+     "ST14-015"
+    ],
+    "ruling": [],
+    "faq": []
+   },
+   "python_tests": [
+    "tests/cards/test_wp_eb01_a.py::test_eb01_001_freeze_only_blocks_the_start_phase_untap",
+    "tests/cards/test_wp_eb01_a.py::test_eb01_002_attack_effect_needs_link",
+    "tests/cards/test_wp_eb01_a.py::test_eb01_002_attack_needs_three_other_rested_units",
+    "tests/cards/test_wp_eb01_a.py::test_eb01_002_deploy_does_nothing_without_another_gg_unit",
+    "tests/cards/test_wp_eb01_a.py::test_eb01_002_deploy_rests_an_enemy_unit_when_another_gg_unit_is_in_play",
+    "tests/cards/test_wp_eb01_a.py::test_eb01_002_linked_attack_sets_itself_active_counting_both_sides",
+    "tests/cards/test_wp_eb01_a.py::test_eb01_004_once_per_turn_is_not_used_when_no_target_could_be_chosen",
+    "tests/cards/test_wp_eb01_a.py::test_eb01_005_draws_even_without_a_rested_enemy_unit",
+    "tests/cards/test_wp_eb01_a.py::test_eb01_005_sets_a_rested_enemy_unit_active_and_draws",
+    "tests/cards/test_wp_eb01_a.py::test_eb01_009_opponent_chooses_one_of_their_active_units_to_rest",
+    "tests/cards/test_wp_eb01_a.py::test_eb01_023_each_player_looks_in_turn_order",
+    "tests/cards/test_wp_eb01_a.py::test_eb01_023_low_level_card_is_returned_to_top_or_bottom",
+    "tests/cards/test_wp_eb01_a.py::test_eb01_023_q319_both_players_act_before_defeat_is_checked",
+    "tests/cards/test_wp_eb01_a.py::test_eb01_025_development_2_every_player_places_an_ex_resource",
+    "tests/cards/test_wp_eb01_a.py::test_eb01_025_immunity_does_not_cover_lv6_attackers",
+    "tests/cards/test_wp_eb01_a.py::test_eb01_025_immunity_needs_a_paired_pilot",
+    "tests/cards/test_wp_eb01_a.py::test_eb01_025_immunity_needs_an_enemy_ex_resource",
+    "tests/cards/test_wp_eb01_a.py::test_eb01_025_paired_is_immune_to_battle_damage_from_low_level_enemies",
+    "tests/cards/test_wp_eb01_a.py::test_eb01_040_deploy_does_nothing_with_one_enemy_player",
+    "tests/cards/test_wp_eb01_a.py::test_eb01_041_returns_an_enemy_unit_with_four_or_less_hp",
+    "tests/cards/test_wp_eb01_a.py::test_eb01_044_blocker_and_deploy_does_nothing_with_one_enemy_player",
+    "tests/cards/test_wp_eb01_b.py::test_burst_adds_this_card_to_hand",
+    "tests/cards/test_wp_eb01_b.py::test_eb01_055_shields_still_take_battle_damage_in_1v1",
+    "tests/cards/test_wp_eb01_b.py::test_eb01_058_has_no_blocker_in_1v1",
+    "tests/cards/test_wp_eb01_b.py::test_eb01_059_an_active_ex_resource_can_be_chosen",
+    "tests/cards/test_wp_eb01_b.py::test_eb01_059_choosing_an_active_resource_does_nothing",
+    "tests/cards/test_wp_eb01_b.py::test_eb01_059_each_player_sets_one_resource_active_active_player_first",
+    "tests/cards/test_wp_eb01_b.py::test_eb01_059_needs_link",
+    "tests/cards/test_wp_eb01_b.py::test_eb01_059_once_per_turn",
+    "tests/cards/test_wp_eb01_b.py::test_eb01_062_no_draw_when_opponent_declines",
+    "tests/cards/test_wp_eb01_b.py::test_eb01_062_once_per_turn",
+    "tests/cards/test_wp_eb01_b.py::test_eb01_062_opponent_draws_then_you_draw",
+    "tests/cards/test_wp_eb01_b.py::test_eb01_074_action_timing_in_opponents_turn",
+    "tests/cards/test_wp_eb01_b.py::test_eb01_074_burst_rests_enemy_unit_with_3_or_less_hp",
+    "tests/cards/test_wp_eb01_b.py::test_eb01_074_needs_an_active_friendly_gg_unit",
+    "tests/cards/test_wp_eb01_b.py::test_eb01_074_rest_friendly_gg_then_opponent_rests_one_of_theirs",
+    "tests/cards/test_wp_eb01_b.py::test_eb01_078_each_player_may_take_a_unit_active_player_first",
+    "tests/cards/test_wp_eb01_b.py::test_eb01_078_non_unit_goes_back_and_stays_private",
+    "tests/cards/test_wp_eb01_b.py::test_eb01_078_opponent_may_add_their_unit",
+    "tests/cards/test_wp_eb01_b.py::test_eb01_078_q331_both_players_act_before_defeat_is_checked",
+    "tests/cards/test_wp_eb01_b.py::test_eb01_082_burst_activates_its_action",
+    "tests/cards/test_wp_eb01_b.py::test_eb01_082_cannot_choose_your_own_unit",
+    "tests/cards/test_wp_eb01_b.py::test_eb01_082_returns_enemy_unit_lv3_or_lower",
+    "tests/cards/test_wp_eb01_b.py::test_eb01_090_burst_in_opponents_turn_returns_nothing",
+    "tests/cards/test_wp_eb01_b.py::test_eb01_090_your_turn_returns_enemy_unit_with_2_or_less_hp",
+    "tests/cards/test_wp_gd04_b.py::test_gd04_128_destroyed_all_players_draw_1",
+    "tests/cards/test_wp_gd05_a.py::test_gd05_046_no_discard_below_4_cards_or_with_other_pilots",
+    "tests/cards/test_wp_gd05_a.py::test_gd05_046_phantom_pain_pilot_makes_opponent_with_4_cards_discard",
+    "tests/cards/test_wp_gd05_a.py::test_gd05_049_declining_destroys_nothing",
+    "tests/cards/test_wp_gd05_a.py::test_gd05_049_destroy_own_unit_then_opponent_destroys_a_non_battling_unit",
+    "tests/cards/test_wp_gd05_a.py::test_gd05_049_suppression_destroys_two_shields",
+    "tests/cards/test_wp_gd05_b.py::test_gd05_107_burst_places_an_ex_resource",
+    "tests/cards/test_wp_gd05_b.py::test_gd05_107_destroys_base_and_top_shield",
+    "tests/cards/test_wp_gd05_b.py::test_gd05_107_two_shields_revealed_together_and_owner_orders_bursts",
+    "tests/cards/test_wp_st09_11.py::test_st10_001_destroying_a_base_with_battle_damage_triggers",
+    "tests/cards/test_wp_st09_11.py::test_st10_001_destroying_a_shield_sets_active_and_bars_attacking_the_player",
+    "tests/cards/test_wp_st09_11.py::test_st10_001_destroying_a_unit_does_not_trigger",
+    "tests/cards/test_wp_st09_11.py::test_st10_008_declining_development_draws_nothing",
+    "tests/cards/test_wp_st09_11.py::test_st10_008_development_draws_one_then_discards_one",
+    "tests/cards/test_wp_st12_14.py::test_st12_001_once_per_turn",
+    "tests/cards/test_wp_st12_14.py::test_st12_001_once_per_turn_when_destroyed_in_the_second_battle",
+    "tests/cards/test_wp_st12_14.py::test_st12_013_burst_deals_1_damage_to_enemy_unit",
+    "tests/cards/test_wp_st12_14.py::test_st12_013_first_chosen_unit_attacks_with_first_strike",
+    "tests/cards/test_wp_st12_14.py::test_st12_013_needs_units_on_both_sides",
+    "tests/cards/test_wp_st12_14.py::test_st12_013_q446_damage_step_only_battle_between_chosen_units",
+    "tests/cards/test_wp_st12_14.py::test_st12_013_q447_carta_gives_the_battling_unit_first_strike",
+    "tests/cards/test_wp_st12_14.py::test_st12_013_q447_enemy_battle_effects_apply_in_effect_battles",
+    "tests/cards/test_wp_st12_14.py::test_st12_013_q448_effect_battle_destruction_is_battle_destruction",
+    "tests/cards/test_wp_st12_14.py::test_st13_001_q455_enemy_battle_effects_apply_in_effect_battles",
+    "tests/cards/test_wp_st12_14.py::test_st13_009_attack_opponent_exiles_2_unit_cards_from_their_trash",
+    "tests/cards/test_wp_st12_14.py::test_st13_009_needs_2_unit_cards_in_enemy_trash",
+    "tests/cards/test_wp_st12_14.py::test_st14_001_freeze_spares_your_units_and_repeats_each_enemy_start_phase",
+    "tests/cards/test_wp_st12_14.py::test_st14_001_lowest_lv_is_taken_among_rested_units",
+    "tests/cards/test_wp_st12_14.py::test_st14_001_q462_all_tied_lowest_lv_rested_units_stay_rested",
+    "tests/cards/test_wp_st12_14.py::test_st14_001_q463_effects_may_set_them_active_outside_the_start_phase",
+    "tests/cards/test_wp_st12_14.py::test_st14_001_suppression",
+    "tests/cards/test_wp_st12_14.py::test_st14_003_deploy_opponent_exiles_2_unit_cards",
+    "tests/cards/test_wp_st12_14.py::test_st14_006_damage_from_higher_ap_or_while_unpaired_is_received",
+    "tests/cards/test_wp_st12_14.py::test_st14_006_deploy_adds_1_of_top_3_to_hand",
+    "tests/cards/test_wp_st12_14.py::test_st14_006_paired_ignores_first_battle_damage_from_lower_ap_once_per_turn",
+    "tests/cards/test_wp_st12_14.py::test_st14_006_q467_look_is_mandatory_adding_is_optional",
+    "tests/cards/test_wp_st12_14.py::test_st14_015_burst_places_ex_resource",
+    "tests/cards/test_wp_st12_14.py::test_st14_015_places_rested_resource_then_sets_one_active",
+    "tests/cards/test_wp_st12_14.py::test_st14_015_resource_set_active_by_another_effect_this_turn",
+    "tests/cards/test_wp_st12_14.py::test_st14_015_second_copy_in_a_turn_does_not_set_active"
+   ],
+   "rust_traces": [
+    "tests/cards/test_wp_eb01_a.py::test_eb01_001_freeze_only_blocks_the_start_phase_untap",
+    "tests/cards/test_wp_eb01_a.py::test_eb01_002_attack_effect_needs_link",
+    "tests/cards/test_wp_eb01_a.py::test_eb01_002_attack_needs_three_other_rested_units",
+    "tests/cards/test_wp_eb01_a.py::test_eb01_002_deploy_does_nothing_without_another_gg_unit",
+    "tests/cards/test_wp_eb01_a.py::test_eb01_002_deploy_rests_an_enemy_unit_when_another_gg_unit_is_in_play",
+    "tests/cards/test_wp_eb01_a.py::test_eb01_002_linked_attack_sets_itself_active_counting_both_sides",
+    "tests/cards/test_wp_eb01_a.py::test_eb01_004_once_per_turn_is_not_used_when_no_target_could_be_chosen",
+    "tests/cards/test_wp_eb01_a.py::test_eb01_005_draws_even_without_a_rested_enemy_unit",
+    "tests/cards/test_wp_eb01_a.py::test_eb01_005_sets_a_rested_enemy_unit_active_and_draws",
+    "tests/cards/test_wp_eb01_a.py::test_eb01_009_opponent_chooses_one_of_their_active_units_to_rest",
+    "tests/cards/test_wp_eb01_a.py::test_eb01_023_each_player_looks_in_turn_order",
+    "tests/cards/test_wp_eb01_a.py::test_eb01_023_low_level_card_is_returned_to_top_or_bottom",
+    "tests/cards/test_wp_eb01_a.py::test_eb01_023_q319_both_players_act_before_defeat_is_checked",
+    "tests/cards/test_wp_eb01_a.py::test_eb01_025_development_2_every_player_places_an_ex_resource",
+    "tests/cards/test_wp_eb01_a.py::test_eb01_025_immunity_does_not_cover_lv6_attackers",
+    "tests/cards/test_wp_eb01_a.py::test_eb01_025_immunity_needs_a_paired_pilot",
+    "tests/cards/test_wp_eb01_a.py::test_eb01_025_immunity_needs_an_enemy_ex_resource",
+    "tests/cards/test_wp_eb01_a.py::test_eb01_025_paired_is_immune_to_battle_damage_from_low_level_enemies",
+    "tests/cards/test_wp_eb01_a.py::test_eb01_040_deploy_does_nothing_with_one_enemy_player",
+    "tests/cards/test_wp_eb01_a.py::test_eb01_041_returns_an_enemy_unit_with_four_or_less_hp",
+    "tests/cards/test_wp_eb01_a.py::test_eb01_044_blocker_and_deploy_does_nothing_with_one_enemy_player",
+    "tests/cards/test_wp_eb01_b.py::test_burst_adds_this_card_to_hand[EB01-061]",
+    "tests/cards/test_wp_eb01_b.py::test_burst_adds_this_card_to_hand[EB01-062]",
+    "tests/cards/test_wp_eb01_b.py::test_burst_adds_this_card_to_hand[EB01-063]",
+    "tests/cards/test_wp_eb01_b.py::test_burst_adds_this_card_to_hand[EB01-064]",
+    "tests/cards/test_wp_eb01_b.py::test_burst_adds_this_card_to_hand[EB01-065]",
+    "tests/cards/test_wp_eb01_b.py::test_burst_adds_this_card_to_hand[EB01-066]",
+    "tests/cards/test_wp_eb01_b.py::test_burst_adds_this_card_to_hand[EB01-067]",
+    "tests/cards/test_wp_eb01_b.py::test_burst_adds_this_card_to_hand[EB01-068]",
+    "tests/cards/test_wp_eb01_b.py::test_burst_adds_this_card_to_hand[EB01-069]",
+    "tests/cards/test_wp_eb01_b.py::test_burst_adds_this_card_to_hand[EB01-070]",
+    "tests/cards/test_wp_eb01_b.py::test_burst_adds_this_card_to_hand[EB01-071]",
+    "tests/cards/test_wp_eb01_b.py::test_burst_adds_this_card_to_hand[EB01-072]",
+    "tests/cards/test_wp_eb01_b.py::test_burst_adds_this_card_to_hand[EB01-077]",
+    "tests/cards/test_wp_eb01_b.py::test_burst_adds_this_card_to_hand[EB01-081]",
+    "tests/cards/test_wp_eb01_b.py::test_eb01_055_shields_still_take_battle_damage_in_1v1",
+    "tests/cards/test_wp_eb01_b.py::test_eb01_058_has_no_blocker_in_1v1",
+    "tests/cards/test_wp_eb01_b.py::test_eb01_059_an_active_ex_resource_can_be_chosen",
+    "tests/cards/test_wp_eb01_b.py::test_eb01_059_choosing_an_active_resource_does_nothing",
+    "tests/cards/test_wp_eb01_b.py::test_eb01_059_each_player_sets_one_resource_active_active_player_first",
+    "tests/cards/test_wp_eb01_b.py::test_eb01_059_needs_link",
+    "tests/cards/test_wp_eb01_b.py::test_eb01_059_once_per_turn",
+    "tests/cards/test_wp_eb01_b.py::test_eb01_062_no_draw_when_opponent_declines",
+    "tests/cards/test_wp_eb01_b.py::test_eb01_062_once_per_turn",
+    "tests/cards/test_wp_eb01_b.py::test_eb01_062_opponent_draws_then_you_draw",
+    "tests/cards/test_wp_eb01_b.py::test_eb01_074_action_timing_in_opponents_turn",
+    "tests/cards/test_wp_eb01_b.py::test_eb01_074_burst_rests_enemy_unit_with_3_or_less_hp",
+    "tests/cards/test_wp_eb01_b.py::test_eb01_074_needs_an_active_friendly_gg_unit",
+    "tests/cards/test_wp_eb01_b.py::test_eb01_074_rest_friendly_gg_then_opponent_rests_one_of_theirs",
+    "tests/cards/test_wp_eb01_b.py::test_eb01_078_each_player_may_take_a_unit_active_player_first",
+    "tests/cards/test_wp_eb01_b.py::test_eb01_078_non_unit_goes_back_and_stays_private",
+    "tests/cards/test_wp_eb01_b.py::test_eb01_078_opponent_may_add_their_unit",
+    "tests/cards/test_wp_eb01_b.py::test_eb01_078_q331_both_players_act_before_defeat_is_checked",
+    "tests/cards/test_wp_eb01_b.py::test_eb01_082_burst_activates_its_action",
+    "tests/cards/test_wp_eb01_b.py::test_eb01_082_cannot_choose_your_own_unit",
+    "tests/cards/test_wp_eb01_b.py::test_eb01_082_returns_enemy_unit_lv3_or_lower",
+    "tests/cards/test_wp_eb01_b.py::test_eb01_090_burst_in_opponents_turn_returns_nothing",
+    "tests/cards/test_wp_eb01_b.py::test_eb01_090_your_turn_returns_enemy_unit_with_2_or_less_hp",
+    "tests/cards/test_wp_gd04_b.py::test_gd04_128_destroyed_all_players_draw_1",
+    "tests/cards/test_wp_gd05_a.py::test_gd05_046_no_discard_below_4_cards_or_with_other_pilots[GD01-089-5]",
+    "tests/cards/test_wp_gd05_a.py::test_gd05_046_no_discard_below_4_cards_or_with_other_pilots[GD05-092-3]",
+    "tests/cards/test_wp_gd05_a.py::test_gd05_046_phantom_pain_pilot_makes_opponent_with_4_cards_discard",
+    "tests/cards/test_wp_gd05_a.py::test_gd05_049_declining_destroys_nothing",
+    "tests/cards/test_wp_gd05_a.py::test_gd05_049_destroy_own_unit_then_opponent_destroys_a_non_battling_unit",
+    "tests/cards/test_wp_gd05_a.py::test_gd05_049_suppression_destroys_two_shields",
+    "tests/cards/test_wp_gd05_b.py::test_gd05_107_burst_places_an_ex_resource",
+    "tests/cards/test_wp_gd05_b.py::test_gd05_107_destroys_base_and_top_shield",
+    "tests/cards/test_wp_gd05_b.py::test_gd05_107_two_shields_revealed_together_and_owner_orders_bursts",
+    "tests/cards/test_wp_st09_11.py::test_st10_001_destroying_a_base_with_battle_damage_triggers",
+    "tests/cards/test_wp_st09_11.py::test_st10_001_destroying_a_shield_sets_active_and_bars_attacking_the_player",
+    "tests/cards/test_wp_st09_11.py::test_st10_001_destroying_a_unit_does_not_trigger",
+    "tests/cards/test_wp_st09_11.py::test_st10_008_declining_development_draws_nothing",
+    "tests/cards/test_wp_st09_11.py::test_st10_008_development_draws_one_then_discards_one",
+    "tests/cards/test_wp_st12_14.py::test_st12_001_once_per_turn",
+    "tests/cards/test_wp_st12_14.py::test_st12_001_once_per_turn_when_destroyed_in_the_second_battle",
+    "tests/cards/test_wp_st12_14.py::test_st12_013_burst_deals_1_damage_to_enemy_unit",
+    "tests/cards/test_wp_st12_14.py::test_st12_013_first_chosen_unit_attacks_with_first_strike",
+    "tests/cards/test_wp_st12_14.py::test_st12_013_needs_units_on_both_sides",
+    "tests/cards/test_wp_st12_14.py::test_st12_013_q446_damage_step_only_battle_between_chosen_units",
+    "tests/cards/test_wp_st12_14.py::test_st12_013_q447_carta_gives_the_battling_unit_first_strike",
+    "tests/cards/test_wp_st12_14.py::test_st12_013_q447_enemy_battle_effects_apply_in_effect_battles",
+    "tests/cards/test_wp_st12_14.py::test_st12_013_q448_effect_battle_destruction_is_battle_destruction",
+    "tests/cards/test_wp_st12_14.py::test_st13_001_q455_enemy_battle_effects_apply_in_effect_battles",
+    "tests/cards/test_wp_st12_14.py::test_st13_009_attack_opponent_exiles_2_unit_cards_from_their_trash",
+    "tests/cards/test_wp_st12_14.py::test_st13_009_needs_2_unit_cards_in_enemy_trash",
+    "tests/cards/test_wp_st12_14.py::test_st14_001_freeze_spares_your_units_and_repeats_each_enemy_start_phase",
+    "tests/cards/test_wp_st12_14.py::test_st14_001_lowest_lv_is_taken_among_rested_units",
+    "tests/cards/test_wp_st12_14.py::test_st14_001_q462_all_tied_lowest_lv_rested_units_stay_rested",
+    "tests/cards/test_wp_st12_14.py::test_st14_001_q463_effects_may_set_them_active_outside_the_start_phase",
+    "tests/cards/test_wp_st12_14.py::test_st14_001_suppression",
+    "tests/cards/test_wp_st12_14.py::test_st14_003_deploy_opponent_exiles_2_unit_cards[1]",
+    "tests/cards/test_wp_st12_14.py::test_st14_003_deploy_opponent_exiles_2_unit_cards[2]",
+    "tests/cards/test_wp_st12_14.py::test_st14_006_damage_from_higher_ap_or_while_unpaired_is_received[GD01-013-None]",
+    "tests/cards/test_wp_st12_14.py::test_st14_006_damage_from_higher_ap_or_while_unpaired_is_received[ST07-003-GD01-089]",
+    "tests/cards/test_wp_st12_14.py::test_st14_006_deploy_adds_1_of_top_3_to_hand",
+    "tests/cards/test_wp_st12_14.py::test_st14_006_paired_ignores_first_battle_damage_from_lower_ap_once_per_turn",
+    "tests/cards/test_wp_st12_14.py::test_st14_006_q467_look_is_mandatory_adding_is_optional",
+    "tests/cards/test_wp_st12_14.py::test_st14_015_burst_places_ex_resource",
+    "tests/cards/test_wp_st12_14.py::test_st14_015_places_rested_resource_then_sets_one_active",
+    "tests/cards/test_wp_st12_14.py::test_st14_015_resource_set_active_by_another_effect_this_turn",
+    "tests/cards/test_wp_st12_14.py::test_st14_015_second_copy_in_a_turn_does_not_set_active"
+   ],
+   "review_snapshot": {
+    "rulings": [
+     "EB01-002:Q310",
+     "EB01-005:Q312",
+     "EB01-009:Q313",
+     "EB01-009:Q314",
+     "EB01-023:Q319",
+     "EB01-025:Q320",
+     "EB01-059:Q321",
+     "EB01-059:Q322",
+     "EB01-059:Q323",
+     "EB01-074:Q329",
+     "EB01-074:Q330",
+     "EB01-078:Q331",
+     "GD05-107:Q405",
+     "GD05-107:Q406",
+     "GD05-107:Q407",
+     "ST10-001:Q302",
+     "ST10-008:Q305",
+     "ST10-008:Q306",
+     "ST12-013:Q446",
+     "ST12-013:Q447",
+     "ST12-013:Q448",
+     "ST14-001:Q462",
+     "ST14-001:Q463",
+     "ST14-001:Q464",
+     "ST14-006:Q467"
+    ],
+    "faq": []
+   }
+  },
+  {
+   "id": "I-24",
+   "topic": "Pilot text routing: 【Burst】, name-alias, play-modifier and hand/trash lines stay with the Pilot",
+   "anchor": "docs/ASSUMPTIONS.md:58",
+   "conflicts": [],
+   "tags": {
+    "rule": [
+     "3-3-9-1",
+     "3-3-9-2"
+    ],
+    "card": [],
+    "ruling": [],
+    "faq": []
+   },
+   "python_tests": [
+    "tests/cards/test_wp_eb01_b.py::test_eb01_061_rests_enemy_lv3_or_lower_with_friendly_gg_unit",
+    "tests/cards/test_wp_gd01_b.py::test_gd01_087_blue_unit_gains_repair_1",
+    "tests/cards/test_wp_gd02_b.py::test_gd02_086_ap_plus_one_with_another_titans_unit",
+    "tests/cards/test_wp_gd02_b.py::test_pilot_burst_adds_this_card_to_hand",
+    "tests/cards/test_wp_gd03_b.py::test_gd03_084_when_linked_repair_and_draw_for_jupitris",
+    "tests/cards/test_wp_gd03_b.py::test_gd03_100_destroyed_gives_enemy_ap_minus_3",
+    "tests/cards/test_wp_gd04_b.py::test_gd04_081_paired_with_league_militaire_unit_deploys_parts",
+    "tests/cards/test_wp_gd04_b.py::test_gd04_083_paired_unit_buffs_your_league_militaire_tokens",
+    "tests/cards/test_wp_st05_08.py::test_pilot_burst_adds_itself_to_hand",
+    "tests/cards/test_wp_st05_08.py::test_st05_010_when_paired_damages_a_friendly_and_an_enemy_unit",
+    "tests/cards/test_wp_st09_11.py::test_st09_008_attack_sets_chosen_resource_active_including_ex",
+    "tests/cards/test_wp_st09_11.py::test_st10_011_when_linked_rests_enemy_up_to_paired_unit_lv",
+    "tests/rules/test_faq.py::test_q88_pilot_effect_resolves_as_the_units_effect",
+    "tests/rules/test_faq.py::test_q89_non_linking_pilot_still_adds_stats_and_effects",
+    "tests/rules/test_pairing.py::test_destroyed_pilot_text_is_the_paired_units_effect",
+    "tests/rules/test_pairing.py::test_during_link_unit_text_applies_to_the_paired_unit",
+    "tests/rules/test_pairing.py::test_pilot_text_splits_into_pilot_text_and_unit_text",
+    "tests/rules/test_pairing.py::test_text_above_the_name_belongs_to_the_pilot_card",
+    "tests/rules/test_pairing.py::test_text_below_the_name_is_gained_by_the_paired_unit",
+    "tests/rules/test_pairing.py::test_triggered_pilot_text_triggers_for_the_paired_unit",
+    "tests/rules/test_pairing.py::test_unit_text_and_modifiers_apply_without_a_link"
+   ],
+   "rust_traces": [
+    "tests/cards/test_wp_eb01_b.py::test_eb01_061_rests_enemy_lv3_or_lower_with_friendly_gg_unit",
+    "tests/cards/test_wp_gd01_b.py::test_gd01_087_blue_unit_gains_repair_1",
+    "tests/cards/test_wp_gd02_b.py::test_gd02_086_ap_plus_one_with_another_titans_unit",
+    "tests/cards/test_wp_gd02_b.py::test_pilot_burst_adds_this_card_to_hand[GD02-086]",
+    "tests/cards/test_wp_gd02_b.py::test_pilot_burst_adds_this_card_to_hand[GD02-087]",
+    "tests/cards/test_wp_gd02_b.py::test_pilot_burst_adds_this_card_to_hand[GD02-088]",
+    "tests/cards/test_wp_gd02_b.py::test_pilot_burst_adds_this_card_to_hand[GD02-089]",
+    "tests/cards/test_wp_gd02_b.py::test_pilot_burst_adds_this_card_to_hand[GD02-090]",
+    "tests/cards/test_wp_gd02_b.py::test_pilot_burst_adds_this_card_to_hand[GD02-091]",
+    "tests/cards/test_wp_gd02_b.py::test_pilot_burst_adds_this_card_to_hand[GD02-092]",
+    "tests/cards/test_wp_gd02_b.py::test_pilot_burst_adds_this_card_to_hand[GD02-093]",
+    "tests/cards/test_wp_gd02_b.py::test_pilot_burst_adds_this_card_to_hand[GD02-094]",
+    "tests/cards/test_wp_gd02_b.py::test_pilot_burst_adds_this_card_to_hand[GD02-095]",
+    "tests/cards/test_wp_gd02_b.py::test_pilot_burst_adds_this_card_to_hand[GD02-096]",
+    "tests/cards/test_wp_gd02_b.py::test_pilot_burst_adds_this_card_to_hand[GD02-097]",
+    "tests/cards/test_wp_gd02_b.py::test_pilot_burst_adds_this_card_to_hand[GD02-098]",
+    "tests/cards/test_wp_gd02_b.py::test_pilot_burst_adds_this_card_to_hand[GD02-099]",
+    "tests/cards/test_wp_gd03_b.py::test_gd03_084_when_linked_repair_and_draw_for_jupitris",
+    "tests/cards/test_wp_gd03_b.py::test_gd03_100_destroyed_gives_enemy_ap_minus_3",
+    "tests/cards/test_wp_gd04_b.py::test_gd04_081_paired_with_league_militaire_unit_deploys_parts",
+    "tests/cards/test_wp_gd04_b.py::test_gd04_083_paired_unit_buffs_your_league_militaire_tokens",
+    "tests/cards/test_wp_st05_08.py::test_pilot_burst_adds_itself_to_hand[ST05-010]",
+    "tests/cards/test_wp_st05_08.py::test_pilot_burst_adds_itself_to_hand[ST05-011]",
+    "tests/cards/test_wp_st05_08.py::test_pilot_burst_adds_itself_to_hand[ST05-012]",
+    "tests/cards/test_wp_st05_08.py::test_pilot_burst_adds_itself_to_hand[ST06-009]",
+    "tests/cards/test_wp_st05_08.py::test_pilot_burst_adds_itself_to_hand[ST06-010]",
+    "tests/cards/test_wp_st05_08.py::test_pilot_burst_adds_itself_to_hand[ST07-009]",
+    "tests/cards/test_wp_st05_08.py::test_pilot_burst_adds_itself_to_hand[ST07-010]",
+    "tests/cards/test_wp_st05_08.py::test_pilot_burst_adds_itself_to_hand[ST07-011]",
+    "tests/cards/test_wp_st05_08.py::test_pilot_burst_adds_itself_to_hand[ST07-012]",
+    "tests/cards/test_wp_st05_08.py::test_pilot_burst_adds_itself_to_hand[ST08-010]",
+    "tests/cards/test_wp_st05_08.py::test_pilot_burst_adds_itself_to_hand[ST08-011]",
+    "tests/cards/test_wp_st05_08.py::test_st05_010_when_paired_damages_a_friendly_and_an_enemy_unit",
+    "tests/cards/test_wp_st09_11.py::test_st09_008_attack_sets_chosen_resource_active_including_ex",
+    "tests/cards/test_wp_st09_11.py::test_st10_011_when_linked_rests_enemy_up_to_paired_unit_lv",
+    "tests/rules/test_faq.py::test_q88_pilot_effect_resolves_as_the_units_effect",
+    "tests/rules/test_faq.py::test_q89_non_linking_pilot_still_adds_stats_and_effects",
+    "tests/rules/test_pairing.py::test_destroyed_pilot_text_is_the_paired_units_effect",
+    "tests/rules/test_pairing.py::test_during_link_unit_text_applies_to_the_paired_unit",
+    "tests/rules/test_pairing.py::test_text_above_the_name_belongs_to_the_pilot_card",
+    "tests/rules/test_pairing.py::test_text_below_the_name_is_gained_by_the_paired_unit",
+    "tests/rules/test_pairing.py::test_triggered_pilot_text_triggers_for_the_paired_unit",
+    "tests/rules/test_pairing.py::test_unit_text_and_modifiers_apply_without_a_link"
+   ],
+   "review_snapshot": {
+    "rulings": [],
+    "faq": []
+   }
+  },
+  {
+   "id": "I-25",
+   "topic": "ST12-001 errata applied through an override (major)",
+   "anchor": "docs/CONFLICTS.md (errata-unapplied:ST12-001:news-02_193)",
+   "conflicts": [
+    "errata-unapplied:ST12-001:news-02_193"
+   ],
+   "tags": {
+    "rule": [],
+    "card": [
+     "ST12-001"
+    ],
+    "ruling": [],
+    "faq": []
+   },
+   "python_tests": [
+    "tests/cards/test_wp_st12_14.py::test_st12_001_deploy_deals_5_damage_to_enemy_base",
+    "tests/cards/test_wp_st12_14.py::test_st12_001_lv5_pilot_battle_destruction_sweeps_enemies_with_5_or_less_ap",
+    "tests/cards/test_wp_st12_14.py::test_st12_001_no_sweep_without_lv5_pilot",
+    "tests/cards/test_wp_st12_14.py::test_st12_001_once_per_turn",
+    "tests/cards/test_wp_st12_14.py::test_st12_001_once_per_turn_when_destroyed_in_the_second_battle",
+    "tests/cards/test_wp_st12_14.py::test_st12_001_q436_triggers_when_both_units_are_destroyed",
+    "tests/cards/test_wp_st12_14.py::test_st12_001_q437_triggers_when_destroying_with_effect_damage",
+    "tests/cards/test_wp_st12_14.py::test_st12_011_name_alias_links_zechs_units"
+   ],
+   "rust_traces": [
+    "tests/cards/test_wp_st12_14.py::test_st12_001_deploy_deals_5_damage_to_enemy_base",
+    "tests/cards/test_wp_st12_14.py::test_st12_001_lv5_pilot_battle_destruction_sweeps_enemies_with_5_or_less_ap",
+    "tests/cards/test_wp_st12_14.py::test_st12_001_no_sweep_without_lv5_pilot[None]",
+    "tests/cards/test_wp_st12_14.py::test_st12_001_no_sweep_without_lv5_pilot[ST02-010]",
+    "tests/cards/test_wp_st12_14.py::test_st12_001_once_per_turn",
+    "tests/cards/test_wp_st12_14.py::test_st12_001_once_per_turn_when_destroyed_in_the_second_battle",
+    "tests/cards/test_wp_st12_14.py::test_st12_001_q436_triggers_when_both_units_are_destroyed",
+    "tests/cards/test_wp_st12_14.py::test_st12_001_q437_triggers_when_destroying_with_effect_damage",
+    "tests/cards/test_wp_st12_14.py::test_st12_011_name_alias_links_zechs_units"
+   ],
+   "review_snapshot": {
+    "rulings": [
+     "ST12-001:Q436",
+     "ST12-001:Q437"
+    ],
+    "faq": []
+   }
+  },
+  {
+   "id": "I-26",
+   "topic": "GD02-053 [Suppression] read as <Suppression> (major)",
+   "anchor": "docs/CONFLICTS.md (markers:GD02-053:unbracketed-keyword)",
+   "conflicts": [
+    "markers:GD02-053:unbracketed-keyword"
+   ],
+   "tags": {
+    "rule": [],
+    "card": [
+     "GD02-053"
+    ],
+    "ruling": [],
+    "faq": []
+   },
+   "python_tests": [
+    "tests/cards/test_wp_gd02_a.py::test_gd02_053_linked_with_7_trash_other_vulture_units_get_ap_plus_2",
+    "tests/cards/test_wp_gd02_a.py::test_gd02_053_needs_link_your_turn_and_7_trash"
+   ],
+   "rust_traces": [
+    "tests/cards/test_wp_gd02_a.py::test_gd02_053_linked_with_7_trash_other_vulture_units_get_ap_plus_2",
+    "tests/cards/test_wp_gd02_a.py::test_gd02_053_needs_link_your_turn_and_7_trash[6-0-GD02-094]",
+    "tests/cards/test_wp_gd02_a.py::test_gd02_053_needs_link_your_turn_and_7_trash[7-0-GD01-089]",
+    "tests/cards/test_wp_gd02_a.py::test_gd02_053_needs_link_your_turn_and_7_trash[7-1-GD02-094]"
+   ],
+   "review_snapshot": {
+    "rulings": [],
+    "faq": []
+   }
+  },
+  {
+   "id": "I-27",
+   "topic": "ST13-013 simultaneous 1-to-2 token deploys",
+   "anchor": "docs/CONFLICTS.md (ambiguous:ST13-013:deploy-1-to-2-tokens)",
+   "conflicts": [
+    "ambiguous:ST13-013:deploy-1-to-2-tokens"
+   ],
+   "tags": {
+    "rule": [],
+    "card": [
+     "ST13-001",
+     "ST13-013"
+    ],
+    "ruling": [],
+    "faq": []
+   },
+   "python_tests": [
+    "tests/cards/test_wp_st12_14.py::test_st13_001_pairing_deploys_1_to_2_bit_funnels_once_per_turn",
+    "tests/cards/test_wp_st12_14.py::test_st13_001_q454_token_battles_enemy_unit_with_damage_step_only",
+    "tests/cards/test_wp_st12_14.py::test_st13_001_q455_carta_gives_the_token_first_strike",
+    "tests/cards/test_wp_st12_14.py::test_st13_001_q455_enemy_battle_effects_apply_in_effect_battles",
+    "tests/cards/test_wp_st12_14.py::test_st13_001_q456_effect_battle_destruction_triggers_breach",
+    "tests/cards/test_wp_st12_14.py::test_st13_001_second_token_is_optional",
+    "tests/cards/test_wp_st12_14.py::test_st13_013_deploys_1_to_2_bit_funnels",
+    "tests/cards/test_wp_st12_14.py::test_st13_013_pilot_carris_nautilus_links_bertigo",
+    "tests/cards/test_wp_st12_14.py::test_st13_013_two_tokens_deploy_together_with_a_full_battle_area"
+   ],
+   "rust_traces": [
+    "tests/cards/test_wp_st12_14.py::test_st13_001_pairing_deploys_1_to_2_bit_funnels_once_per_turn",
+    "tests/cards/test_wp_st12_14.py::test_st13_001_q454_token_battles_enemy_unit_with_damage_step_only",
+    "tests/cards/test_wp_st12_14.py::test_st13_001_q455_carta_gives_the_token_first_strike",
+    "tests/cards/test_wp_st12_14.py::test_st13_001_q455_enemy_battle_effects_apply_in_effect_battles",
+    "tests/cards/test_wp_st12_14.py::test_st13_001_q456_effect_battle_destruction_triggers_breach",
+    "tests/cards/test_wp_st12_14.py::test_st13_001_second_token_is_optional",
+    "tests/cards/test_wp_st12_14.py::test_st13_013_deploys_1_to_2_bit_funnels[False-1]",
+    "tests/cards/test_wp_st12_14.py::test_st13_013_deploys_1_to_2_bit_funnels[True-2]",
+    "tests/cards/test_wp_st12_14.py::test_st13_013_pilot_carris_nautilus_links_bertigo",
+    "tests/cards/test_wp_st12_14.py::test_st13_013_two_tokens_deploy_together_with_a_full_battle_area"
+   ],
+   "review_snapshot": {
+    "rulings": [
+     "ST13-001:Q454",
+     "ST13-001:Q455",
+     "ST13-001:Q456"
+    ],
+    "faq": []
+   }
+  }
+ ]
+}

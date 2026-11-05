@@ -1,5 +1,5 @@
 //! PLAN §3.4 test 1 (T-040): the committed IR is current with its inputs. A data refresh or a
-//! binding edit without `port/oracle/export_ir.py --write` fails here, without Python.
+//! binding edit without `oracle/export_ir.py --write` fails here, without Python.
 
 use std::fs;
 use std::path::Path;
@@ -41,7 +41,7 @@ fn every_input_hash_equals_the_file_in_the_repository() {
     }
     assert!(
         stale.is_empty(),
-        "the effect IR is stale; run `uv run python port/oracle/export_ir.py --write`: {stale:?}"
+        "the effect IR is stale; run `uv run python oracle/export_ir.py --write`: {stale:?}"
     );
 }
 
@@ -80,12 +80,12 @@ fn inputs_cover_every_file_of_the_python_package() {
     assert_eq!(
         files, listed,
         "files were added to or removed from src/gcg_sim; run `uv run python \
-         port/oracle/export_ir.py --write`"
+         oracle/export_ir.py --write`"
     );
     for port in [
-        "port/oracle/export_ir.py",
-        "port/oracle/gen_dsl.py",
-        "port/oracle/gen_engine_enums.py",
+        "oracle/export_ir.py",
+        "oracle/gen_dsl.py",
+        "oracle/gen_engine_enums.py",
     ] {
         assert!(
             inputs().iter().any(|(p, _)| *p == port),
@@ -161,7 +161,7 @@ fn the_ir_is_version_1_from_the_golden_platform() {
     let ir = raw();
     assert_eq!(ir["ir_version"], 1);
     let generator = &ir["generator"];
-    assert_eq!(generator["exporter"], "port/oracle/export_ir.py");
+    assert_eq!(generator["exporter"], "oracle/export_ir.py");
     assert_eq!(generator["python"], "3.15.1");
     assert_eq!(generator["hash_seeds_checked"], serde_json::json!([1, 2]));
     assert_eq!(
@@ -184,8 +184,8 @@ fn schema_and_enums_match_the_generated_types() {
     assert_eq!(ENUMS.len(), 14);
 }
 
-/// PLAN §3.4 test 6, IR side: the exported CardDb fingerprints are the values that
-/// docs/port/inventory/03-data-deck.md §9 records for this data snapshot (the comparison with
+/// PLAN §3.4 test 6, IR side: the exported CardDb fingerprints are the recorded values
+/// for this data snapshot (the comparison with
 /// `gcg-data`'s own fingerprints is `db_fingerprints.rs`).
 #[test]
 fn the_ir_carries_the_recorded_card_db_fingerprints() {

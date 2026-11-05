@@ -1,5 +1,5 @@
 //! `gcg-eval reference-benchmark` against Python's `gcg-sim benchmark`, through both command
-//! lines (`port/oracle/export_parity.py`, sections `test-random` and `reference`):
+//! lines (`oracle/export_parity.py`, sections `test-random` and `reference`):
 //!
 //! - T-073: `--agent test-random` against Python with
 //!   `GCG_SIM_AGENT_FACTORY=tests/runner/random_agent.py:make_random_agent`, in the

@@ -3,9 +3,9 @@
 A deterministic Gundam Card Game (Comprehensive Rules Ver. 1.9.0) engine, AI and deck benchmark
 CLI, implemented in Rust (`crates/`, binaries `gcg-sim` and `gcg-eval`). The Python package
 (`src/gcg_sim`) is the reference oracle and the effect-IR generator. Start with `README.md`.
-Architecture: `docs/port/ARCHITECTURE.md` (Rust) and `docs/ARCHITECTURE.md` (the oracle). AI
-and presets: `docs/AI.md`. Design and registers: `docs/port/PLAN.md`,
-`docs/port/WEAKNESSES.md`, `docs/port/tests.json`. `docs/SPEC.md`, `docs/INTERFACES.md`,
+Architecture: `docs/dev/ARCHITECTURE.md` (Rust) and `docs/ARCHITECTURE.md` (the oracle). AI
+and presets: `docs/AI.md`. Design and registers: `docs/dev/PLAN.md`,
+`docs/dev/WEAKNESSES.md`, `docs/dev/tests.json`. `docs/SPEC.md`, `docs/INTERFACES.md`,
 `docs/PROGRESS.md` and `docs/status.json` are the oracle's build records, not current
 documentation. The Rust build records (brief, inventory, final report, review, progress log) were
 deleted; citations of them in the registers (`BRIEF.md:131`, `Inv 06b §5`, `REVIEW.md §4`) refer
@@ -24,7 +24,7 @@ cargo build --release --locked --offline -p gcg-diff
 target/release/gcg-diff lints
 target/release/gcg-diff traceability --check
 target/release/gcg-diff tests-json --check
-target/release/gcg-diff weaknesses --check docs/port/WEAKNESSES.md
+target/release/gcg-diff weaknesses --check docs/dev/WEAKNESSES.md
 target/release/gcg-diff coverage --check
 ```
 
@@ -52,7 +52,7 @@ scripts/verify_all_rust.sh
   --reference-preset fast|standard|strong`, agent specs `ref:<preset>`); `head-to-head`,
   `ablation`, `budget-curve`, `gates` and the other tools measure strength. Runs that count as
   evidence take `--role tuning|dev|confirm|eval|review` (the seed must lie in the role's range
-  and is recorded in `docs/port/eval/seed-ledger.json`); never use a held-out pair or an eval or
+  and is recorded in `docs/dev/eval/seed-ledger.json`); never use a held-out pair or an eval or
   review seed for tuning.
 - After changing rule, card, FAQ or ruling tags in the Python tests, regenerate the tag export
   and the per-test traces, then the traceability documents with the Rust generator. Do not use
@@ -61,9 +61,9 @@ scripts/verify_all_rust.sh
 
   <!-- doc-check: skip regenerates the per-test traces (the rule and card suites in one process) and rewrites committed corpus and traceability files -->
   ```bash
-  uv run python port/oracle/export_tags.py
-  uv run python port/oracle/pytest_trace.py --write
-  uv run python port/oracle/traces.py --write --tier 1
+  uv run python oracle/export_tags.py
+  uv run python oracle/pytest_trace.py --write
+  uv run python oracle/traces.py --write --tier 1
   target/release/gcg-diff traceability --write
   ```
 
@@ -72,7 +72,7 @@ scripts/verify_all_rust.sh
 The Python package stays unchanged as the oracle: never edit `src/gcg_sim/` or `tests/`
 (every gate checks `git diff --quiet d9d41af -- src/gcg_sim tests`). Its effect toolchain
 (`effects/`, `cards/`, `data/`) is also the generator of the effect IR that the Rust binaries
-embed. Tooling outside the package lives in `port/oracle/` (the oracle exporters) and
+embed. Tooling outside the package lives in `oracle/` (the oracle exporters) and
 `scripts/` (the gates and helpers).
 
 ```bash
@@ -82,7 +82,7 @@ uv run python -m gcg_sim.tools.explain GD01-001
 uv run python -m gcg_sim.tools.golden --check
 uv run python -m gcg_sim.sources.conflicts --check
 uv run python -m gcg_sim.tools.sources --check
-uv run python port/oracle/export_ir.py --check
+uv run python oracle/export_ir.py --check
 ```
 
 <!-- doc-check: skip the full Python suite and a 500-game fuzz run; scripts/verify_all.sh runs both -->
@@ -97,14 +97,14 @@ uv run python -m gcg_sim.tools.fuzz --games 500 --workers 8
   data (a data refresh), a Python version bump or a trace-format change, never by hand. Each
   script has `--check`; regenerate only what `--check` reports stale, review the diff, and
   commit each regeneration on its own:
-  - effect IR: `uv run python port/oracle/export_ir.py --write` (the Rust test
+  - effect IR: `uv run python oracle/export_ir.py --write` (the Rust test
     `crates/gcg-effects/src/tests/ir_current.rs` fails until it is current);
-  - generated Rust: `port/oracle/gen_dsl.py --write`, `port/oracle/gen_engine_enums.py --write`;
-  - test vectors: `port/oracle/export_<name>.py` without `--check` (`export_cli.py`,
-    `p6k_vectors.py` and `p6k_audit.py` take `--write`), `port/oracle/traces.py vectors`;
-  - trace corpus: `port/oracle/pytest_trace.py --write`, then `port/oracle/traces.py --write
-    --tier 1` (both hash seeds; it rewrites `port/corpus/v1/MANIFEST.json`), then
-    `port/oracle/census.py --write`; check with `target/release/gcg-diff corpus --tier 1
+  - generated Rust: `oracle/gen_dsl.py --write`, `oracle/gen_engine_enums.py --write`;
+  - test vectors: `oracle/export_<name>.py` without `--check` (`export_cli.py`,
+    `p6k_vectors.py` and `p6k_audit.py` take `--write`), `oracle/traces.py vectors`;
+  - trace corpus: `oracle/pytest_trace.py --write`, then `oracle/traces.py --write
+    --tier 1` (both hash seeds; it rewrites `oracle/corpus/v1/MANIFEST.json`), then
+    `oracle/census.py --write`; check with `target/release/gcg-diff corpus --tier 1
     --require-all` and `target/release/gcg-diff coverage --check`.
 
 ## Rules of the codebase
@@ -116,7 +116,7 @@ uv run python -m gcg_sim.tools.fuzz --games 500 --workers 8
   this. Same seed means byte-identical outputs for any `--workers`. Budgets are node counts.
 - **No timing code in the crates.** No benchmark suites, timing tests or timing-dependent
   behaviour; `timing.json` exists for CLI parity only. The one timing activity is
-  `scripts/compare_python_vs_rust.sh`, outside the crates (`docs/port/BENCHMARKS.md`).
+  `scripts/compare_python_vs_rust.sh`, outside the crates (`docs/dev/BENCHMARKS.md`).
 - **The reference search is frozen.** `gcg-ai-reference` reproduces Python's decisions byte for
   byte and is reachable only from `gcg-eval`; `gcg-cli` must never depend on it. Strength work
   goes into `gcg-search` behind a `MechanismFlags` field, with its null configuration still
@@ -152,11 +152,11 @@ uv run python -m gcg_sim.tools.fuzz --games 500 --workers 8
   xfail a test to get green. `unsafe` stays in `crates/gcg-core/src/libm.rs` only.
 - **Documented commands run.** Every `bash` block in `README.md`, `CLAUDE.md`, `docs/**/*.md`
   and the gcg-benchmark skill runs in `uv run python scripts/check_doc_commands.py`, unless it
-  carries a `<!-- doc-check: skip <reason> -->` marker. Counts in `docs/port/` use
+  carries a `<!-- doc-check: skip <reason> -->` marker. Counts in `docs/dev/` use
   `<!-- count:NAME -->` markers (`scripts/doc_counts.py --check`).
 - Record interpretation decisions in `docs/ASSUMPTIONS.md`, and in `docs/CONFLICTS.md` when
-  sources disagree. Record design decisions in `docs/port/PLAN.md` and every weakness's outcome
-  in `docs/port/WEAKNESSES.md`.
+  sources disagree. Record design decisions in `docs/dev/PLAN.md` and every weakness's outcome
+  in `docs/dev/WEAKNESSES.md`.
 
 ## Skills
 

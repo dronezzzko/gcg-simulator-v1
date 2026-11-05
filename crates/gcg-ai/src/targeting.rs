@@ -1,5 +1,4 @@
-//! Whether a pending card choice helps or hurts the chosen cards (`ai/targeting.py`;
-//! docs/port/inventory/07-ai-search.md §15).
+//! Whether a pending card choice helps or hurts the chosen cards (`ai/targeting.py`).
 //!
 //! The resolving effect's program is public card text, so the policy reads the instructions
 //! that follow the waiting `Choose` and classifies what happens to the chosen variable.
@@ -7,8 +6,8 @@
 //! Python memoises `choice_polarity` per `(program_id, pc, rule_table)`,
 //! `choice_rule_lasts_this_battle` per `(program_id, pc)` and `command_harms_enemy_units` per
 //! `def_id` in process globals (`ai/targeting.py:54-55`, `:93`). The memo tables are pure
-//! functions of the registry, so these ports recompute them (open item O10 of
-//! docs/port/contracts.md): the results are the same by construction.
+//! functions of the registry, so the Rust functions recompute them (open item O10 of
+//! docs/dev/contracts.md): the results are the same by construction.
 
 use gcg_data::DefId;
 use gcg_effects::{

@@ -1,11 +1,11 @@
-//! P6-J run-level evidence (docs/port/PLAN.md §12.2 P6-J; docs/port/eval/weakness-status/P6-J.md):
+//! P6-J run-level evidence (docs/dev/PLAN.md §12.2 P6-J; docs/dev/eval/weakness-status/P6-J.md):
 //!
 //! - W-143 e2e: a `test-random` benchmark whose players build the two-GD04-095 redirect cycle
 //!   fails with exit status 1 (`CliError`) and writes no report, as Python's does.
 //! - W-46, W-47, W-48, W-54, W-162 over Python's fuzz games: the games of `python -m
 //!   gcg_sim.tools.fuzz --seed 2026` (decks `deck_for`, seeds `fuzz-game`/`fuzz-agent`, uniform
 //!   random choices, `tools/fuzz.py:47-120`), each checked against Python's per-game row
-//!   (`port/corpus/v1/tier1/fuzz/summary-2026-10000.games.jsonl`), with no PAYMENT decision,
+//!   (`oracle/corpus/v1/tier1/fuzz/summary-2026-10000.games.jsonl`), with no PAYMENT decision,
 //!   no ATTACK_TRIGGERS step, no `NoProgress`, no safety cap, no derived view that hit the
 //!   fixpoint cap, and (feature `paranoid`) the list of triggers whose host moved again before
 //!   they resolved. The first 200 games run in the default suite, all 10,000 with `slow`.
@@ -238,7 +238,7 @@ fn fuzz_games(n: u64, threads: u64) -> Vec<GameDiag> {
 }
 
 fn python_rows(n: usize) -> Vec<Value> {
-    let path = root().join("port/corpus/v1/tier1/fuzz/summary-2026-10000.games.jsonl");
+    let path = root().join("oracle/corpus/v1/tier1/fuzz/summary-2026-10000.games.jsonl");
     std::fs::read_to_string(&path)
         .unwrap_or_else(|e| panic!("{}: {e}", path.display()))
         .lines()

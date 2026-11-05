@@ -1,10 +1,10 @@
-//! `gcg-eval gates` (docs/port/PLAN.md §12.6, A25, A26; W-19): the final-evaluation gates E1-E4
+//! `gcg-eval gates` (docs/dev/PLAN.md §12.6, A25, A26; W-19): the final-evaluation gates E1-E4
 //! computed from `gcg-eval head-to-head --out` reports.
 //!
 //! The statistics are recomputed from each report's `outcomes` rows (`[index, pair,
 //! challenger, winner, ...]`; the challenger won when `winner == challenger`, so draws are
 //! non-wins, W-93), grouped by pair with the `by_pair` rows' names and held-out flags, which
-//! must agree with `docs/port/eval/panel.json` when it exists. Wilson 95% bounds are
+//! must agree with `docs/dev/eval/panel.json` when it exists. Wilson 95% bounds are
 //! `reports/stats.py`'s (z = 1.96), compared unrounded with the bars.
 //!
 //! | Gate | Comparison | Reports | Bars |
@@ -41,7 +41,7 @@ pub const PANEL_PAIRS: usize = 28;
 pub const PANEL_HELD_OUT_PAIRS: usize = 13;
 /// E1's lower-bound bar.
 pub const E1_BAR: f64 = 0.55;
-/// The greedy bar of E4 (the reference's Wilson upper bound, `BRIEF.md:131`).
+/// The greedy bar of E4 (the upper end of the Wilson interval of the reference's 289/400 on the AI test decks).
 pub const E4_BAR: f64 = 0.764;
 
 /// The parsed arguments.

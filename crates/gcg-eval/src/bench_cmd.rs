@@ -5,7 +5,7 @@
 //!
 //! The factory, the preset label and the results schema are the caller's:
 //! `reference-benchmark` writes schema 1.1.0 byte-identical to Python with Python's preset
-//! names (PLAN A6, A10). These helpers are the parts of `cli_support` (docs/port/contracts.md
+//! names (PLAN A6, A10). These helpers are the parts of `cli_support` (docs/dev/contracts.md
 //! O11) that `gcg-eval` needs, written against the frozen gcg-runner and gcg-data API.
 
 use std::io::Write;

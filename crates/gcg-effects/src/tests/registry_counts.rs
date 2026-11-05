@@ -1,4 +1,4 @@
-//! PLAN §3.4 test 4 (T-043): the registry counts of Inv 04 §2, the registry-global tables
+//! PLAN §3.4 test 4 (T-043): the recorded registry counts, the registry-global tables
 //! and the history kinds that `HappenedThisTurn` reads.
 
 use gcg_data::DefId;

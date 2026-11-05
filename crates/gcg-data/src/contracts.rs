@@ -1,12 +1,11 @@
-//! Contract types of `gcg-data` (docs/port/PLAN.md §10.3.1), owned by the lead (§10.1 S).
+//! Contract types of `gcg-data` (docs/dev/PLAN.md §10.3.1), owned by the lead (§10.1 S).
 //!
-//! Workstream A implements the functions frozen in docs/port/contracts.md (gcg-data section)
+//! Workstream A implements the functions frozen in docs/dev/contracts.md (gcg-data section)
 //! with real bodies; only the lead edits this file (§10.6 change protocol). Fields marked
 //! `pub(crate)` are the lead's starting layout of an opaque type: A may change them in its
 //! landing diff, because no other crate can observe them.
 //!
-//! Python sources are cited relative to `src/gcg_sim/`; Inv 03 is
-//! docs/port/inventory/03-data-deck.md.
+//! Python sources are cited relative to `src/gcg_sim/`.
 
 use std::io;
 use std::path::PathBuf;
@@ -245,7 +244,7 @@ impl CardDef {
 }
 
 /// `AppliedOverride(conflict_id, card_number, decision, fields)` (`cards/db.py:72-77`), in
-/// `CardDB.applied_overrides` order (card numbers sorted, then conflict ids sorted; Inv 03 §2.6).
+/// `CardDB.applied_overrides` order (card numbers sorted, then conflict ids sorted).
 #[derive(Clone, PartialEq, Eq, Hash, Debug)]
 pub struct AppliedOverride {
     pub conflict_id: Box<str>,
@@ -258,7 +257,7 @@ pub struct AppliedOverride {
 /// `get`, `token_for`, `unit_variant` and `base_def_id`.
 #[allow(
     dead_code,
-    reason = "built and read by workstream A's loader (docs/port/contracts.md)"
+    reason = "built and read by workstream A's loader (docs/dev/contracts.md)"
 )]
 pub struct CardDb {
     /// `_defs`, index = def_id.
@@ -381,7 +380,7 @@ pub struct Deck {
 /// UNKNOWN_ID and NAME_MISMATCH also come from `parse_deck`). Each variant documents its exact
 /// message (Python f-string); `{label}` is `f"{number} {cdef.name}"` or the bare number when
 /// unknown (`validate.py:20-22`), `{labels}` joins labels with `", "` (`:25-26`), `{date}` is
-/// the B&R `effective_date`, and `{x!r}` is CPython `repr` (Inv 03 §10 H1).
+/// the B&R `effective_date`, and `{x!r}` is CPython `repr`.
 #[repr(u8)]
 #[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Debug)]
 pub enum ViolationCode {
@@ -502,7 +501,7 @@ pub struct ValidateOptions<'a> {
 /// Every way loading or converting a deck fails. `Display` is Python's text: `Invalid` renders
 /// `str(DeckError)` (`deck/model.py:55-58`: `{subject} has {n} problem(s):` and `  - {p}`
 /// lines, `subject = f"deck {deck_name!r}"` or `deck`); `Io` and `Decode` render the CLI texts
-/// of `cli.py:102-110` (Inv 03 §3.1).
+/// of `cli.py:102-110`.
 #[derive(Debug)]
 pub enum DeckError {
     /// `cannot read deck file {path}: {exc.strerror or exc}`.
@@ -533,7 +532,7 @@ pub enum DeckError {
 // Official data (deck/official.py, reports/versions.py)
 
 /// `ConstructionRules` (`deck/official.py:19-28`), from `official/deck_construction.json`
-/// (`:74-86`; Inv 03 §1.5).
+/// (`:74-86`).
 #[derive(Clone, PartialEq, Eq, Hash, Debug)]
 pub struct ConstructionRules {
     pub main_size: u32,
@@ -578,7 +577,7 @@ pub struct AttributePairRule {
     /// First `"..."` substring of `source_text`, else the rule id (`:93-98`).
     pub description: Box<str>,
     /// The `member_predicate` object; `matches` walks its keys in JSON order with
-    /// short-circuit (`:160-173`, Inv 03 §10 H8), so the map keeps insertion order.
+    /// short-circuit (`:160-173`), so the map keeps insertion order.
     pub member_predicate: serde_json::Value,
     /// `frozenset` of card numbers, stored sorted; membership only.
     pub enumerated: Box<[Box<str>]>,

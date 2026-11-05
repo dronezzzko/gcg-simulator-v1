@@ -1,6 +1,5 @@
-//! The 13 custom step hooks (`interp.CUSTOM_STEPS`; Inv 04 §6.2 #1, #2, #5, #6, #7, #9, #13,
-//! #14, #20, #21, #26, #28, #29), one Rust module per Python module (PLAN §5.3). Each body is a
-//! literal port of the Python function its doc comment names; `_h_custom` sets `did` from the
+//! The 13 custom step hooks (`interp.CUSTOM_STEPS`), one Rust module per Python module
+//! (PLAN §5.3). Each body is a literal reproduction of the Python function its doc comment names; `_h_custom` sets `did` from the
 //! result and touches afterwards (`interp.py:1571-1575`). A hook never raises a decision.
 //!
 //! The parameters arrive typed (`StepParams`, decoded once at load with `dict(params)`

@@ -1,4 +1,4 @@
-//! The `gcg-sim` agent factory (docs/port/contracts.md, gcg-cli section): every seat of every
+//! The `gcg-sim` agent factory (docs/dev/contracts.md, gcg-cli section): every seat of every
 //! game gets a fresh strengthened-search agent of the run's preset (PLAN §6.4, A9). It stands
 //! where Python's `default_agent_factory` (`runner/agents.py:56-63`) builds the reference
 //! search; the reference is not reachable from `gcg-sim` (PLAN §2.2, §6.5).
@@ -22,7 +22,7 @@ impl SearchFactory {
 
 impl AgentFactory for SearchFactory {
     /// `make_agent(preset_config(spec.preset), spec.seed, spec.log)`; role and seat are
-    /// ignored, as Python's default factory ignores them (Inv 01 §2.3). A preset outside
+    /// ignored, as Python's default factory ignores them. A preset outside
     /// `standard`/`fast` fails as Python's `make_agent` does for an unknown preset
     /// (`ai/agents.py:117-118`).
     fn make(&self, spec: &AgentSpec) -> Result<Box<dyn Agent>, AgentError> {

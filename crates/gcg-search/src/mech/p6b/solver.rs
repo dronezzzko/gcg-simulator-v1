@@ -1,4 +1,4 @@
-//! The tactical solver of P6-B (docs/port/PLAN.md §12.3 S3; W-03, W-16, W-17): an exact bounded
+//! The tactical solver of P6-B (docs/dev/PLAN.md §12.3 S3; W-03, W-16, W-17): an exact bounded
 //! AND-OR search of the rest of one player's turn on a determinised world, played by the engine
 //! on clones.
 //!

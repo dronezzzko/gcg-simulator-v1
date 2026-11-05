@@ -1,6 +1,6 @@
 //! The self-play behind the calibrated policy's fit (W-23, PLAN §12.3 S9), feature `slow`:
 //! `fitted_policy_reproduces` replays the self-play on the tuning pairs, refits both models and
-//! checks the report `docs/port/eval/P6-F/policy-fit.json` (and so the constants of `fitted.rs`,
+//! checks the report `docs/dev/eval/P6-F/policy-fit.json` (and so the constants of `fitted.rs`,
 //! which `tests::fitted_constants_are_the_recorded_fit` compares with it). When the fit
 //! differs, the regenerated report is written to the system's temporary directory and the
 //! failure names it (no crate reads an environment variable, W-108).
@@ -17,10 +17,10 @@ use super::fit::{self, Decision};
 use super::tests::{CHECK_MASTER, FIT_MASTER, null_with, repo, report_path};
 use crate::StrengthenedConfig;
 
-/// The decks of the panel's tuning pairs (`docs/port/eval/panel.json`), as decklists.
+/// The decks of the panel's tuning pairs (`docs/dev/eval/panel.json`), as decklists.
 fn tuning_pairs() -> Vec<(String, [gcg_data::DeckList; 2])> {
     let panel: Value = serde_json::from_str(
-        &std::fs::read_to_string(repo().join("docs/port/eval/panel.json")).expect("the panel"),
+        &std::fs::read_to_string(repo().join("docs/dev/eval/panel.json")).expect("the panel"),
     )
     .expect("JSON");
     let path_of = |name: &str| {
@@ -222,7 +222,7 @@ fn share_table(decisions: &[Decision], beta: &[f64]) -> Value {
     Value::Object(out)
 }
 
-/// The fit report (`docs/port/eval/P6-F/policy-fit.json`) from the two self-play runs.
+/// The fit report (`docs/dev/eval/P6-F/policy-fit.json`) from the two self-play runs.
 fn fit_report(fit_records: &[Record], games: u32, check: &[Record], check_games: u32) -> Value {
     let own = own_decisions(fit_records, FIT_TEMPERATURE);
     let own_fit = fit::fit(&own, calibrated::N);
@@ -248,7 +248,7 @@ fn fit_report(fit_records: &[Record], games: u32, check: &[Record], check_games:
         "items": ["W-23", "W-25"],
         "generated_by": "crates/gcg-search/src/mech/p6f/tests.rs fitted_policy_reproduces (cargo test -p gcg-search --release --features slow --lib fitted_policy_reproduces)",
         "searcher": "search:null-standard (the reference standard configuration, every mechanism off) in both seats",
-        "decks": "the 15 tuning pairs of docs/port/eval/panel.json, decks alternating seats",
+        "decks": "the 15 tuning pairs of docs/dev/eval/panel.json, decks alternating seats",
         "fit": {"role": "tuning", "master": FIT_MASTER, "games_per_pair": FIT_GAMES, "games": games,
                 "decisions": fit_records.len(), "main_and_action_step_decisions": own.len()},
         "check": {"role": "dev", "master": CHECK_MASTER, "games_per_pair": CHECK_GAMES,

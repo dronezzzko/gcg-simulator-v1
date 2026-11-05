@@ -1,4 +1,4 @@
-//! P6-H's mechanisms (docs/port/PLAN.md §12.2, §12.3 S11): the strengthened agent's pre-game
+//! P6-H's mechanisms (docs/dev/PLAN.md §12.2, §12.3 S11): the strengthened agent's pre-game
 //! choices, on the paired-simulation machinery of `sim.rs`.
 //!
 //! - `exclude_capped_play_draw` (W-44, `play_draw.rs`): CHOOSE_FIRST from paired simulations in

@@ -1,4 +1,4 @@
-//! Layer 5, information sets (`engine/observe.py`; Inv 06b §16): on Python snapshots from
+//! Layer 5, information sets (`engine/observe.py`): on Python snapshots from
 //! setup, mid-game and final states (and two with doctored decklists that make `_fit` trim,
 //! pad or fail), `unknown_instances`, `unknown_pools`, `is_hidden_from`, `determinize` (its
 //! digest, RNG and version, or its `ValueError`), `determinize_into`, `permute_hidden` and the

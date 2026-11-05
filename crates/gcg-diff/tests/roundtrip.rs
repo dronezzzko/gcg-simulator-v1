@@ -112,7 +112,7 @@ fn line_of(text: &str, tag: &str) -> usize {
 
 #[test]
 fn a_changed_snapshot_or_digest_diverges_at_its_record() {
-    let original = first_trace("port/corpus/v1/tier1/full/full.ndjson");
+    let original = first_trace("oracle/corpus/v1/tier1/full/full.ndjson");
     assert!(roundtrip(&original).expect("the original round-trips") > 1);
     let snap = line_of(&original, "snapshot");
 
@@ -151,7 +151,7 @@ fn a_changed_snapshot_or_digest_diverges_at_its_record() {
 
 #[test]
 fn per_test_state_records_round_trip_with_their_apply_digest() {
-    let dir = repo().root.join("port/corpus/v1/tier1/tests/rules");
+    let dir = repo().root.join("oracle/corpus/v1/tier1/tests/rules");
     let mut files: Vec<PathBuf> = std::fs::read_dir(&dir)
         .expect("tests dir")
         .filter_map(|e| e.ok().map(|e| e.path()))

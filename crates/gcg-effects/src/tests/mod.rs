@@ -1,4 +1,4 @@
-//! The B1 gate of docs/port/PLAN.md §3.4 (tests 1-6), the loader's error paths, the IR
+//! The B1 gate of docs/dev/PLAN.md §3.4 (tests 1-6), the loader's error paths, the IR
 //! fragments, the public `Registry` API and the decoding of snapshot side-table nodes, run
 //! against the committed IR. They are unit tests of the crate because most of them read the
 //! decoded tables directly; `registry` and `inline` go through the public API.

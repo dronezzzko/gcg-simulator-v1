@@ -1,7 +1,7 @@
 //! The engine-free parts of the playout policy and the evaluation against Python
-//! (`pure.ndjson` of `port/oracle/export_policy_vectors.py`): `pick` (Gumbel-max sampling with
+//! (`pure.ndjson` of `oracle/export_policy_vectors.py`): `pick` (Gumbel-max sampling with
 //! one draw per option, argmax with the first maximum, the `rng.random() or 1e-300` case) and
-//! `logistic`, bit for bit (docs/port/inventory/08-ai-policy-eval.md §2.4, §6.9, §11).
+//! `logistic`, bit for bit.
 
 mod policy_support;
 
@@ -62,7 +62,7 @@ fn pick_matches_python_draw_for_draw() {
     assert!(sampled >= 250, "only {sampled} seeded cases");
 }
 
-/// Inv 08 §11.1: `[1.0, 2.0, 0.5, 2.0]`, `SplitMix64(42)`, `T = 0.5` picks index 3 after four
+/// Recorded vector: `[1.0, 2.0, 0.5, 2.0]`, `SplitMix64(42)`, `T = 0.5` picks index 3 after four
 /// draws; without a generator the first of the tied maxima (index 1).
 #[test]
 fn pick_reproduces_the_inventory_vector() {

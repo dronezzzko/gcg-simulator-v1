@@ -1,4 +1,4 @@
-//! The target critic (`target_rollouts`, W-14; docs/port/PLAN.md §12.3 S6).
+//! The target critic (`target_rollouts`, W-14; docs/dev/PLAN.md §12.3 S6).
 //!
 //! At an effect-target decision (`is_target_decision`, `ai/mcts.py:165-169`) the reference's
 //! iterations give each target one noisy line per visit, and the calibrated leaf value squeezes
@@ -24,7 +24,7 @@
 //! counts) while the immediate evaluation does not already favour it (mean immediate difference
 //! at most zero): a preference that shows at once is the search's own business (its priors and
 //! lines see it), and a critic that also decided those choices by its idle lines played worse
-//! than the search (measured, docs/port/eval/weakness-status/P6-E.md, W-14). The best seeds the
+//! than the search (measured, docs/dev/eval/weakness-status/P6-E.md, W-14). The best seeds the
 //! root prior and breaks the search's ties: from the middle of the budget on, a root selection
 //! of another move goes to the critic's best unless the search's own root values show that move
 //! better by more than [`SEARCH_Z`] standard errors (`Shared` records the root values for it).

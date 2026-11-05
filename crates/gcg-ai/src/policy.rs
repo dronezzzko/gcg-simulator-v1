@@ -1,5 +1,4 @@
-//! The fast heuristic playout policy (`ai/policy.py`; docs/port/inventory/08-ai-policy-eval.md
-//! §2, §4).
+//! The fast heuristic playout policy (`ai/policy.py`).
 //!
 //! Every legal option of any decision is scored from the current board without look-ahead.
 //! The search uses the scores as rollout policy (Gumbel-max sampling, [`pick`]) and as move
@@ -8,7 +7,7 @@
 //! (`(2.5 - 0.3) - 0.4 == 1.8000000000000003`).
 //!
 //! `option_scores` reads the options only from its `options` argument, never from the
-//! state's pending decision (Inv 08 §1): MCTS passes its pruned and merged moves. It computes
+//! state's pending decision: MCTS passes its pruned and merged moves. It computes
 //! the derived view exactly where Python does (`_main`, `_block`, `_excess` and `_select`
 //! after its mode check), so the view cache of `st` fills as Python's does (PLAN §4.6).
 

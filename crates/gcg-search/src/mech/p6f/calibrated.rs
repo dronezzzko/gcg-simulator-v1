@@ -9,7 +9,7 @@
 //!
 //! The offsets are a conditional logit fitted by `fit.rs` (fixed-order IRLS in f64) to the
 //! search's own choices in Rust self-play on tuning seeds (`fitted.rs`,
-//! `docs/port/eval/P6-F/policy-fit.json`): `logit = score / T + offsets · x`, the reference
+//! `docs/dev/eval/P6-F/policy-fit.json`): `logit = score / T + offsets · x`, the reference
 //! score entering at the rollout temperature `T = 0.5` of the fit, so the fitted offsets are
 //! moment conditions: at the fit's decisions the model's expected share of each offset's moves
 //! equals the search's (W-23's frequency matching).

@@ -1,6 +1,6 @@
 //! Ctrl-C (T-075; PLAN §7.5, D13): `tests/cli/test_console_script.py:90-112` with every
 //! behavioural assertion kept (exit 130, the message, empty stdout, no `results.json`) and both
-//! timing assertions dropped, as the brief requires. The wait for the process is a plain
+//! timing assertions dropped (the crates hold no timing code). The wait for the process is a plain
 //! blocking wait, with no timeout.
 //!
 //! It plays real games, so it needs the engine's game layer (`needs_engine_`).

@@ -1,14 +1,13 @@
-//! Contract types of `gcg-effects` (docs/port/PLAN.md §3.3, §5.1-§5.3, §5.6, §10.3.2), owned
+//! Contract types of `gcg-effects` (docs/dev/PLAN.md §3.3, §5.1-§5.3, §5.6, §10.3.2), owned
 //! by the lead (§10.1 S). The DSL node types themselves are generated into `dsl.rs` by
-//! `port/oracle/gen_dsl.py`.
+//! `oracle/gen_dsl.py`.
 //!
-//! Workstream B1 implements the functions frozen in docs/port/contracts.md (gcg-effects
+//! Workstream B1 implements the functions frozen in docs/dev/contracts.md (gcg-effects
 //! section) with real bodies; only the lead edits this file (§10.6 change protocol). Fields
 //! marked `pub(crate)` are the lead's starting layout of an opaque type: B1 may change them in
 //! its landing diff, because no other crate can observe them.
 //!
-//! Python sources are cited relative to `src/gcg_sim/`; Inv 04 is
-//! docs/port/inventory/04-effects-ir.md.
+//! Python sources are cited relative to `src/gcg_sim/`.
 
 use gcg_data::{CardDb, DefId};
 
@@ -19,7 +18,7 @@ use crate::dsl::{Ev, Kw, Node, P, StepHook};
 pub const SUPPORTED_IR_VERSION: u32 = 1;
 
 /// The command that regenerates the IR (PLAN §3.4), named by IR errors.
-pub const IR_REGENERATE_COMMAND: &str = "uv run python port/oracle/export_ir.py --write";
+pub const IR_REGENERATE_COMMAND: &str = "uv run python oracle/export_ir.py --write";
 
 // ---------------------------------------------------------------------------------------------
 // Handles. The derived `Ord` of ids is arbitrary but total; it is used only to sort for
@@ -57,7 +56,7 @@ pub struct FilterSetId(pub u16);
 #[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Debug)]
 #[allow(
     dead_code,
-    reason = "read by workstream B1's ContentId::as_str and IR loader (docs/port/contracts.md)"
+    reason = "read by workstream B1's ContentId::as_str and IR loader (docs/dev/contracts.md)"
 )]
 pub struct ContentId(pub(crate) [u8; 16]);
 
@@ -122,8 +121,7 @@ node_handle!(
 );
 
 /// A `Value` field (`type Value = int | ...`, `effects/dsl.py:180`): a literal or a node.
-/// The two stay distinct because `eff.ap != 0` is true for every node (`engine/view.py:360-361`;
-/// Inv 05 §7 hazard 11).
+/// The two stay distinct because `eff.ap != 0` is true for every node (`engine/view.py:360-361`).
 #[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)]
 pub enum ValueRef {
     Lit(i64),
@@ -131,7 +129,7 @@ pub enum ValueRef {
 }
 
 /// One value of a custom hook's `params` (`tuple[tuple[str, object], ...]`). The data holds
-/// ints, strs and `Cond`/`Sel` nodes only (Inv 04 §10.1); the exporter asserts it.
+/// ints, strs and `Cond`/`Sel` nodes only; the exporter asserts it.
 #[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)]
 pub enum ParamValue {
     Int(i64),
@@ -197,7 +195,7 @@ impl ScriptSource {
 
 /// A set of [`Ev`] (bit `i` = the member with discriminant `i`; 33 members). Python's
 /// frozensets of events (`events_by_def`, `always_events`, `listened`) are used for membership
-/// only (Inv 04 §11 hazard 29).
+/// only.
 #[derive(Clone, Copy, PartialEq, Eq, Hash, Debug, Default)]
 pub struct EvSet(pub u64);
 
@@ -265,7 +263,7 @@ pub struct CardEntry {
     pub printed_keywords: KwAmounts,
     /// `(n, DelayedTrigger node, program)` in `core._walk_delayed` order (PLAN §3.3).
     pub delayed: Box<[(u16, NodeId, ProgramId)]>,
-    /// Port template id (§12.11); never read by the engine.
+    /// Effect-template id (§12.11); never read by the engine.
     pub template: Option<StrId>,
 }
 
@@ -396,7 +394,7 @@ pub enum ContView<'a> {
 }
 
 // ---------------------------------------------------------------------------------------------
-// Custom hooks (PLAN §5.3; Inv 04 §6.2). The names are the generated `dsl::{StepHook,
+// Custom hooks (PLAN §5.3). The names are the generated `dsl::{StepHook,
 // CondHook, FilterHook, ValueHook}`; the typed parameters below are decoded once at load from
 // `dict(params)` (last key wins, `interp.py:1573`, `view.py:781,882,933`), and the raw
 // `params` stay in the node for `repr`. #6 and #7 keep separate names (their reprs differ) and
@@ -547,7 +545,7 @@ pub struct Registry {
 }
 
 /// A self-contained node of a trace snapshot's side table (PLAN §4.8; the `node_json` form of
-/// `port/oracle/traces.py`: `{"_": class, field: value, ...}` with nested nodes inline and enums
+/// `oracle/traces.py`: `{"_": class, field: value, ...}` with nested nodes inline and enums
 /// as their values), resolved against a registry by `Registry::decode_inline`.
 #[derive(Clone, PartialEq, Eq, Debug)]
 pub enum InlineNode {

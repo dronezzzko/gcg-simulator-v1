@@ -2,7 +2,7 @@
 //! computed from. Python memoises `_chosen_only_to_rest` per `(program_id, pc)`,
 //! `choice_polarity` per `(program_id, pc, rule_table)` and `command_harms_enemy_units` per
 //! `def_id` in process globals (`ai/actions.py:167-199`, `ai/targeting.py:54-55`, `:93-112`),
-//! and `override_script` clears none of them (`testkit.py:212`). The port keeps no
+//! and `override_script` clears none of them (`testkit.py:212`). The Rust search keeps no
 //! process-global AI table (contracts O10): every classification is a pure function of the
 //! `&Registry` it is given, and every registry, each override included, has its own generation
 //! (`Registry::generation`).

@@ -1,4 +1,4 @@
-//! PLAN §3.4 test 5 (T-044): CPython `repr` vectors. `port/oracle/export_ir.py` builds two
+//! PLAN §3.4 test 5 (T-044): CPython `repr` vectors. `oracle/export_ir.py` builds two
 //! synthetic instances of every DSL and instruction class with every field set to a
 //! non-default value (strings with `'`, `"`, both, `Ⅱ`, `①`, a backslash and control
 //! characters), programs, the runtime continuous values (`StatMod`, `KeywordGrant`,

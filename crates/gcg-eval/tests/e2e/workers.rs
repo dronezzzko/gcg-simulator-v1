@@ -204,7 +204,7 @@ fn head_to_head_is_identical_at_1_4_and_10_workers_for_every_player() {
 
 /// T-079 at the M9 gate's three configurations: `gcg-eval compare` in a fresh process writes
 /// the stdout and `--out` bytes of `python -m gcg_sim.ai.compare` with the same arguments
-/// (`port/oracle/export_parity.py --section compare`).
+/// (`oracle/export_parity.py --section compare`).
 #[test]
 fn compare_processes_equal_python_at_the_gate_configurations() {
     let path = Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/vectors/parity/compare.json");

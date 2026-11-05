@@ -1,7 +1,7 @@
-"""Which card programs each card-tagged Python test executes (docs/port/WEAKNESSES.md W-111).
+"""Which card programs each card-tagged Python test executes (docs/dev/WEAKNESSES.md W-111).
 
 Runs the Python rule and card tests (``tests/rules``, ``tests/cards``) in one process with the
-executed-program census of ``port/oracle/census.py`` installed (a card's program "ran" when a
+executed-program census of ``oracle/census.py`` installed (a card's program "ran" when a
 frame of one of its programs was pushed, one of its triggers resolved, or one of its constant
 abilities applied in a view). For every test with ``@pytest.mark.card`` tags it records the
 tagged numbers and those whose program ran during the test (setup, call and teardown).
@@ -18,8 +18,8 @@ abilities are keywords such as <Blocker> that the engine reads directly), which 
 see run. ``effect_only_instantiated`` maps each Unit token, EX Base and EX Resource number that
 a test instantiates (by an effect, the setup or the scenario) to the first such test (W-117).
 
-    uv run python scripts/test_census.py --out docs/port/eval/P6-N/test-execution.json
-    uv run python scripts/test_census.py --check docs/port/eval/P6-N/test-execution.json
+    uv run python scripts/test_census.py --out docs/dev/eval/P6-N/test-execution.json
+    uv run python scripts/test_census.py --check docs/dev/eval/P6-N/test-execution.json
 """
 
 from __future__ import annotations
@@ -34,9 +34,9 @@ from typing import Any
 import pytest
 
 ROOT = Path(__file__).resolve().parents[1]
-sys.path.insert(0, str(ROOT / "port" / "oracle"))
+sys.path.insert(0, str(ROOT / "oracle"))
 
-import census as census_mod  # noqa: E402  (port/oracle, after the path insert)
+import census as census_mod  # noqa: E402  (oracle, after the path insert)
 
 from gcg_sim.cards.model import CardType  # noqa: E402
 from gcg_sim.effects.registry import get_registry  # noqa: E402

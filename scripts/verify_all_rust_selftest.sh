@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Negative controls of scripts/verify_all_rust.sh (docs/port/WEAKNESSES.md W-118): the gate fails
+# Negative controls of scripts/verify_all_rust.sh (docs/dev/WEAKNESSES.md W-118): the gate fails
 # when any step fails. Each control is a copy of the gate's prologue (shell options, EXIT trap,
 # the subshell that runs the steps, clean clone of HEAD) followed by one injected step, then
 # `echo REACHED; exit 0` and the subshell's closing parenthesis. A failing command, a

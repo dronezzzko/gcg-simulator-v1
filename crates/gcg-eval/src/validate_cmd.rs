@@ -1,5 +1,5 @@
 //! `gcg-eval validate DECK [--as-of DATE] [--region R] [--no-banlist] [--no-implemented]
-//! [--event-date DATE] [--scope]` (docs/port/PLAN.md A30, §12.2 P6-L): the opt-in deck report
+//! [--event-date DATE] [--scope]` (docs/dev/PLAN.md A30, §12.2 P6-L): the opt-in deck report
 //! of W-71 to W-78 over [`gcg_data::legality`]. `gcg-sim validate` stays Python's (A30).
 //!
 //! The report runs `validate_deck`'s checks with Python's messages and order, and adds:
@@ -19,7 +19,7 @@
 //! on stderr, exit 1.
 //!
 //! Two packaged files that the Python runtime does not read are embedded here, not in
-//! gcg-data, whose embedded set is exactly the Python runtime's (docs/port/PLAN.md §2.4):
+//! gcg-data, whose embedded set is exactly the Python runtime's (docs/dev/PLAN.md §2.4):
 //! `gcgapi/products.json` (release dates, `--event-date`) and `official/edition_language.json`
 //! (the Edition Beta facts of `--scope`). Both are read-only sources.
 

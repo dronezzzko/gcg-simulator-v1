@@ -4,7 +4,7 @@
 //!
 //! Python's records are the trace's own `iter`/`apply_trace` records for that decision when it
 //! holds them at the requested level (the committed acceptance searches); otherwise `uv run
-//! python port/oracle/traces.py --deep ID --decision K [--apply-level] [--iteration N]`
+//! python oracle/traces.py --deep ID --decision K [--apply-level] [--iteration N]`
 //! regenerates them. Rust replays the trace to the decision with the real engine and calls
 //! `gcg_ai_reference::search` with the header's preset (`baseline-*` with the baseline
 //! weights, `traces.py` `cmd_deep`), the decision's recorded agent seed and the level-2/3
@@ -68,7 +68,7 @@ pub fn python_records(
         return Ok((iters, applies, "stored in the trace"));
     }
     let mut cmd = Command::new("uv");
-    cmd.args(["run", "python", "port/oracle/traces.py", "--deep"])
+    cmd.args(["run", "python", "oracle/traces.py", "--deep"])
         .arg(req.id)
         .arg("--decision")
         .arg(req.decision.to_string())

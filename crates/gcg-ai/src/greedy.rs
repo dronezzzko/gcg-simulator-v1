@@ -1,5 +1,4 @@
-//! The one-ply greedy player (`GreedyAgent`, `ai/agents.py:35-66`;
-//! docs/port/inventory/08-ai-policy-eval.md §7.2).
+//! The one-ply greedy player (`GreedyAgent`, `ai/agents.py:35-66`).
 //!
 //! Each distinct move is applied to one determinisation of the information set, the rest of
 //! the current turn is completed by the deterministic playout policy for both players, and

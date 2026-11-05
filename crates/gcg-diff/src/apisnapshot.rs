@@ -1,4 +1,4 @@
-//! `gcg-diff api-snapshot` (docs/port/WEAKNESSES.md W-129): a checked listing of the public API
+//! `gcg-diff api-snapshot` (docs/dev/WEAKNESSES.md W-129): a checked listing of the public API
 //! of the library crates, read from their sources.
 //!
 //! Rustdoc's JSON output needs a nightly toolchain, so the listing is read from the sources with
@@ -33,10 +33,10 @@ use crate::json::sha256_hex;
 use crate::lints::{strip_comments, strip_comments_and_strings};
 
 /// The committed listing, relative to the repository root.
-pub const SNAPSHOT_FILE: &str = "docs/port/api-snapshot.txt";
+pub const SNAPSHOT_FILE: &str = "docs/dev/api-snapshot.txt";
 
 const HEADER: &str = "\
-# Public API of the gcg-sim library crates (docs/port/WEAKNESSES.md W-129).
+# Public API of the gcg-sim library crates (docs/dev/WEAKNESSES.md W-129).
 # Generated from the sources by `gcg-diff api-snapshot --write`; `gcg-diff api-snapshot --check`
 # (scripts/verify_all_rust.sh, crates/gcg-diff/tests/api_snapshot.rs) fails on any difference,
 # so a changed signature cannot go unrecorded. What is listed: crates/gcg-diff/src/apisnapshot.rs.

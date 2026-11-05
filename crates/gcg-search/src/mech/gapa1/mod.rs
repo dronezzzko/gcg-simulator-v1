@@ -1,4 +1,4 @@
-//! GAP-A1's mechanisms and analysis tools (docs/port/eval/weakness-gaps.md: W-05, W-14, W-17,
+//! GAP-A1's mechanisms and analysis tools (docs/dev/eval/weakness-gaps.md: W-05, W-14, W-17,
 //! W-25, W-26).
 //!
 //! | Flag | Item | Piece |

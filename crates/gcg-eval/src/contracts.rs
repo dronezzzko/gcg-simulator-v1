@@ -1,15 +1,15 @@
-//! Contract types of `gcg-eval` (docs/port/PLAN.md A14, A24, §10.4 F, §12.5-§12.6), owned by
+//! Contract types of `gcg-eval` (docs/dev/PLAN.md A14, A24, §10.4 F, §12.5-§12.6), owned by
 //! the lead (§10.1 S).
 //!
 //! The values the plan fixes for the evaluation harness: the seed roles and their disjoint
 //! master ranges (A14), the play/draw protocol (A24), the deck and pair selections, and the
 //! mirrored game specs of `ai/selfplay.py` and `ai/compare.py`. The specs live here rather than
-//! in `gcg-runner` (PLAN §10.3.6 lists them there): `gcg-eval` is their only consumer, F's brief
+//! in `gcg-runner` (PLAN §10.3.6 lists them there): `gcg-eval` is their only consumer, workstream F
 //! delivers them, and only this crate can name both configuration types.
 //!
-//! Workstream F implements the functions frozen in docs/port/contracts.md (gcg-eval section);
+//! Workstream F implements the functions frozen in docs/dev/contracts.md (gcg-eval section);
 //! only the lead edits this file (§10.6 change protocol). Python sources are cited relative to
-//! `src/gcg_sim/`; Inv 08 is docs/port/inventory/08-ai-policy-eval.md.
+//! `src/gcg_sim/`.
 
 use gcg_ai::Weights;
 use gcg_ai_reference::ReferenceConfig;
@@ -23,7 +23,7 @@ pub const DECISION_LIMIT: u32 = 20_000;
 
 /// `gcg-eval --role` (PLAN A14): each role draws master seeds from its own inclusive range, and
 /// `gcg-eval` rejects a master outside the range of the run's role. Every master used is
-/// recorded in `docs/port/eval/seed-ledger.json`.
+/// recorded in `docs/dev/eval/seed-ledger.json`.
 #[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Debug)]
 pub enum SeedRole {
     Tuning,

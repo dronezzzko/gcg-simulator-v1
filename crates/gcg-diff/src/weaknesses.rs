@@ -1,6 +1,6 @@
-//! `gcg-diff weaknesses --check docs/port/WEAKNESSES.md` (PLAN §12.2, the W-id partition check).
+//! `gcg-diff weaknesses --check docs/dev/WEAKNESSES.md` (PLAN §12.2, the W-id partition check).
 //!
-//! Checks, over WEAKNESSES.md and `docs/port/PLAN.md`:
+//! Checks, over WEAKNESSES.md and `docs/dev/PLAN.md`:
 //!
 //! - the summary table lists every id W-01 to W-164 exactly once, in order, and every id has
 //!   exactly one `### W-NN — ...` entry with a `- **Status:**` line;

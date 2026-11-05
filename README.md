@@ -61,7 +61,7 @@ evaluation harness). Build settings:
 
 `-C target-cpu` cannot change results: Rust never fuses `a * b + c` into an FMA without
 `mul_add`, which `clippy.toml` bans. On the M2 Pro, `generic`, `apple-m2` and `native` ran
-within 0.4% of each other in instructions with identical outputs (`docs/port/BENCHMARKS.md`,
+within 0.4% of each other in instructions with identical outputs (`docs/dev/BENCHMARKS.md`,
 Phase 5 log).
 
 ## Apple M6
@@ -83,7 +83,7 @@ No M6 was available, so nothing in this repository was measured on one. What is 
   Pro, and the 2 super + 4 performance cores of the M6 layout, at most one worker per match. A
   match is the unit of work and runs sequentially, so a match that starts late on an efficiency
   core (about 2.1 times slower per game on the M2 Pro) finishes after the others. On the M2 Pro,
-  6 workers beat 10 on every timed workload (`docs/port/BENCHMARKS.md`, Part 1 and Part 2). The
+  6 workers beat 10 on every timed workload (`docs/dev/BENCHMARKS.md`, Part 1 and Part 2). The
   worker count never changes an output.
 
 ## Usage
@@ -149,7 +149,7 @@ Never compare or pool a `fast` rate with a `standard` rate: they are different m
 On an idle M2 Pro, 100 BO3 matches of red-green-zeon against blue-white-federation (seed 1)
 took 82.1 s with `fast` at 6 workers, and 20 BO3 matches took 148.6 s with `standard` at 6
 workers (hyperfine; method, tables and the optimisation log in
-[`docs/port/BENCHMARKS.md`](docs/port/BENCHMARKS.md), Part 2). The
+[`docs/dev/BENCHMARKS.md`](docs/dev/BENCHMARKS.md), Part 2). The
 [`gcg-benchmark`](.claude/skills/gcg-benchmark/SKILL.md) Claude Code skill walks through this
 workflow with adequate sample sizes.
 
@@ -235,15 +235,15 @@ masking three implementation fields) on 108 configurations (3 seeds x 3 example 
 BO1/BO3 x the reference presets `fast`, `standard`, `strong` x decision log off/on, 10
 matches) at 1, 4 and 10 workers: 324/324 identical, plus the 100-match headline configuration
 3/3. The matrix binaries were built before the optimisations of the Phase 5 log
-(`docs/port/BENCHMARKS.md`); the headline run was rebuilt afterwards (e14c839), and the corpus
+(`docs/dev/BENCHMARKS.md`); the headline run was rebuilt afterwards (e14c839), and the corpus
 passes after every later commit. Byte equivalence is defined on the golden platform (this M2
 Pro, macOS 27.2, Python 3.15.1, rustc 1.99.1), because the reference search takes `exp`,
 `log`, `pow` and `erfc` from the C library. Method, results and the seven known differences
-(none changes a compared byte): [`docs/port/EQUIVALENCE.md`](docs/port/EQUIVALENCE.md).
+(none changes a compared byte): [`docs/dev/EQUIVALENCE.md`](docs/dev/EQUIVALENCE.md).
 
 ## Measured strength
 
-Final evaluation 2 of the shipped presets (`docs/port/eval/final-2/README.md`): eval-role
+Final evaluation 2 of the shipped presets (`docs/dev/eval/final-2/README.md`): eval-role
 seeds never used for tuning, BO1 games in mirrored blocks with play and draw balanced, the 28
 pairs of an 8-deck panel at 400 games each (13 pairs held out from all tuning), and the AI
 test decks (the `tests` deck set of `gcg-eval head-to-head --decks`).
@@ -263,14 +263,14 @@ with the evaluation protocol and the gates, are in [`docs/AI.md`](docs/AI.md).
 
 The Python package in `src/gcg_sim` is the reference oracle: the differential corpus is
 recorded from it, and its effect toolchain generates the effect IR that the binaries embed
-(`port/oracle/export_ir.py`). Python is needed only for development and data refreshes:
+(`oracle/export_ir.py`). Python is needed only for development and data refreshes:
 building and running the binaries needs none, although they embed data files from
 `src/gcg_sim/data/`. It needs [uv](https://docs.astral.sh/uv/) and Python 3.15 or later (uv
 installs it if needed):
 
 ```bash
 uv sync --locked
-uv run python port/oracle/export_ir.py --check
+uv run python oracle/export_ir.py --check
 ```
 
 The oracle's architecture is in [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md).
@@ -291,9 +291,9 @@ scripts/verify_all.sh
 ```
 
 The day-to-day commands, the oracle regeneration steps and the rules of the codebase are in
-[`CLAUDE.md`](CLAUDE.md). Design: [`docs/port/ARCHITECTURE.md`](docs/port/ARCHITECTURE.md) and
-[`docs/port/PLAN.md`](docs/port/PLAN.md); known weaknesses and their status:
-[`docs/port/WEAKNESSES.md`](docs/port/WEAKNESSES.md).
+[`CLAUDE.md`](CLAUDE.md). Design: [`docs/dev/ARCHITECTURE.md`](docs/dev/ARCHITECTURE.md) and
+[`docs/dev/PLAN.md`](docs/dev/PLAN.md); known weaknesses and their status:
+[`docs/dev/WEAKNESSES.md`](docs/dev/WEAKNESSES.md).
 
 Where sources disagree or card text is ambiguous, the decision is recorded:
 [`docs/CONFLICTS.md`](docs/CONFLICTS.md) lists every conflict and its resolution (reviewable in
@@ -332,7 +332,7 @@ artefacts, and runs the full verification gate.
   safety cap (200 turns or 20,000 decisions) are reported as `turn_limit` draws.
 - **The AI is strong but not perfect.** Decks that need long, precise lines may be underrated.
   Check replays before trusting a surprising result. The open AI items are listed in
-  [`docs/port/WEAKNESSES.md`](docs/port/WEAKNESSES.md); measured strength is only what
+  [`docs/dev/WEAKNESSES.md`](docs/dev/WEAKNESSES.md); measured strength is only what
   [`docs/AI.md`](docs/AI.md) reports.
 - **Card behaviour follows the packaged data and the resolutions in `docs/CONFLICTS.md`.** Where
   no official ruling exists, the most defensible reading was chosen and recorded there.
@@ -343,7 +343,7 @@ artefacts, and runs the full verification gate.
   floating-point math uses the platform's C math library, so on another platform their values
   can differ in the last bit. Every report but `timing.json` is byte-identical across runs and
   worker counts on one platform; decisions are not claimed to match across platforms
-  (`docs/port/EQUIVALENCE.md`, W-137).
+  (`docs/dev/EQUIVALENCE.md`, W-137).
 - **New card sets need the oracle's toolchain.** The binaries embed an effect IR exported from
   the Python compiler and bindings; a data refresh regenerates it (`/gcg-refresh-data`).
 - **Nothing was measured on an Apple M6.** The M6 support is the build settings and run-time

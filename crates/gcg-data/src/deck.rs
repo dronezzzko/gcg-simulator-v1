@@ -1,6 +1,6 @@
 //! Deck files (`deck/parse.py`, `deck/model.py`): the `<count> <card_number> [name]` grammar
 //! with Python's behaviour on exotic input (Unicode digits and whitespace, `str.splitlines`),
-//! assembly into sorted run-length lists, the digest, and `DeckError`'s texts (Inv 03 §3).
+//! assembly into sorted run-length lists, the digest, and `DeckError`'s texts.
 //!
 //! W-144: counts are read as `u64`; a count that does not fit is a SYNTAX violation naming
 //! the line, and no list is ever expanded per copy before `to_decklist` checks its size.
@@ -394,7 +394,7 @@ pub fn deck_digest(deck: &Deck) -> String {
     py::hex(&Sha256::digest(blob.as_bytes()))
 }
 
-/// `Path(path).read_text(encoding="utf-8-sig")` (`deck/parse.py:113`, Inv 03 §3.1): one
+/// `Path(path).read_text(encoding="utf-8-sig")` (`deck/parse.py:113`): one
 /// leading BOM stripped, strict UTF-8 with CPython's error reason and the offset counted after
 /// the BOM, then universal newlines (`\r\n` and `\r` become `\n`).
 pub(crate) fn decode_deck_bytes(bytes: &[u8]) -> Result<String, (&'static str, usize)> {

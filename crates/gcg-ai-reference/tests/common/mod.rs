@@ -1,5 +1,5 @@
 //! Readers of the search vectors of `crates/gcg-ai/tests/vectors/search/`
-//! (`port/oracle/export_ai_vectors.py`) for the reference-search tests.
+//! (`oracle/export_ai_vectors.py`) for the reference-search tests.
 
 #![allow(
     dead_code,

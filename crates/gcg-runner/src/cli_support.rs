@@ -1,4 +1,4 @@
-//! The command bodies `gcg-sim` and `gcg-eval` share (`cli.py:102-370`; docs/port/contracts.md
+//! The command bodies `gcg-sim` and `gcg-eval` share (`cli.py:102-370`; docs/dev/contracts.md
 //! open item O11): deck loading and its messages, `validate`, the progress printer,
 //! the report-directory check, `benchmark` over any agent factory, `data status` and
 //! `replay`. Each writes its stdout as bytes (paths keep their undecodable bytes, as Python's
@@ -757,7 +757,7 @@ mod tests {
 
     #[test]
     fn progress_prints_like_python() {
-        // Inv 01 §3.6: totals 3, 25 and 100 off a terminal.
+        // Totals 3, 25 and 100 off a terminal.
         assert_eq!(printed(false, 3), "matches 1/3\nmatches 2/3\nmatches 3/3\n");
         let lines: Vec<String> = printed(false, 25)
             .lines()

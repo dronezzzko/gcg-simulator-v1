@@ -1,14 +1,14 @@
-//! Native ports of rule tests that read compiled card scripts without running the engine, and
+//! Native Rust versions of rule tests that read compiled card scripts without running the engine, and
 //! of the load-time card coverage test (PLAN §9.2, §9.3).
 //!
-//! The per-test trace plugin (`port/oracle/pytest_trace.py`) records only engine calls, so these
-//! tests are `untraced` in `port/corpus/v1/tier1/tests/MANIFEST-tests.json`:
+//! The per-test trace plugin (`oracle/pytest_trace.py`) records only engine calls, so these
+//! tests are `untraced` in `oracle/corpus/v1/tier1/tests/MANIFEST-tests.json`:
 //!
 //! - `tests/rules/test_effects.py::test_effects_divide_into_five_types` (rule 10-1-4);
 //! - `tests/rules/test_pairing.py::test_pilot_text_splits_into_pilot_text_and_unit_text`
 //!   (rules 3-3-9, 3-3-9-1, 3-3-9-2, 2-11-3).
 //!
-//! The coverage tests port `tests/effects/test_card_coverage.py::test_every_card_is_implemented`
+//! The coverage tests reproduce `tests/effects/test_card_coverage.py::test_every_card_is_implemented`
 //! and `::test_vanilla_cards_have_no_abilities`: every one of the 1152 real card numbers (1153
 //! definitions) has a script in the embedded IR, and no definition reports an unimplemented
 //! effect to deck validation.

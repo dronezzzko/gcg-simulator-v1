@@ -1,5 +1,4 @@
-//! Benchmark configuration checks, seat assignment and seed derivation (`runner/config.py`;
-//! docs/port/inventory/01-rng-runner-cli.md §2.2).
+//! Benchmark configuration checks, seat assignment and seed derivation (`runner/config.py`).
 //!
 //! Every seed is a pure function of the master seed and the match and game indices, so a match
 //! plays the same way on any worker (`runner/run.py:1-7`).
@@ -99,7 +98,7 @@ pub fn game_seed(master: u64, m: u32, g: u32) -> u64 {
 
 /// `agent_seed(master, match_index, game_index, seat)` (`runner/config.py:79-80`):
 /// `derive_seed(master, "match", m, "game", g, "agent", seat)`; keyed by seat, not role
-/// (Inv 01 hazard 10).
+///.
 #[must_use]
 pub fn agent_seed(master: u64, m: u32, g: u32, seat: u8) -> u64 {
     derive_seed!(master, "match", m, "game", g, "agent", u32::from(seat))

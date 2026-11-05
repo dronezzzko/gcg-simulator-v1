@@ -1,9 +1,9 @@
-//! W-18 (S12): the Rust port of `tests/ai/test_fast_preset.py` for the strengthened presets.
-//! `fast` is the screening preset: it starts from the reference `standard` budgets (the brief's
-//! mapping, `docs/port/BRIEF.md` `<ai_presets>`), searches at most half of `standard`'s budget
+//! W-18 (S12): the Rust version of `tests/ai/test_fast_preset.py` for the strengthened presets.
+//! `fast` is the screening preset: it starts from the reference `standard` budgets,
+//! searches at most half of `standard`'s budget
 //! at every decision width, and differs from `standard` only in its budget and noise settings,
 //! so a `fast` screen runs the same strengthened search. The weakened variants the fidelity
-//! check ranks (`docs/port/eval/P6-D/decks/`, with `tests/data/decks/red-green-zeon-weakened.txt`)
+//! check ranks (`docs/dev/eval/P6-D/decks/`, with `tests/data/decks/red-green-zeon-weakened.txt`)
 //! are legal decks.
 
 use std::path::PathBuf;
@@ -173,8 +173,8 @@ fn weakened_variants_used_for_fidelity_are_legal() {
     let root = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../..");
     for file in [
         "tests/data/decks/red-green-zeon-weakened.txt",
-        "docs/port/eval/P6-D/decks/blue-white-federation-weakened.txt",
-        "docs/port/eval/P6-D/decks/purple-white-tekkadan-weakened.txt",
+        "docs/dev/eval/P6-D/decks/blue-white-federation-weakened.txt",
+        "docs/dev/eval/P6-D/decks/purple-white-tekkadan-weakened.txt",
     ] {
         let deck = load_deck(&root.join(file)).unwrap_or_else(|e| panic!("{file}: {e}"));
         let problems = validate(

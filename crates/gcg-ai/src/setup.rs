@@ -39,7 +39,7 @@ fn remove_first(cards: &mut Vec<&CardDef>, x: &CardDef) {
 /// `opening_score(hand, first)` (`ai/setup.py:30-60`): how much board a hand develops over the
 /// first four turns if played out greedily. Links are checked with the unpatched
 /// `link_satisfied` (`ai/setup.py:18` binds the original function). The scores are plain
-/// sequential additions (Inv 07 §12).
+/// sequential additions.
 #[must_use]
 pub fn opening_score(hand: &[&CardDef], first: bool, reg: &Registry) -> f64 {
     let mut cards: Vec<&CardDef> = hand.to_vec();

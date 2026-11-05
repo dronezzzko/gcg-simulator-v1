@@ -1,4 +1,4 @@
-//! Layer L1 of the engine (docs/port/PLAN.md §4.1-§4.5, §10.3.3-§10.3.4): `GameState`
+//! Layer L1 of the engine (docs/dev/PLAN.md §4.1-§4.5, §10.3.3-§10.3.4): `GameState`
 //! construction (`engine/state.py:475-511`), the read-only accessors, `touch`
 //! (`state.py:529-531`), `clone_from_state` (`state.py:534-572`, PLAN §4.5) and the arena
 //! helpers through which every other layer changes the zone lists, frames, lasting effects,
@@ -300,10 +300,10 @@ fn span_of(start: usize, len: u32) -> Span {
 
 /// `st.pending_triggers` and `st.batches` as one list (PLAN §4.3): `[batch 0 | ... | batch k |
 /// pending_triggers]`, with `batch_starts[i]` the start of batch `i` and `pending_start` the
-/// start of the pending tail. Empty batches are representable (Inv 05 §3.1).
+/// start of the pending tail. Empty batches are representable.
 #[allow(
     dead_code,
-    reason = "called by layers L3-L5 (docs/port/contracts.md); they land after L1"
+    reason = "called by layers L3-L5 (docs/dev/contracts.md); they land after L1"
 )]
 pub(crate) struct TriggerArena<'a> {
     pub(crate) triggers: &'a mut Vec<TriggerInst>,
@@ -324,7 +324,7 @@ fn batch_end(batch_starts: &[u32], pending_start: u32, i: usize) -> usize {
 
 #[allow(
     dead_code,
-    reason = "called by layers L3-L5 (docs/port/contracts.md); they land after L1"
+    reason = "called by layers L3-L5 (docs/dev/contracts.md); they land after L1"
 )]
 impl TriggerArena<'_> {
     /// `st.pending_triggers.append(t)` (`core.py:273`, `:393`, `:449`, `:472`, `:714`).
@@ -407,7 +407,7 @@ pub(crate) struct LastingArena<'a> {
 
 #[allow(
     dead_code,
-    reason = "called by layers L3-L5 (docs/port/contracts.md); they land after L1"
+    reason = "called by layers L3-L5 (docs/dev/contracts.md); they land after L1"
 )]
 impl LastingArena<'_> {
     fn store(&mut self, mut l: Lasting, targets: &[(Uid, i32)]) -> Result<Lasting, EngineError> {
@@ -588,14 +588,14 @@ impl GameConst {
 }
 
 // ---------------------------------------------------------------------------------------------
-// Construction and the read-only accessors (docs/port/contracts.md, gcg-engine public API)
+// Construction and the read-only accessors (docs/dev/contracts.md, gcg-engine public API)
 
 impl GameState {
     /// `GameState(seed)` (`engine/state.py:475-511`); `turn_limit` and `max_actions` live in
     /// `konst`.
     #[allow(
         dead_code,
-        reason = "called by L5 new_game and the testkit (docs/port/contracts.md)"
+        reason = "called by L5 new_game and the testkit (docs/dev/contracts.md)"
     )]
     pub(crate) fn new(konst: Arc<GameConst>, seed: u64) -> Self {
         Self {
@@ -1115,11 +1115,11 @@ impl GameState {
 }
 
 // ---------------------------------------------------------------------------------------------
-// The internal layer boundary (docs/port/contracts.md, "L1 (C), state.rs") and C's own helpers
+// The internal layer boundary (docs/dev/contracts.md, "L1 (C), state.rs") and C's own helpers
 
 #[allow(
     dead_code,
-    reason = "called by layers L2-L5 (docs/port/contracts.md internal boundary)"
+    reason = "called by layers L2-L5 (docs/dev/contracts.md internal boundary)"
 )]
 impl GameState {
     /// `st.touch()` (`engine/state.py:529-531`): `version += 1` and the cached view is dropped.

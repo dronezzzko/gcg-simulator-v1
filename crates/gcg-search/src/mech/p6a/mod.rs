@@ -1,4 +1,4 @@
-//! P6-A's mechanisms (docs/port/PLAN.md §12.2, §12.3 S2): the horizon and the leaf.
+//! P6-A's mechanisms (docs/dev/PLAN.md §12.2, §12.3 S2): the horizon and the leaf.
 //!
 //! | Flag | Item | Piece |
 //! | --- | --- | --- |

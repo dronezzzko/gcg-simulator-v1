@@ -1,5 +1,5 @@
 //! Shared helpers of the `policy_*` test targets: the vector files written by
-//! `port/oracle/export_policy_vectors.py` (crates/gcg-ai/tests/vectors/policy/), Python's
+//! `oracle/export_policy_vectors.py` (crates/gcg-ai/tests/vectors/policy/), Python's
 //! `float.hex()` both ways, actions and u64 values in the trace encoding (PLAN §8.2), and
 //! states rebuilt from their canonical snapshots with `canon::from_canonical`.
 //!

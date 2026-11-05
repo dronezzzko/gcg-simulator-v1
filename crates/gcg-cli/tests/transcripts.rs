@@ -3,7 +3,7 @@
 //! running the Rust-shaped parser (Python's `build_parser()` with only `--ai-preset
 //! standard|fast` and `--workers N|auto` changed), byte for byte, at every exported
 //! `COLUMNS`, with a non-TTY stdout. Each case also carries its relation to the real Python
-//! parser, which `port/oracle/export_cli.py` asserted and this test checks again:
+//! parser, which `oracle/export_cli.py` asserted and this test checks again:
 //!
 //! - `same`: the Rust transcript is the real Python transcript;
 //! - `usage`: only the benchmark usage block differs (`--ai-preset {standard,fast}`); the

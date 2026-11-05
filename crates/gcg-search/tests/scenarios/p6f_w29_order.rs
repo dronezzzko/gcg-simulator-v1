@@ -1,7 +1,7 @@
 //! W-29 (no policy scorer for ORDER_TRIGGER): two simultaneous triggers whose order matters,
 //! met by the search's simulated lines.
 //!
-//! Synthetic cards (`docs/port/eval/P6-F/synthetic_order_fragment.json`, from
+//! Synthetic cards (`docs/dev/eval/P6-F/synthetic_order_fragment.json`, from
 //! `synthetic_cards.py`): S = GD02-084 (1/3, cost 2) with "At the end of your turn, draw 1." and
 //! "At the end of your turn, if you have 1 or fewer cards in your hand, draw 3."; T = GD01-022
 //! (2/3, cost 2) with "【Deploy】Draw 2.". Player 0 holds S and T and can deploy one. Deployed, S's

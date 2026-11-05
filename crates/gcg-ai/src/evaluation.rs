@@ -1,5 +1,4 @@
-//! Position evaluation: a logistic model over board features (`ai/evaluation.py`;
-//! docs/port/inventory/08-ai-policy-eval.md §6).
+//! Position evaluation: a logistic model over board features (`ai/evaluation.py`).
 //!
 //! Every `base` feature is a difference `side(player) - side(opponent)`. The `roles` set is
 //! computed from the turn player's point of view and keeps the threat terms of the two players

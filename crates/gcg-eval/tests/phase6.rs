@@ -1,4 +1,4 @@
-//! The Phase 6 measurement tools of `gcg-eval` end to end (docs/port/PLAN.md §12.2 P6-I,
+//! The Phase 6 measurement tools of `gcg-eval` end to end (docs/dev/PLAN.md §12.2 P6-I,
 //! §12.4-§12.8), through the binary with cheap agents (random, greedy and tiny null
 //! configurations of the strengthened search): every tool writes the same report for 1 and 4
 //! workers; `ablation` and `budget-curve` rows carry the §12.4 statistics and the agents'
@@ -189,9 +189,9 @@ fn ablation_rows_are_deterministic_and_carry_the_row_statistics() {
 #[test]
 fn rows_stratify_over_the_pairs_and_refuse_held_out_pairs() {
     let dir = scratch("stratified");
-    std::fs::create_dir_all(dir.join("docs/port/eval")).expect("dirs");
+    std::fs::create_dir_all(dir.join("docs/dev/eval")).expect("dirs");
     std::fs::write(
-        dir.join("docs/port/eval/panel.json"),
+        dir.join("docs/dev/eval/panel.json"),
         json!({"pairs": [
             {"decks": ["tuning-zeon", "tuning-wing"], "held_out": false},
             {"decks": ["tuning-zeon", "tuning-tekkadan"], "held_out": false},
@@ -562,7 +562,7 @@ fn panel_workdir(name: &str) -> PathBuf {
     let dir = scratch(name);
     let eval = dir.join("examples/decks/eval");
     std::fs::create_dir_all(&eval).expect("dirs");
-    std::fs::create_dir_all(dir.join("docs/port/eval")).expect("dirs");
+    std::fs::create_dir_all(dir.join("docs/dev/eval")).expect("dirs");
     for f in [
         "blue-white-federation",
         "purple-white-tekkadan",
@@ -586,7 +586,7 @@ fn panel_workdir(name: &str) -> PathBuf {
         .expect("copy eval deck");
     }
     std::fs::write(
-        dir.join("docs/port/eval/panel.json"),
+        dir.join("docs/dev/eval/panel.json"),
         json!({"held_out_decks": ["eval-wing"], "pairs": []}).to_string(),
     )
     .expect("panel");
@@ -749,7 +749,7 @@ fn traced_games_equal_plain_games_for_every_agent_kind() {
     }
 }
 
-/// W-127: the port's evaluation documents cite only commits that resolve and evidence paths
+/// W-127: the evaluation documents cite only commits that resolve and evidence paths
 /// that exist.
 #[test]
 fn w127_the_port_evaluation_docs_cite_only_reachable_commits() {
@@ -1299,9 +1299,9 @@ fn w127_evidence_check_resolves_commits_and_paths() {
     git(&["init", "-q"]);
     git(&["config", "user.email", "test@example.invalid"]);
     git(&["config", "user.name", "test"]);
-    std::fs::create_dir_all(dir.join("docs/port/eval/evidence")).expect("dirs");
+    std::fs::create_dir_all(dir.join("docs/dev/eval/evidence")).expect("dirs");
     std::fs::write(
-        dir.join("docs/port/eval/evidence/row.json"),
+        dir.join("docs/dev/eval/evidence/row.json"),
         "{\"wins\": 1}\n",
     )
     .expect("row");
@@ -1312,7 +1312,7 @@ fn w127_evidence_check_resolves_commits_and_paths() {
         &[
             "evidence",
             "add",
-            "docs/port/eval/evidence/row.json",
+            "docs/dev/eval/evidence/row.json",
             "--command",
             "gcg-eval ablation ...",
         ],
@@ -1320,8 +1320,8 @@ fn w127_evidence_check_resolves_commits_and_paths() {
     );
     assert!(String::from_utf8_lossy(&added.stdout).contains("\"sha256\""));
     std::fs::write(
-        dir.join("docs/port/eval/notes.md"),
-        format!("Measured at commit {head}; raw output `docs/port/eval/evidence/row.json`.\n"),
+        dir.join("docs/dev/eval/notes.md"),
+        format!("Measured at commit {head}; raw output `docs/dev/eval/evidence/row.json`.\n"),
     )
     .expect("notes");
     let good = gcg_eval(&["evidence", "check"], &dir);
@@ -1333,8 +1333,8 @@ fn w127_evidence_check_resolves_commits_and_paths() {
         String::from_utf8_lossy(&good.stdout)
     );
     std::fs::write(
-        dir.join("docs/port/eval/bad.md"),
-        "Measured at commit 5a6f226 (squashed away); `docs/port/eval/evidence/gone.json`.\n",
+        dir.join("docs/dev/eval/bad.md"),
+        "Measured at commit 5a6f226 (squashed away); `docs/dev/eval/evidence/gone.json`.\n",
     )
     .expect("bad");
     let bad = gcg_eval(&["evidence", "check"], &dir);
@@ -1354,9 +1354,9 @@ fn w127_evidence_check_resolves_commits_and_paths() {
             .iter()
             .any(|p| p["exists"] == false)
     );
-    std::fs::remove_file(dir.join("docs/port/eval/bad.md")).expect("rm");
+    std::fs::remove_file(dir.join("docs/dev/eval/bad.md")).expect("rm");
     std::fs::write(
-        dir.join("docs/port/eval/evidence/row.json"),
+        dir.join("docs/dev/eval/evidence/row.json"),
         "{\"wins\": 2}\n",
     )
     .expect("edit");

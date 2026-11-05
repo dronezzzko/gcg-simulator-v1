@@ -1,4 +1,4 @@
-//! What the Phase 6 measurement tools share (docs/port/PLAN.md §12.4-§12.6, §12.8): the run
+//! What the Phase 6 measurement tools share (docs/dev/PLAN.md §12.4-§12.6, §12.8): the run
 //! options (pairs, games, seed, role, ledger, workers, play/draw protocol, output file), the
 //! role checks before any game (A14, §12.5), one *row* (two agents over the selected pairs in
 //! mirrored blocks of four, the blocks stratified round-robin over the pairs), its report

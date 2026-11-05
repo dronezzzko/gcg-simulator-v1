@@ -1,4 +1,4 @@
-//! The in-house JSON Schema validator for `results.json` (docs/port/PLAN.md §9.5): exactly the
+//! The in-house JSON Schema validator for `results.json` (docs/dev/PLAN.md §9.5): exactly the
 //! draft 2020-12 keywords the results schemas use, with jsonschema 4.26's semantics
 //! (`jsonschema.validate(obj, schema, format_checker=FormatChecker())`,
 //! `reports/results.py:48-50`).

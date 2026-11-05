@@ -6,7 +6,7 @@
 //! order. This module implements [`Field`] for every Rust field type the generator emits
 //! (`i64`, `bool`, `StrId`, `VarId`, the enums, the hook names, `ValueRef`, `ParamValue`, the
 //! node handles, `Option`, `Box<[T]>` and pairs), so the decoder, `repr` and the golden writer
-//! are each written once (docs/port/PLAN.md §5.1, §5.7; docs/port/contracts.md, gcg-effects).
+//! are each written once (docs/dev/PLAN.md §5.1, §5.7; docs/dev/contracts.md, gcg-effects).
 
 use gcg_core::pyjson::Json;
 use serde_json::{Map, Value};
@@ -273,7 +273,7 @@ impl Field for ValueRef {
     }
 }
 
-/// A hook parameter value: an int, a string, or a `Cond`/`Sel` node (Inv 04 §10.1).
+/// A hook parameter value: an int, a string, or a `Cond`/`Sel` node.
 impl Field for ParamValue {
     fn decode(d: &mut Decoder<'_>, v: &Value) -> Result<Self, IrError> {
         match v {

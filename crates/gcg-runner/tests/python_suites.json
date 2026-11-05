@@ -1,5 +1,5 @@
 {
- "about": "T-078: every test function of tests/runner, tests/reports, tests/cli and tests/deck (port/oracle/export_parity.py --section collect) with its Rust coverage: native (a Rust test with the same inputs and assertions), transitive (Rust reproduces Python's outputs byte for byte on the test's inputs, so the test's assertions over them hold) or not-ported (the Python test exercises something Rust cannot express). Checked by tests/python_suites.rs.",
+ "about": "T-078: every test function of tests/runner, tests/reports, tests/cli and tests/deck (oracle/export_parity.py --section collect) with its Rust coverage: native (a Rust test with the same inputs and assertions), transitive (Rust reproduces Python's outputs byte for byte on the test's inputs, so the test's assertions over them hold) or not-ported (the Python test exercises something Rust cannot express). Checked by tests/python_suites.rs.",
  "entries": [
   {
    "python": "tests/runner/test_config.py::test_game_and_agent_seeds_follow_the_documented_derivation",
@@ -65,7 +65,7 @@
     "crates/gcg-runner/tests/engine_runs.rs::needs_engine_every_saved_python_replay_verifies"
    ],
    "vectors": [
-    "port/corpus/v1/tier1"
+    "oracle/corpus/v1/tier1"
    ],
    "note": "Rust has no process-local registry numbering to renumber: the canonical form names every effect, filter set and program by its content id (canon.rs), and it reproduces Python's state digests on the exported snapshots, every corpus state and every Python replay, which Python computed under its own process-local numbering"
   },

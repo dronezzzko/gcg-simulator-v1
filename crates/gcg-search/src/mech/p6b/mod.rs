@@ -1,4 +1,4 @@
-//! P6-B's mechanisms (docs/port/PLAN.md §12.2, §12.3 S3): the tactical solver and what the
+//! P6-B's mechanisms (docs/dev/PLAN.md §12.2, §12.3 S3): the tactical solver and what the
 //! search does with it.
 //!
 //! | Flag | Items | What it does |

@@ -1,6 +1,6 @@
-//! Game-level vectors of docs/port/inventory/08-ai-policy-eval.md §11 (items 3-7) over the AI
+//! Game-level vectors (recorded items 3-7) over the AI
 //! test decks (`tests/ai/decks.py`), from `games.ndjson` of
-//! `port/oracle/export_policy_vectors.py`, which reproduces each Inventory digest before it
+//! `oracle/export_policy_vectors.py`, which reproduces each Inventory digest before it
 //! writes:
 //!
 //! - `RandomAgent(7)` vs `RandomAgent(8)` from `new_game(DECKS, 12345)`: at every decision the
@@ -388,7 +388,7 @@ fn check_run(t: &str, make: impl Fn(u64) -> Box<dyn Agent>) {
     );
 }
 
-/// Inv 08 §11 item 6: 69 decisions, winner 1, turn 11, logs digest `9241c614…`.
+/// Game vector 6: 69 decisions, winner 1, turn 11, logs digest `9241c614…`.
 #[test]
 fn greedy_vs_greedy_matches_python() {
     check_run("greedy_game", |seed| {
@@ -396,7 +396,7 @@ fn greedy_vs_greedy_matches_python() {
     });
 }
 
-/// Inv 08 §11 item 7: 99 decisions, winner 1, turn 19.
+/// Game vector 7: 99 decisions, winner 1, turn 19.
 #[test]
 fn random_vs_random_matches_python() {
     check_run("random_vs_random", |seed| {

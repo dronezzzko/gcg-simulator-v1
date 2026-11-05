@@ -1,5 +1,5 @@
 //! `Display`, `std::error::Error` and the `From` conversions of the engine's error types
-//! (docs/port/contracts.md, gcg-engine "error.rs"). `Display` prints `str(exc)` of the Python
+//! (docs/dev/contracts.md, gcg-engine "error.rs"). `Display` prints `str(exc)` of the Python
 //! exception each error stands for, so `f"{type(exc).__name__}: {exc}"`
 //! (`runner/game.py:131-136`) is `format!("{}: {err}", err.py_class())`. Where Python's text
 //! embeds CPython exception text, only the prefix is Python's (PLAN A19).

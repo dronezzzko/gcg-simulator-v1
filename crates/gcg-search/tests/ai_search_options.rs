@@ -1,11 +1,11 @@
-//! `tests/ai/test_search_options.py` (33 cases), ported: more iterations for close
+//! `tests/ai/test_search_options.py` (33 cases) in Rust: more iterations for close
 //! effect-target calls (`target_extension`) change only the searches they should and only
 //! after the baseline budget, and with observation-keyed nodes every setting keeps decisions
 //! inside the information set (T-067: the 25 mid-game states, the two target puzzles and
 //! `opponent_may_hold_a_trick`). Every search and decision is compared with Python's record
 //! (`aiport::Recorder`).
 //!
-//! Not ported natively: the tree assertions of
+//! Not reproduced natively: the tree assertions of
 //! `test_observation_keys_reach_searcher_nodes_the_same_way_after_an_opponent_pass` (pass
 //! splits, the visits and nodes of opponent-pass children) and
 //! `test_observation_keys_keep_main_and_action_step_plays_apart` (`mcts._add_children` child
@@ -158,7 +158,7 @@ fn observation_keys_after_an_opponent_pass_search_as_in_python() {
         );
         let st = opponent_may_hold_a_trick();
         // `_tree(st, BASELINE, ...)` and `_tree(st, OBSERVED, ...)`: each one search, compared
-        // with Python's; the pass-split counts of the trees are not ported (module docs).
+        // with Python's; the pass-split counts of the trees are not reproduced (module docs).
         search(&mut rec, &st, &BASELINE_STANDARD, seed);
         search(&mut rec, &st, &observed(), seed);
         rec.finish();

@@ -1,9 +1,9 @@
 //! W-17 step (2) (GAP-A1): the frozen scenarios of `gcg-eval weakness scenarios`, one or more per
-//! WK category of the lost weakness benchmark (docs/port/WEAKNESSES.md W-17: WK1 lethal
+//! WK category of the lost weakness benchmark (docs/dev/WEAKNESSES.md W-17: WK1 lethal
 //! detection, WK2 lethal avoidance, WK3 attack and block, WK4 trick waste (`hold_up`), WK5
 //! resource choices (`ex_variant`), WK6 mulligan, WK7 target choices, WK8 long precise lines),
 //! built with the Rust testkit from the puzzles and scenario tests that already exist and frozen
-//! as canonical snapshots in `docs/port/eval/GAP-A1/weakness/scenarios.json`.
+//! as canonical snapshots in `docs/dev/eval/GAP-A1/weakness/scenarios.json`.
 //!
 //! The test rebuilds every position, checks that its snapshot reloads to the same state
 //! (`canon::from_canonical`, the same digest and the same reference decision), and compares the
@@ -29,7 +29,7 @@ use crate::aiport::positions::{
 use crate::aiport::{FILLER, PLAYER, Sc, apply_ok, pending_player, with_cx};
 use crate::p6b_support::reference;
 
-const FILE: &str = "docs/port/eval/GAP-A1/weakness/scenarios.json";
+const FILE: &str = "docs/dev/eval/GAP-A1/weakness/scenarios.json";
 const WRITE: &str = "GAPA1_WRITE_SCENARIOS";
 
 /// One frozen scenario before serialisation.
@@ -209,7 +209,7 @@ const CHEAP: [&str; 10] = [
 ];
 const HEAVY: [&str; 5] = ["GD01-065", "EB01-001", "EB01-002", "EB01-004", "EB01-005"];
 
-/// `_find_opening` (`tests/ai/test_puzzles.py:296-303`, as `ai_puzzles.rs` ports it).
+/// `_find_opening` (`tests/ai/test_puzzles.py:296-303`, as `ai_puzzles.rs` reproduces it).
 fn find_opening(heavy_at_least: usize, heavy_at_most: usize) -> GameState {
     let main: Vec<&str> = CHEAP
         .iter()
@@ -505,7 +505,7 @@ fn document(frozen: &[Frozen]) -> Value {
         "format": "gcg-eval-weakness-scenarios",
         "version": 1,
         "generated_by": "crates/gcg-search/tests/scenarios/gapa1_weakness_scenarios.rs",
-        "plan": "docs/port/WEAKNESSES.md W-17 step (2)",
+        "plan": "docs/dev/WEAKNESSES.md W-17 step (2)",
         "categories": {
             "WK1": "lethal detection",
             "WK2": "lethal avoidance",

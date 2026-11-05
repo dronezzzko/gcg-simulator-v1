@@ -1,8 +1,8 @@
-//! `tests/ai/test_evaluation_roles.py`, ported where it tests the evaluation (4 of 8 tests):
+//! `tests/ai/test_evaluation_roles.py`, reproduced where it tests the evaluation (4 of 8 tests):
 //! the `roles` feature set, its fitted weights and the weights' feature-set check. The other
 //! four (`test_compare_selects_the_role_weights` and the three `tuning` tests) exercise
 //! `ai.compare.parse_agent` and `ai.tuning`, which are `gcg-eval`'s; the exporter deselects them
-//! (`port/oracle/export_ai_tests.py` `DESELECTED`) and they are not ported here.
+//! (`oracle/export_ai_tests.py` `DESELECTED`) and they are not reproduced here.
 
 mod aiport;
 

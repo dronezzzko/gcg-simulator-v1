@@ -1,9 +1,9 @@
-//! CPython's Unicode text semantics over the tables that `port/oracle/export_unicode.py`
-//! generates from Python's `unicodedata` (docs/port/PLAN.md A27; Inv 03 §10 H1-H6).
+//! CPython's Unicode text semantics over the tables that `oracle/export_unicode.py`
+//! generates from Python's `unicodedata` (docs/dev/PLAN.md A27).
 //!
 //! Rust std has no NFKC, no full case folding and a different whitespace set
 //! (`char::is_whitespace` lacks U+001C-U+001F), so every Python string method the data layer
-//! relies on is ported here: `str.isspace` (regex `\s`), `str.isdecimal` with `int()` values
+//! relies on is reimplemented here: `str.isspace` (regex `\s`), `str.isdecimal` with `int()` values
 //! (regex `\d`), `str.splitlines`, `str.strip`/`str.split()`, `unicodedata.normalize("NFKC")`,
 //! `str.casefold`, `str.upper`, `str.lower` (with the Final_Sigma rule) and `repr(str)`.
 
@@ -59,18 +59,18 @@ fn mapped(index: &[(u32, u32, u32)], data: &'static str, c: char) -> Option<&'st
 }
 
 /// `str.isspace()` for one character: the set of regex `\s`, `str.strip()` and `str.split()`
-/// (Inv 03 §10 H3: includes U+001C-U+001F, which `char::is_whitespace` does not).
+/// (includes U+001C-U+001F, which `char::is_whitespace` does not).
 pub(crate) fn is_space(c: char) -> bool {
     in_ranges(tables::SPACE, c)
 }
 
-/// A separator of `str.splitlines()` (Inv 03 §10 H2).
+/// A separator of `str.splitlines()`.
 pub(crate) fn is_line_break(c: char) -> bool {
     in_ranges(tables::LINE_BREAK, c)
 }
 
 /// `int(c)` for a character with `str.isdecimal()` (regex `\d`, category Nd); `None` otherwise
-/// (Inv 03 §10 H4).
+///.
 pub(crate) fn decimal_value(c: char) -> Option<u32> {
     in_triples(tables::DECIMAL, c).map(|(first, value)| u32::from(value) + (u32::from(c) - first))
 }
@@ -327,7 +327,7 @@ pub(crate) fn lower(s: &str) -> String {
 
 // --- repr ------------------------------------------------------------------------------------
 
-/// `repr(s)` for a `str` (CPython `unicode_repr`, Inv 03 §10 H1): single quotes unless the
+/// `repr(s)` for a `str` (CPython `unicode_repr`): single quotes unless the
 /// text contains `'` and no `"`; `\\`, the quote, `\t`, `\n`, `\r` escaped; other C0 controls
 /// and U+007F as `\xhh`; non-ASCII kept when printable, else `\xhh`, `\uhhhh` or `\Uhhhhhhhh`.
 pub(crate) fn repr_str(s: &str) -> String {

@@ -1,4 +1,4 @@
-//! `gcg-eval decks --overlap` (docs/port/PLAN.md §12.5; W-20): main-deck copy overlaps between
+//! `gcg-eval decks --overlap` (docs/dev/PLAN.md §12.5; W-20): main-deck copy overlaps between
 //! deck sets, and the panel bound on the held-out decks.
 //!
 //! The overlap of two decks is the size of the multiset intersection of their main decks
@@ -6,7 +6,7 @@
 //! counted. The matrix rows default to the panel (examples, then evaluation decks) and the
 //! columns to the tuning decks (`ai/tuning.py:89-93`) and the AI test decks
 //! (`tests/ai/decks.py`). Each row deck is labelled with its largest overlap against the
-//! tuning decks and against the test decks, and, when `docs/port/eval/panel.json` exists,
+//! tuning decks and against the test decks, and, when `docs/dev/eval/panel.json` exists,
 //! whether the split holds it out. With `--check` every held-out deck of the split must
 //! overlap every tuning deck and every test deck by at most `--bound` copies (default 10,
 //! §12.5), or the command exits 1.

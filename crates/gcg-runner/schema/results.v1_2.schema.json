@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "urn:gcg-sim:schema:results:1.2.0",
   "title": "gcg-sim benchmark results",
-  "description": "results.json written by the Rust `gcg-sim benchmark` (strengthened search). Version 1.2.0: the 1.1.0 constraints plus `ai.search` and `ai.effort`, with `ai.preset` limited to the two shipped presets (docs/port/PLAN.md section 12.7). The file name tracks the major version and the minor version only when two minors ship side by side: 1.1.0 is results.v1.schema.json, 1.2.0 results.v1_2.schema.json (W-97). Every value is deterministic for a given configuration and seed; wall-clock data lives only in timing.json.",
+  "description": "results.json written by the Rust `gcg-sim benchmark` (strengthened search). Version 1.2.0: the 1.1.0 constraints plus `ai.search` and `ai.effort`, with `ai.preset` limited to the two shipped presets (docs/dev/PLAN.md section 12.7). The file name tracks the major version and the minor version only when two minors ship side by side: 1.1.0 is results.v1.schema.json, 1.2.0 results.v1_2.schema.json (W-97). Every value is deterministic for a given configuration and seed; wall-clock data lives only in timing.json.",
   "type": "object",
   "additionalProperties": false,
   "required": [
@@ -290,7 +290,7 @@
         },
         "effort": {
           "type": "array",
-          "description": "search effort per seat, seat 0 then seat 1, over every game of the run: totals and per-game distributions (deterministic counts, docs/port/PLAN.md sections 6.6 and 12.7)",
+          "description": "search effort per seat, seat 0 then seat 1, over every game of the run: totals and per-game distributions (deterministic counts, docs/dev/PLAN.md sections 6.6 and 12.7)",
           "prefixItems": [
             {
               "type": "object",

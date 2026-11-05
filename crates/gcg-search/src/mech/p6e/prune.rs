@@ -1,5 +1,5 @@
 //! Dominated-move pruning judged over K worlds (`prune_worlds`, `rest_prune_worlds`; W-12,
-//! W-13; docs/port/PLAN.md §12.3 S6).
+//! W-13; docs/dev/PLAN.md §12.3 S6).
 //!
 //! The reference trial-applies two prunes in one fixed determinisation (seed 0,
 //! `_TRIAL_WORLD_SEED`, `ai/actions.py:136`): the idle 0-AP attack prune

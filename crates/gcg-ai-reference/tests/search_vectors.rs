@@ -1,8 +1,8 @@
 //! The reference search against Python's `search()` on the states of `decisions.ndjson`
-//! (`port/oracle/export_ai_vectors.py`; PLAN §10.4 D2 gate "every root-function vector equal"):
+//! (`oracle/export_ai_vectors.py`; PLAN §10.4 D2 gate "every root-function vector equal"):
 //! for `fast` at every searched decision and `standard`, `strong` and `baseline-standard` at a
 //! sample, the action, every alternative bit for bit, the iteration count and the per-decision
-//! generator's state afterwards (seeds drawn up front, Inv 07 §3.3). The agent level is checked
+//! generator's state afterwards (seeds drawn up front). The agent level is checked
 //! on the decisions an agent reaches within its first three decisions: the action, the
 //! `DecisionTrace` and the decision-log bytes.
 

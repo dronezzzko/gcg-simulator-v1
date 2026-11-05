@@ -1,4 +1,4 @@
-// The build-time `code_digest` of the two shipped binaries (docs/port/PLAN.md §2.4, X19,
+// The build-time `code_digest` of the two shipped binaries (docs/dev/PLAN.md §2.4, X19,
 // W-103). The build scripts of gcg-cli and gcg-eval include this file inside a module:
 //
 //     mod code_digest {

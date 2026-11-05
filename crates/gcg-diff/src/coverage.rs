@@ -3,7 +3,7 @@
 //! - A non-vanilla card (its registry entry has abilities; 840 numbers) needs a passing Rust
 //!   replay of a per-test trace tagged with its number, a native Rust test tagged with it, or
 //!   an executed program in the corpus games. The last is the Python executed-program census
-//!   (`port/corpus/v1/census.json`, `port/oracle/census.py`), which counts for Rust only when
+//!   (`oracle/corpus/v1/census.json`, `oracle/census.py`), which counts for Rust only when
 //!   every census game trace passes the real-engine replay: a passing replay reproduces every
 //!   recorded state digest, so the same programs ran.
 //! - A vanilla card (312 numbers) needs a card of it in a state the Rust replay reached, or is
@@ -13,7 +13,7 @@
 //! The report lists every card failing both, and the check fails on any.
 //!
 //! Two more parts read records the Python reference produced over games and tests that the Rust
-//! replay reproduces (docs/port/WEAKNESSES.md W-111, W-151, W-117):
+//! replay reproduces (docs/dev/WEAKNESSES.md W-111, W-151, W-117):
 //!
 //! - **Execution evidence (W-111).** `scripts/test_census.py` records, per card-tagged Python
 //!   test, which tagged cards' programs ran ([`TEST_EXECUTION`]). A passing per-test trace counts
@@ -42,9 +42,9 @@ use crate::fuzz::Pools;
 use crate::manifest::Repo;
 
 /// The per-test execution record of `scripts/test_census.py` (W-111).
-pub const TEST_EXECUTION: &str = "docs/port/eval/P6-N/test-execution.json";
+pub const TEST_EXECUTION: &str = "docs/dev/eval/P6-N/test-execution.json";
 /// The fuzz census of `scripts/fuzz_census.py` for the seed-2026 10,000-game run (W-151).
-pub const FUZZ_CENSUS: &str = "docs/port/eval/P6-N/fuzz-census-2026-10000.json";
+pub const FUZZ_CENSUS: &str = "docs/dev/eval/P6-N/fuzz-census-2026-10000.json";
 
 /// The outcome of the check.
 #[derive(Clone, PartialEq, Eq, Debug, Default)]
@@ -66,7 +66,7 @@ pub struct Coverage {
 /// # Errors
 /// An unreadable census.
 pub fn census_not_ran(repo: &Repo) -> Result<Vec<String>, String> {
-    let p = repo.root.join("port/corpus/v1/census.json");
+    let p = repo.root.join("oracle/corpus/v1/census.json");
     let text = std::fs::read_to_string(&p).map_err(|e| format!("{}: {e}", p.display()))?;
     let v: Value = serde_json::from_str(&text).map_err(|e| format!("{}: {e}", p.display()))?;
     v["cards"]["non_vanilla_not_ran"]

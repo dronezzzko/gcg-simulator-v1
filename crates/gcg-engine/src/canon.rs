@@ -1,5 +1,5 @@
 //! The canonical JSON form of a state and its digest (`runner/digest.py:36-56`,
-//! `engine/state.py:575-611`; docs/port/PLAN.md §4.7) and the decoding of a canonical snapshot
+//! `engine/state.py:575-611`; docs/dev/PLAN.md §4.7) and the decoding of a canonical snapshot
 //! (PLAN §4.8).
 //!
 //! The canonical form is `GameState.to_json()` with every process-local registry index
@@ -35,7 +35,7 @@ use crate::{
 };
 
 // ---------------------------------------------------------------------------------------------
-// The public API (docs/port/contracts.md, gcg-engine `canon`)
+// The public API (docs/dev/contracts.md, gcg-engine `canon`)
 
 /// `canonical_state(st)` (`runner/digest.py:36-49`): `st.to_json()` (`engine/state.py:575-611`)
 /// with every process-local registry index replaced by a content id from the state's registry.
@@ -58,7 +58,7 @@ pub fn state_digest(st: &GameState) -> String {
 /// frozen `StatMod`, a `KeywordGrant`, a delayed-trigger `AbilityGrant`; PLAN §5.6). Every
 /// side-table entry is decoded into typed nodes and must resolve to what its content id names,
 /// and every resolved effect and filter set must hash back to its content id. The state has
-/// Python's `_rules_checked` from the snapshot (which `from_json` drops, Inv 05 §3.5), no
+/// Python's `_rules_checked` from the snapshot (which `from_json` drops), no
 /// cached view, and a `GameConst` over `reg` built from the snapshot's decklists and limits.
 ///
 /// # Errors
@@ -1667,7 +1667,7 @@ fn side_table<'v>(
 
 #[cfg(test)]
 pub(crate) mod fixtures {
-    //! The canonical states that `port/oracle/export_state_fixtures.py` exports with Python's
+    //! The canonical states that `oracle/export_state_fixtures.py` exports with Python's
     //! digests (`tests/fixtures/states.ndjson`), and a registry that holds all of them.
 
     use std::sync::{Arc, OnceLock};
@@ -1751,7 +1751,7 @@ pub(crate) mod fixtures {
 #[cfg(test)]
 mod tests {
     //! M5.1 without the corpus: Python-exported canonical states
-    //! (`port/oracle/export_state_fixtures.py`) decode and re-encode byte for byte, with
+    //! (`oracle/export_state_fixtures.py`) decode and re-encode byte for byte, with
     //! Python's digests, against the embedded effect registry (the public round trip is
     //! `tests/canonical_fixtures.rs`).
 
@@ -1912,7 +1912,7 @@ mod tests {
                 "you may"
             ]
         );
-        // ensure_ascii in the digest blob (digest.py:55; Inv 05 §2.2).
+        // ensure_ascii in the digest blob (digest.py:55).
         let rec = snapshots()
             .iter()
             .find(|r| r["state"]["pending"]["prompt"] == "pay ①?")

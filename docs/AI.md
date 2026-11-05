@@ -12,7 +12,7 @@ the thread count.
 | --- | --- | --- | --- |
 | `random` | `crates/gcg-ai/src/random.rs` | `gcg-eval` agent spec `random` | A uniform option per decision (it draws from its generator even with one option). |
 | `greedy` | `crates/gcg-ai/src/greedy.rs` | `gcg-eval` agent spec `greedy` | One determinised world, every pruned move played to the next turn with the deterministic policy and scored by the evaluation. Frozen as a baseline. |
-| Reference search | `crates/gcg-ai-reference/src/mcts.rs`, presets in `crates/gcg-ai-reference/src/contracts.rs` | `gcg-eval` only: `reference-benchmark --reference-preset fast\|standard\|strong`, agent specs `ref:<preset>` and `ref:baseline-<preset>` | The frozen information-set MCTS with the exact reference budgets and search parameters. It reproduces the reference oracle's decisions byte for byte ([`docs/port/EQUIVALENCE.md`](port/EQUIVALENCE.md)) and anchors every strength claim below. |
+| Reference search | `crates/gcg-ai-reference/src/mcts.rs`, presets in `crates/gcg-ai-reference/src/contracts.rs` | `gcg-eval` only: `reference-benchmark --reference-preset fast\|standard\|strong`, agent specs `ref:<preset>` and `ref:baseline-<preset>` | The frozen information-set MCTS with the exact reference budgets and search parameters. It reproduces the reference oracle's decisions byte for byte ([`docs/dev/EQUIVALENCE.md`](dev/EQUIVALENCE.md)) and anchors every strength claim below. |
 | Strengthened search | `crates/gcg-search/` | `gcg-sim --ai-preset standard\|fast`; `gcg-eval` agent specs `search:<preset>`, `search:null-<preset>`, `search:FILE.json` | The reference loop with extension points (`crates/gcg-search/src/mech/`), configured per preset. It plays from an information-set observation only (W-135). |
 
 `gcg-sim` links neither the reference search nor `gcg-diff`:
@@ -102,7 +102,7 @@ the enabled mechanisms and the weights. The baseline presets `ref:baseline-stand
 ### How the budgets were chosen
 
 PLAN §12.8, with the adopted bundle, on the 15 tuning pairs only, 400 games per point, forced
-play/draw (`docs/port/eval/M15/README.md`, steps 3-5):
+play/draw (`docs/dev/eval/M15/README.md`, steps 3-5):
 
 - `standard`: the largest measured scale whose full-search time stays within the time limit of
   PLAN §12.8, and the best point of its budget curve. Curve against `ref:strong`
@@ -115,11 +115,11 @@ play/draw (`docs/port/eval/M15/README.md`, steps 3-5):
   0.618]), 2x 224/400 (0.560).
 
 Measured on an idle M2 Pro with `gcg-sim` itself at the best worker count
-(`docs/port/BENCHMARKS.md`, Part 2): with the M15 mechanisms (commit 34b3107) `standard` took
+(`docs/dev/BENCHMARKS.md`, Part 2): with the M15 mechanisms (commit 34b3107) `standard` took
 133.7 s for 20 BO3 matches and `fast` 76.9 s for 100 matches. With the M15b mechanisms (final
 timing, commit 8c89b5e, 6 workers) they take 148.6 s and 82.1 s.
 
-Per-game cost of the shipped presets on the Part 2 workload (`docs/port/eval/M15/README.md`,
+Per-game cost of the shipped presets on the Part 2 workload (`docs/dev/eval/M15/README.md`,
 "Cost of each scale"; instructions retired, which load does not change): `standard` 128.5G
 instructions per game against 12.9G for the reference `strong` (9.92x), `fast` 15.5G against
 8.4G for the reference `standard` (1.85x, 100 matches at 10 workers).
@@ -192,7 +192,7 @@ true state only for the decision counter, the log and `Observation::new`.
 - **`kill_aware_targeting`** (W-26, `mech/p6f/`). The rollout policy's Damage targeting prefers
   an enemy Unit the damage destroys, valued by what the kill removes, over a Unit that survives
   it. Its policy-level regret per Damage decision is 0.0537 against the reference policy's
-  0.0754 (difference -0.0217 [-0.0324, -0.0110], `docs/port/eval/weakness-status/GAP-A1.md`).
+  0.0754 (difference -0.0217 [-0.0324, -0.0110], `docs/dev/eval/weakness-status/GAP-A1.md`).
 - **`tree_lethal_select`** (W-25, `mech/gapa1/mod.rs`). At a MAIN decision inside the tree, a
   lethal line that the tactical solver proves for the deciding player is selected before the
   moves ordered by the shared policy prior, so neither side's nodes over-extend into a lethal
@@ -211,7 +211,7 @@ deterministic and never stop a search.
 - Every random choice of the search comes from the per-decision generator
   `SplitMix64(derive_seed(agent_seed, agent_name, "decision", k))` or from a `derive_seed` of
   it; agent seeds derive from the master seed and the match, game and seat
-  (`docs/port/PLAN.md` §7.2).
+  (`docs/dev/PLAN.md` §7.2).
 - Nothing reads a clock, the thread id or the worker count. `gcg-diff lints` rules 2 and 3
   reject clock, sleep, timeout and randomness APIs in the crates.
 - `scripts/verify_all_rust.sh` runs `gcg-sim benchmark --ai-preset fast` at `--workers 1`, `4`
@@ -225,7 +225,7 @@ deterministic and never stop a search.
 ## Ablation
 
 Row kinds and statistics follow PLAN §12.4 and the "Phase 6 outcomes" section of
-[`docs/port/WEAKNESSES.md`](port/WEAKNESSES.md): 400 BO1 games in mirrored blocks of four on the
+[`docs/dev/WEAKNESSES.md`](dev/WEAKNESSES.md): 400 BO1 games in mirrored blocks of four on the
 15 tuning pairs, forced play/draw unless marked "agents", dev-role masters, confirm-role
 masters run once. Each cell gives wins/N (rate, Wilson 95%), the paired difference with its
 Newcombe 95% interval and the McNemar discordant counts.
@@ -238,20 +238,20 @@ Newcombe 95% interval and the McNemar discordant counts.
 
 | Mechanism | Individual | Leave-one-out | Evidence |
 | --- | --- | --- | --- |
-| `adaptive_horizon` | dev 20100100: 218/400 (0.545, [0.496, 0.593]), +0.090 [+0.018, +0.161], 37/19; confirmation (confirm 30100100): 830/1600 (0.519, [0.494, 0.543]), +0.037 [+0.000, +0.075], 132/102 | 203/400 (0.507, [0.459, 0.556]), +0.015 [-0.058, +0.088], 30/27 | `docs/port/eval/weakness-status/P6-A.md`, `docs/port/eval/M15/rows/dev-loo-adaptive_horizon-400.json` |
-| `capped_rollout_continuation` | dev 20100100: 208/400 (0.520, [0.471, 0.569]), +0.040 [-0.033, +0.112], 32/24; identical to the placebo game for game | 207/400 (0.517, [0.469, 0.566]), +0.035 [-0.032, +0.101], 27/20 (the family's placebo: the cap never fires) | `docs/port/eval/weakness-status/P6-A.md`, `docs/port/eval/M15/rows/dev-loo-capped_rollout_continuation-400.json` |
-| `tactical_solver` | dev 20200100: 212/400 (0.530, [0.481, 0.578]), +0.060 [-0.007, +0.126], 30/18; confirmation at twice the budget (confirm 30200200): 811/1600 (0.507, [0.482, 0.531]), +0.014 [-0.023, +0.050], 116/105 | 215/400 (0.537, [0.488, 0.586]), +0.075 [+0.009, +0.140], 31/16 | `docs/port/eval/P6-B/rows/dev-tactical_solver-400.json`, `docs/port/eval/M15/rows/dev-loo-tactical_solver-400.json` |
-| `exclude_capped_play_draw` | agents, dev 20800044: 212/400 (0.530, [0.481, 0.578]), +0.060 [-0.007, +0.126], 30/18; identical to the null control game for game (0 of 400 changed) | agents, dev 21500250: 216/400 (0.540, [0.491, 0.588]), +0.080 [+0.002, +0.156], 40/24; identical to that protocol's placebo (0 of 400 changed) | `docs/port/eval/weakness-status/P6-H.md`, `docs/port/eval/M15/rows/dev-loo-agents-exclude_capped_play_draw-400.json` |
-| `engine_error_leaf` | the null configuration with the flag replays all 661 searched decisions of the tier-1 `search` set with 0 error leaves (`crates/gcg-search/tests/null_config_search_set.rs`) | 207/400 (0.517, [0.469, 0.566]), +0.035 [-0.032, +0.101], 27/20; identical to the placebo game for game (0 of 400 changed) | `docs/port/eval/weakness-status/P6-O.md`, `docs/port/eval/M15/rows/dev-loo-engine_error_leaf-400.json` |
-| `kill_aware_targeting` (M15b) | P6-F, dev 20600100: 216/400 (0.540, [0.491, 0.588]), +0.080 [+0.009, +0.150], 35/19; confirmation (confirm 30600100): 817/1600 (0.511, [0.486, 0.535]), +0.021 [-0.015, +0.057], 116/99 | `B_core` with it against `B_core` at twice the pre-M15 budget, dev 22710100: 207/400 (0.517), +0.035 [-0.040, +0.109], 33/26; confirmation (confirm 30271100): 830/1600 (0.519, [0.494, 0.543]), +0.037 [+0.001, +0.074], 129/99 | `docs/port/eval/weakness-status/P6-F.md`, `docs/port/eval/weakness-status/GAP-A1.md` |
-| `tree_lethal_select` (M15b) | dev 22710300: 217/400 (0.542), +0.085 [+0.016, +0.153], 34/17; confirmation (confirm 30271800): 843/1600 (0.527, [0.502, 0.551]), +0.054 [+0.018, +0.089], 128/85 | from the shipped `fast` (confirm 30271810): +0.021 [-0.014, +0.056]; from `B_core` at twice the budget (confirm 30271820): +0.007 [-0.029, +0.044] | `docs/port/eval/weakness-status/GAP-A1.md` |
+| `adaptive_horizon` | dev 20100100: 218/400 (0.545, [0.496, 0.593]), +0.090 [+0.018, +0.161], 37/19; confirmation (confirm 30100100): 830/1600 (0.519, [0.494, 0.543]), +0.037 [+0.000, +0.075], 132/102 | 203/400 (0.507, [0.459, 0.556]), +0.015 [-0.058, +0.088], 30/27 | `docs/dev/eval/weakness-status/P6-A.md`, `docs/dev/eval/M15/rows/dev-loo-adaptive_horizon-400.json` |
+| `capped_rollout_continuation` | dev 20100100: 208/400 (0.520, [0.471, 0.569]), +0.040 [-0.033, +0.112], 32/24; identical to the placebo game for game | 207/400 (0.517, [0.469, 0.566]), +0.035 [-0.032, +0.101], 27/20 (the family's placebo: the cap never fires) | `docs/dev/eval/weakness-status/P6-A.md`, `docs/dev/eval/M15/rows/dev-loo-capped_rollout_continuation-400.json` |
+| `tactical_solver` | dev 20200100: 212/400 (0.530, [0.481, 0.578]), +0.060 [-0.007, +0.126], 30/18; confirmation at twice the budget (confirm 30200200): 811/1600 (0.507, [0.482, 0.531]), +0.014 [-0.023, +0.050], 116/105 | 215/400 (0.537, [0.488, 0.586]), +0.075 [+0.009, +0.140], 31/16 | `docs/dev/eval/P6-B/rows/dev-tactical_solver-400.json`, `docs/dev/eval/M15/rows/dev-loo-tactical_solver-400.json` |
+| `exclude_capped_play_draw` | agents, dev 20800044: 212/400 (0.530, [0.481, 0.578]), +0.060 [-0.007, +0.126], 30/18; identical to the null control game for game (0 of 400 changed) | agents, dev 21500250: 216/400 (0.540, [0.491, 0.588]), +0.080 [+0.002, +0.156], 40/24; identical to that protocol's placebo (0 of 400 changed) | `docs/dev/eval/weakness-status/P6-H.md`, `docs/dev/eval/M15/rows/dev-loo-agents-exclude_capped_play_draw-400.json` |
+| `engine_error_leaf` | the null configuration with the flag replays all 661 searched decisions of the tier-1 `search` set with 0 error leaves (`crates/gcg-search/tests/null_config_search_set.rs`) | 207/400 (0.517, [0.469, 0.566]), +0.035 [-0.032, +0.101], 27/20; identical to the placebo game for game (0 of 400 changed) | `docs/dev/eval/weakness-status/P6-O.md`, `docs/dev/eval/M15/rows/dev-loo-engine_error_leaf-400.json` |
+| `kill_aware_targeting` (M15b) | P6-F, dev 20600100: 216/400 (0.540, [0.491, 0.588]), +0.080 [+0.009, +0.150], 35/19; confirmation (confirm 30600100): 817/1600 (0.511, [0.486, 0.535]), +0.021 [-0.015, +0.057], 116/99 | `B_core` with it against `B_core` at twice the pre-M15 budget, dev 22710100: 207/400 (0.517), +0.035 [-0.040, +0.109], 33/26; confirmation (confirm 30271100): 830/1600 (0.519, [0.494, 0.543]), +0.037 [+0.001, +0.074], 129/99 | `docs/dev/eval/weakness-status/P6-F.md`, `docs/dev/eval/weakness-status/GAP-A1.md` |
+| `tree_lethal_select` (M15b) | dev 22710300: 217/400 (0.542), +0.085 [+0.016, +0.153], 34/17; confirmation (confirm 30271800): 843/1600 (0.527, [0.502, 0.551]), +0.054 [+0.018, +0.089], 128/85 | from the shipped `fast` (confirm 30271810): +0.021 [-0.014, +0.056]; from `B_core` at twice the budget (confirm 30271820): +0.007 [-0.029, +0.044] | `docs/dev/eval/weakness-status/GAP-A1.md` |
 
 The two zero-effect rows (`exclude_capped_play_draw` and `engine_error_leaf`) are guards: they
 change a decision only when a simulation is capped, drawn or fails, which did not happen in
 those rows. The agents-protocol placebo's +0.080 shows how far a 400-game row moves with no
-change at all (`docs/port/eval/weakness-status/M15-bundle.md`).
+change at all (`docs/dev/eval/weakness-status/M15-bundle.md`).
 
-Bundle rows (`docs/port/eval/weakness-status/M15-bundle.md`), each against the null
+Bundle rows (`docs/dev/eval/weakness-status/M15-bundle.md`), each against the null
 configuration at twice the pre-M15 `standard` budget:
 
 | Bundle | Mechanisms | Result |
@@ -259,38 +259,38 @@ configuration at twice the pre-M15 `standard` budget:
 | `B_core` (adopted) | `adaptive_horizon`, `capped_rollout_continuation`, `tactical_solver` | dev 21500100: 217/400 (0.542, [0.493, 0.591]), +0.085 [+0.007, +0.162]; confirmation (confirm 30150100): 854/1600 (0.534, [0.509, 0.558]), +0.068 [+0.030, +0.105], 148/94 |
 | `B_mid` | `B_core` plus 14 mechanisms that were null alone | 212/400 (0.530); against `B_core` on the same deals -0.013 [-0.061, +0.036] |
 | `B_full` | `B_mid` plus `subtree_reuse` | 193/400 (0.482); against `B_core` -0.060 [-0.111, -0.009] (reused visits count toward the budget, so fewer fresh iterations) |
-| M15b (adopted) | the M15 shipped set plus `kill_aware_targeting` and `tree_lethal_select`, at the shipped `standard` budget | against the M15 `standard` on the 15 tuning pairs (confirm 30500001, same deals): 831/1620 (0.513, [0.489, 0.537]); against `ref:strong` (tuning 10500001): 950/1620 (0.586, [0.562, 0.610]); against greedy (dev 20500001): 338/420 (0.805, [0.764, 0.840]), where the M15 `standard` scored 328/420 (0.781) on the same deals (`docs/port/eval/M15b/README.md`) |
+| M15b (adopted) | the M15 shipped set plus `kill_aware_targeting` and `tree_lethal_select`, at the shipped `standard` budget | against the M15 `standard` on the 15 tuning pairs (confirm 30500001, same deals): 831/1620 (0.513, [0.489, 0.537]); against `ref:strong` (tuning 10500001): 950/1620 (0.586, [0.562, 0.610]); against greedy (dev 20500001): 338/420 (0.805, [0.764, 0.840]), where the M15 `standard` scored 328/420 (0.781) on the same deals (`docs/dev/eval/M15b/README.md`) |
 
 Against the reference, the bundle's effect at equal iterations is within noise: on the same
 deals against `ref:strong`, the bundle's curve point minus the control curve without the bundle
 is -0.018 [-0.066, +0.031] per game at 2x and +0.030 [-0.017, +0.077] at 8x, while the control
-alone scored 212/400 (0.530) at 2x and 215/400 (0.537) at 8x (`docs/port/eval/M15/README.md`,
+alone scored 212/400 (0.530) at 2x and 215/400 (0.537) at 8x (`docs/dev/eval/M15/README.md`,
 step 3).
 
 **Not adopted.** Every other mechanism is implemented behind its flag, measured with
 individual rows (and high-budget or confirmation rows where promising), and left off because
 it measured null or negative. Their status is `resolved by measurement (not adopted)` or, where
 the plan has remaining work, `open`. The rows are in each item's entry of
-[`docs/port/WEAKNESSES.md`](port/WEAKNESSES.md) and in the package records of
-`docs/port/eval/weakness-status/`:
+[`docs/dev/WEAKNESSES.md`](dev/WEAKNESSES.md) and in the package records of
+`docs/dev/eval/weakness-status/`:
 
 | Package | Flags | Items | Record |
 | --- | --- | --- | --- |
-| P6-A horizon and leaf | `generalized_leaf`; fixed `horizon_turns` 3 or 4 | W-01, W-02 | `docs/port/eval/weakness-status/P6-A.md` |
-| P6-B tactical solver | `lethal_root`, `threat_leaf`, `critical_extension`, `effective_blockers`, `solver_can_kill` | W-03, W-16, W-17, W-32, W-38 | `docs/port/eval/weakness-status/P6-B.md` |
-| P6-C hidden information | `opponent_buckets`, `belief_worlds`, `belief_last_n`, `exact_pools`, `opponent_view_share`, `opponent_list` | W-05, W-07, W-08, W-134, W-139 | `docs/port/eval/weakness-status/P6-C.md`, `docs/port/eval/weakness-status/GAP-B.md` |
-| P6-D tree and budget | `root_trees`, `visited_set_backup`, `in_tree_filters`, `transpositions`, `subtree_reuse`, `macro_multi_pick`, `prior_worlds` | W-04, W-06, W-11, W-18, W-138, W-140 | `docs/port/eval/weakness-status/P6-D.md` |
-| P6-E root filters and targets | `ex_variants`, `typed_fingerprint`, `prune_worlds`, `branch_all_selects`, `rest_prune_worlds`, `target_rollouts`, `real_idle_line` | W-09, W-10, W-12, W-13, W-14, W-141 | `docs/port/eval/weakness-status/P6-E.md` |
-| P6-F rollout policy | `calibrated_policy`, `modal_lookahead`, `yes_no_lookahead`, `end_phase_actions`, `burst_decline_list`, `order_trigger_scorer`, `exhaustive_polarity`, `exact_fight`, `opponent_knobs`, `kill_aware_targeting` | W-23 to W-31, W-163 | `docs/port/eval/weakness-status/P6-F.md` |
-| P6-G evaluation | `refit_weights`, `phase_weights`, `keyword_features`, `ability_count_features`, `hand_slots`, `burst_shield_probability`, `no_tempo_feature`, `determinized_fit`, `leaf_density` | W-34 to W-37, W-39, W-142 | `docs/port/eval/weakness-status/P6-G.md` |
-| P6-H pre-game | `paired_mulligan` | W-45 | `docs/port/eval/weakness-status/P6-H.md` |
-| P6-O design | `portable_math` | W-137 | `docs/port/eval/weakness-status/P6-O.md` |
-| GAP-A1 | `target_multi_rollouts`, `tree_lethal_select` | W-14, W-17 | `docs/port/eval/weakness-status/GAP-A1.md` |
+| P6-A horizon and leaf | `generalized_leaf`; fixed `horizon_turns` 3 or 4 | W-01, W-02 | `docs/dev/eval/weakness-status/P6-A.md` |
+| P6-B tactical solver | `lethal_root`, `threat_leaf`, `critical_extension`, `effective_blockers`, `solver_can_kill` | W-03, W-16, W-17, W-32, W-38 | `docs/dev/eval/weakness-status/P6-B.md` |
+| P6-C hidden information | `opponent_buckets`, `belief_worlds`, `belief_last_n`, `exact_pools`, `opponent_view_share`, `opponent_list` | W-05, W-07, W-08, W-134, W-139 | `docs/dev/eval/weakness-status/P6-C.md`, `docs/dev/eval/weakness-status/GAP-B.md` |
+| P6-D tree and budget | `root_trees`, `visited_set_backup`, `in_tree_filters`, `transpositions`, `subtree_reuse`, `macro_multi_pick`, `prior_worlds` | W-04, W-06, W-11, W-18, W-138, W-140 | `docs/dev/eval/weakness-status/P6-D.md` |
+| P6-E root filters and targets | `ex_variants`, `typed_fingerprint`, `prune_worlds`, `branch_all_selects`, `rest_prune_worlds`, `target_rollouts`, `real_idle_line` | W-09, W-10, W-12, W-13, W-14, W-141 | `docs/dev/eval/weakness-status/P6-E.md` |
+| P6-F rollout policy | `calibrated_policy`, `modal_lookahead`, `yes_no_lookahead`, `end_phase_actions`, `burst_decline_list`, `order_trigger_scorer`, `exhaustive_polarity`, `exact_fight`, `opponent_knobs`, `kill_aware_targeting` | W-23 to W-31, W-163 | `docs/dev/eval/weakness-status/P6-F.md` |
+| P6-G evaluation | `refit_weights`, `phase_weights`, `keyword_features`, `ability_count_features`, `hand_slots`, `burst_shield_probability`, `no_tempo_feature`, `determinized_fit`, `leaf_density` | W-34 to W-37, W-39, W-142 | `docs/dev/eval/weakness-status/P6-G.md` |
+| P6-H pre-game | `paired_mulligan` | W-45 | `docs/dev/eval/weakness-status/P6-H.md` |
+| P6-O design | `portable_math` | W-137 | `docs/dev/eval/weakness-status/P6-O.md` |
+| GAP-A1 | `target_multi_rollouts`, `tree_lethal_select` | W-14, W-17 | `docs/dev/eval/weakness-status/GAP-A1.md` |
 
 ## How strength is evaluated
 
 **Panel.** Eight decks: the three example decks and the five evaluation decks of
-`examples/decks/eval/` (`examples/decks/eval/PAIRS.md`, `docs/port/eval/panel.json`). Two decks
+`examples/decks/eval/` (`examples/decks/eval/PAIRS.md`, `docs/dev/eval/panel.json`). Two decks
 are held out, `blue-red-tempo` and `green-white-link`, chosen by their copy overlap with every
 tuning and AI test deck. All 28 pairs are played; the 13 pairs containing a held-out deck are
 held-out pairs, never used for tuning, screening or budget curves, and `gcg-eval` refuses them
@@ -300,7 +300,7 @@ under `--role tuning|dev|confirm`. The split was committed before any tuning run
 `crates/gcg-eval/src/contracts.rs`): tuning 10,000,000-19,999,999, dev 20,000,000-29,999,999,
 confirm 30,000,000-30,999,999, eval 90,000,000-90,999,999 and review 91,000,000-91,999,999.
 `gcg-eval --role R` rejects a master outside its range and records every master in
-`docs/port/eval/seed-ledger.json`. Pair `p` plays on `derive_seed(master, "pairing", p)`.
+`docs/dev/eval/seed-ledger.json`. Pair `p` plays on `derive_seed(master, "pairing", p)`.
 
 **Games.** `gcg-eval head-to-head` plays BO1 games in mirrored blocks of four: two deals, each
 played twice with the agents swapped between seats. With `--choose-first seat0` the harness
@@ -323,21 +323,21 @@ against greedy on the AI test decks (289/400, [0.677, 0.764]); the test-deck row
 compare like for like and are not held-out evidence.
 
 Evaluation 1's E1 report came from this run (the ledger entry of master 90200001 in
-`docs/port/eval/seed-ledger.json` records the configuration; the worker count changes no
+`docs/dev/eval/seed-ledger.json` records the configuration; the worker count changes no
 output), and the gates were computed from its six reports:
 
 <!-- doc-check: skip a final-evaluation run: 11,200 games on an eval-role master that appends to the committed seed ledger and rewrites committed evidence -->
 ```bash
 target/release/gcg-eval head-to-head search:standard ref:strong --decks panel --pairs all \
   --games 11200 --seed 90200001 --role eval --choose-first seat0 --workers auto \
-  --out docs/port/eval/final-1/e1-standard-vs-ref-strong.json
+  --out docs/dev/eval/final-1/e1-standard-vs-ref-strong.json
 target/release/gcg-eval gates --check \
-  --e1 docs/port/eval/final-1/e1-standard-vs-ref-strong.json \
-  --e2 docs/port/eval/final-1/e2-fast-vs-ref-standard.json \
-  --e3-tests docs/port/eval/final-1/e3-tests-standard-vs-random.json \
-  --e3-panel docs/port/eval/final-1/e3-panel-standard-vs-random.json \
-  --e4-tests docs/port/eval/final-1/e4-tests-standard-vs-greedy.json \
-  --e4-panel docs/port/eval/final-1/e4-panel-standard-vs-greedy.json
+  --e1 docs/dev/eval/final-1/e1-standard-vs-ref-strong.json \
+  --e2 docs/dev/eval/final-1/e2-fast-vs-ref-standard.json \
+  --e3-tests docs/dev/eval/final-1/e3-tests-standard-vs-random.json \
+  --e3-panel docs/dev/eval/final-1/e3-panel-standard-vs-random.json \
+  --e4-tests docs/dev/eval/final-1/e4-tests-standard-vs-greedy.json \
+  --e4-panel docs/dev/eval/final-1/e4-panel-standard-vs-greedy.json
 ```
 
 ## Measured strength
@@ -346,7 +346,7 @@ target/release/gcg-eval gates --check \
 
 The shipped presets of M15b (binaries built at 8c89b5e), eval-role masters 90300001-90300006
 run once, forced play/draw, `--workers 6`; reports, the documented losses and `gates.json` in
-`docs/port/eval/final-2/` (commands in its `README.md`):
+`docs/dev/eval/final-2/` (commands in its `README.md`):
 
 | Gate | Result | Bar | Strict reading (PLAN A26, also held-out pairs alone) |
 | --- | --- | --- | --- |
@@ -362,10 +362,10 @@ by 1.1, and the losses to random fell from 27 to 14. E4 on the two AI test decks
 0.76 in both evaluations: there the strengthened `standard` beats `greedy` about 4 points more
 often than the reference does (304 against 289 of 400), short of the roughly 8 points a lower
 bound above 0.764 needs at 400 games (about 323/400). The inspection notes of the losses and the misses are in
-`docs/port/eval/notes.md`.
+`docs/dev/eval/notes.md`.
 
 An independent review reran E1-E4 from a clean clone on fresh review-role masters
-(`docs/port/eval/review/`): E1 6393/11200 = 0.5708 [0.5616, 0.5799],
+(`docs/dev/eval/review/`): E1 6393/11200 = 0.5708 [0.5616, 0.5799],
 held-out [0.5528]; E2 6361/11200 = 0.5679 [0.5588, 0.5771]; E3 400/400 and 11181/11200 (the 19
 losses documented with verified replays); E4 on the test decks 305/400 = 0.7625 [0.7184,
 0.8016], on the panel 8759/11200 = 0.7821 [0.7743, 0.7896], held-out [0.7623]. E4 on the AI test
@@ -374,7 +374,7 @@ decks thus fails on all three independent seed sets.
 
 ### Evaluation 1
 
-Copied from `docs/port/eval/final-1/README.md` (shipped presets of commit 82b0b34, binaries
+Copied from `docs/dev/eval/final-1/README.md` (shipped presets of commit 82b0b34, binaries
 built at 34b3107, eval-role masters 90200001-90200006, forced play/draw, 28 panel pairs x 400
 games with 13 held out, and the AI test decks at 400 games). It is an earlier measurement than
 the table above and is kept as a record:
@@ -388,13 +388,13 @@ the table above and is kept as a record:
 | E4 `standard` vs greedy, test decks | 307/400 = 0.7675 [0.7237, 0.8062] | LB > 0.764: fail | fail |
 | E4 `standard` vs greedy, panel | 8655/11200 = 0.7728 [0.7649, 0.7804]; held-out 4011/5200 = 0.7713 [0.7597, 0.7826] | pooled LB > 0.764: pass (by 0.0009) | held-out LB 0.7597: fail |
 
-`gcg-eval gates --check` (`docs/port/eval/final-1/gates.json`) reported overall fail under the
+`gcg-eval gates --check` (`docs/dev/eval/final-1/gates.json`) reported overall fail under the
 plan's strict reading for evaluation 1.
 
 ## Known weaknesses
 
-[`docs/port/WEAKNESSES.md`](port/WEAKNESSES.md) records every item's outcome, and
-`docs/port/eval/weakness-gaps.md` the remaining work of the open ones. For the search:
+[`docs/dev/WEAKNESSES.md`](dev/WEAKNESSES.md) records every item's outcome, and
+`docs/dev/eval/weakness-gaps.md` the remaining work of the open ones. For the search:
 
 - Open: the `fast` preset's fidelity to `standard` (W-18): on held-out seeds it ranks deck
   variants like `standard` (Spearman 0.9, the same best variant) but loses 7.5 points more
@@ -406,7 +406,7 @@ plan's strict reading for evaluation 1.
   transfer to unseen decks (W-36, no refit ships) and the other "resolved by measurement" items
   of the register. Each mechanism that targets them is implemented, scenario-tested and
   measured null or negative at game level.
-- The blinded audit (W-17, `docs/port/eval/final-2/audit/README.md`) still finds about 1.3
+- The blinded audit (W-17, `docs/dev/eval/final-2/audit/README.md`) still finds about 1.3
   clear mistakes per game in the shipped `standard` (2.5 for the reference), mostly passivity
   early in the game; it found no missed lethal in 60 games.
 

@@ -216,9 +216,9 @@ fn steering_roles_cannot_play_held_out_pairs() {
     // A working directory with a pre-registered split that holds out every pair with
     // tuning-wing (two of the three tuning pairs).
     let dir = scratch("held-out");
-    std::fs::create_dir_all(dir.join("docs/port/eval")).expect("dirs");
+    std::fs::create_dir_all(dir.join("docs/dev/eval")).expect("dirs");
     std::fs::write(
-        dir.join("docs/port/eval/panel.json"),
+        dir.join("docs/dev/eval/panel.json"),
         "{\"held_out\": [\"tuning-wing\"]}\n",
     )
     .expect("panel");

@@ -1,7 +1,6 @@
-"""Throughput of a Rust agent, measured outside the crates (docs/port/WEAKNESSES.md W-126).
+"""Throughput of a Rust agent, measured outside the crates (docs/dev/WEAKNESSES.md W-126).
 
-The only timing in the project lives outside the Rust crates (docs/port/BRIEF.md
-<performance_comparison>); this script is the throughput counterpart of
+The only timing in the project lives outside the Rust crates; this script is the throughput counterpart of
 ``scripts/compare_python_vs_rust.sh``. It times ``gcg-eval head-to-head`` (a release build) on
 several deck pairings, in whole mirrored blocks of four games, and repeats every run. Per run it
 records the wall time, the CPU time of the run from the OS (``getrusage`` of the child: user
@@ -12,8 +11,8 @@ per wall second and per CPU second.
 
 ``--games`` is the number of games per pairing; a value that is not a multiple of 4 is rounded up
 to whole blocks, with a message. Unlike the Python tool (``ai/throughput.py``) it never counts
-wall time times workers as busy core time. The machine is assumed to run at full performance
-(docs/port/BRIEF.md <target_hardware>), so no power state is read or reported.
+wall time times workers as busy core time. The machine is assumed to run at full performance,
+so no power state is read or reported.
 
 ``--agree FIRST.json SECOND.json`` is the reproducibility check of W-126: two reports of the same
 command (two sessions on an idle machine) must agree within ``--tolerance`` (default 3%) on the

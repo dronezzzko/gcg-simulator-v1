@@ -1,5 +1,5 @@
 //! T-066: the tactical puzzles of `tests/ai/test_puzzles.py` (18 tests x 2 seeds),
-//! `test_puzzles_shipped.py` (12 cases) and `test_puzzles_targets.py` (4), ported on the Rust
+//! `test_puzzles_shipped.py` (12 cases) and `test_puzzles_targets.py` (4), reproduced on the Rust
 //! testkit at the reference presets. Every agent decision is compared with Python's full
 //! decision record (`aiport::Recorder`): state digest, action, per-decision seed and generator,
 //! every alternative bit for bit, the search statistics and the log entries. The assertions of

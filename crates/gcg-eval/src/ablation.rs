@@ -1,4 +1,4 @@
-//! `gcg-eval ablation` and `gcg-eval budget-curve` (docs/port/PLAN.md §12.4, §12.8; W-42).
+//! `gcg-eval ablation` and `gcg-eval budget-curve` (docs/dev/PLAN.md §12.4, §12.8; W-42).
 //!
 //! **Ablation rows** (§12.4). A mechanism is a list of configuration overrides
 //! (`field=value,...`), the agent-spec override grammar of [`crate::agent_spec`]:

@@ -5,7 +5,7 @@ its recorded outcome), then re-played from its seed and actions; every decision 
 one option is printed with the full board (both hands; the non-decider's is marked hidden from
 the decider), all legal options and the move played. Search statistics, agent names, agent
 seeds, decision logs and versions are left out, and files are named by a hash of the game
-alone (seed, chooser, caps, both decklists and the actions; docs/port/WEAKNESSES.md W-119), so
+alone (seed, chooser, caps, both decklists and the actions; docs/dev/WEAKNESSES.md W-119), so
 auditors cannot tell which AI played and the same game gets the same id wherever its replay
 file lives. The key mapping ids to source files is written separately; a game saved twice
 lists both files.

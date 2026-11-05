@@ -19,7 +19,7 @@
 //! `EXRP`) are skipped and listed.
 //!
 //! `products.json` is not a file the Python runtime reads, so gcg-data does not embed it
-//! (docs/port/PLAN.md §2.4): the caller passes its text to [`ReleaseDates::from_json`]
+//! (docs/dev/PLAN.md §2.4): the caller passes its text to [`ReleaseDates::from_json`]
 //! (`gcg-eval validate` embeds it).
 
 use serde_json::Value;

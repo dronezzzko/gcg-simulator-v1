@@ -1,5 +1,5 @@
 //! Build script of `gcg-cli`: the code digest of `build-support/digest-manifest.txt`
-//! (docs/port/PLAN.md §2.4, X19, W-103), exposed as `env!("GCG_CODE_DIGEST")`.
+//! (docs/dev/PLAN.md §2.4, X19, W-103), exposed as `env!("GCG_CODE_DIGEST")`.
 
 use std::path::PathBuf;
 

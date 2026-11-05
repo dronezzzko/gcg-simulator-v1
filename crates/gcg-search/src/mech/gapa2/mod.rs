@@ -1,4 +1,4 @@
-//! GAP-A2's tests of W-137 (docs/port/eval/weakness-status/GAP-A2.md): `portable_math` reaches
+//! GAP-A2's tests of W-137 (docs/dev/eval/weakness-status/GAP-A2.md): `portable_math` reaches
 //! every float path of the strengthened search, the shared `gcg-ai` functions it calls
 //! included (the no-effect check's evaluation, the play/draw simulations' Gumbel draws and
 //! paired variance, the rollout policy's Gumbel draws), while every reference path keeps the

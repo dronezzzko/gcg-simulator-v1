@@ -1,5 +1,5 @@
-//! P6-K scans of the exported effect IR (docs/port/PLAN.md §12.2 P6-K;
-//! docs/port/eval/weakness-status/P6-K.md).
+//! P6-K scans of the exported effect IR (docs/dev/PLAN.md §12.2 P6-K;
+//! docs/dev/eval/weakness-status/P6-K.md).
 //!
 //! The scans read `crates/gcg-effects/ir/registry.json` (the Python registry, exported) as
 //! plain JSON: nodes are `{"_": Class, field: value}`, a nested node is `{"$": NodeId}`. Each
@@ -403,7 +403,7 @@ fn pilot_rows(ir: &Ir) -> Vec<String> {
 #[test]
 fn w59_pilot_routing_table_regenerates_from_the_ir() {
     let ir = Ir::load();
-    let file = read("docs/port/audit/pilot-routing.md");
+    let file = read("docs/dev/audit/pilot-routing.md");
     let table: Vec<&str> = file
         .lines()
         .skip_while(|l| !l.starts_with("| card |"))
@@ -755,7 +755,7 @@ fn keyword_program(kp: KeywordProgram) -> Kw {
 
 #[test]
 fn w65_python_vocabularies_derive_from_the_rust_enums() {
-    let v = json("port/oracle/tests/vectors/p6k_vocabulary.json");
+    let v = json("oracle/tests/vectors/p6k_vocabulary.json");
     let kw: Vec<&str> = Kw::ALL.iter().map(|k| k.as_str()).collect();
     for (name, list) in v["keywords"].as_object().expect("keywords") {
         let list: Vec<&str> = arr(list).iter().filter_map(Value::as_str).collect();
@@ -800,7 +800,7 @@ fn w65_python_vocabularies_derive_from_the_rust_enums() {
 
 /// A scan hit that was reviewed: the card, the family and the tests that pin its behaviour
 /// (a tagged Rust testkit test in `crates/gcg-engine/tests/p6k_behaviour.rs` and a Python test
-/// in `port/oracle/tests/test_p6k_miscompile.py`).
+/// in `oracle/tests/test_p6k_miscompile.py`).
 const REVIEWED_HITS: [(&str, &str, &str); 5] = [
     (
         "GD01-103",
@@ -975,7 +975,7 @@ fn w66_miscompile_scan_lists_zero_unreviewed_hits() {
             engine_tests.contains(&format!("fn {test}(")),
             "{number}: Rust test {test}"
         );
-        let python = read("port/oracle/tests/test_p6k_miscompile.py");
+        let python = read("oracle/tests/test_p6k_miscompile.py");
         assert!(python.contains(number), "{number}: Python test");
     }
 }

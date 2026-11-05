@@ -15,7 +15,7 @@ use crate::{PRESETS, ReferenceAgent, ReferenceConfig, reference_preset};
 pub const AGENT_KINDS: [&str; 3] = ["random", "greedy", "mcts"];
 
 impl ReferenceAgent {
-    /// `MctsAgent.choose` (`ai/agents.py:85-98`), dispatching as Inv 07 §1.3: a single option
+    /// `MctsAgent.choose` (`ai/agents.py:85-98`), dispatching: a single option
     /// (no draw), REDRAW (`mulligan_choice`), CHOOSE_FIRST (`first_player_choice`), otherwise
     /// `search`. Both `Agent` methods run this one function, so their choices, draws and log
     /// entries are the same.

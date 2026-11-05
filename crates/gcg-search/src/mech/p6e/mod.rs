@@ -1,4 +1,4 @@
-//! P6-E's mechanisms (docs/port/PLAN.md §12.2, §12.3 S6): root filters and targets.
+//! P6-E's mechanisms (docs/dev/PLAN.md §12.2, §12.3 S6): root filters and targets.
 //!
 //! | Flag | Item | Module |
 //! | --- | --- | --- |

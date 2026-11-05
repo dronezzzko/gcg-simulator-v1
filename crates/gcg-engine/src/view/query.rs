@@ -124,7 +124,7 @@ pub fn keywords(dv: &Derived, uid: Uid) -> KwAmounts {
 }
 
 /// `has_kw(dv, uid, kw)` (`engine/view.py:552-553`): the key is present (a stacking keyword
-/// granted 0 counts, Inv 05 §7 hazard 16).
+/// granted 0 counts).
 #[must_use]
 pub fn has_kw(dv: &Derived, uid: Uid, kw: Kw) -> bool {
     dv.kw_get(uid).is_some_and(|k| k.get(kw).is_some())
@@ -244,7 +244,7 @@ pub fn names_of<'a>(reg: &'a Registry, cd: &'a CardDef) -> Names<'a> {
 #[must_use]
 #[allow(
     dead_code,
-    reason = "an L2 boundary name that layers L3-L5 call (docs/port/contracts.md); they land after L2"
+    reason = "an L2 boundary name that layers L3-L5 call (docs/dev/contracts.md); they land after L2"
 )]
 pub(crate) fn zone_loc_code(z: Zone) -> i32 {
     let loc = match z {

@@ -1,5 +1,5 @@
 //! Match sequencing: best-of-three (official BO3 Match Rules) or single games
-//! (`runner/match.py`; docs/port/inventory/01-rng-runner-cli.md §2.5). The module is not
+//! (`runner/match.py`). The module is not
 //! called `match`, which is a Rust keyword.
 
 use gcg_ai::AgentCx;
@@ -175,7 +175,7 @@ mod tests {
 
     #[test]
     fn a_bo3_win_and_two_draws_wins_the_match_one_nil() {
-        // Inv 01 §2.5: BO3 can end with fewer than 2 points after 3 games.
+        // BO3 can end with fewer than 2 points after 3 games.
         let limit = (Outcome::Draw, None, EndReason::TurnLimit);
         let (record, _) = scripted(&config(), 2, &[DUT, limit, limit]);
         assert_eq!(record.games.len(), 3);

@@ -12,7 +12,7 @@ use crate::manifest::Repo;
 use crate::read_trace;
 use crate::{Record, TraceKind};
 
-/// The census game sets (`port/oracle/census.py` `GAME_SETS`).
+/// The census game sets (`oracle/census.py` `GAME_SETS`).
 pub const GAME_SETS: [&str; 7] = [
     "full",
     "vanilla",

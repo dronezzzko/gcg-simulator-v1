@@ -1,4 +1,4 @@
-//! The `gcg-sim` agent factory (workstream E, docs/port/contracts.md gcg-cli section) is an
+//! The `gcg-sim` agent factory (workstream E, docs/dev/contracts.md gcg-cli section) is an
 //! `impl gcg_runner::AgentFactory`, and `make` names `gcg_ai::{Agent, AgentError}`. This test
 //! does not compile unless `gcg-cli` depends on `gcg-ai` directly: `gcg-runner` and
 //! `gcg-search` import those types privately (PLAN §2.2).

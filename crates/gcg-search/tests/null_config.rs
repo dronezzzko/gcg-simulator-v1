@@ -44,7 +44,7 @@ fn null_configurations_copy_every_reference_field() {
     assert_eq!(baseline.weights, TUNED_WEIGHTS);
     // The shipped presets: standard is reference strong and fast is reference standard,
     // renamed (PLAN §6.4), with the M15 budgets and mechanisms (PLAN §12.8,
-    // docs/port/eval/M15/README.md); every other setting is the mapped reference preset's.
+    // docs/dev/eval/M15/README.md); every other setting is the mapped reference preset's.
     let shipped = |c: &gcg_search::StrengthenedConfig,
                    name: &'static str,
                    (ipo, min, max): (u32, u32, u32)| {

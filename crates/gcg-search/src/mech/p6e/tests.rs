@@ -474,7 +474,7 @@ fn a_forced_cap_hit_keeps_the_move() {
         .expect("judged")
         .0
     };
-    // At the full cap the move is without effect, in the reference and in the port.
+    // At the full cap the move is without effect, in Python and in Rust.
     let reference = without_effect(
         &st,
         0,

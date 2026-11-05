@@ -1,4 +1,4 @@
-//! EX-payment variants at the root (`ex_variants`, W-09; docs/port/PLAN.md §12.3 S6).
+//! EX-payment variants at the root (`ex_variants`, W-09; docs/dev/PLAN.md §12.3 S6).
 //!
 //! The reference's `action_key` keeps only the play variant (`c // ALT_PLAY_BASE`) and
 //! `canonical` keeps the fewest-EX action of a key (`ai/actions.py:57-85`), so a play that

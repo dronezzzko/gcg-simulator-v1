@@ -175,7 +175,7 @@ fn check_file(
         if t.header.generator.ir_sha256 != ir {
             return Err(format!(
                 "{rel}:{start}: trace {} was generated against IR {} but the committed IR is {ir}: \
-                 regenerate the corpus (uv run python port/oracle/traces.py --write --tier {})",
+                 regenerate the corpus (uv run python oracle/traces.py --write --tier {})",
                 t.header.id, t.header.generator.ir_sha256, args.tier
             ));
         }

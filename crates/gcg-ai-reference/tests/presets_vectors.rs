@@ -1,5 +1,5 @@
 //! Every field of every reference configuration equals the dump of the live Python objects
-//! (`presets.json`, `port/oracle/export_ai_vectors.py`; PLAN §6.4: "a test compares every field
+//! (`presets.json`, `oracle/export_ai_vectors.py`; PLAN §6.4: "a test compares every field
 //! of every preset with export_ai_vectors.py's dump"), and the factory's errors and agent names
 //! are Python's (`ai/agents.py:104-127`).
 

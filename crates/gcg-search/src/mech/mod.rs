@@ -1,4 +1,4 @@
-//! The extension points of the strengthened search (docs/port/PLAN.md §12.3): the core loop
+//! The extension points of the strengthened search (docs/dev/PLAN.md §12.3): the core loop
 //! (`mcts.rs`) calls a [`Mechanisms`] implementation at every point a Phase 6 mechanism can
 //! change, and every method's default is the reference behaviour (`reference.rs`, a line-by-line
 //! split of the reference search, `ai/mcts.py:82-339`, `ai/agents.py:85-98`).

@@ -1,6 +1,6 @@
-//! Native port of `tests/deck` (T-078): `test_examples.py`, `test_parse.py` and
+//! Native Rust version of `tests/deck` (T-078): `test_examples.py`, `test_parse.py` and
 //! `test_validate.py`, with Python's inputs and assertions, over `gcg-data`'s parser and
-//! validator, the effect registry and the engine. Two tests are not ported here because they
+//! validator, the effect registry and the engine. Two tests are not reproduced here because they
 //! replace module globals (`monkeypatch` of `official.banlist`); their exported Python results
 //! are compared by `gcg-data` (`src/validate.rs::attribute_notes_equal_python`), as the
 //! register `tests/python_suites.json` records.

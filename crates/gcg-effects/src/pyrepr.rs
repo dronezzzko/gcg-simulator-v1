@@ -1,11 +1,11 @@
-//! CPython `repr` of a `str` and the content id of a `repr` text (docs/port/PLAN.md §5.7;
-//! open item O2 of docs/port/contracts.md).
+//! CPython `repr` of a `str` and the content id of a `repr` text (docs/dev/PLAN.md §5.7;
+//! open item O2 of docs/dev/contracts.md).
 //!
 //! `gcg_core::pyrepr::repr_str` accepts ASCII only. The effect IR also holds printable
 //! non-ASCII text (`Ⅱ`, `①`, ...), which CPython's `unicode_repr` copies unchanged. Whether a
 //! non-ASCII character is printable depends on the Unicode database, so the IR loader admits
 //! only the characters of the IR's `printable_non_ascii` table (each checked with
-//! `str.isprintable()` by `port/oracle/export_ir.py`); every string that reaches this printer
+//! `str.isprintable()` by `oracle/export_ir.py`); every string that reaches this printer
 //! has passed that check.
 
 use std::fmt::Write as _;
@@ -97,7 +97,7 @@ mod tests {
 
     #[test]
     fn content_ids_are_the_first_16_hex_digits() {
-        // repr of keyword:Repair (docs/port/inventory/04-effects-ir.md §10.4 item 5).
+        // repr of keyword:Repair.
         let text = "Program(instrs=(Recover(ref=This(), amount=KwAmount(keyword=<Kw.REPAIR: \
                     'Repair'>, ref=This())),), label='keyword:Repair')";
         assert_eq!(content_id_of(text).as_str(), "b3df0ca881a27647");

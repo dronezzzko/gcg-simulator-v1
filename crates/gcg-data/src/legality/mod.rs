@@ -1,4 +1,4 @@
-//! The extended legality check behind `gcg-eval validate` (docs/port/PLAN.md §12.2 P6-L, A30;
+//! The extended legality check behind `gcg-eval validate` (docs/dev/PLAN.md §12.2 P6-L, A30;
 //! W-71 to W-78). It runs the same checks as [`crate::validate`], in the same order and with the
 //! same messages, and adds what `validate_deck` cannot do:
 //!

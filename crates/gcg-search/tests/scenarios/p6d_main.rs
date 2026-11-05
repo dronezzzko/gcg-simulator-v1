@@ -1,4 +1,4 @@
-//! P6-D's tests of the tree and budget mechanisms (docs/port/PLAN.md §12.2, §12.3 S1, S4, S7,
+//! P6-D's tests of the tree and budget mechanisms (docs/dev/PLAN.md §12.2, §12.3 S1, S4, S7,
 //! S8, S12; W-04, W-06, W-11, W-18, W-138, W-140). Every search runs on the observation of the
 //! deciding player, as the agent does (W-135).
 

@@ -1,5 +1,5 @@
 //! The report helpers against Python vectors (`stats.json`, exported by
-//! `port/oracle/export_records.py`): Wilson intervals, the z-test p-values and Holm, bit for
+//! `oracle/export_records.py`): Wilson intervals, the z-test p-values and Holm, bit for
 //! bit; distributions; `shlex.quote`; the stale-replay regex with Python's Unicode `\d`; the
 //! schema `pattern`s (`re.search`); the `date` format; the schema keyword list; and the
 //! jsonschema verdict on mutated `results.json` documents (one violation per keyword).

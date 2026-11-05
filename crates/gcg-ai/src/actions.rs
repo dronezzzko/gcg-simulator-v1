@@ -95,7 +95,7 @@ pub fn action_key(st: &GameState, dec: &DecisionView<'_>, a: Action) -> MoveKey 
         };
     }
     if PAID_KINDS.contains(&k) {
-        // `c // ALT_PLAY_BASE` only runs on `c >= 0` (Inv 07 §16 item 19).
+        // `c // ALT_PLAY_BASE` only runs on `c >= 0`.
         let variant = if a.c >= 0 {
             a.c / ALT_PLAY_BASE
         } else {

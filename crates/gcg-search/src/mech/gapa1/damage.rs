@@ -1,5 +1,5 @@
 //! W-26: the policy-level regret per Damage decision (the "policy-level" half of W-26's
-//! verification; the search level is `gcg-eval regret`, docs/port/eval/P6-F/rows/regret-*.json).
+//! verification; the search level is `gcg-eval regret`, docs/dev/eval/P6-F/rows/regret-*.json).
 //!
 //! A *Damage decision* is the decision `kill_aware_targeting` changes: a SELECT outside a mode
 //! choice and outside a Rest substitution whose target polarity is harmful

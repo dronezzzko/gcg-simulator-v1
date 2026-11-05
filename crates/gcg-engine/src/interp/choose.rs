@@ -1,6 +1,6 @@
 //! Choosing (`interp.py:229-470`): target legality (`targets_available`, `choice_short`,
 //! `choice_group`), the `Choose` handler and resumer, and their candidate lists, bounds and
-//! decision options (Inv 06a §13.2-§13.3).
+//! decision options.
 
 use gcg_effects::{Choose, Loc, Node, NodeId, ProgramId, Registry, RuleKind, Side};
 
@@ -21,7 +21,7 @@ use crate::{
 /// Any error of the view, a condition or a value.
 #[allow(
     dead_code,
-    reason = "called by layer L5 (game, testkit) and C's tests (docs/port/contracts.md); they land after L4"
+    reason = "called by layer L5 (game, testkit) and C's tests (docs/dev/contracts.md); they land after L4"
 )]
 pub(crate) fn targets_available(
     st: &GameState,
@@ -125,7 +125,7 @@ fn is_target_choice(reg: &Registry, ins: &Choose) -> Result<bool, EngineError> {
 
 /// `choice_short(st, ctx, ins, exclude=frozenset())` (`interp.py:371-388`): a mandatory
 /// targeted choice of N needs N choosable cards (rule 10-2-2; ruling GD01-003:Q121). Every
-/// caller passes the default `exclude`, so the parameter is not ported. `distinct_from` is not
+/// caller passes the default `exclude`, so the parameter is not reproduced. `distinct_from` is not
 /// applied.
 fn choice_short(
     st: &GameState,
@@ -316,7 +316,7 @@ fn choose_decision(
 /// `_h_choose` (`interp.py:407-441`). A group with a short mandatory target choice binds every
 /// var of the group to `()`, clears `did` and skips the group. Otherwise: no count or no
 /// candidates finish empty; a random choice draws `randrange(len(pool))` `min(n, len(pool))`
-/// times **before** the take-all shortcut (Inv 06a hazard 2); taking every candidate needs no
+/// times **before** the take-all shortcut; taking every candidate needs no
 /// decision; else a SELECT decision.
 pub(super) fn h_choose(
     st: &mut GameState,

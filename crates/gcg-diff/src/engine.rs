@@ -1,5 +1,5 @@
 //! `RealEngine`: the [`EngineUnderTest`] over `gcg-engine`'s public API (PLAN §8.7, §10.3.7;
-//! docs/port/contracts.md, gcg-diff section "The real engine implements them with").
+//! docs/dev/contracts.md, gcg-diff section "The real engine implements them with").
 //!
 //! - `new_game`: `gcg_engine::new_game_by_number` on the trace's card-number strings
 //!   (`engine/game.py:107-158`), on the current registry;
@@ -12,7 +12,7 @@
 //! - `probe` and `call`: the name dispatcher of [`crate::dispatch`].
 //!
 //! Errors carry Python's exception class (`type(exc).__name__`) and message, as the trace
-//! records them (`port/oracle/pytest_trace.py` `_error`).
+//! records them (`oracle/pytest_trace.py` `_error`).
 
 use std::cell::RefCell;
 use std::sync::Arc;
@@ -198,10 +198,10 @@ pub fn view_key(v: &Value) -> Result<ViewKey, String> {
 /// `paranoid.view_signature` probe, and the sha16 of a `view.derived` result).
 #[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)]
 pub enum SigForm {
-    /// `port/oracle/traces.py` `view_signature_json` (game, search and `views` traces): the
+    /// `oracle/traces.py` `view_signature_json` (game, search and `views` traces): the
     /// form `gcg_engine::view::signature` returns.
     Views,
-    /// `port/oracle/pytest_trace.py` `view_sig` (per-test traces).
+    /// `oracle/pytest_trace.py` `view_sig` (per-test traces).
     Tests,
 }
 

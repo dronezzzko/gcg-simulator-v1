@@ -1,4 +1,4 @@
-//! The fuzz port (PLAN §9.4; T-055, T-056, W-110) on runs small enough for every `cargo test`:
+//! The Rust fuzz runner (PLAN §9.4; T-055, T-056, W-110) on runs small enough for every `cargo test`:
 //! `test_small_fuzz_smoke` (`tests/slow/test_robustness.py:27-29`: 40 games at seed 5) checked
 //! against the outcomes Python recorded for those games, the first games of the seed-2026 run
 //! against Python's per-game rows, the commit-derived seed against Python's `derive_seed`,
@@ -15,7 +15,7 @@ use gcg_diff::{Record, read_trace};
 fn tier1_fuzz() -> PathBuf {
     PathBuf::from(concat!(
         env!("CARGO_MANIFEST_DIR"),
-        "/../../port/corpus/v1/tier1/fuzz"
+        "/../../oracle/corpus/v1/tier1/fuzz"
     ))
 }
 

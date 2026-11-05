@@ -1,4 +1,4 @@
-//! Shared foundations of the Rust gcg-sim port: the seeded RNG chain and the
+//! Shared foundations of gcg-sim: the seeded RNG chain and the
 //! Python-compatible formatting that keeps outputs byte-identical to the reference.
 
 pub mod libm;

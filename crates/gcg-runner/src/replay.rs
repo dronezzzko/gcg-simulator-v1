@@ -1,11 +1,10 @@
 //! Self-contained replay files: re-simulating a game for its readable log, building the replay
-//! document, and checking a document against its recorded outcome (`runner/replayfile.py`;
-//! docs/port/inventory/01-rng-runner-cli.md §2.10).
+//! document, and checking a document against its recorded outcome (`runner/replayfile.py`).
 //!
 //! `check_replay` reads a `json.loads` document, so it reproduces the Python operations it
 //! applies to the values (`int()`, `d[key]`, `list()`, `sorted(key=...)`, `==`, `repr`) and the
 //! order in which they run: a malformed document fails with the exception Python raises first
-//! (Inv 01 hazards 34-39). Where Python's text is CPython's own exception text, the class and
+//!. Where Python's text is CPython's own exception text, the class and
 //! the message are CPython's for the cases below; values outside the Rust types (a seed outside
 //! `[0, 2**64)`, a chooser that is not a seat, an action argument outside `i32`) are reported
 //! as `ValueError`s that Python would not raise (it would replay them, PLAN A19).
@@ -47,7 +46,7 @@ fn label(st: &GameState, uid: i32) -> String {
 }
 
 /// `_describe_choice(st, dec, a)` (`runner/replayfile.py:37-42`); `'bottom' if a.a else
-/// 'top'` is Python truthiness (Inv 01 hazard 32).
+/// 'top'` is Python truthiness.
 fn describe_choice(st: &GameState, dec: &DecisionView<'_>, a: Action) -> String {
     let kind = dec.hdr.kind;
     if kind == DecisionKind::Arrange && a.b != gcg_engine::NO_ARG {
@@ -122,7 +121,7 @@ pub(crate) fn new_game_replay_error(e: NewGameError) -> ReplayError {
 
 /// The loop of `replay_with_log` (`runner/replayfile.py:88-101`) after `new_game`:
 /// `next_action(index)` reads the next recorded action (`Action.from_json(list(raw))`), which
-/// runs before the "more actions" check (Inv 01 hazard 35).
+/// runs before the "more actions" check.
 fn replay_actions(
     st: &mut GameState,
     count: usize,
@@ -503,7 +502,7 @@ pub fn check_replay(doc: &Value) -> Result<ReplayCheck, ReplayError> {
     let first = decklist(seat(0)?)?;
     let decks = [first, decklist(seat(1)?)?];
     // replay_with_log(decks, int(doc["seed"]), chooser, doc["actions"], turn_limit=..., ...):
-    // the arguments are evaluated left to right (Inv 01 hazard 38). The range checks of the
+    // the arguments are evaluated left to right. The range checks of the
     // Rust types come after every Python operation.
     let seed = py_int(getitem(doc, "seed")?)?;
     let chooser = match getitem(doc, "chooser")? {
@@ -615,7 +614,7 @@ mod tests {
 
     #[test]
     fn other_formats_and_versions_are_not_replays() {
-        // runner/replayfile.py:166-167; True == 1 == 1.0 in Python (Inv 01 hazard 36).
+        // runner/replayfile.py:166-167; True == 1 == 1.0 in Python.
         let mut d = doc();
         d["format"] = json!("other");
         assert_eq!(err(&d), "not a gcg-sim-replay v1 document");

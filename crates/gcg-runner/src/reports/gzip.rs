@@ -1,6 +1,6 @@
 //! An in-house gzip writer (RFC 1952 around RFC 1951 DEFLATE with the fixed Huffman codes) in
 //! safe Rust, for `gcg-eval benchmark --compress` in builds without the `zstd` encoder (W-99,
-//! docs/port/PLAN.md §12.2 P6-M). `gzip -dc` gives back the input bytes exactly.
+//! docs/dev/PLAN.md §12.2 P6-M). `gzip -dc` gives back the input bytes exactly.
 //!
 //! Matching is LZ77 over a 32 KiB window with hash chains on 3-byte prefixes, a bounded chain
 //! walk and lazy evaluation off: a deterministic function of the input, so the same report

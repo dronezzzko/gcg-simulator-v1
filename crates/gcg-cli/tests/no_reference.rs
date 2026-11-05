@@ -1,4 +1,4 @@
-//! The reachability rule of docs/port/PLAN.md §2.2 (T-022, §6.5 item 2): the dependency
+//! The reachability rule of docs/dev/PLAN.md §2.2 (T-022, §6.5 item 2): the dependency
 //! closure of `gcg-cli` (the `gcg-sim` binary) never contains `gcg-ai-reference` or
 //! `gcg-diff`.
 //!

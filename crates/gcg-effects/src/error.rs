@@ -21,12 +21,12 @@ impl fmt::Display for IrError {
                 f,
                 "the effect IR schema differs from this build's DSL types ({detail}); \
                  regenerate the IR with `{IR_REGENERATE_COMMAND}` and the types with \
-                 `uv run python port/oracle/gen_dsl.py --write`"
+                 `uv run python oracle/gen_dsl.py --write`"
             ),
             Self::UnknownClass { class, card_number } => write!(
                 f,
                 "unknown DSL class {class:?}{}; regenerate the DSL types with \
-                 `uv run python port/oracle/gen_dsl.py --write`",
+                 `uv run python oracle/gen_dsl.py --write`",
                 card(card_number.as_ref())
             ),
             Self::UnknownHook {

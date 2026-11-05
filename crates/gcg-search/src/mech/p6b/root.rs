@@ -1,4 +1,4 @@
-//! `lethal_root` (docs/port/PLAN.md §12.3 S3; W-17, W-03): the tactical solver at the root, on
+//! `lethal_root` (docs/dev/PLAN.md §12.3 S3; W-17, W-03): the tactical solver at the root, on
 //! the first K worlds the search's own iterations use (`p6e::worlds::Worlds`, built through the
 //! composed `Mechanisms::world`).
 //!

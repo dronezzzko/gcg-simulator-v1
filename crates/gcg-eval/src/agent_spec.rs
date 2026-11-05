@@ -1,4 +1,4 @@
-//! Agent specs (docs/port/PLAN.md §10.4 F): Python's `parse_agent` grammar for `compare`
+//! Agent specs (docs/dev/PLAN.md §10.4 F): Python's `parse_agent` grammar for `compare`
 //! (`ai/compare.py:79-113`, exact, with its `ValueError` texts), the head-to-head grammar that
 //! adds `ref:` and `search:` (`ref:<preset>`, `ref:baseline-<preset>`, `search:<preset>`,
 //! `search:FILE.json`, each with `:field=value,...` overrides), and the agent a spec builds
@@ -6,8 +6,8 @@
 //!
 //! Overrides convert their values with Python's `int`, `float`, `str` and `_flag`
 //! ([`crate::pyconv`]). The Rust configurations hold counts as `u32` and `horizon_turns` as
-//! `i32` (docs/port/contracts.md, gcg-ai-reference), so a value outside those ranges, which
-//! Python accepts and then fails or loops on, is rejected here with a message of this port's
+//! `i32` (docs/dev/contracts.md, gcg-ai-reference), so a value outside those ranges, which
+//! Python accepts and then fails or loops on, is rejected here with a message of gcg-eval's
 //! own. Every other text is Python's.
 
 use std::borrow::Cow;
@@ -81,7 +81,7 @@ fn set_u32(slot: &mut u32, field: &str, value: &str) -> Result<(), String> {
         .and_then(|x| u32::try_from(x).ok())
         .ok_or_else(|| {
             format!(
-                "{field} must be in [0, {}] in this port, got {}",
+                "{field} must be in [0, {}], got {}",
                 u32::MAX,
                 v.to_decimal()
             )
@@ -94,7 +94,7 @@ fn set_i32(slot: &mut i32, field: &str, value: &str) -> Result<(), String> {
     let fits = v.to_decimal().parse::<i32>().ok();
     *slot = fits.ok_or_else(|| {
         format!(
-            "{field} must be in [{}, {}] in this port, got {}",
+            "{field} must be in [{}, {}], got {}",
             i32::MIN,
             i32::MAX,
             v.to_decimal()
@@ -239,7 +239,7 @@ pub fn set_search_field_generic(
             d.parse::<i64>()
                 .map(Value::from)
                 .or_else(|_| d.parse::<u64>().map(Value::from))
-                .map_err(|_| format!("{field} must be a 64-bit integer in this port, got {d}"))?
+                .map_err(|_| format!("{field} must be a 64-bit integer, got {d}"))?
         }
         Value::String(_) => Value::String(value.to_owned()),
         _ => return Err(format!("{field} cannot be set from the command line")),
@@ -583,13 +583,13 @@ mod tests {
         ));
         assert_eq!(
             parse_agent("standard:max_iterations=-1").err().as_deref(),
-            Some("max_iterations must be in [0, 4294967295] in this port, got -1")
+            Some("max_iterations must be in [0, 4294967295], got -1")
         );
         assert_eq!(
             parse_agent("standard:horizon_turns=2147483648")
                 .err()
                 .as_deref(),
-            Some("horizon_turns must be in [-2147483648, 2147483647] in this port, got 2147483648")
+            Some("horizon_turns must be in [-2147483648, 2147483647], got 2147483648")
         );
     }
 

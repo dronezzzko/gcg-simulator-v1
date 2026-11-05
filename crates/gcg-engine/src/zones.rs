@@ -1,4 +1,4 @@
-//! `zones[p][z]` (`engine/state.py:479`) as one arena (docs/port/PLAN.md §4.3): list
+//! `zones[p][z]` (`engine/state.py:479`) as one arena (docs/dev/PLAN.md §4.3): list
 //! `i = 12 * p + z` is `items[offs[i]..offs[i + 1]]`, so `clone_from` copies one `Vec` and one
 //! offset array. Every edit is one `memmove` inside `items` plus an offset update; the order of
 //! every list is Python's (`list.insert(0, u)`, `list.append`, `list.remove` of the first
@@ -43,7 +43,7 @@ impl ZoneLists {
     /// length cannot change through it.
     #[allow(
         dead_code,
-        reason = "called by layers L3-L5 (docs/port/contracts.md); they land after L1"
+        reason = "called by layers L3-L5 (docs/dev/contracts.md); they land after L1"
     )]
     pub(crate) fn get_mut(&mut self, p: u8, z: Zone) -> &mut [Uid] {
         let (a, b) = self.bounds(Self::list(p, z));
@@ -77,7 +77,7 @@ impl ZoneLists {
     /// [`EngineError::Overflow`] past `u16::MAX` uids in all lists together.
     #[allow(
         dead_code,
-        reason = "called by layers L3-L5 (docs/port/contracts.md); they land after L1"
+        reason = "called by layers L3-L5 (docs/dev/contracts.md); they land after L1"
     )]
     pub(crate) fn insert(
         &mut self,
@@ -99,7 +99,7 @@ impl ZoneLists {
     /// [`EngineError::Overflow`] past `u16::MAX` uids in all lists together.
     #[allow(
         dead_code,
-        reason = "called by layers L3-L5 (docs/port/contracts.md); they land after L1"
+        reason = "called by layers L3-L5 (docs/dev/contracts.md); they land after L1"
     )]
     pub(crate) fn push(&mut self, p: u8, z: Zone, uid: Uid) -> Result<(), EngineError> {
         let i = Self::list(p, z);

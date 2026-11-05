@@ -1,4 +1,4 @@
-//! P6-B's leaf values (docs/port/PLAN.md §12.3 S3): `threat_leaf` (W-03) and the evaluation
+//! P6-B's leaf values (docs/dev/PLAN.md §12.3 S3): `threat_leaf` (W-03) and the evaluation
 //! features of `effective_blockers` (W-32) and `solver_can_kill` (W-38).
 //!
 //! `threat_leaf`: the leaf of a line is the first decision of the horizon turn, normally the

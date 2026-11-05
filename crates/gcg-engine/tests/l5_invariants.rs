@@ -1,4 +1,4 @@
-//! Layer 5, invariants (`engine/invariants.py`; Inv 06b §17): `check` against the initial
+//! Layer 5, invariants (`engine/invariants.py`): `check` against the initial
 //! multiset of each state's game gives Python's result on every Python snapshot whose check
 //! needs no derived view (setup states, states with frames, finished games), including states
 //! broken on purpose in each invariant family (damage, zone lists, pairing, the card multiset,

@@ -50,12 +50,12 @@ keep each run's `--out` directory (e.g. `runs/<dut>-vs-<benchmark>-<preset>-s1`)
   use it for screening.
 - Same `--seed` ⇒ byte-identical `results.json`, `games.ndjson` and replays regardless of
   `--workers`.
-- Measured cost on an Apple M2 Pro (`docs/port/BENCHMARKS.md`, Part 2; red-green-zeon against
+- Measured cost on an Apple M2 Pro (`docs/dev/BENCHMARKS.md`, Part 2; red-green-zeon against
   blue-white-federation, BO3, 6 workers): 100 matches took 82.1 s with `fast`; 20 matches took
   148.6 s with `standard`. `standard`'s budget is about 10.7 times `fast`'s (1024 / 2560 /
   10240 against 96 / 240 / 960 iterations per option / minimum / maximum, `docs/AI.md`); with
   the M15 mechanisms it executed 128.5G instructions per game on this workload against `fast`'s
-  15.5G (`docs/port/eval/M15/README.md`, "Cost of each scale").
+  15.5G (`docs/dev/eval/M15/README.md`, "Cost of each scale").
 
 ## 3. Read the report
 
@@ -152,7 +152,7 @@ stratified and clustered statistics in `analysis.json`.
 
 - The AI is strong but not perfect; decks whose power depends on long, precise lines may be
   underrated. Check a few replays of losses for implausible plays before trusting a surprising
-  result (`docs/AI.md` and `docs/port/WEAKNESSES.md` list the known weaknesses). Rerun a few
+  result (`docs/AI.md` and `docs/dev/WEAKNESSES.md` list the known weaknesses). Rerun a few
   matches with `--decision-log` to see the values and visit counts of the alternatives the AI
   considered at each decision.
 - Measured strength of the presets is only what `docs/AI.md` reports.

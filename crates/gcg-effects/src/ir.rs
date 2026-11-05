@@ -1,6 +1,6 @@
-//! The IR loader (docs/port/PLAN.md §3.3-§3.4): JSON text to typed [`Tables`].
+//! The IR loader (docs/dev/PLAN.md §3.3-§3.4): JSON text to typed [`Tables`].
 //!
-//! The IR is produced by `port/oracle/export_ir.py` from the built Python registry
+//! The IR is produced by `oracle/export_ir.py` from the built Python registry
 //! (`effects/registry.py:323-340` plus the system programs of `engine/interp.py:1581-1594`).
 //! The loader checks the IR version, compares the IR's `schema`, `enums` and `hooks` with the
 //! generated `dsl::{CLASSES, ENUMS}` and hook enums, decodes the node arena (each node may
@@ -57,7 +57,7 @@ pub(crate) struct Tables {
     pub hook_params: Box<[(NodeId, HookParams)]>,
     pub card_texts: Box<[CardText]>,
     /// IR `db_fingerprints` in [`DB_FINGERPRINTS`] order, the order of
-    /// `gcg_data::CardDb::fingerprints` (Inv 03 §9).
+    /// `gcg_data::CardDb::fingerprints`.
     pub db_fingerprints: [Box<str>; 4],
 }
 
@@ -406,7 +406,7 @@ impl Tables {
     }
 
     /// `Registry::decode_inline`: decodes a self-contained node (the `node_json` form of
-    /// `port/oracle/traces.py`, PLAN §4.8) bottom-up. Every nested node must be an arena node
+    /// `oracle/traces.py`, PLAN §4.8) bottom-up. Every nested node must be an arena node
     /// (equal CPython `repr`); the root is the arena node with its `repr`, or else the
     /// decoded node itself.
     pub(crate) fn decode_inline(&self, node: &Value) -> Result<InlineNode, IrError> {

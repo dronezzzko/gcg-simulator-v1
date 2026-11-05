@@ -1,7 +1,7 @@
-//! The fuzz port's deterministic parts against Python's committed outputs: every fuzz trace
+//! The Rust fuzz runner's deterministic parts against Python's committed outputs: every fuzz trace
 //! header's decks and game seed equal `deck_for` and `derive_seed(seed, "fuzz-game", index)`
 //! (`tools/fuzz.py:47-87`), and the seed-2026 10,000-game summary
-//! (`port/corpus/v1/tier1/fuzz/summary-2026-10000.json`, Python's `json.dumps(summary,
+//! (`oracle/corpus/v1/tier1/fuzz/summary-2026-10000.json`, Python's `json.dumps(summary,
 //! indent=1)`) is rebuilt byte for byte from its per-game rows, which `--compare` checks too.
 
 use std::path::PathBuf;
@@ -14,7 +14,7 @@ use gcg_effects::Registry;
 fn tier1() -> PathBuf {
     PathBuf::from(concat!(
         env!("CARGO_MANIFEST_DIR"),
-        "/../../port/corpus/v1/tier1/fuzz"
+        "/../../oracle/corpus/v1/tier1/fuzz"
     ))
 }
 

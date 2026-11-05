@@ -215,7 +215,7 @@ fn usage_errors_exit_2() {
                 "--seed",
                 "1000000000000000000000000000000000000000",
             ][..],
-            "argument --seed: 1000000000000000000000000000000000000000 is outside the range this port supports",
+            "argument --seed: 1000000000000000000000000000000000000000 is outside the range gcg-eval supports",
         ),
         (&["nonsense"][..], "invalid choice"),
     ] {
@@ -271,7 +271,7 @@ fn head_to_head_selections() {
         (a.games, a.seed, a.role, a.workers, a.choose_first),
         (400, 1, None, Workers::Count(1), ChooseFirst::Seat0)
     );
-    assert_eq!(a.ledger, PathBuf::from("docs/port/eval/seed-ledger.json"));
+    assert_eq!(a.ledger, PathBuf::from("docs/dev/eval/seed-ledger.json"));
     let Command::HeadToHead(a) = parsed(&[
         "head-to-head",
         "random",
@@ -500,7 +500,7 @@ fn held_out_selections_need_the_panel_split() {
         assert_eq!(
             err,
             format!(
-                "error: --pairs {pairs} needs the held-out split in docs/port/eval/panel.json\n"
+                "error: --pairs {pairs} needs the held-out split in docs/dev/eval/panel.json\n"
             )
         );
     }

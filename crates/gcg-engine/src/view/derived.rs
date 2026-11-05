@@ -579,7 +579,7 @@ fn host_abilities(
 /// sets the stats, printed traits, links and empty keyword maps of BATTLE then BASE cards, p0
 /// then p1; pass 2 sets the abilities (BATTLE, BASE, PAIRED, HAND, TRASH per player) and the
 /// keywords of BATTLE/BASE hosts. Gates read `prev`, or the view being built when there is
-/// none (Inv 05 §5.5).
+/// none.
 fn base_view(
     st: &GameState,
     granted: &Granted,
@@ -654,7 +654,7 @@ fn base_view(
 }
 
 /// `value(st, view, ctx, v) if v != 0 else 0` (`engine/view.py:360-361`, `:371`, `:391-392`):
-/// a node is never `== 0` (Inv 05 §7 hazard 11), so only the literal 0 is skipped.
+/// a node is never `== 0`, so only the literal 0 is skipped.
 fn amount(st: &GameState, view: &Derived, ctx: &Ctx, v: ValueRef) -> Result<i64, EngineError> {
     if v == ValueRef::Lit(0) {
         Ok(0)
@@ -911,7 +911,7 @@ fn finalize(dv: &mut Derived) {
     }
 }
 
-/// `_compute(st)` (`engine/view.py:409-463`), ported literally: the base view; the early
+/// `_compute(st)` (`engine/view.py:409-463`), reproduced literally: the base view; the early
 /// exit when nothing is lasting and no constant exists; then at most [`FIXPOINT_PASSES`]
 /// Jacobi passes that read the previous pass (the base in pass 0) and write a fresh view,
 /// converged when `same_values` and the granted map both repeat (never in pass 0); the last
@@ -1146,7 +1146,7 @@ pub(crate) fn build_index(st: &GameState, dv: &Derived) -> TriggerIndex {
 
 /// `trigger_index(st, dv)` (`engine/view.py:314-333`): built once from the zones of the
 /// state that asks first and kept on the view (`dv.by_event`, shared by every holder of the
-/// view, Inv 11 hazard H2). When `dv` is the view `st` has cached, `st`'s zones are the ones
+/// view). When `dv` is the view `st` has cached, `st`'s zones are the ones
 /// `dv` was computed from (every zone change touches, which empties the cache, and a clone
 /// copies the zones with the cache), so the index is read off `dv.hosts` instead of the zone
 /// lists; `paranoid` compares every filled index with a zone scan of a fresh compute.

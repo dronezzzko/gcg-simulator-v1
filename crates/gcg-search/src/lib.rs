@@ -1,12 +1,12 @@
 //! The strengthened search behind the two `gcg-sim` presets `standard` and `fast`
-//! (docs/port/PLAN.md §2.1, §6.4, §12.3): the reference search's core loop (`mcts.rs`) with the
+//! (docs/dev/PLAN.md §2.1, §6.4, §12.3): the reference search's core loop (`mcts.rs`) with the
 //! Phase 6 extension points of `mech/`, configured by [`StrengthenedConfig`] and its
 //! [`MechanismFlags`]. Its null configuration (every mechanism off) replays the reference bit
 //! for bit; the search sees only an [`Observation`] (W-135).
 //!
 //! The contract types (PLAN §10.3.5) live in `contracts.rs` (lead-owned) and are re-exported
 //! here; the frozen function signatures (`search`, `preset_config`, `make_agent` and the
-//! `Agent` impl in `agent.rs`) are in docs/port/contracts.md.
+//! `Agent` impl in `agent.rs`) are in docs/dev/contracts.md.
 
 mod agent;
 mod contracts;

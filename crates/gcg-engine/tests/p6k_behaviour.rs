@@ -1,5 +1,5 @@
-//! P6-K behaviour tests on the Rust testkit (docs/port/PLAN.md §12.2 P6-K;
-//! docs/port/eval/weakness-status/P6-K.md).
+//! P6-K behaviour tests on the Rust testkit (docs/dev/PLAN.md §12.2 P6-K;
+//! docs/dev/eval/weakness-status/P6-K.md).
 //!
 //! - W-60: the three stripped parentheticals whose meaning the bindings implement (GD05-089
 //!   "Don't treat it as a Pilot.", ST12-013 "You choose first, then your opponent.", ST14-014
@@ -8,9 +8,9 @@
 //!   compiled two-target steps with no all-targets guard act only when both targets exist,
 //!   because the engine's multi-target pre-check (rules 10-1-8-1-1, 10-2-2, 10-3-3-1) covers
 //!   them. The same scenarios run on the Python testkit in
-//!   `port/oracle/tests/test_p6k_miscompile.py`.
+//!   `oracle/tests/test_p6k_miscompile.py`.
 //! - W-68: each HP-fix binding and the script the Python compiler gives the same card
-//!   (`port/oracle/tests/vectors/p6k_hp_fragments.json`) give identical decisions and states on
+//!   (`oracle/tests/vectors/p6k_hp_fragments.json`) give identical decisions and states on
 //!   a set of HP/damage states: `Stat.HP` already means current HP.
 
 use std::sync::Arc;
@@ -367,10 +367,9 @@ fn hp_run(reg: &Arc<Registry>, card: &str, trigger: &Trigger) -> Result<HpRun, T
 // gcg-tags: card=GD01-004 card=ST01-004 card=ST01-010 card=ST02-014 card=ST04-001 card=ST04-013 card=GD05-072 card=GD05-083 faq=Q96
 #[test]
 fn w68_compiled_and_bound_hp_filters_agree_on_hp_damage_states() -> Result<(), TestkitError> {
-    let text = std::fs::read_to_string(format!(
-        "{ROOT}/port/oracle/tests/vectors/p6k_hp_fragments.json"
-    ))
-    .expect("the W-68 vector");
+    let text =
+        std::fs::read_to_string(format!("{ROOT}/oracle/tests/vectors/p6k_hp_fragments.json"))
+            .expect("the W-68 vector");
     let vector: Value = serde_json::from_str(&text).expect("JSON");
     let bound = Registry::embedded();
     let cards = vector["cards"].as_array().expect("cards");

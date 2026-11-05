@@ -1,6 +1,6 @@
 //! Live benchmark runs through the engine (T-071, T-074, T-078; PLAN §10.4 E gate): the
-//! ported `tests/runner/*` cases that play real games, and the Python record sets of
-//! `port/oracle/export_records.py` re-played with the `test-random` agent, whose every report
+//! Rust versions of the `tests/runner/*` cases that play real games, and the Python record sets of
+//! `oracle/export_records.py` re-played with the `test-random` agent, whose every report
 //! file (`results.json`, `summary.md`, `games.ndjson`, `replays/*.json`) must equal the file
 //! Python wrote, byte for byte.
 //!

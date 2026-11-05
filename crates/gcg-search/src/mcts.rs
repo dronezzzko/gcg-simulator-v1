@@ -1,5 +1,5 @@
-//! The core loop of the strengthened search (docs/port/PLAN.md §12.3): the reference ISMCTS
-//! (`gcg-ai-reference`'s `mcts.rs`, which ports `ai/mcts.py:82-339`) with every point a Phase 6
+//! The core loop of the strengthened search (docs/dev/PLAN.md §12.3): the reference ISMCTS
+//! (`gcg-ai-reference`'s `mcts.rs`, which mirrors `ai/mcts.py:82-339`) with every point a Phase 6
 //! mechanism changes behind the [`Mechanisms`] trait (`mech/`). With every flag off (the null
 //! configuration of `tests/null_config.rs`) it makes the reference's decisions, alternatives and
 //! RNG draws bit for bit.

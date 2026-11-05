@@ -1,5 +1,5 @@
-//! State invariants of the robustness suite (`engine/invariants.py`; docs/port/contracts.md,
-//! gcg-engine `invariants`; Inv 06b §17): card conservation (every non-token card in exactly
+//! State invariants of the robustness suite (`engine/invariants.py`; docs/dev/contracts.md,
+//! gcg-engine `invariants`): card conservation (every non-token card in exactly
 //! one location list that matches its `zone`, each player keeping the cards they started
 //! with) and legal states (location limits, pairing consistency, damage only where damage can
 //! exist, no lethal damage left after rules management, well-formed pending decisions).

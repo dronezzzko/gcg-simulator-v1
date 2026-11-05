@@ -2,13 +2,13 @@
 //! interpreter, battle): they pass once layers L2-L4 are integrated (PLAN §10.5, M5.5). Every
 //! test name starts with `needs_engine_`.
 //!
-//! - the "always option 0" game of Inv 06b §18 (its first 24 decisions and its final state) and
+//! - the recorded "always option 0" game (its first 24 decisions and its final state) and
 //!   two seeded random games, decision by decision against Python's digests, with
 //!   `invariants::check` after every action;
 //! - the setup decisions into turn 1, the README scenario, `invariants::check` on mid-game
 //!   states, `procedures` against the recorded options, `testkit::install_view`.
 //!
-//! The native ports of the 12 lead-example tests are in `lead_examples.rs` (T-057).
+//! The native Rust versions of the 12 lead-example tests are in `lead_examples.rs` (T-057).
 
 mod l5_common;
 
@@ -27,7 +27,7 @@ use l5_common::{
 };
 use serde_json::Value;
 
-/// `turn:STEP:kind:Pplayer:n_options:chosen` (Inv 06b §18).
+/// `turn:STEP:kind:Pplayer:n_options:chosen`.
 fn decision_line(st: &GameState, chosen: Action) -> String {
     let d = st.pending().expect("a decision");
     format!(

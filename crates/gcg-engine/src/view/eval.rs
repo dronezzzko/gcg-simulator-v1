@@ -1,7 +1,7 @@
 //! DSL expression evaluation (`engine/view.py:577-933`): players and locations, `select`,
 //! `stat`, `matches`/`_match1`, `resolve`, `selects`/`resolve_ref`, `value` and `cond`.
 //! Dispatch follows the node's class; `and`/`or`/`all`/`any` short-circuit in Python's order
-//! (Inv 05 §7 hazard 19).
+//!.
 
 use gcg_data::{CardDef, CardType};
 use gcg_effects::{
@@ -343,7 +343,7 @@ fn match1(
 
 /// `resolve(st, dv, ctx, ref)` (`engine/view.py:784-831`): an ordered tuple of uids.
 /// `PairedPilotOf`, `PairedUnitOf` and `BattlingWith` keep duplicates; `Union` drops later
-/// repeats (Inv 05 §7 hazard 20).
+/// repeats.
 ///
 /// # Errors
 /// What a selection raises, or [`EngineError::Index`] for an int that is no uid of the state.
@@ -441,7 +441,7 @@ pub(crate) fn resolve(
 /// the only references that read the view.
 #[allow(
     dead_code,
-    reason = "an L2 boundary name that layers L3-L5 call (docs/port/contracts.md); they land after L2"
+    reason = "an L2 boundary name that layers L3-L5 call (docs/dev/contracts.md); they land after L2"
 )]
 pub(crate) fn selects(st: &GameState, r: RefId) -> bool {
     match st.registry().node(r.node()) {
@@ -459,14 +459,14 @@ static UNREAD: Derived = Derived::unallocated();
 
 /// `resolve_ref(st, ctx, ref)` (`engine/view.py:848-850`): `resolve` against `derived(st)`
 /// only when the reference selects cards, else against `_UNREAD`; the result is the same,
-/// and only whether the cache is filled differs (Inv 05 §6.10). Under `paranoid` a view-free
+/// and only whether the cache is filled differs. Under `paranoid` a view-free
 /// reference is resolved again with the view (`tests/paranoid.py:125-132`).
 ///
 /// # Errors
 /// What `derived` or `resolve` raises.
 #[allow(
     dead_code,
-    reason = "an L2 boundary name that layers L3-L5 call (docs/port/contracts.md); they land after L2"
+    reason = "an L2 boundary name that layers L3-L5 call (docs/dev/contracts.md); they land after L2"
 )]
 pub(crate) fn resolve_ref(st: &GameState, ctx: &Ctx, r: RefId) -> Result<UidBuf, EngineError> {
     if selects(st, r) {

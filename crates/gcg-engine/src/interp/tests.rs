@@ -3,7 +3,7 @@
 //! The tests in the first part need only layer L1 (state, arenas, canonical form): frames,
 //! decisions, control flow, frame bookkeeping, the deck reorders, the L1-only hooks, delayed
 //! triggers, token keys and choice groups, on minimal states or on the Python-exported
-//! fixture states of `tests/fixtures/states.ndjson` (`port/oracle/export_state_fixtures.py`).
+//! fixture states of `tests/fixtures/states.ndjson` (`oracle/export_state_fixtures.py`).
 //! Expected values are Python's (the RNG vectors were computed with `gcg_sim.rng`).
 //!
 //! The two corpus tests at the end (`effect_decisions_reraise_*` and
@@ -130,7 +130,7 @@ fn var(reg: &Registry, name: &str) -> VarId {
 #[test]
 fn no_event_key_feeds_the_it_vars() {
     // push_frame appends every event value whose key is "it" + digits to vars["it"]
-    // (interp.py:84-86); the Rust port relies on no such key existing.
+    // (interp.py:84-86); the Rust engine relies on no such key existing.
     for k in EvKey::ALL {
         let s = k.as_str();
         let it_digits =
@@ -1040,8 +1040,7 @@ fn delayed_triggers_need_their_card() {
 // Python-exported states
 
 /// Whether the top frame of `st` waits on the pending decision (a game that ended during the
-/// rules management after a `WAIT` keeps the waiting frame without a decision, Inv 06a
-/// hazard 20).
+/// rules management after a `WAIT` keeps the waiting frame without a decision).
 fn asks(st: &GameState) -> bool {
     st.pending.is_some() && st.frames.last().is_some_and(|f| f.waiting)
 }
@@ -1186,7 +1185,7 @@ fn effect_decisions_replay_through_resume() {
             let Some(mut d) = next_step(k) else {
                 continue;
             };
-            // A snapshot precedes the decision with its index (port/oracle/traces.py _play).
+            // A snapshot precedes the decision with its index (oracle/traces.py _play).
             assert_eq!(recs[d]["i"], rec["i"], "{}", at(k));
             assert_eq!(
                 &state_digest(&st)[..16],
@@ -1253,7 +1252,7 @@ fn effect_decisions_replay_through_resume() {
 }
 
 fn tier1() -> PathBuf {
-    PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../port/corpus/v1/tier1")
+    PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../oracle/corpus/v1/tier1")
 }
 
 /// The tier-1 trace files of whole games (`kind` game or search; PLAN §8.2), in name order.

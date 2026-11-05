@@ -1,4 +1,4 @@
-//! P6-M (docs/port/PLAN.md §12.2): the report and runner items of `gcg-runner`, on runs of the
+//! P6-M (docs/dev/PLAN.md §12.2): the report and runner items of `gcg-runner`, on runs of the
 //! runner's seeded random test agent (real engine games) and on synthetic records.
 //!
 //! - W-97: the schema files name their versions; W-100 / §12.7: results 1.2.0 and the

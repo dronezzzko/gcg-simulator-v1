@@ -1,4 +1,4 @@
-//! A lookup-only hash map (docs/port/PLAN.md §9.9).
+//! A lookup-only hash map (docs/dev/PLAN.md §9.9).
 //!
 //! `clippy.toml` bans `std::collections::{HashMap, HashSet}` and `hashbrown::{HashMap, HashSet}`
 //! so that no iteration order can reach behaviour or output. [`LookupMap`] is the one sanctioned

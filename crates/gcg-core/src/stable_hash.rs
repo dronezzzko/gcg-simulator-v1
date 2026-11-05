@@ -1,10 +1,10 @@
 //! SHA-256-based 64-bit keys that never depend on `std::hash`, the process or the platform
-//! (docs/port/PLAN.md §2.1; transposition keys of the strengthened search, §12.3 S7).
+//! (docs/dev/PLAN.md §2.1; transposition keys of the strengthened search, §12.3 S7).
 
 use sha2::{Digest, Sha256};
 
 /// A 64-bit key: the first 8 bytes of a SHA-256 digest, big-endian, as `derive_seed` reads them
-/// (`crate::rng::derive_seed`, Inv 01).
+/// (`crate::rng::derive_seed`).
 #[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Debug)]
 pub struct StableKey(pub u64);
 

@@ -1,4 +1,4 @@
-//! `gcg-diff fuzz` (PLAN §9.4): the port of `tools/fuzz.py:28-166` (the decks, seeds, random
+//! `gcg-diff fuzz` (PLAN §9.4): the Rust version of `tools/fuzz.py:28-166` (the decks, seeds, random
 //! fuzz agent, per-game records and summary JSON, invariants after every action), plus the
 //! strategic agents of W-110 (`--agent greedy|ref:<preset>|search:<preset>|mixed:A,B`).
 //!
@@ -252,7 +252,7 @@ pub struct GameOut {
 }
 
 impl GameOut {
-    /// The per-game row of `port/oracle/traces.py` `_summary_row`: `index`, `seed`, `ok`,
+    /// The per-game row of `oracle/traces.py` `_summary_row`: `index`, `seed`, `ok`,
     /// `actions`, `end`, `turns`, `error` where present.
     #[must_use]
     pub fn row(&self) -> Value {
@@ -511,7 +511,7 @@ pub fn summary_text(games: &[GameOut], pools: &Pools<'_>) -> String {
 }
 
 /// `--compare FILE`: the summary text byte for byte, and with `FILE`'s sibling
-/// `<stem>.games.jsonl` (`port/oracle/traces.py`) every per-game row.
+/// `<stem>.games.jsonl` (`oracle/traces.py`) every per-game row.
 ///
 /// # Errors
 /// The first difference.

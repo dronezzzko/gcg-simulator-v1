@@ -3,11 +3,11 @@
 //! be in the §8.2 canonical encoding, and a canonical state must keep Python's own guarantees
 //! (`once_used` sorted by `json.dumps` text and free of duplicates, `runner/digest.py:48`).
 //!
-//! Key sets per record follow `port/oracle/traces.py` (game, search, view and world traces) and
-//! the per-test records of §8.2 as `port/oracle/pytest_trace.py` (workstream G2) writes them:
+//! Key sets per record follow `oracle/traces.py` (game, search, view and world traces) and
+//! the per-test records of §8.2 as `oracle/pytest_trace.py` (workstream G2) writes them:
 //! `kwargs` are `[name, arg]` pairs in call order, call names are checked against the recorded
 //! modules, and an `override` fragment must have the keys and version of
-//! `port/oracle/export_ir.py` `build_fragment` (its content is `Registry::with_fragment`'s to
+//! `oracle/export_ir.py` `build_fragment` (its content is `Registry::with_fragment`'s to
 //! decode).
 
 use std::path::Path;
@@ -598,14 +598,14 @@ fn outcome(v: &Value) -> Result<OutcomeRec, String> {
 // ---------------------------------------------------------------------------------------------
 // Per-test records
 
-/// The fragment format this reader decodes (`port/oracle/export_ir.py` `FRAGMENT_VERSION`).
+/// The fragment format this reader decodes (`oracle/export_ir.py` `FRAGMENT_VERSION`).
 pub const FRAGMENT_VERSION: u32 = 1;
 
 /// Engine modules a recorded call is named after (`pytest_trace.py` `ENGINE_MODULES`; `view`
 /// names probes, the others calls).
 const CALL_MODULES: [&str; 6] = ["core", "interp", "battle", "observe", "game", "invariants"];
 const PROBE_MODULES: [&str; 2] = ["view", "testkit"];
-/// The two probes of a `views` trace (`port/oracle/traces.py` `generate_view`): the per-card
+/// The two probes of a `views` trace (`oracle/traces.py` `generate_view`): the per-card
 /// view values and the trigger index.
 const VIEW_SET_PROBES: [&str; 2] = ["views.cards", "V.trigger_index"];
 /// The wrapped `testkit.Scenario` methods (`pytest_trace.py` `SCENARIO_METHODS`).
@@ -1053,7 +1053,7 @@ fn strings(v: &Value, what: &str) -> Result<(), String> {
         .try_for_each(|s| as_str(s, what).map(|_| ()))
 }
 
-/// An IR fragment in the format of `port/oracle/export_ir.py` `build_fragment`: every key,
+/// An IR fragment in the format of `oracle/export_ir.py` `build_fragment`: every key,
 /// the version, the base fingerprint, and the arena's shape. `Registry::with_fragment` decodes
 /// the rest when a replay applies it.
 fn fragment_rec(v: &Value) -> Result<(), String> {

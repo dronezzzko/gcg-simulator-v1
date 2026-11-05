@@ -1,4 +1,4 @@
-//! The statistics, seeding and agent-spec vectors of `port/oracle/export_stats.py`
+//! The statistics, seeding and agent-spec vectors of `oracle/export_stats.py`
 //! (`tests/vectors/stats.json`): `_rate`, `mirrored_specs`, `comparison_specs` and its errors,
 //! `summarize`, the `compare` CLI's exact output bytes over synthetic games, `parse_agent`, the
 //! override converters and the Newcombe interval (T-079 formatting, T-080 vectors).

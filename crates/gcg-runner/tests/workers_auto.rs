@@ -99,7 +99,7 @@ fn two_and_three_tier_listings_parse_into_their_tiers() {
 #[test]
 fn auto_uses_the_fast_tiers_and_at_most_one_worker_per_match() {
     // Every tier but the efficiency tier: 6 performance cores on the M2 Pro, 2 super + 4
-    // performance cores on the M6 layout (docs/port/BENCHMARKS.md, Part 1 and Part 2).
+    // performance cores on the M6 layout (docs/dev/BENCHMARKS.md, Part 1 and Part 2).
     for (listing, logical) in [
         ("sysctl-m2pro.txt", 6_u32),
         ("sysctl-3tier-synthetic.txt", 6),

@@ -1,6 +1,6 @@
 //! The converters of the agent-spec overrides (`ai/compare.py:62-75`): Python's `int(text)`,
 //! `float(text)` and `_flag(text)`, with CPython 3.15.1's results and `ValueError` texts
-//! (vectors: `port/oracle/export_stats.py`, `int`, `float`, `flag`).
+//! (vectors: `oracle/export_stats.py`, `int`, `float`, `flag`).
 //!
 //! `int` and `float` first map every non-ASCII character to ASCII as
 //! `_PyUnicode_TransformDecimalAndSpaceToASCII` does (`Objects/unicodeobject.c`): Unicode

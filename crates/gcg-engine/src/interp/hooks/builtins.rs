@@ -1,4 +1,4 @@
-//! The engine-level step hooks of `effects/builtins.py` (Inv 04 §6.2 #1, #2, #5).
+//! The engine-level step hooks of `effects/builtins.py`.
 
 use gcg_effects::Ev;
 

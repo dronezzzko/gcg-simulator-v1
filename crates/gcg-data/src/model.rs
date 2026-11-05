@@ -1,6 +1,6 @@
 //! Card-text helpers of `cards/model.py` and `cards/tokens.py`, with each regular expression
-//! ported to an explicit matcher that follows Python `re`'s backtracking order (Inv 03 §10
-//! H19; no regex crate). Python's `\s` and `\d` are the Unicode classes of [`crate::unicode`].
+//! reimplemented as an explicit matcher that follows Python `re`'s backtracking order (no
+//! regex crate). Python's `\s` and `\d` are the Unicode classes of [`crate::unicode`].
 
 use crate::contracts::{CardDef, CardType, LinkCondition};
 use crate::unicode;

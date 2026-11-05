@@ -1,4 +1,4 @@
-//! The `gcg-eval` binary (docs/port/PLAN.md §2.3): the command line of [`gcg_eval::cli`], with
+//! The `gcg-eval` binary (docs/dev/PLAN.md §2.3): the command line of [`gcg_eval::cli`], with
 //! SIGINT turned into the cancel flag (exit 130, PLAN §7.5).
 
 use std::ffi::OsString;

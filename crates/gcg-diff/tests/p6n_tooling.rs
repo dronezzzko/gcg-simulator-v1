@@ -1,4 +1,4 @@
-//! P6-N tooling checks (docs/port/PLAN.md §12.2, package P6-N; docs/port/WEAKNESSES.md):
+//! P6-N tooling checks (docs/dev/PLAN.md §12.2, package P6-N; docs/dev/WEAKNESSES.md):
 //!
 //! - W-112: the slow test tier is exactly `scripts/slow-tier.txt`, slow tests are gated by
 //!   their package's `slow` feature (never ignored), and the gate runs both tiers;
@@ -416,7 +416,7 @@ fn w128_marked_counts_are_regenerated_from_the_data() {
         !ok && err.contains("unknown count 'cards.colours'"),
         "{err}"
     );
-    // The port's documents hold no stale count.
+    // The documents hold no stale count.
     let out = Command::new("python3")
         .arg(root.join("scripts/doc_counts.py"))
         .arg("--check")

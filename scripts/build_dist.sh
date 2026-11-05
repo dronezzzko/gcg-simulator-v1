@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Distributable binaries (docs/port/PLAN.md §11.4 step 5, T-143): gcg-sim and gcg-eval built
+# Distributable binaries (docs/dev/PLAN.md §11.4 step 5, T-143): gcg-sim and gcg-eval built
 # with the `dist` profile of Cargo.toml for a fixed CPU baseline instead of the
 # target-cpu=native of .cargo/config.toml (RUSTFLAGS replaces it). Outside the crates; nothing
 # here is timed.

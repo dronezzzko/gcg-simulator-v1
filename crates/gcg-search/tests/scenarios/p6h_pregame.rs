@@ -1,7 +1,7 @@
-//! P6-H's scenario tests (docs/port/PLAN.md §12.3 S11, T-122; WEAKNESSES W-44, W-45).
+//! P6-H's scenario tests (docs/dev/PLAN.md §12.3 S11, T-122; WEAKNESSES W-44, W-45).
 //!
 //! **W-45, mulligan hands the reference misjudges.** Each position is a REDRAW decision from a
-//! seeded game on two tuning decks of the panel (`docs/port/eval/panel.json`; no held-out deck).
+//! seeded game on two tuning decks of the panel (`docs/dev/eval/panel.json`; no held-out deck).
 //! Its ground truth comes from 2,000 paired full games on independent determinisations of the
 //! decider's information set: KEEP and REDRAW on the same world and the same rollout generator,
 //! both players played to the end by the reference rollout policy at the play/draw temperature

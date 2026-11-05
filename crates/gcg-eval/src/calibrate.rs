@@ -1,4 +1,4 @@
-//! `gcg-eval calibrate FILE --agent SPEC` (docs/port/PLAN.md §12.2 P6-I, §12.10; W-41):
+//! `gcg-eval calibrate FILE --agent SPEC` (docs/dev/PLAN.md §12.2 P6-I, §12.10; W-41):
 //! simulated matchup rates against observed real results.
 //!
 //! FILE lists observed matches in the format of `schema/observed-matches.v1.schema.json`

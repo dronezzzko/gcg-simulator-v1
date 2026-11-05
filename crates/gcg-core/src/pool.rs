@@ -1,4 +1,4 @@
-//! Deterministic thread pool on `std::thread::scope` (docs/port/PLAN.md §7.1, X8, X20).
+//! Deterministic thread pool on `std::thread::scope` (docs/dev/PLAN.md §7.1, X8, X20).
 //!
 //! `Pool::map_indexed` runs one task per index and returns the results by index, so they are
 //! identical for any thread count and schedule: nothing reads the time, the thread id or the
@@ -6,7 +6,7 @@
 //! task can fork jobs with `TaskCx::fork_join`; the jobs go to one shared queue, and every
 //! worker that has no task to claim runs them ("help first"), as does the forking task while
 //! it waits for its own. Waiting is a plain blocking `Condvar` wait: no spinning, sleep,
-//! back-off, timeout, QoS class or core pinning (brief `<target_hardware>`).
+//! back-off, timeout, QoS class or core pinning.
 //!
 //! Failure and interrupt are separate signals (W-149). A failing task lowers the run's
 //! `lowest_failed` with `fetch_min`; from then on no index is claimed (every unclaimed index
@@ -73,7 +73,7 @@ impl Pool {
     /// fresh `S::default()` and a [`TaskCx`] whose `fork_join` runs its jobs inline in input
     /// order, as with `threads == 1`. Callers outside `map_indexed` (scenario and agent tests,
     /// `gcg-diff`'s agent replay, tools) build their `AgentCx` inside `f`
-    /// (docs/port/contracts.md, gcg-ai section).
+    /// (docs/dev/contracts.md, gcg-ai section).
     pub fn run_inline<S, T>(f: impl FnOnce(&mut S, &TaskCx<'_, S>) -> T) -> T
     where
         S: Default + Send + 'static,
@@ -377,7 +377,7 @@ pub enum PoolError<E> {
 
 /// A fork-join job: an owned closure that runs on a borrowed scratch value. Jobs own their
 /// inputs (`'static`), because safe Rust cannot hand a borrow of the forking task's stack to an
-/// already running worker (docs/port/contracts.md, open item O1).
+/// already running worker (docs/dev/contracts.md, open item O1).
 pub(crate) type Job<S> = Box<dyn FnOnce(&mut S) + Send>;
 
 /// A queued job and the fork it belongs to, so that a waiting task can run its own first.
@@ -553,7 +553,7 @@ impl<S: Default + Send + 'static> TaskCx<'_, S> {
     /// Re-raises the panic of the first panicking job (in input order) after all jobs ended.
     #[allow(
         clippy::type_complexity,
-        reason = "the signature frozen in docs/port/contracts.md (gcg-core, pool)"
+        reason = "the signature frozen in docs/dev/contracts.md (gcg-core, pool)"
     )]
     pub fn fork_join<I, T>(
         &self,

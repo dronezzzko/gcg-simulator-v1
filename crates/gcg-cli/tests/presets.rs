@@ -1,5 +1,5 @@
-//! `--ai-preset` takes exactly `standard` (the default) and `fast` (BRIEF `<ai_presets>`,
-//! PLAN §6.5 item 3); the typed commands of the parsed namespace; and `main`'s flow from
+//! `--ai-preset` takes exactly `standard` (the default) and `fast` (PLAN §6.5
+//! item 3); the typed commands of the parsed namespace; and `main`'s flow from
 //! arguments to exit codes 0/1/2/130 (`cli.py:386-399`).
 
 use std::ffi::OsString;
@@ -118,7 +118,7 @@ fn walk(parser: &Parser, out: &mut Vec<String>) {
 
 #[test]
 fn help_strings_are_ascii_without_format_specifiers() {
-    // The textwrap port uses ASCII classes, and argparse would %-format a '%'.
+    // The Rust textwrap uses ASCII classes, and argparse would %-format a '%'.
     let mut texts = Vec::new();
     walk(&cli::build_parser(), &mut texts);
     assert!(texts.len() >= 20);

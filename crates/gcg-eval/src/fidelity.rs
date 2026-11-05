@@ -1,4 +1,4 @@
-//! `gcg-eval fidelity AGENT_A AGENT_B --variants V,... --against DECK` (docs/port/PLAN.md
+//! `gcg-eval fidelity AGENT_A AGENT_B --variants V,... --against DECK` (docs/dev/PLAN.md
 //! §12.3 S12; W-18): do two agents rank deck variants alike on the same deals?
 //!
 //! A deck benchmark plays one AI in both seats, so each agent plays every variant against

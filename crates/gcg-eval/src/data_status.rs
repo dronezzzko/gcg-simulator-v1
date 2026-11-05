@@ -1,5 +1,5 @@
 //! `gcg-eval data-status [--json] [--sources] [--freshness [--as-of DATE]] [--templates]`
-//! (docs/port/PLAN.md A30, §12.2 P6-K, §12.11): `gcg-sim data status` with three opt-in
+//! (docs/dev/PLAN.md A30, §12.2 P6-K, §12.11): `gcg-sim data status` with three opt-in
 //! sections. Without an option it prints what `gcg-sim data status` prints (`cli.py:263-331`,
 //! [`gcg_runner::cli_support::status_text`]); `gcg-sim` itself is unchanged (A30).
 //!
@@ -17,12 +17,12 @@
 //!   `freshness` listing). This tool reads no clock (CLAUDE.md "Determinism"), so without
 //!   `--as-of` every later dated product is listed, released or announced; `--as-of` keeps
 //!   those released on or before DATE.
-//! - `--templates` (W-63, W-67) reports, per general template of `port/oracle/templates/`,
+//! - `--templates` (W-63, W-67) reports, per general template of `oracle/templates/`,
 //!   the binding cards it reproduces byte for byte: the committed report of
-//!   `port/oracle/templates/check.py` (`docs/port/audit/templates.json`, checked by
+//!   `oracle/templates/check.py` (`docs/dev/audit/templates.json`, checked by
 //!   `check.py --check`), embedded. The IR's `cards[].template` field stays unset: setting it
 //!   changes `registry.json` and so the `ir_sha256` of every corpus trace header
-//!   (docs/port/eval/weakness-status/GAP-C.md).
+//!   (docs/dev/eval/weakness-status/GAP-C.md).
 //!
 //! With `--json` the document is `gcg-sim data status --json`'s, plus a `sources`,
 //! `freshness` or `templates` key per option.
@@ -44,7 +44,7 @@ use crate::build_info::{CODE_DIGEST, PACKAGE_VERSION};
 /// The repository path of the embedded lock, as the listing names it.
 pub const LOCK_PATH: &str = "data/SOURCES.lock.json";
 /// The repository path of the embedded templates report.
-pub const TEMPLATES_REPORT_PATH: &str = "docs/port/audit/templates.json";
+pub const TEMPLATES_REPORT_PATH: &str = "docs/dev/audit/templates.json";
 
 const SOURCES_LOCK_JSON: &str = include_str!(concat!(
     env!("CARGO_MANIFEST_DIR"),
@@ -52,7 +52,7 @@ const SOURCES_LOCK_JSON: &str = include_str!(concat!(
 ));
 const TEMPLATES_JSON: &str = include_str!(concat!(
     env!("CARGO_MANIFEST_DIR"),
-    "/../../docs/port/audit/templates.json"
+    "/../../docs/dev/audit/templates.json"
 ));
 
 /// `local_path` of a source the refresh workflow did not store (`tools/sources.py:68`).
@@ -284,7 +284,7 @@ pub struct TemplateRow {
     pub reproduced: Vec<String>,
 }
 
-/// The templates report of `port/oracle/templates/check.py`.
+/// The templates report of `oracle/templates/check.py`.
 #[derive(Clone, PartialEq, Eq, Debug)]
 pub struct TemplatesReport {
     pub binding_cards: u64,
