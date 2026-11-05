@@ -22,16 +22,15 @@ AI row: "yes" means the work changes a strengthened-search mechanism or adds one
 
 ## Counts
 
-`target/release/gcg-diff weaknesses --check docs/port/WEAKNESSES.md` passes. With `--require-resolved` it reports 4 problems, one per open item:
+`target/release/gcg-diff weaknesses --check docs/port/WEAKNESSES.md` passes. With `--require-resolved` it reports 3 problems, one per open item:
 
 | Status | Items | Count |
 | --- | --- | ---: |
-| resolved | — | 127 |
+| resolved | — | 128 |
 | resolved by measurement (not adopted) | W-02, W-06, W-07, W-08, W-09, W-10, W-11, W-12, W-14, W-16, W-23, W-24, W-27, W-28, W-29, W-30, W-31, W-34, W-35, W-36, W-37, W-38, W-45, W-134, W-138, W-139, W-140, W-141, W-142, W-05 | 30 |
 | admissible exception | W-131, W-132, W-133 | 3 |
 | open: a run that has not happened | W-137 | 1 |
 | open: measured, verification not met | W-18, W-19 | 2 |
-| open: the user's decision | W-120 | 1 |
 
 Changes since the first version of this file:
 
@@ -40,10 +39,10 @@ Changes since the first version of this file:
 - by the lead's decisions of `docs/port/PLAN.md` §0.1 (end of Phase 6): W-05 resolved by measurement (the break-even share replaces the scenario bar), W-63 and W-67 resolved (`templates/check.py --check` is T-154's assertion; no IR `template` field) and W-111 resolved (tag-based coverage stands for rules, FAQ entries and rulings). W-137's adoption question is decided (not adopted); its Linux run remains;
 - resolved: W-101 (engine anchors for the last rule-level interpretations I-04, I-11, I-13 and I-17; I-21 and I-24 are compile-time readings with no engine path; section 3).
 
-The 4 open items fall into two kinds:
+The 3 open items fall into two kinds:
 
 - 2 are AI items (class S): W-18 and W-19.
-- 2 are non-AI items: W-120 and W-137 (the Linux run).
+- 1 is a non-AI item: W-137 (the Linux run).
 
 ## 1. Lead: the final evaluation (docs/port/eval/final-2/, docs/port/eval/review/)
 
@@ -158,16 +157,11 @@ No item is open here. W-104 is resolved by the decision recorded in `docs/port/e
 
 - **Resolution:** the Phase 7 reviewer's clean-clone run of `scripts/verify_all.sh` at 7b7ab2f passed (3985 Python tests; `docs/port/REVIEW.md` §1, C2).
 
-## 7. The user's decision
+## 7. The user's decision — resolved
 
-### W-120: project Claude permissions
-- **Missing:** the user's answer on the proposed `.claude/settings.json` change: a host-pinned curl rule, and `Bash(git -C *)` without the edge whitespace.
-- **Why:** PLAN §0.1, A32 (3), a lead decision: deferred to the user, because it changes this project's Claude permission settings.
-- **Work:**
-  - Ask once, near the end of the port.
-  - If approved: apply the change, then run `python3 scripts/check_claude_settings.py`, which should exit 0, and `--selftest`.
-  - If declined: the entry stays open with the answer quoted, and the final report says so (§12.10).
-- **AI row:** no. **Effort:** S.
+### W-120: project Claude permissions — resolved
+
+- **Resolution (2026-11-05):** the user approved pinning curl to the two data hosts and dropping the malformed `git -C` rule; `scripts/check_claude_settings.py` reports 0 findings.
 
 ## 8. Resolved items to re-verify after the M15b preset change
 

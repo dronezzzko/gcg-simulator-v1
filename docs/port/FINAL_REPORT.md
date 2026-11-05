@@ -68,12 +68,12 @@ ablation rows (`docs/AI.md`, `docs/port/WEAKNESSES.md`).
 
 ## WEAKNESSES.md (164 items)
 
-127 resolved, 30 resolved by measurement (not adopted: the mechanism was implemented,
+128 resolved, 30 resolved by measurement (not adopted: the mechanism was implemented,
 scenario-tested and measured null or negative, so the weakness remains in the shipped AI),
-3 admissible exceptions (multiplayer, sideboarding, clock), 4 open: W-18 (`fast`'s fidelity on
-one weakened variant, -0.075 [-0.146, -0.003]), W-19 (E4), W-120 (a `.claude/settings.json`
-change only the user may approve), W-137 (the Linux x86-64 run, which needs a push).
-`gcg-diff weaknesses --check` passes; `--require-resolved` lists those 4.
+3 admissible exceptions (multiplayer, sideboarding, clock), 3 open: W-18 (`fast`'s fidelity on
+one weakened variant, -0.075 [-0.146, -0.003]), W-19 (E4) and W-137 (the Linux x86-64 run).
+W-120 was resolved with the user's approval of the settings change on 2026-11-05.
+`gcg-diff weaknesses --check` passes; `--require-resolved` lists those 3.
 
 | Item | Title | Status | Evidence (first cited) |
 | --- | --- | --- | --- |
@@ -196,7 +196,7 @@ change only the user may approve), W-137 (the Linux x86-64 run, which needs a pu
 | W-117 | The adversarial review was a sample | resolved | the entry in WEAKNESSES.md |
 | W-118 | verify_all.sh gate limits | resolved | `scripts/verify_all_rust_selftest.sh` |
 | W-119 | blind_transcripts.py uses a private helper and path-dependent ids, unt | resolved | `crates/gcg-eval/tests/gapc_tools.rs::w119_one_id_per_game_wherever_it_lives_and_no_search_statistics` |
-| W-120 | Project Claude permissions are broader than the "only the refresh skil | open (user decision) | `scripts/check_claude_settings.py` |
+| W-120 | Project Claude permissions are broader than the "only the refresh skil | resolved | `scripts/check_claude_settings.py` |
 | W-121 | Refresh tooling: only the offline core is tested; official fetches nee | resolved | `crates/gcg-diff/tests/p6n_tooling.rs::w121_the_card_loader_accepts_recorded_records_and_names_a_renamed_field` |
 | W-122 | Untracked bytecode of an unmerged later branch (bench/, tests/bench, t | resolved | `crates/gcg-diff/tests/lints.rs` |
 | W-123 | compare.py usability limits | resolved | `crates/gcg-eval/tests/phase6.rs::w123_named_deck_sets_work_from_any_directory` |
@@ -303,5 +303,4 @@ only and is excluded from every comparison (reviewer-verified, `docs/port/REVIEW
 2. Decide on E4: accept the panel result, or fund a strength round aimed at `greedy` on tuning
    seeds, followed by a third final evaluation and a review run on fresh seeds (days of machine
    time; budget gains have plateaued).
-3. Decide W-120 (pin curl to the two data hosts, drop the malformed `git -C` rule).
-4. Clean up the 51 agent worktrees and branches, tagging the four docs-cited commits first.
+3. Clean up the 51 agent worktrees and branches, tagging the four docs-cited commits first.

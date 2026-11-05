@@ -268,7 +268,7 @@ The row kinds are:
 | W-117 | The adversarial review was a sample | tooling | tooling | e2e | resolved |
 | W-118 | verify_all.sh gate limits | tooling | tooling | e2e | resolved |
 | W-119 | blind_transcripts.py uses a private helper and path-dependent ids, untested | tooling | tooling | unit | resolved |
-| W-120 | Project Claude permissions are broader than the "only the refresh skill uses the network" rule | tooling | configuration change (needs the user's approval) | unit | open (user decision) |
+| W-120 | Project Claude permissions are broader than the "only the refresh skill uses the network" rule | tooling | configuration change (needs the user's approval) | unit | resolved |
 | W-121 | Refresh tooling: only the offline core is tested; official fetches need a TLS workaround | tooling | tooling | unit | resolved |
 | W-122 | Untracked bytecode of an unmerged later branch (bench/, tests/bench, tests/perf) | tooling | tooling (inventory) | unit | resolved |
 | W-123 | compare.py usability limits | tooling | eval tooling | unit + e2e | resolved |
@@ -2238,7 +2238,7 @@ The row kinds are:
 - **What is weak:** `curl` to any host, `python3 *` and `uv *` are allowed project-wide while the project rules restrict network use to `/gcg-refresh-data`; `Bash(git -C * )` has a trailing space, so it may not match `git -C path cmd`.
 - **Resolution plan:** proposed change, to be applied only with the user's approval (configuration is outside the port's files): replace the generic `curl` rule with the existing `WebFetch(domain:…)` entries or host-specific curl patterns, and remove the trailing space from the `git -C` rule.
 - **Verification** (unit): a check that parses `.claude/settings.json` and fails on a host-unrestricted network command or a pattern with trailing whitespace.
-- **Status:** open, pending the user. PLAN §0.1, A32 (3), a lead decision: "Deferred to the user, asked once near the end of the port (it changes this project's Claude permission settings, which only the user may decide). Nothing else depends on it". Done in scope: `scripts/check_claude_settings.py`, which only reads. On the current `.claude/settings.json` it reports two findings and exits 1: `Bash(git -C * )` has edge whitespace in its pattern, and `Bash(curl -sS *)` lets curl reach any host. Its `--selftest` passes, and the gate runs it. The settings file is unchanged.
+- **Status:** resolved: the user approved the change on 2026-11-05 (asked once at the end of the port, PLAN §0.1, A32 (3)). `.claude/settings.json` now allows curl only to `https://api.gcgapi.com/*` and `https://www.gundam-gcg.com/*` (`Bash(curl -sS https://api.gcgapi.com/*)`, `Bash(curl -sS https://www.gundam-gcg.com/*)`), and the malformed `Bash(git -C * )` rule is removed rather than widened (without the trailing space it would allow every `git -C` command, push included). `python3 scripts/check_claude_settings.py`: "0 finding(s)", exit 0 (before: two findings, exit 1); its `--selftest` passes, and the gate runs it.
 - **Evidence:** `python3 scripts/check_claude_settings.py --selftest`. The self-test includes the settings as the proposed change leaves them.
 - **Ablation:** no AI effect (a configuration check).
 
