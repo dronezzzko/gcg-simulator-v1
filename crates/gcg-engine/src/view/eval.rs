@@ -1,7 +1,6 @@
 //! DSL expression evaluation (`engine/view.py:577-933`): players and locations, `select`,
 //! `stat`, `matches`/`_match1`, `resolve`, `selects`/`resolve_ref`, `value` and `cond`.
-//! Dispatch follows the node's class; `and`/`or`/`all`/`any` short-circuit in Python's order
-//!.
+//! Dispatch follows the node's class; `and`/`or`/`all`/`any` short-circuit in Python's order.
 
 use gcg_data::{CardDef, CardType};
 use gcg_effects::{

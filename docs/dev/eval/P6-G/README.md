@@ -20,7 +20,7 @@ status of every item, with the tables, is in `docs/dev/eval/weakness-status/P6-G
 | `rows/confirm-*-1600.json` | confirmation rows, confirm master 30700100 |
 | `rows/dev-*_signed-400.json` | individual rows of a scratch build whose `weights.txt` replaced `refit_weights`, `determinized_fit`, `determinized_fit+phase_weights` and the bundle by the `fit-signed.json` models (same masters) |
 | `seed-ledger.json` | every master this package used (the lead merges it into `docs/dev/eval/seed-ledger.json`) |
-| `versus_placebo.py` | the individual rows against the placebo row, game by game |
+| `versus_placebo.py` (deleted, at commit 83a06c8) | the individual rows against the placebo row, game by game |
 
 The position datasets are not committed (about 260 MB of binary records). The commands below
 regenerate them; recording and fitting are deterministic for any `--workers` (unit test

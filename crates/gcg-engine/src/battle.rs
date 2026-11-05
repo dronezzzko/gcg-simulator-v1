@@ -228,8 +228,8 @@ pub(crate) fn block(st: &mut GameState, blocker: Uid) -> Result<(), EngineError>
 
 /// `victims: dict[int, int]` of `_destroy_battle` (`battle.py:99-111`): uid → destroyer uid in
 /// insertion order. Building it from Python's dict literal `{x: attacker, y: target}`
-/// (`battle.py:193`) with `x == y` keeps the key's first position and the last value
-///, which [`Victims::insert`] reproduces.
+/// (`battle.py:193`) with `x == y` keeps the key's first position and the last value,
+/// which [`Victims::insert`] reproduces.
 #[derive(Default)]
 struct Victims(Vec<(Uid, Uid)>);
 

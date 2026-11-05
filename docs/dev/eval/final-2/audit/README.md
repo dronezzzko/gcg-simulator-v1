@@ -24,7 +24,7 @@ docs/dev/eval/final-2/audit/seed-ledger.json --workers 2`.
 `gcg-eval transcripts OUT KEY --run runs/search-standard --run
 docs/dev/eval/GAP-A1/audit/runs/mcts-standard` wrote 120 transcripts without agent names,
 versions or search statistics, with ids derived from the game alone; `key.json` maps the ids to
-the replays. `prepare_audit.py OUT_TRANSCRIPTS key.json PACKETS` built five packets:
+the replays. `prepare_audit.py OUT_TRANSCRIPTS key.json PACKETS` (deleted, at commit 83a06c8) built five packets:
 
 - three with full transcripts of a stratified sub-sample: per version and pairing, the
   lowest-numbered game the deck under test won and the lowest-numbered game it lost (12 games,

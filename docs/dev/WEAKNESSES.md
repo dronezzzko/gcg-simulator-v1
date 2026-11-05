@@ -2785,7 +2785,7 @@ stay stable.
 - **Category:** tooling · **Resolution type:** tooling
 - **Sources:** `scripts/check_doc_commands.py:22-27`, `docs/SPEC.md:63`, `docs/port/inventory/11-python-profile.md:77-81`, `docs/port/inventory/10-tests.md:8-12`, `oracle/export_vectors.py:30`, `oracle/export_vectors.py:44`, `oracle/export_vectors.py:85`, `CLAUDE.md:10`, `scripts/verify_all.sh:15-21`
 - **Quotes:** “"docs/**/*.md",”; “P=/private/tmp/claude-501/p0-prof”; “uv run ruff check . && uv run ruff format --check . && uv run mypy”
-- **What is weak:** the port's files are still untracked (`docs/dev/`, `port/`, `crates/`, `Cargo.toml`, `Cargo.lock` and two scripts). Two Python gates break once they are committed.
+- **What is weak:** the port's files are still untracked (`docs/port/`, `port/`, `crates/`, `Cargo.toml`, `Cargo.lock` and two scripts). Two Python gates break once they are committed.
   - The documented-command gate (criterion 10, `check_doc_commands.py`) runs every bash block under `docs/**/*.md`, which includes `docs/dev/`. The block in `inventory/11-python-profile.md` runs profiling scripts from `/private/tmp/claude-501/p0-prof` with a hard-coded checkout path, and a clean clone has neither. The block in `inventory/10-tests.md` adds pytest collection and a fuzz run to the gate.
   - `ruff check .` already fails in this working tree on `oracle/export_vectors.py` (PLR0124 at line 30, PIE808 at line 85), and `ruff format --check .` would reformat the file (both run this session). So the lint gate of CLAUDE.md and `verify_all.sh` fails as soon as `port/` is committed. `verify_all.sh` clones the committed HEAD, which is why it still passes.
 
@@ -2881,7 +2881,7 @@ stay stable.
   - `cmd_equivalence` defaults to the presets `standard strong` (no `fast`) and never passes `--decision-log`, so decision-log bytes in `games.ndjson` and replays are never compared.
   - Python always runs with `--workers 10` and the inherited PYTHONHASHSEED. The two-hash-seed generation that W-150's plan requires is not in the harness.
   - A cached Python run is reused whenever its `results.json` exists, with no check of the Python commit or the data lock, so a stale baseline can be compared.
-  - The scripts cite `docs/dev/BENCHMARKS.md` and `docs/dev/EQUIVALENCE.md`, and `docs/port/progress.md` cites `docs/dev/tests.json`. None of these files exists (checked this session).
+  - The scripts cite `docs/port/BENCHMARKS.md` and `docs/port/EQUIVALENCE.md`, and `docs/port/progress.md` cites `docs/port/tests.json`. None of these files exists (checked this session).
 
   W-154 covers only the Python lint and doc gates.
 - **Resolution plan:**

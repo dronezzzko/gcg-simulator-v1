@@ -45,7 +45,7 @@ replays the reference bit for bit (`tests/null_config.rs`, `tests/null_config_tr
 | `mech/p6g/leaf_vectors.txt` | the recorded leaf values of the W-35/W-137 test |
 | `mech/p6g/tests.rs` | 7 unit tests (below) |
 | `crates/gcg-eval/src/tune_ext.rs` | `gcg-eval tune-leaf`: the leaf-point recorder, the positions file, the fitter (L2 logistic regression by Newton's method with a Cholesky solve, CV by game or by pair, lambda by CV, the held-out pair check, the per-deck and leave-one-deck-out tables, phase models, `--signs`, `--test-positions`), the report and the weights table; 5 unit tests |
-| `docs/dev/eval/P6-G/` | fit reports, ablation rows, `seed-ledger.json`, `README.md` (regeneration commands), `versus_placebo.py` |
+| `docs/dev/eval/P6-G/` | fit reports, ablation rows, `seed-ledger.json`, `README.md` (regeneration commands), `versus_placebo.py` (deleted, at commit 83a06c8) |
 
 Wiring outside the package's directories (flagged to the lead, interface notes of the report):
 

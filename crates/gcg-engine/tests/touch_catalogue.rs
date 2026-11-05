@@ -11,7 +11,7 @@
 //! - the "always option 0" games: Python's version and action count before every decision and
 //!   the final facts (seed 12345 ends at version 357, digest `5ce28ed9…31e9a`);
 //! - each touching primitive's version delta on one Scenario, equal to Python's and to the
-//!   delta the inventory documents, with Python's digest after it.
+//!   delta in the `PRIMITIVES` table of `oracle/export_engine_vectors.py`, with Python's digest after it.
 
 mod l5_common;
 
@@ -119,7 +119,7 @@ fn first_option_games_touch_as_python_before_every_decision() {
     let inv = recs
         .iter()
         .find(|r| r["id"] == "rgz-bwf/12345")
-        .expect("the inventory game");
+        .expect("the always-option-0 game");
     assert_eq!(inv["decisions"].as_array().unwrap().len(), 69);
     assert_eq!(version_of(&inv["final"]["version"]), 357);
     assert_eq!(

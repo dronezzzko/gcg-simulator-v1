@@ -1,6 +1,5 @@
 //! Python semantics on JSON-loaded values and paths that the data layer reproduces: `str()`,
-//! `repr()`, truthiness, `int()`, `int == value`, `str(pathlib.Path(p))` and `PurePath.stem`
-//!.
+//! `repr()`, truthiness, `int()`, `int == value`, `str(pathlib.Path(p))` and `PurePath.stem`.
 
 use std::fmt::Write as _;
 

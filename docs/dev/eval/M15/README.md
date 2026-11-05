@@ -289,6 +289,6 @@ Code changes beyond the preset constants, all forced by tests that used the ship
 | `curves/*.json` | budget-curve reports |
 | `configs/*.json` | `preset-benchmark --search-config` files: `shipped-*-1x.json` (the pre-M15 presets; their games equal `gcg-sim`'s at `e14c839`), `m15-<preset>-<scale>x.json` (the timed candidates; `m15-standard-8x.json` and `m15-fast-1.5x.json` play the games of the shipped presets of this commit) |
 | `timing/timing.tsv`, `timing/probe-bcore-60.json` | the cost runs and the sizing probe |
-| `make_config.py`, `rows_table.py`, `timing_table.py` | the configuration writer and the table scripts |
+| `make_config.py`, `rows_table.py`, `timing_table.py` | the configuration writer and the table scripts (deleted, at commit 83a06c8) |
 | `preset-table.md` | the preset table for the Rust `docs/AI.md` |
 | `../weakness-status/M15-bundle.md` | the §12.10 rows per mechanism |

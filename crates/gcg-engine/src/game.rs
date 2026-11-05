@@ -95,8 +95,7 @@ fn ctx(controller: u8, host: i32, card_uid: i32) -> Ctx {
 }
 
 /// `c is not d.TRUE` (`game.py:405`, `:443`, `:623`): `TRUE = And(())` (`effects/dsl.py:579`);
-/// the IR is hash-consed, so every `And(())` is that node, and evaluating one is `True` anyway
-///.
+/// the IR is hash-consed, so every `And(())` is that node, and evaluating one is `True` anyway.
 fn is_true(reg: &Registry, c: CondId) -> bool {
     matches!(reg.node(c.node()), Node::And(x) if x.conds.is_empty())
 }

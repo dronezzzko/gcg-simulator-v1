@@ -3,8 +3,8 @@
 //!
 //! `check_replay` reads a `json.loads` document, so it reproduces the Python operations it
 //! applies to the values (`int()`, `d[key]`, `list()`, `sorted(key=...)`, `==`, `repr`) and the
-//! order in which they run: a malformed document fails with the exception Python raises first
-//!. Where Python's text is CPython's own exception text, the class and
+//! order in which they run: a malformed document fails with the exception Python raises first.
+//! Where Python's text is CPython's own exception text, the class and
 //! the message are CPython's for the cases below; values outside the Rust types (a seed outside
 //! `[0, 2**64)`, a chooser that is not a seat, an action argument outside `i32`) are reported
 //! as `ValueError`s that Python would not raise (it would replay them, PLAN A19).

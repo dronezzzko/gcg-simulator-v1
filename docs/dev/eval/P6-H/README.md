@@ -33,5 +33,5 @@ deal noise removed.
 | `docs/dev/eval/P6-H/w44-e2e-head-to-head-dev.json` | `gcg-eval head-to-head search:null-standard:exclude_capped_play_draw=true ref:standard --decks panel --pairs tuning --games 60 --role dev --seed 20800144 --choose-first agents --ledger docs/dev/eval/P6-H/seed-ledger.json --workers 10 --out docs/dev/eval/P6-H/w44-e2e-head-to-head-dev.json --decision-trace TRACE.ndjson` |
 | `docs/dev/eval/P6-H/w44-e2e-trace-summary-dev.json` | `python3 docs/port/eval/P6-H/trace_summary.py docs/dev/eval/P6-H/w44-e2e-head-to-head-dev.json TRACE.ndjson 24` (the 2.9 MB trace itself is not committed; the command above regenerates it byte for byte) |
 
-`pair_rows.py` and `trace_summary.py` are this package's evidence helpers (standard-library
-Python, outside the crates, no timing).
+`pair_rows.py` and `trace_summary.py` were this package's evidence helpers (standard-library
+Python, outside the crates, no timing; deleted, at commit 83a06c8).

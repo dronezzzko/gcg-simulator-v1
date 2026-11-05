@@ -1,8 +1,8 @@
 # Rust implementation of gcg-sim: plan
 
 Phase 1 deliverable for `docs/port/BRIEF.md` (step 5). Branch `rust-port` at `d9d41af` plus the
-uncommitted port files (`Cargo.toml`, `Cargo.lock`, `crates/gcg-core`, `oracle`,
-`scripts/compare_python_vs_rust.sh`, `scripts/normalize_outputs.py`, `docs/dev/`). Inputs:
+uncommitted port files (`Cargo.toml`, `Cargo.lock`, `crates/gcg-core`, `port/oracle`,
+`scripts/compare_python_vs_rust.sh`, `scripts/normalize_outputs.py`, `docs/port/`). Inputs:
 `docs/port/BRIEF.md` (binding), `docs/port/INVENTORY.md` and its twelve sections in
 `docs/port/inventory/`, `docs/dev/WEAKNESSES.md` (164 items) and the Python reference in
 `src/gcg_sim`. Machine-readable test register: `docs/dev/tests.json` (Appendix A maps every id to
@@ -1448,7 +1448,7 @@ Exporters only observe. They call public functions, wrap `apply` transparently a
 behaviour. The M3 gate shows this: wrapped runs give the same `final_state_sha256` and action
 lists as plain runs, and identical bytes under `PYTHONHASHSEED=1` and `2`. Python is only needed
 to regenerate. The committed outputs make every tier-1 Rust test runnable without Python.
-`oracle` passes `uv run ruff check port`, `uv run ruff format --check port` and
+`oracle` passes `uv run ruff check oracle`, `uv run ruff format --check oracle` and
 `MYPYPATH=src uv run mypy --strict oracle` (W-154).
 
 ### 8.2 Trace format (NDJSON, one object per line, version 1)
@@ -3337,7 +3337,7 @@ RG
 uv run python oracle/export_ir.py --check
 uv run python oracle/export_vectors.py --check
 cargo test --release --locked --offline -p gcg-core -p gcg-effects     # ir_current, content ids, golden, counts, repr, fingerprints
-uv run ruff check port && uv run ruff format --check port && MYPYPATH=src uv run mypy --strict oracle
+uv run ruff check oracle && uv run ruff format --check oracle && MYPYPATH=src uv run mypy --strict oracle
 ```
 
 ### M3 (Phase 2 gate)

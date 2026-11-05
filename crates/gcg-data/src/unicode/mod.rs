@@ -69,8 +69,7 @@ pub(crate) fn is_line_break(c: char) -> bool {
     in_ranges(tables::LINE_BREAK, c)
 }
 
-/// `int(c)` for a character with `str.isdecimal()` (regex `\d`, category Nd); `None` otherwise
-///.
+/// `int(c)` for a character with `str.isdecimal()` (regex `\d`, category Nd); `None` otherwise.
 pub(crate) fn decimal_value(c: char) -> Option<u32> {
     in_triples(tables::DECIMAL, c).map(|(first, value)| u32::from(value) + (u32::from(c) - first))
 }

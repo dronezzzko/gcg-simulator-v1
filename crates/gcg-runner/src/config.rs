@@ -97,8 +97,7 @@ pub fn game_seed(master: u64, m: u32, g: u32) -> u64 {
 }
 
 /// `agent_seed(master, match_index, game_index, seat)` (`runner/config.py:79-80`):
-/// `derive_seed(master, "match", m, "game", g, "agent", seat)`; keyed by seat, not role
-///.
+/// `derive_seed(master, "match", m, "game", g, "agent", seat)`; keyed by seat, not role.
 #[must_use]
 pub fn agent_seed(master: u64, m: u32, g: u32, seat: u8) -> u64 {
     derive_seed!(master, "match", m, "game", g, "agent", u32::from(seat))

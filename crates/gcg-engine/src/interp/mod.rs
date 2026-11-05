@@ -96,8 +96,8 @@ fn by_of(p: u8) -> i8 {
 }
 
 /// The uid in an int slot (`f.vars` items, `Action.a`, `f.host`) as an index of `st.cards`.
-/// Python indexes `st.cards[x]`; every interpreter site that does so holds a uid there
-///, so an out-of-range value is Python's `IndexError`.
+/// Python indexes `st.cards[x]`; every interpreter site that does so holds a uid there,
+/// so an out-of-range value is Python's `IndexError`.
 fn to_uid(st: &GameState, x: i32) -> Result<Uid, EngineError> {
     match Uid::try_from(x) {
         Ok(u) if usize::from(u) < st.cards.len() => Ok(u),

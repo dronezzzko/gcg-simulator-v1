@@ -9,7 +9,7 @@ Writes crates/gcg-engine/tests/fixtures/engine_vectors.ndjson, one record per li
 - ``game_touch`` (T-046): a game that always takes option 0, with the version and
   action count before every decision and the final state's facts;
 - ``primitive_touch`` (T-046): a ``testkit.Scenario`` given as operations, one call of an
-  engine primitive, the version before and after it, the documented delta,
+  engine primitive, the version before and after it, the expected delta (``PRIMITIVES``),
   and the digest after (for ``determinize``/``permute_hidden``, of the new state);
 - ``deck_order`` (T-151): one deck multiset in two orders, ``new_game`` with the same seed and
   chooser on each, with each player's deck and resource deck (def ids, top first), the RNG
@@ -337,7 +337,7 @@ def primitive_records(reg: Registry) -> Iterator[dict[str, Json]]:
         delta = out.version - before
         if delta != expect:
             raise SystemExit(
-                f"{pid}: Python's version delta is {delta}, the documented delta is {expect}"
+                f"{pid}: Python's version delta is {delta}, the expected delta is {expect}"
             )
         if out is not st and digest(reg, st) != source_digest:
             raise SystemExit(f"{pid}: the call changed its input state")

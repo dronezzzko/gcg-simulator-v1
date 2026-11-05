@@ -23,7 +23,7 @@ reference bit for bit (`tests/null_config.rs`, `tests/null_config_traces.rs` and
 | `mech/p6a/capped.rs` | `capped_rollout_continuation`: `settled`, `continue_line`, `CONTINUATION_DECISIONS` = 64 |
 | `mech/p6a/tests.rs` | 10 unit tests (below) |
 | `crates/gcg-search/tests/scenarios/p6a_w01_two_turn_plan.rs` | the W-01 scenario (3 tests) |
-| `docs/dev/eval/P6-A/` | the ablation reports `rows/*.json`, `versus_placebo.py`, `seed-ledger.json` |
+| `docs/dev/eval/P6-A/` | the ablation reports `rows/*.json`, `versus_placebo.py` (deleted, at commit 83a06c8), `seed-ledger.json` |
 
 Wiring outside `mech/p6a/` (flagged to the lead):
 

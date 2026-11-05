@@ -25,7 +25,7 @@ still replays the reference bit for bit (`tests/null_config.rs`, `tests/null_con
 | `mech/p6b/audit.rs` (feature `slow`) | W-17 step (4): the regenerated audit games and their missed lethals |
 | `mech/p6b/can_kill_census.rs` (feature `slow`) | W-38: the `can_kill` census on 10,000 positions |
 | `crates/gcg-search/tests/scenarios/p6b_support.rs`, `p6b_w03_last_blocker.rs`, `p6b_w16_fast_lethal.rs`, `p6b_w32_cant_block.rs` | the scenario tests |
-| `docs/dev/eval/P6-B/` | `rows/*.json` (the ablation reports, every game included), `rows_table.py` (the table below, with the placebo comparison), `seed-ledger.json` |
+| `docs/dev/eval/P6-B/` | `rows/*.json` (the ablation reports, every game included), `rows_table.py` (the table below, with the placebo comparison; deleted, at commit 83a06c8), `seed-ledger.json` |
 
 Wiring outside `mech/p6b/` (flagged to the lead):
 

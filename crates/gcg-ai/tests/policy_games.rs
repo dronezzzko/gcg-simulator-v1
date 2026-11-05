@@ -1,6 +1,6 @@
-//! Game-level vectors (recorded items 3-7) over the AI
+//! Game-level vectors over the AI
 //! test decks (`tests/ai/decks.py`), from `games.ndjson` of
-//! `oracle/export_policy_vectors.py`, which reproduces each Inventory digest before it
+//! `oracle/export_policy_vectors.py`, which reproduces each recorded digest before it
 //! writes:
 //!
 //! - `RandomAgent(7)` vs `RandomAgent(8)` from `new_game(DECKS, 12345)`: at every decision the

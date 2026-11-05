@@ -17,7 +17,7 @@ Writes crates/gcg-ai/tests/vectors/policy/:
   ``RandomAgent`` decision and, for every fourth record, a ``GreedyAgent`` decision.
   ``terminal`` records hold finished games (``evaluate`` is exact there).
 - ``opening.ndjson``: ``opening_score`` of sampled hands.
-- ``games.ndjson``: the game-level vectors (recorded items 3-7) over the AI test decks.
+- ``games.ndjson``: the game-level vectors over the AI test decks.
 
 Every state is computed on a clone whose cached view is cleared, so each value is the one a
 freshly loaded state gives (``canon::from_canonical`` starts with an empty cache, PLAN §4.8).
@@ -628,7 +628,7 @@ def opening_records() -> list[dict[str, Json]]:
 
 
 # ---------------------------------------------------------------------------------------------
-# game vectors (recorded items 3-7)
+# game vectors
 
 
 def deck_json(deck: DeckList) -> dict[str, Json]:
