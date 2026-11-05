@@ -11,7 +11,7 @@
 //! | --- | --- | --- | --- |
 //! | E1 | `search:standard` vs `ref:strong` | panel | pooled-all lower >= 0.55; pooled held-out lower >= 0.55; no held-out pair upper < 0.5 |
 //! | E2 | `search:fast` vs `ref:standard` | panel | pooled point >= 0.5, all and held-out; no pair upper < 0.5 |
-//! | E3 | `search:standard` vs `random` | tests and panel | every game won (tests, and each panel pair, held-out pairs listed on their own), or every loss documented with a replay that `check_replay` verifies and that reproduces the loss's outcome row (challenger seat, winner, turns) |
+//! | E3 | `search:standard` vs `random` | tests and panel | every game won (tests, and each panel pair, held-out pairs listed on their own), or every loss documented with a replay that `check_replay` verifies and that is that game (its index, the pair's decks, the challenger's seat, winner and turns) |
 //! | E4 | `search:standard` vs `greedy` | tests and panel | tests lower > 0.764; pooled lower > 0.764 over all pairs and over the held-out pairs |
 //!
 //! Each report is checked against its gate before its numbers count: the agent specs, the
@@ -93,6 +93,8 @@ pub struct LossRow {
     pub challenger: i64,
     pub winner: i64,
     pub turns: i64,
+    /// The position of its pair in `pairs`.
+    pub pair: usize,
 }
 
 fn s(v: &Value, key: &str) -> Option<String> {
@@ -182,6 +184,7 @@ impl Report {
                     challenger: chal,
                     winner,
                     turns: int(4).ok_or_else(|| format!("outcome {index} has no turns"))?,
+                    pair: k,
                 });
             }
         }
@@ -353,19 +356,24 @@ pub fn load_losses(path: &Path) -> Result<Vec<Loss>, String> {
 }
 
 /// A loss is documented when the losses file names a replay for it that `check_replay`
-/// verifies and that reproduces the game's outcome row: the challenger's seat is the replay's
-/// `dut` seat, and the replayed winner seat (none for a draw) and turns equal the row's.
+/// verifies and that is this game: its `match_index` is the game's index (as
+/// `head-to-head-replay` writes it), its two seats hold the pair's decks, the challenger's
+/// seat is its `dut` seat, and the replayed winner seat (none for a draw) and turns equal the
+/// outcome row's.
 fn documented(r: &Report, index: u64, losses: &[Loss]) -> bool {
     let Some(row) = r.loss_rows.iter().find(|x| x.index == index) else {
+        return false;
+    };
+    let Some(pair) = r.pairs.get(row.pair) else {
         return false;
     };
     losses
         .iter()
         .filter(|l| l.report == r.path && l.index == index)
-        .any(|l| replay_reproduces(&l.replay, row))
+        .any(|l| replay_reproduces(&l.replay, row, &pair.decks))
 }
 
-fn replay_reproduces(path: &str, row: &LossRow) -> bool {
+fn replay_reproduces(path: &str, row: &LossRow, pair_decks: &[String; 2]) -> bool {
     let Ok(text) = std::fs::read_to_string(path) else {
         return false;
     };
@@ -385,8 +393,23 @@ fn replay_reproduces(path: &str, row: &LossRow) -> bool {
         })
         .and_then(|s| s.get("seat"))
         .and_then(Value::as_i64);
+    let mut seat_decks: Vec<&str> = doc
+        .get("seats")
+        .and_then(Value::as_array)
+        .map(|seats| {
+            seats
+                .iter()
+                .filter_map(|s| s.get("deck").and_then(Value::as_str))
+                .collect()
+        })
+        .unwrap_or_default();
+    seat_decks.sort();
+    let mut want = [pair_decks[0].as_str(), pair_decks[1].as_str()];
+    want.sort();
     let winner = check.winner_seat.map_or(-1, |w| i64::from(w).max(-1));
-    check.ok
+    doc.get("match_index").and_then(Value::as_u64) == Some(row.index)
+        && seat_decks == want
+        && check.ok
         && dut_seat == Some(row.challenger)
         && winner == row.winner
         && i64::from(check.turns) == row.turns

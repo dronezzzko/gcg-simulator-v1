@@ -177,7 +177,7 @@ formatting-only edit of `port/oracle/export_cli.py`. No role seeds were used (th
   Every difference is under 3%. The criterion names the minimum, and only session 1's minima
   are recorded: within 0.3% of its medians.
 - **To close:** on an idle machine, run
-  `python3 scripts/throughput.py search:fast --opponent ref:fast --games 400 --runs 2 --workers auto --json A.json`
+  `python3 scripts/throughput.py search:fast --opponent ref:fast --games 400 --runs 2 --workers 6 --json A.json`
   twice (A.json, then B.json), then `python3 scripts/throughput.py --agree A.json B.json`. Or
   the lead records that the two harness sessions above meet the criterion.
 - **Tool check on this machine (loaded, so not evidence for the criterion):** two sessions of

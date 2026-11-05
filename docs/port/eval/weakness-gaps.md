@@ -22,14 +22,14 @@ AI row: "yes" means the work changes a strengthened-search mechanism or adds one
 
 ## Counts
 
-`target/release/gcg-diff weaknesses --check docs/port/WEAKNESSES.md` passes. With `--require-resolved` it reports 5 problems, one per open item:
+`target/release/gcg-diff weaknesses --check docs/port/WEAKNESSES.md` passes. With `--require-resolved` it reports 4 problems, one per open item:
 
 | Status | Items | Count |
 | --- | --- | ---: |
-| resolved | — | 126 |
+| resolved | — | 127 |
 | resolved by measurement (not adopted) | W-02, W-06, W-07, W-08, W-09, W-10, W-11, W-12, W-14, W-16, W-23, W-24, W-27, W-28, W-29, W-30, W-31, W-34, W-35, W-36, W-37, W-38, W-45, W-134, W-138, W-139, W-140, W-141, W-142, W-05 | 30 |
 | admissible exception | W-131, W-132, W-133 | 3 |
-| open: a run that has not happened | W-126, W-137 | 2 |
+| open: a run that has not happened | W-137 | 1 |
 | open: measured, verification not met | W-18, W-19 | 2 |
 | open: the user's decision | W-120 | 1 |
 
@@ -40,10 +40,10 @@ Changes since the first version of this file:
 - by the lead's decisions of `docs/port/PLAN.md` §0.1 (end of Phase 6): W-05 resolved by measurement (the break-even share replaces the scenario bar), W-63 and W-67 resolved (`templates/check.py --check` is T-154's assertion; no IR `template` field) and W-111 resolved (tag-based coverage stands for rules, FAQ entries and rulings). W-137's adoption question is decided (not adopted); its Linux run remains;
 - resolved: W-101 (engine anchors for the last rule-level interpretations I-04, I-11, I-13 and I-17; I-21 and I-24 are compile-time readings with no engine path; section 3).
 
-The 5 open items fall into two kinds:
+The 4 open items fall into two kinds:
 
 - 2 are AI items (class S): W-18 and W-19.
-- 3 are non-AI items: W-120, W-126 and W-137 (the Linux run).
+- 2 are non-AI items: W-120 and W-137 (the Linux run).
 
 ## 1. Lead: the final evaluation (docs/port/eval/final-2/, docs/port/eval/review/)
 
@@ -150,13 +150,9 @@ No item is open here. W-104 is resolved by the decision recorded in `docs/port/e
 
 ## 6. Lead: gates, docs and long runs
 
-### W-126: throughput reproducibility
-- **Missing:** "two runs on an idle machine agree within 3% on the minimum", measured with `scripts/throughput.py`.
-- **Why:** every `throughput.py` run so far was on a loaded machine. `scripts/throughput.py --agree` now checks the criterion, and a loaded-machine tool check agreed within 1.08% (`docs/port/eval/GAP-D/throughput-A.json`, `throughput-B.json`).
-- **Work:** one of:
-  - on an idle machine, run `python3 scripts/throughput.py search:fast --opponent ref:fast --games 400 --runs 2 --workers auto --json A.json`, then the same into `B.json`, then `python3 scripts/throughput.py --agree A.json B.json`, and record both minima and their difference in W-126;
-  - or record that the idle-machine harness sessions meet the criterion. The two `scripts/compare_python_vs_rust.sh` sessions at 34b3107 have medians within 0.35% (GAP-D). The final timing session at 8c89b5e recorded minima of 47.8 s and 28.0 s for the reference `standard` at m100 w10 and m20 w1, against 47.8 s and 28.1 s at M10, and the reference search did not change between the two (`docs/port/BENCHMARKS.md`, Part 1).
-- **AI row:** no. **Effort:** S.
+### W-126: throughput reproducibility — resolved
+
+- **Resolution:** the Phase 7 reviewer's idle-machine pair at 2d425db agrees within 0.33% (CPU s/game) and 0.27% (wall) on every pairing, `--agree` exit 0 (`docs/port/REVIEW.md` §6.2). The command takes an integer `--workers` (6 here).
 
 ### W-154: the Python gate with the port committed — resolved
 

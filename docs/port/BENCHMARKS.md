@@ -330,3 +330,11 @@ scripts/compare_python_vs_rust.sh report      # "all 8 configurations present, c
 ```
 
 The 2x floor holds in every configuration of both parts.
+
+**Reviewer's rerun at HEAD** (Phase 7, `docs/port/REVIEW.md` §6.1): the independent reviewer
+repeated `env`, both `best-workers` searches (best: auto, 6 workers, for both), `part1`, `part2`
+and `report` from a clean clone of commit 2d425db (code digest `e5f73ad8…`, after the W-101
+engine counters), on the idle machine, against the same Python baselines. Part 1: 23.59x,
+20.34x, 45.31x and 24.66x; Part 2: `fast` 11.82x, 10.37x and 21.25x, `standard` 2.40x (148.2 s).
+`report` exit 0, "all 8 configurations present, current and at least 2x". Every Rust median
+is within 0.4 s of the session above.

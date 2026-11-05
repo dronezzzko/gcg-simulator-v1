@@ -153,13 +153,46 @@ pub fn select(source: &PairSource) -> Result<Selection, String> {
     select_with(source, panel.as_ref())
 }
 
-/// The pairs of `source` under the held-out split `panel` (none: no pair is held out).
+/// A deck list's cards as a multiset (sorted copies of `main` and `resources`).
+fn sorted_list(deck: &DeckList) -> DeckList {
+    let mut main = deck.main.to_vec();
+    let mut resources = deck.resources.to_vec();
+    main.sort();
+    resources.sort();
+    DeckList {
+        main: main.into_boxed_slice(),
+        resources: resources.into_boxed_slice(),
+    }
+}
+
+/// The card multisets of the held-out panel decks, so that a held-out deck is held out under
+/// any name or path (a renamed copy included; the split names decks, PLAN §12.5, A14).
+fn held_out_lists(panel: Option<&Panel>) -> Result<Vec<DeckList>, String> {
+    let Some(panel) = panel else {
+        return Ok(Vec::new());
+    };
+    let names = panel.held_out_decks();
+    Ok(load_decks(DeckSet::Panel)?
+        .iter()
+        .filter(|d| names.contains(&d.name))
+        .map(|d| sorted_list(&d.deck))
+        .collect())
+}
+
+/// The pairs of `source` under the held-out split `panel` (none: no pair is held out; a pair
+/// is held out when the split names one of its decks or when one of its decks has the cards
+/// of a held-out panel deck).
 ///
 /// # Errors
 /// A deck that does not load, or a malformed `--pair` list.
 pub fn select_with(source: &PairSource, panel: Option<&Panel>) -> Result<Selection, String> {
-    let held =
-        |a: &NamedDeck, b: &NamedDeck| panel.is_some_and(|p| p.is_held_out(&a.name, &b.name));
+    let held_lists = held_out_lists(panel)?;
+    let held = |a: &NamedDeck, b: &NamedDeck| {
+        panel.is_some_and(|p| p.is_held_out(&a.name, &b.name))
+            || held_lists
+                .iter()
+                .any(|l| *l == sorted_list(&a.deck) || *l == sorted_list(&b.deck))
+    };
     match source {
         PairSource::Named(list) => {
             let mut pairs = Vec::new();

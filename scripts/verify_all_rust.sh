@@ -153,7 +153,7 @@ done
 # The distributable binaries (T-143): the apple-m2 build replays the tier-1 corpus like the
 # native one (T-092), and gcg-sim runs offline without Python (T-145).
 scripts/build_dist.sh
-target/dist/gcg-diff corpus --tier 1 --require-all --jobs "$corpus_jobs"
+target/dist-check/dist/gcg-diff corpus --tier 1 --require-all --jobs "$corpus_jobs"
 scripts/verify_binary_offline.sh target/dist/gcg-sim
 
 # Stdlib-only tool checks, the gate's own negative controls, the CLI help snapshot, generated

@@ -462,8 +462,10 @@ fn w19_gates_compute_e1_to_e4_and_fail_below_a_bar() {
     assert_eq!(by_name("pooled lower bound, held-out pairs")["pass"], false);
 
     // One loss to random fails E3 until it is documented with a replay that `check_replay`
-    // verifies and that reproduces the loss's outcome row. The committed fixture replay (the
-    // `dut` seat 0 loses to seat 1 after 25 turns) stands for that game, so its row says so.
+    // verifies and that is that game: its index, the pair's decks, the challenger's seat, the
+    // winner and the turns. The committed fixture replay (the `dut` seat 0 loses to seat 1
+    // after 25 turns) stands for that game: its row says so, and its labels (`match_index`,
+    // the seats' deck names, which `check_replay` does not read) are the game's.
     let mut lossy = good(400, 400);
     lossy[3].3 = 399;
     let loss_index = 3 * 400 + 399;
@@ -482,6 +484,14 @@ fn w19_gates_compute_e1_to_e4_and_fail_below_a_bar() {
         .expect("the fixture replay"),
     )
     .expect("JSON");
+    let mut fixture = fixture;
+    fixture["match_index"] = json!(loss_index);
+    fixture["seats"][0]["deck"] = json!("a");
+    fixture["seats"][1]["deck"] = json!("e");
+    let mut other_game = fixture.clone();
+    other_game["match_index"] = json!(loss_index - 1);
+    let mut other_pair = fixture.clone();
+    other_pair["seats"][1]["deck"] = json!("d");
     let mut tampered = fixture.clone();
     tampered["expected"]["turns"] = json!(24);
     let mut other_seat = lossy.clone();
@@ -503,6 +513,8 @@ fn w19_gates_compute_e1_to_e4_and_fail_below_a_bar() {
         ("empty", &e3l, json!({})),
         ("tampered", &e3l, tampered),
         ("other-seat", &e3o, fixture.clone()),
+        ("other-game", &e3l, other_game),
+        ("other-pair", &e3l, other_pair),
     ] {
         let out = gate_with(report, &replay, name);
         assert_eq!(out.status.code(), Some(1), "{name}: {}", stderr(&out));

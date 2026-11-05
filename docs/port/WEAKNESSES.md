@@ -94,7 +94,7 @@ port scripts and docs. *admissible exception*: a design decision of the referenc
 
 - **Status.** The status is one of:
   - `resolved`;
-  - `resolved by measurement (not adopted)`: a strengthened-search mechanism that is implemented and measured null or negative, and stays off in the shipped presets;
+  - `resolved by measurement (not adopted)`: a strengthened-search mechanism that is implemented and measured null or negative, and stays off in the shipped presets. The weakness itself therefore remains in the shipped AI: the entry records that the measured remedy does not help at game level (brief step 22 keeps only changes with a measured non-negative effect);
   - `admissible exception` (W-131 to W-133);
   - `open`, followed by the remaining work.
 
@@ -274,7 +274,7 @@ The row kinds are:
 | W-123 | compare.py usability limits | tooling | eval tooling | unit + e2e | resolved |
 | W-124 | Search is engine-bound; invalidating the derived view by mutation kind is deferred | performance | Rust fix (output-identical) | e2e + unit | resolved |
 | W-125 | Action and Decision are frozen dataclasses (slow construction on the hot path) | performance | Rust fix (by construction) | unit | resolved |
-| W-126 | Throughput measurement counts wall time x workers on one pairing; machine state is not recorded | performance | tooling | e2e | open (run pending) |
+| W-126 | Throughput measurement counts wall time x workers on one pairing; machine state is not recorded | performance | tooling | e2e | resolved |
 | W-127 | Investigation evidence is not reproducible: raw outputs were gitignored and cited commits were squashed away | docs | docs + eval tooling | unit | resolved |
 | W-128 | Stale counts across status.json and the research docs | docs | docs (generated counts) | unit | resolved |
 | W-129 | Hand-maintained docs drift from the code | docs | docs (checked contracts) | unit | resolved |
@@ -2314,7 +2314,7 @@ The row kinds are:
 - **What is weak:** process spawn, imports and idle tail workers count as busy core time; only `TUNING_DECKS[0]` vs `[1]` is measured; the documented `--games 26` is not a multiple of the 4-game block; machine load and power state are not recorded; the lost harness used the minimum over runs and a 1.03 regression ratio.
 - **Resolution plan:** the port's throughput tool (outside the deterministic crates, as `scripts/compare_python_vs_rust.sh` already is) reports CPU time per game from the OS, nodes and decisions per second (deterministic counts over measured time), several deck pairings, whole blocks only, the minimum and median of repeated runs, and the machine's load and power state.
 - **Verification** (e2e): two runs on an idle machine agree within 3% on the minimum; a `--games` value that is not a multiple of 4 is rounded up with a message.
-- **Status:** open: `scripts/throughput.py` is outside the crates. It times `gcg-eval head-to-head` on several pairings in whole blocks of four, repeated `--runs` times. It reports wall time, CPU time from `getrusage`, deterministic effort counts per second, load average, CPU, core tiers and memory. It reads no power state, because the brief's operating assumption overrides that part of the plan. `scripts/throughput.py --agree FIRST.json SECOND.json [--tolerance 0.03]` checks two reports of the same command against the criterion, and the gate runs its self-test (`docs/port/eval/weakness-status/GAP-D.md`). Remaining: the pair of `scripts/throughput.py` runs on an idle machine that the verification's "two runs on an idle machine agree within 3% on the minimum" needs has not happened, or the lead's record that the harness sessions below meet the criterion.
+- **Status:** resolved: the verification's idle-machine pair is met (Phase 7 reviewer, `docs/port/REVIEW.md` §6.2, the clone at 2d425db, `--workers 6`): `throughput.py search:fast --opponent ref:fast --games 400 --runs 2` twice, minimum CPU time per game within 0.33% and minimum wall time within 0.27% on every pairing (tolerance 3%), and `--agree` exits 0. `scripts/throughput.py` is outside the crates. It times `gcg-eval head-to-head` on several pairings in whole blocks of four, repeated `--runs` times. It reports wall time, CPU time from `getrusage`, deterministic effort counts per second, load average, CPU, core tiers and memory. It reads no power state, because the brief's operating assumption overrides that part of the plan. `scripts/throughput.py --agree FIRST.json SECOND.json [--tolerance 0.03]` checks two reports of the same command against the criterion, and the gate runs its self-test (`docs/port/eval/weakness-status/GAP-D.md`). Remaining: the pair of `scripts/throughput.py` runs on an idle machine that the verification's "two runs on an idle machine agree within 3% on the minimum" needs has not happened, or the lead's record that the harness sessions below meet the criterion.
 - **Evidence:**
   - `python3 scripts/throughput.py search:fast --opponent ref:fast --games 3 --runs 2 --pairs red-green-zeon:blue-white-federation --workers 2`: "--games 3 rounded up to 4", with identical effort counts in both runs.
   - `scripts/throughput.py --selftest` (in the gate) covers block rounding, the summary minima, agreement at 2.5% and 2%, and failure at 5%, on different effort counts and on different commands.

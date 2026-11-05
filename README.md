@@ -38,9 +38,9 @@ evaluation harness). Build settings:
   `-C target-cpu=native` (on the M2 Pro, `native` is `apple-m2`). The release profile
   (`Cargo.toml`) uses `opt-level = 3`, fat LTO, one codegen unit and `panic = "abort"`, and
   mimalloc is the allocator.
-- **Distributable binaries**: `scripts/build_dist.sh` builds `gcg-sim`, `gcg-eval` and
-  `gcg-diff` with the `dist` profile and the `apple-m2` baseline (`GCG_TARGET_CPU` picks
-  another) into `target/dist/`, next to `LICENSE-DATA` and `NOTICE.txt`.
+- **Distributable binaries**: `scripts/build_dist.sh` builds `gcg-sim` and `gcg-eval` with
+  the `dist` profile and the `apple-m2` baseline (`GCG_TARGET_CPU` picks another) into
+  `target/dist/`, next to `LICENSE-DATA` and `NOTICE.txt`.
   `scripts/verify_binary_offline.sh` runs `gcg-sim` outside the repository with networking
   denied and no Python on the `PATH`:
 

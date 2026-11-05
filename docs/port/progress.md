@@ -371,3 +371,20 @@ API snapshot and doc checks pass. Final evaluation 2 is recorded under Phase 8.
   on E4. tests.json T-008 failing.
 - 18 findings (R-01 blocker: E4 on the test decks); fixes for R-03, R-04, R-06 to R-09, R-11,
   R-12 and R-18 in 8d2a73e; W-154 resolved by the Python gate run (0fc921e).
+
+### Phase 7 round 2 (reviewer, `docs/port/REVIEW.md` §6-§7)
+
+- Timing at HEAD 2d425db on the idle machine: all 8 configurations at least 2x (Part 1 23.59x /
+  20.34x / 45.31x / 24.66x; Part 2 `fast` 11.82x / 10.37x / 21.25x, `standard` 2.40x); `report`
+  exit 0 (T-011). W-126's throughput pair agrees within 0.33% (resolved).
+- `verify_all_rust.sh --full` exit 0 at HEAD (T-001; zstd 145 and `--no-default-features` 189
+  tests included); `ci_local.sh` exit 0, 1340 tests (T-156); documented commands 20 run, 19
+  skipped, 0 failed (T-134); reading checks of the reference constants and reachability (T-006).
+- Partial sign-off: gates, equivalence, worker identity, the two presets and the reference
+  reachability, speed, no timing code, the `unsafe` review, cards, the oracle untouched,
+  disjoint seeds and pairs, E1-E3 on review seeds. Not signed off: E4 (R-01, reported to the
+  user), the open WEAKNESSES items, CI on GitHub (R-17). T-014 failing.
+- Lead fixes after round 2: the gates match a documented loss's replay to its game (index and
+  the pair's decks; R-11), the held-out guard compares card multisets (R-10), `target/dist`
+  holds only the shipped binaries (R-09), `equivalence --help` (R-12), the throughput command
+  (R-19), the "not adopted" definition says the weakness remains (R-03).

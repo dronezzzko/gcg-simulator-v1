@@ -334,3 +334,55 @@ fn steering_roles_cannot_play_held_out_pairs() {
     assert_eq!(roles, ["tuning", "dev", "confirm", "eval", "review"]);
     let _ = std::fs::remove_dir_all(&dir);
 }
+
+/// R-10 (Phase 7 review): a held-out deck stays held out under another file name and with its
+/// lines in another order, because the guard also compares the card multisets with the
+/// held-out panel decks; a renamed copy of a tuning deck still plays.
+#[test]
+fn a_renamed_copy_of_a_held_out_deck_is_still_held_out() {
+    let dir = scratch("renamed-held-out");
+    let held = std::fs::read_to_string(root().join("examples/decks/eval/blue-red-tempo.txt"))
+        .expect("the held-out deck");
+    let copy = dir.join("my-tempo.txt");
+    std::fs::write(&copy, &held).expect("copy");
+    let mut lines: Vec<&str> = held.lines().collect();
+    lines.reverse();
+    let reordered = dir.join("reordered.txt");
+    std::fs::write(&reordered, lines.join("\n") + "\n").expect("reordered copy");
+    let tuning = dir.join("my-zeon.txt");
+    std::fs::copy(root().join("examples/decks/red-green-zeon.txt"), &tuning).expect("copy");
+    let ledger = dir.join("ledger.json");
+    let run = |a: &Path, b: &str| {
+        let pair = format!("{}:{b}", a.to_str().expect("UTF-8"));
+        gcg_eval(
+            &[
+                "head-to-head",
+                "random",
+                "random",
+                "--pair",
+                &pair,
+                "--games",
+                "4",
+                "--role",
+                "dev",
+                "--seed",
+                "20000000",
+                "--ledger",
+                ledger.to_str().expect("UTF-8"),
+            ],
+            &root(),
+        )
+    };
+    for deck in [&copy, &reordered] {
+        let refused = run(deck, "purple-white-tekkadan");
+        assert_eq!(refused.status.code(), Some(1), "{}", stderr(&refused));
+        assert!(
+            stderr(&refused).contains("may not play the held-out pair"),
+            "{}",
+            stderr(&refused)
+        );
+    }
+    let played = run(&tuning, "purple-white-tekkadan");
+    assert_eq!(played.status.code(), Some(0), "{}", stderr(&played));
+    let _ = std::fs::remove_dir_all(&dir);
+}

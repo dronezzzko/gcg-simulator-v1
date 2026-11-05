@@ -3,9 +3,10 @@
 Brief step 26 and PLAN §13 M16. The reviewer wrote none of the port's code. This file records
 what was checked, how, and every finding. The lead fixes; the reviewer re-verifies.
 
-**Status: not signed off.** Round 1 is complete (2026-11-05). The strength protocol on fresh
-review seeds fails E4 (R-01, a blocker). Round 2, the timing rerun on an idle machine, has not
-started. Sign-off needs every finding below resolved and round 2 done.
+**Status (2026-11-05, after round 2): partial sign-off; not signed off as a whole.** Both
+rounds are complete. Section 7 says exactly what is signed off and what is not. The blocker
+R-01 (E4 against greedy on the AI test decks) cannot be fixed without a new strength round; the
+lead reports it to the user as an unmet acceptance criterion.
 
 ## 1. Scope and method
 
@@ -16,7 +17,7 @@ started. Sign-off needs every finding below resolved and round 2 done.
 | Machine | Apple M2 Pro (6P + 4E), macOS 27.2, rustc 1.99.1, Python 3.15.1, uv 0.13.7. Shared with the lead's final evaluation 2 (6 workers) until it ended at 2026-11-04 21:45 UTC; every reviewer job ran under `nice -n 10`; load averages 20-55. No wall time below is a measurement |
 | Seeds | Review role [91000000, 91999999]; none of the nine used appears anywhere in the repository before this review (`grep -rl` over `docs port scripts crates examples`) |
 
-### Commands and outcomes
+### Commands and outcomes (round 1, 2026-11-04)
 
 | # | Command (from the clean clone) | Outcome |
 | --- | --- | --- |
@@ -39,6 +40,9 @@ started. Sign-off needs every finding below resolved and round 2 done.
 | C17 | `GCG_GATE_WORKERS=2 scripts/ci_local.sh` (T-156) in a clean clone of `a0e065a` | **exit 0**, "ci_local passed": golden-platform libm vectors pass, fmt and both clippy runs clean, 1340 tests passed (0 failed, 0 ignored), tier-1 corpus 3804/3804, lints, traceability and tests.json checks passed |
 
 ## 2. Findings
+
+The table below is the round-1 record (evidence as found at `7b7ab2f`/`a0e065a`). The status of
+each finding after round 2, and the new R-19, are in §6.5.
 
 Severity: **blocker** fails an acceptance criterion outright; **major** leaves an acceptance
 criterion unproven or a deliverable incomplete; **minor** is an inaccuracy or gap that does not
@@ -276,15 +280,170 @@ of the Python `python-h1` and Rust `rust-w1` runs all verify with the Rust `gcg-
 round: decision log on for the first two pairings, and seeds x pairs beyond the 43
 configurations (the original matrix had 108).
 
-## 6. Not yet verified
+## 6. Round 2 (2026-11-05, HEAD `2d425db`)
 
-- Round 2: `scripts/compare_python_vs_rust.sh env`, `best-workers rust-reference`,
-  `best-workers rust-presets`, `part1`, `part2` and `report` on an idle machine, against the
-  recorded Python baselines (T-011), with the binaries of the commit to be signed off (R-16).
-  Not run in round 1: the machine was loaded.
-- The full 108-configuration equivalence matrix on the final code (round 1 ran 43, §5).
-- The CI workflow on GitHub (R-17; needs the user's approval of the push).
+The clone was updated to `2d425db` (`git pull --ff-only`). Since `7b7ab2f` the commits changed
+`crates/gcg-eval/src/gates.rs`, `crates/gcg-eval/tests/phase6.rs`, the gate and build scripts,
+the CI workflow and documents; no engine, effect, AI or search code changed. The timing
+binaries were built with the script's own command (`cargo build --release --locked --offline
+-p gcg-cli -p gcg-eval`, code digest `e5f73ad8...`). Final evaluation 2 had ended (2026-11-04
+21:45 UTC), and before each timing step `uptime` and `ps` showed no other `gcg-*`, `cargo`,
+`hyperfine` or Python process (load averages 1.5-3.6 before a step; the steps themselves raise
+it).
+
+### 6.1 Timing (T-011)
+
+`COMPARE_OUT=/var/folders/0b/bb2yzbwn76l2y5lcblwyy6y80000gn/T/tmp.Glcf65zxkn/cmp-timing`, seeded
+with copies of the recorded Python baselines (`py-*.json`, `best-python-w*.json` from the main
+tree's `build/comparison/`, measured 2026-11-01 at `d9d41af`, reused by design). From the clone
+at `2d425db`:
+
+| Step | Outcome |
+| --- | --- |
+| `scripts/compare_python_vs_rust.sh env` | `env.txt`: Apple M2 Pro, 10 cores (6 Performance, 4 Efficiency), 34,359,738,368 bytes, macOS 27.2 (26B123), Python 3.15.1, uv 0.13.7, rustc 1.99.1, LLVM 23.1.1, hyperfine 2.0.0, git `2d425db` |
+| `best-workers rust-reference` | 6: 8.5 s, 8: 9.6 s, 10: 9.6 s, auto: 8.4 s; best `auto` (6 workers on this machine) |
+| `best-workers rust-presets` | 6: 18.2 s, 8: 20.1 s, 10: 19.9 s, auto: 17.9 s; best `auto` |
+| `part1 --best auto` | 4 configurations, 5 runs each, 07:26-07:37 UTC |
+| `part2 --best auto` | 4 configurations, 5 runs each (`standard`: 3), 07:39-08:06 UTC |
+| `report` | **exit 0**, "all 8 configurations present, current and at least 2x" |
+
+Every Rust timing's `.digest` equals `env.txt`'s `rust_code_digest`
+(`e5f73ad83ccce4387f9d3fc042ce0a077362bcb3ce1f6253be0720eec274aa47`); the medians below were
+recomputed from the hyperfine JSON files and equal the report's.
+
+| Part | Configuration | Python (median, 3 runs) | Rust (median, min-max) | Speedup |
+| --- | --- | ---: | ---: | ---: |
+| 1 A (screening, equal work) | headline, best workers: Python `standard` m100 w10, Rust ref `standard` m100 `auto` | 972.0 s | 41.2 s (41.1-42.1) | **23.59x** |
+| 1 A | headline, 10 workers | 972.0 s | 47.8 s (47.7-48.0) | **20.34x** |
+| 1 A | single-thread, m20 w1 | 1269.5 s | 28.0 s (28.0-28.1) | **45.31x** |
+| 1 B (full search, equal work) | Python `strong` m20 w10, Rust ref `strong` m20 `auto` | 356.0 s | 14.4 s (14.4-14.6) | **24.66x** |
+| 2 `fast` vs Python `standard` | headline, best workers (m100 `auto`) | 972.0 s | 82.2 s (81.6-82.8) | **11.82x** |
+| 2 `fast` | headline, 10 workers | 972.0 s | 93.7 s (93.6-93.9) | **10.37x** |
+| 2 `fast` | single-thread, m20 w1 | 1269.5 s | 59.8 s (59.7-59.9) | **21.25x** |
+| 2 `standard` vs Python `strong` | full search, m20 best workers (`auto`) | 356.0 s | 148.2 s (148.1-148.7) | **2.40x** |
+
+The 2x floor holds in all 8. These numbers equal BENCHMARKS' final session at `8c89b5e`
+within 0.4 s, so the W-101 counters of `93cc30d` (R-16) cost nothing measurable.
+
+### 6.2 W-126: throughput reproducibility
+
+Right after the timing, on the same idle machine, from the clone at `2d425db` (directory
+`/var/folders/0b/bb2yzbwn76l2y5lcblwyy6y80000gn/T/tmp.Glcf65zxkn/w126/`). `python3
+scripts/throughput.py --help` shows that `--workers` takes an integer: the documented
+`--workers auto` fails (`argument --workers: invalid int value: 'auto'`, R-19), so the runs used
+`--workers 6`, which is what `auto` resolves to on this M2 Pro:
+
+```text
+python3 scripts/throughput.py search:fast --opponent ref:fast --games 400 --runs 2 --workers 6 --json w126/A.json
+python3 scripts/throughput.py search:fast --opponent ref:fast --games 400 --runs 2 --workers 6 --json w126/B.json
+python3 scripts/throughput.py --agree w126/A.json w126/B.json
+```
+
+| Pairing (400 games x 2 runs) | Min CPU s/game A / B | Difference | Min wall s A / B | Difference |
+| --- | ---: | ---: | ---: | ---: |
+| red-green-zeon:blue-white-federation | 1.0429 / 1.0463 | 0.33% | 69.84 / 70.03 | 0.27% |
+| blue-white-federation:purple-white-tekkadan | 1.3012 / 1.3036 | 0.18% | 87.17 / 87.36 | 0.21% |
+| purple-white-tekkadan:red-green-zeon | 0.9947 / 0.9950 | 0.04% | 66.91 / 66.92 | 0.02% |
+
+`--agree`: exit 0, "throughput runs agree" (tolerance 3%, equal effort counts). W-126's
+verification is met; the lead can close W-126 with this record.
+
+### 6.3 Round-1 fixes re-verified
+
+- **R-11, gates.** From the main tree with the HEAD binary, `gcg-eval gates` on the review
+  reports with `--losses-documented`:
+  - genuine `docs/port/eval/review/e3-panel-losses/losses-documented.json`: E3 pass;
+  - a tampered copy (game 6006's last three actions removed; game 2464's seed changed): E3 fail,
+    undocumented `[2464, 6006]`;
+  - an empty replay file for game 8403: E3 fail, undocumented `[8403]`;
+  - **a swapped replay** (loss 7107, `red-green-zeon:red-purple-control`, given the replay of
+    loss 5047, `purple-white-tekkadan:red-purple-control`; both have challenger seat 1, winner 0
+    and 19 turns): E3 **pass**. The check compares the dut seat, winner and turns, not the decks
+    or the game seed, so a verified replay of another game with the same three values is
+    accepted. R-11 is resolved for tampered and missing replays, and a minor gap remains.
+- **R-09, build.** `scripts/build_dist.sh` (exit 0) now builds `gcg-sim`/`gcg-eval` and
+  `gcg-diff` in separate cargo invocations. `nm target/dist/gcg-sim | grep -c testkit` is 0,
+  and so are `target/dist/gcg-eval` and the script-built `target/release/gcg-sim`; the dist
+  `gcg-diff` has 28. `target/dist/` still holds `gcg-diff` (for the T-092 dist-corpus check),
+  while PLAN A31 (`docs/port/PLAN.md:166`) and `docs/port/ARCHITECTURE.md:27` say it is never
+  shipped.
+
+### 6.4 Gates at HEAD
+
+| # | Command (clean clones at `2d425db`) | Outcome |
+| --- | --- | --- |
+| G1 | `scripts/verify_all_rust.sh --full` (machine otherwise idle; `nice -n 5`; no `GCG_GATE_WORKERS`) | **exit 0**, "verify_all_rust passed" (08:24-11:55 UTC, its own clone: "verifying 2d425db"). Tests, 0 failed and 0 ignored in every tier: default 1332 (139 binaries), slow offline 1356 (143), `gcg-engine` paranoid 263 (23), the new `gcg-eval --features zstd` step 145 (13; `w99_zstd_output_decompresses_to_the_same_bytes ... ok`), the new `--no-default-features` step 189 (28), tier-2 slow 1333 (139); 485 `test result` lines, 4618 passes. `gcg-sim`/`gcg-eval` and `gcg-diff` built in separate invocations. Lints; 22 and 36 negative controls; tier-1 corpus 3804/3804 in all six modes and on the dist build; coverage, traceability, tests.json, weaknesses and API-snapshot checks; fuzz 10,000 (seed 2026, equal to the committed summary), 2,000, 400, 400 and 200 games, 0 failures each; `paranoid-games`; three `schema-check` steps; `build_dist.sh` and `verify_binary_offline.sh` (3 pairings, workers 1/4/10); tool self-tests; doc counts (10, 0 stale); documented commands "20 blocks run, 19 skipped, 0 failed"; the seed-1 equivalence smoke 3/3; tier 2 regenerated and replayed 4154/4154. Only the two known stale-research-artefact warnings |
+| G2 | `scripts/ci_local.sh` (T-156) in the second clone, pulled to `2d425db` | **exit 0**, "ci_local passed": libm vectors, fmt, both clippy runs, 1340 tests (0 failed), tier-1 corpus 3804/3804, lints, traceability, tests.json |
+| G3 | Register state at `2d425db` | `gcg-diff weaknesses --check --require-resolved`: open W-18, W-19, W-120, W-126, W-137 (W-04 and W-154 now resolved); tests.json: 142 passing, 7 failing (T-007, T-008, T-104, T-124, T-127, T-131, T-148), 9 not started (T-001, T-006, T-011, T-014, T-133, T-134, T-146, T-147, T-156) |
+
+From this review's evidence the lead can set T-001 (G1), T-006 (§3 a and b), T-011 (§6.1), T-134
+(G1's documented-command step) and T-156 (G2) to passing, and close W-126 (§6.2).
+
+### 6.5 Status of every finding after round 2
+
+| ID | Severity | Status | Evidence |
+| --- | --- | --- | --- |
+| R-01 | blocker | **unresolved; reported to the user** as an unmet acceptance criterion | E4 on the AI test decks fails on all three seed sets (review LB 0.7184; finals 0.7237 and 0.7158); review held-out panel LB 0.7623. `docs/AI.md:348-375` and `README.md:277-293` state it. Fixing it needs a new strength round |
+| R-02 | major | **unresolved** (narrowed) | Open at `2d425db`: W-18 (fidelity not met), W-19 (E4, R-01), W-120 (the user's decision), W-137 (Linux run needs the push), W-126 (met by §6.2, still to be recorded). W-04 and W-154 are resolved |
+| R-03 | major | **partly resolved** | `docs/AI.md:402-414` now says the "measured and not adopted" weaknesses are "still present in the shipped search", matching the register. Left: the status definition at `docs/port/WEAKNESSES.md:98` still does not say that such a weakness remains in the shipped AI, and whether 30 such items meet "every item resolved" is the user's decision; the final report must put it to the user |
+| R-04 | minor | **resolved** | `docs/port/EQUIVALENCE.md:99-108` records the reviewer's 129/129 at `7b7ab2f` and that the 324/324 matrix predates Phase 5 |
+| R-05 | major | **resolved** | `README.md:277-293` and `docs/AI.md:346-375`: evaluation 2 table, the review's E1-E4, and the E4 failure stated; no placeholder left (`grep "lead: final evaluation"` finds nothing) |
+| R-06 | minor | **resolved** | `README.md:168-169` and `.claude/skills/gcg-benchmark/SKILL.md:54-55` give 82.1 s and 148.6 s; round 2 measured 82.2 s and 148.2 s |
+| R-07 | minor | **resolved** | `docs/port/WEAKNESSES.md:546` and `P6-D.md:214` cite `the_concrete_search_agent_carries_its_trees` (`crates/gcg-search/tests/scenarios/p6d_reuse.rs:139`; `... ok` in the gate logs) |
+| R-08 | minor | **resolved** | The ablation table of `docs/AI.md` has no blank line before the M15b rows |
+| R-09 | minor | **resolved** (one residual note) | Separate builds in `build_dist.sh`, the gate, `ci_local.sh`, `rust.yml` and CLAUDE.md; `nm` finds 0 testkit symbols in the dist `gcg-sim` and `gcg-eval` (§6.3). Residual: `target/dist/` still holds `gcg-diff`, while A31 (`docs/port/PLAN.md:166`) and `ARCHITECTURE.md:27` say it is never shipped. Reword A31 or move the check binary out of `target/dist/` |
+| R-10 | minor | **unresolved** | Not addressed: the held-out guard still matches deck names only (no change to `head_to_head.rs` or `ledger.rs`). No misuse found |
+| R-11 | minor | **partly resolved** | `crates/gcg-eval/src/gates.rs` now runs `check_replay` and compares the dut seat, winner and turns: tampered and empty replays are refused (§6.3). Left: a verified replay of another game with the same seat, winner and turns is accepted (swap 5047 → 7107 passed). Compare the decks (and the game seed, which `index.json` records) too. `docs/port/eval/notes.md` now holds the inspection notes |
+| R-12 | minor | **mostly resolved** | PLAN (`:1276`, `:3534`) names `contracts.rs` and explains `mapped_reference`; BENCHMARKS records both uv versions; `compare_python_vs_rust.sh --help` exits 0. Left: `compare_python_vs_rust.sh equivalence --help` still exits 2 |
+| R-13 | minor | **open, accepted limitation** | Zero allocation is not reached (T-104, T-148 failing); documented in BENCHMARKS; must be listed in the final report |
+| R-14 | minor | **open, accepted deviation** | The `erfc` FFI is PLAN A2's lead decision; the final report must state the deviation from "unsafe only for a profiled win" and why Miri does not apply |
+| R-15 | minor | **resolved** (documented) | `docs/AI.md:412-414` reports the audit's remaining mistake rate (about 1.3 per game) and `docs/port/eval/final-2/audit/README.md` its reduced full-read sample |
+| R-16 | minor | **resolved** | Round 2 timed the binaries of `2d425db`: every configuration within 0.4 s of `8c89b5e` (§6.1) |
+| R-17 | minor | **unresolved; needs the user** | `rust.yml` has never run (the push needs approval). `ci_local.sh` passes at `2d425db` (G2) |
+| R-18 | minor | **resolved** | The gate runs `--features zstd` (145 passed) and `--no-default-features` (189 passed) in their own target directories (G1) |
+| R-19 | minor (new) | **unresolved** | W-126's documented command uses `--workers auto` (`docs/port/eval/weakness-gaps.md:157`, `docs/port/eval/weakness-status/GAP-D.md:180`), but `scripts/throughput.py` declares `--workers` as an integer and exits 2 (`invalid int value: 'auto'`). Accept `auto` or change the documented command to `--workers 6` |
 
 ## 7. Sign-off
 
-Not signed off. Open: R-01 (blocker), R-02, R-03 and R-05 (major), the minor findings R-04 and R-06 to R-18, and round 2.
+Reviewed: code at `2d425db` (round 2) and `7b7ab2f` (round 1; the two differ only in the gate
+tool's E3 replay check, tests, scripts, CI and documents).
+
+**Signed off (verified by the reviewer's own runs and readings):**
+
+- Build and gates: `scripts/verify_all_rust.sh --full` (G1, C1), `scripts/verify_all.sh` (C2,
+  3985 passed), `scripts/ci_local.sh` (G2, C17); fmt, clippy, every test tier, the
+  differential corpus at 100% (tier 1 and tier 2, also paranoid), fuzz with invariants and
+  results-schema validation.
+- Equivalence of the reference search with Python: 129/129 byte-identical on fresh review
+  seeds (43 configurations, all three reference presets, bo1/bo3, decision log off/on,
+  workers 1/4/10, the 100-match headline), plus the corpus. This is exact, not statistical.
+  The full 108-configuration matrix was not re-run on the final code.
+- Identical outputs for any worker count (C11, the gate, §5), and every saved replay verifies.
+- Exactly two `gcg-sim` presets (`standard` default, `fast`); every other value exits 2; the
+  reference search is reachable only through `gcg-eval` and its budgets and parameters equal
+  Python's exactly (§3 a, b).
+- Speed: all 8 configurations of both parts of the external comparison are at least 2x on the
+  idle M2 Pro with the final binaries (23.59x, 20.34x, 45.31x, 24.66x; 11.82x, 10.37x, 21.25x,
+  2.40x; `report` exit 0, §6.1).
+- No timing-based benchmarks, timing assertions or wall-clock-dependent behaviour in the crates
+  (§3 g); one `unsafe` block, with its safety argument and tests (§3 d, R-14).
+- 1152/1152 cards implemented and enforced; traceability current; the Python oracle untouched.
+- Disjoint tuning and evaluation seeds and pairs (§3 c, with R-10's caveat).
+- Strength gates E1, E2 and E3 on fresh review seeds (§4).
+- W-126's reproducibility criterion (§6.2).
+- The other findings resolved in §6.5.
+
+**Not signed off:**
+
+- **E4 (R-01).** `standard` against greedy does not reach a Wilson lower bound above 0.764 on
+  the AI test decks (three independent seed sets), nor on the review's held-out panel pairs.
+  This acceptance criterion is unmet, and the lead reports it to the user.
+- **"Every WEAKNESSES item resolved" (R-02, R-03).** W-18, W-19, W-120 and W-137 are open (W-126
+  needs its record). Whether the 30 "resolved by measurement" items count as resolved is the
+  user's decision.
+- **CI on GitHub (R-17)**, which needs the user's approval of a push.
+- **The remaining minor items:** R-09's A31 wording, R-10, R-11's swap gap, R-12's
+  `equivalence --help`, R-19, and R-13/R-14 for the final report.
+
+The acceptance criterion "reviewer sign-off with every finding resolved" is therefore **not
+met**. The reviewer signs off on the items listed above as verified, and on nothing else.

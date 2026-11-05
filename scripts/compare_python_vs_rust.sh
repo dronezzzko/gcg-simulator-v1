@@ -587,6 +587,7 @@ cmd_equivalence() {
   local probe="" selftest=0 python_only=0
   while [[ $# -gt 0 ]]; do
     case "$1" in
+      -h|--help) sed -n '13,15p' "${BASH_SOURCE[0]}" | sed 's/^#  //; s/^#//'; return 0 ;;
       --matches) eq_matches="$2"; shift 2 ;;
       --seeds) eq_seeds="$2"; shift 2 ;;
       --formats) eq_formats="$2"; shift 2 ;;
