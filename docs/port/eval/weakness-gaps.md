@@ -22,15 +22,15 @@ AI row: "yes" means the work changes a strengthened-search mechanism or adds one
 
 ## Counts
 
-`target/release/gcg-diff weaknesses --check docs/port/WEAKNESSES.md` passes. With `--require-resolved` it reports 4 problems, one per open item:
+`target/release/gcg-diff weaknesses --check docs/port/WEAKNESSES.md` passes. With `--require-resolved` it reports 5 problems, one per open item:
 
 | Status | Items | Count |
 | --- | --- | ---: |
-| resolved | — | 127 |
+| resolved | — | 126 |
 | resolved by measurement (not adopted) | W-02, W-06, W-07, W-08, W-09, W-10, W-11, W-12, W-14, W-16, W-23, W-24, W-27, W-28, W-29, W-30, W-31, W-34, W-35, W-36, W-37, W-38, W-45, W-134, W-138, W-139, W-140, W-141, W-142, W-05 | 30 |
 | admissible exception | W-131, W-132, W-133 | 3 |
 | open: a run that has not happened | W-126, W-137 | 2 |
-| open: measured, verification not met | W-18 | 1 |
+| open: measured, verification not met | W-18, W-19 | 2 |
 | open: the user's decision | W-120 | 1 |
 
 Changes since the first version of this file:
@@ -40,14 +40,21 @@ Changes since the first version of this file:
 - by the lead's decisions of `docs/port/PLAN.md` §0.1 (end of Phase 6): W-05 resolved by measurement (the break-even share replaces the scenario bar), W-63 and W-67 resolved (`templates/check.py --check` is T-154's assertion; no IR `template` field) and W-111 resolved (tag-based coverage stands for rules, FAQ entries and rulings). W-137's adoption question is decided (not adopted); its Linux run remains;
 - resolved: W-101 (engine anchors for the last rule-level interpretations I-04, I-11, I-13 and I-17; I-21 and I-24 are compile-time readings with no engine path; section 3).
 
-The 4 open items fall into two kinds:
+The 5 open items fall into two kinds:
 
-- 1 is an AI item (class S): W-18.
+- 2 are AI items (class S): W-18 and W-19.
 - 3 are non-AI items: W-120, W-126 and W-137 (the Linux run).
 
-## 1. Lead: the final evaluation (docs/port/eval/final-2/) — resolved
+## 1. Lead: the final evaluation (docs/port/eval/final-2/, docs/port/eval/review/)
 
-W-04 and W-19 are resolved by final evaluation 2 (`docs/port/eval/final-2/README.md`): their own bars (lower bounds above 0.5 on held-out seeds) hold. The plan's stricter gates miss E1's held-out pooled bound (0.548 against 0.55) and E4 on the AI test decks (0.716 against 0.764); those are acceptance results, reported in `docs/port/eval/notes.md` and the final report.
+W-04 is resolved by final evaluation 2 and the reviewer's review-seed run: `standard` beats reference `strong` with lower bounds above 0.5 (0.563 and 0.562).
+
+### W-19: the acceptance gates
+
+- **Missing:** E4 (`standard` against `greedy`, lower bound above 0.764) on the AI test decks: 0.7237 (final 1), 0.7158 (final 2, 304/400), 0.7184 (review, 305/400); on the review seeds also over the held-out panel pairs alone (0.7623). E1's held-out pooled bound (A26) is 0.548 (final 2) and 0.553 (review).
+- **Why:** on the two test decks the shipped `standard` beats `greedy` about 4 points more often than the reference (about 305 against 289 of 400); a lower bound above 0.764 needs about 323/400.
+- **Work:** a stronger `standard` against `greedy`, tuned on tuning seeds only, then a third final evaluation and a review run on fresh seeds. A user decision (cost: days of machine time).
+- **AI row:** yes. **Effort:** L.
 
 ## 2. gcg-search: mechanisms and AI evidence
 

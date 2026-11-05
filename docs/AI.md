@@ -365,8 +365,14 @@ by 1.1, and the losses to random fell from 27 to 14. E4 on the two AI test decks
 0.76 in both evaluations: there the strengthened `standard` beats `greedy` about 4 points more
 often than the reference does (304 against 289 of 400), short of the roughly 8 points a lower
 bound above 0.764 needs at 400 games (about 323/400). The inspection notes of the losses and the misses are in
-`docs/port/eval/notes.md`. The reviewer's rerun on review-role seeds is in
-`docs/port/REVIEW.md`.
+`docs/port/eval/notes.md`.
+
+The Phase 7 reviewer reran E1-E4 from a clean clone on fresh review-role masters
+(`docs/port/eval/review/`, `docs/port/REVIEW.md` §4): E1 6393/11200 = 0.5708 [0.5616, 0.5799],
+held-out [0.5528]; E2 6361/11200 = 0.5679 [0.5588, 0.5771]; E3 400/400 and 11181/11200 (the 19
+losses documented with verified replays); E4 on the test decks 305/400 = 0.7625 [0.7184,
+0.8016], on the panel 8759/11200 = 0.7821 [0.7743, 0.7896], held-out [0.7623]. E4 on the AI test
+decks thus fails on all three independent seed sets.
 
 
 ### Evaluation 1

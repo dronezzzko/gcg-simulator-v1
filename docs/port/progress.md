@@ -355,6 +355,19 @@ API snapshot and doc checks pass. Final evaluation 2 is recorded under Phase 8.
   E4 test decks 304/400 = 0.760 [0.716]: fail.
 - `gcg-eval gates --losses-documented final-2/e3-losses/losses.json`: E2, E3 pass; E1 and E4
   fail one check each (above). Inspection notes: `docs/port/eval/notes.md` (T-144).
-- W-04 and W-19 resolved (their own bars, lower bounds above 0.5 on held-out seeds, hold).
+- W-04 resolved (lower bound above 0.5 on held-out seeds). W-19 reopened after the review:
+  E4 on the AI test decks fails on three independent seed sets (final 1, final 2, review).
   tests.json: T-125, T-126, T-139, T-144 passing; T-124 (held-out pooled bound) and T-127 (test
   decks) failing.
+
+### Phase 7 round 1 (reviewer, `docs/port/REVIEW.md`)
+
+- Clean clone of 7b7ab2f: `verify_all_rust.sh --full` exit 0 (1332 default, 1356 slow, 263
+  paranoid, 1333 tier-2 slow tests; corpus tier 1 and 2 at 100%); `verify_all.sh` exit 0 (3985
+  Python tests); equivalence on review seeds 129/129; worker identity checks identical.
+- E1-E4 on review masters (`docs/port/eval/review/`): E1 0.5708 [0.5616] (held-out [0.5528]),
+  E2 0.5679 [0.5588], E3 400/400 and 11181/11200 (19 losses documented with verified replays),
+  E4 test decks 305/400 [0.7184] and panel [0.7743] (held-out [0.7623]); `gates --check` exit 1
+  on E4. tests.json T-008 failing.
+- 18 findings (R-01 blocker: E4 on the test decks); fixes for R-03, R-04, R-06 to R-09, R-11,
+  R-12 and R-18 in 8d2a73e; W-154 resolved by the Python gate run (0fc921e).
