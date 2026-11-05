@@ -394,3 +394,6 @@ API snapshot and doc checks pass. Final evaluation 2 is recorded under Phase 8.
 - Written from the committed records; T-146 and T-147 (`git status --porcelain
   --untracked-files=all` empty) passing. Not complete against the brief: E4 on the AI test decks,
   four open WEAKNESSES items (W-18, W-19, W-120, W-137), partial sign-off, CI never run.
+- End decisions (user, 2026-11-05): E4 accepted as reported; W-120 applied (0464c47); worktrees
+  and branches removed, cited commits tagged `port-evidence/*`; the push was refused (token lacks
+  the `workflow` scope), so CI (T-133) has not run.

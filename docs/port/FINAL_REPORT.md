@@ -296,11 +296,22 @@ only and is excluded from every comparison (reviewer-verified, `docs/port/REVIEW
 - No Apple M6 was available: M6 support is build notes, runtime topology detection and tests on
   a synthetic three-tier listing; nothing was measured on an M6.
 
+## Decisions taken at the end (2026-11-05, by the user)
+
+- E4 on the AI test decks: accepted as reported; no further strength round.
+- W-120: applied (curl pinned to the two data hosts, the malformed `git -C` rule removed).
+- Cleanup: the 51 agent worktrees and their 50 branches were removed; the four docs-cited
+  commits stay reachable as tags `port-evidence/95cc313`, `port-evidence/86e481d`,
+  `port-evidence/e6a6204` and `port-evidence/54c2bd2`.
+- Push for CI: approved, but GitHub refused it: the `gh` token lacks the `workflow` scope that
+  creating `.github/workflows/rust.yml` needs (SSH has no key here). T-133 and W-137's Linux job
+  wait for that push.
+
 ## Recommended next steps
 
-1. Approve a push of `rust-port` so CI runs (closes T-133 and W-137's Linux job, or shows what
-   fails).
-2. Decide on E4: accept the panel result, or fund a strength round aimed at `greedy` on tuning
-   seeds, followed by a third final evaluation and a review run on fresh seeds (days of machine
-   time; budget gains have plateaued).
-3. Clean up the 51 agent worktrees and branches, tagging the four docs-cited commits first.
+1. Grant the scope (`gh auth refresh -h github.com -s workflow`) and push `rust-port`; then
+   record the CI run in T-133 and W-137.
+2. If E4 on the test decks matters later: a strength round aimed at `greedy` on tuning seeds,
+   then a third final evaluation and a review run on fresh seeds.
+3. W-18: tune `fast` against the fidelity protocol on tuning seeds (it changes the evaluated
+   preset, so E2 must be rerun).
