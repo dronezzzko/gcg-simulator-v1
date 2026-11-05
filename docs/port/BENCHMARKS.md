@@ -74,7 +74,8 @@ computation ran.
 
 ## Python profile (where the time goes)
 
-Full method, numbers and scripts: [inventory/11-python-profile.md](inventory/11-python-profile.md).
+Full method, numbers and scripts: `docs/port/inventory/11-python-profile.md` in git history
+(commit 83a06c8).
 One reference `standard` BO1 game (seed 1, red-green-zeon in seat 0 against
 blue-white-federation) takes 13.3 s unprofiled (hyperfine 13.336 ± 0.032 s). It runs 15,116
 MCTS iterations, 140,925 `apply` calls, 8,184 determinizations and 23,326 clones.

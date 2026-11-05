@@ -5,10 +5,11 @@ CLI, implemented in Rust (`crates/`, binaries `gcg-sim` and `gcg-eval`). The Pyt
 (`src/gcg_sim`) is the reference oracle and the effect-IR generator. Start with `README.md`.
 Architecture: `docs/port/ARCHITECTURE.md` (Rust) and `docs/ARCHITECTURE.md` (the oracle). AI
 and presets: `docs/AI.md`. Design and registers: `docs/port/PLAN.md`,
-`docs/port/WEAKNESSES.md`, `docs/port/tests.json`. The `docs/port/` and `port/` directories keep
-their historical names; `docs/port/BRIEF.md`, `INVENTORY.md`, `inventory/`, `FINAL_REPORT.md`,
-`REVIEW.md` and `progress.md` there are build records, not current documentation, and so are
-`docs/SPEC.md`, `docs/INTERFACES.md`, `docs/PROGRESS.md` and `docs/status.json` for the oracle.
+`docs/port/WEAKNESSES.md`, `docs/port/tests.json`. `docs/SPEC.md`, `docs/INTERFACES.md`,
+`docs/PROGRESS.md` and `docs/status.json` are the oracle's build records, not current
+documentation. The Rust build records (brief, inventory, final report, review, progress log) were
+deleted; citations of them in the registers (`BRIEF.md:131`, `Inv 06b §5`, `REVIEW.md §4`) refer
+to commit 83a06c8.
 
 ## Rust commands
 
