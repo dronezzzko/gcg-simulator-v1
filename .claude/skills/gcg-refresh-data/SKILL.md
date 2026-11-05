@@ -1,6 +1,6 @@
 ---
 name: gcg-refresh-data
-description: Refresh gcg-sim's offline data. Fetches the latest gcg-api card data (or a pinned ref) and the official English Gundam Card Game pages (Comprehensive Rules, banned/restricted list, deck construction, floor and BO3 rules, errata notices). It diffs them against the cached snapshot, updates the packaged cache and the provenance lock, and re-runs conflict detection. It then implements and tests new or changed cards and any new keywords or timings, regenerates the Rust port's effect IR, test vectors and trace corpus, and ends with the Python and Rust verification gates. Use it when gcg-api publishes a weekly refresh or a new set, when Bandai posts new rules, errata or a B&R update, or to check whether the cached data is current.
+description: Refresh gcg-sim's offline data. Fetches the latest gcg-api card data (or a pinned ref) and the official English Gundam Card Game pages (Comprehensive Rules, banned/restricted list, deck construction, floor and BO3 rules, errata notices). It diffs them against the cached snapshot, updates the packaged cache and the provenance lock, and re-runs conflict detection. It then implements and tests new or changed cards and any new keywords or timings, regenerates the effect IR, test vectors and trace corpus that the Rust binaries and tests use, and ends with the Python and Rust verification gates. Use it when gcg-api publishes a weekly refresh or a new set, when Bandai posts new rules, errata or a B&R update, or to check whether the cached data is current.
 argument-hint: "[--ref <gcg-api commit|tag|branch>] [--dry-run]"
 disable-model-invocation: true
 ---
@@ -350,7 +350,7 @@ engine does not know, extend the engine before binding cards. Follow
 
 Prefer one engine feature with `@pytest.mark.rule` tests over per-card workarounds.
 
-## 9. Regenerate the Rust port's artefacts
+## 9. Regenerate the Rust artefacts
 
 Run this after every change to the packaged data, the cards, the effects or the tests, once the
 Python side of steps 3–8 is complete and its tests pass. Run each command as written from the
@@ -418,15 +418,15 @@ uv run python port/oracle/templates/check.py --check || echo "STALE: templates/c
    ```
 
    `cargo test -p gcg-data` runs the data tripwires (W-155: a reworded reminder parenthetical
-   or another precondition the port relies on), and `-p gcg-effects` checks that the embedded
+   or another precondition the Rust engine relies on), and `-p gcg-effects` checks that the embedded
    IR is current with the packaged data and the Python sources. A corpus divergence means the
    Rust engine does not reproduce the new Python behaviour: fix the Rust side (for a new hook
-   or DSL feature, port it as `references/engine-extension.md` describes); never edit a trace.
+   or DSL feature, implement it in Rust as `references/engine-extension.md` describes); never edit a trace.
    `traceability --write` regenerates `docs/RULES_TRACEABILITY.md` and
    `docs/port/TRACEABILITY_CARDS.md` with the Rust column.
 
 5. Commit each regeneration (IR, vectors, corpus) on its own once the user asked for commits,
-   and note the reason in `docs/port/progress.md`.
+   with the reason in the commit message.
 
 ## 10. Verification gate
 

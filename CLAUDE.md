@@ -2,10 +2,13 @@
 
 A deterministic Gundam Card Game (Comprehensive Rules Ver. 1.9.0) engine, AI and deck benchmark
 CLI, implemented in Rust (`crates/`, binaries `gcg-sim` and `gcg-eval`). The Python package
-(`src/gcg_sim`) is the reference oracle. Start with `README.md`. Architecture:
-`docs/port/ARCHITECTURE.md` (Rust) and `docs/ARCHITECTURE.md` (Python). AI and presets:
-`docs/AI.md`. Port design and registers: `docs/port/PLAN.md`, `docs/port/WEAKNESSES.md`,
-`docs/port/tests.json`, `docs/port/progress.md`.
+(`src/gcg_sim`) is the reference oracle and the effect-IR generator. Start with `README.md`.
+Architecture: `docs/port/ARCHITECTURE.md` (Rust) and `docs/ARCHITECTURE.md` (the oracle). AI
+and presets: `docs/AI.md`. Design and registers: `docs/port/PLAN.md`,
+`docs/port/WEAKNESSES.md`, `docs/port/tests.json`. The `docs/port/` and `port/` directories keep
+their historical names; `docs/port/BRIEF.md`, `INVENTORY.md`, `inventory/`, `FINAL_REPORT.md`,
+`REVIEW.md` and `progress.md` there are build records, not current documentation, and so are
+`docs/SPEC.md`, `docs/INTERFACES.md`, `docs/PROGRESS.md` and `docs/status.json` for the oracle.
 
 ## Rust commands
 
@@ -68,7 +71,8 @@ scripts/verify_all_rust.sh
 The Python package stays unchanged as the oracle: never edit `src/gcg_sim/` or `tests/`
 (every gate checks `git diff --quiet d9d41af -- src/gcg_sim tests`). Its effect toolchain
 (`effects/`, `cards/`, `data/`) is also the generator of the effect IR that the Rust binaries
-embed. Port-side tooling lives in `port/oracle/` and `scripts/`, outside the package.
+embed. Tooling outside the package lives in `port/oracle/` (the oracle exporters) and
+`scripts/` (the gates and helpers).
 
 ```bash
 uv sync --locked
@@ -135,7 +139,8 @@ uv run python -m gcg_sim.tools.fuzz --games 500 --workers 8
   Per-card bindings in `effects/bindings/*.py` (`@card("GD01-001")`, auto-discovered) handle the
   rest, and a binding wins over the compiler. Prefer a general compiler template or a DSL/engine
   feature over a card-specific hook. Rust never compiles card text: it runs the exported IR, and
-  every hook body has a Rust port in `crates/gcg-engine/src/interp/hooks/` or `view/hooks.rs`.
+  every hook body has a Rust implementation in `crates/gcg-engine/src/interp/hooks/` or
+  `view/hooks.rs`.
 - **Tests carry traceability tags.** Python: `@pytest.mark.rule("8-5-2")`,
   `@pytest.mark.card(...)`, `@pytest.mark.faq("Q12")` and `@pytest.mark.ruling("GD01-001:Q100")`.
   Rust tests without a Python trace carry a `// gcg-tags:` comment. Every card, every testable
@@ -149,7 +154,7 @@ uv run python -m gcg_sim.tools.fuzz --games 500 --workers 8
   carries a `<!-- doc-check: skip <reason> -->` marker. Counts in `docs/port/` use
   `<!-- count:NAME -->` markers (`scripts/doc_counts.py --check`).
 - Record interpretation decisions in `docs/ASSUMPTIONS.md`, and in `docs/CONFLICTS.md` when
-  sources disagree. Record port decisions in `docs/port/PLAN.md` and every weakness's outcome
+  sources disagree. Record design decisions in `docs/port/PLAN.md` and every weakness's outcome
   in `docs/port/WEAKNESSES.md`.
 
 ## Skills

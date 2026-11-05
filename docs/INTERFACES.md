@@ -1,5 +1,8 @@
 # Frozen interfaces (Phase 4 contract)
 
+> Build record of the reference oracle (the Python package in `src/gcg_sim`), kept as
+> history. The Rust implementation is described in [`README.md`](../README.md).
+
 These signatures are frozen for parallel implementation. Implementers may add private helpers
 and extra optional parameters, but must not change the names, argument order, or semantics
 below without the lead's approval. Everything is deterministic: no wall-clock, no global RNG.

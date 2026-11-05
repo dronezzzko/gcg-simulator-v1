@@ -36,7 +36,7 @@ Three legal example decks live in `examples/decks/`:
 ## Validating a deck
 
 ```bash
-uv run gcg-sim validate examples/decks/blue-white-federation.txt
+target/release/gcg-sim validate examples/decks/blue-white-federation.txt
 ```
 
 The command prints `legal (...)` and exits 0. Otherwise it prints every problem to stderr and
@@ -69,20 +69,10 @@ Legality checks run once the whole file parses. They use
 Two official exceptions are **not applied**: the unmodified ST02 starter deck (3x ST02-016
 Corsica Base) and the unmodified ST05 starter deck (ST05-004 with ST05-009). The simulator
 cannot verify that a deck is an unmodified starter deck, so the violation message names the
-exception and says it was not applied. Sideboards, the Premier-event 7-day rule, and physical
-card rules are not modelled either (see `docs/research/OFFICIAL_SOURCES.md`).
+exception and says it was not applied. Sideboards and physical card rules are not modelled
+either (see `docs/research/OFFICIAL_SOURCES.md`).
 
-## Python API
-
-```python
-from gcg_sim.deck import load_deck, validate_deck, require_legal, to_decklist, deck_digest
-
-deck = load_deck("examples/decks/red-green-zeon.txt")   # raises DeckError on parse problems
-problems = validate_deck(deck)                          # [] means legal
-require_legal(deck)                                     # raises DeckError listing every violation
-decklist = to_decklist(deck)                            # engine DeckList(main, resources)
-digest = deck_digest(deck)                              # sha256 of the card counts
-```
-
-`validate_deck(deck, banlist=False)` checks only the Comprehensive Rules.
-`validate_deck(deck, implemented=False)` skips the simulator-support check.
+`gcg-eval validate DECK` runs the same checks with more options: `--no-banlist` checks only the
+Comprehensive Rules, `--no-implemented` skips the simulator-support check, `--as-of DATE` and
+`--region R` pick the Banned & Restricted list, `--event-date DATE` also checks the
+Premier-event 7-day new-card rule, and `--scope` lists what the validator does not check.

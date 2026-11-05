@@ -1,5 +1,8 @@
 # Progress log
 
+> Build record of the reference oracle (the Python package in `src/gcg_sim`), kept as
+> history. The Rust implementation is described in [`README.md`](../README.md).
+
 Machine-readable status: `docs/status.json`. This log survives context compaction; each phase
 records what was done, evidence, and what remains.
 

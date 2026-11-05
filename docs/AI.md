@@ -1,8 +1,6 @@
-# AI players (Rust)
+# AI players
 
-The Python reference AI, its tuning history and its measurements are documented in
-[`docs/python/AI.md`](python/AI.md); this file describes the Rust players, the two `gcg-sim`
-presets and how their strength is measured.
+This file describes the players, the two `gcg-sim` presets and how their strength is measured.
 
 Every number below is copied from a committed evidence file, named next to it. Budgets are
 node counts (MCTS iterations), never wall-clock time. Nothing in the players reads a clock or
@@ -12,10 +10,10 @@ the thread count.
 
 | Player | Crate and file | Reachable through | What it is |
 | --- | --- | --- | --- |
-| `random` | `crates/gcg-ai/src/random.rs` | `gcg-eval` agent spec `random` | Exact port of the Python random player: a uniform option per decision (it draws even with one option). |
-| `greedy` | `crates/gcg-ai/src/greedy.rs` | `gcg-eval` agent spec `greedy` | Exact port of the Python greedy baseline: one determinised world, every pruned move played to the next turn with the deterministic policy and scored by the evaluation. Frozen as a baseline. |
-| Reference search | `crates/gcg-ai-reference/src/mcts.rs`, presets in `crates/gcg-ai-reference/src/contracts.rs` | `gcg-eval` only: `reference-benchmark --reference-preset fast\|standard\|strong`, agent specs `ref:<preset>` and `ref:baseline-<preset>` | The equivalence-verified port of the Python information-set MCTS (`src/gcg_sim/ai/mcts.py`) with the exact reference budgets and search parameters. It reproduces Python's decisions byte for byte ([`docs/port/EQUIVALENCE.md`](port/EQUIVALENCE.md)). It anchors the equal-work speed comparison and every strength claim below. |
-| Strengthened search | `crates/gcg-search/` | `gcg-sim --ai-preset standard\|fast`; `gcg-eval` agent specs `search:<preset>`, `search:null-<preset>`, `search:FILE.json` | The reference loop with the Phase 6 extension points (`crates/gcg-search/src/mech/`), configured per preset. It plays from an information-set observation only (W-135). |
+| `random` | `crates/gcg-ai/src/random.rs` | `gcg-eval` agent spec `random` | A uniform option per decision (it draws from its generator even with one option). |
+| `greedy` | `crates/gcg-ai/src/greedy.rs` | `gcg-eval` agent spec `greedy` | One determinised world, every pruned move played to the next turn with the deterministic policy and scored by the evaluation. Frozen as a baseline. |
+| Reference search | `crates/gcg-ai-reference/src/mcts.rs`, presets in `crates/gcg-ai-reference/src/contracts.rs` | `gcg-eval` only: `reference-benchmark --reference-preset fast\|standard\|strong`, agent specs `ref:<preset>` and `ref:baseline-<preset>` | The frozen information-set MCTS with the exact reference budgets and search parameters. It reproduces the reference oracle's decisions byte for byte ([`docs/port/EQUIVALENCE.md`](port/EQUIVALENCE.md)) and anchors every strength claim below. |
+| Strengthened search | `crates/gcg-search/` | `gcg-sim --ai-preset standard\|fast`; `gcg-eval` agent specs `search:<preset>`, `search:null-<preset>`, `search:FILE.json` | The reference loop with extension points (`crates/gcg-search/src/mech/`), configured per preset. It plays from an information-set observation only (W-135). |
 
 `gcg-sim` links neither the reference search nor `gcg-diff`:
 `crates/gcg-cli/tests/no_reference.rs` and `scripts/verify_all_rust.sh` (`cargo tree -p
@@ -30,8 +28,8 @@ gcg-cli`) enforce it. Agent names are `search-standard` and `search-fast` for th
 ## Presets
 
 `gcg-sim --ai-preset` accepts exactly `standard` (the default) and `fast`; any other value,
-`strong` included, is a usage error (exit 2). The wording of each preset is the brief's and is
-the `--help` text:
+`strong` included, is a usage error (exit 2). The wording of each preset is its `--help`
+text:
 
 - `standard`: uses the full search so that each player plays at the level of the strongest
   top-tier competitive player; for refining and polishing the final deck.
@@ -40,8 +38,7 @@ the `--help` text:
 
 Both run the strengthened search. A decision with `n` options starts from
 `max(min_iterations, min(max_iterations, iterations_per_option * n))` iterations
-(`StrengthenedConfig::budget`, `crates/gcg-search/src/presets.rs`; Python
-`src/gcg_sim/ai/config.py:55-57`). Target choices that stay a close call may extend up to
+(`StrengthenedConfig::budget`, `crates/gcg-search/src/presets.rs`). Target choices that stay a close call may extend up to
 `target_extension` times that budget (`target_extension_z` sets the closeness test), as in the
 reference.
 
@@ -54,7 +51,7 @@ fails when either changes without the other (W-129, T-130).
 | `standard` | uses the full search so that each player plays at the level of the strongest top-tier competitive player; for refining and polishing the final deck | reference `strong` (128 / 320 / 1280) | 8 | 1024 | 2560 | 10240 |
 | `fast` | trades search depth for throughput; for rapidly screening deck variants, sub-variants and hypothetical builds | reference `standard` (64 / 160 / 640) | 1.5 | 96 | 240 | 960 |
 
-Every other search setting is the mapped reference preset's (`src/gcg_sim/ai/config.py:93-109`):
+Every other search setting is the mapped reference preset's (`crates/gcg-ai-reference/src/contracts.rs`):
 
 | Setting | `standard` (= reference `strong`) | `fast` (= reference `standard`) |
 | --- | --- | --- |
@@ -85,8 +82,8 @@ Mechanisms (the same in both presets; every other `MechanismFlags` field is off)
 
 ### Mapping to the reference presets
 
-The reference presets keep Python's exact values (`crates/gcg-ai-reference/src/contracts.rs`,
-Python `src/gcg_sim/ai/config.py:80-111`) and are reachable only through `gcg-eval`:
+The reference presets are frozen (`crates/gcg-ai-reference/src/contracts.rs`; their history is
+in [`docs/python/AI.md`](python/AI.md)) and are reachable only through `gcg-eval`:
 
 | Reference preset | Agent name | `iterations_per_option` | `min_iterations` | `max_iterations` | `exploration` | `rollout_temperature` | `first_player_games` | `mulligan_samples` | Shipped preset that starts from it |
 | --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | --- |
@@ -94,34 +91,33 @@ Python `src/gcg_sim/ai/config.py:80-111`) and are reachable only through `gcg-ev
 | `standard` | `mcts-standard` | 64 | 160 | 640 | 0.3 | 0.5 | 24 | 96 | `fast` (1.5x the budget) |
 | `strong` | `mcts-strong` | 128 | 320 | 1280 | 0.15 | 0.3 | 48 | 192 | `standard` (8x the budget) |
 
-The name `fast` therefore means different budgets in the two binaries: Python's
-`--ai-preset fast` is the reference `fast` row, `gcg-sim --ai-preset fast` starts from the
-reference `standard` row (PLAN D12). `results.json` records the mapping in
+The name `fast` therefore means two different budgets: `gcg-eval reference-benchmark
+--reference-preset fast` is the reference `fast` row, while `gcg-sim --ai-preset fast` starts
+from the reference `standard` row (PLAN D12). `results.json` records the mapping in
 `ai.search.mapping` (`"reference strong"` or `"reference standard"`) together with the budget,
 the enabled mechanisms and the weights. The baseline presets `ref:baseline-standard` and
-`ref:baseline-strong` (the AI as released before the October 2026 changes,
-`src/gcg_sim/ai/baseline.py:18-73`) are also in `crates/gcg-ai-reference/src/contracts.rs`.
+`ref:baseline-strong` (the AI as released before the October 2026 changes) are also in
+`crates/gcg-ai-reference/src/contracts.rs`.
 
 ### How the budgets were chosen
 
 PLAN §12.8, with the adopted bundle, on the 15 tuning pairs only, 400 games per point, forced
 play/draw (`docs/port/eval/M15/README.md`, steps 3-5):
 
-- `standard`: the largest measured scale whose full-search time stays under the 2x floor
-  against Python `strong`, and the best point of its budget curve. Curve against `ref:strong`
+- `standard`: the largest measured scale whose full-search time stays within the time limit of
+  PLAN §12.8, and the best point of its budget curve. Curve against `ref:strong`
   (tuning master 11500100): 1x 195/400 (0.487), 2x 205/400 (0.512), 4x 214/400 (0.535), 8x
   227/400 (0.568, Wilson 95% [0.518, 0.615]). 16x was not run: its projected time would not
-  fit the floor.
+  fit that limit.
 - `fast`: the smallest scale with a pooled point estimate of at least 0.53 against
   `ref:standard` and no pair upper bound below 0.5. Curve (tuning master 11500200): 0.5x
   195/400 (0.487), 0.75x 207/400 (0.517), 1x 210/400 (0.525), 1.5x 228/400 (0.570, [0.521,
   0.618]), 2x 224/400 (0.560).
 
-The 2x floor was then measured on an idle M2 Pro with `gcg-sim` itself
-(`docs/port/BENCHMARKS.md`, Part 2): `standard` 133.7 s against Python `strong`'s 356.0 s for 20
-BO3 matches at the best worker count (2.66x), `fast` 76.9 s against Python `standard`'s 972.0 s
-for 100 matches (12.6x). With the M15b mechanisms (final timing, commit 8c89b5e) they are
-148.6 s (2.40x) and 82.1 s (11.8x).
+Measured on an idle M2 Pro with `gcg-sim` itself at the best worker count
+(`docs/port/BENCHMARKS.md`, Part 2): with the M15 mechanisms (commit 34b3107) `standard` took
+133.7 s for 20 BO3 matches and `fast` 76.9 s for 100 matches. With the M15b mechanisms (final
+timing, commit 8c89b5e, 6 workers) they take 148.6 s and 82.1 s.
 
 Per-game cost of the shipped presets on the Part 2 workload (`docs/port/eval/M15/README.md`,
 "Cost of each scale"; instructions retired, which load does not change): `standard` 128.5G
@@ -132,8 +128,9 @@ instructions per game against 12.9G for the reference `strong` (9.92x), `fast` 1
 
 ### Core loop and the `Mechanisms` composition
 
-`crates/gcg-search/src/mcts.rs` is the reference search's loop (`ai/mcts.py:82-339`) with
-explicit extension points. At every point a Phase 6 mechanism can change, the loop calls the
+`crates/gcg-search/src/mcts.rs` is the reference search's loop
+(`crates/gcg-ai-reference/src/mcts.rs`) with explicit extension points. At every point a
+mechanism can change, the loop calls the
 `Mechanisms` trait (`crates/gcg-search/src/mech/mod.rs`): root moves, the budget, world
 building, priors, selection, rollout choices, the horizon, the leaf value, the engine-error
 leaf, the backup and the pre-game choices. Every method's default is the reference behaviour
@@ -270,7 +267,7 @@ is -0.018 [-0.066, +0.031] per game at 2x and +0.030 [-0.017, +0.077] at 8x, whi
 alone scored 212/400 (0.530) at 2x and 215/400 (0.537) at 8x (`docs/port/eval/M15/README.md`,
 step 3).
 
-**Not adopted.** Every other Phase 6 mechanism is implemented behind its flag, measured with
+**Not adopted.** Every other mechanism is implemented behind its flag, measured with
 individual rows (and high-budget or confirmation rows where promising), and left off because
 it measured null or negative. Their status is `resolved by measurement (not adopted)` or, where
 the plan has remaining work, `open`. The rows are in each item's entry of
@@ -322,7 +319,7 @@ pairs and pooled over the held-out pairs alone; draws count as non-wins.
 | E4 | `search:standard` vs `greedy` | AI test decks (400 games) and panel | Wilson lower bound above 0.764 on the test decks, and pooled over all panel pairs and over the held-out pairs |
 
 The 0.764 bar is the upper end of the Wilson interval of the reference's pre-change result
-against greedy on the AI test decks (289/400, [0.677, 0.764], the brief); the test-deck rows
+against greedy on the AI test decks (289/400, [0.677, 0.764]); the test-deck rows
 compare like for like and are not held-out evidence.
 
 Evaluation 1's E1 report came from this run (the ledger entry of master 90200001 in
@@ -351,7 +348,7 @@ The shipped presets of M15b (binaries built at 8c89b5e), eval-role masters 90300
 run once, forced play/draw, `--workers 6`; reports, the documented losses and `gates.json` in
 `docs/port/eval/final-2/` (commands in its `README.md`):
 
-| Gate | Result | Brief bar | Plan A26 (also held-out pairs alone) |
+| Gate | Result | Bar | Strict reading (PLAN A26, also held-out pairs alone) |
 | --- | --- | --- | --- |
 | E1 `standard` vs ref `strong` | 6408/11200 = 0.5721 [0.5630, 0.5813]; held-out 2920/5200 = 0.5615 [0.5480, 0.5750]; no held-out pair UB < 0.5 (weakest pair 0.530) | pooled LB >= 0.55: pass | held-out LB 0.548: fail (by 0.002) |
 | E2 `fast` vs ref `standard` | 6254/11200 = 0.5584 [0.5492, 0.5676]; held-out 2880/5200 = 0.5538 [0.5403, 0.5673]; no pair UB < 0.5 (weakest 0.505) | pass | pass |
@@ -367,8 +364,8 @@ often than the reference does (304 against 289 of 400), short of the roughly 8 p
 bound above 0.764 needs at 400 games (about 323/400). The inspection notes of the losses and the misses are in
 `docs/port/eval/notes.md`.
 
-The Phase 7 reviewer reran E1-E4 from a clean clone on fresh review-role masters
-(`docs/port/eval/review/`, `docs/port/REVIEW.md` §4): E1 6393/11200 = 0.5708 [0.5616, 0.5799],
+An independent review reran E1-E4 from a clean clone on fresh review-role masters
+(`docs/port/eval/review/`): E1 6393/11200 = 0.5708 [0.5616, 0.5799],
 held-out [0.5528]; E2 6361/11200 = 0.5679 [0.5588, 0.5771]; E3 400/400 and 11181/11200 (the 19
 losses documented with verified replays); E4 on the test decks 305/400 = 0.7625 [0.7184,
 0.8016], on the panel 8759/11200 = 0.7821 [0.7743, 0.7896], held-out [0.7623]. E4 on the AI test
@@ -382,7 +379,7 @@ built at 34b3107, eval-role masters 90200001-90200006, forced play/draw, 28 pane
 games with 13 held out, and the AI test decks at 400 games). It is an earlier measurement than
 the table above and is kept as a record:
 
-| Gate | Result | Brief bar | Plan A26 (also held-out pairs alone) |
+| Gate | Result | Bar | Strict reading (PLAN A26, also held-out pairs alone) |
 | --- | --- | --- | --- |
 | E1 `standard` vs ref `strong` | 6268/11200 = 0.5596 [0.5504, 0.5688]; held-out 2885/5200 = 0.5548 [0.5413, 0.5683]; no held-out pair UB < 0.5 | pooled LB >= 0.55: pass (by 0.0004) | held-out LB 0.5413: fail |
 | E2 `fast` vs ref `standard` | 6171/11200 = 0.5510 [0.5418, 0.5602]; held-out 0.5544; no pair UB < 0.5 | pass | pass |

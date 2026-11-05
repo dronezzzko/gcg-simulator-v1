@@ -69,7 +69,7 @@ Files in `--out` (full guide: `docs/REPORTS.md`):
 | `replays/*.json` | Representative wins/losses (`win-m0001-g1.json`, …); `target/release/gcg-sim replay FILE --log` re-simulates one and prints its turns. |
 | `timing.json` | Wall-clock and CPU tiers only (kept separate so results stay reproducible). |
 
-Schema 1.2.0 is the Python tool's 1.1.0 plus the AI fields of the strengthened search:
+Schema 1.2.0 is schema 1.1.0 plus the AI fields of the strengthened search:
 
 - `ai.preset`: `fast` or `standard`; `ai.dut_agent` and `ai.bench_agent`: `search-fast` or
   `search-standard`; `ai.factory`.
@@ -127,12 +127,12 @@ The two-stage workflow for many variants (sub-variants, card swaps, hypothetical
    measurements. Pool only runs with identical settings (same preset, format and
    `versions.code_digest`).
 
-Reports from the Python tool (`uv run gcg-sim`, results schema 1.0.0 or 1.1.0) are not
-comparable with `gcg-sim` reports: the Python AI is the reference search, a different
-player (`docs/AI.md` has the measured comparison), and its `--ai-preset fast` is a smaller
-budget than Rust's. A report from another
-`versions.code_digest` may also play differently. Re-run the baseline list with the current
-build before comparing.
+Reports with results schema 1.0.0 or 1.1.0 (`gcg-eval reference-benchmark`, or earlier
+versions of the tool) are not comparable with `gcg-sim` reports: the reference search (1.1.0)
+or the AI as it was before the October 2026 update (1.0.0) played them, different players
+(`docs/AI.md` has the measured comparison), and the reference `fast` preset is a smaller budget
+than `gcg-sim`'s. A report from another `versions.code_digest` may also play
+differently. Re-run the baseline list with the current build before comparing.
 
 Workflow for a card swap:
 1. Baseline: run the current list (e.g. 400 BO1 games with `fast`) and record the game win
