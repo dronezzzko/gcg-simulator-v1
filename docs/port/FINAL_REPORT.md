@@ -300,17 +300,20 @@ only and is excluded from every comparison (reviewer-verified, `docs/port/REVIEW
 
 - E4 on the AI test decks: accepted as reported; no further strength round.
 - W-120: applied (curl pinned to the two data hosts, the malformed `git -C` rule removed).
-- Cleanup: the 51 agent worktrees and their 50 branches were removed; the four docs-cited
-  commits stay reachable as tags `port-evidence/95cc313`, `port-evidence/86e481d`,
-  `port-evidence/e6a6204` and `port-evidence/54c2bd2`.
-- Push for CI: approved, but GitHub refused it: the `gh` token lacks the `workflow` scope that
-  creating `.github/workflows/rust.yml` needs (SSH has no key here). T-133 and W-137's Linux job
-  wait for that push.
+- Cleanup: the 51 agent worktrees and their 50 branches were removed. The 23 commits that the
+  docs cite and that lived only on those branches are kept as tags `port-evidence/<sha>`, pushed
+  to origin with the user's approval, so `gcg-eval evidence check` resolves them on any clone.
+  The tag `port/rust-port-history` marks the branch tip, so the PR's own commits stay reachable
+  after `main`'s squash merge.
+- Push for CI: `rust-port` pushed and PR #6 opened after the token gained the `workflow` scope.
+  The first CI run: the Linux `portable-math-linux` job passed (W-137); the macOS gate failed
+  only `w127_the_port_evaluation_docs_cite_only_reachable_commits`, because the cited commits
+  above were not yet on origin.
 
 ## Recommended next steps
 
-1. Grant the scope (`gh auth refresh -h github.com -s workflow`) and push `rust-port`; then
-   record the CI run in T-133 and W-137.
+1. Record the CI run after the tags in T-133 (and keep the `port-evidence/*` and
+   `port/rust-port-history` tags when merging).
 2. If E4 on the test decks matters later: a strength round aimed at `greedy` on tuning seeds,
    then a third final evaluation and a review run on fresh seeds.
 3. W-18: tune `fast` against the fidelity protocol on tuning seeds (it changes the evaluated
