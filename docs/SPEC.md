@@ -15,7 +15,7 @@ reproducibility, and honest statistics come before speed.
 
 | Deliverable | Location |
 | --- | --- |
-| Package (src layout, `gcg-sim` console script, Python ≥3.12, uv-managed, `uv.lock`) | `pyproject.toml`, `src/gcg_sim/` |
+| Package (src layout, `gcg-sim` console script, Python ≥3.15, uv-managed, `uv.lock`) | `pyproject.toml`, `src/gcg_sim/` |
 | Offline cached dataset (gcg-api snapshot, official deck/tournament rules, rules file, overrides) | `src/gcg_sim/data/` |
 | Provenance lock + summary | `data/SOURCES.lock.json`, `docs/SOURCES.md` |
 | Conflicts report + JSON + reviewable overrides | `docs/CONFLICTS.md`, `data/conflicts.json`, `src/gcg_sim/data/overrides.json` |
@@ -75,7 +75,7 @@ reproducibility, and honest statistics come before speed.
   durations), text compiler (templates) and bindings (`effects/bindings/wp_*.py`, one module per
   work package, `@card(...)`, auto-discovered).
 - `gcg_sim.ai` — `Agent` protocol (`choose(st, player) -> Action`, `decision_log()`; agents
-  receive the full state and read only their own information set, see docs/AI.md),
+  receive the full state and read only their own information set, see docs/python/AI.md),
   `make_agent(...)`, random, greedy and determinized ISMCTS agents, presets, decision log.
 - `gcg_sim.runner` — match/BO3 sequencing, per-game seed derivation, process pool.
 - `gcg_sim.reports` — statistics (Wilson), aggregation, writers, schema.

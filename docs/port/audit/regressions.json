@@ -1,0 +1,1386 @@
+{
+ "version": 1,
+ "generator": "port/oracle/p6k_audit.py",
+ "xfail_commits": [
+  "102e72b",
+  "7c47b86",
+  "ddb9f4f",
+  "0e1d3e8",
+  "0ee591d"
+ ],
+ "xfails": [
+  {
+   "commit": "102e72b",
+   "test": "tests/rules/test_battle.py::test_during_this_battle_effect_outside_a_battle_does_not_outlast_the_turn",
+   "reason": "ENGINE: a 'during this battle' effect created outside a battle never expires",
+   "rust_traces": [
+    "tests/rules/test_battle.py::test_during_this_battle_effect_outside_a_battle_does_not_outlast_the_turn"
+   ]
+  },
+  {
+   "commit": "102e72b",
+   "test": "tests/rules/test_cardinfo.py::test_effect_placing_a_field_unit_into_the_trash_destroys_it",
+   "reason": "ENGINE: interp._h_to_trash moves a field Unit to the trash without destroying it",
+   "rust_traces": [
+    "tests/rules/test_cardinfo.py::test_effect_placing_a_field_unit_into_the_trash_destroys_it"
+   ]
+  },
+  {
+   "commit": "102e72b",
+   "test": "tests/rules/test_damage.py::test_a_symmetric_draw_that_empties_both_decks_defeats_both_players",
+   "reason": "ENGINE: 'All players draw 1' runs rules management between the two draws, so only the active player is defeated",
+   "rust_traces": [
+    "tests/rules/test_damage.py::test_a_symmetric_draw_that_empties_both_decks_defeats_both_players"
+   ]
+  },
+  {
+   "commit": "102e72b",
+   "test": "tests/rules/test_effects.py::test_choose_two_needs_two_choosable_targets",
+   "reason": "ENGINE: 'Choose 2' Command is playable with only 1 choosable target (_required_targets_ok)",
+   "rust_traces": [
+    "tests/rules/test_effects.py::test_choose_two_needs_two_choosable_targets"
+   ]
+  },
+  {
+   "commit": "102e72b",
+   "test": "tests/rules/test_effects.py::test_if_you_do_also_governs_the_following_then_part",
+   "reason": "ENGINE: 'Then' part compiled outside 'If you do' (GD02-021 draws after the discard is declined)",
+   "rust_traces": [
+    "tests/rules/test_effects.py::test_if_you_do_also_governs_the_following_then_part"
+   ]
+  },
+  {
+   "commit": "102e72b",
+   "test": "tests/rules/test_effects.py::test_instead_portion_replaces_only_what_it_names",
+   "reason": "ENGINE: 'choose ... instead' replaces the damage step, not the target choice (GD03-109)",
+   "rust_traces": [
+    "tests/rules/test_effects.py::test_instead_portion_replaces_only_what_it_names"
+   ]
+  },
+  {
+   "commit": "102e72b",
+   "test": "tests/rules/test_effects.py::test_leading_condition_also_governs_the_then_part",
+   "reason": "ENGINE: 'Then' part compiled outside the leading 'If' (GD03-072 discards without the condition)",
+   "rust_traces": [
+    "tests/rules/test_effects.py::test_leading_condition_also_governs_the_then_part"
+   ]
+  },
+  {
+   "commit": "102e72b",
+   "test": "tests/rules/test_effects.py::test_substituted_event_keeps_the_replaced_duration",
+   "reason": "ENGINE: 'instead' branch loses 'during this turn' (ST07-009 AP+1 lasts while on field)",
+   "rust_traces": [
+    "tests/rules/test_effects.py::test_substituted_event_keeps_the_replaced_duration"
+   ]
+  },
+  {
+   "commit": "102e72b",
+   "test": "tests/rules/test_effects.py::test_triggered_effect_needs_every_target_of_its_choice",
+   "reason": "ENGINE: triggered multi-target choice activates with a missing target (no pre-check)",
+   "rust_traces": [
+    "tests/rules/test_effects.py::test_triggered_effect_needs_every_target_of_its_choice"
+   ]
+  },
+  {
+   "commit": "102e72b",
+   "test": "tests/rules/test_faq.py::test_q106_support_bonus_outlives_the_support_unit",
+   "reason": "ENGINE: <Support> AP bonus is re-read from its source and drops to 0",
+   "rust_traces": [
+    "tests/rules/test_faq.py::test_q106_support_bonus_outlives_the_support_unit"
+   ]
+  },
+  {
+   "commit": "102e72b",
+   "test": "tests/rules/test_faq.py::test_q55_breach_activates_when_both_units_are_destroyed",
+   "reason": "ENGINE: <Breach> amount is read from the trashed attacker (KwAmount(This) = 0)",
+   "rust_traces": [
+    "tests/rules/test_faq.py::test_q55_breach_activates_when_both_units_are_destroyed"
+   ]
+  },
+  {
+   "commit": "102e72b",
+   "test": "tests/rules/test_faq.py::test_q69_destroyed_effect_finds_the_pilot_paired_before_destruction",
+   "reason": "ENGINE: 'this Unit's paired Pilot' in a 【Destroyed】 effect ignores last-known state",
+   "rust_traces": [
+    "tests/rules/test_faq.py::test_q69_destroyed_effect_finds_the_pilot_paired_before_destruction"
+   ]
+  },
+  {
+   "commit": "102e72b",
+   "test": "tests/rules/test_faq.py::test_q96_hp_in_card_text_is_current_hp",
+   "reason": "ENGINE: 'with N or less HP' filters compare printed/modified HP, not current HP",
+   "rust_traces": [
+    "tests/rules/test_faq.py::test_q96_hp_in_card_text_is_current_hp"
+   ]
+  },
+  {
+   "commit": "102e72b",
+   "test": "tests/rules/test_keywords.py::test_breach_activates_when_both_units_are_destroyed",
+   "reason": "ENGINE: <Breach> reads its amount from the destroyed host (0) instead of LKI",
+   "rust_traces": [
+    "tests/rules/test_keywords.py::test_breach_activates_when_both_units_are_destroyed"
+   ]
+  },
+  {
+   "commit": "102e72b",
+   "test": "tests/rules/test_keywords.py::test_declining_development_skips_the_following_effect",
+   "reason": "ENGINE: 【Deploy･Development N】 cards fail to compile (split lead sentence)",
+   "rust_traces": [
+    "tests/rules/test_keywords.py::test_declining_development_skips_the_following_effect"
+   ]
+  },
+  {
+   "commit": "102e72b",
+   "test": "tests/rules/test_keywords.py::test_destroyed_effect_returns_the_last_known_paired_pilot",
+   "reason": "ENGINE: 【Destroyed】 'this Unit's paired Pilot' does not use last-known pairing",
+   "rust_traces": [
+    "tests/rules/test_keywords.py::test_destroyed_effect_returns_the_last_known_paired_pilot"
+   ]
+  },
+  {
+   "commit": "102e72b",
+   "test": "tests/rules/test_keywords.py::test_development_exiles_cards_then_performs_the_following_effect",
+   "reason": "ENGINE: 【Deploy･Development N】 cards fail to compile (split lead sentence)",
+   "rust_traces": [
+    "tests/rules/test_keywords.py::test_development_exiles_cards_then_performs_the_following_effect"
+   ]
+  },
+  {
+   "commit": "102e72b",
+   "test": "tests/rules/test_pairing.py::test_paired_command_effect_activated_by_an_effect_resolves_as_a_command_effect",
+   "reason": "ENGINE: GD05-113 (Special Move Command with 【Pilot】) does not compile",
+   "rust_traces": [
+    "tests/rules/test_pairing.py::test_paired_command_effect_activated_by_an_effect_resolves_as_a_command_effect"
+   ]
+  },
+  {
+   "commit": "102e72b",
+   "test": "tests/rules/test_pairing.py::test_pilot_text_with_a_location_is_activated_by_the_pilot_card",
+   "reason": "ENGINE: GD03-085 play modifier does not compile; main_options also drops play modifiers when the printed cost cannot be paid",
+   "rust_traces": [
+    "tests/rules/test_pairing.py::test_pilot_text_with_a_location_is_activated_by_the_pilot_card"
+   ]
+  },
+  {
+   "commit": "102e72b",
+   "test": "tests/rules/test_turn.py::test_all_players_draw_empties_both_decks_and_defeats_both",
+   "reason": "ENGINE: rules management runs between the two draws of 'All players draw 1', so the active player loses before the standby player draws",
+   "rust_traces": [
+    "tests/rules/test_turn.py::test_all_players_draw_empties_both_decks_and_defeats_both"
+   ]
+  },
+  {
+   "commit": "102e72b",
+   "test": "tests/rules/test_turn.py::test_decks_that_do_not_conform_to_deck_construction_are_rejected",
+   "reason": "ENGINE: new_game accepts decks that break the deck construction rules (6-1)",
+   "rust_traces": [
+    "tests/rules/test_turn.py::test_decks_that_do_not_conform_to_deck_construction_are_rejected[49-card-deck]",
+    "tests/rules/test_turn.py::test_decks_that_do_not_conform_to_deck_construction_are_rejected[9-card-resource-deck]",
+    "tests/rules/test_turn.py::test_decks_that_do_not_conform_to_deck_construction_are_rejected[five-copies]"
+   ]
+  },
+  {
+   "commit": "102e72b",
+   "test": "tests/rules/test_turn.py::test_either_player_may_concede_at_any_time",
+   "reason": "ENGINE: no entry point for a player to concede (1-2-4)",
+   "rust_traces": [
+    "tests/rules/test_turn.py::test_either_player_may_concede_at_any_time"
+   ]
+  },
+  {
+   "commit": "102e72b",
+   "test": "tests/rules/test_turn.py::test_end_phase_step_is_reported_until_its_effects_have_resolved",
+   "reason": "ENGINE: st.step already names the next end-phase step while the current step's effects are still resolving",
+   "rust_traces": [
+    "tests/rules/test_turn.py::test_end_phase_step_is_reported_until_its_effects_have_resolved"
+   ]
+  },
+  {
+   "commit": "102e72b",
+   "test": "tests/rules/test_turn.py::test_start_phase_is_reported_until_start_step_effects_have_resolved",
+   "reason": "ENGINE: st.phase is set to DRAW before the start step's triggered effects resolve",
+   "rust_traces": [
+    "tests/rules/test_turn.py::test_start_phase_is_reported_until_start_step_effects_have_resolved"
+   ]
+  },
+  {
+   "commit": "102e72b",
+   "test": "tests/rules/test_zones.py::test_cards_returned_randomly_to_the_deck_do_not_reveal_their_order",
+   "reason": "ENGINE: cards returned randomly to the deck bottom keep their positions known",
+   "rust_traces": [
+    "tests/rules/test_zones.py::test_cards_returned_randomly_to_the_deck_do_not_reveal_their_order"
+   ]
+  },
+  {
+   "commit": "102e72b",
+   "test": "tests/rules/test_zones.py::test_order_of_public_cards_placed_into_a_private_location_is_hidden",
+   "reason": "ENGINE: order of public cards placed into a deck together stays visible to the opponent",
+   "rust_traces": [
+    "tests/rules/test_zones.py::test_order_of_public_cards_placed_into_a_private_location_is_hidden"
+   ]
+  },
+  {
+   "commit": "102e72b",
+   "test": "tests/rules/test_zones.py::test_owner_orders_cards_placed_into_a_location_together",
+   "reason": "ENGINE: owner is not asked to order cards placed into a deck together",
+   "rust_traces": [
+    "tests/rules/test_zones.py::test_owner_orders_cards_placed_into_a_location_together"
+   ]
+  },
+  {
+   "commit": "7c47b86",
+   "test": "tests/cards/test_wp_eb01_a.py::test_eb01_039_plays_as_lv3_cost3_with_three_enemy_units",
+   "reason": "ENGINE: main_options skips a hand card failing its printed Lv./cost before offering PlayModifier plays",
+   "rust_traces": [
+    "tests/cards/test_wp_eb01_a.py::test_eb01_039_plays_as_lv3_cost3_with_three_enemy_units"
+   ]
+  },
+  {
+   "commit": "7c47b86",
+   "test": "tests/cards/test_wp_eb01_b.py::test_eb01_070_outside_a_battle_the_bonus_does_not_outlive_the_turn",
+   "reason": "ENGINE: a 'during this battle' lasting effect created outside a battle never expires",
+   "rust_traces": [
+    "tests/cards/test_wp_eb01_b.py::test_eb01_070_outside_a_battle_the_bonus_does_not_outlive_the_turn"
+   ]
+  },
+  {
+   "commit": "7c47b86",
+   "test": "tests/cards/test_wp_gd01_a.py::test_gd01_002_free_play_ignores_level_and_resources",
+   "reason": "ENGINE: main_options skips play modifiers when the printed Lv./cost can't be met",
+   "rust_traces": [
+    "tests/cards/test_wp_gd01_a.py::test_gd01_002_free_play_ignores_level_and_resources"
+   ]
+  },
+  {
+   "commit": "7c47b86",
+   "test": "tests/cards/test_wp_gd01_a.py::test_gd01_058_outside_a_battle_the_bonus_does_not_last_into_later_turns",
+   "reason": "ENGINE: a 'during this battle' effect created outside a battle never expires",
+   "rust_traces": [
+    "tests/cards/test_wp_gd01_a.py::test_gd01_058_outside_a_battle_the_bonus_does_not_last_into_later_turns"
+   ]
+  },
+  {
+   "commit": "7c47b86",
+   "test": "tests/cards/test_wp_gd01_b.py::test_gd01_082_used_in_end_phase_does_not_outlast_the_turn",
+   "reason": "ENGINE: 'during this battle' lasting effects created outside a battle never expire",
+   "rust_traces": [
+    "tests/cards/test_wp_gd01_b.py::test_gd01_082_used_in_end_phase_does_not_outlast_the_turn"
+   ]
+  },
+  {
+   "commit": "7c47b86",
+   "test": "tests/cards/test_wp_gd01_b.py::test_gd01_127_used_in_end_phase_does_not_outlast_the_turn",
+   "reason": "ENGINE: 'during this battle' lasting effects created outside a battle never expire",
+   "rust_traces": [
+    "tests/cards/test_wp_gd01_b.py::test_gd01_127_used_in_end_phase_does_not_outlast_the_turn"
+   ]
+  },
+  {
+   "commit": "7c47b86",
+   "test": "tests/cards/test_wp_gd02_b.py::test_gd02_106_played_in_end_phase_does_not_protect_later_battles",
+   "reason": "ENGINE: a 'during this battle' effect created outside a battle never expires",
+   "rust_traces": [
+    "tests/cards/test_wp_gd02_b.py::test_gd02_106_played_in_end_phase_does_not_protect_later_battles"
+   ]
+  },
+  {
+   "commit": "7c47b86",
+   "test": "tests/cards/test_wp_gd02_b.py::test_gd02_119_played_in_end_phase_does_not_outlive_the_turn",
+   "reason": "ENGINE: a 'during this battle' effect created outside a battle never expires",
+   "rust_traces": [
+    "tests/cards/test_wp_gd02_b.py::test_gd02_119_played_in_end_phase_does_not_outlive_the_turn"
+   ]
+  },
+  {
+   "commit": "7c47b86",
+   "test": "tests/cards/test_wp_gd03_b.py::test_gd03_085_free_pairing_offered_with_no_active_resources",
+   "reason": "ENGINE: main_options skips play modifiers when the printed cost is unpayable",
+   "rust_traces": [
+    "tests/cards/test_wp_gd03_b.py::test_gd03_085_free_pairing_offered_with_no_active_resources"
+   ]
+  },
+  {
+   "commit": "7c47b86",
+   "test": "tests/cards/test_wp_gd03_b.py::test_gd03_115_played_outside_a_battle_grants_nothing_lasting",
+   "reason": "ENGINE: a 'during this battle' lasting effect created outside a battle never expires",
+   "rust_traces": [
+    "tests/cards/test_wp_gd03_b.py::test_gd03_115_played_outside_a_battle_grants_nothing_lasting"
+   ]
+  },
+  {
+   "commit": "7c47b86",
+   "test": "tests/cards/test_wp_gd04_b.py::test_gd04_100_q286_paying_to_deploy_with_x_divider_counts",
+   "reason": "ENGINE: PlayCard paying a card's cost emits no COST_PAID event",
+   "rust_traces": [
+    "tests/cards/test_wp_gd04_b.py::test_gd04_100_q286_paying_to_deploy_with_x_divider_counts"
+   ]
+  },
+  {
+   "commit": "7c47b86",
+   "test": "tests/cards/test_wp_gd04_b.py::test_gd04_113_outside_a_battle_has_no_lasting_effect",
+   "reason": "ENGINE: a 'this battle' lasting effect created outside a battle never expires",
+   "rust_traces": [
+    "tests/cards/test_wp_gd04_b.py::test_gd04_113_outside_a_battle_has_no_lasting_effect"
+   ]
+  },
+  {
+   "commit": "7c47b86",
+   "test": "tests/cards/test_wp_gd04_b.py::test_gd04_129_q297_paying_to_deploy_with_x_divider_counts",
+   "reason": "ENGINE: PlayCard paying a card's cost emits no COST_PAID event",
+   "rust_traces": [
+    "tests/cards/test_wp_gd04_b.py::test_gd04_129_q297_paying_to_deploy_with_x_divider_counts"
+   ]
+  },
+  {
+   "commit": "7c47b86",
+   "test": "tests/cards/test_wp_gd05_a.py::test_gd05_021_ap_boost_activated_outside_a_battle_does_not_persist",
+   "reason": "ENGINE: a 'during this battle' effect created outside a battle never expires",
+   "rust_traces": [
+    "tests/cards/test_wp_gd05_a.py::test_gd05_021_ap_boost_activated_outside_a_battle_does_not_persist"
+   ]
+  },
+  {
+   "commit": "7c47b86",
+   "test": "tests/cards/test_wp_gd05_b.py::test_gd05_101_paying_to_deploy_with_x_divider_counts",
+   "reason": "ENGINE: interp._h_play_card pays 'Pay its cost' without emitting COST_PAID",
+   "rust_traces": [
+    "tests/cards/test_wp_gd05_b.py::test_gd05_101_paying_to_deploy_with_x_divider_counts"
+   ]
+  },
+  {
+   "commit": "7c47b86",
+   "test": "tests/cards/test_wp_st01_04.py::test_st02_013_played_outside_a_battle_has_no_lasting_effect",
+   "reason": "ENGINE: a 'this_battle' lasting created outside a battle never expires",
+   "rust_traces": [
+    "tests/cards/test_wp_st01_04.py::test_st02_013_played_outside_a_battle_has_no_lasting_effect"
+   ]
+  },
+  {
+   "commit": "7c47b86",
+   "test": "tests/cards/test_wp_st01_04.py::test_st03_014_played_outside_a_battle_has_no_lasting_effect",
+   "reason": "ENGINE: a 'this_battle' lasting created outside a battle never expires",
+   "rust_traces": [
+    "tests/cards/test_wp_st01_04.py::test_st03_014_played_outside_a_battle_has_no_lasting_effect"
+   ]
+  },
+  {
+   "commit": "7c47b86",
+   "test": "tests/cards/test_wp_st09_11.py::test_st10_014_alt_play_offered_with_only_two_resources",
+   "reason": "ENGINE: main_options skips _alt_play_options when the printed Lv./cost can't be met",
+   "rust_traces": [
+    "tests/cards/test_wp_st09_11.py::test_st10_014_alt_play_offered_with_only_two_resources"
+   ]
+  },
+  {
+   "commit": "7c47b86",
+   "test": "tests/cards/test_wp_st09_11.py::test_st10_015_not_playable_with_g_generation_unit_but_no_enemy_unit",
+   "reason": "ENGINE: _required_targets_ok skips choices inside If branches even when the If holds",
+   "rust_traces": [
+    "tests/cards/test_wp_st09_11.py::test_st10_015_not_playable_with_g_generation_unit_but_no_enemy_unit"
+   ]
+  },
+  {
+   "commit": "7c47b86",
+   "test": "tests/cards/test_wp_st09_11.py::test_st10_015_played_outside_battle_does_not_persist_past_the_turn",
+   "reason": "ENGINE: a 'during this battle' lasting effect created outside a battle never expires",
+   "rust_traces": [
+    "tests/cards/test_wp_st09_11.py::test_st10_015_played_outside_battle_does_not_persist_past_the_turn"
+   ]
+  },
+  {
+   "commit": "7c47b86",
+   "test": "tests/cards/test_wp_tokens.py::test_t026_breach_still_activates_when_both_units_are_destroyed",
+   "reason": "ENGINE: Breach program reads KwAmount(This) after the Breach Unit left play, so 0 damage",
+   "rust_traces": [
+    "tests/cards/test_wp_tokens.py::test_t026_breach_still_activates_when_both_units_are_destroyed"
+   ]
+  },
+  {
+   "commit": "7c47b86",
+   "test": "tests/rules/test_faq.py::test_q89_char_aznable_on_an_amuro_ray_unit",
+   "reason": "ENGINE: ST03-011 Char Aznable (named by FAQ Q89) does not compile",
+   "rust_traces": [
+    "tests/rules/test_faq.py::test_q89_char_aznable_on_an_amuro_ray_unit"
+   ]
+  },
+  {
+   "commit": "ddb9f4f",
+   "test": "tests/cards/test_wp_st12_14.py::test_st12_004_breach_when_both_units_are_destroyed",
+   "reason": "ENGINE: <Breach> amount is read from the destroyed Unit, so it deals 0 damage",
+   "rust_traces": [
+    "tests/cards/test_wp_st12_14.py::test_st12_004_breach_when_both_units_are_destroyed"
+   ]
+  },
+  {
+   "commit": "ddb9f4f",
+   "test": "tests/cards/test_wp_st12_14.py::test_st12_006_suppression_activated_outside_a_battle_does_not_persist",
+   "reason": "ENGINE: a 'during this battle' effect created outside a battle never expires",
+   "rust_traces": [
+    "tests/cards/test_wp_st12_14.py::test_st12_006_suppression_activated_outside_a_battle_does_not_persist"
+   ]
+  },
+  {
+   "commit": "ddb9f4f",
+   "test": "tests/cards/test_wp_st12_14.py::test_st12_014_played_outside_a_battle_grants_nothing_lasting",
+   "reason": "ENGINE: a 'during this battle' effect created outside a battle never expires",
+   "rust_traces": [
+    "tests/cards/test_wp_st12_14.py::test_st12_014_played_outside_a_battle_grants_nothing_lasting"
+   ]
+  },
+  {
+   "commit": "0e1d3e8",
+   "test": "tests/cards/test_wp_eb01_a.py::test_eb01_004_once_per_turn_is_not_used_when_no_target_could_be_chosen",
+   "reason": "ENGINE: a 【Once per Turn】 trigger that could not choose its target is still used up (rules 10-2-2/10-3-3-1, GD02-002:Q197 resolution)",
+   "rust_traces": [
+    "tests/cards/test_wp_eb01_a.py::test_eb01_004_once_per_turn_is_not_used_when_no_target_could_be_chosen"
+   ]
+  },
+  {
+   "commit": "0e1d3e8",
+   "test": "tests/cards/test_wp_gd02_a.py::test_gd02_001_breach_destroying_the_base_recovers",
+   "reason": "ENGINE: a Base destroyed by effect damage (rules management) emits no destroys_shield_card event for the damage source",
+   "rust_traces": [
+    "tests/cards/test_wp_gd02_a.py::test_gd02_001_breach_destroying_the_base_recovers"
+   ]
+  },
+  {
+   "commit": "0e1d3e8",
+   "test": "tests/cards/test_wp_gd03_a.py::test_gd03_076_once_per_turn_not_used_up_when_nothing_was_returned",
+   "reason": "ENGINE: 【Once per Turn】 is consumed when a triggered effect resolves without performing its action (resolution ruling:GD02-002:Q197)",
+   "rust_traces": [
+    "tests/cards/test_wp_gd03_a.py::test_gd03_076_once_per_turn_not_used_up_when_nothing_was_returned"
+   ]
+  },
+  {
+   "commit": "0e1d3e8",
+   "test": "tests/cards/test_wp_gd04_a.py::test_gd04_002_delayed_effect_fires_for_every_destruction_this_turn",
+   "reason": "ENGINE: DelayedTrigger fires once; 'during this turn, when ...' must fire every time",
+   "rust_traces": [
+    "tests/cards/test_wp_gd04_a.py::test_gd04_002_delayed_effect_fires_for_every_destruction_this_turn"
+   ]
+  },
+  {
+   "commit": "0e1d3e8",
+   "test": "tests/cards/test_wp_gd04_a.py::test_gd04_035_draws_when_both_units_are_destroyed",
+   "reason": "ENGINE: delayed self-bound trigger ignores a destroyer that left play in the same step",
+   "rust_traces": [
+    "tests/cards/test_wp_gd04_a.py::test_gd04_035_draws_when_both_units_are_destroyed"
+   ]
+  },
+  {
+   "commit": "0e1d3e8",
+   "test": "tests/cards/test_wp_gd04_a.py::test_gd04_042_breach_destroying_the_base_triggers",
+   "reason": "ENGINE: a Base destroyed by effect damage (e.g. <Breach>) emits no DESTROYS_SHIELD_CARD",
+   "rust_traces": [
+    "tests/cards/test_wp_gd04_a.py::test_gd04_042_breach_destroying_the_base_triggers"
+   ]
+  },
+  {
+   "commit": "0e1d3e8",
+   "test": "tests/cards/test_wp_gd04_a.py::test_gd04_066_burst_activating_a_command_main_triggers",
+   "reason": "ENGINE: ActivateMain (【Burst】Activate this card's 【Main】) emits no command-activation event",
+   "rust_traces": [
+    "tests/cards/test_wp_gd04_a.py::test_gd04_066_burst_activating_a_command_main_triggers"
+   ]
+  },
+  {
+   "commit": "0e1d3e8",
+   "test": "tests/cards/test_wp_gd05_a.py::test_gd05_035_breach_destroying_the_base_triggers",
+   "reason": "ENGINE: a Base destroyed by effect damage emits no 'destroys shield area card' event",
+   "rust_traces": [
+    "tests/cards/test_wp_gd05_a.py::test_gd05_035_breach_destroying_the_base_triggers"
+   ]
+  },
+  {
+   "commit": "0e1d3e8",
+   "test": "tests/cards/test_wp_gd05_a.py::test_gd05_068_main_activated_by_an_effect_also_grants_suppression",
+   "reason": "ENGINE: activating a Command's 【Main】 through an effect emits no command event",
+   "rust_traces": [
+    "tests/cards/test_wp_gd05_a.py::test_gd05_068_main_activated_by_an_effect_also_grants_suppression"
+   ]
+  },
+  {
+   "commit": "0e1d3e8",
+   "test": "tests/cards/test_wp_gd05_b.py::test_gd05_089_counts_main_activated_on_a_paired_special_move_command",
+   "reason": "ENGINE: interp._h_activate_main does not record a Command activation in the turn history",
+   "rust_traces": [
+    "tests/cards/test_wp_gd05_b.py::test_gd05_089_counts_main_activated_on_a_paired_special_move_command"
+   ]
+  },
+  {
+   "commit": "0e1d3e8",
+   "test": "tests/cards/test_wp_gd05_b.py::test_gd05_097_activation_counts_as_activating_a_special_move_main",
+   "reason": "ENGINE: interp._h_activate_main does not record/emit a Command activation",
+   "rust_traces": [
+    "tests/cards/test_wp_gd05_b.py::test_gd05_097_activation_counts_as_activating_a_special_move_main"
+   ]
+  },
+  {
+   "commit": "0e1d3e8",
+   "test": "tests/cards/test_wp_st12_14.py::test_st12_001_once_per_turn_when_destroyed_in_the_second_battle",
+   "reason": "ENGINE: Once per Turn key of a last-known-information trigger uses the moved card's new zone_seq",
+   "rust_traces": [
+    "tests/cards/test_wp_st12_14.py::test_st12_001_once_per_turn_when_destroyed_in_the_second_battle"
+   ]
+  },
+  {
+   "commit": "0e1d3e8",
+   "test": "tests/cards/test_wp_st12_14.py::test_st12_001_q437_triggers_when_destroying_with_effect_damage",
+   "reason": "ENGINE: destruction by a Unit's own effect damage never counts as that Unit destroying it",
+   "rust_traces": [
+    "tests/cards/test_wp_st12_14.py::test_st12_001_q437_triggers_when_destroying_with_effect_damage"
+   ]
+  },
+  {
+   "commit": "0e1d3e8",
+   "test": "tests/cards/test_wp_st12_14.py::test_st12_003_q439_triggers_when_destroying_with_effect_damage",
+   "reason": "ENGINE: destruction by a Unit's own effect damage never counts as that Unit destroying it",
+   "rust_traces": [
+    "tests/cards/test_wp_st12_14.py::test_st12_003_q439_triggers_when_destroying_with_effect_damage"
+   ]
+  },
+  {
+   "commit": "0e1d3e8",
+   "test": "tests/cards/test_wp_st12_14.py::test_st12_015_not_playable_without_a_legal_mode",
+   "reason": "ENGINE: a modal Command is playable even when no mode has a legal target",
+   "rust_traces": [
+    "tests/cards/test_wp_st12_14.py::test_st12_015_not_playable_without_a_legal_mode"
+   ]
+  },
+  {
+   "commit": "0e1d3e8",
+   "test": "tests/cards/test_wp_st12_14.py::test_st14_013_q469_not_playable_without_enemy_units",
+   "reason": "ENGINE: a modal Command is playable even when no mode has a legal target",
+   "rust_traces": [
+    "tests/cards/test_wp_st12_14.py::test_st14_013_q469_not_playable_without_enemy_units"
+   ]
+  },
+  {
+   "commit": "0ee591d",
+   "test": "tests/cards/test_wp_gd03_a.py::test_gd03_070_rested_freedom_protects_shields_from_enemy_battle_damage",
+   "reason": "ENGINE: battle damage to Shields ignores CANT_RECEIVE_DAMAGE rules on the Shields",
+   "rust_traces": [
+    "tests/cards/test_wp_gd03_a.py::test_gd03_070_rested_freedom_protects_shields_from_enemy_battle_damage"
+   ]
+  },
+  {
+   "commit": "0ee591d",
+   "test": "tests/cards/test_wp_gd03_b.py::test_gd03_110_destroys_the_pilot_and_keeps_the_unit",
+   "reason": "ENGINE: Destroy ignores Pilots paired in the battle area",
+   "rust_traces": [
+    "tests/cards/test_wp_gd03_b.py::test_gd03_110_destroys_the_pilot_and_keeps_the_unit"
+   ]
+  },
+  {
+   "commit": "0ee591d",
+   "test": "tests/cards/test_wp_gd03_b.py::test_gd03_110_link_unit_deployed_this_turn_can_no_longer_attack",
+   "reason": "ENGINE: Destroy ignores Pilots paired in the battle area",
+   "rust_traces": [
+    "tests/cards/test_wp_gd03_b.py::test_gd03_110_link_unit_deployed_this_turn_can_no_longer_attack"
+   ]
+  },
+  {
+   "commit": "0ee591d",
+   "test": "tests/cards/test_wp_gd04_a.py::test_gd04_022_unit_is_already_rested_when_its_deploy_effect_resolves",
+   "reason": "DSL: no 'deployed rested' static; the Unit is still active while its own 【Deploy】 resolves",
+   "rust_traces": [
+    "tests/cards/test_wp_gd04_a.py::test_gd04_022_unit_is_already_rested_when_its_deploy_effect_resolves"
+   ]
+  },
+  {
+   "commit": "0ee591d",
+   "test": "tests/cards/test_wp_gd04_b.py::test_gd04_094_when_linked_adds_purple_suppression_unit_from_trash",
+   "reason": "ENGINE: HasKeyword never matches cards outside the battle area/base section",
+   "rust_traces": [
+    "tests/cards/test_wp_gd04_b.py::test_gd04_094_when_linked_adds_purple_suppression_unit_from_trash"
+   ]
+  },
+  {
+   "commit": "0ee591d",
+   "test": "tests/cards/test_wp_gd04_b.py::test_gd04_095_q283_unit_killed_by_redirected_damage_is_destroyed_in_battle",
+   "reason": "ENGINE: a Unit killed by redirected battle damage is destroyed by rules management",
+   "rust_traces": [
+    "tests/cards/test_wp_gd04_b.py::test_gd04_095_q283_unit_killed_by_redirected_damage_is_destroyed_in_battle"
+   ]
+  },
+  {
+   "commit": "0ee591d",
+   "test": "tests/cards/test_wp_gd04_b.py::test_gd04_102_q288_effects_may_still_set_it_active",
+   "reason": "DSL: no rule kind for 'won't be set as active during the start phase' only",
+   "rust_traces": [
+    "tests/cards/test_wp_gd04_b.py::test_gd04_102_q288_effects_may_still_set_it_active"
+   ]
+  },
+  {
+   "commit": "0ee591d",
+   "test": "tests/cards/test_wp_gd04_b.py::test_gd04_107_q289_outranks_if_possible_attractors",
+   "reason": "ENGINE: 'must choose that Unit' is not prioritised over 'if possible' attractors",
+   "rust_traces": [
+    "tests/cards/test_wp_gd04_b.py::test_gd04_107_q289_outranks_if_possible_attractors"
+   ]
+  },
+  {
+   "commit": "0ee591d",
+   "test": "tests/cards/test_wp_gd04_b.py::test_gd04_107_q301_active_chosen_unit_binds_attackers_allowed_to_hit_active",
+   "reason": "ENGINE: forced attack targets are only honoured while rested",
+   "rust_traces": [
+    "tests/cards/test_wp_gd04_b.py::test_gd04_107_q301_active_chosen_unit_binds_attackers_allowed_to_hit_active"
+   ]
+  },
+  {
+   "commit": "0ee591d",
+   "test": "tests/cards/test_wp_gd04_b.py::test_gd04_108_second_copy_reduces_a_later_damage",
+   "reason": "ENGINE: one-shot reductions from identical lasting effects share one usage key",
+   "rust_traces": [
+    "tests/cards/test_wp_gd04_b.py::test_gd04_108_second_copy_reduces_a_later_damage"
+   ]
+  },
+  {
+   "commit": "0ee591d",
+   "test": "tests/cards/test_wp_gd05_b.py::test_gd05_086_link_unit_attackers_are_not_attracted",
+   "reason": "ENGINE: game._attack_options applies FORCE_ATTACK_TARGET to every attacker (ignores source_filters)",
+   "rust_traces": [
+    "tests/cards/test_wp_gd05_b.py::test_gd05_086_link_unit_attackers_are_not_attracted"
+   ]
+  },
+  {
+   "commit": "0ee591d",
+   "test": "tests/cards/test_wp_gd05_b.py::test_gd05_089_burst_may_deploy_it_as_ap3_hp3_unit",
+   "reason": "DSL: no step deploys a Pilot card as an (AP3･HP3) Unit (card-type override)",
+   "rust_traces": [
+    "tests/cards/test_wp_gd05_b.py::test_gd05_089_burst_may_deploy_it_as_ap3_hp3_unit"
+   ]
+  },
+  {
+   "commit": "0ee591d",
+   "test": "tests/cards/test_wp_gd05_b.py::test_gd05_089_deployed_as_unit_can_be_paired",
+   "reason": "DSL: no step deploys a Pilot card as an (AP3･HP3) Unit (card-type override)",
+   "rust_traces": [
+    "tests/cards/test_wp_gd05_b.py::test_gd05_089_deployed_as_unit_can_be_paired"
+   ]
+  },
+  {
+   "commit": "0ee591d",
+   "test": "tests/cards/test_wp_gd05_b.py::test_gd05_089_deployed_as_unit_is_lv6",
+   "reason": "DSL: no step deploys a Pilot card as an (AP3･HP3) Unit (card-type override)",
+   "rust_traces": [
+    "tests/cards/test_wp_gd05_b.py::test_gd05_089_deployed_as_unit_is_lv6"
+   ]
+  },
+  {
+   "commit": "0ee591d",
+   "test": "tests/cards/test_wp_gd05_b.py::test_gd05_123_three_enemy_effect_damage_is_received",
+   "reason": "DSL: CANT_RECEIVE_DAMAGE has no 'N or less' amount threshold (core._prevented ignores RuleMod.amount)",
+   "rust_traces": [
+    "tests/cards/test_wp_gd05_b.py::test_gd05_123_three_enemy_effect_damage_is_received"
+   ]
+  },
+  {
+   "commit": "0ee591d",
+   "test": "tests/cards/test_wp_gd05_b.py::test_gd05_124_replaces_only_one_of_two_units",
+   "reason": "ENGINE: interp._rest_substitutes offers the same Base again for a second Unit of one Rest",
+   "rust_traces": [
+    "tests/cards/test_wp_gd05_b.py::test_gd05_124_replaces_only_one_of_two_units"
+   ]
+  },
+  {
+   "commit": "0ee591d",
+   "test": "tests/cards/test_wp_gd05_b.py::test_gd05_129_destruction_by_a_non_neo_zeon_effect_does_not_count",
+   "reason": "DSL: turn history does not record the destroying card, so '(Neo Zeon) card's effects' cannot be checked",
+   "rust_traces": [
+    "tests/cards/test_wp_gd05_b.py::test_gd05_129_destruction_by_a_non_neo_zeon_effect_does_not_count"
+   ]
+  },
+  {
+   "commit": "0ee591d",
+   "test": "tests/cards/test_wp_st05_08.py::test_st08_009_effect_can_still_set_the_unit_active",
+   "reason": "DSL: 'won't be set as active during the start phase' compiles to CANT_BE_SET_ACTIVE, which interp._h_set_active also applies to effects (Q208)",
+   "rust_traces": [
+    "tests/cards/test_wp_st05_08.py::test_st08_009_effect_can_still_set_the_unit_active"
+   ]
+  },
+  {
+   "commit": "0ee591d",
+   "test": "tests/cards/test_wp_st09_11.py::test_st11_006_reduces_six_breach_damage_to_one",
+   "reason": "DSL: no player-level damage reduction for shield area cards; modelled as prevention",
+   "rust_traces": [
+    "tests/cards/test_wp_st09_11.py::test_st11_006_reduces_six_breach_damage_to_one"
+   ]
+  },
+  {
+   "commit": "0ee591d",
+   "test": "tests/cards/test_wp_st12_14.py::test_st12_016_damage_after_paired_unit_destroys_with_battle_damage",
+   "reason": "DSL: no turn-history record of battle destructions by paired Units",
+   "rust_traces": [
+    "tests/cards/test_wp_st12_14.py::test_st12_016_damage_after_paired_unit_destroys_with_battle_damage"
+   ]
+  },
+  {
+   "commit": "0ee591d",
+   "test": "tests/cards/test_wp_st12_14.py::test_st12_016_q452_counts_when_both_units_are_destroyed",
+   "reason": "DSL: no turn-history record of battle destructions by paired Units",
+   "rust_traces": [
+    "tests/cards/test_wp_st12_14.py::test_st12_016_q452_counts_when_both_units_are_destroyed"
+   ]
+  },
+  {
+   "commit": "0ee591d",
+   "test": "tests/cards/test_wp_st12_14.py::test_st14_015_resource_set_active_by_another_effect_this_turn",
+   "reason": "DSL: Resources set active by other effects are not in the turn history",
+   "rust_traces": [
+    "tests/cards/test_wp_st12_14.py::test_st14_015_resource_set_active_by_another_effect_this_turn"
+   ]
+  }
+ ],
+ "bugs": [
+  {
+   "bug": "battle LKI and Base damage",
+   "entry": "W-57",
+   "python_tests": [
+    "tests/cards/test_wp_gd02_a.py::test_gd02_001_breach_destroying_the_base_recovers",
+    "tests/cards/test_wp_gd04_a.py::test_gd04_042_breach_destroying_the_base_triggers",
+    "tests/cards/test_wp_gd05_a.py::test_gd05_035_breach_destroying_the_base_triggers"
+   ],
+   "rust_traces": [
+    "tests/cards/test_wp_gd02_a.py::test_gd02_001_breach_destroying_the_base_recovers",
+    "tests/cards/test_wp_gd04_a.py::test_gd04_042_breach_destroying_the_base_triggers",
+    "tests/cards/test_wp_gd05_a.py::test_gd05_035_breach_destroying_the_base_triggers"
+   ],
+   "rust_native": [],
+   "not_applicable": ""
+  },
+  {
+   "bug": "<Breach> amount read from the destroyed host",
+   "entry": "W-57",
+   "python_tests": [
+    "tests/cards/test_wp_st12_14.py::test_st12_004_breach_when_both_units_are_destroyed",
+    "tests/cards/test_wp_tokens.py::test_t026_breach_still_activates_when_both_units_are_destroyed",
+    "tests/rules/test_faq.py::test_q55_breach_activates_when_both_units_are_destroyed",
+    "tests/rules/test_keywords.py::test_breach_activates_when_both_units_are_destroyed"
+   ],
+   "rust_traces": [
+    "tests/cards/test_wp_st12_14.py::test_st12_004_breach_when_both_units_are_destroyed",
+    "tests/cards/test_wp_tokens.py::test_t026_breach_still_activates_when_both_units_are_destroyed",
+    "tests/rules/test_faq.py::test_q55_breach_activates_when_both_units_are_destroyed",
+    "tests/rules/test_keywords.py::test_breach_activates_when_both_units_are_destroyed"
+   ],
+   "rust_native": [],
+   "not_applicable": ""
+  },
+  {
+   "bug": "【Destroyed】 ignoring the last-known paired Pilot",
+   "entry": "W-57",
+   "python_tests": [
+    "tests/rules/test_faq.py::test_q69_destroyed_effect_finds_the_pilot_paired_before_destruction",
+    "tests/rules/test_keywords.py::test_destroyed_effect_returns_the_last_known_paired_pilot"
+   ],
+   "rust_traces": [
+    "tests/rules/test_faq.py::test_q69_destroyed_effect_finds_the_pilot_paired_before_destruction",
+    "tests/rules/test_keywords.py::test_destroyed_effect_returns_the_last_known_paired_pilot"
+   ],
+   "rust_native": [],
+   "not_applicable": ""
+  },
+  {
+   "bug": "HP filters using printed HP (Q96)",
+   "entry": "W-57",
+   "python_tests": [
+    "tests/rules/test_faq.py::test_q96_hp_in_card_text_is_current_hp"
+   ],
+   "rust_traces": [
+    "tests/rules/test_faq.py::test_q96_hp_in_card_text_is_current_hp"
+   ],
+   "rust_native": [],
+   "not_applicable": ""
+  },
+  {
+   "bug": "<Support> bonus lost with its source (Q106)",
+   "entry": "W-57",
+   "python_tests": [
+    "tests/rules/test_faq.py::test_q106_support_bonus_outlives_the_support_unit"
+   ],
+   "rust_traces": [
+    "tests/rules/test_faq.py::test_q106_support_bonus_outlives_the_support_unit"
+   ],
+   "rust_native": [],
+   "not_applicable": ""
+  },
+  {
+   "bug": "no concession entry point",
+   "entry": "W-57",
+   "python_tests": [
+    "tests/rules/test_turn.py::test_either_player_may_concede_at_any_time"
+   ],
+   "rust_traces": [
+    "tests/rules/test_turn.py::test_either_player_may_concede_at_any_time"
+   ],
+   "rust_native": [],
+   "not_applicable": ""
+  },
+  {
+   "bug": "'All players draw 1' defeating only the active player",
+   "entry": "W-57",
+   "python_tests": [
+    "tests/rules/test_damage.py::test_a_symmetric_draw_that_empties_both_decks_defeats_both_players",
+    "tests/rules/test_turn.py::test_all_players_draw_empties_both_decks_and_defeats_both"
+   ],
+   "rust_traces": [
+    "tests/rules/test_damage.py::test_a_symmetric_draw_that_empties_both_decks_defeats_both_players",
+    "tests/rules/test_turn.py::test_all_players_draw_empties_both_decks_and_defeats_both"
+   ],
+   "rust_native": [],
+   "not_applicable": ""
+  },
+  {
+   "bug": "new_game accepting non-conforming decks",
+   "entry": "W-57",
+   "python_tests": [
+    "tests/rules/test_turn.py::test_decks_that_do_not_conform_to_deck_construction_are_rejected[49-card-deck]",
+    "tests/rules/test_turn.py::test_decks_that_do_not_conform_to_deck_construction_are_rejected[9-card-resource-deck]",
+    "tests/rules/test_turn.py::test_decks_that_do_not_conform_to_deck_construction_are_rejected[five-copies]"
+   ],
+   "rust_traces": [
+    "tests/rules/test_turn.py::test_decks_that_do_not_conform_to_deck_construction_are_rejected[49-card-deck]",
+    "tests/rules/test_turn.py::test_decks_that_do_not_conform_to_deck_construction_are_rejected[9-card-resource-deck]",
+    "tests/rules/test_turn.py::test_decks_that_do_not_conform_to_deck_construction_are_rejected[five-copies]"
+   ],
+   "rust_native": [],
+   "not_applicable": ""
+  },
+  {
+   "bug": "phase/step labels advancing early",
+   "entry": "W-57",
+   "python_tests": [
+    "tests/rules/test_turn.py::test_end_phase_step_is_reported_until_its_effects_have_resolved",
+    "tests/rules/test_turn.py::test_start_phase_is_reported_until_start_step_effects_have_resolved"
+   ],
+   "rust_traces": [
+    "tests/rules/test_turn.py::test_end_phase_step_is_reported_until_its_effects_have_resolved",
+    "tests/rules/test_turn.py::test_start_phase_is_reported_until_start_step_effects_have_resolved"
+   ],
+   "rust_native": [],
+   "not_applicable": ""
+  },
+  {
+   "bug": "deck placement ordering and information leaks (4-1-6, 4-1-7, 4-2-2)",
+   "entry": "W-57",
+   "python_tests": [
+    "tests/rules/test_zones.py::test_cards_returned_randomly_to_the_deck_do_not_reveal_their_order",
+    "tests/rules/test_zones.py::test_order_of_public_cards_placed_into_a_private_location_is_hidden",
+    "tests/rules/test_zones.py::test_owner_orders_cards_placed_into_a_location_together"
+   ],
+   "rust_traces": [
+    "tests/rules/test_zones.py::test_cards_returned_randomly_to_the_deck_do_not_reveal_their_order",
+    "tests/rules/test_zones.py::test_order_of_public_cards_placed_into_a_private_location_is_hidden",
+    "tests/rules/test_zones.py::test_owner_orders_cards_placed_into_a_location_together"
+   ],
+   "rust_native": [],
+   "not_applicable": ""
+  },
+  {
+   "bug": "'during this battle' effects never expiring outside a battle",
+   "entry": "W-57",
+   "python_tests": [
+    "tests/cards/test_wp_eb01_b.py::test_eb01_070_outside_a_battle_the_bonus_does_not_outlive_the_turn",
+    "tests/cards/test_wp_gd01_a.py::test_gd01_058_outside_a_battle_the_bonus_does_not_last_into_later_turns",
+    "tests/cards/test_wp_gd01_b.py::test_gd01_082_used_in_end_phase_does_not_outlast_the_turn",
+    "tests/cards/test_wp_gd02_b.py::test_gd02_106_played_in_end_phase_does_not_protect_later_battles",
+    "tests/cards/test_wp_st12_14.py::test_st12_006_suppression_activated_outside_a_battle_does_not_persist",
+    "tests/rules/test_battle.py::test_during_this_battle_effect_outside_a_battle_does_not_outlast_the_turn"
+   ],
+   "rust_traces": [
+    "tests/cards/test_wp_eb01_b.py::test_eb01_070_outside_a_battle_the_bonus_does_not_outlive_the_turn",
+    "tests/cards/test_wp_gd01_a.py::test_gd01_058_outside_a_battle_the_bonus_does_not_last_into_later_turns",
+    "tests/cards/test_wp_gd01_b.py::test_gd01_082_used_in_end_phase_does_not_outlast_the_turn",
+    "tests/cards/test_wp_gd02_b.py::test_gd02_106_played_in_end_phase_does_not_protect_later_battles",
+    "tests/cards/test_wp_st12_14.py::test_st12_006_suppression_activated_outside_a_battle_does_not_persist",
+    "tests/rules/test_battle.py::test_during_this_battle_effect_outside_a_battle_does_not_outlast_the_turn"
+   ],
+   "rust_native": [],
+   "not_applicable": ""
+  },
+  {
+   "bug": "a Unit trashed by an effect not treated as destroyed",
+   "entry": "W-57",
+   "python_tests": [
+    "tests/rules/test_cardinfo.py::test_effect_placing_a_field_unit_into_the_trash_destroys_it"
+   ],
+   "rust_traces": [
+    "tests/rules/test_cardinfo.py::test_effect_placing_a_field_unit_into_the_trash_destroys_it"
+   ],
+   "rust_native": [],
+   "not_applicable": ""
+  },
+  {
+   "bug": "play modifiers skipped",
+   "entry": "W-57",
+   "python_tests": [
+    "tests/cards/test_wp_eb01_a.py::test_eb01_039_plays_as_lv3_cost3_with_three_enemy_units",
+    "tests/cards/test_wp_gd01_a.py::test_gd01_002_free_play_ignores_level_and_resources",
+    "tests/cards/test_wp_gd03_b.py::test_gd03_085_free_pairing_offered_with_no_active_resources",
+    "tests/cards/test_wp_st09_11.py::test_st10_014_alt_play_offered_with_only_two_resources"
+   ],
+   "rust_traces": [
+    "tests/cards/test_wp_eb01_a.py::test_eb01_039_plays_as_lv3_cost3_with_three_enemy_units",
+    "tests/cards/test_wp_gd01_a.py::test_gd01_002_free_play_ignores_level_and_resources",
+    "tests/cards/test_wp_gd03_b.py::test_gd03_085_free_pairing_offered_with_no_active_resources",
+    "tests/cards/test_wp_st09_11.py::test_st10_014_alt_play_offered_with_only_two_resources"
+   ],
+   "rust_native": [],
+   "not_applicable": ""
+  },
+  {
+   "bug": "missing COST_PAID",
+   "entry": "W-57",
+   "python_tests": [
+    "tests/cards/test_wp_gd04_b.py::test_gd04_100_q286_paying_to_deploy_with_x_divider_counts",
+    "tests/cards/test_wp_gd04_b.py::test_gd04_129_q297_paying_to_deploy_with_x_divider_counts",
+    "tests/cards/test_wp_gd05_b.py::test_gd05_101_paying_to_deploy_with_x_divider_counts"
+   ],
+   "rust_traces": [
+    "tests/cards/test_wp_gd04_b.py::test_gd04_100_q286_paying_to_deploy_with_x_divider_counts",
+    "tests/cards/test_wp_gd04_b.py::test_gd04_129_q297_paying_to_deploy_with_x_divider_counts",
+    "tests/cards/test_wp_gd05_b.py::test_gd05_101_paying_to_deploy_with_x_divider_counts"
+   ],
+   "rust_native": [],
+   "not_applicable": ""
+  },
+  {
+   "bug": "Once per Turn keys and LKI zone_seq",
+   "entry": "W-57",
+   "python_tests": [
+    "tests/cards/test_wp_eb01_a.py::test_eb01_004_once_per_turn_is_not_used_when_no_target_could_be_chosen",
+    "tests/cards/test_wp_gd03_a.py::test_gd03_076_once_per_turn_not_used_up_when_nothing_was_returned",
+    "tests/cards/test_wp_st12_14.py::test_st12_001_once_per_turn_when_destroyed_in_the_second_battle"
+   ],
+   "rust_traces": [
+    "tests/cards/test_wp_eb01_a.py::test_eb01_004_once_per_turn_is_not_used_when_no_target_could_be_chosen",
+    "tests/cards/test_wp_gd03_a.py::test_gd03_076_once_per_turn_not_used_up_when_nothing_was_returned",
+    "tests/cards/test_wp_st12_14.py::test_st12_001_once_per_turn_when_destroyed_in_the_second_battle"
+   ],
+   "rust_native": [],
+   "not_applicable": ""
+  },
+  {
+   "bug": "missing command-activation events",
+   "entry": "W-57",
+   "python_tests": [
+    "tests/cards/test_wp_gd04_a.py::test_gd04_066_burst_activating_a_command_main_triggers",
+    "tests/cards/test_wp_gd05_a.py::test_gd05_068_main_activated_by_an_effect_also_grants_suppression",
+    "tests/cards/test_wp_gd05_b.py::test_gd05_089_counts_main_activated_on_a_paired_special_move_command",
+    "tests/cards/test_wp_gd05_b.py::test_gd05_097_activation_counts_as_activating_a_special_move_main"
+   ],
+   "rust_traces": [
+    "tests/cards/test_wp_gd04_a.py::test_gd04_066_burst_activating_a_command_main_triggers",
+    "tests/cards/test_wp_gd05_a.py::test_gd05_068_main_activated_by_an_effect_also_grants_suppression",
+    "tests/cards/test_wp_gd05_b.py::test_gd05_089_counts_main_activated_on_a_paired_special_move_command",
+    "tests/cards/test_wp_gd05_b.py::test_gd05_097_activation_counts_as_activating_a_special_move_main"
+   ],
+   "rust_native": [],
+   "not_applicable": ""
+  },
+  {
+   "bug": "effect-damage destruction attribution",
+   "entry": "W-57",
+   "python_tests": [
+    "tests/cards/test_wp_st12_14.py::test_st12_001_q437_triggers_when_destroying_with_effect_damage",
+    "tests/cards/test_wp_st12_14.py::test_st12_003_q439_triggers_when_destroying_with_effect_damage"
+   ],
+   "rust_traces": [
+    "tests/cards/test_wp_st12_14.py::test_st12_001_q437_triggers_when_destroying_with_effect_damage",
+    "tests/cards/test_wp_st12_14.py::test_st12_003_q439_triggers_when_destroying_with_effect_damage"
+   ],
+   "rust_native": [],
+   "not_applicable": ""
+  },
+  {
+   "bug": "one-shot delayed triggers",
+   "entry": "W-57",
+   "python_tests": [
+    "tests/cards/test_wp_gd04_a.py::test_gd04_002_delayed_effect_fires_for_every_destruction_this_turn",
+    "tests/cards/test_wp_gd04_a.py::test_gd04_035_draws_when_both_units_are_destroyed"
+   ],
+   "rust_traces": [
+    "tests/cards/test_wp_gd04_a.py::test_gd04_002_delayed_effect_fires_for_every_destruction_this_turn",
+    "tests/cards/test_wp_gd04_a.py::test_gd04_035_draws_when_both_units_are_destroyed"
+   ],
+   "rust_native": [],
+   "not_applicable": ""
+  },
+  {
+   "bug": "modal Commands with no legal mode",
+   "entry": "W-57",
+   "python_tests": [
+    "tests/cards/test_wp_st12_14.py::test_st12_015_not_playable_without_a_legal_mode",
+    "tests/cards/test_wp_st12_14.py::test_st14_013_q469_not_playable_without_enemy_units"
+   ],
+   "rust_traces": [
+    "tests/cards/test_wp_st12_14.py::test_st12_015_not_playable_without_a_legal_mode",
+    "tests/cards/test_wp_st12_14.py::test_st14_013_q469_not_playable_without_enemy_units"
+   ],
+   "rust_native": [],
+   "not_applicable": ""
+  },
+  {
+   "bug": "shield damage prevention and thresholds",
+   "entry": "W-57",
+   "python_tests": [
+    "tests/cards/test_wp_gd03_a.py::test_gd03_070_rested_freedom_protects_shields_from_enemy_battle_damage",
+    "tests/cards/test_wp_gd05_b.py::test_gd05_123_three_enemy_effect_damage_is_received",
+    "tests/cards/test_wp_st09_11.py::test_st11_006_reduces_six_breach_damage_to_one"
+   ],
+   "rust_traces": [
+    "tests/cards/test_wp_gd03_a.py::test_gd03_070_rested_freedom_protects_shields_from_enemy_battle_damage",
+    "tests/cards/test_wp_gd05_b.py::test_gd05_123_three_enemy_effect_damage_is_received",
+    "tests/cards/test_wp_st09_11.py::test_st11_006_reduces_six_breach_damage_to_one"
+   ],
+   "rust_native": [],
+   "not_applicable": ""
+  },
+  {
+   "bug": "paired Pilot destruction",
+   "entry": "W-57",
+   "python_tests": [
+    "tests/cards/test_wp_gd03_b.py::test_gd03_110_destroys_the_pilot_and_keeps_the_unit",
+    "tests/cards/test_wp_gd03_b.py::test_gd03_110_link_unit_deployed_this_turn_can_no_longer_attack"
+   ],
+   "rust_traces": [
+    "tests/cards/test_wp_gd03_b.py::test_gd03_110_destroys_the_pilot_and_keeps_the_unit",
+    "tests/cards/test_wp_gd03_b.py::test_gd03_110_link_unit_deployed_this_turn_can_no_longer_attack"
+   ],
+   "rust_native": [],
+   "not_applicable": ""
+  },
+  {
+   "bug": "forced/attracted attack targets",
+   "entry": "W-57",
+   "python_tests": [
+    "tests/cards/test_wp_gd04_b.py::test_gd04_107_q289_outranks_if_possible_attractors",
+    "tests/cards/test_wp_gd04_b.py::test_gd04_107_q301_active_chosen_unit_binds_attackers_allowed_to_hit_active",
+    "tests/cards/test_wp_gd05_b.py::test_gd05_086_link_unit_attackers_are_not_attracted"
+   ],
+   "rust_traces": [
+    "tests/cards/test_wp_gd04_b.py::test_gd04_107_q289_outranks_if_possible_attractors",
+    "tests/cards/test_wp_gd04_b.py::test_gd04_107_q301_active_chosen_unit_binds_attackers_allowed_to_hit_active",
+    "tests/cards/test_wp_gd05_b.py::test_gd05_086_link_unit_attackers_are_not_attracted"
+   ],
+   "rust_native": [],
+   "not_applicable": ""
+  },
+  {
+   "bug": "reused rest substitutes and shared lasting keys",
+   "entry": "W-57",
+   "python_tests": [
+    "tests/cards/test_wp_gd04_b.py::test_gd04_108_second_copy_reduces_a_later_damage",
+    "tests/cards/test_wp_gd05_b.py::test_gd05_124_replaces_only_one_of_two_units"
+   ],
+   "rust_traces": [
+    "tests/cards/test_wp_gd04_b.py::test_gd04_108_second_copy_reduces_a_later_damage",
+    "tests/cards/test_wp_gd05_b.py::test_gd05_124_replaces_only_one_of_two_units"
+   ],
+   "rust_native": [],
+   "not_applicable": ""
+  },
+  {
+   "bug": "HasKeyword off the field",
+   "entry": "W-57",
+   "python_tests": [
+    "tests/cards/test_wp_gd04_b.py::test_gd04_094_when_linked_adds_purple_suppression_unit_from_trash"
+   ],
+   "rust_traces": [
+    "tests/cards/test_wp_gd04_b.py::test_gd04_094_when_linked_adds_purple_suppression_unit_from_trash"
+   ],
+   "rust_native": [],
+   "not_applicable": ""
+  },
+  {
+   "bug": "redirected battle damage",
+   "entry": "W-57",
+   "python_tests": [
+    "tests/cards/test_wp_gd04_b.py::test_gd04_095_q283_unit_killed_by_redirected_damage_is_destroyed_in_battle"
+   ],
+   "rust_traces": [
+    "tests/cards/test_wp_gd04_b.py::test_gd04_095_q283_unit_killed_by_redirected_damage_is_destroyed_in_battle"
+   ],
+   "rust_native": [],
+   "not_applicable": ""
+  },
+  {
+   "bug": "turn-history gaps",
+   "entry": "W-57",
+   "python_tests": [
+    "tests/cards/test_wp_gd05_b.py::test_gd05_129_destruction_by_a_non_neo_zeon_effect_does_not_count",
+    "tests/cards/test_wp_st12_14.py::test_st12_016_damage_after_paired_unit_destroys_with_battle_damage",
+    "tests/cards/test_wp_st12_14.py::test_st12_016_q452_counts_when_both_units_are_destroyed",
+    "tests/cards/test_wp_st12_14.py::test_st14_015_resource_set_active_by_another_effect_this_turn"
+   ],
+   "rust_traces": [
+    "tests/cards/test_wp_gd05_b.py::test_gd05_129_destruction_by_a_non_neo_zeon_effect_does_not_count",
+    "tests/cards/test_wp_st12_14.py::test_st12_016_damage_after_paired_unit_destroys_with_battle_damage",
+    "tests/cards/test_wp_st12_14.py::test_st12_016_q452_counts_when_both_units_are_destroyed",
+    "tests/cards/test_wp_st12_14.py::test_st14_015_resource_set_active_by_another_effect_this_turn"
+   ],
+   "rust_native": [],
+   "not_applicable": ""
+  },
+  {
+   "bug": "effect-activated paired Commands",
+   "entry": "W-57",
+   "python_tests": [
+    "tests/rules/test_pairing.py::test_paired_command_effect_activated_by_an_effect_resolves_as_a_command_effect"
+   ],
+   "rust_traces": [
+    "tests/rules/test_pairing.py::test_paired_command_effect_activated_by_an_effect_resolves_as_a_command_effect"
+   ],
+   "rust_native": [],
+   "not_applicable": ""
+  },
+  {
+   "bug": "effect-begun battles see battling effects (Q447, Q455)",
+   "entry": "W-57",
+   "python_tests": [
+    "tests/cards/test_wp_st12_14.py::test_st12_013_q447_carta_gives_the_battling_unit_first_strike",
+    "tests/cards/test_wp_st12_14.py::test_st12_013_q447_enemy_battle_effects_apply_in_effect_battles"
+   ],
+   "rust_traces": [
+    "tests/cards/test_wp_st12_14.py::test_st12_013_q447_carta_gives_the_battling_unit_first_strike",
+    "tests/cards/test_wp_st12_14.py::test_st12_013_q447_enemy_battle_effects_apply_in_effect_battles"
+   ],
+   "rust_native": [],
+   "not_applicable": ""
+  },
+  {
+   "bug": "simultaneous 'all players each' effects",
+   "entry": "W-57",
+   "python_tests": [
+    "tests/cards/test_wp_eb01_a.py::test_eb01_023_each_player_looks_in_turn_order",
+    "tests/cards/test_wp_eb01_a.py::test_eb01_023_q319_both_players_act_before_defeat_is_checked"
+   ],
+   "rust_traces": [
+    "tests/cards/test_wp_eb01_a.py::test_eb01_023_each_player_looks_in_turn_order",
+    "tests/cards/test_wp_eb01_a.py::test_eb01_023_q319_both_players_act_before_defeat_is_checked"
+   ],
+   "rust_native": [],
+   "not_applicable": ""
+  },
+  {
+   "bug": "multi-token deployments",
+   "entry": "W-57",
+   "python_tests": [
+    "tests/cards/test_wp_eb01_a.py::test_eb01_022_end_of_turn_trade_for_three_tokens"
+   ],
+   "rust_traces": [
+    "tests/cards/test_wp_eb01_a.py::test_eb01_022_end_of_turn_trade_for_three_tokens"
+   ],
+   "rust_native": [],
+   "not_applicable": ""
+  },
+  {
+   "bug": "printings counted separately in the deck check (2-1-1)",
+   "entry": "W-57",
+   "python_tests": [
+    "tests/rules/test_turn.py::test_decks_that_do_not_conform_to_deck_construction_are_rejected[49-card-deck]",
+    "tests/rules/test_turn.py::test_decks_that_do_not_conform_to_deck_construction_are_rejected[9-card-resource-deck]",
+    "tests/rules/test_turn.py::test_decks_that_do_not_conform_to_deck_construction_are_rejected[five-copies]"
+   ],
+   "rust_traces": [
+    "tests/rules/test_turn.py::test_decks_that_do_not_conform_to_deck_construction_are_rejected[49-card-deck]",
+    "tests/rules/test_turn.py::test_decks_that_do_not_conform_to_deck_construction_are_rejected[9-card-resource-deck]",
+    "tests/rules/test_turn.py::test_decks_that_do_not_conform_to_deck_construction_are_rejected[five-copies]"
+   ],
+   "rust_native": [
+    "crates/gcg-data/tests/decks.rs::deck_cases_equal_python"
+   ],
+   "not_applicable": ""
+  },
+  {
+   "bug": "FAQ Q1-Q6 once N/A",
+   "entry": "W-57",
+   "python_tests": [
+    "tests/deck/test_validate.py::test_at_most_four_copies_per_card_number",
+    "tests/deck/test_validate.py::test_at_most_two_colors",
+    "tests/deck/test_validate.py::test_card_types_route_to_the_deck_they_compose",
+    "tests/deck/test_validate.py::test_main_deck_holds_only_unit_pilot_command_base",
+    "tests/deck/test_validate.py::test_main_deck_must_have_exactly_50_cards",
+    "tests/deck/test_validate.py::test_resource_deck_allows_any_number_of_one_card_number",
+    "tests/deck/test_validate.py::test_resource_deck_holds_only_resource_cards",
+    "tests/deck/test_validate.py::test_resource_deck_must_have_exactly_10_cards",
+    "tests/deck/test_validate.py::test_same_name_with_different_card_numbers_counts_separately"
+   ],
+   "rust_traces": [],
+   "rust_native": [
+    "crates/gcg-engine/tests/traceability_deck.rs::main_deck_must_have_exactly_50_cards",
+    "crates/gcg-engine/tests/traceability_deck.rs::at_most_two_colors",
+    "crates/gcg-engine/tests/traceability_deck.rs::at_most_four_copies_per_card_number",
+    "crates/gcg-engine/tests/traceability_deck.rs::same_name_with_different_card_numbers_counts_separately",
+    "crates/gcg-engine/tests/traceability_deck.rs::resource_deck_must_have_exactly_10_cards",
+    "crates/gcg-engine/tests/traceability_deck.rs::resource_deck_allows_any_number_of_one_card_number"
+   ],
+   "not_applicable": ""
+  },
+  {
+   "bug": "unclean errors for non-UTF-8 replay files and failed report writes",
+   "entry": "W-57",
+   "python_tests": [],
+   "rust_traces": [],
+   "rust_native": [
+    "crates/gcg-data/tests/decks.rs::deck_cases_equal_python",
+    "crates/gcg-cli/tests/commands.rs::command_transcripts_match_python",
+    "crates/gcg-cli/tests/benchmark.rs::needs_engine_a_report_write_failure_names_the_file"
+   ],
+   "not_applicable": ""
+  },
+  {
+   "bug": "`tuning --rounds 0` mislabelling the start weights",
+   "entry": "W-57",
+   "python_tests": [],
+   "rust_traces": [],
+   "rust_native": [],
+   "not_applicable": "The weight-tuning tool (`ai/tuning.py`) has no Rust counterpart yet; P6-I's `gcg-eval tune` carries its own test of the round count"
+  },
+  {
+   "bug": "Then/If scoping (GD03-072, GD02-021)",
+   "entry": "W-70",
+   "python_tests": [
+    "tests/rules/test_effects.py::test_if_you_do_also_governs_the_following_then_part",
+    "tests/rules/test_effects.py::test_leading_condition_also_governs_the_then_part"
+   ],
+   "rust_traces": [
+    "tests/rules/test_effects.py::test_if_you_do_also_governs_the_following_then_part",
+    "tests/rules/test_effects.py::test_leading_condition_also_governs_the_then_part"
+   ],
+   "rust_native": [],
+   "not_applicable": ""
+  },
+  {
+   "bug": "'Choose 2' playable with one target",
+   "entry": "W-70",
+   "python_tests": [
+    "tests/rules/test_effects.py::test_choose_two_needs_two_choosable_targets"
+   ],
+   "rust_traces": [
+    "tests/rules/test_effects.py::test_choose_two_needs_two_choosable_targets"
+   ],
+   "rust_native": [],
+   "not_applicable": ""
+  },
+  {
+   "bug": "'instead' losing 'during this turn' (ST07-009)",
+   "entry": "W-70",
+   "python_tests": [
+    "tests/rules/test_effects.py::test_substituted_event_keeps_the_replaced_duration"
+   ],
+   "rust_traces": [
+    "tests/rules/test_effects.py::test_substituted_event_keeps_the_replaced_duration"
+   ],
+   "rust_native": [],
+   "not_applicable": ""
+  },
+  {
+   "bug": "'instead' replacing the damage step (GD03-109)",
+   "entry": "W-70",
+   "python_tests": [
+    "tests/rules/test_effects.py::test_instead_portion_replaces_only_what_it_names"
+   ],
+   "rust_traces": [
+    "tests/rules/test_effects.py::test_instead_portion_replaces_only_what_it_names"
+   ],
+   "rust_native": [],
+   "not_applicable": ""
+  },
+  {
+   "bug": "multi-target pre-checks",
+   "entry": "W-70",
+   "python_tests": [
+    "tests/cards/test_wp_st09_11.py::test_st10_015_not_playable_with_g_generation_unit_but_no_enemy_unit",
+    "tests/rules/test_effects.py::test_triggered_effect_needs_every_target_of_its_choice"
+   ],
+   "rust_traces": [
+    "tests/cards/test_wp_st09_11.py::test_st10_015_not_playable_with_g_generation_unit_but_no_enemy_unit",
+    "tests/rules/test_effects.py::test_triggered_effect_needs_every_target_of_its_choice"
+   ],
+   "rust_native": [],
+   "not_applicable": ""
+  },
+  {
+   "bug": "cards that did not compile (ST03-011, GD03-085, GD05-113, Development N)",
+   "entry": "W-70",
+   "python_tests": [
+    "tests/rules/test_faq.py::test_q89_char_aznable_on_an_amuro_ray_unit",
+    "tests/rules/test_keywords.py::test_declining_development_skips_the_following_effect",
+    "tests/rules/test_keywords.py::test_development_exiles_cards_then_performs_the_following_effect",
+    "tests/rules/test_pairing.py::test_paired_command_effect_activated_by_an_effect_resolves_as_a_command_effect",
+    "tests/rules/test_pairing.py::test_pilot_text_with_a_location_is_activated_by_the_pilot_card"
+   ],
+   "rust_traces": [
+    "tests/rules/test_faq.py::test_q89_char_aznable_on_an_amuro_ray_unit",
+    "tests/rules/test_keywords.py::test_declining_development_skips_the_following_effect",
+    "tests/rules/test_keywords.py::test_development_exiles_cards_then_performs_the_following_effect",
+    "tests/rules/test_pairing.py::test_paired_command_effect_activated_by_an_effect_resolves_as_a_command_effect",
+    "tests/rules/test_pairing.py::test_pilot_text_with_a_location_is_activated_by_the_pilot_card"
+   ],
+   "rust_native": [],
+   "not_applicable": ""
+  },
+  {
+   "bug": "deployed-rested statics (Q354)",
+   "entry": "W-70",
+   "python_tests": [
+    "tests/cards/test_wp_gd04_a.py::test_gd04_022_unit_is_already_rested_when_its_deploy_effect_resolves"
+   ],
+   "rust_traces": [
+    "tests/cards/test_wp_gd04_a.py::test_gd04_022_unit_is_already_rested_when_its_deploy_effect_resolves"
+   ],
+   "rust_native": [],
+   "not_applicable": ""
+  },
+  {
+   "bug": "deploying a Pilot as a Unit (Q389/Q390)",
+   "entry": "W-70",
+   "python_tests": [
+    "tests/cards/test_wp_gd05_b.py::test_gd05_089_burst_may_deploy_it_as_ap3_hp3_unit",
+    "tests/cards/test_wp_gd05_b.py::test_gd05_089_deployed_as_unit_can_be_paired",
+    "tests/cards/test_wp_gd05_b.py::test_gd05_089_deployed_as_unit_is_lv6"
+   ],
+   "rust_traces": [
+    "tests/cards/test_wp_gd05_b.py::test_gd05_089_burst_may_deploy_it_as_ap3_hp3_unit",
+    "tests/cards/test_wp_gd05_b.py::test_gd05_089_deployed_as_unit_can_be_paired",
+    "tests/cards/test_wp_gd05_b.py::test_gd05_089_deployed_as_unit_is_lv6"
+   ],
+   "rust_native": [],
+   "not_applicable": ""
+  },
+  {
+   "bug": "start-phase freezes (EB01-001, ST14-001) as the stays-rested rule (Q208/Q288)",
+   "entry": "W-70",
+   "python_tests": [
+    "tests/cards/test_wp_eb01_a.py::test_eb01_001_freeze_only_blocks_the_start_phase_untap",
+    "tests/cards/test_wp_gd04_b.py::test_gd04_102_q288_effects_may_still_set_it_active",
+    "tests/cards/test_wp_st05_08.py::test_st08_009_effect_can_still_set_the_unit_active"
+   ],
+   "rust_traces": [
+    "tests/cards/test_wp_eb01_a.py::test_eb01_001_freeze_only_blocks_the_start_phase_untap",
+    "tests/cards/test_wp_gd04_b.py::test_gd04_102_q288_effects_may_still_set_it_active",
+    "tests/cards/test_wp_st05_08.py::test_st08_009_effect_can_still_set_the_unit_active"
+   ],
+   "rust_native": [],
+   "not_applicable": ""
+  },
+  {
+   "bug": "fragile per-card bindings repaired at integration (7c47b86)",
+   "entry": "W-70",
+   "python_tests": [
+    "tests/cards/test_wp_gd04_b.py::test_gd04_113_outside_a_battle_has_no_lasting_effect",
+    "tests/cards/test_wp_st09_11.py::test_st10_015_played_outside_battle_does_not_persist_past_the_turn"
+   ],
+   "rust_traces": [
+    "tests/cards/test_wp_gd04_b.py::test_gd04_113_outside_a_battle_has_no_lasting_effect",
+    "tests/cards/test_wp_st09_11.py::test_st10_015_played_outside_battle_does_not_persist_past_the_turn"
+   ],
+   "rust_native": [
+    "crates/gcg-effects/src/tests/golden.rs::all_golden_files_regenerate_byte_for_byte"
+   ],
+   "not_applicable": ""
+  }
+ ]
+}

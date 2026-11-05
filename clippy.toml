@@ -1,0 +1,36 @@
+# Workspace clippy configuration (docs/port/PLAN.md §9.9). Exceptions carry
+# `#[expect(clippy::disallowed_methods, reason = "...")]` (or `disallowed_types`) at the use.
+
+disallowed-methods = [
+    # Float semantics must stay Python's: max/min keep the FIRST tie and propagate NaN
+    # differently (gcg_core::pymath::py_max2/py_min2), and `x ** y` is libm pow
+    # (gcg_core::libm::pow/square, the only allowed powf use).
+    { path = "f64::max", reason = "Python max() semantics: use gcg_core::pymath" },
+    { path = "f64::min", reason = "Python min() semantics: use gcg_core::pymath" },
+    { path = "f64::powi", reason = "x ** n is libm pow in CPython: use gcg_core::libm::pow" },
+    { path = "f64::powf", reason = "allowed only inside gcg_core::libm (black_box exponent)" },
+    { path = "f64::mul_add", reason = "an FMA changes results; target-cpu must not affect floats" },
+    # Python max()/min() return the FIRST extreme; Rust's max_by* return the last.
+    { path = "core::iter::Iterator::max_by", reason = "use gcg_core::pymath::first_max_by" },
+    { path = "core::iter::Iterator::max_by_key", reason = "use gcg_core::pymath::first_max_by" },
+    { path = "core::iter::Iterator::min_by", reason = "use gcg_core::pymath::first_min_by" },
+    { path = "core::iter::Iterator::min_by_key", reason = "use gcg_core::pymath::first_min_by" },
+    # Python's sort is stable; the order of equal elements must never depend on the algorithm.
+    { path = "slice::sort_unstable", reason = "Python sorts are stable: use sort" },
+    { path = "slice::sort_unstable_by", reason = "Python sorts are stable: use sort_by" },
+    { path = "slice::sort_unstable_by_key", reason = "Python sorts are stable: use sort_by_key" },
+    # No wall-clock or timing logic anywhere (brief constraints; PLAN §11.8). The only exception
+    # is crates/gcg-runner/src/clock.rs, which formats timing.json values for CLI parity.
+    { path = "std::time::Instant::now", reason = "no wall-clock logic in the crates" },
+    { path = "std::time::SystemTime::now", reason = "no wall-clock logic in the crates" },
+    { path = "std::thread::sleep", reason = "no sleep, back-off or idle handling" },
+]
+
+disallowed-types = [
+    # Iteration order of hash containers must never reach behaviour or output. Lookups go through
+    # gcg_core::lookup::LookupMap (fixed foldhash state, no iteration methods).
+    { path = "std::collections::HashMap", reason = "use gcg_core::lookup::LookupMap" },
+    { path = "std::collections::HashSet", reason = "use gcg_core::lookup::LookupMap" },
+    { path = "hashbrown::HashMap", reason = "only gcg_core::lookup may wrap hashbrown" },
+    { path = "hashbrown::HashSet", reason = "only gcg_core::lookup may wrap hashbrown" },
+]

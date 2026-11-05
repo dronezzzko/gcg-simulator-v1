@@ -1,0 +1,139 @@
+{
+ "card_numbers": [
+  "GD01-126"
+ ],
+ "fragment": {
+  "abilities": [
+   {
+    "ability": 4477,
+    "card_number": "GD01-126",
+    "cost_program_id": -1,
+    "def_id": 274,
+    "index": 0,
+    "program_id": 626,
+    "trigger_event": null,
+    "unit_text": false
+   }
+  ],
+  "aliases": [],
+  "always_events": [
+   "destroys_by_battle",
+   "turn_end"
+  ],
+  "base_fingerprint": "a61a7e50899ab6ff6259b0a2a082be5af45cf3fa28b5012c95597a789688748b",
+  "cards": [
+   {
+    "binding_module": null,
+    "burst_aid": -1,
+    "card_number": "GD01-126",
+    "command_aid": -1,
+    "def_id": 274,
+    "delayed": [],
+    "events": [],
+    "field_entries": [
+     1260
+    ],
+    "gated": false,
+    "hand_entries": [],
+    "has_burst": false,
+    "name": "Underground Desert Base",
+    "own": [
+     1260
+    ],
+    "paired_entries": [],
+    "printed_keywords": [],
+    "script": 4478,
+    "source": "compiled",
+    "template": null,
+    "text_hash": "74992463f35caac9",
+    "timings": [
+     "activate_action"
+    ],
+    "trash_entries": [],
+    "unit": [],
+    "unit_entries": []
+   }
+  ],
+  "continuous": [],
+  "events": [
+   [
+    274,
+    []
+   ]
+  ],
+  "filter_sets": [],
+  "fragment_version": 1,
+  "hp_reduction_possible": false,
+  "node_content_ids": [
+   "4f06dd32b3d8bf75",
+   "ce1c49050142f07f"
+  ],
+  "nodes": [
+   {
+    "_": "Activated",
+    "cond": {
+     "$": 13
+    },
+    "costs": [
+     {
+      "$": 1086
+     }
+    ],
+    "gate": "none",
+    "gate_filters": [],
+    "once_per_turn": false,
+    "steps": [
+     {
+      "$": 452
+     },
+     {
+      "$": 9
+     },
+     {
+      "$": 50
+     }
+    ],
+    "support": 0,
+    "timing": "action",
+    "where": "field"
+   },
+   {
+    "_": "CardScript",
+    "abilities": [
+     {
+      "$": 4477
+     }
+    ],
+    "card_number": "GD01-126",
+    "notes": "",
+    "source": "compiled",
+    "unit_abilities": []
+   }
+  ],
+  "printable_non_ascii": [],
+  "printed_keywords": [],
+  "programs": [
+   {
+    "content_id": "ccc30142b6c46476",
+    "instrs": [
+     2165,
+     452,
+     9,
+     50
+    ],
+    "label": "GD01-126#a0"
+   }
+  ],
+  "rule_mods": [],
+  "strings": [
+   "GD01-126#a0"
+  ],
+  "var_names": []
+ },
+ "scripts": {
+  "GD01-126": "CardScript(card_number='GD01-126', abilities=(Activated(timing=<Timing.ACTION: 'action'>, costs=(RestSelf(),), steps=(Choose(var='t1', sel=Sel(side=<Side.ENEMY: 'enemy'>, loc=<Loc.BATTLE: 'battle'>, filters=(IsKind(kinds=(<CardKind.UNIT: 'unit'>,)), StatCmp(stat=<Stat.HP: 'hp'>, op=<Op.LE: '<='>, value=3)), top_n=0), count=1, min_count=None, optional=False, chooser=<P.YOU: 'you'>, distinct_from=(), targeting=True, random=False, after_then=False), Rest(ref=Var(name='t1')), Draw(count=1, player=<P.YOU: 'you'>, each_player=False)), cond=And(conds=()), once_per_turn=False, where=<Where.FIELD: 'field'>, gate=<Gate.NONE: 'none'>, gate_filters=(), support=0),), unit_abilities=(), source='compiled', notes='')"
+ },
+ "texts": {
+  "GD01-126": "\u3010Activate\uff65Action\u3011Rest this Base\uff1aChoose 1 enemy Unit with 3 or less HP. Rest it. Then, draw 1."
+ }
+}

@@ -1,0 +1,302 @@
+{
+ "version": 1,
+ "entries": [
+  {
+   "role": "dev",
+   "master": 20200100,
+   "command": "ablation",
+   "config": {
+    "row": "individual",
+    "mechanism": "engine_error_leaf=false",
+    "challenger": "search:null-standard:engine_error_leaf=false",
+    "opponent": "ref:standard",
+    "decks": "panel",
+    "pairs": "tuning",
+    "games": 400,
+    "choose_first": "seat0"
+   }
+  },
+  {
+   "role": "dev",
+   "master": 20200100,
+   "command": "ablation",
+   "config": {
+    "row": "individual",
+    "mechanism": "tactical_solver=true",
+    "challenger": "search:null-standard:tactical_solver=true",
+    "opponent": "ref:standard",
+    "decks": "panel",
+    "pairs": "tuning",
+    "games": 400,
+    "choose_first": "seat0"
+   }
+  },
+  {
+   "role": "dev",
+   "master": 20200100,
+   "command": "ablation",
+   "config": {
+    "row": "individual",
+    "mechanism": "threat_leaf=true",
+    "challenger": "search:null-standard:threat_leaf=true",
+    "opponent": "ref:standard",
+    "decks": "panel",
+    "pairs": "tuning",
+    "games": 400,
+    "choose_first": "seat0"
+   }
+  },
+  {
+   "role": "dev",
+   "master": 20200100,
+   "command": "ablation",
+   "config": {
+    "row": "individual",
+    "mechanism": "lethal_root=true",
+    "challenger": "search:null-standard:lethal_root=true",
+    "opponent": "ref:standard",
+    "decks": "panel",
+    "pairs": "tuning",
+    "games": 400,
+    "choose_first": "seat0"
+   }
+  },
+  {
+   "role": "dev",
+   "master": 20200100,
+   "command": "ablation",
+   "config": {
+    "row": "individual",
+    "mechanism": "critical_extension=true",
+    "challenger": "search:null-standard:critical_extension=true",
+    "opponent": "ref:standard",
+    "decks": "panel",
+    "pairs": "tuning",
+    "games": 400,
+    "choose_first": "seat0"
+   }
+  },
+  {
+   "role": "dev",
+   "master": 20200100,
+   "command": "ablation",
+   "config": {
+    "row": "individual",
+    "mechanism": "effective_blockers=true",
+    "challenger": "search:null-standard:effective_blockers=true",
+    "opponent": "ref:standard",
+    "decks": "panel",
+    "pairs": "tuning",
+    "games": 400,
+    "choose_first": "seat0"
+   }
+  },
+  {
+   "role": "dev",
+   "master": 20200100,
+   "command": "ablation",
+   "config": {
+    "row": "individual",
+    "mechanism": "solver_can_kill=true",
+    "challenger": "search:null-standard:solver_can_kill=true",
+    "opponent": "ref:standard",
+    "decks": "panel",
+    "pairs": "tuning",
+    "games": 400,
+    "choose_first": "seat0"
+   }
+  },
+  {
+   "role": "dev",
+   "master": 20200100,
+   "command": "ablation",
+   "config": {
+    "row": "individual",
+    "mechanism": "tactical_solver=true,threat_leaf=true,lethal_root=true",
+    "challenger": "search:null-standard:tactical_solver=true,threat_leaf=true,lethal_root=true",
+    "opponent": "ref:standard",
+    "decks": "panel",
+    "pairs": "tuning",
+    "games": 400,
+    "choose_first": "seat0"
+   }
+  },
+  {
+   "role": "dev",
+   "master": 20200100,
+   "command": "ablation",
+   "config": {
+    "row": "individual",
+    "mechanism": "tactical_solver=true,threat_leaf=true,lethal_root=true,critical_extension=true,effective_blockers=true,solver_can_kill=true",
+    "challenger": "search:null-standard:tactical_solver=true,threat_leaf=true,lethal_root=true,critical_extension=true,effective_blockers=true,solver_can_kill=true",
+    "opponent": "ref:standard",
+    "decks": "panel",
+    "pairs": "tuning",
+    "games": 400,
+    "choose_first": "seat0"
+   }
+  },
+  {
+   "role": "dev",
+   "master": 20200200,
+   "command": "ablation",
+   "config": {
+    "row": "leave-one-out",
+    "mechanism": "tactical_solver=false",
+    "challenger": "search:standard:iterations_per_option=256,min_iterations=640,max_iterations=2560,tactical_solver=true",
+    "opponent": "search:standard:iterations_per_option=256,min_iterations=640,max_iterations=2560,tactical_solver=true,tactical_solver=false",
+    "decks": "panel",
+    "pairs": "tuning",
+    "games": 400,
+    "choose_first": "seat0"
+   }
+  },
+  {
+   "role": "dev",
+   "master": 20200200,
+   "command": "ablation",
+   "config": {
+    "row": "leave-one-out",
+    "mechanism": "threat_leaf=false",
+    "challenger": "search:standard:iterations_per_option=256,min_iterations=640,max_iterations=2560,threat_leaf=true",
+    "opponent": "search:standard:iterations_per_option=256,min_iterations=640,max_iterations=2560,threat_leaf=true,threat_leaf=false",
+    "decks": "panel",
+    "pairs": "tuning",
+    "games": 400,
+    "choose_first": "seat0"
+   }
+  },
+  {
+   "role": "dev",
+   "master": 20200200,
+   "command": "ablation",
+   "config": {
+    "row": "leave-one-out",
+    "mechanism": "lethal_root=false",
+    "challenger": "search:standard:iterations_per_option=256,min_iterations=640,max_iterations=2560,lethal_root=true",
+    "opponent": "search:standard:iterations_per_option=256,min_iterations=640,max_iterations=2560,lethal_root=true,lethal_root=false",
+    "decks": "panel",
+    "pairs": "tuning",
+    "games": 400,
+    "choose_first": "seat0"
+   }
+  },
+  {
+   "role": "dev",
+   "master": 20200200,
+   "command": "ablation",
+   "config": {
+    "row": "leave-one-out",
+    "mechanism": "tactical_solver=false,threat_leaf=false,lethal_root=false",
+    "challenger": "search:standard:iterations_per_option=256,min_iterations=640,max_iterations=2560,tactical_solver=true,threat_leaf=true,lethal_root=true",
+    "opponent": "search:standard:iterations_per_option=256,min_iterations=640,max_iterations=2560,tactical_solver=true,threat_leaf=true,lethal_root=true,tactical_solver=false,threat_leaf=false,lethal_root=false",
+    "decks": "panel",
+    "pairs": "tuning",
+    "games": 400,
+    "choose_first": "seat0"
+   }
+  },
+  {
+   "role": "dev",
+   "master": 20200200,
+   "command": "ablation",
+   "config": {
+    "row": "leave-one-out",
+    "mechanism": "critical_extension=false",
+    "challenger": "search:standard:iterations_per_option=256,min_iterations=640,max_iterations=2560,critical_extension=true",
+    "opponent": "search:standard:iterations_per_option=256,min_iterations=640,max_iterations=2560,critical_extension=true,critical_extension=false",
+    "decks": "panel",
+    "pairs": "tuning",
+    "games": 400,
+    "choose_first": "seat0"
+   }
+  },
+  {
+   "role": "dev",
+   "master": 20200200,
+   "command": "ablation",
+   "config": {
+    "row": "leave-one-out",
+    "mechanism": "effective_blockers=false",
+    "challenger": "search:standard:iterations_per_option=256,min_iterations=640,max_iterations=2560,effective_blockers=true",
+    "opponent": "search:standard:iterations_per_option=256,min_iterations=640,max_iterations=2560,effective_blockers=true,effective_blockers=false",
+    "decks": "panel",
+    "pairs": "tuning",
+    "games": 400,
+    "choose_first": "seat0"
+   }
+  },
+  {
+   "role": "confirm",
+   "master": 30200200,
+   "command": "ablation",
+   "config": {
+    "row": "leave-one-out",
+    "mechanism": "tactical_solver=false",
+    "challenger": "search:standard:iterations_per_option=256,min_iterations=640,max_iterations=2560,tactical_solver=true",
+    "opponent": "search:standard:iterations_per_option=256,min_iterations=640,max_iterations=2560,tactical_solver=true,tactical_solver=false",
+    "decks": "panel",
+    "pairs": "tuning",
+    "games": 1600,
+    "choose_first": "seat0"
+   }
+  },
+  {
+   "role": "confirm",
+   "master": 30200200,
+   "command": "ablation",
+   "config": {
+    "row": "leave-one-out",
+    "mechanism": "lethal_root=false",
+    "challenger": "search:standard:iterations_per_option=256,min_iterations=640,max_iterations=2560,lethal_root=true",
+    "opponent": "search:standard:iterations_per_option=256,min_iterations=640,max_iterations=2560,lethal_root=true,lethal_root=false",
+    "decks": "panel",
+    "pairs": "tuning",
+    "games": 1600,
+    "choose_first": "seat0"
+   }
+  },
+  {
+   "role": "dev",
+   "master": 20200200,
+   "command": "ablation",
+   "config": {
+    "row": "leave-one-out",
+    "mechanism": "solver_can_kill=false",
+    "challenger": "search:standard:iterations_per_option=256,min_iterations=640,max_iterations=2560,solver_can_kill=true",
+    "opponent": "search:standard:iterations_per_option=256,min_iterations=640,max_iterations=2560,solver_can_kill=true,solver_can_kill=false",
+    "decks": "panel",
+    "pairs": "tuning",
+    "games": 400,
+    "choose_first": "seat0"
+   }
+  },
+  {
+   "role": "confirm",
+   "master": 30200200,
+   "command": "ablation",
+   "config": {
+    "row": "leave-one-out",
+    "mechanism": "critical_extension=false",
+    "challenger": "search:standard:iterations_per_option=256,min_iterations=640,max_iterations=2560,critical_extension=true",
+    "opponent": "search:standard:iterations_per_option=256,min_iterations=640,max_iterations=2560,critical_extension=true,critical_extension=false",
+    "decks": "panel",
+    "pairs": "tuning",
+    "games": 1600,
+    "choose_first": "seat0"
+   }
+  },
+  {
+   "role": "dev",
+   "master": 20200300,
+   "command": "p6b-can-kill-census",
+   "config": {
+    "test": "crates/gcg-search/src/mech/p6b/can_kill_census.rs the_static_can_kill_agrees_with_an_exhaustive_search_more_often_than_the_reference",
+    "agents": "random in both seats (two games in three), greedy in both seats (one in three)",
+    "decks": "examples",
+    "pairs": "the three example pairings, round-robin",
+    "positions": 10000
+   }
+  }
+ ]
+}

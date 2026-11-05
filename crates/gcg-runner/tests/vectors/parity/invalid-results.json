@@ -1,0 +1,313 @@
+{
+ "annotations": [
+  "$defs",
+  "$id",
+  "$schema",
+  "description",
+  "title"
+ ],
+ "base": "fast-bo1-s3",
+ "controls": [
+  {
+   "file": "01-ref.json",
+   "keyword": "$ref",
+   "message": "0 is less than the minimum of 1",
+   "mutation": [
+    "replace",
+    "/cards/0/copies",
+    0
+   ],
+   "pointer": "/cards/0/copies",
+   "schema_path": "/properties/cards/items/$ref/properties/copies/minimum",
+   "validator": "minimum"
+  },
+  {
+   "file": "02-additionalProperties.json",
+   "keyword": "additionalProperties",
+   "message": "Additional properties are not allowed ('extra' was unexpected)",
+   "mutation": [
+    "add",
+    "/ai/extra",
+    1
+   ],
+   "pointer": "/ai",
+   "schema_path": "/properties/ai/additionalProperties",
+   "validator": "additionalProperties"
+  },
+  {
+   "file": "03-const.json",
+   "keyword": "const",
+   "message": "'SplitMix64' was expected",
+   "mutation": [
+    "replace",
+    "/seeds/prng",
+    "PCG64"
+   ],
+   "pointer": "/seeds/prng",
+   "schema_path": "/properties/seeds/properties/prng/const",
+   "validator": "const"
+  },
+  {
+   "file": "04-enum.json",
+   "keyword": "enum",
+   "message": "'bo5' is not one of ['bo3', 'bo1']",
+   "mutation": [
+    "replace",
+    "/config/format",
+    "bo5"
+   ],
+   "pointer": "/config/format",
+   "schema_path": "/properties/config/properties/format/enum",
+   "validator": "enum"
+  },
+  {
+   "file": "05-exclusiveMaximum.json",
+   "keyword": "exclusiveMaximum",
+   "message": "1 is greater than or equal to the maximum of 1",
+   "mutation": [
+    "replace",
+    "/hypothesis_thresholds/alpha",
+    1
+   ],
+   "pointer": "/hypothesis_thresholds/alpha",
+   "schema_path": "/properties/hypothesis_thresholds/properties/alpha/exclusiveMaximum",
+   "validator": "exclusiveMaximum"
+  },
+  {
+   "file": "06-exclusiveMinimum.json",
+   "keyword": "exclusiveMinimum",
+   "message": "0 is less than or equal to the minimum of 0",
+   "mutation": [
+    "replace",
+    "/hypothesis_thresholds/alpha",
+    0
+   ],
+   "pointer": "/hypothesis_thresholds/alpha",
+   "schema_path": "/properties/hypothesis_thresholds/properties/alpha/exclusiveMinimum",
+   "validator": "exclusiveMinimum"
+  },
+  {
+   "file": "07-format.json",
+   "keyword": "format",
+   "message": "'2026-13-01' is not a 'date'",
+   "mutation": [
+    "replace",
+    "/versions/banlist_effective_date",
+    "2026-13-01"
+   ],
+   "pointer": "/versions/banlist_effective_date",
+   "schema_path": "/properties/versions/properties/banlist_effective_date/format",
+   "validator": "format"
+  },
+  {
+   "file": "08-items.json",
+   "keyword": "items",
+   "message": "5 is not of type 'string'",
+   "mutation": [
+    "replace",
+    "/notes/0",
+    5
+   ],
+   "pointer": "/notes/0",
+   "schema_path": "/properties/notes/items/type",
+   "validator": "type"
+  },
+  {
+   "file": "09-maxItems.json",
+   "keyword": "maxItems",
+   "message": "[0.0, 0.793457, 0.5] is not valid under any of the given schemas",
+   "mutation": [
+    "add",
+    "/results/games/dut_win_rate/ci95/-",
+    0.5
+   ],
+   "pointer": "/results/games/dut_win_rate/ci95",
+   "schema_path": "/properties/results/properties/games/$ref/$ref/properties/dut_win_rate/$ref/properties/ci95/oneOf",
+   "validator": "oneOf"
+  },
+  {
+   "file": "10-maximum.json",
+   "keyword": "maximum",
+   "message": "1.5 is greater than the maximum of 1",
+   "mutation": [
+    "replace",
+    "/benchmark_cards/0/loss_rate_lift",
+    1.5
+   ],
+   "pointer": "/benchmark_cards/0/loss_rate_lift",
+   "schema_path": "/properties/benchmark_cards/items/$ref/properties/loss_rate_lift/maximum",
+   "validator": "maximum"
+  },
+  {
+   "file": "11-minItems.json",
+   "keyword": "minItems",
+   "message": "[] should be non-empty",
+   "mutation": [
+    "replace",
+    "/conflict_resolutions/0/decks",
+    []
+   ],
+   "pointer": "/conflict_resolutions/0/decks",
+   "schema_path": "/properties/conflict_resolutions/items/properties/decks/minItems",
+   "validator": "minItems"
+  },
+  {
+   "file": "12-minLength.json",
+   "keyword": "minLength",
+   "message": "'' should be non-empty",
+   "mutation": [
+    "replace",
+    "/ai/factory",
+    ""
+   ],
+   "pointer": "/ai/factory",
+   "schema_path": "/properties/ai/properties/factory/minLength",
+   "validator": "minLength"
+  },
+  {
+   "file": "13-minimum.json",
+   "keyword": "minimum",
+   "message": "0 is less than the minimum of 1",
+   "mutation": [
+    "replace",
+    "/config/matches",
+    0
+   ],
+   "pointer": "/config/matches",
+   "schema_path": "/properties/config/properties/matches/minimum",
+   "validator": "minimum"
+  },
+  {
+   "file": "14-oneOf.json",
+   "keyword": "oneOf",
+   "message": "'0.5' is not valid under any of the given schemas",
+   "mutation": [
+    "replace",
+    "/results/games/dut_win_rate/ci95",
+    "0.5"
+   ],
+   "pointer": "/results/games/dut_win_rate/ci95",
+   "schema_path": "/properties/results/properties/games/$ref/$ref/properties/dut_win_rate/$ref/properties/ci95/oneOf",
+   "validator": "oneOf"
+  },
+  {
+   "file": "15-pattern.json",
+   "keyword": "pattern",
+   "message": "'000000000000000000000000000000000000000000000000000000000000000' does not match '^[0-9a-f]{64}$'",
+   "mutation": [
+    "replace",
+    "/versions/code_digest",
+    "000000000000000000000000000000000000000000000000000000000000000"
+   ],
+   "pointer": "/versions/code_digest",
+   "schema_path": "/properties/versions/properties/code_digest/pattern",
+   "validator": "pattern"
+  },
+  {
+   "file": "16-prefixItems.json",
+   "keyword": "prefixItems",
+   "message": "[-0.5, 0.793457] is not valid under any of the given schemas",
+   "mutation": [
+    "replace",
+    "/results/games/dut_win_rate/ci95/0",
+    -0.5
+   ],
+   "pointer": "/results/games/dut_win_rate/ci95",
+   "schema_path": "/properties/results/properties/games/$ref/$ref/properties/dut_win_rate/$ref/properties/ci95/oneOf",
+   "validator": "oneOf"
+  },
+  {
+   "file": "17-properties.json",
+   "keyword": "properties",
+   "message": "1 is not of type 'string'",
+   "mutation": [
+    "replace",
+    "/versions/package",
+    1
+   ],
+   "pointer": "/versions/package",
+   "schema_path": "/properties/versions/properties/package/type",
+   "validator": "type"
+  },
+  {
+   "file": "18-propertyNames.json",
+   "keyword": "propertyNames",
+   "message": "'4' is not one of ['1', '2', '3']",
+   "mutation": [
+    "add",
+    "/splits/by_game_number/4",
+    "copy:/splits/by_game_number/1"
+   ],
+   "pointer": "/splits/by_game_number",
+   "schema_path": "/properties/splits/properties/by_game_number/propertyNames/enum",
+   "validator": "enum"
+  },
+  {
+   "file": "19-required.json",
+   "keyword": "required",
+   "message": "'cards' is a required property",
+   "mutation": [
+    "remove",
+    "/cards",
+    null
+   ],
+   "pointer": "",
+   "schema_path": "/required",
+   "validator": "required"
+  },
+  {
+   "file": "20-type.json",
+   "keyword": "type",
+   "message": "'3' is not of type 'integer'",
+   "mutation": [
+    "replace",
+    "/seeds/master",
+    "3"
+   ],
+   "pointer": "/seeds/master",
+   "schema_path": "/properties/seeds/properties/master/type",
+   "validator": "type"
+  },
+  {
+   "file": "21-unevaluatedProperties.json",
+   "keyword": "unevaluatedProperties",
+   "message": "Unevaluated properties are not allowed ('extra' was unexpected)",
+   "mutation": [
+    "add",
+    "/end_reasons/0/extra",
+    1
+   ],
+   "pointer": "/end_reasons/0",
+   "schema_path": "/properties/end_reasons/items/unevaluatedProperties",
+   "validator": "unevaluatedProperties"
+  }
+ ],
+ "schema_keywords": [
+  "$defs",
+  "$id",
+  "$ref",
+  "$schema",
+  "additionalProperties",
+  "const",
+  "description",
+  "enum",
+  "exclusiveMaximum",
+  "exclusiveMinimum",
+  "format",
+  "items",
+  "maxItems",
+  "maximum",
+  "minItems",
+  "minLength",
+  "minimum",
+  "oneOf",
+  "pattern",
+  "prefixItems",
+  "properties",
+  "propertyNames",
+  "required",
+  "title",
+  "type",
+  "unevaluatedProperties"
+ ]
+}

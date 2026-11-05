@@ -1,0 +1,72 @@
+[package]
+name = "gcg-eval"
+description = "Evaluation harness: reference benchmark, head-to-head, compare and Phase 6 tools"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+rust-version.workspace = true
+publish.workspace = true
+
+[lints]
+workspace = true
+
+[dependencies]
+gcg-core.workspace = true
+gcg-data.workspace = true
+# Direct edges to crates already in the closure (PLAN §2.2): head-to-head plays games with
+# gcg_engine::new_game on a gcg_effects::Registry (ai/selfplay.py:60-75).
+gcg-effects.workspace = true
+gcg-engine.workspace = true
+gcg-ai.workspace = true
+gcg-ai-reference.workspace = true
+gcg-search.workspace = true
+gcg-runner.workspace = true
+serde_json.workspace = true
+# `gcg-eval evidence`: SHA-256 of evidence files (W-127; A8 lists sha2).
+sha2.workspace = true
+mimalloc = { workspace = true, optional = true }
+zstd = { workspace = true, optional = true }
+
+# build.rs: the code digest of build-support/digest-manifest.txt (PLAN X19, W-103).
+[build-dependencies]
+sha2.workspace = true
+
+# W-152's negative control gives seat 0 two extra Shields through the testkit (A18); a
+# dev-dependency, so it never reaches the gcg-eval binary.
+[dev-dependencies]
+gcg-engine = { workspace = true, features = ["testkit"] }
+
+[[bin]]
+name = "gcg-eval"
+path = "src/main.rs"
+
+# Whole games through the engine, the agents and the runner (A12: long targets need `slow`).
+[[test]]
+name = "e2e"
+path = "tests/e2e.rs"
+required-features = ["slow"]
+
+# T-070: the reference `standard` preset against random and greedy with the decks and seeds of
+# tests/slow/test_ai_strength.py (400 games each).
+[[test]]
+name = "strength_reference"
+path = "tests/strength_reference.rs"
+required-features = ["slow"]
+
+# W-150 (every preset at 1/4/10 workers, hash-order negative control) and W-152 (seat and
+# first-player symmetry over 4,000 random and 400 `search:fast` mirror games, two-Shield
+# negative control).
+[[test]]
+name = "phase6_slow"
+path = "tests/phase6_slow.rs"
+required-features = ["slow"]
+
+[features]
+# Long strength and end-to-end tests run as [[test]] targets with required-features (A12).
+slow = []
+# The allocator of PLAN §11.4 step 7: on by default, measured against the system allocator
+# (--no-default-features) in docs/port/BENCHMARKS.md.
+default = ["mimalloc"]
+mimalloc = ["dep:mimalloc"]
+# Opt-in compressed games.ndjson for `gcg-eval benchmark --compress` (W-99).
+zstd = ["dep:zstd"]

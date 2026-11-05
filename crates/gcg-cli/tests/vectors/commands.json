@@ -1,0 +1,450 @@
+{
+ "python": "3.15.1",
+ "package": "0.1.0",
+ "code_digest": "3a11556b77c867330bb652d1f2468903f8dc7174a02e03b8b752760239b49c0b",
+ "cases": [
+  {
+   "argv": [
+    "validate",
+    "examples/decks/blue-white-federation.txt"
+   ],
+   "engine": false,
+   "relation": "same",
+   "exit": 0,
+   "stdout": "examples/decks/blue-white-federation.txt: legal (50 cards, 10 resources; Blue/White)\n",
+   "stderr": ""
+  },
+  {
+   "argv": [
+    "validate",
+    "examples/decks/red-green-zeon.txt"
+   ],
+   "engine": false,
+   "relation": "same",
+   "exit": 0,
+   "stdout": "examples/decks/red-green-zeon.txt: legal (50 cards, 10 resources; Green/Red)\n",
+   "stderr": ""
+  },
+  {
+   "argv": [
+    "validate",
+    "examples/decks/purple-white-tekkadan.txt"
+   ],
+   "engine": false,
+   "relation": "same",
+   "exit": 0,
+   "stdout": "examples/decks/purple-white-tekkadan.txt: legal (50 cards, 10 resources; Purple/White)\n",
+   "stderr": ""
+  },
+  {
+   "argv": [
+    "validate",
+    "./examples/decks/blue-white-federation.txt"
+   ],
+   "engine": false,
+   "relation": "same",
+   "exit": 0,
+   "stdout": "examples/decks/blue-white-federation.txt: legal (50 cards, 10 resources; Blue/White)\n",
+   "stderr": ""
+  },
+  {
+   "argv": [
+    "validate",
+    "examples//decks/../decks/red-green-zeon.txt"
+   ],
+   "engine": false,
+   "relation": "same",
+   "exit": 0,
+   "stdout": "examples/decks/../decks/red-green-zeon.txt: legal (50 cards, 10 resources; Green/Red)\n",
+   "stderr": ""
+  },
+  {
+   "argv": [
+    "validate",
+    "crates/gcg-cli/tests/fixtures/short.txt"
+   ],
+   "engine": false,
+   "relation": "same",
+   "exit": 1,
+   "stdout": "",
+   "stderr": "error: crates/gcg-cli/tests/fixtures/short.txt: 1 violation(s)\n  [MAIN_SIZE] the deck has 49 cards; it must have exactly 50 (rule 6-1-1)\n"
+  },
+  {
+   "argv": [
+    "validate",
+    "crates/gcg-cli/tests/fixtures/typo.txt"
+   ],
+   "engine": false,
+   "relation": "same",
+   "exit": 1,
+   "stdout": "",
+   "stderr": "error: crates/gcg-cli/tests/fixtures/typo.txt: deck 'typo' has 1 problem(s):\n  - line 2: unknown card id 'GD01-9999' (not in the card data)\n"
+  },
+  {
+   "argv": [
+    "validate",
+    "crates/gcg-cli/tests/fixtures/utf16-deck.bin"
+   ],
+   "engine": false,
+   "relation": "same",
+   "exit": 1,
+   "stdout": "",
+   "stderr": "error: crates/gcg-cli/tests/fixtures/utf16-deck.bin: not UTF-8 text (invalid start byte at byte 0)\n"
+  },
+  {
+   "argv": [
+    "validate",
+    "crates/gcg-cli/tests/fixtures/bom.txt"
+   ],
+   "engine": false,
+   "relation": "same",
+   "exit": 0,
+   "stdout": "crates/gcg-cli/tests/fixtures/bom.txt: legal (50 cards, 10 resources; Blue/White)\n",
+   "stderr": ""
+  },
+  {
+   "argv": [
+    "validate",
+    "crates/gcg-cli/tests/fixtures/crlf.txt"
+   ],
+   "engine": false,
+   "relation": "same",
+   "exit": 0,
+   "stdout": "crates/gcg-cli/tests/fixtures/crlf.txt: legal (50 cards, 10 resources; Blue/White)\n",
+   "stderr": ""
+  },
+  {
+   "argv": [
+    "validate",
+    "crates/gcg-cli/tests/fixtures/truncated-deck.bin"
+   ],
+   "engine": false,
+   "relation": "same",
+   "exit": 1,
+   "stdout": "",
+   "stderr": "error: crates/gcg-cli/tests/fixtures/truncated-deck.bin: not UTF-8 text (unexpected end of data at byte 872)\n"
+  },
+  {
+   "argv": [
+    "validate",
+    "no-such-deck.txt"
+   ],
+   "engine": false,
+   "relation": "same",
+   "exit": 1,
+   "stdout": "",
+   "stderr": "error: cannot read deck file no-such-deck.txt: No such file or directory\n"
+  },
+  {
+   "argv": [
+    "validate",
+    "crates/gcg-cli/tests/fixtures"
+   ],
+   "engine": false,
+   "relation": "same",
+   "exit": 1,
+   "stdout": "",
+   "stderr": "error: cannot read deck file crates/gcg-cli/tests/fixtures: Is a directory\n"
+  },
+  {
+   "argv": [
+    "data",
+    "status"
+   ],
+   "engine": false,
+   "relation": "same",
+   "exit": 0,
+   "stdout": "gcg-sim 0.1.0 (results schema 1.1.0)\ncard data: gcg-api dataset 28-ad9da1b22fc2abd56c1176a5e64b12e6ce21ea42\n  source commit ad9da1b22fc2abd56c1176a5e64b12e6ce21ea42, built 2026-10-12T14:37:38.154Z\n  2011 printings, 1152 card numbers, 28 sets, 368 rulings, 119 rules FAQ entries, 2 errata\nrules: Comprehensive Rules Ver. 1.9.0 (effective 2026-09-11)\nbanned & restricted list: effective 2026-09-25 (1 banned, 1 restricted, 2 banned pairs, 1 attribute pair rule(s))\nBO3 match rules: effective 2026-07-03\nimplementation coverage: 1152/1152 card numbers (100.0%)\n  BASE: 72/72\n  COMMAND: 157/157\n  EX BASE: 30/30\n  EX RESOURCE: 29/29\n  PILOT: 127/127\n  RESOURCE: 108/108\n  UNIT: 600/600\n  UNIT TOKEN: 29/29\nconflicts: 402 resolutions in overrides.json (166 card-data overrides on 164 card numbers); 333 curated conflicts\n",
+   "stderr": ""
+  },
+  {
+   "argv": [
+    "data",
+    "status",
+    "--json"
+   ],
+   "engine": false,
+   "relation": "same",
+   "exit": 0,
+   "stdout": "{\n  \"banlist\": {\n    \"attribute_pair_rules\": [\n      \"vanilla-lv2-cost1-ap2-hp2\"\n    ],\n    \"banned\": [\n      \"GD01-020\"\n    ],\n    \"banned_pairs\": [\n      [\n        \"ST01-010\",\n        \"ST05-010\"\n      ],\n      [\n        \"GD01-008\",\n        \"GD05-015\"\n      ]\n    ],\n    \"effective_date\": \"2026-09-25\",\n    \"restricted\": {\n      \"ST02-016\": 2\n    }\n  },\n  \"conflicts\": {\n    \"card_data_overrides\": 166,\n    \"card_numbers_overridden\": 164,\n    \"curated_conflicts\": 333,\n    \"resolutions\": 402\n  },\n  \"coverage\": {\n    \"by_type\": {\n      \"BASE\": {\n        \"cards\": 72,\n        \"implemented\": 72\n      },\n      \"COMMAND\": {\n        \"cards\": 157,\n        \"implemented\": 157\n      },\n      \"EX BASE\": {\n        \"cards\": 30,\n        \"implemented\": 30\n      },\n      \"EX RESOURCE\": {\n        \"cards\": 29,\n        \"implemented\": 29\n      },\n      \"PILOT\": {\n        \"cards\": 127,\n        \"implemented\": 127\n      },\n      \"RESOURCE\": {\n        \"cards\": 108,\n        \"implemented\": 108\n      },\n      \"UNIT\": {\n        \"cards\": 600,\n        \"implemented\": 600\n      },\n      \"UNIT TOKEN\": {\n        \"cards\": 29,\n        \"implemented\": 29\n      }\n    },\n    \"card_numbers\": 1152,\n    \"implemented\": 1152\n  },\n  \"snapshot\": {\n    \"built_at\": \"2026-10-12T14:37:38.154Z\",\n    \"card_count\": 2011,\n    \"dataset_version\": \"28-ad9da1b22fc2abd56c1176a5e64b12e6ce21ea42\",\n    \"errata_count\": 2,\n    \"product_count\": 47,\n    \"rules_faq_count\": 119,\n    \"ruling_count\": 368,\n    \"set_count\": 28,\n    \"source_commit\": \"ad9da1b22fc2abd56c1176a5e64b12e6ce21ea42\"\n  },\n  \"versions\": {\n    \"banlist_effective_date\": \"2026-09-25\",\n    \"bo3_rules_effective_date\": \"2026-07-03\",\n    \"code_digest\": \"3a11556b77c867330bb652d1f2468903f8dc7174a02e03b8b752760239b49c0b\",\n    \"data_built_at\": \"2026-10-12T14:37:38.154Z\",\n    \"data_source_commit\": \"ad9da1b22fc2abd56c1176a5e64b12e6ce21ea42\",\n    \"dataset_version\": \"28-ad9da1b22fc2abd56c1176a5e64b12e6ce21ea42\",\n    \"deck_rules_effective_date\": \"2026-09-11\",\n    \"package\": \"0.1.0\",\n    \"results_schema\": \"1.1.0\",\n    \"rules_effective_date\": \"2026-09-11\",\n    \"rules_version\": \"1.9.0\"\n  }\n}\n",
+   "stderr": ""
+  },
+  {
+   "argv": [
+    "replay",
+    "crates/gcg-cli/tests/fixtures/latin1-replay.bin"
+   ],
+   "engine": false,
+   "relation": "same",
+   "exit": 1,
+   "stdout": "",
+   "stderr": "error: crates/gcg-cli/tests/fixtures/latin1-replay.bin: not UTF-8 text (invalid continuation byte at byte 5)\n"
+  },
+  {
+   "argv": [
+    "replay",
+    "crates/gcg-cli/tests/fixtures/bad.json"
+   ],
+   "engine": false,
+   "relation": "prefix",
+   "exit": 1,
+   "stdout": "",
+   "stderr": "error: crates/gcg-cli/tests/fixtures/bad.json is not valid JSON: Expecting property name enclosed in double quotes: line 1 column 2 (char 1)\n"
+  },
+  {
+   "argv": [
+    "replay",
+    "crates/gcg-cli/tests/fixtures/list.json"
+   ],
+   "engine": false,
+   "relation": "same",
+   "exit": 1,
+   "stdout": "",
+   "stderr": "error: crates/gcg-cli/tests/fixtures/list.json is not a replay document\n"
+  },
+  {
+   "argv": [
+    "replay",
+    "crates/gcg-cli/tests/fixtures/other.json"
+   ],
+   "engine": false,
+   "relation": "same",
+   "exit": 1,
+   "stdout": "",
+   "stderr": "error: cannot replay crates/gcg-cli/tests/fixtures/other.json: not a gcg-sim-replay v1 document\n"
+  },
+  {
+   "argv": [
+    "replay",
+    "crates/gcg-cli/tests/fixtures/bom.json"
+   ],
+   "engine": false,
+   "relation": "same",
+   "exit": 1,
+   "stdout": "",
+   "stderr": "error: crates/gcg-cli/tests/fixtures/bom.json is not valid JSON: Unexpected UTF-8 BOM (decode using utf-8-sig): line 1 column 1 (char 0)\n"
+  },
+  {
+   "argv": [
+    "replay",
+    "none.json"
+   ],
+   "engine": false,
+   "relation": "same",
+   "exit": 1,
+   "stdout": "",
+   "stderr": "error: cannot read replay file none.json: No such file or directory\n"
+  },
+  {
+   "argv": [
+    "replay",
+    "crates/gcg-cli/tests/fixtures"
+   ],
+   "engine": false,
+   "relation": "same",
+   "exit": 1,
+   "stdout": "",
+   "stderr": "error: cannot read replay file crates/gcg-cli/tests/fixtures: Is a directory\n"
+  },
+  {
+   "argv": [
+    "replay",
+    "crates/gcg-cli/tests/fixtures/no-seed.json"
+   ],
+   "engine": false,
+   "relation": "same",
+   "exit": 1,
+   "stdout": "",
+   "stderr": "error: cannot replay crates/gcg-cli/tests/fixtures/no-seed.json: malformed replay document: KeyError: 'seed'\n"
+  },
+  {
+   "argv": [
+    "replay",
+    "crates/gcg-cli/tests/fixtures/no-seats.json"
+   ],
+   "engine": false,
+   "relation": "same",
+   "exit": 1,
+   "stdout": "",
+   "stderr": "error: cannot replay crates/gcg-cli/tests/fixtures/no-seats.json: malformed replay document: KeyError: 'seats'\n"
+  },
+  {
+   "argv": [
+    "benchmark",
+    "crates/gcg-cli/tests/fixtures/short.txt",
+    "examples/decks/red-green-zeon.txt",
+    "--matches",
+    "2",
+    "--out",
+    "crates/gcg-cli/tests/fixtures/never"
+   ],
+   "engine": false,
+   "relation": "same",
+   "exit": 1,
+   "stdout": "",
+   "stderr": "error: crates/gcg-cli/tests/fixtures/short.txt: 1 violation(s)\n  [MAIN_SIZE] the deck has 49 cards; it must have exactly 50 (rule 6-1-1)\n"
+  },
+  {
+   "argv": [
+    "benchmark",
+    "examples/decks/red-green-zeon.txt",
+    "crates/gcg-cli/tests/fixtures/typo.txt",
+    "--matches",
+    "2",
+    "--out",
+    "crates/gcg-cli/tests/fixtures/never"
+   ],
+   "engine": false,
+   "relation": "same",
+   "exit": 1,
+   "stdout": "",
+   "stderr": "error: crates/gcg-cli/tests/fixtures/typo.txt: deck 'typo' has 1 problem(s):\n  - line 2: unknown card id 'GD01-9999' (not in the card data)\n"
+  },
+  {
+   "argv": [
+    "benchmark",
+    "examples/decks/red-green-zeon.txt",
+    "examples/decks/blue-white-federation.txt",
+    "--matches",
+    "2",
+    "--out",
+    "crates/gcg-cli/tests/fixtures/afile"
+   ],
+   "engine": false,
+   "relation": "same",
+   "exit": 1,
+   "stdout": "",
+   "stderr": "error: cannot write reports to crates/gcg-cli/tests/fixtures/afile: crates/gcg-cli/tests/fixtures/afile is not a directory\n"
+  },
+  {
+   "argv": [
+    "benchmark",
+    "examples/decks/red-green-zeon.txt",
+    "examples/decks/blue-white-federation.txt",
+    "--matches",
+    "2",
+    "--out",
+    "crates/gcg-cli/tests/fixtures/afile/sub"
+   ],
+   "engine": false,
+   "relation": "same",
+   "exit": 1,
+   "stdout": "",
+   "stderr": "error: cannot write reports to crates/gcg-cli/tests/fixtures/afile/sub: crates/gcg-cli/tests/fixtures/afile is not a directory\n"
+  },
+  {
+   "argv": [
+    "benchmark",
+    "no-such.txt",
+    "examples/decks/blue-white-federation.txt",
+    "--matches",
+    "2"
+   ],
+   "engine": false,
+   "relation": "same",
+   "exit": 1,
+   "stdout": "",
+   "stderr": "error: cannot read deck file no-such.txt: No such file or directory\n"
+  },
+  {
+   "argv": [
+    "replay",
+    "crates/gcg-runner/tests/vectors/records/random-bo1-s11/replays/win-m0009-g1.json"
+   ],
+   "engine": true,
+   "relation": "same",
+   "exit": 0,
+   "stdout": "seat 0: bench purple-white-tekkadan (test-random)\nseat 1: dut red-green-zeon (test-random)\nresult: winner seat 1 (battle_damage) after 19 turns\nreplay matches the recorded outcome and final state\n",
+   "stderr": ""
+  },
+  {
+   "argv": [
+    "replay",
+    "--log",
+    "crates/gcg-runner/tests/vectors/records/random-bo1-s11/replays/win-m0009-g1.json"
+   ],
+   "engine": true,
+   "relation": "same",
+   "exit": 0,
+   "stdout": "T0 P1 choose_first: P1 goes first [go_first(1)]\nT0 P1 redraw: keep [keep()]\nT0 P0 redraw: redraw [redraw()]\nT1 P1 main: end_main [end_main()]\nT2 P0 main: end_main [end_main()]\nT3 P1 main: play GD01-035 Zaku Ⅱ [play_unit(62,0)]\nT3 P1 main: end_main [end_main()]\nT3 P1 action_step: play ST03-012 Indignation [play_command(51,0)]\nT4 P0 main: play ST01-014 Unforeseen Incident [play_command(5,0)]\nT4 P0 main: end_main [end_main()]\nT5 P1 main: pair GD01-092 M'Quve with GD01-035 Zaku Ⅱ [pair(53,62,0)]\nT5 P1 main: end_main [end_main()]\nT6 P0 main: play GD05-058 Shiden Custom (Ryusei-Go) [play_unit(9,1)]\nT6 P0 main: pair GD02-114 It's Name is Ryusei-Go with GD05-058 Shiden Custom (Ryusei-Go) [pair(47,9,0)]\nT6 P0 main: end_main [end_main()]\nT7 P1 main: attack the player with GD01-035 Zaku Ⅱ [attack(62,-2)]\nT7 P0 block: no_block [no_block()]\nT7 P1 main: end_main [end_main()]\nT8 P0 main: end_main [end_main()]\nT9 P1 main: play ST03-003 Geara Zulu [play_unit(64,0)]\nT9 P1 main: play GD01-035 Zaku Ⅱ [play_unit(65,0)]\nT9 P1 main: pair GD01-093 Marida Cruz with GD01-035 Zaku Ⅱ [pair(50,65,0)]\nT9 P1 main: attack the player with GD01-035 Zaku Ⅱ [attack(62,-2)]\nT9 P0 block: no_block [no_block()]\nT9 P1 main: end_main [end_main()]\nT10 P0 main: play GD03-066 Gundam Barbatos 5th Form (Ground Type) [play_unit(6,0)]\nT10 P0 main: pair ST05-010 Mikazuki Augus with GD03-066 Gundam Barbatos 5th Form (Ground Type) [pair(4,6,0)]\nT10 P0 select: select GD03-066 Gundam Barbatos 5th Form (Ground Type) [select(6)]\nT10 P0 select: select GD01-035 Zaku Ⅱ [select(62)]\nT10 P0 main: attack the player with GD03-066 Gundam Barbatos 5th Form (Ground Type) [attack(6,-2)]\nT10 P0 main: attack GD01-035 Zaku Ⅱ with GD05-058 Shiden Custom (Ryusei-Go) [attack(9,62)]\nT10 P0 main: end_main [end_main()]\nT11 P1 main: play GD01-059 Zee Zulu [play_unit(63,0)]\nT11 P1 main: play GD01-044 Kshatriya [play_unit(54,0)]\nT11 P1 main: attack the player with ST03-003 Geara Zulu [attack(64,-2)]\nT11 P1 main: end_main [end_main()]\nT12 P0 main: play ST05-002 Gundam Barbatos 2nd Form [play_unit(28,0)]\nT12 P0 main: attack the player with GD03-066 Gundam Barbatos 5th Form (Ground Type) [attack(6,-2)]\nT12 P0 action_step: pass [pass()]\nT12 P0 main: play ST05-001 Gundam Barbatos 4th Form [play_unit(21,0)]\nT12 P0 select: select GD03-066 Gundam Barbatos 5th Form (Ground Type) [select(6)]\nT12 P0 main: end_main [end_main()]\nT13 P1 main: attack GD03-066 Gundam Barbatos 5th Form (Ground Type) with GD01-044 Kshatriya [attack(54,6)]\nT13 P1 main: attack the player with GD01-035 Zaku Ⅱ [attack(65,-2)]\nT13 P1 main: attack the player with ST03-003 Geara Zulu [attack(64,-2)]\nT13 P1 main: attack the player with GD01-059 Zee Zulu [attack(63,-2)]\nT13 P1 main: play GD01-030 Rick Dom [play_unit(66,0)]\nT13 P1 main: end_main [end_main()]\nT14 P0 main: attack ST03-003 Geara Zulu with ST05-002 Gundam Barbatos 2nd Form [attack(28,64)]\nT14 P0 action_step: play GD05-117 Become a Shield [play_command(0,0)]\nT14 P0 select: select ST05-002 Gundam Barbatos 2nd Form [select(28)]\nT14 P0 select: select GD01-030 Rick Dom [select(66)]\nT14 P0 main: play ST05-015 Isaribi [play_base(45,0)]\nT14 P0 main: play ST05-002 Gundam Barbatos 2nd Form [play_unit(32,0)]\nT14 P0 main: end_main [end_main()]\nT14 P0 action_step: play ST01-014 Unforeseen Incident [play_command(38,0)]\nT14 P0 select: select GD01-059 Zee Zulu [select(63)]\nT15 P1 main: play GD01-030 Rick Dom [play_unit(67,0)]\nT15 P1 main: attack the player with GD01-035 Zaku Ⅱ [attack(65,-2)]\nT15 P1 action_step: pass [pass()]\nT15 P1 main: play GD01-059 Zee Zulu [play_unit(61,0)]\nT15 P1 main: play ST03-013 Close Combat [play_command(68,0)]\nT15 P1 select: select ST05-001 Gundam Barbatos 4th Form [select(21)]\nT15 P1 main: end_main [end_main()]\nT16 P0 main: attack GD01-035 Zaku Ⅱ with ST05-002 Gundam Barbatos 2nd Form [attack(32,65)]\nT16 P0 main: attack the player with ST05-001 Gundam Barbatos 4th Form [attack(21,-2)]\nT16 P1 burst: no [no()]\nT16 P0 main: end_main [end_main()]\nT17 P1 main: play ST03-001 Sinanju [play_unit(52,0)]\nT17 P1 main: attack the player with GD01-030 Rick Dom [attack(66,-2)]\nT17 P1 main: play GD04-040 Schuzrum-Galluss [play_unit(69,0)]\nT17 P1 excess: select GD01-030 Rick Dom [select(67)]\nT17 P1 main: attack ST05-001 Gundam Barbatos 4th Form with GD01-059 Zee Zulu [attack(63,21)]\nT17 P1 main: end_main [end_main()]\nT18 P0 main: play ST05-003 CGS Mobile Worker [play_unit(3,0)]\nT18 P0 main: attack GD01-030 Rick Dom with ST05-001 Gundam Barbatos 4th Form [attack(21,66)]\nT18 P0 main: end_main [end_main()]\nT19 P1 main: play GD01-031 Gelgoog [play_unit(70,0)]\nT19 P1 main: attack the player with GD01-035 Zaku Ⅱ [attack(65,-2)]\nT19 game over: winner P1 (battle_damage)\nseat 0: bench purple-white-tekkadan (test-random)\nseat 1: dut red-green-zeon (test-random)\nresult: winner seat 1 (battle_damage) after 19 turns\nreplay matches the recorded outcome and final state\n",
+   "stderr": ""
+  },
+  {
+   "argv": [
+    "replay",
+    "crates/gcg-runner/tests/vectors/records/random-bo3-turn-limit/replays/draw-m0000-g1.json"
+   ],
+   "engine": true,
+   "relation": "same",
+   "exit": 0,
+   "stdout": "seat 0: dut red-green-zeon (test-random)\nseat 1: bench blue-white-federation (test-random)\nresult: winner seat -1 (turn_limit) after 9 turns\nreplay matches the recorded outcome and final state\n",
+   "stderr": ""
+  },
+  {
+   "argv": [
+    "replay",
+    "crates/gcg-runner/tests/vectors/records/fast-bo3-log/replays/win-m0000-g2.json"
+   ],
+   "engine": true,
+   "relation": "same",
+   "exit": 0,
+   "stdout": "seat 0: dut blue-white-federation (mcts-fast)\nseat 1: bench red-green-zeon (mcts-fast)\nresult: winner seat 0 (battle_damage) after 13 turns\nreplay matches the recorded outcome and final state\n",
+   "stderr": ""
+  },
+  {
+   "argv": [
+    "replay",
+    "crates/gcg-cli/tests/fixtures/tampered.json"
+   ],
+   "engine": true,
+   "relation": "same",
+   "exit": 1,
+   "stdout": "seat 0: bench purple-white-tekkadan (test-random)\nseat 1: dut red-green-zeon (test-random)\nresult: winner seat 1 (battle_damage) after 19 turns\n",
+   "stderr": "error: replay does NOT match the recorded outcome:\n  turns: expected 24, replay gave 19\n"
+  },
+  {
+   "argv": [
+    "replay",
+    "crates/gcg-cli/tests/fixtures/illegal-action.json"
+   ],
+   "engine": true,
+   "relation": "same",
+   "exit": 1,
+   "stdout": "",
+   "stderr": "error: cannot replay crates/gcg-cli/tests/fixtures/illegal-action.json: action 1 attack(999,999) is not legal in the replayed game\n"
+  },
+  {
+   "argv": [
+    "replay",
+    "crates/gcg-cli/tests/fixtures/extra-action.json"
+   ],
+   "engine": true,
+   "relation": "same",
+   "exit": 1,
+   "stdout": "",
+   "stderr": "error: cannot replay crates/gcg-cli/tests/fixtures/extra-action.json: the replay has more actions than the game had decisions\n"
+  },
+  {
+   "argv": [
+    "replay",
+    "crates/gcg-cli/tests/fixtures/bad-kind.json"
+   ],
+   "engine": true,
+   "relation": "same",
+   "exit": 1,
+   "stdout": "",
+   "stderr": "error: cannot replay crates/gcg-cli/tests/fixtures/bad-kind.json: malformed replay document: ValueError: 'no-such-kind' is not a valid ActionKind\n"
+  },
+  {
+   "argv": [
+    "replay",
+    "crates/gcg-cli/tests/fixtures/unknown-card.json"
+   ],
+   "engine": true,
+   "relation": "same",
+   "exit": 1,
+   "stdout": "",
+   "stderr": "error: cannot replay crates/gcg-cli/tests/fixtures/unknown-card.json: malformed replay document: DeckConstructionError: player 0: unknown card GD01-9999\n"
+  }
+ ]
+}

@@ -137,8 +137,11 @@ by your opponent is not necessary provided that both players agree to skip it."
 **Cut by proxy.** Split the deck into three roughly equal stacks. The opponent chooses the order,
 and the stacks are recombined in that order.
 
-**Simulator model.** Shuffling uses a seeded Fisher–Yates permutation. The confirming cut or
-shuffle is not modelled, because it leaves a uniform permutation uniform.
+**Simulator model.** Each main deck is shuffled with a seeded Fisher–Yates permutation and then
+cut once at a seeded random point (`engine/game.py:137-140`: `rng.shuffle`, then
+`k = 1 + rng.randrange(len - 1)`). The cut leaves a uniform permutation uniform, but it consumes a
+draw of the game's RNG, so replays and the Rust port reproduce it draw for draw. The opponent's
+confirming shuffle or cut is not modelled separately.
 
 **First player.** CR 6-2-1-4: "The winner decides who becomes Player One." FAQ Q9 adds that the
 winner chooses "before looking at their starting hand". TRM 4.6 says the choice happens after both

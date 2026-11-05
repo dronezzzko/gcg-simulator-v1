@@ -1,0 +1,205 @@
+{
+ "cases": [
+  {
+   "ai": {
+    "bench_agent": "test-random",
+    "decision_log": false,
+    "dut_agent": "test-random",
+    "factory": "random_agent.py:make_random_agent",
+    "preset": "standard"
+   },
+   "exit": 0,
+   "factory_env": "tests/runner/random_agent.py:make_random_agent",
+   "files": {
+    "games.ndjson": "3d7a49e34ea98f5c0aca7f33932b8d31b3a8f69c40e1daa0df5cbd28381cad58",
+    "results.json": "53c0c02a17d65476602b2db12cb612202494b495b5b8d8b232328a7214300968",
+    "summary.md": "64f2dbcb77c66b071675a2f4fbb1c051ceb921f2525d51477a01eb03326a8089"
+   },
+   "id": "conftest",
+   "masked": {
+    "code_digest": "3a11556b77c867330bb652d1f2468903f8dc7174a02e03b8b752760239b49c0b",
+    "factory": "random_agent.py:make_random_agent",
+    "package": "0.1.0"
+   },
+   "note": "tests/reports/conftest.py run(): 60 BO3 matches, seed 3, 2 replays per result",
+   "python_argv": [
+    "gcg-sim",
+    "benchmark",
+    "examples/decks/blue-white-federation.txt",
+    "examples/decks/red-green-zeon.txt",
+    "--matches",
+    "60",
+    "--seed",
+    "3",
+    "--replays",
+    "2",
+    "--out",
+    "{OUT}"
+   ],
+   "replays": {
+    "loss-m0009-g1.json": "9012fc6ce019247bfda7360dbd3aaaa8e07ace805e62d9bd9378d196fbd88a71",
+    "loss-m0010-g2.json": "b255c4d82bcb06e86366ca3d28ffd2411a9b51d2c4dfd2848d129b961e8bfe3b",
+    "win-m0002-g3.json": "a5ee88ac08c54a3adc20831a4d3fdd829ba6e8d1f0393c3af216b75500647231",
+    "win-m0035-g2.json": "fb5d133956b06a5df8bab72e6724ec71796a1ea6d2030e4e26bc3c3dddcfc0c0"
+   },
+   "results_schema": "1.1.0",
+   "rust_argv": [
+    "gcg-eval",
+    "reference-benchmark",
+    "examples/decks/blue-white-federation.txt",
+    "examples/decks/red-green-zeon.txt",
+    "--matches",
+    "60",
+    "--seed",
+    "3",
+    "--replays",
+    "2",
+    "--agent",
+    "test-random",
+    "--out",
+    "{OUT}"
+   ],
+   "schema": "urn:gcg-sim:schema:results:1.1.0",
+   "schema_version": "1.1.0",
+   "stderr": "matches 1/60\nmatches 6/60\nmatches 12/60\nmatches 18/60\nmatches 24/60\nmatches 30/60\nmatches 36/60\nmatches 42/60\nmatches 48/60\nmatches 54/60\nmatches 60/60\n",
+   "stdout": "blue-white-federation (deck under test) vs red-green-zeon (benchmark)\nmatches: DUT 20-40 (draws 0), win rate 33.3% [95% CI 22.7%-45.9%] over 60\ngames: DUT 52-87 (draws 0), win rate 37.4% [95% CI 29.8%-45.7%] over 139\nreports:\n  results  {OUT}/results.json\n  summary  {OUT}/summary.md\n  games    {OUT}/games.ndjson\n  timing   {OUT}/timing.json\n  replays  4 file(s) in {OUT}/replays\n"
+  },
+  {
+   "ai": {
+    "bench_agent": "test-random",
+    "decision_log": false,
+    "dut_agent": "test-random",
+    "factory": "random_agent.py:make_random_agent",
+    "preset": "standard"
+   },
+   "exit": 0,
+   "factory_env": "tests/runner/random_agent.py:make_random_agent",
+   "files": {
+    "games.ndjson": "ec41eb0ac0c5226fae02962fc159c6d7fc47cf627a8dd59b895ff8abbf6892ed",
+    "results.json": "6948c128c2d1079f4f3b74228c53d36bad964cbc8531f9f19bb30e841ff09750",
+    "summary.md": "e5077d99b7f42262dac83b2ef6adcb756b4b4687ce921df34ddd4d7372867f5b"
+   },
+   "id": "console-workers",
+   "masked": {
+    "code_digest": "3a11556b77c867330bb652d1f2468903f8dc7174a02e03b8b752760239b49c0b",
+    "factory": "random_agent.py:make_random_agent",
+    "package": "0.1.0"
+   },
+   "note": "tests/cli/test_console_script.py benchmark(): Python at 2 workers, Rust at 4",
+   "python_argv": [
+    "gcg-sim",
+    "benchmark",
+    "examples/decks/purple-white-tekkadan.txt",
+    "examples/decks/blue-white-federation.txt",
+    "--matches",
+    "12",
+    "--seed",
+    "77",
+    "--workers",
+    "2",
+    "--out",
+    "{OUT}"
+   ],
+   "replays": {
+    "loss-m0001-g3.json": "27de83eef9f3a79e1ad09688cec9b9a574b40fae987c447deb70377fe2eaee91",
+    "loss-m0003-g3.json": "6481f7ce2ef1cfa30b83a965f6b3e15c2686e3ad42d2e367fe604c0361c84693",
+    "loss-m0009-g3.json": "4f7b9d4cdc644019f5f7430d6a2861f031f9a36eee993c903cdf34de7cf488f7",
+    "win-m0000-g1.json": "53ac13dee14e078396a82ed3a263c881b57e2152926fbcc505cb7e60dbe00cf1",
+    "win-m0003-g1.json": "0777b30ec337521092032677cf39dd57ef683f21558699bf167f234ca387603c",
+    "win-m0006-g2.json": "ee24ed7602c47bb89f5d24e1c9d9be301831dfe164a8108387369a8920266834"
+   },
+   "results_schema": "1.1.0",
+   "rust_argv": [
+    "gcg-eval",
+    "reference-benchmark",
+    "examples/decks/purple-white-tekkadan.txt",
+    "examples/decks/blue-white-federation.txt",
+    "--matches",
+    "12",
+    "--seed",
+    "77",
+    "--workers",
+    "4",
+    "--agent",
+    "test-random",
+    "--out",
+    "{OUT}"
+   ],
+   "schema": "urn:gcg-sim:schema:results:1.1.0",
+   "schema_version": "1.1.0",
+   "stderr": "matches 1/12\nmatches 2/12\nmatches 3/12\nmatches 4/12\nmatches 5/12\nmatches 6/12\nmatches 8/12\nmatches 9/12\nmatches 10/12\nmatches 11/12\nmatches 12/12\n",
+   "stdout": "purple-white-tekkadan (deck under test) vs blue-white-federation (benchmark)\nmatches: DUT 6-6 (draws 0), win rate 50.0% [95% CI 25.4%-74.6%] over 12\ngames: DUT 17-14 (draws 0), win rate 54.8% [95% CI 37.8%-70.8%] over 31\nreports:\n  results  {OUT}/results.json\n  summary  {OUT}/summary.md\n  games    {OUT}/games.ndjson\n  timing   {OUT}/timing.json\n  replays  6 file(s) in {OUT}/replays\n"
+  },
+  {
+   "ai": {
+    "bench_agent": "test-random",
+    "decision_log": true,
+    "dut_agent": "test-random",
+    "factory": "random_agent.py:make_random_agent",
+    "preset": "strong"
+   },
+   "exit": 0,
+   "factory_env": "tests/runner/random_agent.py:make_random_agent",
+   "files": {
+    "games.ndjson": "b9c107882b47b64089930fa505c5f53bfa69478df5156870dc10846a2770e1db",
+    "results.json": "c734d1a11285febeb5fa414e4136e9472a2871ad6a5d3d3de339ac3fc8fde4c5",
+    "summary.md": "8cee1318d16853c128e616f36c548173d66e6bfeda81ce294452b0c65454c9f6"
+   },
+   "id": "strong-bo1-log",
+   "masked": {
+    "code_digest": "3a11556b77c867330bb652d1f2468903f8dc7174a02e03b8b752760239b49c0b",
+    "factory": "random_agent.py:make_random_agent",
+    "package": "0.1.0"
+   },
+   "note": "BO1 with decision logs, the largest seed and Python's preset name strong",
+   "python_argv": [
+    "gcg-sim",
+    "benchmark",
+    "examples/decks/red-green-zeon.txt",
+    "examples/decks/purple-white-tekkadan.txt",
+    "--matches",
+    "3",
+    "--seed",
+    "18446744073709551615",
+    "--format",
+    "bo1",
+    "--ai-preset",
+    "strong",
+    "--decision-log",
+    "--replays",
+    "1",
+    "--out",
+    "{OUT}"
+   ],
+   "replays": {
+    "win-m0000-g1.json": "b65acc279c538b0a99771cc093c3e1bef94d713cfcf6e1ba740d1cd925b10ea4"
+   },
+   "results_schema": "1.1.0",
+   "rust_argv": [
+    "gcg-eval",
+    "reference-benchmark",
+    "examples/decks/red-green-zeon.txt",
+    "examples/decks/purple-white-tekkadan.txt",
+    "--matches",
+    "3",
+    "--seed",
+    "18446744073709551615",
+    "--format",
+    "bo1",
+    "--reference-preset",
+    "strong",
+    "--decision-log",
+    "--replays",
+    "1",
+    "--agent",
+    "test-random",
+    "--out",
+    "{OUT}"
+   ],
+   "schema": "urn:gcg-sim:schema:results:1.1.0",
+   "schema_version": "1.1.0",
+   "stderr": "matches 1/3\nmatches 2/3\nmatches 3/3\n",
+   "stdout": "red-green-zeon (deck under test) vs purple-white-tekkadan (benchmark)\nmatches: DUT 3-0 (draws 0), win rate 100.0% [95% CI 43.8%-100.0%] over 3\ngames: DUT 3-0 (draws 0), win rate 100.0% [95% CI 43.8%-100.0%] over 3\nreports:\n  results  {OUT}/results.json\n  summary  {OUT}/summary.md\n  games    {OUT}/games.ndjson\n  timing   {OUT}/timing.json\n  replays  1 file(s) in {OUT}/replays\n"
+  }
+ ]
+}

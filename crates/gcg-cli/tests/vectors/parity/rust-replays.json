@@ -1,0 +1,167 @@
+{
+ "runs": [
+  {
+   "argv": [
+    "gcg-sim",
+    "benchmark",
+    "examples/decks/purple-white-tekkadan.txt",
+    "examples/decks/blue-white-federation.txt",
+    "--matches",
+    "3",
+    "--seed",
+    "77",
+    "--format",
+    "bo1",
+    "--ai-preset",
+    "fast",
+    "--out",
+    "{OUT}"
+   ],
+   "id": "sim-fast-bo1",
+   "note": "gcg-sim, the shipped fast preset, BO1",
+   "replays": {
+    "loss-m0001-g1.json": {
+     "exit": 0,
+     "log_exit": 0,
+     "log_lines": 83,
+     "log_sha256": "e2dbbe60e27e881c64c3415c121936616d92dad10e083d42aefdfbf085b65845",
+     "log_stderr": "",
+     "sha256": "334db9d8a90d56d6a7e57f38b7665a6e5cc973ef66b3e7ec523189ee330c6550",
+     "stderr": "",
+     "stdout": "seat 0: bench blue-white-federation (search-fast)\nseat 1: dut purple-white-tekkadan (search-fast)\nresult: winner seat 0 (battle_damage) after 17 turns\nreplay matches the recorded outcome and final state\n"
+    },
+    "win-m0000-g1.json": {
+     "exit": 0,
+     "log_exit": 0,
+     "log_lines": 96,
+     "log_sha256": "7f71760f7ec11f017cf36e25d5b1aeec13247e81e0046fe38c1ee166bb07cf1c",
+     "log_stderr": "",
+     "sha256": "859bfb882e158e523874c0726521148d4d93997bc8fff1bde8ef02758fd84b7c",
+     "stderr": "",
+     "stdout": "seat 0: dut purple-white-tekkadan (search-fast)\nseat 1: bench blue-white-federation (search-fast)\nresult: winner seat 0 (battle_damage) after 16 turns\nreplay matches the recorded outcome and final state\n"
+    },
+    "win-m0002-g1.json": {
+     "exit": 0,
+     "log_exit": 0,
+     "log_lines": 110,
+     "log_sha256": "66d7ff9baace8abe8094f16141c818ee7127818ba6cc65377915002b06e9d0a4",
+     "log_stderr": "",
+     "sha256": "d0af933daddf3619140fc5ca190c24570f645a1d8aa92ac1e733fb1343579c66",
+     "stderr": "",
+     "stdout": "seat 0: dut purple-white-tekkadan (search-fast)\nseat 1: bench blue-white-federation (search-fast)\nresult: winner seat 0 (battle_damage) after 19 turns\nreplay matches the recorded outcome and final state\n"
+    }
+   }
+  },
+  {
+   "argv": [
+    "gcg-sim",
+    "benchmark",
+    "examples/decks/blue-white-federation.txt",
+    "examples/decks/red-green-zeon.txt",
+    "--matches",
+    "2",
+    "--seed",
+    "9",
+    "--ai-preset",
+    "fast",
+    "--workers",
+    "2",
+    "--decision-log",
+    "--replays",
+    "1",
+    "--out",
+    "{OUT}"
+   ],
+   "id": "sim-fast-bo3-log",
+   "note": "gcg-sim, the shipped fast preset, BO3 with decision logs",
+   "replays": {
+    "loss-m0001-g1.json": {
+     "exit": 0,
+     "log_exit": 0,
+     "log_lines": 73,
+     "log_sha256": "607c548ca07a96ab3cdc4636214caaac696eaf0f014ada2b13e40fd024bc9895",
+     "log_stderr": "",
+     "sha256": "f8badafe1403113a5d2e5397274ee53804e38ae082dc4557b074eb4dbfe01061",
+     "stderr": "",
+     "stdout": "seat 0: bench red-green-zeon (search-fast)\nseat 1: dut blue-white-federation (search-fast)\nresult: winner seat 0 (battle_damage) after 14 turns\nreplay matches the recorded outcome and final state\n"
+    },
+    "win-m0000-g2.json": {
+     "exit": 0,
+     "log_exit": 0,
+     "log_lines": 139,
+     "log_sha256": "e06d56428ab9697ab816b01b8ed84302d154f243dab669d5e8178e02b7375bd3",
+     "log_stderr": "",
+     "sha256": "fddadb2d267e88a7dba35cf588fb16da9437072d6e02df1c93fbf7f23a328b75",
+     "stderr": "",
+     "stdout": "seat 0: dut blue-white-federation (search-fast)\nseat 1: bench red-green-zeon (search-fast)\nresult: winner seat 0 (battle_damage) after 29 turns\nreplay matches the recorded outcome and final state\n"
+    }
+   }
+  },
+  {
+   "argv": [
+    "gcg-sim",
+    "benchmark",
+    "examples/decks/red-green-zeon.txt",
+    "examples/decks/purple-white-tekkadan.txt",
+    "--matches",
+    "1",
+    "--seed",
+    "5",
+    "--format",
+    "bo1",
+    "--replays",
+    "1",
+    "--out",
+    "{OUT}"
+   ],
+   "id": "sim-standard-bo1",
+   "note": "gcg-sim, the default standard preset, BO1",
+   "replays": {
+    "loss-m0000-g1.json": {
+     "exit": 0,
+     "log_exit": 0,
+     "log_lines": 108,
+     "log_sha256": "67e8e3bb5e584c474e108229aedf07b12a3eb00858e86f64137a92a335a71d4b",
+     "log_stderr": "",
+     "sha256": "d7382fef2c7d6efa0becb6088de7d08c0be862243b950ecded4363a4a8acb0e1",
+     "stderr": "",
+     "stdout": "seat 0: dut red-green-zeon (search-standard)\nseat 1: bench purple-white-tekkadan (search-standard)\nresult: winner seat 1 (battle_damage) after 17 turns\nreplay matches the recorded outcome and final state\n"
+    }
+   }
+  },
+  {
+   "argv": [
+    "gcg-eval",
+    "reference-benchmark",
+    "examples/decks/red-green-zeon.txt",
+    "examples/decks/blue-white-federation.txt",
+    "--matches",
+    "2",
+    "--seed",
+    "4",
+    "--format",
+    "bo1",
+    "--reference-preset",
+    "fast",
+    "--replays",
+    "1",
+    "--out",
+    "{OUT}"
+   ],
+   "id": "eval-reference-fast",
+   "note": "gcg-eval reference-benchmark, the reference search at Python's fast budget",
+   "replays": {
+    "loss-m0000-g1.json": {
+     "exit": 0,
+     "log_exit": 0,
+     "log_lines": 82,
+     "log_sha256": "897a70964e9291594844cc500846f219210b38d23a6c3421146b4e998eb14713",
+     "log_stderr": "",
+     "sha256": "352e8fa987ae802f76f6c1413296219892c909caefce840e9e1bfb733a22c8d0",
+     "stderr": "",
+     "stdout": "seat 0: dut red-green-zeon (mcts-fast)\nseat 1: bench blue-white-federation (mcts-fast)\nresult: winner seat 1 (battle_damage) after 15 turns\nreplay matches the recorded outcome and final state\n"
+    }
+   }
+  }
+ ]
+}

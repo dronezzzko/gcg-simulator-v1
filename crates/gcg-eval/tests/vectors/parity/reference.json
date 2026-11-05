@@ -1,0 +1,205 @@
+{
+ "cases": [
+  {
+   "ai": {
+    "bench_agent": "mcts-fast",
+    "decision_log": false,
+    "dut_agent": "mcts-fast",
+    "factory": "gcg_sim.ai.make_agent('mcts')",
+    "preset": "fast"
+   },
+   "exit": 0,
+   "factory_env": null,
+   "files": {
+    "games.ndjson": "b3603dd4a3ac2a72e27b32dcb8f9a8984dc1186a070fb7d69a7ad9838f6570fb",
+    "results.json": "ee7eb4453103ddf0c9c406c3be5011c760787219e13cac62f52c473ebebed986",
+    "summary.md": "95d5db99009247e409e3bdf0ebdebb6b0f752c6840d42bec25da8212319c2d9a"
+   },
+   "id": "reference-fast",
+   "masked": {
+    "code_digest": "3a11556b77c867330bb652d1f2468903f8dc7174a02e03b8b752760239b49c0b",
+    "factory": "gcg_sim.ai.make_agent('mcts')",
+    "package": "0.1.0"
+   },
+   "note": "the reference search at Python's preset fast: one BO1 game",
+   "python_argv": [
+    "gcg-sim",
+    "benchmark",
+    "examples/decks/red-green-zeon.txt",
+    "examples/decks/blue-white-federation.txt",
+    "--matches",
+    "1",
+    "--seed",
+    "1",
+    "--format",
+    "bo1",
+    "--ai-preset",
+    "fast",
+    "--replays",
+    "1",
+    "--out",
+    "{OUT}"
+   ],
+   "replays": {
+    "loss-m0000-g1.json": "29563a3fbe2c2193bd0200ed12b1be9c26d48e2f328f9622e8d6b1f34b9fce8c"
+   },
+   "results_schema": "1.1.0",
+   "rust_argv": [
+    "gcg-eval",
+    "reference-benchmark",
+    "examples/decks/red-green-zeon.txt",
+    "examples/decks/blue-white-federation.txt",
+    "--matches",
+    "1",
+    "--seed",
+    "1",
+    "--format",
+    "bo1",
+    "--reference-preset",
+    "fast",
+    "--replays",
+    "1",
+    "--out",
+    "{OUT}"
+   ],
+   "schema": "urn:gcg-sim:schema:results:1.1.0",
+   "schema_version": "1.1.0",
+   "stderr": "matches 1/1\n",
+   "stdout": "red-green-zeon (deck under test) vs blue-white-federation (benchmark)\nmatches: DUT 0-1 (draws 0), win rate 0.0% [95% CI 0.0%-79.3%] over 1\ngames: DUT 0-1 (draws 0), win rate 0.0% [95% CI 0.0%-79.3%] over 1\nreports:\n  results  {OUT}/results.json\n  summary  {OUT}/summary.md\n  games    {OUT}/games.ndjson\n  timing   {OUT}/timing.json\n  replays  1 file(s) in {OUT}/replays\n"
+  },
+  {
+   "ai": {
+    "bench_agent": "mcts-standard",
+    "decision_log": false,
+    "dut_agent": "mcts-standard",
+    "factory": "gcg_sim.ai.make_agent('mcts')",
+    "preset": "standard"
+   },
+   "exit": 0,
+   "factory_env": null,
+   "files": {
+    "games.ndjson": "3edf4fb45717f5b7a6470932df6e02a411ad1d8999ab733b9670af82aee3aef8",
+    "results.json": "91db3fad35343ee37fa1da42fc604e48e2940f2b9aebbf33c2b2b6c2e791e775",
+    "summary.md": "e94af5fb6697d5dbdf61f666313bb2536296f20cceedca53cd4068fc115afa1e"
+   },
+   "id": "reference-standard",
+   "masked": {
+    "code_digest": "3a11556b77c867330bb652d1f2468903f8dc7174a02e03b8b752760239b49c0b",
+    "factory": "gcg_sim.ai.make_agent('mcts')",
+    "package": "0.1.0"
+   },
+   "note": "the reference search at Python's preset standard: one BO1 game",
+   "python_argv": [
+    "gcg-sim",
+    "benchmark",
+    "examples/decks/red-green-zeon.txt",
+    "examples/decks/blue-white-federation.txt",
+    "--matches",
+    "1",
+    "--seed",
+    "1",
+    "--format",
+    "bo1",
+    "--ai-preset",
+    "standard",
+    "--replays",
+    "1",
+    "--out",
+    "{OUT}"
+   ],
+   "replays": {
+    "win-m0000-g1.json": "d7e021563809d8f0169e7d30b031656ec87b74ba5ff799fd8fb5b0449b21b13d"
+   },
+   "results_schema": "1.1.0",
+   "rust_argv": [
+    "gcg-eval",
+    "reference-benchmark",
+    "examples/decks/red-green-zeon.txt",
+    "examples/decks/blue-white-federation.txt",
+    "--matches",
+    "1",
+    "--seed",
+    "1",
+    "--format",
+    "bo1",
+    "--reference-preset",
+    "standard",
+    "--replays",
+    "1",
+    "--out",
+    "{OUT}"
+   ],
+   "schema": "urn:gcg-sim:schema:results:1.1.0",
+   "schema_version": "1.1.0",
+   "stderr": "matches 1/1\n",
+   "stdout": "red-green-zeon (deck under test) vs blue-white-federation (benchmark)\nmatches: DUT 1-0 (draws 0), win rate 100.0% [95% CI 20.7%-100.0%] over 1\ngames: DUT 1-0 (draws 0), win rate 100.0% [95% CI 20.7%-100.0%] over 1\nreports:\n  results  {OUT}/results.json\n  summary  {OUT}/summary.md\n  games    {OUT}/games.ndjson\n  timing   {OUT}/timing.json\n  replays  1 file(s) in {OUT}/replays\n"
+  },
+  {
+   "ai": {
+    "bench_agent": "mcts-strong",
+    "decision_log": false,
+    "dut_agent": "mcts-strong",
+    "factory": "gcg_sim.ai.make_agent('mcts')",
+    "preset": "strong"
+   },
+   "exit": 0,
+   "factory_env": null,
+   "files": {
+    "games.ndjson": "0215b3411d0773519717c36833b24d3ce3044b659e228ea1cce1818a5681e03a",
+    "results.json": "d821030c59ad959afa3d6b502e1c59b4b664316e03ef18357730a876e19bd3a7",
+    "summary.md": "ff826f506319fe256ab7e80af2ecc9eb1aad9b9e5a37ac4e170301bef17efe00"
+   },
+   "id": "reference-strong",
+   "masked": {
+    "code_digest": "3a11556b77c867330bb652d1f2468903f8dc7174a02e03b8b752760239b49c0b",
+    "factory": "gcg_sim.ai.make_agent('mcts')",
+    "package": "0.1.0"
+   },
+   "note": "the reference search at Python's preset strong: one BO1 game",
+   "python_argv": [
+    "gcg-sim",
+    "benchmark",
+    "examples/decks/red-green-zeon.txt",
+    "examples/decks/blue-white-federation.txt",
+    "--matches",
+    "1",
+    "--seed",
+    "1",
+    "--format",
+    "bo1",
+    "--ai-preset",
+    "strong",
+    "--replays",
+    "1",
+    "--out",
+    "{OUT}"
+   ],
+   "replays": {
+    "win-m0000-g1.json": "1caf30a257447d07095b00cc7062c3b4b3341b1aea2978e21eba51a7961f1cb7"
+   },
+   "results_schema": "1.1.0",
+   "rust_argv": [
+    "gcg-eval",
+    "reference-benchmark",
+    "examples/decks/red-green-zeon.txt",
+    "examples/decks/blue-white-federation.txt",
+    "--matches",
+    "1",
+    "--seed",
+    "1",
+    "--format",
+    "bo1",
+    "--reference-preset",
+    "strong",
+    "--replays",
+    "1",
+    "--out",
+    "{OUT}"
+   ],
+   "schema": "urn:gcg-sim:schema:results:1.1.0",
+   "schema_version": "1.1.0",
+   "stderr": "matches 1/1\n",
+   "stdout": "red-green-zeon (deck under test) vs blue-white-federation (benchmark)\nmatches: DUT 1-0 (draws 0), win rate 100.0% [95% CI 20.7%-100.0%] over 1\ngames: DUT 1-0 (draws 0), win rate 100.0% [95% CI 20.7%-100.0%] over 1\nreports:\n  results  {OUT}/results.json\n  summary  {OUT}/summary.md\n  games    {OUT}/games.ndjson\n  timing   {OUT}/timing.json\n  replays  1 file(s) in {OUT}/replays\n"
+  }
+ ]
+}

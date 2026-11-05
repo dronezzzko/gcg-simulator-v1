@@ -1,0 +1,47 @@
+[package]
+name = "gcg-search"
+description = "Strengthened search behind the gcg-sim presets standard and fast"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+rust-version.workspace = true
+publish.workspace = true
+
+[lints]
+workspace = true
+
+[dependencies]
+gcg-core.workspace = true
+gcg-data.workspace = true
+gcg-effects.workspace = true
+gcg-engine.workspace = true
+gcg-ai.workspace = true
+
+[features]
+# Long scenario and strength tests run as [[test]] targets with required-features (A12).
+slow = []
+
+# The null configuration over every decision of the tier-1 search set (three searches each).
+[[test]]
+name = "null_config_search_set"
+path = "tests/null_config_search_set.rs"
+required-features = ["slow"]
+
+# P6-D's tests of the tree and budget mechanisms (crates/gcg-search/tests/scenarios/p6d_*.rs).
+[[test]]
+name = "p6d_scenarios"
+path = "tests/scenarios/p6d_main.rs"
+
+# P6-H's pre-game scenario tests (W-44, W-45; PLAN §12.3 S11, T-122).
+[[test]]
+name = "p6h_pregame"
+path = "tests/scenarios/p6h_pregame.rs"
+
+[dev-dependencies]
+# D2's null-config test compares this search with the reference (PLAN §10.4 D2). A
+# dev-dependency never enters gcg-cli's normal build (crates/gcg-cli/tests/no_reference.rs).
+gcg-ai-reference.workspace = true
+# tests/null_config_traces.rs reads the tier-1 search traces with gcg_diff::read_trace (the
+# dev-dependency cycle of docs/port/contracts.md, gcg-search section).
+gcg-diff = { path = "../gcg-diff" }
+serde_json.workspace = true

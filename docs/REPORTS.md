@@ -14,7 +14,7 @@ uv run gcg-sim benchmark examples/decks/red-green-zeon.txt examples/decks/blue-w
 | `--seed S` | 0 | Master seed. Every game and agent seed is derived from it. |
 | `--workers W` | 1 | Worker processes. The results do not depend on it. |
 | `--format bo3\|bo1` | bo3 | Best-of-three matches or single games. |
-| `--ai-preset fast\|standard\|strong` | standard | Search budget of the AI that plays both seats (see `docs/AI.md`). `fast` is for screening deck variants; confirm with `standard`. |
+| `--ai-preset fast\|standard\|strong` | standard | Search budget of the AI that plays both seats (see `docs/python/AI.md`). `fast` is for screening deck variants; confirm with `standard`. |
 | `--out DIR` | `gcg-sim-out` | Report directory. It is created if needed, and existing report files are replaced. |
 | `--decision-log` | off | Record the AI's decision log in `games.ndjson` and in the replays. This makes them large. |
 | `--replays K` | 3 | Representative wins and losses to save, K of each, plus one draw if any. |
@@ -33,7 +33,8 @@ is either complete or absent.
 - **Seeds.** Each game's seed is `derive_seed(master, "match", m, "game", g)`. Each agent's seed
   is `derive_seed(master, "match", m, "game", g, "agent", seat)`. Randomness uses SplitMix64.
 - **BO3 (official BO3 Match Rules).** The first player to 2 game wins takes the match.
-  - In game 1, a seeded die roll picks who decides Player One (rule 6-2-1-4, FAQ Q9).
+  - In game 1, a seeded fair draw (`randrange(2)` of the game's RNG, `engine/game.py:153`)
+    picks who decides Player One (rule 6-2-1-4, FAQ Q9).
   - In games 2 and 3, the loser of the previous game decides.
 - **Simultaneous defeat** (`both_defeated`) is a draw in the game statistics. For BO3 match
   scoring, the turn player at the end loses that game (TRM 5.2).

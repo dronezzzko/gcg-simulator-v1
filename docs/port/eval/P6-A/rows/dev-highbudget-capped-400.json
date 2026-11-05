@@ -1,0 +1,7719 @@
+{
+ "format": "gcg-eval-ablation",
+ "version": 1,
+ "row": "leave-one-out",
+ "mechanism": "capped_rollout_continuation=false",
+ "bundle": "search:standard:iterations_per_option=256,min_iterations=640,max_iterations=2560,capped_rollout_continuation=true",
+ "decks": "panel",
+ "pairs": "tuning",
+ "seed": 20100200,
+ "role": "dev",
+ "games": 400,
+ "choose_first": "seat0",
+ "challenger": "search:standard:iterations_per_option=256,min_iterations=640,max_iterations=2560,capped_rollout_continuation=true",
+ "opponent": "search:standard:iterations_per_option=256,min_iterations=640,max_iterations=2560,capped_rollout_continuation=true,capped_rollout_continuation=false",
+ "agents": {
+  "challenger": "search-standard",
+  "opponent": "search-standard"
+ },
+ "summary": {
+  "wins": 193,
+  "n": 400,
+  "rate": 0.4825,
+  "ci95": [
+   0.4339,
+   0.5314
+  ],
+  "difference": -0.035,
+  "difference_ci95": [
+   -0.1078,
+   0.0385
+  ],
+  "discordant": [
+   25,
+   32
+  ],
+  "iterations_per_game": {
+   "challenger": 32722.14,
+   "opponent": 32810.5
+  },
+  "applies_per_game": {
+   "challenger": 381007.47,
+   "opponent": 381122.31
+  },
+  "text": "193/400 = 0.482 [0.434, 0.531]; paired difference -0.035 [-0.108, 0.038]; discordant 25/32; iterations per game 32722.1 vs 32810.5; applies per game 381007.5 vs 381122.3"
+ },
+ "result": {
+  "wins": 193,
+  "n": 400,
+  "rate": 0.4825,
+  "ci95": [
+   0.4339,
+   0.5314
+  ],
+  "draws": 0,
+  "mean_turns": 17.45,
+  "by_challenger_seat": {
+   "0": {
+    "wins": 108,
+    "n": 200,
+    "rate": 0.54,
+    "ci95": [
+     0.4708,
+     0.6077
+    ]
+   },
+   "1": {
+    "wins": 85,
+    "n": 200,
+    "rate": 0.425,
+    "ci95": [
+     0.3585,
+     0.4943
+    ]
+   }
+  },
+  "by_challenger_deck": {
+   "deck0": {
+    "wins": 26,
+    "n": 70,
+    "rate": 0.3714,
+    "ci95": [
+     0.2677,
+     0.4885
+    ]
+   },
+   "deck1": {
+    "wins": 36,
+    "n": 70,
+    "rate": 0.5143,
+    "ci95": [
+     0.3995,
+     0.6275
+    ]
+   },
+   "deck2": {
+    "wins": 29,
+    "n": 66,
+    "rate": 0.4394,
+    "ci95": [
+     0.3263,
+     0.5592
+    ]
+   },
+   "deck3": {
+    "wins": 29,
+    "n": 66,
+    "rate": 0.4394,
+    "ci95": [
+     0.3263,
+     0.5592
+    ]
+   },
+   "deck4": {
+    "wins": 33,
+    "n": 64,
+    "rate": 0.5156,
+    "ci95": [
+     0.3958,
+     0.6337
+    ]
+   },
+   "deck5": {
+    "wins": 40,
+    "n": 64,
+    "rate": 0.625,
+    "ci95": [
+     0.5025,
+     0.7333
+    ]
+   }
+  },
+  "draw_rate": 0.0,
+  "paired": {
+   "deals": 200,
+   "both": 83,
+   "challenger_only": 25,
+   "opponent_only": 32,
+   "neither": 60,
+   "difference": -0.035,
+   "ci95": [
+    -0.1078,
+    0.0385
+   ],
+   "bootstrap_ci95": [
+    -0.11,
+    0.035
+   ]
+  },
+  "play_draw": {
+   "challenger": {
+    "on_play": {
+     "wins": 108,
+     "n": 200,
+     "rate": 0.54,
+     "ci95": [
+      0.4708,
+      0.6077
+     ]
+    },
+    "on_draw": {
+     "wins": 85,
+     "n": 200,
+     "rate": 0.425,
+     "ci95": [
+      0.3585,
+      0.4943
+     ]
+    }
+   },
+   "opponent": {
+    "on_play": {
+     "wins": 115,
+     "n": 200,
+     "rate": 0.575,
+     "ci95": [
+      0.5057,
+      0.6415
+     ]
+    },
+    "on_draw": {
+     "wins": 92,
+     "n": 200,
+     "rate": 0.46,
+     "ci95": [
+      0.3923,
+      0.5292
+     ]
+    }
+   }
+  },
+  "effort": {
+   "challenger": {
+    "games": 400,
+    "decisions": 17574,
+    "searches": 15199,
+    "iterations": 13088855,
+    "applies_tree": 65853183,
+    "applies_rollout": 86549805,
+    "applies_aux": 0,
+    "worlds": 8080149,
+    "rollouts_capped": 0,
+    "iterations_per_game": 32722.14,
+    "applies_per_game": 381007.47
+   },
+   "opponent": {
+    "games": 400,
+    "decisions": 17601,
+    "searches": 15226,
+    "iterations": 13124201,
+    "applies_tree": 65983520,
+    "applies_rollout": 86465405,
+    "applies_aux": 0,
+    "worlds": 8127506,
+    "rollouts_capped": 0,
+    "iterations_per_game": 32810.5,
+    "applies_per_game": 381122.31
+   }
+  },
+  "stratified": {
+   "pairs": 15,
+   "rate": 0.4825,
+   "ci95": [
+    0.4342,
+    0.5308
+   ]
+  }
+ },
+ "held_out": null,
+ "by_pair": [
+  {
+   "decks": [
+    "blue-white-federation",
+    "purple-white-tekkadan"
+   ],
+   "position": 0,
+   "held_out": false,
+   "master": 15754974309492268819,
+   "result": {
+    "wins": 14,
+    "n": 28,
+    "rate": 0.5,
+    "ci95": [
+     0.3263,
+     0.6737
+    ],
+    "draws": 0,
+    "mean_turns": 18.5,
+    "by_challenger_seat": {
+     "0": {
+      "wins": 8,
+      "n": 14,
+      "rate": 0.5714,
+      "ci95": [
+       0.3259,
+       0.7862
+      ]
+     },
+     "1": {
+      "wins": 6,
+      "n": 14,
+      "rate": 0.4286,
+      "ci95": [
+       0.2138,
+       0.6741
+      ]
+     }
+    },
+    "by_challenger_deck": {
+     "deck0": {
+      "wins": 6,
+      "n": 14,
+      "rate": 0.4286,
+      "ci95": [
+       0.2138,
+       0.6741
+      ]
+     },
+     "deck1": {
+      "wins": 8,
+      "n": 14,
+      "rate": 0.5714,
+      "ci95": [
+       0.3259,
+       0.7862
+      ]
+     }
+    },
+    "draw_rate": 0.0,
+    "paired": {
+     "deals": 14,
+     "both": 5,
+     "challenger_only": 3,
+     "opponent_only": 3,
+     "neither": 3,
+     "difference": 0.0,
+     "ci95": [
+      -0.3053,
+      0.3053
+     ],
+     "bootstrap_ci95": [
+      -0.3571,
+      0.3571
+     ]
+    },
+    "play_draw": {
+     "challenger": {
+      "on_play": {
+       "wins": 8,
+       "n": 14,
+       "rate": 0.5714,
+       "ci95": [
+        0.3259,
+        0.7862
+       ]
+      },
+      "on_draw": {
+       "wins": 6,
+       "n": 14,
+       "rate": 0.4286,
+       "ci95": [
+        0.2138,
+        0.6741
+       ]
+      }
+     },
+     "opponent": {
+      "on_play": {
+       "wins": 8,
+       "n": 14,
+       "rate": 0.5714,
+       "ci95": [
+        0.3259,
+        0.7862
+       ]
+      },
+      "on_draw": {
+       "wins": 6,
+       "n": 14,
+       "rate": 0.4286,
+       "ci95": [
+        0.2138,
+        0.6741
+       ]
+      }
+     }
+    },
+    "effort": {
+     "challenger": {
+      "games": 28,
+      "decisions": 1424,
+      "searches": 1275,
+      "iterations": 1103523,
+      "applies_tree": 5637852,
+      "applies_rollout": 7883281,
+      "applies_aux": 0,
+      "worlds": 696239,
+      "rollouts_capped": 0,
+      "iterations_per_game": 39411.54,
+      "applies_per_game": 482897.61
+     },
+     "opponent": {
+      "games": 28,
+      "decisions": 1424,
+      "searches": 1277,
+      "iterations": 1068811,
+      "applies_tree": 5372224,
+      "applies_rollout": 7710870,
+      "applies_aux": 0,
+      "worlds": 667557,
+      "rollouts_capped": 0,
+      "iterations_per_game": 38171.82,
+      "applies_per_game": 467253.36
+     }
+    }
+   }
+  },
+  {
+   "decks": [
+    "blue-white-federation",
+    "red-green-zeon"
+   ],
+   "position": 1,
+   "held_out": false,
+   "master": 15119857492761780855,
+   "result": {
+    "wins": 12,
+    "n": 28,
+    "rate": 0.4286,
+    "ci95": [
+     0.2651,
+     0.6093
+    ],
+    "draws": 0,
+    "mean_turns": 17.29,
+    "by_challenger_seat": {
+     "0": {
+      "wins": 7,
+      "n": 14,
+      "rate": 0.5,
+      "ci95": [
+       0.268,
+       0.732
+      ]
+     },
+     "1": {
+      "wins": 5,
+      "n": 14,
+      "rate": 0.3571,
+      "ci95": [
+       0.1634,
+       0.6124
+      ]
+     }
+    },
+    "by_challenger_deck": {
+     "deck0": {
+      "wins": 4,
+      "n": 14,
+      "rate": 0.2857,
+      "ci95": [
+       0.1172,
+       0.5465
+      ]
+     },
+     "deck1": {
+      "wins": 8,
+      "n": 14,
+      "rate": 0.5714,
+      "ci95": [
+       0.3259,
+       0.7862
+      ]
+     }
+    },
+    "draw_rate": 0.0,
+    "paired": {
+     "deals": 14,
+     "both": 7,
+     "challenger_only": 0,
+     "opponent_only": 2,
+     "neither": 5,
+     "difference": -0.1429,
+     "ci95": [
+      -0.2989,
+      0.0323
+     ],
+     "bootstrap_ci95": [
+      -0.3571,
+      0.0
+     ]
+    },
+    "play_draw": {
+     "challenger": {
+      "on_play": {
+       "wins": 7,
+       "n": 14,
+       "rate": 0.5,
+       "ci95": [
+        0.268,
+        0.732
+       ]
+      },
+      "on_draw": {
+       "wins": 5,
+       "n": 14,
+       "rate": 0.3571,
+       "ci95": [
+        0.1634,
+        0.6124
+       ]
+      }
+     },
+     "opponent": {
+      "on_play": {
+       "wins": 9,
+       "n": 14,
+       "rate": 0.6429,
+       "ci95": [
+        0.3876,
+        0.8366
+       ]
+      },
+      "on_draw": {
+       "wins": 7,
+       "n": 14,
+       "rate": 0.5,
+       "ci95": [
+        0.268,
+        0.732
+       ]
+      }
+     }
+    },
+    "effort": {
+     "challenger": {
+      "games": 28,
+      "decisions": 1181,
+      "searches": 1002,
+      "iterations": 765571,
+      "applies_tree": 3839303,
+      "applies_rollout": 4226843,
+      "applies_aux": 0,
+      "worlds": 485920,
+      "rollouts_capped": 0,
+      "iterations_per_game": 27341.82,
+      "applies_per_game": 288076.64
+     },
+     "opponent": {
+      "games": 28,
+      "decisions": 1178,
+      "searches": 991,
+      "iterations": 792983,
+      "applies_tree": 4031335,
+      "applies_rollout": 4331641,
+      "applies_aux": 0,
+      "worlds": 510579,
+      "rollouts_capped": 0,
+      "iterations_per_game": 28320.82,
+      "applies_per_game": 298677.71
+     }
+    }
+   }
+  },
+  {
+   "decks": [
+    "blue-white-federation",
+    "blue-green-ramp"
+   ],
+   "position": 2,
+   "held_out": false,
+   "master": 3580380042813491737,
+   "result": {
+    "wins": 12,
+    "n": 28,
+    "rate": 0.4286,
+    "ci95": [
+     0.2651,
+     0.6093
+    ],
+    "draws": 0,
+    "mean_turns": 18.86,
+    "by_challenger_seat": {
+     "0": {
+      "wins": 6,
+      "n": 14,
+      "rate": 0.4286,
+      "ci95": [
+       0.2138,
+       0.6741
+      ]
+     },
+     "1": {
+      "wins": 6,
+      "n": 14,
+      "rate": 0.4286,
+      "ci95": [
+       0.2138,
+       0.6741
+      ]
+     }
+    },
+    "by_challenger_deck": {
+     "deck0": {
+      "wins": 6,
+      "n": 14,
+      "rate": 0.4286,
+      "ci95": [
+       0.2138,
+       0.6741
+      ]
+     },
+     "deck1": {
+      "wins": 6,
+      "n": 14,
+      "rate": 0.4286,
+      "ci95": [
+       0.2138,
+       0.6741
+      ]
+     }
+    },
+    "draw_rate": 0.0,
+    "paired": {
+     "deals": 14,
+     "both": 4,
+     "challenger_only": 2,
+     "opponent_only": 4,
+     "neither": 4,
+     "difference": -0.1429,
+     "ci95": [
+      -0.4201,
+      0.1741
+     ],
+     "bootstrap_ci95": [
+      -0.5,
+      0.2143
+     ]
+    },
+    "play_draw": {
+     "challenger": {
+      "on_play": {
+       "wins": 6,
+       "n": 14,
+       "rate": 0.4286,
+       "ci95": [
+        0.2138,
+        0.6741
+       ]
+      },
+      "on_draw": {
+       "wins": 6,
+       "n": 14,
+       "rate": 0.4286,
+       "ci95": [
+        0.2138,
+        0.6741
+       ]
+      }
+     },
+     "opponent": {
+      "on_play": {
+       "wins": 8,
+       "n": 14,
+       "rate": 0.5714,
+       "ci95": [
+        0.3259,
+        0.7862
+       ]
+      },
+      "on_draw": {
+       "wins": 8,
+       "n": 14,
+       "rate": 0.5714,
+       "ci95": [
+        0.3259,
+        0.7862
+       ]
+      }
+     }
+    },
+    "effort": {
+     "challenger": {
+      "games": 28,
+      "decisions": 1278,
+      "searches": 1093,
+      "iterations": 842423,
+      "applies_tree": 4174879,
+      "applies_rollout": 5008073,
+      "applies_aux": 0,
+      "worlds": 522741,
+      "rollouts_capped": 0,
+      "iterations_per_game": 30086.54,
+      "applies_per_game": 327962.57
+     },
+     "opponent": {
+      "games": 28,
+      "decisions": 1297,
+      "searches": 1108,
+      "iterations": 864592,
+      "applies_tree": 4461905,
+      "applies_rollout": 5365649,
+      "applies_aux": 0,
+      "worlds": 549217,
+      "rollouts_capped": 0,
+      "iterations_per_game": 30878.29,
+      "applies_per_game": 350984.07
+     }
+    }
+   }
+  },
+  {
+   "decks": [
+    "blue-white-federation",
+    "purple-blue-swarm"
+   ],
+   "position": 5,
+   "held_out": false,
+   "master": 9899221758943603896,
+   "result": {
+    "wins": 11,
+    "n": 28,
+    "rate": 0.3929,
+    "ci95": [
+     0.2357,
+     0.5759
+    ],
+    "draws": 0,
+    "mean_turns": 17.75,
+    "by_challenger_seat": {
+     "0": {
+      "wins": 6,
+      "n": 14,
+      "rate": 0.4286,
+      "ci95": [
+       0.2138,
+       0.6741
+      ]
+     },
+     "1": {
+      "wins": 5,
+      "n": 14,
+      "rate": 0.3571,
+      "ci95": [
+       0.1634,
+       0.6124
+      ]
+     }
+    },
+    "by_challenger_deck": {
+     "deck0": {
+      "wins": 4,
+      "n": 14,
+      "rate": 0.2857,
+      "ci95": [
+       0.1172,
+       0.5465
+      ]
+     },
+     "deck1": {
+      "wins": 7,
+      "n": 14,
+      "rate": 0.5,
+      "ci95": [
+       0.268,
+       0.732
+      ]
+     }
+    },
+    "draw_rate": 0.0,
+    "paired": {
+     "deals": 14,
+     "both": 6,
+     "challenger_only": 0,
+     "opponent_only": 3,
+     "neither": 5,
+     "difference": -0.2143,
+     "ci95": [
+      -0.3873,
+      -0.0033
+     ],
+     "bootstrap_ci95": [
+      -0.4286,
+      0.0
+     ]
+    },
+    "play_draw": {
+     "challenger": {
+      "on_play": {
+       "wins": 6,
+       "n": 14,
+       "rate": 0.4286,
+       "ci95": [
+        0.2138,
+        0.6741
+       ]
+      },
+      "on_draw": {
+       "wins": 5,
+       "n": 14,
+       "rate": 0.3571,
+       "ci95": [
+        0.1634,
+        0.6124
+       ]
+      }
+     },
+     "opponent": {
+      "on_play": {
+       "wins": 9,
+       "n": 14,
+       "rate": 0.6429,
+       "ci95": [
+        0.3876,
+        0.8366
+       ]
+      },
+      "on_draw": {
+       "wins": 8,
+       "n": 14,
+       "rate": 0.5714,
+       "ci95": [
+        0.3259,
+        0.7862
+       ]
+      }
+     }
+    },
+    "effort": {
+     "challenger": {
+      "games": 28,
+      "decisions": 1348,
+      "searches": 1163,
+      "iterations": 1138828,
+      "applies_tree": 5466470,
+      "applies_rollout": 8697604,
+      "applies_aux": 0,
+      "worlds": 603259,
+      "rollouts_capped": 0,
+      "iterations_per_game": 40672.43,
+      "applies_per_game": 505859.79
+     },
+     "opponent": {
+      "games": 28,
+      "decisions": 1378,
+      "searches": 1203,
+      "iterations": 1226052,
+      "applies_tree": 5768475,
+      "applies_rollout": 9191292,
+      "applies_aux": 0,
+      "worlds": 625798,
+      "rollouts_capped": 0,
+      "iterations_per_game": 43787.57,
+      "applies_per_game": 534277.39
+     }
+    }
+   }
+  },
+  {
+   "decks": [
+    "blue-white-federation",
+    "red-purple-control"
+   ],
+   "position": 6,
+   "held_out": false,
+   "master": 7951441779597145359,
+   "result": {
+    "wins": 14,
+    "n": 28,
+    "rate": 0.5,
+    "ci95": [
+     0.3263,
+     0.6737
+    ],
+    "draws": 0,
+    "mean_turns": 20.21,
+    "by_challenger_seat": {
+     "0": {
+      "wins": 12,
+      "n": 14,
+      "rate": 0.8571,
+      "ci95": [
+       0.6006,
+       0.9599
+      ]
+     },
+     "1": {
+      "wins": 2,
+      "n": 14,
+      "rate": 0.1429,
+      "ci95": [
+       0.0401,
+       0.3994
+      ]
+     }
+    },
+    "by_challenger_deck": {
+     "deck0": {
+      "wins": 6,
+      "n": 14,
+      "rate": 0.4286,
+      "ci95": [
+       0.2138,
+       0.6741
+      ]
+     },
+     "deck1": {
+      "wins": 8,
+      "n": 14,
+      "rate": 0.5714,
+      "ci95": [
+       0.3259,
+       0.7862
+      ]
+     }
+    },
+    "draw_rate": 0.0,
+    "paired": {
+     "deals": 14,
+     "both": 11,
+     "challenger_only": 1,
+     "opponent_only": 1,
+     "neither": 1,
+     "difference": 0.0,
+     "ci95": [
+      -0.2333,
+      0.2333
+     ],
+     "bootstrap_ci95": [
+      -0.2143,
+      0.2143
+     ]
+    },
+    "play_draw": {
+     "challenger": {
+      "on_play": {
+       "wins": 12,
+       "n": 14,
+       "rate": 0.8571,
+       "ci95": [
+        0.6006,
+        0.9599
+       ]
+      },
+      "on_draw": {
+       "wins": 2,
+       "n": 14,
+       "rate": 0.1429,
+       "ci95": [
+        0.0401,
+        0.3994
+       ]
+      }
+     },
+     "opponent": {
+      "on_play": {
+       "wins": 12,
+       "n": 14,
+       "rate": 0.8571,
+       "ci95": [
+        0.6006,
+        0.9599
+       ]
+      },
+      "on_draw": {
+       "wins": 2,
+       "n": 14,
+       "rate": 0.1429,
+       "ci95": [
+        0.0401,
+        0.3994
+       ]
+      }
+     }
+    },
+    "effort": {
+     "challenger": {
+      "games": 28,
+      "decisions": 1311,
+      "searches": 1134,
+      "iterations": 901030,
+      "applies_tree": 4395688,
+      "applies_rollout": 5596186,
+      "applies_aux": 0,
+      "worlds": 559657,
+      "rollouts_capped": 0,
+      "iterations_per_game": 32179.64,
+      "applies_per_game": 356852.64
+     },
+     "opponent": {
+      "games": 28,
+      "decisions": 1322,
+      "searches": 1134,
+      "iterations": 877856,
+      "applies_tree": 4339296,
+      "applies_rollout": 5338747,
+      "applies_aux": 0,
+      "worlds": 568279,
+      "rollouts_capped": 0,
+      "iterations_per_game": 31352.0,
+      "applies_per_game": 345644.39
+     }
+    }
+   }
+  },
+  {
+   "decks": [
+    "purple-white-tekkadan",
+    "red-green-zeon"
+   ],
+   "position": 7,
+   "held_out": false,
+   "master": 18054602380401310990,
+   "result": {
+    "wins": 14,
+    "n": 28,
+    "rate": 0.5,
+    "ci95": [
+     0.3263,
+     0.6737
+    ],
+    "draws": 0,
+    "mean_turns": 15.43,
+    "by_challenger_seat": {
+     "0": {
+      "wins": 8,
+      "n": 14,
+      "rate": 0.5714,
+      "ci95": [
+       0.3259,
+       0.7862
+      ]
+     },
+     "1": {
+      "wins": 6,
+      "n": 14,
+      "rate": 0.4286,
+      "ci95": [
+       0.2138,
+       0.6741
+      ]
+     }
+    },
+    "by_challenger_deck": {
+     "deck0": {
+      "wins": 7,
+      "n": 14,
+      "rate": 0.5,
+      "ci95": [
+       0.268,
+       0.732
+      ]
+     },
+     "deck1": {
+      "wins": 7,
+      "n": 14,
+      "rate": 0.5,
+      "ci95": [
+       0.268,
+       0.732
+      ]
+     }
+    },
+    "draw_rate": 0.0,
+    "paired": {
+     "deals": 14,
+     "both": 6,
+     "challenger_only": 2,
+     "opponent_only": 2,
+     "neither": 4,
+     "difference": 0.0,
+     "ci95": [
+      -0.2499,
+      0.2499
+     ],
+     "bootstrap_ci95": [
+      -0.2857,
+      0.2857
+     ]
+    },
+    "play_draw": {
+     "challenger": {
+      "on_play": {
+       "wins": 8,
+       "n": 14,
+       "rate": 0.5714,
+       "ci95": [
+        0.3259,
+        0.7862
+       ]
+      },
+      "on_draw": {
+       "wins": 6,
+       "n": 14,
+       "rate": 0.4286,
+       "ci95": [
+        0.2138,
+        0.6741
+       ]
+      }
+     },
+     "opponent": {
+      "on_play": {
+       "wins": 8,
+       "n": 14,
+       "rate": 0.5714,
+       "ci95": [
+        0.3259,
+        0.7862
+       ]
+      },
+      "on_draw": {
+       "wins": 6,
+       "n": 14,
+       "rate": 0.4286,
+       "ci95": [
+        0.2138,
+        0.6741
+       ]
+      }
+     }
+    },
+    "effort": {
+     "challenger": {
+      "games": 28,
+      "decisions": 1122,
+      "searches": 981,
+      "iterations": 895525,
+      "applies_tree": 4505458,
+      "applies_rollout": 5728699,
+      "applies_aux": 0,
+      "worlds": 550020,
+      "rollouts_capped": 0,
+      "iterations_per_game": 31983.04,
+      "applies_per_game": 365505.61
+     },
+     "opponent": {
+      "games": 28,
+      "decisions": 1124,
+      "searches": 971,
+      "iterations": 850898,
+      "applies_tree": 4344628,
+      "applies_rollout": 5498879,
+      "applies_aux": 0,
+      "worlds": 527251,
+      "rollouts_capped": 0,
+      "iterations_per_game": 30389.21,
+      "applies_per_game": 351553.82
+     }
+    }
+   }
+  },
+  {
+   "decks": [
+    "purple-white-tekkadan",
+    "blue-green-ramp"
+   ],
+   "position": 8,
+   "held_out": false,
+   "master": 5712580697204869812,
+   "result": {
+    "wins": 17,
+    "n": 28,
+    "rate": 0.6071,
+    "ci95": [
+     0.4241,
+     0.7643
+    ],
+    "draws": 0,
+    "mean_turns": 16.25,
+    "by_challenger_seat": {
+     "0": {
+      "wins": 9,
+      "n": 14,
+      "rate": 0.6429,
+      "ci95": [
+       0.3876,
+       0.8366
+      ]
+     },
+     "1": {
+      "wins": 8,
+      "n": 14,
+      "rate": 0.5714,
+      "ci95": [
+       0.3259,
+       0.7862
+      ]
+     }
+    },
+    "by_challenger_deck": {
+     "deck0": {
+      "wins": 10,
+      "n": 14,
+      "rate": 0.7143,
+      "ci95": [
+       0.4535,
+       0.8828
+      ]
+     },
+     "deck1": {
+      "wins": 7,
+      "n": 14,
+      "rate": 0.5,
+      "ci95": [
+       0.268,
+       0.732
+      ]
+     }
+    },
+    "draw_rate": 0.0,
+    "paired": {
+     "deals": 14,
+     "both": 6,
+     "challenger_only": 3,
+     "opponent_only": 0,
+     "neither": 5,
+     "difference": 0.2143,
+     "ci95": [
+      0.0033,
+      0.3873
+     ],
+     "bootstrap_ci95": [
+      0.0,
+      0.4286
+     ]
+    },
+    "play_draw": {
+     "challenger": {
+      "on_play": {
+       "wins": 9,
+       "n": 14,
+       "rate": 0.6429,
+       "ci95": [
+        0.3876,
+        0.8366
+       ]
+      },
+      "on_draw": {
+       "wins": 8,
+       "n": 14,
+       "rate": 0.5714,
+       "ci95": [
+        0.3259,
+        0.7862
+       ]
+      }
+     },
+     "opponent": {
+      "on_play": {
+       "wins": 6,
+       "n": 14,
+       "rate": 0.4286,
+       "ci95": [
+        0.2138,
+        0.6741
+       ]
+      },
+      "on_draw": {
+       "wins": 5,
+       "n": 14,
+       "rate": 0.3571,
+       "ci95": [
+        0.1634,
+        0.6124
+       ]
+      }
+     }
+    },
+    "effort": {
+     "challenger": {
+      "games": 28,
+      "decisions": 1177,
+      "searches": 1017,
+      "iterations": 924893,
+      "applies_tree": 4724123,
+      "applies_rollout": 6923990,
+      "applies_aux": 0,
+      "worlds": 569436,
+      "rollouts_capped": 0,
+      "iterations_per_game": 33031.89,
+      "applies_per_game": 416004.04
+     },
+     "opponent": {
+      "games": 28,
+      "decisions": 1156,
+      "searches": 999,
+      "iterations": 894191,
+      "applies_tree": 4619081,
+      "applies_rollout": 6708528,
+      "applies_aux": 0,
+      "worlds": 552976,
+      "rollouts_capped": 0,
+      "iterations_per_game": 31935.39,
+      "applies_per_game": 404557.46
+     }
+    }
+   }
+  },
+  {
+   "decks": [
+    "purple-white-tekkadan",
+    "purple-blue-swarm"
+   ],
+   "position": 11,
+   "held_out": false,
+   "master": 14185085980223603308,
+   "result": {
+    "wins": 13,
+    "n": 28,
+    "rate": 0.4643,
+    "ci95": [
+     0.2953,
+     0.6419
+    ],
+    "draws": 0,
+    "mean_turns": 14.61,
+    "by_challenger_seat": {
+     "0": {
+      "wins": 7,
+      "n": 14,
+      "rate": 0.5,
+      "ci95": [
+       0.268,
+       0.732
+      ]
+     },
+     "1": {
+      "wins": 6,
+      "n": 14,
+      "rate": 0.4286,
+      "ci95": [
+       0.2138,
+       0.6741
+      ]
+     }
+    },
+    "by_challenger_deck": {
+     "deck0": {
+      "wins": 4,
+      "n": 14,
+      "rate": 0.2857,
+      "ci95": [
+       0.1172,
+       0.5465
+      ]
+     },
+     "deck1": {
+      "wins": 9,
+      "n": 14,
+      "rate": 0.6429,
+      "ci95": [
+       0.3876,
+       0.8366
+      ]
+     }
+    },
+    "draw_rate": 0.0,
+    "paired": {
+     "deals": 14,
+     "both": 5,
+     "challenger_only": 2,
+     "opponent_only": 3,
+     "neither": 4,
+     "difference": -0.0714,
+     "ci95": [
+      -0.3382,
+      0.2136
+     ],
+     "bootstrap_ci95": [
+      -0.3571,
+      0.2143
+     ]
+    },
+    "play_draw": {
+     "challenger": {
+      "on_play": {
+       "wins": 7,
+       "n": 14,
+       "rate": 0.5,
+       "ci95": [
+        0.268,
+        0.732
+       ]
+      },
+      "on_draw": {
+       "wins": 6,
+       "n": 14,
+       "rate": 0.4286,
+       "ci95": [
+        0.2138,
+        0.6741
+       ]
+      }
+     },
+     "opponent": {
+      "on_play": {
+       "wins": 8,
+       "n": 14,
+       "rate": 0.5714,
+       "ci95": [
+        0.3259,
+        0.7862
+       ]
+      },
+      "on_draw": {
+       "wins": 7,
+       "n": 14,
+       "rate": 0.5,
+       "ci95": [
+        0.268,
+        0.732
+       ]
+      }
+     }
+    },
+    "effort": {
+     "challenger": {
+      "games": 28,
+      "decisions": 1139,
+      "searches": 987,
+      "iterations": 991321,
+      "applies_tree": 5053445,
+      "applies_rollout": 7727079,
+      "applies_aux": 0,
+      "worlds": 579777,
+      "rollouts_capped": 0,
+      "iterations_per_game": 35404.32,
+      "applies_per_game": 456447.29
+     },
+     "opponent": {
+      "games": 28,
+      "decisions": 1126,
+      "searches": 980,
+      "iterations": 963361,
+      "applies_tree": 4842232,
+      "applies_rollout": 7191775,
+      "applies_aux": 0,
+      "worlds": 580321,
+      "rollouts_capped": 0,
+      "iterations_per_game": 34405.75,
+      "applies_per_game": 429785.96
+     }
+    }
+   }
+  },
+  {
+   "decks": [
+    "purple-white-tekkadan",
+    "red-purple-control"
+   ],
+   "position": 12,
+   "held_out": false,
+   "master": 8624328795024677305,
+   "result": {
+    "wins": 18,
+    "n": 28,
+    "rate": 0.6429,
+    "ci95": [
+     0.4583,
+     0.7929
+    ],
+    "draws": 0,
+    "mean_turns": 20.07,
+    "by_challenger_seat": {
+     "0": {
+      "wins": 6,
+      "n": 14,
+      "rate": 0.4286,
+      "ci95": [
+       0.2138,
+       0.6741
+      ]
+     },
+     "1": {
+      "wins": 12,
+      "n": 14,
+      "rate": 0.8571,
+      "ci95": [
+       0.6006,
+       0.9599
+      ]
+     }
+    },
+    "by_challenger_deck": {
+     "deck0": {
+      "wins": 7,
+      "n": 14,
+      "rate": 0.5,
+      "ci95": [
+       0.268,
+       0.732
+      ]
+     },
+     "deck1": {
+      "wins": 11,
+      "n": 14,
+      "rate": 0.7857,
+      "ci95": [
+       0.5241,
+       0.9243
+      ]
+     }
+    },
+    "draw_rate": 0.0,
+    "paired": {
+     "deals": 14,
+     "both": 2,
+     "challenger_only": 4,
+     "opponent_only": 0,
+     "neither": 8,
+     "difference": 0.2857,
+     "ci95": [
+      0.0408,
+      0.5026
+     ],
+     "bootstrap_ci95": [
+      0.0714,
+      0.5714
+     ]
+    },
+    "play_draw": {
+     "challenger": {
+      "on_play": {
+       "wins": 6,
+       "n": 14,
+       "rate": 0.4286,
+       "ci95": [
+        0.2138,
+        0.6741
+       ]
+      },
+      "on_draw": {
+       "wins": 12,
+       "n": 14,
+       "rate": 0.8571,
+       "ci95": [
+        0.6006,
+        0.9599
+       ]
+      }
+     },
+     "opponent": {
+      "on_play": {
+       "wins": 2,
+       "n": 14,
+       "rate": 0.1429,
+       "ci95": [
+        0.0401,
+        0.3994
+       ]
+      },
+      "on_draw": {
+       "wins": 8,
+       "n": 14,
+       "rate": 0.5714,
+       "ci95": [
+        0.3259,
+        0.7862
+       ]
+      }
+     }
+    },
+    "effort": {
+     "challenger": {
+      "games": 28,
+      "decisions": 1403,
+      "searches": 1259,
+      "iterations": 1042692,
+      "applies_tree": 5288257,
+      "applies_rollout": 7215883,
+      "applies_aux": 0,
+      "worlds": 680595,
+      "rollouts_capped": 0,
+      "iterations_per_game": 37239.0,
+      "applies_per_game": 446576.43
+     },
+     "opponent": {
+      "games": 28,
+      "decisions": 1429,
+      "searches": 1285,
+      "iterations": 1057616,
+      "applies_tree": 5466478,
+      "applies_rollout": 7698804,
+      "applies_aux": 0,
+      "worlds": 708458,
+      "rollouts_capped": 0,
+      "iterations_per_game": 37772.0,
+      "applies_per_game": 470188.64
+     }
+    }
+   }
+  },
+  {
+   "decks": [
+    "red-green-zeon",
+    "blue-green-ramp"
+   ],
+   "position": 13,
+   "held_out": false,
+   "master": 8170006052597970895,
+   "result": {
+    "wins": 14,
+    "n": 28,
+    "rate": 0.5,
+    "ci95": [
+     0.3263,
+     0.6737
+    ],
+    "draws": 0,
+    "mean_turns": 15.86,
+    "by_challenger_seat": {
+     "0": {
+      "wins": 7,
+      "n": 14,
+      "rate": 0.5,
+      "ci95": [
+       0.268,
+       0.732
+      ]
+     },
+     "1": {
+      "wins": 7,
+      "n": 14,
+      "rate": 0.5,
+      "ci95": [
+       0.268,
+       0.732
+      ]
+     }
+    },
+    "by_challenger_deck": {
+     "deck0": {
+      "wins": 6,
+      "n": 14,
+      "rate": 0.4286,
+      "ci95": [
+       0.2138,
+       0.6741
+      ]
+     },
+     "deck1": {
+      "wins": 8,
+      "n": 14,
+      "rate": 0.5714,
+      "ci95": [
+       0.3259,
+       0.7862
+      ]
+     }
+    },
+    "draw_rate": 0.0,
+    "paired": {
+     "deals": 14,
+     "both": 6,
+     "challenger_only": 1,
+     "opponent_only": 1,
+     "neither": 6,
+     "difference": 0.0,
+     "ci95": [
+      -0.1754,
+      0.1754
+     ],
+     "bootstrap_ci95": [
+      -0.2143,
+      0.2143
+     ]
+    },
+    "play_draw": {
+     "challenger": {
+      "on_play": {
+       "wins": 7,
+       "n": 14,
+       "rate": 0.5,
+       "ci95": [
+        0.268,
+        0.732
+       ]
+      },
+      "on_draw": {
+       "wins": 7,
+       "n": 14,
+       "rate": 0.5,
+       "ci95": [
+        0.268,
+        0.732
+       ]
+      }
+     },
+     "opponent": {
+      "on_play": {
+       "wins": 7,
+       "n": 14,
+       "rate": 0.5,
+       "ci95": [
+        0.268,
+        0.732
+       ]
+      },
+      "on_draw": {
+       "wins": 7,
+       "n": 14,
+       "rate": 0.5,
+       "ci95": [
+        0.268,
+        0.732
+       ]
+      }
+     }
+    },
+    "effort": {
+     "challenger": {
+      "games": 28,
+      "decisions": 1075,
+      "searches": 911,
+      "iterations": 770449,
+      "applies_tree": 3845568,
+      "applies_rollout": 4989878,
+      "applies_aux": 0,
+      "worlds": 488825,
+      "rollouts_capped": 0,
+      "iterations_per_game": 27516.04,
+      "applies_per_game": 315551.64
+     },
+     "opponent": {
+      "games": 28,
+      "decisions": 1089,
+      "searches": 934,
+      "iterations": 829839,
+      "applies_tree": 4047268,
+      "applies_rollout": 4927902,
+      "applies_aux": 0,
+      "worlds": 495109,
+      "rollouts_capped": 0,
+      "iterations_per_game": 29637.11,
+      "applies_per_game": 320541.79
+     }
+    }
+   }
+  },
+  {
+   "decks": [
+    "red-green-zeon",
+    "purple-blue-swarm"
+   ],
+   "position": 16,
+   "held_out": false,
+   "master": 9619859231330464860,
+   "result": {
+    "wins": 10,
+    "n": 24,
+    "rate": 0.4167,
+    "ci95": [
+     0.2447,
+     0.6117
+    ],
+    "draws": 0,
+    "mean_turns": 13.83,
+    "by_challenger_seat": {
+     "0": {
+      "wins": 5,
+      "n": 12,
+      "rate": 0.4167,
+      "ci95": [
+       0.1933,
+       0.6805
+      ]
+     },
+     "1": {
+      "wins": 5,
+      "n": 12,
+      "rate": 0.4167,
+      "ci95": [
+       0.1933,
+       0.6805
+      ]
+     }
+    },
+    "by_challenger_deck": {
+     "deck0": {
+      "wins": 6,
+      "n": 12,
+      "rate": 0.5,
+      "ci95": [
+       0.2538,
+       0.7462
+      ]
+     },
+     "deck1": {
+      "wins": 4,
+      "n": 12,
+      "rate": 0.3333,
+      "ci95": [
+       0.1381,
+       0.6094
+      ]
+     }
+    },
+    "draw_rate": 0.0,
+    "paired": {
+     "deals": 12,
+     "both": 3,
+     "challenger_only": 2,
+     "opponent_only": 4,
+     "neither": 3,
+     "difference": -0.1667,
+     "ci95": [
+      -0.4781,
+      0.2011
+     ],
+     "bootstrap_ci95": [
+      -0.5,
+      0.25
+     ]
+    },
+    "play_draw": {
+     "challenger": {
+      "on_play": {
+       "wins": 5,
+       "n": 12,
+       "rate": 0.4167,
+       "ci95": [
+        0.1933,
+        0.6805
+       ]
+      },
+      "on_draw": {
+       "wins": 5,
+       "n": 12,
+       "rate": 0.4167,
+       "ci95": [
+        0.1933,
+        0.6805
+       ]
+      }
+     },
+     "opponent": {
+      "on_play": {
+       "wins": 7,
+       "n": 12,
+       "rate": 0.5833,
+       "ci95": [
+        0.3195,
+        0.8067
+       ]
+      },
+      "on_draw": {
+       "wins": 7,
+       "n": 12,
+       "rate": 0.5833,
+       "ci95": [
+        0.3195,
+        0.8067
+       ]
+      }
+     }
+    },
+    "effort": {
+     "challenger": {
+      "games": 24,
+      "decisions": 829,
+      "searches": 695,
+      "iterations": 628907,
+      "applies_tree": 3344267,
+      "applies_rollout": 3771805,
+      "applies_aux": 0,
+      "worlds": 425872,
+      "rollouts_capped": 0,
+      "iterations_per_game": 26204.46,
+      "applies_per_game": 296503.0
+     },
+     "opponent": {
+      "games": 24,
+      "decisions": 841,
+      "searches": 702,
+      "iterations": 660730,
+      "applies_tree": 3468411,
+      "applies_rollout": 3862114,
+      "applies_aux": 0,
+      "worlds": 444803,
+      "rollouts_capped": 0,
+      "iterations_per_game": 27530.42,
+      "applies_per_game": 305438.54
+     }
+    }
+   }
+  },
+  {
+   "decks": [
+    "red-green-zeon",
+    "red-purple-control"
+   ],
+   "position": 17,
+   "held_out": false,
+   "master": 12001561418896035983,
+   "result": {
+    "wins": 7,
+    "n": 24,
+    "rate": 0.2917,
+    "ci95": [
+     0.1491,
+     0.4917
+    ],
+    "draws": 0,
+    "mean_turns": 18.88,
+    "by_challenger_seat": {
+     "0": {
+      "wins": 4,
+      "n": 12,
+      "rate": 0.3333,
+      "ci95": [
+       0.1381,
+       0.6094
+      ]
+     },
+     "1": {
+      "wins": 3,
+      "n": 12,
+      "rate": 0.25,
+      "ci95": [
+       0.0889,
+       0.5323
+      ]
+     }
+    },
+    "by_challenger_deck": {
+     "deck0": {
+      "wins": 2,
+      "n": 12,
+      "rate": 0.1667,
+      "ci95": [
+       0.047,
+       0.448
+      ]
+     },
+     "deck1": {
+      "wins": 5,
+      "n": 12,
+      "rate": 0.4167,
+      "ci95": [
+       0.1933,
+       0.6805
+      ]
+     }
+    },
+    "draw_rate": 0.0,
+    "paired": {
+     "deals": 12,
+     "both": 4,
+     "challenger_only": 0,
+     "opponent_only": 5,
+     "neither": 3,
+     "difference": -0.4167,
+     "ci95": [
+      -0.6126,
+      -0.1129
+     ],
+     "bootstrap_ci95": [
+      -0.6667,
+      -0.1667
+     ]
+    },
+    "play_draw": {
+     "challenger": {
+      "on_play": {
+       "wins": 4,
+       "n": 12,
+       "rate": 0.3333,
+       "ci95": [
+        0.1381,
+        0.6094
+       ]
+      },
+      "on_draw": {
+       "wins": 3,
+       "n": 12,
+       "rate": 0.25,
+       "ci95": [
+        0.0889,
+        0.5323
+       ]
+      }
+     },
+     "opponent": {
+      "on_play": {
+       "wins": 9,
+       "n": 12,
+       "rate": 0.75,
+       "ci95": [
+        0.4677,
+        0.9111
+       ]
+      },
+      "on_draw": {
+       "wins": 8,
+       "n": 12,
+       "rate": 0.6667,
+       "ci95": [
+        0.3906,
+        0.8619
+       ]
+      }
+     }
+    },
+    "effort": {
+     "challenger": {
+      "games": 24,
+      "decisions": 1035,
+      "searches": 863,
+      "iterations": 714753,
+      "applies_tree": 3643089,
+      "applies_rollout": 4116313,
+      "applies_aux": 0,
+      "worlds": 445138,
+      "rollouts_capped": 0,
+      "iterations_per_game": 29781.38,
+      "applies_per_game": 323308.42
+     },
+     "opponent": {
+      "games": 24,
+      "decisions": 1056,
+      "searches": 902,
+      "iterations": 731776,
+      "applies_tree": 3631595,
+      "applies_rollout": 4035034,
+      "applies_aux": 0,
+      "worlds": 452490,
+      "rollouts_capped": 0,
+      "iterations_per_game": 30490.67,
+      "applies_per_game": 319442.88
+     }
+    }
+   }
+  },
+  {
+   "decks": [
+    "blue-green-ramp",
+    "purple-blue-swarm"
+   ],
+   "position": 20,
+   "held_out": false,
+   "master": 8599998516726568680,
+   "result": {
+    "wins": 12,
+    "n": 24,
+    "rate": 0.5,
+    "ci95": [
+     0.3143,
+     0.6857
+    ],
+    "draws": 0,
+    "mean_turns": 16.33,
+    "by_challenger_seat": {
+     "0": {
+      "wins": 8,
+      "n": 12,
+      "rate": 0.6667,
+      "ci95": [
+       0.3906,
+       0.8619
+      ]
+     },
+     "1": {
+      "wins": 4,
+      "n": 12,
+      "rate": 0.3333,
+      "ci95": [
+       0.1381,
+       0.6094
+      ]
+     }
+    },
+    "by_challenger_deck": {
+     "deck0": {
+      "wins": 4,
+      "n": 12,
+      "rate": 0.3333,
+      "ci95": [
+       0.1381,
+       0.6094
+      ]
+     },
+     "deck1": {
+      "wins": 8,
+      "n": 12,
+      "rate": 0.6667,
+      "ci95": [
+       0.3906,
+       0.8619
+      ]
+     }
+    },
+    "draw_rate": 0.0,
+    "paired": {
+     "deals": 12,
+     "both": 7,
+     "challenger_only": 1,
+     "opponent_only": 1,
+     "neither": 3,
+     "difference": 0.0,
+     "ci95": [
+      -0.2167,
+      0.2167
+     ],
+     "bootstrap_ci95": [
+      -0.25,
+      0.25
+     ]
+    },
+    "play_draw": {
+     "challenger": {
+      "on_play": {
+       "wins": 8,
+       "n": 12,
+       "rate": 0.6667,
+       "ci95": [
+        0.3906,
+        0.8619
+       ]
+      },
+      "on_draw": {
+       "wins": 4,
+       "n": 12,
+       "rate": 0.3333,
+       "ci95": [
+        0.1381,
+        0.6094
+       ]
+      }
+     },
+     "opponent": {
+      "on_play": {
+       "wins": 8,
+       "n": 12,
+       "rate": 0.6667,
+       "ci95": [
+        0.3906,
+        0.8619
+       ]
+      },
+      "on_draw": {
+       "wins": 4,
+       "n": 12,
+       "rate": 0.3333,
+       "ci95": [
+        0.1381,
+        0.6094
+       ]
+      }
+     }
+    },
+    "effort": {
+     "challenger": {
+      "games": 24,
+      "decisions": 1068,
+      "searches": 929,
+      "iterations": 812245,
+      "applies_tree": 4121959,
+      "applies_rollout": 5333845,
+      "applies_aux": 0,
+      "worlds": 496445,
+      "rollouts_capped": 0,
+      "iterations_per_game": 33843.54,
+      "applies_per_game": 393991.83
+     },
+     "opponent": {
+      "games": 24,
+      "decisions": 1029,
+      "searches": 888,
+      "iterations": 771658,
+      "applies_tree": 3909079,
+      "applies_rollout": 5027741,
+      "applies_aux": 0,
+      "worlds": 481520,
+      "rollouts_capped": 0,
+      "iterations_per_game": 32152.42,
+      "applies_per_game": 372367.5
+     }
+    }
+   }
+  },
+  {
+   "decks": [
+    "blue-green-ramp",
+    "red-purple-control"
+   ],
+   "position": 21,
+   "held_out": false,
+   "master": 2581200501134793754,
+   "result": {
+    "wins": 12,
+    "n": 24,
+    "rate": 0.5,
+    "ci95": [
+     0.3143,
+     0.6857
+    ],
+    "draws": 0,
+    "mean_turns": 18.5,
+    "by_challenger_seat": {
+     "0": {
+      "wins": 6,
+      "n": 12,
+      "rate": 0.5,
+      "ci95": [
+       0.2538,
+       0.7462
+      ]
+     },
+     "1": {
+      "wins": 6,
+      "n": 12,
+      "rate": 0.5,
+      "ci95": [
+       0.2538,
+       0.7462
+      ]
+     }
+    },
+    "by_challenger_deck": {
+     "deck0": {
+      "wins": 4,
+      "n": 12,
+      "rate": 0.3333,
+      "ci95": [
+       0.1381,
+       0.6094
+      ]
+     },
+     "deck1": {
+      "wins": 8,
+      "n": 12,
+      "rate": 0.6667,
+      "ci95": [
+       0.3906,
+       0.8619
+      ]
+     }
+    },
+    "draw_rate": 0.0,
+    "paired": {
+     "deals": 12,
+     "both": 5,
+     "challenger_only": 1,
+     "opponent_only": 1,
+     "neither": 5,
+     "difference": 0.0,
+     "ci95": [
+      -0.201,
+      0.201
+     ],
+     "bootstrap_ci95": [
+      -0.25,
+      0.25
+     ]
+    },
+    "play_draw": {
+     "challenger": {
+      "on_play": {
+       "wins": 6,
+       "n": 12,
+       "rate": 0.5,
+       "ci95": [
+        0.2538,
+        0.7462
+       ]
+      },
+      "on_draw": {
+       "wins": 6,
+       "n": 12,
+       "rate": 0.5,
+       "ci95": [
+        0.2538,
+        0.7462
+       ]
+      }
+     },
+     "opponent": {
+      "on_play": {
+       "wins": 6,
+       "n": 12,
+       "rate": 0.5,
+       "ci95": [
+        0.2538,
+        0.7462
+       ]
+      },
+      "on_draw": {
+       "wins": 6,
+       "n": 12,
+       "rate": 0.5,
+       "ci95": [
+        0.2538,
+        0.7462
+       ]
+      }
+     }
+    },
+    "effort": {
+     "challenger": {
+      "games": 24,
+      "decisions": 1039,
+      "searches": 895,
+      "iterations": 713548,
+      "applies_tree": 3575877,
+      "applies_rollout": 4164760,
+      "applies_aux": 0,
+      "worlds": 437776,
+      "rollouts_capped": 0,
+      "iterations_per_game": 29731.17,
+      "applies_per_game": 322526.54
+     },
+     "opponent": {
+      "games": 24,
+      "decisions": 1029,
+      "searches": 887,
+      "iterations": 736775,
+      "applies_tree": 3621465,
+      "applies_rollout": 4656280,
+      "applies_aux": 0,
+      "worlds": 445428,
+      "rollouts_capped": 0,
+      "iterations_per_game": 30698.96,
+      "applies_per_game": 344906.04
+     }
+    }
+   }
+  },
+  {
+   "decks": [
+    "purple-blue-swarm",
+    "red-purple-control"
+   ],
+   "position": 27,
+   "held_out": false,
+   "master": 3349762457489164894,
+   "result": {
+    "wins": 13,
+    "n": 24,
+    "rate": 0.5417,
+    "ci95": [
+     0.3507,
+     0.7211
+    ],
+    "draws": 0,
+    "mean_turns": 19.38,
+    "by_challenger_seat": {
+     "0": {
+      "wins": 9,
+      "n": 12,
+      "rate": 0.75,
+      "ci95": [
+       0.4677,
+       0.9111
+      ]
+     },
+     "1": {
+      "wins": 4,
+      "n": 12,
+      "rate": 0.3333,
+      "ci95": [
+       0.1381,
+       0.6094
+      ]
+     }
+    },
+    "by_challenger_deck": {
+     "deck0": {
+      "wins": 5,
+      "n": 12,
+      "rate": 0.4167,
+      "ci95": [
+       0.1933,
+       0.6805
+      ]
+     },
+     "deck1": {
+      "wins": 8,
+      "n": 12,
+      "rate": 0.6667,
+      "ci95": [
+       0.3906,
+       0.8619
+      ]
+     }
+    },
+    "draw_rate": 0.0,
+    "paired": {
+     "deals": 12,
+     "both": 6,
+     "challenger_only": 3,
+     "opponent_only": 2,
+     "neither": 1,
+     "difference": 0.0833,
+     "ci95": [
+      -0.2599,
+      0.4029
+     ],
+     "bootstrap_ci95": [
+      -0.25,
+      0.4167
+     ]
+    },
+    "play_draw": {
+     "challenger": {
+      "on_play": {
+       "wins": 9,
+       "n": 12,
+       "rate": 0.75,
+       "ci95": [
+        0.4677,
+        0.9111
+       ]
+      },
+      "on_draw": {
+       "wins": 4,
+       "n": 12,
+       "rate": 0.3333,
+       "ci95": [
+        0.1381,
+        0.6094
+       ]
+      }
+     },
+     "opponent": {
+      "on_play": {
+       "wins": 8,
+       "n": 12,
+       "rate": 0.6667,
+       "ci95": [
+        0.3906,
+        0.8619
+       ]
+      },
+      "on_draw": {
+       "wins": 3,
+       "n": 12,
+       "rate": 0.25,
+       "ci95": [
+        0.0889,
+        0.5323
+       ]
+      }
+     }
+    },
+    "effort": {
+     "challenger": {
+      "games": 24,
+      "decisions": 1145,
+      "searches": 995,
+      "iterations": 843147,
+      "applies_tree": 4236948,
+      "applies_rollout": 5165566,
+      "applies_aux": 0,
+      "worlds": 538449,
+      "rollouts_capped": 0,
+      "iterations_per_game": 35131.12,
+      "applies_per_game": 391771.42
+     },
+     "opponent": {
+      "games": 24,
+      "decisions": 1123,
+      "searches": 965,
+      "iterations": 797063,
+      "applies_tree": 4060048,
+      "applies_rollout": 4920149,
+      "applies_aux": 0,
+      "worlds": 517720,
+      "rollouts_capped": 0,
+      "iterations_per_game": 33210.96,
+      "applies_per_game": 374174.88
+     }
+    }
+   }
+  }
+ ],
+ "by_deck": [
+  {
+   "deck": "blue-white-federation",
+   "pairs": 5,
+   "result": {
+    "wins": 26,
+    "n": 70,
+    "rate": 0.3714,
+    "ci95": [
+     0.2677,
+     0.4885
+    ]
+   }
+  },
+  {
+   "deck": "purple-white-tekkadan",
+   "pairs": 5,
+   "result": {
+    "wins": 36,
+    "n": 70,
+    "rate": 0.5143,
+    "ci95": [
+     0.3995,
+     0.6275
+    ]
+   }
+  },
+  {
+   "deck": "red-green-zeon",
+   "pairs": 5,
+   "result": {
+    "wins": 29,
+    "n": 66,
+    "rate": 0.4394,
+    "ci95": [
+     0.3263,
+     0.5592
+    ]
+   }
+  },
+  {
+   "deck": "blue-green-ramp",
+   "pairs": 5,
+   "result": {
+    "wins": 29,
+    "n": 66,
+    "rate": 0.4394,
+    "ci95": [
+     0.3263,
+     0.5592
+    ]
+   }
+  },
+  {
+   "deck": "purple-blue-swarm",
+   "pairs": 5,
+   "result": {
+    "wins": 33,
+    "n": 64,
+    "rate": 0.5156,
+    "ci95": [
+     0.3958,
+     0.6337
+    ]
+   }
+  },
+  {
+   "deck": "red-purple-control",
+   "pairs": 5,
+   "result": {
+    "wins": 40,
+    "n": 64,
+    "rate": 0.625,
+    "ci95": [
+     0.5025,
+     0.7333
+    ]
+   }
+  }
+ ],
+ "unfinished": [],
+ "outcomes": [
+  [
+   0,
+   0,
+   0,
+   1,
+   16,
+   0,
+   93,
+   38837,
+   538304,
+   42167,
+   434388
+  ],
+  [
+   1,
+   0,
+   1,
+   0,
+   15,
+   0,
+   80,
+   30774,
+   389760,
+   31574,
+   396834
+  ],
+  [
+   2,
+   0,
+   0,
+   0,
+   19,
+   0,
+   102,
+   69198,
+   796929,
+   42410,
+   615323
+  ],
+  [
+   3,
+   0,
+   1,
+   0,
+   19,
+   0,
+   109,
+   30577,
+   387610,
+   54468,
+   632210
+  ],
+  [
+   4,
+   0,
+   0,
+   0,
+   19,
+   0,
+   92,
+   39038,
+   331860,
+   28997,
+   320455
+  ],
+  [
+   5,
+   0,
+   1,
+   1,
+   26,
+   0,
+   143,
+   56049,
+   669320,
+   26011,
+   281593
+  ],
+  [
+   6,
+   0,
+   0,
+   0,
+   23,
+   0,
+   113,
+   27410,
+   257435,
+   42136,
+   459876
+  ],
+  [
+   7,
+   0,
+   1,
+   1,
+   18,
+   0,
+   96,
+   32728,
+   387247,
+   27444,
+   274281
+  ],
+  [
+   8,
+   0,
+   0,
+   1,
+   20,
+   0,
+   112,
+   39164,
+   501058,
+   34291,
+   458440
+  ],
+  [
+   9,
+   0,
+   1,
+   1,
+   24,
+   0,
+   130,
+   31370,
+   427469,
+   43563,
+   592333
+  ],
+  [
+   10,
+   0,
+   0,
+   1,
+   14,
+   0,
+   80,
+   34697,
+   547511,
+   32354,
+   391582
+  ],
+  [
+   11,
+   0,
+   1,
+   1,
+   16,
+   0,
+   88,
+   42830,
+   550468,
+   48604,
+   722676
+  ],
+  [
+   12,
+   0,
+   0,
+   0,
+   19,
+   0,
+   113,
+   37383,
+   419004,
+   41898,
+   502064
+  ],
+  [
+   13,
+   0,
+   1,
+   0,
+   19,
+   0,
+   101,
+   39980,
+   429273,
+   23349,
+   262500
+  ],
+  [
+   14,
+   0,
+   0,
+   1,
+   18,
+   0,
+   106,
+   47848,
+   597000,
+   27339,
+   323676
+  ],
+  [
+   15,
+   0,
+   1,
+   0,
+   19,
+   0,
+   109,
+   36575,
+   461023,
+   51660,
+   652314
+  ],
+  [
+   16,
+   0,
+   0,
+   1,
+   22,
+   0,
+   120,
+   31255,
+   401669,
+   56784,
+   608567
+  ],
+  [
+   17,
+   0,
+   1,
+   1,
+   30,
+   0,
+   153,
+   58962,
+   783727,
+   37880,
+   420134
+  ],
+  [
+   18,
+   0,
+   0,
+   0,
+   17,
+   0,
+   100,
+   55953,
+   700485,
+   37034,
+   534853
+  ],
+  [
+   19,
+   0,
+   1,
+   0,
+   19,
+   0,
+   110,
+   35155,
+   431383,
+   41877,
+   482200
+  ],
+  [
+   20,
+   0,
+   0,
+   0,
+   13,
+   0,
+   60,
+   23651,
+   243671,
+   19479,
+   194575
+  ],
+  [
+   21,
+   0,
+   1,
+   0,
+   13,
+   0,
+   58,
+   16475,
+   141346,
+   21466,
+   221383
+  ],
+  [
+   22,
+   0,
+   0,
+   0,
+   11,
+   0,
+   65,
+   30086,
+   328390,
+   23248,
+   293383
+  ],
+  [
+   23,
+   0,
+   1,
+   1,
+   16,
+   0,
+   89,
+   41338,
+   474131,
+   24392,
+   342378
+  ],
+  [
+   24,
+   0,
+   0,
+   1,
+   14,
+   0,
+   92,
+   32696,
+   446638,
+   33707,
+   444719
+  ],
+  [
+   25,
+   0,
+   1,
+   0,
+   21,
+   0,
+   118,
+   49863,
+   621953,
+   58877,
+   683185
+  ],
+  [
+   26,
+   0,
+   0,
+   0,
+   19,
+   0,
+   127,
+   49519,
+   651138,
+   57105,
+   802798
+  ],
+  [
+   27,
+   0,
+   1,
+   0,
+   19,
+   0,
+   117,
+   44112,
+   605331,
+   58697,
+   734374
+  ],
+  [
+   28,
+   1,
+   0,
+   1,
+   10,
+   0,
+   45,
+   15292,
+   163999,
+   19117,
+   195596
+  ],
+  [
+   29,
+   1,
+   1,
+   1,
+   10,
+   0,
+   42,
+   19541,
+   198582,
+   6927,
+   75533
+  ],
+  [
+   30,
+   1,
+   0,
+   0,
+   27,
+   0,
+   129,
+   26679,
+   232826,
+   40345,
+   381639
+  ],
+  [
+   31,
+   1,
+   1,
+   0,
+   27,
+   0,
+   125,
+   42784,
+   430262,
+   30233,
+   278005
+  ],
+  [
+   32,
+   1,
+   0,
+   0,
+   17,
+   0,
+   84,
+   37580,
+   360010,
+   14457,
+   148965
+  ],
+  [
+   33,
+   1,
+   1,
+   0,
+   17,
+   0,
+   84,
+   15505,
+   161612,
+   34771,
+   323809
+  ],
+  [
+   34,
+   1,
+   0,
+   1,
+   16,
+   0,
+   87,
+   26110,
+   312886,
+   53456,
+   555121
+  ],
+  [
+   35,
+   1,
+   1,
+   0,
+   15,
+   0,
+   83,
+   24030,
+   259320,
+   25589,
+   279311
+  ],
+  [
+   36,
+   1,
+   0,
+   1,
+   12,
+   0,
+   61,
+   18600,
+   199936,
+   25869,
+   297877
+  ],
+  [
+   37,
+   1,
+   1,
+   1,
+   12,
+   0,
+   57,
+   17598,
+   183332,
+   15228,
+   172867
+  ],
+  [
+   38,
+   1,
+   0,
+   0,
+   21,
+   0,
+   92,
+   21076,
+   173710,
+   20173,
+   159472
+  ],
+  [
+   39,
+   1,
+   1,
+   0,
+   21,
+   0,
+   89,
+   18899,
+   168957,
+   21947,
+   210615
+  ],
+  [
+   40,
+   1,
+   0,
+   1,
+   10,
+   0,
+   52,
+   19631,
+   280457,
+   22527,
+   232480
+  ],
+  [
+   41,
+   1,
+   1,
+   1,
+   10,
+   0,
+   50,
+   23280,
+   268535,
+   19362,
+   275559
+  ],
+  [
+   42,
+   1,
+   0,
+   1,
+   20,
+   0,
+   100,
+   31029,
+   341898,
+   26646,
+   263033
+  ],
+  [
+   43,
+   1,
+   1,
+   1,
+   14,
+   0,
+   71,
+   18253,
+   151820,
+   17823,
+   171698
+  ],
+  [
+   44,
+   1,
+   0,
+   0,
+   15,
+   0,
+   83,
+   43261,
+   432920,
+   21277,
+   239708
+  ],
+  [
+   45,
+   1,
+   1,
+   0,
+   15,
+   0,
+   81,
+   23210,
+   257146,
+   38892,
+   402061
+  ],
+  [
+   46,
+   1,
+   0,
+   0,
+   19,
+   0,
+   104,
+   31361,
+   347388,
+   33852,
+   384875
+  ],
+  [
+   47,
+   1,
+   1,
+   0,
+   19,
+   0,
+   119,
+   37465,
+   421410,
+   34770,
+   383236
+  ],
+  [
+   48,
+   1,
+   0,
+   0,
+   15,
+   0,
+   88,
+   45146,
+   513738,
+   30797,
+   483915
+  ],
+  [
+   49,
+   1,
+   1,
+   0,
+   15,
+   0,
+   79,
+   28159,
+   364999,
+   27655,
+   315311
+  ],
+  [
+   50,
+   1,
+   0,
+   1,
+   14,
+   0,
+   73,
+   24017,
+   271086,
+   43970,
+   463079
+  ],
+  [
+   51,
+   1,
+   1,
+   0,
+   21,
+   0,
+   110,
+   38183,
+   417184,
+   30947,
+   311637
+  ],
+  [
+   52,
+   1,
+   0,
+   1,
+   14,
+   0,
+   70,
+   30791,
+   351700,
+   33186,
+   353283
+  ],
+  [
+   53,
+   1,
+   1,
+   1,
+   16,
+   0,
+   83,
+   25145,
+   280056,
+   40863,
+   485281
+  ],
+  [
+   54,
+   1,
+   0,
+   0,
+   37,
+   0,
+   139,
+   30784,
+   257543,
+   37041,
+   278996
+  ],
+  [
+   55,
+   1,
+   1,
+   0,
+   25,
+   0,
+   107,
+   32162,
+   262834,
+   25263,
+   240014
+  ],
+  [
+   56,
+   2,
+   0,
+   1,
+   20,
+   0,
+   111,
+   45351,
+   484234,
+   22779,
+   259998
+  ],
+  [
+   57,
+   2,
+   1,
+   0,
+   37,
+   0,
+   176,
+   46094,
+   500710,
+   67118,
+   732986
+  ],
+  [
+   58,
+   2,
+   0,
+   1,
+   10,
+   0,
+   50,
+   7745,
+   84093,
+   23951,
+   199630
+  ],
+  [
+   59,
+   2,
+   1,
+   1,
+   12,
+   0,
+   63,
+   27477,
+   241096,
+   13341,
+   150977
+  ],
+  [
+   60,
+   2,
+   0,
+   1,
+   22,
+   0,
+   126,
+   44096,
+   554221,
+   39036,
+   500222
+  ],
+  [
+   61,
+   2,
+   1,
+   0,
+   21,
+   0,
+   108,
+   18531,
+   195018,
+   34707,
+   370444
+  ],
+  [
+   62,
+   2,
+   0,
+   0,
+   25,
+   0,
+   112,
+   34465,
+   387965,
+   31941,
+   323558
+  ],
+  [
+   63,
+   2,
+   1,
+   0,
+   23,
+   0,
+   105,
+   37494,
+   398639,
+   29467,
+   374224
+  ],
+  [
+   64,
+   2,
+   0,
+   0,
+   17,
+   0,
+   90,
+   41661,
+   489258,
+   29988,
+   455535
+  ],
+  [
+   65,
+   2,
+   1,
+   1,
+   14,
+   0,
+   70,
+   27045,
+   380512,
+   27766,
+   437459
+  ],
+  [
+   66,
+   2,
+   0,
+   0,
+   21,
+   0,
+   98,
+   33177,
+   348570,
+   27647,
+   295830
+  ],
+  [
+   67,
+   2,
+   1,
+   0,
+   19,
+   0,
+   96,
+   17186,
+   188436,
+   34027,
+   406068
+  ],
+  [
+   68,
+   2,
+   0,
+   0,
+   13,
+   0,
+   68,
+   42845,
+   536702,
+   8847,
+   103024
+  ],
+  [
+   69,
+   2,
+   1,
+   0,
+   21,
+   0,
+   101,
+   19859,
+   210877,
+   43182,
+   415582
+  ],
+  [
+   70,
+   2,
+   0,
+   1,
+   10,
+   0,
+   39,
+   7302,
+   78145,
+   26952,
+   278276
+  ],
+  [
+   71,
+   2,
+   1,
+   1,
+   14,
+   0,
+   67,
+   40857,
+   371086,
+   19372,
+   213597
+  ],
+  [
+   72,
+   2,
+   0,
+   1,
+   16,
+   0,
+   70,
+   46789,
+   463344,
+   17175,
+   179317
+  ],
+  [
+   73,
+   2,
+   1,
+   1,
+   20,
+   0,
+   95,
+   26506,
+   274994,
+   39295,
+   514818
+  ],
+  [
+   74,
+   2,
+   0,
+   0,
+   19,
+   0,
+   101,
+   36502,
+   426231,
+   52584,
+   702321
+  ],
+  [
+   75,
+   2,
+   1,
+   1,
+   26,
+   0,
+   122,
+   43128,
+   413551,
+   30375,
+   330905
+  ],
+  [
+   76,
+   2,
+   0,
+   1,
+   18,
+   0,
+   105,
+   35611,
+   416313,
+   38768,
+   435069
+  ],
+  [
+   77,
+   2,
+   1,
+   0,
+   19,
+   0,
+   95,
+   24318,
+   289633,
+   42974,
+   410818
+  ],
+  [
+   78,
+   2,
+   0,
+   0,
+   17,
+   0,
+   83,
+   30388,
+   284752,
+   37624,
+   420264
+  ],
+  [
+   79,
+   2,
+   1,
+   0,
+   15,
+   0,
+   71,
+   27567,
+   293354,
+   19933,
+   199328
+  ],
+  [
+   80,
+   2,
+   0,
+   1,
+   28,
+   0,
+   119,
+   26258,
+   267954,
+   25352,
+   226610
+  ],
+  [
+   81,
+   2,
+   1,
+   0,
+   21,
+   0,
+   119,
+   18158,
+   247900,
+   40116,
+   476622
+  ],
+  [
+   82,
+   2,
+   0,
+   1,
+   16,
+   0,
+   80,
+   15188,
+   161521,
+   25515,
+   258129
+  ],
+  [
+   83,
+   2,
+   1,
+   1,
+   14,
+   0,
+   63,
+   20825,
+   193843,
+   14760,
+   155943
+  ],
+  [
+   84,
+   5,
+   0,
+   0,
+   17,
+   0,
+   105,
+   69289,
+   837933,
+   40653,
+   558310
+  ],
+  [
+   85,
+   5,
+   1,
+   0,
+   17,
+   0,
+   107,
+   37729,
+   572880,
+   71374,
+   931746
+  ],
+  [
+   86,
+   5,
+   0,
+   0,
+   19,
+   0,
+   107,
+   39973,
+   585791,
+   55480,
+   720873
+  ],
+  [
+   87,
+   5,
+   1,
+   0,
+   19,
+   0,
+   106,
+   54893,
+   698194,
+   52661,
+   703259
+  ],
+  [
+   88,
+   5,
+   0,
+   1,
+   20,
+   0,
+   104,
+   32694,
+   406954,
+   39704,
+   428286
+  ],
+  [
+   89,
+   5,
+   1,
+   0,
+   15,
+   0,
+   75,
+   20371,
+   259653,
+   47754,
+   601513
+  ],
+  [
+   90,
+   5,
+   0,
+   1,
+   24,
+   0,
+   131,
+   37914,
+   474043,
+   56131,
+   583138
+  ],
+  [
+   91,
+   5,
+   1,
+   1,
+   16,
+   0,
+   114,
+   52718,
+   700341,
+   36984,
+   453914
+  ],
+  [
+   92,
+   5,
+   0,
+   0,
+   13,
+   0,
+   79,
+   46100,
+   524787,
+   26921,
+   353807
+  ],
+  [
+   93,
+   5,
+   1,
+   0,
+   13,
+   0,
+   84,
+   26772,
+   357766,
+   45479,
+   567641
+  ],
+  [
+   94,
+   5,
+   0,
+   1,
+   18,
+   0,
+   106,
+   36232,
+   550231,
+   62815,
+   768259
+  ],
+  [
+   95,
+   5,
+   1,
+   1,
+   14,
+   0,
+   83,
+   43206,
+   618352,
+   32741,
+   573868
+  ],
+  [
+   96,
+   5,
+   0,
+   1,
+   28,
+   0,
+   139,
+   56683,
+   627702,
+   40965,
+   456577
+  ],
+  [
+   97,
+   5,
+   1,
+   0,
+   15,
+   0,
+   84,
+   24238,
+   336672,
+   46756,
+   559077
+  ],
+  [
+   98,
+   5,
+   0,
+   1,
+   12,
+   0,
+   66,
+   24437,
+   267605,
+   21188,
+   181733
+  ],
+  [
+   99,
+   5,
+   1,
+   0,
+   15,
+   0,
+   86,
+   49370,
+   721656,
+   36040,
+   463659
+  ],
+  [
+   100,
+   5,
+   0,
+   1,
+   20,
+   0,
+   111,
+   48270,
+   599897,
+   47415,
+   489952
+  ],
+  [
+   101,
+   5,
+   1,
+   1,
+   20,
+   0,
+   100,
+   42908,
+   439360,
+   39168,
+   460968
+  ],
+  [
+   102,
+   5,
+   0,
+   0,
+   17,
+   0,
+   82,
+   38988,
+   413787,
+   45265,
+   596786
+  ],
+  [
+   103,
+   5,
+   1,
+   0,
+   17,
+   0,
+   95,
+   34029,
+   354139,
+   57238,
+   526123
+  ],
+  [
+   104,
+   5,
+   0,
+   1,
+   16,
+   0,
+   77,
+   24095,
+   273495,
+   24898,
+   265443
+  ],
+  [
+   105,
+   5,
+   1,
+   1,
+   14,
+   0,
+   84,
+   33889,
+   425838,
+   30803,
+   442132
+  ],
+  [
+   106,
+   5,
+   0,
+   0,
+   19,
+   0,
+   96,
+   32553,
+   376897,
+   50277,
+   577747
+  ],
+  [
+   107,
+   5,
+   1,
+   0,
+   23,
+   0,
+   110,
+   57612,
+   616474,
+   34574,
+   356451
+  ],
+  [
+   108,
+   5,
+   0,
+   1,
+   18,
+   0,
+   102,
+   50445,
+   663452,
+   47151,
+   554587
+  ],
+  [
+   109,
+   5,
+   1,
+   1,
+   16,
+   0,
+   90,
+   36003,
+   464025,
+   52003,
+   788102
+  ],
+  [
+   110,
+   5,
+   0,
+   0,
+   19,
+   0,
+   109,
+   36551,
+   428928,
+   44742,
+   558028
+  ],
+  [
+   111,
+   5,
+   1,
+   0,
+   23,
+   0,
+   122,
+   50866,
+   567222,
+   38872,
+   437788
+  ],
+  [
+   112,
+   6,
+   0,
+   1,
+   20,
+   0,
+   89,
+   30903,
+   331009,
+   23557,
+   244198
+  ],
+  [
+   113,
+   6,
+   1,
+   1,
+   24,
+   0,
+   123,
+   30072,
+   339484,
+   36649,
+   422424
+  ],
+  [
+   114,
+   6,
+   0,
+   0,
+   15,
+   0,
+   87,
+   22607,
+   262943,
+   36954,
+   449508
+  ],
+  [
+   115,
+   6,
+   1,
+   0,
+   31,
+   0,
+   130,
+   37461,
+   350176,
+   31094,
+   273336
+  ],
+  [
+   116,
+   6,
+   0,
+   0,
+   33,
+   0,
+   128,
+   61207,
+   796772,
+   35029,
+   400178
+  ],
+  [
+   117,
+   6,
+   1,
+   0,
+   21,
+   0,
+   116,
+   32906,
+   430711,
+   44826,
+   555788
+  ],
+  [
+   118,
+   6,
+   0,
+   0,
+   21,
+   0,
+   106,
+   25083,
+   290492,
+   44727,
+   496301
+  ],
+  [
+   119,
+   6,
+   1,
+   0,
+   23,
+   0,
+   103,
+   32147,
+   298226,
+   29378,
+   277330
+  ],
+  [
+   120,
+   6,
+   0,
+   1,
+   18,
+   0,
+   78,
+   21628,
+   224646,
+   29326,
+   282481
+  ],
+  [
+   121,
+   6,
+   1,
+   0,
+   15,
+   0,
+   66,
+   17721,
+   183457,
+   20413,
+   175134
+  ],
+  [
+   122,
+   6,
+   0,
+   0,
+   23,
+   0,
+   109,
+   45531,
+   573077,
+   37853,
+   489031
+  ],
+  [
+   123,
+   6,
+   1,
+   1,
+   24,
+   0,
+   118,
+   46329,
+   502162,
+   38087,
+   462763
+  ],
+  [
+   124,
+   6,
+   0,
+   0,
+   17,
+   0,
+   77,
+   42883,
+   438303,
+   17402,
+   193563
+  ],
+  [
+   125,
+   6,
+   1,
+   0,
+   17,
+   0,
+   78,
+   21855,
+   239887,
+   42625,
+   425610
+  ],
+  [
+   126,
+   6,
+   0,
+   0,
+   19,
+   0,
+   87,
+   33872,
+   363671,
+   26147,
+   264456
+  ],
+  [
+   127,
+   6,
+   1,
+   0,
+   13,
+   0,
+   62,
+   13640,
+   133162,
+   21391,
+   244375
+  ],
+  [
+   128,
+   6,
+   0,
+   0,
+   15,
+   0,
+   74,
+   40228,
+   546445,
+   26794,
+   441028
+  ],
+  [
+   129,
+   6,
+   1,
+   0,
+   19,
+   0,
+   99,
+   29125,
+   323452,
+   51617,
+   560241
+  ],
+  [
+   130,
+   6,
+   0,
+   0,
+   19,
+   0,
+   80,
+   28226,
+   257445,
+   23612,
+   229779
+  ],
+  [
+   131,
+   6,
+   1,
+   0,
+   21,
+   0,
+   89,
+   27431,
+   252458,
+   19882,
+   200685
+  ],
+  [
+   132,
+   6,
+   0,
+   0,
+   17,
+   0,
+   79,
+   28454,
+   292949,
+   27289,
+   350365
+  ],
+  [
+   133,
+   6,
+   1,
+   0,
+   23,
+   0,
+   120,
+   37954,
+   502981,
+   42419,
+   494093
+  ],
+  [
+   134,
+   6,
+   0,
+   0,
+   17,
+   0,
+   78,
+   21585,
+   198916,
+   37944,
+   347227
+  ],
+  [
+   135,
+   6,
+   1,
+   0,
+   15,
+   0,
+   63,
+   18826,
+   173987,
+   17367,
+   162206
+  ],
+  [
+   136,
+   6,
+   0,
+   0,
+   15,
+   0,
+   79,
+   36388,
+   379644,
+   19244,
+   171553
+  ],
+  [
+   137,
+   6,
+   1,
+   0,
+   19,
+   0,
+   104,
+   27138,
+   277231,
+   34640,
+   416408
+  ],
+  [
+   138,
+   6,
+   0,
+   0,
+   23,
+   0,
+   99,
+   41402,
+   440602,
+   25166,
+   247034
+  ],
+  [
+   139,
+   6,
+   1,
+   0,
+   29,
+   0,
+   140,
+   48428,
+   587586,
+   36424,
+   400948
+  ],
+  [
+   140,
+   7,
+   0,
+   0,
+   17,
+   0,
+   99,
+   50848,
+   521813,
+   24931,
+   331338
+  ],
+  [
+   141,
+   7,
+   1,
+   0,
+   15,
+   0,
+   84,
+   29064,
+   406214,
+   45883,
+   557352
+  ],
+  [
+   142,
+   7,
+   0,
+   1,
+   16,
+   0,
+   90,
+   22014,
+   264298,
+   39030,
+   416560
+  ],
+  [
+   143,
+   7,
+   1,
+   1,
+   14,
+   0,
+   80,
+   33221,
+   328758,
+   20694,
+   252320
+  ],
+  [
+   144,
+   7,
+   0,
+   1,
+   10,
+   0,
+   53,
+   23116,
+   260255,
+   18381,
+   165147
+  ],
+  [
+   145,
+   7,
+   1,
+   1,
+   10,
+   0,
+   49,
+   18321,
+   195224,
+   21746,
+   226249
+  ],
+  [
+   146,
+   7,
+   0,
+   1,
+   16,
+   0,
+   86,
+   27611,
+   338381,
+   41963,
+   544466
+  ],
+  [
+   147,
+   7,
+   1,
+   0,
+   17,
+   0,
+   90,
+   39476,
+   506025,
+   26956,
+   366355
+  ],
+  [
+   148,
+   7,
+   0,
+   0,
+   15,
+   0,
+   82,
+   40467,
+   465829,
+   22835,
+   217016
+  ],
+  [
+   149,
+   7,
+   1,
+   0,
+   15,
+   0,
+   93,
+   32879,
+   326054,
+   51772,
+   557502
+  ],
+  [
+   150,
+   7,
+   0,
+   0,
+   11,
+   0,
+   59,
+   25044,
+   264305,
+   41259,
+   592785
+  ],
+  [
+   151,
+   7,
+   1,
+   1,
+   26,
+   0,
+   104,
+   62672,
+   684320,
+   22421,
+   306798
+  ],
+  [
+   152,
+   7,
+   0,
+   0,
+   13,
+   0,
+   74,
+   47315,
+   518910,
+   18602,
+   203502
+  ],
+  [
+   153,
+   7,
+   1,
+   0,
+   13,
+   0,
+   69,
+   19301,
+   199569,
+   39667,
+   408564
+  ],
+  [
+   154,
+   7,
+   0,
+   0,
+   17,
+   0,
+   91,
+   32796,
+   296668,
+   32725,
+   383888
+  ],
+  [
+   155,
+   7,
+   1,
+   0,
+   15,
+   0,
+   82,
+   28378,
+   333060,
+   24097,
+   224591
+  ],
+  [
+   156,
+   7,
+   0,
+   1,
+   14,
+   0,
+   74,
+   41276,
+   512241,
+   23679,
+   281148
+  ],
+  [
+   157,
+   7,
+   1,
+   0,
+   19,
+   0,
+   103,
+   28004,
+   344977,
+   51534,
+   544093
+  ],
+  [
+   158,
+   7,
+   0,
+   0,
+   15,
+   0,
+   78,
+   31236,
+   333019,
+   39119,
+   519815
+  ],
+  [
+   159,
+   7,
+   1,
+   0,
+   15,
+   0,
+   73,
+   31262,
+   409994,
+   39206,
+   378359
+  ],
+  [
+   160,
+   7,
+   0,
+   0,
+   17,
+   0,
+   93,
+   39518,
+   438266,
+   26456,
+   288945
+  ],
+  [
+   161,
+   7,
+   1,
+   1,
+   20,
+   0,
+   87,
+   23816,
+   244944,
+   22631,
+   244433
+  ],
+  [
+   162,
+   7,
+   0,
+   0,
+   15,
+   0,
+   77,
+   24922,
+   310573,
+   17932,
+   201946
+  ],
+  [
+   163,
+   7,
+   1,
+   0,
+   13,
+   0,
+   76,
+   30891,
+   409442,
+   25229,
+   332821
+  ],
+  [
+   164,
+   7,
+   0,
+   1,
+   18,
+   0,
+   91,
+   34445,
+   476444,
+   32550,
+   389010
+  ],
+  [
+   165,
+   7,
+   1,
+   1,
+   14,
+   0,
+   74,
+   21237,
+   222462,
+   26925,
+   335374
+  ],
+  [
+   166,
+   7,
+   0,
+   1,
+   16,
+   0,
+   82,
+   28630,
+   353594,
+   29713,
+   290229
+  ],
+  [
+   167,
+   7,
+   1,
+   1,
+   16,
+   0,
+   81,
+   27765,
+   268518,
+   22962,
+   282901
+  ],
+  [
+   168,
+   8,
+   0,
+   0,
+   13,
+   0,
+   69,
+   44568,
+   558175,
+   19467,
+   257119
+  ],
+  [
+   169,
+   8,
+   1,
+   0,
+   13,
+   0,
+   72,
+   18461,
+   269228,
+   41536,
+   506290
+  ],
+  [
+   170,
+   8,
+   0,
+   0,
+   15,
+   0,
+   77,
+   17195,
+   213371,
+   35935,
+   430275
+  ],
+  [
+   171,
+   8,
+   1,
+   0,
+   15,
+   0,
+   78,
+   36679,
+   432290,
+   17802,
+   221031
+  ],
+  [
+   172,
+   8,
+   0,
+   0,
+   17,
+   0,
+   105,
+   57657,
+   706357,
+   40773,
+   516827
+  ],
+  [
+   173,
+   8,
+   1,
+   0,
+   17,
+   0,
+   90,
+   26617,
+   333050,
+   38597,
+   436509
+  ],
+  [
+   174,
+   8,
+   0,
+   0,
+   21,
+   0,
+   102,
+   48415,
+   775144,
+   53760,
+   660069
+  ],
+  [
+   175,
+   8,
+   1,
+   0,
+   13,
+   0,
+   66,
+   43995,
+   601741,
+   29660,
+   390894
+  ],
+  [
+   176,
+   8,
+   0,
+   1,
+   14,
+   0,
+   67,
+   29764,
+   363433,
+   22948,
+   252912
+  ],
+  [
+   177,
+   8,
+   1,
+   1,
+   14,
+   0,
+   71,
+   22171,
+   235167,
+   26019,
+   280357
+  ],
+  [
+   178,
+   8,
+   0,
+   0,
+   25,
+   0,
+   121,
+   30777,
+   429842,
+   44682,
+   603479
+  ],
+  [
+   179,
+   8,
+   1,
+   1,
+   14,
+   0,
+   76,
+   47893,
+   555222,
+   17475,
+   243577
+  ],
+  [
+   180,
+   8,
+   0,
+   0,
+   15,
+   0,
+   87,
+   52395,
+   634935,
+   27003,
+   361668
+  ],
+  [
+   181,
+   8,
+   1,
+   0,
+   15,
+   0,
+   82,
+   25305,
+   338598,
+   36663,
+   443365
+  ],
+  [
+   182,
+   8,
+   0,
+   0,
+   21,
+   0,
+   98,
+   28532,
+   325545,
+   40090,
+   456732
+  ],
+  [
+   183,
+   8,
+   1,
+   1,
+   20,
+   0,
+   107,
+   49015,
+   551275,
+   26354,
+   334431
+  ],
+  [
+   184,
+   8,
+   0,
+   1,
+   18,
+   0,
+   78,
+   32044,
+   399539,
+   21950,
+   282492
+  ],
+  [
+   185,
+   8,
+   1,
+   1,
+   18,
+   0,
+   78,
+   20286,
+   225904,
+   26958,
+   342267
+  ],
+  [
+   186,
+   8,
+   0,
+   1,
+   16,
+   0,
+   69,
+   16403,
+   208367,
+   29869,
+   332037
+  ],
+  [
+   187,
+   8,
+   1,
+   1,
+   18,
+   0,
+   88,
+   28736,
+   296978,
+   26794,
+   341370
+  ],
+  [
+   188,
+   8,
+   0,
+   0,
+   15,
+   0,
+   69,
+   29033,
+   329848,
+   10426,
+   109880
+  ],
+  [
+   189,
+   8,
+   1,
+   1,
+   20,
+   0,
+   97,
+   33708,
+   355846,
+   44408,
+   583024
+  ],
+  [
+   190,
+   8,
+   0,
+   1,
+   14,
+   0,
+   79,
+   16056,
+   181110,
+   31194,
+   399545
+  ],
+  [
+   191,
+   8,
+   1,
+   1,
+   16,
+   0,
+   107,
+   32701,
+   403387,
+   23959,
+   274796
+  ],
+  [
+   192,
+   8,
+   0,
+   0,
+   17,
+   0,
+   95,
+   49229,
+   699495,
+   44157,
+   748023
+  ],
+  [
+   193,
+   8,
+   1,
+   0,
+   13,
+   0,
+   64,
+   18914,
+   282578,
+   47017,
+   593730
+  ],
+  [
+   194,
+   8,
+   0,
+   1,
+   14,
+   0,
+   85,
+   31999,
+   507591,
+   36481,
+   437772
+  ],
+  [
+   195,
+   8,
+   1,
+   1,
+   14,
+   0,
+   84,
+   36345,
+   434097,
+   32214,
+   487138
+  ],
+  [
+   196,
+   11,
+   0,
+   1,
+   14,
+   0,
+   92,
+   46382,
+   643714,
+   28380,
+   331499
+  ],
+  [
+   197,
+   11,
+   1,
+   0,
+   13,
+   0,
+   89,
+   26850,
+   331131,
+   46233,
+   596039
+  ],
+  [
+   198,
+   11,
+   0,
+   0,
+   13,
+   0,
+   67,
+   34608,
+   378513,
+   30304,
+   370927
+  ],
+  [
+   199,
+   11,
+   1,
+   0,
+   13,
+   0,
+   67,
+   28969,
+   354387,
+   26882,
+   383464
+  ],
+  [
+   200,
+   11,
+   0,
+   1,
+   14,
+   0,
+   76,
+   32335,
+   410404,
+   20322,
+   238622
+  ],
+  [
+   201,
+   11,
+   1,
+   1,
+   12,
+   0,
+   63,
+   23181,
+   296662,
+   22825,
+   263082
+  ],
+  [
+   202,
+   11,
+   0,
+   0,
+   15,
+   0,
+   91,
+   37348,
+   496248,
+   34681,
+   427146
+  ],
+  [
+   203,
+   11,
+   1,
+   0,
+   15,
+   0,
+   105,
+   56383,
+   836039,
+   34157,
+   490768
+  ],
+  [
+   204,
+   11,
+   0,
+   0,
+   13,
+   0,
+   77,
+   47000,
+   652545,
+   27547,
+   393829
+  ],
+  [
+   205,
+   11,
+   1,
+   0,
+   13,
+   0,
+   71,
+   21724,
+   338710,
+   46954,
+   561402
+  ],
+  [
+   206,
+   11,
+   0,
+   0,
+   15,
+   0,
+   68,
+   28788,
+   341269,
+   18583,
+   183632
+  ],
+  [
+   207,
+   11,
+   1,
+   1,
+   18,
+   0,
+   95,
+   41335,
+   369781,
+   27844,
+   364814
+  ],
+  [
+   208,
+   11,
+   0,
+   0,
+   15,
+   0,
+   93,
+   48472,
+   668573,
+   32003,
+   472564
+  ],
+  [
+   209,
+   11,
+   1,
+   1,
+   14,
+   0,
+   84,
+   29382,
+   379185,
+   42190,
+   630369
+  ],
+  [
+   210,
+   11,
+   0,
+   0,
+   15,
+   0,
+   82,
+   60175,
+   643382,
+   24168,
+   287346
+  ],
+  [
+   211,
+   11,
+   1,
+   0,
+   15,
+   0,
+   77,
+   29755,
+   334126,
+   40557,
+   536670
+  ],
+  [
+   212,
+   11,
+   0,
+   1,
+   16,
+   0,
+   101,
+   45216,
+   574821,
+   27087,
+   394614
+  ],
+  [
+   213,
+   11,
+   1,
+   0,
+   17,
+   0,
+   104,
+   27693,
+   404435,
+   59739,
+   694029
+  ],
+  [
+   214,
+   11,
+   0,
+   1,
+   20,
+   0,
+   123,
+   37321,
+   503490,
+   91268,
+   952304
+  ],
+  [
+   215,
+   11,
+   1,
+   0,
+   15,
+   0,
+   87,
+   62174,
+   929841,
+   29886,
+   390038
+  ],
+  [
+   216,
+   11,
+   0,
+   1,
+   14,
+   0,
+   58,
+   15550,
+   181528,
+   29207,
+   408442
+  ],
+  [
+   217,
+   11,
+   1,
+   1,
+   14,
+   0,
+   65,
+   26828,
+   356775,
+   25686,
+   281732
+  ],
+  [
+   218,
+   11,
+   0,
+   0,
+   13,
+   0,
+   51,
+   25315,
+   383452,
+   23078,
+   294172
+  ],
+  [
+   219,
+   11,
+   1,
+   0,
+   11,
+   0,
+   60,
+   34536,
+   471506,
+   33452,
+   422438
+  ],
+  [
+   220,
+   11,
+   0,
+   1,
+   14,
+   0,
+   72,
+   36683,
+   406434,
+   22225,
+   263525
+  ],
+  [
+   221,
+   11,
+   1,
+   1,
+   20,
+   0,
+   114,
+   27603,
+   336911,
+   53365,
+   563686
+  ],
+  [
+   222,
+   11,
+   0,
+   1,
+   14,
+   0,
+   83,
+   29542,
+   406657,
+   41929,
+   506757
+  ],
+  [
+   223,
+   11,
+   1,
+   1,
+   14,
+   0,
+   78,
+   30173,
+   350005,
+   22809,
+   330097
+  ],
+  [
+   224,
+   12,
+   0,
+   1,
+   26,
+   0,
+   124,
+   45820,
+   532717,
+   38883,
+   428965
+  ],
+  [
+   225,
+   12,
+   1,
+   1,
+   24,
+   0,
+   134,
+   30145,
+   411755,
+   79576,
+   1115629
+  ],
+  [
+   226,
+   12,
+   0,
+   0,
+   21,
+   0,
+   113,
+   36674,
+   388266,
+   37132,
+   456912
+  ],
+  [
+   227,
+   12,
+   1,
+   1,
+   16,
+   0,
+   105,
+   48382,
+   658234,
+   25496,
+   345160
+  ],
+  [
+   228,
+   12,
+   0,
+   1,
+   22,
+   0,
+   97,
+   30948,
+   406146,
+   39381,
+   486364
+  ],
+  [
+   229,
+   12,
+   1,
+   1,
+   14,
+   0,
+   80,
+   32049,
+   456236,
+   39672,
+   639893
+  ],
+  [
+   230,
+   12,
+   0,
+   0,
+   23,
+   0,
+   137,
+   35131,
+   521908,
+   74461,
+   1112553
+  ],
+  [
+   231,
+   12,
+   1,
+   1,
+   24,
+   0,
+   135,
+   75384,
+   922610,
+   31203,
+   397623
+  ],
+  [
+   232,
+   12,
+   0,
+   1,
+   18,
+   0,
+   92,
+   36256,
+   390564,
+   25292,
+   297802
+  ],
+  [
+   233,
+   12,
+   1,
+   1,
+   18,
+   0,
+   90,
+   22377,
+   252006,
+   41001,
+   426260
+  ],
+  [
+   234,
+   12,
+   0,
+   0,
+   23,
+   0,
+   115,
+   52124,
+   423868,
+   39797,
+   415844
+  ],
+  [
+   235,
+   12,
+   1,
+   1,
+   22,
+   0,
+   110,
+   54690,
+   733829,
+   34110,
+   417919
+  ],
+  [
+   236,
+   12,
+   0,
+   1,
+   24,
+   0,
+   109,
+   32881,
+   291513,
+   29535,
+   226469
+  ],
+  [
+   237,
+   12,
+   1,
+   1,
+   22,
+   0,
+   105,
+   36776,
+   342306,
+   30866,
+   324748
+  ],
+  [
+   238,
+   12,
+   0,
+   0,
+   17,
+   0,
+   87,
+   22683,
+   246734,
+   41062,
+   525646
+  ],
+  [
+   239,
+   12,
+   1,
+   1,
+   28,
+   0,
+   120,
+   40823,
+   383899,
+   23653,
+   232210
+  ],
+  [
+   240,
+   12,
+   0,
+   1,
+   18,
+   0,
+   91,
+   54533,
+   965013,
+   31859,
+   430890
+  ],
+  [
+   241,
+   12,
+   1,
+   1,
+   18,
+   0,
+   96,
+   25444,
+   262125,
+   69204,
+   992153
+  ],
+  [
+   242,
+   12,
+   0,
+   1,
+   18,
+   0,
+   104,
+   35264,
+   480069,
+   50125,
+   622332
+  ],
+  [
+   243,
+   12,
+   1,
+   1,
+   20,
+   0,
+   102,
+   62886,
+   684291,
+   27236,
+   337750
+  ],
+  [
+   244,
+   12,
+   0,
+   1,
+   20,
+   0,
+   101,
+   31695,
+   424525,
+   43370,
+   543990
+  ],
+  [
+   245,
+   12,
+   1,
+   1,
+   18,
+   0,
+   94,
+   31726,
+   425467,
+   44304,
+   630934
+  ],
+  [
+   246,
+   12,
+   0,
+   1,
+   16,
+   0,
+   69,
+   29759,
+   349531,
+   23113,
+   248826
+  ],
+  [
+   247,
+   12,
+   1,
+   1,
+   14,
+   0,
+   59,
+   25734,
+   265826,
+   23281,
+   273007
+  ],
+  [
+   248,
+   12,
+   0,
+   0,
+   21,
+   0,
+   112,
+   43647,
+   515853,
+   24555,
+   279896
+  ],
+  [
+   249,
+   12,
+   1,
+   0,
+   15,
+   0,
+   81,
+   18102,
+   249025,
+   33852,
+   399195
+  ],
+  [
+   250,
+   12,
+   0,
+   0,
+   23,
+   0,
+   113,
+   22011,
+   239977,
+   37366,
+   342880
+  ],
+  [
+   251,
+   12,
+   1,
+   0,
+   19,
+   0,
+   85,
+   28748,
+   279847,
+   18231,
+   213432
+  ],
+  [
+   252,
+   13,
+   0,
+   1,
+   16,
+   0,
+   77,
+   28590,
+   321488,
+   32813,
+   306682
+  ],
+  [
+   253,
+   13,
+   1,
+   1,
+   18,
+   0,
+   85,
+   32146,
+   321934,
+   29691,
+   286048
+  ],
+  [
+   254,
+   13,
+   0,
+   1,
+   14,
+   0,
+   60,
+   12090,
+   117574,
+   23948,
+   220315
+  ],
+  [
+   255,
+   13,
+   1,
+   1,
+   14,
+   0,
+   60,
+   23932,
+   225655,
+   13737,
+   136905
+  ],
+  [
+   256,
+   13,
+   0,
+   1,
+   20,
+   0,
+   85,
+   15667,
+   162023,
+   26993,
+   202462
+  ],
+  [
+   257,
+   13,
+   1,
+   1,
+   18,
+   0,
+   78,
+   34499,
+   340177,
+   20594,
+   205431
+  ],
+  [
+   258,
+   13,
+   0,
+   0,
+   21,
+   0,
+   104,
+   46632,
+   629394,
+   53017,
+   663416
+  ],
+  [
+   259,
+   13,
+   1,
+   0,
+   19,
+   0,
+   91,
+   28426,
+   358052,
+   41195,
+   447584
+  ],
+  [
+   260,
+   13,
+   0,
+   0,
+   13,
+   0,
+   62,
+   23434,
+   265416,
+   13799,
+   147520
+  ],
+  [
+   261,
+   13,
+   1,
+   1,
+   16,
+   0,
+   84,
+   27220,
+   307193,
+   33990,
+   410542
+  ],
+  [
+   262,
+   13,
+   0,
+   1,
+   16,
+   0,
+   89,
+   27492,
+   291721,
+   24820,
+   257869
+  ],
+  [
+   263,
+   13,
+   1,
+   1,
+   16,
+   0,
+   89,
+   27985,
+   303319,
+   26474,
+   293707
+  ],
+  [
+   264,
+   13,
+   0,
+   1,
+   14,
+   0,
+   66,
+   27091,
+   377303,
+   26867,
+   341461
+  ],
+  [
+   265,
+   13,
+   1,
+   1,
+   14,
+   0,
+   73,
+   26483,
+   295035,
+   22270,
+   242063
+  ],
+  [
+   266,
+   13,
+   0,
+   0,
+   15,
+   0,
+   82,
+   34685,
+   391774,
+   28246,
+   342776
+  ],
+  [
+   267,
+   13,
+   1,
+   0,
+   21,
+   0,
+   106,
+   34574,
+   452897,
+   58846,
+   603572
+  ],
+  [
+   268,
+   13,
+   0,
+   0,
+   15,
+   0,
+   81,
+   28701,
+   299239,
+   30515,
+   371215
+  ],
+  [
+   269,
+   13,
+   1,
+   0,
+   11,
+   0,
+   59,
+   17432,
+   249062,
+   26402,
+   277629
+  ],
+  [
+   270,
+   13,
+   0,
+   1,
+   12,
+   0,
+   58,
+   24419,
+   303793,
+   27781,
+   294780
+  ],
+  [
+   271,
+   13,
+   1,
+   1,
+   12,
+   0,
+   56,
+   19075,
+   190062,
+   23503,
+   246195
+  ],
+  [
+   272,
+   13,
+   0,
+   1,
+   14,
+   0,
+   68,
+   23173,
+   305339,
+   23791,
+   288915
+  ],
+  [
+   273,
+   13,
+   1,
+   0,
+   15,
+   0,
+   74,
+   28315,
+   361594,
+   31824,
+   362614
+  ],
+  [
+   274,
+   13,
+   0,
+   0,
+   19,
+   0,
+   98,
+   37890,
+   350439,
+   30013,
+   287633
+  ],
+  [
+   275,
+   13,
+   1,
+   0,
+   21,
+   0,
+   107,
+   33400,
+   328801,
+   39088,
+   379894
+  ],
+  [
+   276,
+   13,
+   0,
+   0,
+   11,
+   0,
+   46,
+   24891,
+   363861,
+   13386,
+   159463
+  ],
+  [
+   277,
+   13,
+   1,
+   0,
+   13,
+   0,
+   59,
+   16058,
+   174155,
+   29546,
+   345643
+  ],
+  [
+   278,
+   13,
+   0,
+   0,
+   19,
+   0,
+   97,
+   23263,
+   188280,
+   31153,
+   293398
+  ],
+  [
+   279,
+   13,
+   1,
+   0,
+   17,
+   0,
+   98,
+   42886,
+   559866,
+   45537,
+   559438
+  ],
+  [
+   280,
+   16,
+   0,
+   1,
+   12,
+   0,
+   60,
+   24584,
+   280102,
+   18650,
+   193629
+  ],
+  [
+   281,
+   16,
+   1,
+   0,
+   11,
+   0,
+   56,
+   13316,
+   144855,
+   20126,
+   190808
+  ],
+  [
+   282,
+   16,
+   0,
+   1,
+   16,
+   0,
+   86,
+   30511,
+   429414,
+   40414,
+   465591
+  ],
+  [
+   283,
+   16,
+   1,
+   1,
+   16,
+   0,
+   86,
+   39940,
+   458360,
+   31189,
+   444991
+  ],
+  [
+   284,
+   16,
+   0,
+   1,
+   18,
+   0,
+   90,
+   39986,
+   408659,
+   37302,
+   365336
+  ],
+  [
+   285,
+   16,
+   1,
+   1,
+   14,
+   0,
+   74,
+   24896,
+   249039,
+   29679,
+   313962
+  ],
+  [
+   286,
+   16,
+   0,
+   1,
+   14,
+   0,
+   65,
+   22788,
+   282142,
+   29004,
+   320706
+  ],
+  [
+   287,
+   16,
+   1,
+   0,
+   15,
+   0,
+   88,
+   25156,
+   311943,
+   27759,
+   331570
+  ],
+  [
+   288,
+   16,
+   0,
+   1,
+   16,
+   0,
+   84,
+   32619,
+   392796,
+   29204,
+   352093
+  ],
+  [
+   289,
+   16,
+   1,
+   0,
+   11,
+   0,
+   53,
+   20868,
+   311689,
+   22607,
+   265793
+  ],
+  [
+   290,
+   16,
+   0,
+   1,
+   12,
+   0,
+   65,
+   26896,
+   295005,
+   24472,
+   262424
+  ],
+  [
+   291,
+   16,
+   1,
+   1,
+   12,
+   0,
+   60,
+   26027,
+   257142,
+   23374,
+   285017
+  ],
+  [
+   292,
+   16,
+   0,
+   0,
+   15,
+   0,
+   80,
+   18383,
+   177758,
+   28460,
+   329326
+  ],
+  [
+   293,
+   16,
+   1,
+   0,
+   13,
+   0,
+   58,
+   18267,
+   229395,
+   27833,
+   306698
+  ],
+  [
+   294,
+   16,
+   0,
+   0,
+   15,
+   0,
+   73,
+   26961,
+   324280,
+   27175,
+   261002
+  ],
+  [
+   295,
+   16,
+   1,
+   0,
+   11,
+   0,
+   55,
+   21159,
+   243892,
+   24748,
+   266845
+  ],
+  [
+   296,
+   16,
+   0,
+   1,
+   16,
+   0,
+   94,
+   28727,
+   314376,
+   47340,
+   490041
+  ],
+  [
+   297,
+   16,
+   1,
+   0,
+   15,
+   0,
+   85,
+   41166,
+   477971,
+   35840,
+   391596
+  ],
+  [
+   298,
+   16,
+   0,
+   0,
+   13,
+   0,
+   63,
+   28018,
+   279870,
+   23984,
+   251734
+  ],
+  [
+   299,
+   16,
+   1,
+   1,
+   12,
+   0,
+   49,
+   25064,
+   217321,
+   13186,
+   135904
+  ],
+  [
+   300,
+   16,
+   0,
+   0,
+   15,
+   0,
+   68,
+   28700,
+   346303,
+   20180,
+   244547
+  ],
+  [
+   301,
+   16,
+   1,
+   0,
+   15,
+   0,
+   76,
+   19566,
+   251082,
+   37080,
+   409698
+  ],
+  [
+   302,
+   16,
+   0,
+   0,
+   13,
+   0,
+   68,
+   24344,
+   235965,
+   24257,
+   258874
+  ],
+  [
+   303,
+   16,
+   1,
+   1,
+   12,
+   0,
+   58,
+   20965,
+   196713,
+   16867,
+   192340
+  ],
+  [
+   304,
+   17,
+   0,
+   0,
+   17,
+   0,
+   87,
+   26890,
+   292958,
+   24234,
+   278680
+  ],
+  [
+   305,
+   17,
+   1,
+   0,
+   19,
+   0,
+   95,
+   31382,
+   363902,
+   27720,
+   340327
+  ],
+  [
+   306,
+   17,
+   0,
+   1,
+   20,
+   0,
+   96,
+   28286,
+   316970,
+   33539,
+   359150
+  ],
+  [
+   307,
+   17,
+   1,
+   0,
+   19,
+   0,
+   88,
+   30430,
+   343837,
+   28512,
+   308438
+  ],
+  [
+   308,
+   17,
+   0,
+   1,
+   16,
+   0,
+   70,
+   21636,
+   217413,
+   29299,
+   234181
+  ],
+  [
+   309,
+   17,
+   1,
+   1,
+   16,
+   0,
+   65,
+   34451,
+   352264,
+   27369,
+   372439
+  ],
+  [
+   310,
+   17,
+   0,
+   0,
+   21,
+   0,
+   107,
+   25694,
+   270499,
+   31665,
+   370250
+  ],
+  [
+   311,
+   17,
+   1,
+   0,
+   25,
+   0,
+   120,
+   35004,
+   346332,
+   34090,
+   309074
+  ],
+  [
+   312,
+   17,
+   0,
+   0,
+   11,
+   0,
+   45,
+   20958,
+   177647,
+   8610,
+   61749
+  ],
+  [
+   313,
+   17,
+   1,
+   0,
+   11,
+   0,
+   44,
+   9783,
+   67743,
+   21399,
+   181555
+  ],
+  [
+   314,
+   17,
+   0,
+   0,
+   15,
+   0,
+   68,
+   33061,
+   305802,
+   21366,
+   213706
+  ],
+  [
+   315,
+   17,
+   1,
+   0,
+   15,
+   0,
+   68,
+   19925,
+   203573,
+   33560,
+   306262
+  ],
+  [
+   316,
+   17,
+   0,
+   1,
+   24,
+   0,
+   110,
+   40341,
+   581608,
+   60362,
+   606704
+  ],
+  [
+   317,
+   17,
+   1,
+   1,
+   16,
+   0,
+   78,
+   28194,
+   263073,
+   28771,
+   343790
+  ],
+  [
+   318,
+   17,
+   0,
+   1,
+   16,
+   0,
+   83,
+   31347,
+   339783,
+   24681,
+   252140
+  ],
+  [
+   319,
+   17,
+   1,
+   0,
+   15,
+   0,
+   77,
+   28264,
+   336520,
+   25626,
+   267237
+  ],
+  [
+   320,
+   17,
+   0,
+   1,
+   20,
+   0,
+   107,
+   59037,
+   750848,
+   39212,
+   488221
+  ],
+  [
+   321,
+   17,
+   1,
+   0,
+   17,
+   0,
+   104,
+   29527,
+   386746,
+   39072,
+   512712
+  ],
+  [
+   322,
+   17,
+   0,
+   1,
+   20,
+   0,
+   88,
+   22555,
+   220367,
+   29675,
+   323771
+  ],
+  [
+   323,
+   17,
+   1,
+   0,
+   21,
+   0,
+   99,
+   31572,
+   397193,
+   32330,
+   268980
+  ],
+  [
+   324,
+   17,
+   0,
+   1,
+   30,
+   0,
+   125,
+   41478,
+   390348,
+   32985,
+   320816
+  ],
+  [
+   325,
+   17,
+   1,
+   1,
+   20,
+   0,
+   100,
+   40270,
+   434199,
+   42907,
+   507294
+  ],
+  [
+   326,
+   17,
+   0,
+   1,
+   26,
+   0,
+   96,
+   22727,
+   212793,
+   25899,
+   185999
+  ],
+  [
+   327,
+   17,
+   1,
+   0,
+   23,
+   0,
+   95,
+   21941,
+   186984,
+   28893,
+   253154
+  ],
+  [
+   328,
+   20,
+   0,
+   1,
+   14,
+   0,
+   68,
+   19938,
+   227912,
+   25455,
+   314479
+  ],
+  [
+   329,
+   20,
+   1,
+   1,
+   18,
+   0,
+   108,
+   29235,
+   313103,
+   31671,
+   331140
+  ],
+  [
+   330,
+   20,
+   0,
+   1,
+   22,
+   0,
+   112,
+   33348,
+   406577,
+   55994,
+   668962
+  ],
+  [
+   331,
+   20,
+   1,
+   0,
+   19,
+   0,
+   97,
+   42885,
+   475205,
+   34704,
+   417469
+  ],
+  [
+   332,
+   20,
+   0,
+   0,
+   15,
+   0,
+   81,
+   28739,
+   308637,
+   25032,
+   275614
+  ],
+  [
+   333,
+   20,
+   1,
+   0,
+   15,
+   0,
+   82,
+   39577,
+   550058,
+   33054,
+   395694
+  ],
+  [
+   334,
+   20,
+   0,
+   0,
+   17,
+   0,
+   82,
+   36843,
+   400859,
+   28134,
+   303114
+  ],
+  [
+   335,
+   20,
+   1,
+   0,
+   15,
+   0,
+   83,
+   32130,
+   342616,
+   36758,
+   368581
+  ],
+  [
+   336,
+   20,
+   0,
+   1,
+   14,
+   0,
+   69,
+   19162,
+   249332,
+   26727,
+   369919
+  ],
+  [
+   337,
+   20,
+   1,
+   1,
+   14,
+   0,
+   67,
+   21680,
+   269150,
+   16658,
+   204131
+  ],
+  [
+   338,
+   20,
+   0,
+   0,
+   13,
+   0,
+   71,
+   32719,
+   366448,
+   29761,
+   389267
+  ],
+  [
+   339,
+   20,
+   1,
+   0,
+   15,
+   0,
+   97,
+   34136,
+   468600,
+   45644,
+   490182
+  ],
+  [
+   340,
+   20,
+   0,
+   0,
+   21,
+   0,
+   111,
+   34607,
+   333073,
+   22413,
+   200698
+  ],
+  [
+   341,
+   20,
+   1,
+   0,
+   17,
+   0,
+   102,
+   30679,
+   336281,
+   38085,
+   382237
+  ],
+  [
+   342,
+   20,
+   0,
+   0,
+   15,
+   0,
+   74,
+   37535,
+   408808,
+   21289,
+   228514
+  ],
+  [
+   343,
+   20,
+   1,
+   0,
+   17,
+   0,
+   86,
+   34906,
+   446693,
+   40220,
+   450402
+  ],
+  [
+   344,
+   20,
+   0,
+   1,
+   16,
+   0,
+   88,
+   28340,
+   365912,
+   27042,
+   313024
+  ],
+  [
+   345,
+   20,
+   1,
+   1,
+   18,
+   0,
+   100,
+   39950,
+   385522,
+   31557,
+   357447
+  ],
+  [
+   346,
+   20,
+   0,
+   0,
+   15,
+   0,
+   81,
+   29102,
+   329823,
+   30146,
+   377571
+  ],
+  [
+   347,
+   20,
+   1,
+   1,
+   18,
+   0,
+   110,
+   50768,
+   645640,
+   34079,
+   467424
+  ],
+  [
+   348,
+   20,
+   0,
+   0,
+   15,
+   0,
+   86,
+   34786,
+   318797,
+   23654,
+   293120
+  ],
+  [
+   349,
+   20,
+   1,
+   0,
+   17,
+   0,
+   86,
+   26385,
+   316567,
+   42539,
+   409188
+  ],
+  [
+   350,
+   20,
+   0,
+   0,
+   15,
+   0,
+   77,
+   45512,
+   518543,
+   29601,
+   422740
+  ],
+  [
+   351,
+   20,
+   1,
+   0,
+   17,
+   0,
+   103,
+   49283,
+   671648,
+   41441,
+   505903
+  ],
+  [
+   352,
+   21,
+   0,
+   1,
+   14,
+   0,
+   74,
+   18064,
+   241624,
+   20888,
+   219637
+  ],
+  [
+   353,
+   21,
+   1,
+   1,
+   14,
+   0,
+   55,
+   17378,
+   182788,
+   14793,
+   156291
+  ],
+  [
+   354,
+   21,
+   0,
+   0,
+   21,
+   0,
+   100,
+   55470,
+   516917,
+   33322,
+   432741
+  ],
+  [
+   355,
+   21,
+   1,
+   0,
+   19,
+   0,
+   84,
+   26216,
+   294177,
+   40447,
+   380159
+  ],
+  [
+   356,
+   21,
+   0,
+   1,
+   22,
+   0,
+   112,
+   38199,
+   428789,
+   30736,
+   290086
+  ],
+  [
+   357,
+   21,
+   1,
+   1,
+   22,
+   0,
+   108,
+   27660,
+   285428,
+   48472,
+   548587
+  ],
+  [
+   358,
+   21,
+   0,
+   1,
+   16,
+   0,
+   74,
+   39118,
+   512890,
+   36488,
+   570965
+  ],
+  [
+   359,
+   21,
+   1,
+   0,
+   33,
+   0,
+   135,
+   42748,
+   461534,
+   40347,
+   344665
+  ],
+  [
+   360,
+   21,
+   0,
+   0,
+   23,
+   0,
+   99,
+   18645,
+   179061,
+   27077,
+   257950
+  ],
+  [
+   361,
+   21,
+   1,
+   0,
+   19,
+   0,
+   84,
+   19274,
+   180996,
+   32522,
+   320288
+  ],
+  [
+   362,
+   21,
+   0,
+   0,
+   19,
+   0,
+   103,
+   37806,
+   380594,
+   31649,
+   374414
+  ],
+  [
+   363,
+   21,
+   1,
+   1,
+   20,
+   0,
+   94,
+   35042,
+   366538,
+   26447,
+   267657
+  ],
+  [
+   364,
+   21,
+   0,
+   1,
+   26,
+   0,
+   118,
+   53827,
+   714895,
+   68807,
+   1030590
+  ],
+  [
+   365,
+   21,
+   1,
+   1,
+   22,
+   0,
+   116,
+   42697,
+   385316,
+   31640,
+   364723
+  ],
+  [
+   366,
+   21,
+   0,
+   0,
+   15,
+   0,
+   79,
+   24005,
+   232711,
+   20741,
+   215700
+  ],
+  [
+   367,
+   21,
+   1,
+   0,
+   17,
+   0,
+   83,
+   21074,
+   229682,
+   38965,
+   411711
+  ],
+  [
+   368,
+   21,
+   0,
+   0,
+   17,
+   0,
+   86,
+   22989,
+   257837,
+   21152,
+   208661
+  ],
+  [
+   369,
+   21,
+   1,
+   0,
+   17,
+   0,
+   86,
+   17283,
+   164647,
+   23378,
+   194180
+  ],
+  [
+   370,
+   21,
+   0,
+   1,
+   18,
+   0,
+   87,
+   29451,
+   400290,
+   34432,
+   318322
+  ],
+  [
+   371,
+   21,
+   1,
+   1,
+   20,
+   0,
+   96,
+   47863,
+   423021,
+   35192,
+   443422
+  ],
+  [
+   372,
+   21,
+   0,
+   1,
+   14,
+   0,
+   54,
+   15280,
+   167798,
+   21159,
+   224621
+  ],
+  [
+   373,
+   21,
+   1,
+   1,
+   14,
+   0,
+   65,
+   24327,
+   293243,
+   20720,
+   269106
+  ],
+  [
+   374,
+   21,
+   0,
+   0,
+   11,
+   0,
+   49,
+   26111,
+   301143,
+   14469,
+   182382
+  ],
+  [
+   375,
+   21,
+   1,
+   0,
+   11,
+   0,
+   51,
+   13021,
+   138718,
+   22932,
+   250887
+  ],
+  [
+   376,
+   27,
+   0,
+   1,
+   14,
+   0,
+   69,
+   24538,
+   313885,
+   30197,
+   300919
+  ],
+  [
+   377,
+   27,
+   1,
+   1,
+   12,
+   0,
+   57,
+   31796,
+   347247,
+   17079,
+   200156
+  ],
+  [
+   378,
+   27,
+   0,
+   0,
+   25,
+   0,
+   117,
+   43748,
+   383552,
+   34908,
+   356124
+  ],
+  [
+   379,
+   27,
+   1,
+   1,
+   20,
+   0,
+   98,
+   33207,
+   346863,
+   27166,
+   264787
+  ],
+  [
+   380,
+   27,
+   0,
+   0,
+   23,
+   0,
+   111,
+   42043,
+   405623,
+   34049,
+   340966
+  ],
+  [
+   381,
+   27,
+   1,
+   0,
+   19,
+   0,
+   107,
+   43184,
+   668388,
+   47301,
+   672313
+  ],
+  [
+   382,
+   27,
+   0,
+   0,
+   25,
+   0,
+   125,
+   52411,
+   544250,
+   32808,
+   394498
+  ],
+  [
+   383,
+   27,
+   1,
+   0,
+   15,
+   0,
+   73,
+   21466,
+   232669,
+   34389,
+   335751
+  ],
+  [
+   384,
+   27,
+   0,
+   0,
+   15,
+   0,
+   89,
+   28561,
+   346486,
+   31676,
+   360398
+  ],
+  [
+   385,
+   27,
+   1,
+   1,
+   32,
+   0,
+   147,
+   28918,
+   258685,
+   49897,
+   493526
+  ],
+  [
+   386,
+   27,
+   0,
+   0,
+   21,
+   0,
+   101,
+   33857,
+   308214,
+   33339,
+   370474
+  ],
+  [
+   387,
+   27,
+   1,
+   0,
+   19,
+   0,
+   94,
+   36262,
+   384599,
+   34512,
+   305224
+  ],
+  [
+   388,
+   27,
+   0,
+   1,
+   16,
+   0,
+   91,
+   44988,
+   694252,
+   34929,
+   491654
+  ],
+  [
+   389,
+   27,
+   1,
+   0,
+   15,
+   0,
+   84,
+   42439,
+   635946,
+   34382,
+   531907
+  ],
+  [
+   390,
+   27,
+   0,
+   0,
+   23,
+   0,
+   87,
+   26615,
+   233933,
+   27667,
+   284182
+  ],
+  [
+   391,
+   27,
+   1,
+   0,
+   17,
+   0,
+   68,
+   18236,
+   203022,
+   29931,
+   292053
+  ],
+  [
+   392,
+   27,
+   0,
+   0,
+   15,
+   0,
+   59,
+   21375,
+   219751,
+   12116,
+   116482
+  ],
+  [
+   393,
+   27,
+   1,
+   1,
+   20,
+   0,
+   100,
+   51079,
+   446461,
+   25625,
+   284704
+  ],
+  [
+   394,
+   27,
+   0,
+   0,
+   25,
+   0,
+   121,
+   41413,
+   401006,
+   32936,
+   374477
+  ],
+  [
+   395,
+   27,
+   1,
+   0,
+   19,
+   0,
+   110,
+   30697,
+   416005,
+   59479,
+   664366
+  ],
+  [
+   396,
+   27,
+   0,
+   0,
+   17,
+   0,
+   74,
+   37962,
+   386182,
+   25981,
+   280668
+  ],
+  [
+   397,
+   27,
+   1,
+   0,
+   13,
+   0,
+   64,
+   31616,
+   368278,
+   28322,
+   337269
+  ],
+  [
+   398,
+   27,
+   0,
+   1,
+   24,
+   0,
+   125,
+   38012,
+   384561,
+   40045,
+   482034
+  ],
+  [
+   399,
+   27,
+   1,
+   0,
+   21,
+   0,
+   121,
+   38724,
+   472656,
+   38329,
+   445265
+  ]
+ ]
+}

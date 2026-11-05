@@ -1,0 +1,33 @@
+[package]
+name = "gcg-diff"
+description = "Differential runner and gate tool for the gcg-sim port (never shipped)"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+rust-version.workspace = true
+publish.workspace = true
+
+[lints]
+workspace = true
+
+[dependencies]
+gcg-core.workspace = true
+gcg-data.workspace = true
+gcg-effects.workspace = true
+gcg-engine = { workspace = true, features = ["testkit"] }
+gcg-ai.workspace = true
+gcg-ai-reference.workspace = true
+gcg-search.workspace = true
+gcg-runner.workspace = true
+serde_json.workspace = true
+sha2.workspace = true
+
+[[bin]]
+name = "gcg-diff"
+path = "src/main.rs"
+
+[features]
+# Long corpus and fuzz targets (A12).
+slow = []
+# Builds the engine's paranoid self-checks into gcg-diff; use its own target dir (PLAN §2.2).
+paranoid = ["gcg-engine/paranoid"]

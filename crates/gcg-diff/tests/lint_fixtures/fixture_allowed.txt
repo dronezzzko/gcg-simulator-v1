@@ -1,0 +1,29 @@
+// lint-path: crates/gcg-engine/src/fixture_allowed.rs
+// Allowed forms: none of these lines may be reported.
+use crate::Duration;
+
+pub enum Duration { ThisTurn, ThisBattle }
+
+fn leaf(turn: i32, root: i32) -> f64 {
+    let elapsed = f64::from(turn - root);
+    elapsed * 0.01
+}
+
+fn keep(d: Duration) -> Duration {
+    d
+}
+
+#[test]
+#[should_panic(expected = "deck has 49 cards")]
+fn short_deck_panics_with_its_message() {}
+
+#[expect(unsafe_code, reason = "names the lint, not the keyword")]
+fn names() -> &'static str {
+    "std::time and Instant and unsafe in a string are not code"
+}
+
+// A comment may say std::time, Instant, thread::sleep or unsafe.
+fn grand_total(xs: &[f64]) -> f64 { gcg_core::pymath::py_sum(xs) }
+fn operand() -> u8 { b'x' }
+// The code_digest walk skips directories named __pycache__ (not a W-122 reference).
+const SKIP: &str = "__pycache__";

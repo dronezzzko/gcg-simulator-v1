@@ -1,0 +1,3299 @@
+{
+ "format": "gcg-eval-ablation",
+ "version": 1,
+ "row": "leave-one-out",
+ "mechanism": "adaptive_horizon=false,capped_rollout_continuation=false,tactical_solver=false",
+ "bundle": "search:standard:iterations_per_option=256,min_iterations=640,max_iterations=2560,adaptive_horizon=true,capped_rollout_continuation=true,tactical_solver=true",
+ "decks": "panel",
+ "pairs": "tuning",
+ "seed": 21500900,
+ "role": "dev",
+ "games": 60,
+ "choose_first": "seat0",
+ "challenger": "search:standard:iterations_per_option=256,min_iterations=640,max_iterations=2560,adaptive_horizon=true,capped_rollout_continuation=true,tactical_solver=true",
+ "opponent": "search:standard:iterations_per_option=256,min_iterations=640,max_iterations=2560,adaptive_horizon=true,capped_rollout_continuation=true,tactical_solver=true,adaptive_horizon=false,capped_rollout_continuation=false,tactical_solver=false",
+ "agents": {
+  "challenger": "search-standard",
+  "opponent": "search-standard"
+ },
+ "summary": {
+  "wins": 35,
+  "n": 60,
+  "rate": 0.5833,
+  "ci95": [
+   0.4573,
+   0.6994
+  ],
+  "difference": 0.1667,
+  "difference_ci95": [
+   0.0045,
+   0.3129
+  ],
+  "discordant": [
+   6,
+   1
+  ],
+  "iterations_per_game": {
+   "challenger": 32561.92,
+   "opponent": 31819.07
+  },
+  "applies_per_game": {
+   "challenger": 593263.32,
+   "opponent": 361833.35
+  },
+  "text": "35/60 = 0.583 [0.457, 0.699]; paired difference 0.167 [0.004, 0.313]; discordant 6/1; iterations per game 32561.9 vs 31819.1; applies per game 593263.3 vs 361833.3"
+ },
+ "result": {
+  "wins": 35,
+  "n": 60,
+  "rate": 0.5833,
+  "ci95": [
+   0.4573,
+   0.6994
+  ],
+  "draws": 0,
+  "mean_turns": 18.38,
+  "by_challenger_seat": {
+   "0": {
+    "wins": 20,
+    "n": 30,
+    "rate": 0.6667,
+    "ci95": [
+     0.4878,
+     0.8077
+    ]
+   },
+   "1": {
+    "wins": 15,
+    "n": 30,
+    "rate": 0.5,
+    "ci95": [
+     0.3315,
+     0.6685
+    ]
+   }
+  },
+  "by_challenger_deck": {
+   "deck0": {
+    "wins": 6,
+    "n": 10,
+    "rate": 0.6,
+    "ci95": [
+     0.3127,
+     0.8318
+    ]
+   },
+   "deck1": {
+    "wins": 3,
+    "n": 10,
+    "rate": 0.3,
+    "ci95": [
+     0.1078,
+     0.6032
+    ]
+   },
+   "deck2": {
+    "wins": 8,
+    "n": 10,
+    "rate": 0.8,
+    "ci95": [
+     0.4902,
+     0.9433
+    ]
+   },
+   "deck3": {
+    "wins": 5,
+    "n": 10,
+    "rate": 0.5,
+    "ci95": [
+     0.2366,
+     0.7634
+    ]
+   },
+   "deck4": {
+    "wins": 7,
+    "n": 10,
+    "rate": 0.7,
+    "ci95": [
+     0.3968,
+     0.8922
+    ]
+   },
+   "deck5": {
+    "wins": 6,
+    "n": 10,
+    "rate": 0.6,
+    "ci95": [
+     0.3127,
+     0.8318
+    ]
+   }
+  },
+  "draw_rate": 0.0,
+  "paired": {
+   "deals": 30,
+   "both": 14,
+   "challenger_only": 6,
+   "opponent_only": 1,
+   "neither": 9,
+   "difference": 0.1667,
+   "ci95": [
+    0.0045,
+    0.3129
+   ],
+   "bootstrap_ci95": [
+    0.0,
+    0.3333
+   ]
+  },
+  "play_draw": {
+   "challenger": {
+    "on_play": {
+     "wins": 20,
+     "n": 30,
+     "rate": 0.6667,
+     "ci95": [
+      0.4878,
+      0.8077
+     ]
+    },
+    "on_draw": {
+     "wins": 15,
+     "n": 30,
+     "rate": 0.5,
+     "ci95": [
+      0.3315,
+      0.6685
+     ]
+    }
+   },
+   "opponent": {
+    "on_play": {
+     "wins": 15,
+     "n": 30,
+     "rate": 0.5,
+     "ci95": [
+      0.3315,
+      0.6685
+     ]
+    },
+    "on_draw": {
+     "wins": 10,
+     "n": 30,
+     "rate": 0.3333,
+     "ci95": [
+      0.1923,
+      0.5122
+     ]
+    }
+   }
+  },
+  "effort": {
+   "challenger": {
+    "games": 60,
+    "decisions": 2712,
+    "searches": 2332,
+    "iterations": 1953715,
+    "applies_tree": 9920443,
+    "applies_rollout": 18072961,
+    "applies_aux": 7602395,
+    "worlds": 1258683,
+    "rollouts_capped": 0,
+    "iterations_per_game": 32561.92,
+    "applies_per_game": 593263.32
+   },
+   "opponent": {
+    "games": 60,
+    "decisions": 2706,
+    "searches": 2337,
+    "iterations": 1909144,
+    "applies_tree": 9879954,
+    "applies_rollout": 11830047,
+    "applies_aux": 0,
+    "worlds": 1225305,
+    "rollouts_capped": 0,
+    "iterations_per_game": 31819.07,
+    "applies_per_game": 361833.35
+   }
+  },
+  "stratified": {
+   "pairs": 15,
+   "rate": 0.5833,
+   "ci95": [
+    0.469,
+    0.6977
+   ]
+  }
+ },
+ "held_out": null,
+ "by_pair": [
+  {
+   "decks": [
+    "blue-white-federation",
+    "purple-white-tekkadan"
+   ],
+   "position": 0,
+   "held_out": false,
+   "master": 8844199060510635527,
+   "result": {
+    "wins": 2,
+    "n": 4,
+    "rate": 0.5,
+    "ci95": [
+     0.15,
+     0.85
+    ],
+    "draws": 0,
+    "mean_turns": 16.0,
+    "by_challenger_seat": {
+     "0": {
+      "wins": 1,
+      "n": 2,
+      "rate": 0.5,
+      "ci95": [
+       0.0945,
+       0.9055
+      ]
+     },
+     "1": {
+      "wins": 1,
+      "n": 2,
+      "rate": 0.5,
+      "ci95": [
+       0.0945,
+       0.9055
+      ]
+     }
+    },
+    "by_challenger_deck": {
+     "deck0": {
+      "wins": 2,
+      "n": 2,
+      "rate": 1.0,
+      "ci95": [
+       0.3424,
+       1.0
+      ]
+     },
+     "deck1": {
+      "wins": 0,
+      "n": 2,
+      "rate": 0.0,
+      "ci95": [
+       0.0,
+       0.6576
+      ]
+     }
+    },
+    "draw_rate": 0.0,
+    "paired": {
+     "deals": 2,
+     "both": 1,
+     "challenger_only": 0,
+     "opponent_only": 0,
+     "neither": 1,
+     "difference": 0.0,
+     "ci95": [
+      0.0,
+      0.0
+     ],
+     "bootstrap_ci95": [
+      0.0,
+      0.0
+     ]
+    },
+    "play_draw": {
+     "challenger": {
+      "on_play": {
+       "wins": 1,
+       "n": 2,
+       "rate": 0.5,
+       "ci95": [
+        0.0945,
+        0.9055
+       ]
+      },
+      "on_draw": {
+       "wins": 1,
+       "n": 2,
+       "rate": 0.5,
+       "ci95": [
+        0.0945,
+        0.9055
+       ]
+      }
+     },
+     "opponent": {
+      "on_play": {
+       "wins": 1,
+       "n": 2,
+       "rate": 0.5,
+       "ci95": [
+        0.0945,
+        0.9055
+       ]
+      },
+      "on_draw": {
+       "wins": 1,
+       "n": 2,
+       "rate": 0.5,
+       "ci95": [
+        0.0945,
+        0.9055
+       ]
+      }
+     }
+    },
+    "effort": {
+     "challenger": {
+      "games": 4,
+      "decisions": 171,
+      "searches": 147,
+      "iterations": 128414,
+      "applies_tree": 643669,
+      "applies_rollout": 1106774,
+      "applies_aux": 639740,
+      "worlds": 73930,
+      "rollouts_capped": 0,
+      "iterations_per_game": 32103.5,
+      "applies_per_game": 597545.75
+     },
+     "opponent": {
+      "games": 4,
+      "decisions": 172,
+      "searches": 151,
+      "iterations": 127764,
+      "applies_tree": 638247,
+      "applies_rollout": 685659,
+      "applies_aux": 0,
+      "worlds": 71267,
+      "rollouts_capped": 0,
+      "iterations_per_game": 31941.0,
+      "applies_per_game": 330976.5
+     }
+    }
+   }
+  },
+  {
+   "decks": [
+    "blue-white-federation",
+    "red-green-zeon"
+   ],
+   "position": 1,
+   "held_out": false,
+   "master": 8640712566777108280,
+   "result": {
+    "wins": 2,
+    "n": 4,
+    "rate": 0.5,
+    "ci95": [
+     0.15,
+     0.85
+    ],
+    "draws": 0,
+    "mean_turns": 17.0,
+    "by_challenger_seat": {
+     "0": {
+      "wins": 1,
+      "n": 2,
+      "rate": 0.5,
+      "ci95": [
+       0.0945,
+       0.9055
+      ]
+     },
+     "1": {
+      "wins": 1,
+      "n": 2,
+      "rate": 0.5,
+      "ci95": [
+       0.0945,
+       0.9055
+      ]
+     }
+    },
+    "by_challenger_deck": {
+     "deck0": {
+      "wins": 0,
+      "n": 2,
+      "rate": 0.0,
+      "ci95": [
+       0.0,
+       0.6576
+      ]
+     },
+     "deck1": {
+      "wins": 2,
+      "n": 2,
+      "rate": 1.0,
+      "ci95": [
+       0.3424,
+       1.0
+      ]
+     }
+    },
+    "draw_rate": 0.0,
+    "paired": {
+     "deals": 2,
+     "both": 1,
+     "challenger_only": 0,
+     "opponent_only": 0,
+     "neither": 1,
+     "difference": 0.0,
+     "ci95": [
+      0.0,
+      0.0
+     ],
+     "bootstrap_ci95": [
+      0.0,
+      0.0
+     ]
+    },
+    "play_draw": {
+     "challenger": {
+      "on_play": {
+       "wins": 1,
+       "n": 2,
+       "rate": 0.5,
+       "ci95": [
+        0.0945,
+        0.9055
+       ]
+      },
+      "on_draw": {
+       "wins": 1,
+       "n": 2,
+       "rate": 0.5,
+       "ci95": [
+        0.0945,
+        0.9055
+       ]
+      }
+     },
+     "opponent": {
+      "on_play": {
+       "wins": 1,
+       "n": 2,
+       "rate": 0.5,
+       "ci95": [
+        0.0945,
+        0.9055
+       ]
+      },
+      "on_draw": {
+       "wins": 1,
+       "n": 2,
+       "rate": 0.5,
+       "ci95": [
+        0.0945,
+        0.9055
+       ]
+      }
+     }
+    },
+    "effort": {
+     "challenger": {
+      "games": 4,
+      "decisions": 178,
+      "searches": 152,
+      "iterations": 135364,
+      "applies_tree": 670963,
+      "applies_rollout": 1494366,
+      "applies_aux": 369434,
+      "worlds": 84315,
+      "rollouts_capped": 0,
+      "iterations_per_game": 33841.0,
+      "applies_per_game": 633690.75
+     },
+     "opponent": {
+      "games": 4,
+      "decisions": 161,
+      "searches": 133,
+      "iterations": 114549,
+      "applies_tree": 574963,
+      "applies_rollout": 862037,
+      "applies_aux": 0,
+      "worlds": 70637,
+      "rollouts_capped": 0,
+      "iterations_per_game": 28637.25,
+      "applies_per_game": 359250.0
+     }
+    }
+   }
+  },
+  {
+   "decks": [
+    "blue-white-federation",
+    "blue-green-ramp"
+   ],
+   "position": 2,
+   "held_out": false,
+   "master": 5018282993767597419,
+   "result": {
+    "wins": 3,
+    "n": 4,
+    "rate": 0.75,
+    "ci95": [
+     0.3006,
+     0.9544
+    ],
+    "draws": 0,
+    "mean_turns": 21.25,
+    "by_challenger_seat": {
+     "0": {
+      "wins": 2,
+      "n": 2,
+      "rate": 1.0,
+      "ci95": [
+       0.3424,
+       1.0
+      ]
+     },
+     "1": {
+      "wins": 1,
+      "n": 2,
+      "rate": 0.5,
+      "ci95": [
+       0.0945,
+       0.9055
+      ]
+     }
+    },
+    "by_challenger_deck": {
+     "deck0": {
+      "wins": 2,
+      "n": 2,
+      "rate": 1.0,
+      "ci95": [
+       0.3424,
+       1.0
+      ]
+     },
+     "deck1": {
+      "wins": 1,
+      "n": 2,
+      "rate": 0.5,
+      "ci95": [
+       0.0945,
+       0.9055
+      ]
+     }
+    },
+    "draw_rate": 0.0,
+    "paired": {
+     "deals": 2,
+     "both": 1,
+     "challenger_only": 1,
+     "opponent_only": 0,
+     "neither": 0,
+     "difference": 0.5,
+     "ci95": [
+      -0.2726,
+      0.9055
+     ],
+     "bootstrap_ci95": [
+      0.0,
+      1.0
+     ]
+    },
+    "play_draw": {
+     "challenger": {
+      "on_play": {
+       "wins": 2,
+       "n": 2,
+       "rate": 1.0,
+       "ci95": [
+        0.3424,
+        1.0
+       ]
+      },
+      "on_draw": {
+       "wins": 1,
+       "n": 2,
+       "rate": 0.5,
+       "ci95": [
+        0.0945,
+        0.9055
+       ]
+      }
+     },
+     "opponent": {
+      "on_play": {
+       "wins": 1,
+       "n": 2,
+       "rate": 0.5,
+       "ci95": [
+        0.0945,
+        0.9055
+       ]
+      },
+      "on_draw": {
+       "wins": 0,
+       "n": 2,
+       "rate": 0.0,
+       "ci95": [
+        0.0,
+        0.6576
+       ]
+      }
+     }
+    },
+    "effort": {
+     "challenger": {
+      "games": 4,
+      "decisions": 194,
+      "searches": 163,
+      "iterations": 143413,
+      "applies_tree": 715196,
+      "applies_rollout": 1465868,
+      "applies_aux": 540322,
+      "worlds": 85086,
+      "rollouts_capped": 0,
+      "iterations_per_game": 35853.25,
+      "applies_per_game": 680346.5
+     },
+     "opponent": {
+      "games": 4,
+      "decisions": 180,
+      "searches": 157,
+      "iterations": 136309,
+      "applies_tree": 652898,
+      "applies_rollout": 925735,
+      "applies_aux": 0,
+      "worlds": 83071,
+      "rollouts_capped": 0,
+      "iterations_per_game": 34077.25,
+      "applies_per_game": 394658.25
+     }
+    }
+   }
+  },
+  {
+   "decks": [
+    "blue-white-federation",
+    "purple-blue-swarm"
+   ],
+   "position": 5,
+   "held_out": false,
+   "master": 8953576996266527668,
+   "result": {
+    "wins": 1,
+    "n": 4,
+    "rate": 0.25,
+    "ci95": [
+     0.0456,
+     0.6994
+    ],
+    "draws": 0,
+    "mean_turns": 16.25,
+    "by_challenger_seat": {
+     "0": {
+      "wins": 1,
+      "n": 2,
+      "rate": 0.5,
+      "ci95": [
+       0.0945,
+       0.9055
+      ]
+     },
+     "1": {
+      "wins": 0,
+      "n": 2,
+      "rate": 0.0,
+      "ci95": [
+       0.0,
+       0.6576
+      ]
+     }
+    },
+    "by_challenger_deck": {
+     "deck0": {
+      "wins": 0,
+      "n": 2,
+      "rate": 0.0,
+      "ci95": [
+       0.0,
+       0.6576
+      ]
+     },
+     "deck1": {
+      "wins": 1,
+      "n": 2,
+      "rate": 0.5,
+      "ci95": [
+       0.0945,
+       0.9055
+      ]
+     }
+    },
+    "draw_rate": 0.0,
+    "paired": {
+     "deals": 2,
+     "both": 1,
+     "challenger_only": 0,
+     "opponent_only": 1,
+     "neither": 0,
+     "difference": -0.5,
+     "ci95": [
+      -0.9055,
+      0.2726
+     ],
+     "bootstrap_ci95": [
+      -1.0,
+      0.0
+     ]
+    },
+    "play_draw": {
+     "challenger": {
+      "on_play": {
+       "wins": 1,
+       "n": 2,
+       "rate": 0.5,
+       "ci95": [
+        0.0945,
+        0.9055
+       ]
+      },
+      "on_draw": {
+       "wins": 0,
+       "n": 2,
+       "rate": 0.0,
+       "ci95": [
+        0.0,
+        0.6576
+       ]
+      }
+     },
+     "opponent": {
+      "on_play": {
+       "wins": 2,
+       "n": 2,
+       "rate": 1.0,
+       "ci95": [
+        0.3424,
+        1.0
+       ]
+      },
+      "on_draw": {
+       "wins": 1,
+       "n": 2,
+       "rate": 0.5,
+       "ci95": [
+        0.0945,
+        0.9055
+       ]
+      }
+     }
+    },
+    "effort": {
+     "challenger": {
+      "games": 4,
+      "decisions": 163,
+      "searches": 138,
+      "iterations": 131728,
+      "applies_tree": 675849,
+      "applies_rollout": 1191812,
+      "applies_aux": 230524,
+      "worlds": 84278,
+      "rollouts_capped": 0,
+      "iterations_per_game": 32932.0,
+      "applies_per_game": 524546.25
+     },
+     "opponent": {
+      "games": 4,
+      "decisions": 174,
+      "searches": 148,
+      "iterations": 133227,
+      "applies_tree": 655514,
+      "applies_rollout": 812848,
+      "applies_aux": 0,
+      "worlds": 81206,
+      "rollouts_capped": 0,
+      "iterations_per_game": 33306.75,
+      "applies_per_game": 367090.5
+     }
+    }
+   }
+  },
+  {
+   "decks": [
+    "blue-white-federation",
+    "red-purple-control"
+   ],
+   "position": 6,
+   "held_out": false,
+   "master": 5814725942086380148,
+   "result": {
+    "wins": 4,
+    "n": 4,
+    "rate": 1.0,
+    "ci95": [
+     0.5101,
+     1.0
+    ],
+    "draws": 0,
+    "mean_turns": 21.0,
+    "by_challenger_seat": {
+     "0": {
+      "wins": 2,
+      "n": 2,
+      "rate": 1.0,
+      "ci95": [
+       0.3424,
+       1.0
+      ]
+     },
+     "1": {
+      "wins": 2,
+      "n": 2,
+      "rate": 1.0,
+      "ci95": [
+       0.3424,
+       1.0
+      ]
+     }
+    },
+    "by_challenger_deck": {
+     "deck0": {
+      "wins": 2,
+      "n": 2,
+      "rate": 1.0,
+      "ci95": [
+       0.3424,
+       1.0
+      ]
+     },
+     "deck1": {
+      "wins": 2,
+      "n": 2,
+      "rate": 1.0,
+      "ci95": [
+       0.3424,
+       1.0
+      ]
+     }
+    },
+    "draw_rate": 0.0,
+    "paired": {
+     "deals": 2,
+     "both": 0,
+     "challenger_only": 2,
+     "opponent_only": 0,
+     "neither": 0,
+     "difference": 1.0,
+     "ci95": [
+      0.07,
+      1.0
+     ],
+     "bootstrap_ci95": [
+      1.0,
+      1.0
+     ]
+    },
+    "play_draw": {
+     "challenger": {
+      "on_play": {
+       "wins": 2,
+       "n": 2,
+       "rate": 1.0,
+       "ci95": [
+        0.3424,
+        1.0
+       ]
+      },
+      "on_draw": {
+       "wins": 2,
+       "n": 2,
+       "rate": 1.0,
+       "ci95": [
+        0.3424,
+        1.0
+       ]
+      }
+     },
+     "opponent": {
+      "on_play": {
+       "wins": 0,
+       "n": 2,
+       "rate": 0.0,
+       "ci95": [
+        0.0,
+        0.6576
+       ]
+      },
+      "on_draw": {
+       "wins": 0,
+       "n": 2,
+       "rate": 0.0,
+       "ci95": [
+        0.0,
+        0.6576
+       ]
+      }
+     }
+    },
+    "effort": {
+     "challenger": {
+      "games": 4,
+      "decisions": 190,
+      "searches": 170,
+      "iterations": 142931,
+      "applies_tree": 659066,
+      "applies_rollout": 1314989,
+      "applies_aux": 922238,
+      "worlds": 86716,
+      "rollouts_capped": 0,
+      "iterations_per_game": 35732.75,
+      "applies_per_game": 724073.25
+     },
+     "opponent": {
+      "games": 4,
+      "decisions": 178,
+      "searches": 154,
+      "iterations": 105682,
+      "applies_tree": 526011,
+      "applies_rollout": 592888,
+      "applies_aux": 0,
+      "worlds": 65015,
+      "rollouts_capped": 0,
+      "iterations_per_game": 26420.5,
+      "applies_per_game": 279724.75
+     }
+    }
+   }
+  },
+  {
+   "decks": [
+    "purple-white-tekkadan",
+    "red-green-zeon"
+   ],
+   "position": 7,
+   "held_out": false,
+   "master": 5308642814451858997,
+   "result": {
+    "wins": 2,
+    "n": 4,
+    "rate": 0.5,
+    "ci95": [
+     0.15,
+     0.85
+    ],
+    "draws": 0,
+    "mean_turns": 14.0,
+    "by_challenger_seat": {
+     "0": {
+      "wins": 1,
+      "n": 2,
+      "rate": 0.5,
+      "ci95": [
+       0.0945,
+       0.9055
+      ]
+     },
+     "1": {
+      "wins": 1,
+      "n": 2,
+      "rate": 0.5,
+      "ci95": [
+       0.0945,
+       0.9055
+      ]
+     }
+    },
+    "by_challenger_deck": {
+     "deck0": {
+      "wins": 0,
+      "n": 2,
+      "rate": 0.0,
+      "ci95": [
+       0.0,
+       0.6576
+      ]
+     },
+     "deck1": {
+      "wins": 2,
+      "n": 2,
+      "rate": 1.0,
+      "ci95": [
+       0.3424,
+       1.0
+      ]
+     }
+    },
+    "draw_rate": 0.0,
+    "paired": {
+     "deals": 2,
+     "both": 1,
+     "challenger_only": 0,
+     "opponent_only": 0,
+     "neither": 1,
+     "difference": 0.0,
+     "ci95": [
+      0.0,
+      0.0
+     ],
+     "bootstrap_ci95": [
+      0.0,
+      0.0
+     ]
+    },
+    "play_draw": {
+     "challenger": {
+      "on_play": {
+       "wins": 1,
+       "n": 2,
+       "rate": 0.5,
+       "ci95": [
+        0.0945,
+        0.9055
+       ]
+      },
+      "on_draw": {
+       "wins": 1,
+       "n": 2,
+       "rate": 0.5,
+       "ci95": [
+        0.0945,
+        0.9055
+       ]
+      }
+     },
+     "opponent": {
+      "on_play": {
+       "wins": 1,
+       "n": 2,
+       "rate": 0.5,
+       "ci95": [
+        0.0945,
+        0.9055
+       ]
+      },
+      "on_draw": {
+       "wins": 1,
+       "n": 2,
+       "rate": 0.5,
+       "ci95": [
+        0.0945,
+        0.9055
+       ]
+      }
+     }
+    },
+    "effort": {
+     "challenger": {
+      "games": 4,
+      "decisions": 156,
+      "searches": 134,
+      "iterations": 127047,
+      "applies_tree": 643544,
+      "applies_rollout": 1269782,
+      "applies_aux": 485925,
+      "worlds": 86607,
+      "rollouts_capped": 0,
+      "iterations_per_game": 31761.75,
+      "applies_per_game": 599812.75
+     },
+     "opponent": {
+      "games": 4,
+      "decisions": 162,
+      "searches": 141,
+      "iterations": 125730,
+      "applies_tree": 702831,
+      "applies_rollout": 974408,
+      "applies_aux": 0,
+      "worlds": 87525,
+      "rollouts_capped": 0,
+      "iterations_per_game": 31432.5,
+      "applies_per_game": 419309.75
+     }
+    }
+   }
+  },
+  {
+   "decks": [
+    "purple-white-tekkadan",
+    "blue-green-ramp"
+   ],
+   "position": 8,
+   "held_out": false,
+   "master": 16931922643690047456,
+   "result": {
+    "wins": 3,
+    "n": 4,
+    "rate": 0.75,
+    "ci95": [
+     0.3006,
+     0.9544
+    ],
+    "draws": 0,
+    "mean_turns": 15.25,
+    "by_challenger_seat": {
+     "0": {
+      "wins": 2,
+      "n": 2,
+      "rate": 1.0,
+      "ci95": [
+       0.3424,
+       1.0
+      ]
+     },
+     "1": {
+      "wins": 1,
+      "n": 2,
+      "rate": 0.5,
+      "ci95": [
+       0.0945,
+       0.9055
+      ]
+     }
+    },
+    "by_challenger_deck": {
+     "deck0": {
+      "wins": 2,
+      "n": 2,
+      "rate": 1.0,
+      "ci95": [
+       0.3424,
+       1.0
+      ]
+     },
+     "deck1": {
+      "wins": 1,
+      "n": 2,
+      "rate": 0.5,
+      "ci95": [
+       0.0945,
+       0.9055
+      ]
+     }
+    },
+    "draw_rate": 0.0,
+    "paired": {
+     "deals": 2,
+     "both": 1,
+     "challenger_only": 1,
+     "opponent_only": 0,
+     "neither": 0,
+     "difference": 0.5,
+     "ci95": [
+      -0.2726,
+      0.9055
+     ],
+     "bootstrap_ci95": [
+      0.0,
+      1.0
+     ]
+    },
+    "play_draw": {
+     "challenger": {
+      "on_play": {
+       "wins": 2,
+       "n": 2,
+       "rate": 1.0,
+       "ci95": [
+        0.3424,
+        1.0
+       ]
+      },
+      "on_draw": {
+       "wins": 1,
+       "n": 2,
+       "rate": 0.5,
+       "ci95": [
+        0.0945,
+        0.9055
+       ]
+      }
+     },
+     "opponent": {
+      "on_play": {
+       "wins": 1,
+       "n": 2,
+       "rate": 0.5,
+       "ci95": [
+        0.0945,
+        0.9055
+       ]
+      },
+      "on_draw": {
+       "wins": 0,
+       "n": 2,
+       "rate": 0.0,
+       "ci95": [
+        0.0,
+        0.6576
+       ]
+      }
+     }
+    },
+    "effort": {
+     "challenger": {
+      "games": 4,
+      "decisions": 181,
+      "searches": 163,
+      "iterations": 160248,
+      "applies_tree": 830667,
+      "applies_rollout": 1632395,
+      "applies_aux": 771101,
+      "worlds": 92179,
+      "rollouts_capped": 0,
+      "iterations_per_game": 40062.0,
+      "applies_per_game": 808540.75
+     },
+     "opponent": {
+      "games": 4,
+      "decisions": 176,
+      "searches": 156,
+      "iterations": 139438,
+      "applies_tree": 724285,
+      "applies_rollout": 1011946,
+      "applies_aux": 0,
+      "worlds": 85594,
+      "rollouts_capped": 0,
+      "iterations_per_game": 34859.5,
+      "applies_per_game": 434057.75
+     }
+    }
+   }
+  },
+  {
+   "decks": [
+    "purple-white-tekkadan",
+    "purple-blue-swarm"
+   ],
+   "position": 11,
+   "held_out": false,
+   "master": 8114614802931426676,
+   "result": {
+    "wins": 2,
+    "n": 4,
+    "rate": 0.5,
+    "ci95": [
+     0.15,
+     0.85
+    ],
+    "draws": 0,
+    "mean_turns": 17.0,
+    "by_challenger_seat": {
+     "0": {
+      "wins": 2,
+      "n": 2,
+      "rate": 1.0,
+      "ci95": [
+       0.3424,
+       1.0
+      ]
+     },
+     "1": {
+      "wins": 0,
+      "n": 2,
+      "rate": 0.0,
+      "ci95": [
+       0.0,
+       0.6576
+      ]
+     }
+    },
+    "by_challenger_deck": {
+     "deck0": {
+      "wins": 1,
+      "n": 2,
+      "rate": 0.5,
+      "ci95": [
+       0.0945,
+       0.9055
+      ]
+     },
+     "deck1": {
+      "wins": 1,
+      "n": 2,
+      "rate": 0.5,
+      "ci95": [
+       0.0945,
+       0.9055
+      ]
+     }
+    },
+    "draw_rate": 0.0,
+    "paired": {
+     "deals": 2,
+     "both": 2,
+     "challenger_only": 0,
+     "opponent_only": 0,
+     "neither": 0,
+     "difference": 0.0,
+     "ci95": [
+      -0.6576,
+      0.6576
+     ],
+     "bootstrap_ci95": [
+      0.0,
+      0.0
+     ]
+    },
+    "play_draw": {
+     "challenger": {
+      "on_play": {
+       "wins": 2,
+       "n": 2,
+       "rate": 1.0,
+       "ci95": [
+        0.3424,
+        1.0
+       ]
+      },
+      "on_draw": {
+       "wins": 0,
+       "n": 2,
+       "rate": 0.0,
+       "ci95": [
+        0.0,
+        0.6576
+       ]
+      }
+     },
+     "opponent": {
+      "on_play": {
+       "wins": 2,
+       "n": 2,
+       "rate": 1.0,
+       "ci95": [
+        0.3424,
+        1.0
+       ]
+      },
+      "on_draw": {
+       "wins": 0,
+       "n": 2,
+       "rate": 0.0,
+       "ci95": [
+        0.0,
+        0.6576
+       ]
+      }
+     }
+    },
+    "effort": {
+     "challenger": {
+      "games": 4,
+      "decisions": 167,
+      "searches": 148,
+      "iterations": 135397,
+      "applies_tree": 715660,
+      "applies_rollout": 1187391,
+      "applies_aux": 397457,
+      "worlds": 90085,
+      "rollouts_capped": 0,
+      "iterations_per_game": 33849.25,
+      "applies_per_game": 575127.0
+     },
+     "opponent": {
+      "games": 4,
+      "decisions": 157,
+      "searches": 139,
+      "iterations": 132112,
+      "applies_tree": 671731,
+      "applies_rollout": 944976,
+      "applies_aux": 0,
+      "worlds": 78165,
+      "rollouts_capped": 0,
+      "iterations_per_game": 33028.0,
+      "applies_per_game": 404176.75
+     }
+    }
+   }
+  },
+  {
+   "decks": [
+    "purple-white-tekkadan",
+    "red-purple-control"
+   ],
+   "position": 12,
+   "held_out": false,
+   "master": 16999477368132488730,
+   "result": {
+    "wins": 2,
+    "n": 4,
+    "rate": 0.5,
+    "ci95": [
+     0.15,
+     0.85
+    ],
+    "draws": 0,
+    "mean_turns": 24.5,
+    "by_challenger_seat": {
+     "0": {
+      "wins": 1,
+      "n": 2,
+      "rate": 0.5,
+      "ci95": [
+       0.0945,
+       0.9055
+      ]
+     },
+     "1": {
+      "wins": 1,
+      "n": 2,
+      "rate": 0.5,
+      "ci95": [
+       0.0945,
+       0.9055
+      ]
+     }
+    },
+    "by_challenger_deck": {
+     "deck0": {
+      "wins": 0,
+      "n": 2,
+      "rate": 0.0,
+      "ci95": [
+       0.0,
+       0.6576
+      ]
+     },
+     "deck1": {
+      "wins": 2,
+      "n": 2,
+      "rate": 1.0,
+      "ci95": [
+       0.3424,
+       1.0
+      ]
+     }
+    },
+    "draw_rate": 0.0,
+    "paired": {
+     "deals": 2,
+     "both": 1,
+     "challenger_only": 0,
+     "opponent_only": 0,
+     "neither": 1,
+     "difference": 0.0,
+     "ci95": [
+      0.0,
+      0.0
+     ],
+     "bootstrap_ci95": [
+      0.0,
+      0.0
+     ]
+    },
+    "play_draw": {
+     "challenger": {
+      "on_play": {
+       "wins": 1,
+       "n": 2,
+       "rate": 0.5,
+       "ci95": [
+        0.0945,
+        0.9055
+       ]
+      },
+      "on_draw": {
+       "wins": 1,
+       "n": 2,
+       "rate": 0.5,
+       "ci95": [
+        0.0945,
+        0.9055
+       ]
+      }
+     },
+     "opponent": {
+      "on_play": {
+       "wins": 1,
+       "n": 2,
+       "rate": 0.5,
+       "ci95": [
+        0.0945,
+        0.9055
+       ]
+      },
+      "on_draw": {
+       "wins": 1,
+       "n": 2,
+       "rate": 0.5,
+       "ci95": [
+        0.0945,
+        0.9055
+       ]
+      }
+     }
+    },
+    "effort": {
+     "challenger": {
+      "games": 4,
+      "decisions": 216,
+      "searches": 194,
+      "iterations": 135264,
+      "applies_tree": 677045,
+      "applies_rollout": 1264174,
+      "applies_aux": 87108,
+      "worlds": 87413,
+      "rollouts_capped": 0,
+      "iterations_per_game": 33816.0,
+      "applies_per_game": 507081.75
+     },
+     "opponent": {
+      "games": 4,
+      "decisions": 246,
+      "searches": 220,
+      "iterations": 168838,
+      "applies_tree": 909229,
+      "applies_rollout": 996841,
+      "applies_aux": 0,
+      "worlds": 112684,
+      "rollouts_capped": 0,
+      "iterations_per_game": 42209.5,
+      "applies_per_game": 476517.5
+     }
+    }
+   }
+  },
+  {
+   "decks": [
+    "red-green-zeon",
+    "blue-green-ramp"
+   ],
+   "position": 13,
+   "held_out": false,
+   "master": 4805851796476474705,
+   "result": {
+    "wins": 2,
+    "n": 4,
+    "rate": 0.5,
+    "ci95": [
+     0.15,
+     0.85
+    ],
+    "draws": 0,
+    "mean_turns": 20.0,
+    "by_challenger_seat": {
+     "0": {
+      "wins": 1,
+      "n": 2,
+      "rate": 0.5,
+      "ci95": [
+       0.0945,
+       0.9055
+      ]
+     },
+     "1": {
+      "wins": 1,
+      "n": 2,
+      "rate": 0.5,
+      "ci95": [
+       0.0945,
+       0.9055
+      ]
+     }
+    },
+    "by_challenger_deck": {
+     "deck0": {
+      "wins": 0,
+      "n": 2,
+      "rate": 0.0,
+      "ci95": [
+       0.0,
+       0.6576
+      ]
+     },
+     "deck1": {
+      "wins": 2,
+      "n": 2,
+      "rate": 1.0,
+      "ci95": [
+       0.3424,
+       1.0
+      ]
+     }
+    },
+    "draw_rate": 0.0,
+    "paired": {
+     "deals": 2,
+     "both": 1,
+     "challenger_only": 0,
+     "opponent_only": 0,
+     "neither": 1,
+     "difference": 0.0,
+     "ci95": [
+      0.0,
+      0.0
+     ],
+     "bootstrap_ci95": [
+      0.0,
+      0.0
+     ]
+    },
+    "play_draw": {
+     "challenger": {
+      "on_play": {
+       "wins": 1,
+       "n": 2,
+       "rate": 0.5,
+       "ci95": [
+        0.0945,
+        0.9055
+       ]
+      },
+      "on_draw": {
+       "wins": 1,
+       "n": 2,
+       "rate": 0.5,
+       "ci95": [
+        0.0945,
+        0.9055
+       ]
+      }
+     },
+     "opponent": {
+      "on_play": {
+       "wins": 1,
+       "n": 2,
+       "rate": 0.5,
+       "ci95": [
+        0.0945,
+        0.9055
+       ]
+      },
+      "on_draw": {
+       "wins": 1,
+       "n": 2,
+       "rate": 0.5,
+       "ci95": [
+        0.0945,
+        0.9055
+       ]
+      }
+     }
+    },
+    "effort": {
+     "challenger": {
+      "games": 4,
+      "decisions": 183,
+      "searches": 156,
+      "iterations": 105882,
+      "applies_tree": 571775,
+      "applies_rollout": 809779,
+      "applies_aux": 99536,
+      "worlds": 77064,
+      "rollouts_capped": 0,
+      "iterations_per_game": 26470.5,
+      "applies_per_game": 370272.5
+     },
+     "opponent": {
+      "games": 4,
+      "decisions": 191,
+      "searches": 167,
+      "iterations": 114391,
+      "applies_tree": 593375,
+      "applies_rollout": 522033,
+      "applies_aux": 0,
+      "worlds": 81326,
+      "rollouts_capped": 0,
+      "iterations_per_game": 28597.75,
+      "applies_per_game": 278852.0
+     }
+    }
+   }
+  },
+  {
+   "decks": [
+    "red-green-zeon",
+    "purple-blue-swarm"
+   ],
+   "position": 16,
+   "held_out": false,
+   "master": 5287379209691286257,
+   "result": {
+    "wins": 4,
+    "n": 4,
+    "rate": 1.0,
+    "ci95": [
+     0.5101,
+     1.0
+    ],
+    "draws": 0,
+    "mean_turns": 14.0,
+    "by_challenger_seat": {
+     "0": {
+      "wins": 2,
+      "n": 2,
+      "rate": 1.0,
+      "ci95": [
+       0.3424,
+       1.0
+      ]
+     },
+     "1": {
+      "wins": 2,
+      "n": 2,
+      "rate": 1.0,
+      "ci95": [
+       0.3424,
+       1.0
+      ]
+     }
+    },
+    "by_challenger_deck": {
+     "deck0": {
+      "wins": 2,
+      "n": 2,
+      "rate": 1.0,
+      "ci95": [
+       0.3424,
+       1.0
+      ]
+     },
+     "deck1": {
+      "wins": 2,
+      "n": 2,
+      "rate": 1.0,
+      "ci95": [
+       0.3424,
+       1.0
+      ]
+     }
+    },
+    "draw_rate": 0.0,
+    "paired": {
+     "deals": 2,
+     "both": 0,
+     "challenger_only": 2,
+     "opponent_only": 0,
+     "neither": 0,
+     "difference": 1.0,
+     "ci95": [
+      0.07,
+      1.0
+     ],
+     "bootstrap_ci95": [
+      1.0,
+      1.0
+     ]
+    },
+    "play_draw": {
+     "challenger": {
+      "on_play": {
+       "wins": 2,
+       "n": 2,
+       "rate": 1.0,
+       "ci95": [
+        0.3424,
+        1.0
+       ]
+      },
+      "on_draw": {
+       "wins": 2,
+       "n": 2,
+       "rate": 1.0,
+       "ci95": [
+        0.3424,
+        1.0
+       ]
+      }
+     },
+     "opponent": {
+      "on_play": {
+       "wins": 0,
+       "n": 2,
+       "rate": 0.0,
+       "ci95": [
+        0.0,
+        0.6576
+       ]
+      },
+      "on_draw": {
+       "wins": 0,
+       "n": 2,
+       "rate": 0.0,
+       "ci95": [
+        0.0,
+        0.6576
+       ]
+      }
+     }
+    },
+    "effort": {
+     "challenger": {
+      "games": 4,
+      "decisions": 154,
+      "searches": 129,
+      "iterations": 117209,
+      "applies_tree": 599790,
+      "applies_rollout": 1068027,
+      "applies_aux": 1008588,
+      "worlds": 87267,
+      "rollouts_capped": 0,
+      "iterations_per_game": 29302.25,
+      "applies_per_game": 669101.25
+     },
+     "opponent": {
+      "games": 4,
+      "decisions": 148,
+      "searches": 126,
+      "iterations": 102145,
+      "applies_tree": 574226,
+      "applies_rollout": 617449,
+      "applies_aux": 0,
+      "worlds": 74559,
+      "rollouts_capped": 0,
+      "iterations_per_game": 25536.25,
+      "applies_per_game": 297918.75
+     }
+    }
+   }
+  },
+  {
+   "decks": [
+    "red-green-zeon",
+    "red-purple-control"
+   ],
+   "position": 17,
+   "held_out": false,
+   "master": 2651583851144934307,
+   "result": {
+    "wins": 2,
+    "n": 4,
+    "rate": 0.5,
+    "ci95": [
+     0.15,
+     0.85
+    ],
+    "draws": 0,
+    "mean_turns": 18.5,
+    "by_challenger_seat": {
+     "0": {
+      "wins": 1,
+      "n": 2,
+      "rate": 0.5,
+      "ci95": [
+       0.0945,
+       0.9055
+      ]
+     },
+     "1": {
+      "wins": 1,
+      "n": 2,
+      "rate": 0.5,
+      "ci95": [
+       0.0945,
+       0.9055
+      ]
+     }
+    },
+    "by_challenger_deck": {
+     "deck0": {
+      "wins": 2,
+      "n": 2,
+      "rate": 1.0,
+      "ci95": [
+       0.3424,
+       1.0
+      ]
+     },
+     "deck1": {
+      "wins": 0,
+      "n": 2,
+      "rate": 0.0,
+      "ci95": [
+       0.0,
+       0.6576
+      ]
+     }
+    },
+    "draw_rate": 0.0,
+    "paired": {
+     "deals": 2,
+     "both": 1,
+     "challenger_only": 0,
+     "opponent_only": 0,
+     "neither": 1,
+     "difference": 0.0,
+     "ci95": [
+      0.0,
+      0.0
+     ],
+     "bootstrap_ci95": [
+      0.0,
+      0.0
+     ]
+    },
+    "play_draw": {
+     "challenger": {
+      "on_play": {
+       "wins": 1,
+       "n": 2,
+       "rate": 0.5,
+       "ci95": [
+        0.0945,
+        0.9055
+       ]
+      },
+      "on_draw": {
+       "wins": 1,
+       "n": 2,
+       "rate": 0.5,
+       "ci95": [
+        0.0945,
+        0.9055
+       ]
+      }
+     },
+     "opponent": {
+      "on_play": {
+       "wins": 1,
+       "n": 2,
+       "rate": 0.5,
+       "ci95": [
+        0.0945,
+        0.9055
+       ]
+      },
+      "on_draw": {
+       "wins": 1,
+       "n": 2,
+       "rate": 0.5,
+       "ci95": [
+        0.0945,
+        0.9055
+       ]
+      }
+     }
+    },
+    "effort": {
+     "challenger": {
+      "games": 4,
+      "decisions": 170,
+      "searches": 140,
+      "iterations": 103524,
+      "applies_tree": 539203,
+      "applies_rollout": 849415,
+      "applies_aux": 374728,
+      "worlds": 74161,
+      "rollouts_capped": 0,
+      "iterations_per_game": 25881.0,
+      "applies_per_game": 440836.5
+     },
+     "opponent": {
+      "games": 4,
+      "decisions": 169,
+      "searches": 139,
+      "iterations": 100188,
+      "applies_tree": 557959,
+      "applies_rollout": 430019,
+      "applies_aux": 0,
+      "worlds": 74158,
+      "rollouts_capped": 0,
+      "iterations_per_game": 25047.0,
+      "applies_per_game": 246994.5
+     }
+    }
+   }
+  },
+  {
+   "decks": [
+    "blue-green-ramp",
+    "purple-blue-swarm"
+   ],
+   "position": 20,
+   "held_out": false,
+   "master": 10037409322394742873,
+   "result": {
+    "wins": 2,
+    "n": 4,
+    "rate": 0.5,
+    "ci95": [
+     0.15,
+     0.85
+    ],
+    "draws": 0,
+    "mean_turns": 22.0,
+    "by_challenger_seat": {
+     "0": {
+      "wins": 1,
+      "n": 2,
+      "rate": 0.5,
+      "ci95": [
+       0.0945,
+       0.9055
+      ]
+     },
+     "1": {
+      "wins": 1,
+      "n": 2,
+      "rate": 0.5,
+      "ci95": [
+       0.0945,
+       0.9055
+      ]
+     }
+    },
+    "by_challenger_deck": {
+     "deck0": {
+      "wins": 0,
+      "n": 2,
+      "rate": 0.0,
+      "ci95": [
+       0.0,
+       0.6576
+      ]
+     },
+     "deck1": {
+      "wins": 2,
+      "n": 2,
+      "rate": 1.0,
+      "ci95": [
+       0.3424,
+       1.0
+      ]
+     }
+    },
+    "draw_rate": 0.0,
+    "paired": {
+     "deals": 2,
+     "both": 1,
+     "challenger_only": 0,
+     "opponent_only": 0,
+     "neither": 1,
+     "difference": 0.0,
+     "ci95": [
+      0.0,
+      0.0
+     ],
+     "bootstrap_ci95": [
+      0.0,
+      0.0
+     ]
+    },
+    "play_draw": {
+     "challenger": {
+      "on_play": {
+       "wins": 1,
+       "n": 2,
+       "rate": 0.5,
+       "ci95": [
+        0.0945,
+        0.9055
+       ]
+      },
+      "on_draw": {
+       "wins": 1,
+       "n": 2,
+       "rate": 0.5,
+       "ci95": [
+        0.0945,
+        0.9055
+       ]
+      }
+     },
+     "opponent": {
+      "on_play": {
+       "wins": 1,
+       "n": 2,
+       "rate": 0.5,
+       "ci95": [
+        0.0945,
+        0.9055
+       ]
+      },
+      "on_draw": {
+       "wins": 1,
+       "n": 2,
+       "rate": 0.5,
+       "ci95": [
+        0.0945,
+        0.9055
+       ]
+      }
+     }
+    },
+    "effort": {
+     "challenger": {
+      "games": 4,
+      "decisions": 195,
+      "searches": 166,
+      "iterations": 137432,
+      "applies_tree": 683331,
+      "applies_rollout": 1370198,
+      "applies_aux": 380279,
+      "worlds": 90336,
+      "rollouts_capped": 0,
+      "iterations_per_game": 34358.0,
+      "applies_per_game": 608452.0
+     },
+     "opponent": {
+      "games": 4,
+      "decisions": 220,
+      "searches": 196,
+      "iterations": 165418,
+      "applies_tree": 861123,
+      "applies_rollout": 1069062,
+      "applies_aux": 0,
+      "worlds": 105347,
+      "rollouts_capped": 0,
+      "iterations_per_game": 41354.5,
+      "applies_per_game": 482546.25
+     }
+    }
+   }
+  },
+  {
+   "decks": [
+    "blue-green-ramp",
+    "red-purple-control"
+   ],
+   "position": 21,
+   "held_out": false,
+   "master": 2544239971659512984,
+   "result": {
+    "wins": 2,
+    "n": 4,
+    "rate": 0.5,
+    "ci95": [
+     0.15,
+     0.85
+    ],
+    "draws": 0,
+    "mean_turns": 19.0,
+    "by_challenger_seat": {
+     "0": {
+      "wins": 0,
+      "n": 2,
+      "rate": 0.0,
+      "ci95": [
+       0.0,
+       0.6576
+      ]
+     },
+     "1": {
+      "wins": 2,
+      "n": 2,
+      "rate": 1.0,
+      "ci95": [
+       0.3424,
+       1.0
+      ]
+     }
+    },
+    "by_challenger_deck": {
+     "deck0": {
+      "wins": 1,
+      "n": 2,
+      "rate": 0.5,
+      "ci95": [
+       0.0945,
+       0.9055
+      ]
+     },
+     "deck1": {
+      "wins": 1,
+      "n": 2,
+      "rate": 0.5,
+      "ci95": [
+       0.0945,
+       0.9055
+      ]
+     }
+    },
+    "draw_rate": 0.0,
+    "paired": {
+     "deals": 2,
+     "both": 0,
+     "challenger_only": 0,
+     "opponent_only": 0,
+     "neither": 2,
+     "difference": 0.0,
+     "ci95": [
+      -0.6576,
+      0.6576
+     ],
+     "bootstrap_ci95": [
+      0.0,
+      0.0
+     ]
+    },
+    "play_draw": {
+     "challenger": {
+      "on_play": {
+       "wins": 0,
+       "n": 2,
+       "rate": 0.0,
+       "ci95": [
+        0.0,
+        0.6576
+       ]
+      },
+      "on_draw": {
+       "wins": 2,
+       "n": 2,
+       "rate": 1.0,
+       "ci95": [
+        0.3424,
+        1.0
+       ]
+      }
+     },
+     "opponent": {
+      "on_play": {
+       "wins": 0,
+       "n": 2,
+       "rate": 0.0,
+       "ci95": [
+        0.0,
+        0.6576
+       ]
+      },
+      "on_draw": {
+       "wins": 2,
+       "n": 2,
+       "rate": 1.0,
+       "ci95": [
+        0.3424,
+        1.0
+       ]
+      }
+     }
+    },
+    "effort": {
+     "challenger": {
+      "games": 4,
+      "decisions": 204,
+      "searches": 178,
+      "iterations": 112944,
+      "applies_tree": 607127,
+      "applies_rollout": 871816,
+      "applies_aux": 461437,
+      "worlds": 76375,
+      "rollouts_capped": 0,
+      "iterations_per_game": 28236.0,
+      "applies_per_game": 485095.0
+     },
+     "opponent": {
+      "games": 4,
+      "decisions": 180,
+      "searches": 158,
+      "iterations": 117776,
+      "applies_tree": 597330,
+      "applies_rollout": 692115,
+      "applies_aux": 0,
+      "worlds": 78269,
+      "rollouts_capped": 0,
+      "iterations_per_game": 29444.0,
+      "applies_per_game": 322361.25
+     }
+    }
+   }
+  },
+  {
+   "decks": [
+    "purple-blue-swarm",
+    "red-purple-control"
+   ],
+   "position": 27,
+   "held_out": false,
+   "master": 14902339322140755706,
+   "result": {
+    "wins": 2,
+    "n": 4,
+    "rate": 0.5,
+    "ci95": [
+     0.15,
+     0.85
+    ],
+    "draws": 0,
+    "mean_turns": 20.0,
+    "by_challenger_seat": {
+     "0": {
+      "wins": 2,
+      "n": 2,
+      "rate": 1.0,
+      "ci95": [
+       0.3424,
+       1.0
+      ]
+     },
+     "1": {
+      "wins": 0,
+      "n": 2,
+      "rate": 0.0,
+      "ci95": [
+       0.0,
+       0.6576
+      ]
+     }
+    },
+    "by_challenger_deck": {
+     "deck0": {
+      "wins": 1,
+      "n": 2,
+      "rate": 0.5,
+      "ci95": [
+       0.0945,
+       0.9055
+      ]
+     },
+     "deck1": {
+      "wins": 1,
+      "n": 2,
+      "rate": 0.5,
+      "ci95": [
+       0.0945,
+       0.9055
+      ]
+     }
+    },
+    "draw_rate": 0.0,
+    "paired": {
+     "deals": 2,
+     "both": 2,
+     "challenger_only": 0,
+     "opponent_only": 0,
+     "neither": 0,
+     "difference": 0.0,
+     "ci95": [
+      -0.6576,
+      0.6576
+     ],
+     "bootstrap_ci95": [
+      0.0,
+      0.0
+     ]
+    },
+    "play_draw": {
+     "challenger": {
+      "on_play": {
+       "wins": 2,
+       "n": 2,
+       "rate": 1.0,
+       "ci95": [
+        0.3424,
+        1.0
+       ]
+      },
+      "on_draw": {
+       "wins": 0,
+       "n": 2,
+       "rate": 0.0,
+       "ci95": [
+        0.0,
+        0.6576
+       ]
+      }
+     },
+     "opponent": {
+      "on_play": {
+       "wins": 2,
+       "n": 2,
+       "rate": 1.0,
+       "ci95": [
+        0.3424,
+        1.0
+       ]
+      },
+      "on_draw": {
+       "wins": 0,
+       "n": 2,
+       "rate": 0.0,
+       "ci95": [
+        0.0,
+        0.6576
+       ]
+      }
+     }
+    },
+    "effort": {
+     "challenger": {
+      "games": 4,
+      "decisions": 190,
+      "searches": 154,
+      "iterations": 136918,
+      "applies_tree": 687558,
+      "applies_rollout": 1176175,
+      "applies_aux": 833978,
+      "worlds": 82871,
+      "rollouts_capped": 0,
+      "iterations_per_game": 34229.5,
+      "applies_per_game": 674427.75
+     },
+     "opponent": {
+      "games": 4,
+      "decisions": 192,
+      "searches": 152,
+      "iterations": 125577,
+      "applies_tree": 640232,
+      "applies_rollout": 692031,
+      "applies_aux": 0,
+      "worlds": 76482,
+      "rollouts_capped": 0,
+      "iterations_per_game": 31394.25,
+      "applies_per_game": 333065.75
+     }
+    }
+   }
+  }
+ ],
+ "by_deck": [
+  {
+   "deck": "blue-white-federation",
+   "pairs": 5,
+   "result": {
+    "wins": 6,
+    "n": 10,
+    "rate": 0.6,
+    "ci95": [
+     0.3127,
+     0.8318
+    ]
+   }
+  },
+  {
+   "deck": "purple-white-tekkadan",
+   "pairs": 5,
+   "result": {
+    "wins": 3,
+    "n": 10,
+    "rate": 0.3,
+    "ci95": [
+     0.1078,
+     0.6032
+    ]
+   }
+  },
+  {
+   "deck": "red-green-zeon",
+   "pairs": 5,
+   "result": {
+    "wins": 8,
+    "n": 10,
+    "rate": 0.8,
+    "ci95": [
+     0.4902,
+     0.9433
+    ]
+   }
+  },
+  {
+   "deck": "blue-green-ramp",
+   "pairs": 5,
+   "result": {
+    "wins": 5,
+    "n": 10,
+    "rate": 0.5,
+    "ci95": [
+     0.2366,
+     0.7634
+    ]
+   }
+  },
+  {
+   "deck": "purple-blue-swarm",
+   "pairs": 5,
+   "result": {
+    "wins": 7,
+    "n": 10,
+    "rate": 0.7,
+    "ci95": [
+     0.3968,
+     0.8922
+    ]
+   }
+  },
+  {
+   "deck": "red-purple-control",
+   "pairs": 5,
+   "result": {
+    "wins": 6,
+    "n": 10,
+    "rate": 0.6,
+    "ci95": [
+     0.3127,
+     0.8318
+    ]
+   }
+  }
+ ],
+ "unfinished": [],
+ "outcomes": [
+  [
+   0,
+   0,
+   0,
+   0,
+   15,
+   0,
+   73,
+   39693,
+   906874,
+   23234,
+   251848
+  ],
+  [
+   1,
+   0,
+   1,
+   0,
+   15,
+   0,
+   78,
+   23076,
+   405194,
+   45350,
+   461238
+  ],
+  [
+   2,
+   0,
+   0,
+   1,
+   16,
+   0,
+   98,
+   30611,
+   443677,
+   28198,
+   263399
+  ],
+  [
+   3,
+   0,
+   1,
+   1,
+   18,
+   0,
+   98,
+   35034,
+   634438,
+   30982,
+   347421
+  ],
+  [
+   4,
+   1,
+   0,
+   1,
+   20,
+   0,
+   103,
+   41761,
+   781213,
+   30661,
+   388035
+  ],
+  [
+   5,
+   1,
+   1,
+   1,
+   12,
+   0,
+   63,
+   32973,
+   680637,
+   27481,
+   397874
+  ],
+  [
+   6,
+   1,
+   0,
+   0,
+   13,
+   0,
+   67,
+   24524,
+   488490,
+   22151,
+   272741
+  ],
+  [
+   7,
+   1,
+   1,
+   0,
+   23,
+   0,
+   110,
+   36106,
+   584423,
+   34256,
+   378350
+  ],
+  [
+   8,
+   2,
+   0,
+   0,
+   11,
+   0,
+   51,
+   30873,
+   558051,
+   12404,
+   161289
+  ],
+  [
+   9,
+   2,
+   1,
+   0,
+   31,
+   0,
+   116,
+   23536,
+   327046,
+   42859,
+   365877
+  ],
+  [
+   10,
+   2,
+   0,
+   0,
+   21,
+   0,
+   103,
+   43746,
+   981562,
+   53301,
+   704000
+  ],
+  [
+   11,
+   2,
+   1,
+   1,
+   22,
+   0,
+   108,
+   45258,
+   854727,
+   27745,
+   347467
+  ],
+  [
+   12,
+   5,
+   0,
+   1,
+   18,
+   0,
+   89,
+   34940,
+   558405,
+   34372,
+   427054
+  ],
+  [
+   13,
+   5,
+   1,
+   0,
+   15,
+   0,
+   85,
+   29854,
+   534010,
+   39553,
+   423446
+  ],
+  [
+   14,
+   5,
+   0,
+   0,
+   15,
+   0,
+   85,
+   32115,
+   495001,
+   27579,
+   293716
+  ],
+  [
+   15,
+   5,
+   1,
+   0,
+   17,
+   0,
+   82,
+   34819,
+   510769,
+   31723,
+   324146
+  ],
+  [
+   16,
+   6,
+   0,
+   0,
+   15,
+   0,
+   71,
+   28243,
+   526039,
+   26344,
+   268319
+  ],
+  [
+   17,
+   6,
+   1,
+   1,
+   20,
+   0,
+   103,
+   55770,
+   1427300,
+   27414,
+   304758
+  ],
+  [
+   18,
+   6,
+   0,
+   0,
+   35,
+   0,
+   141,
+   35882,
+   464832,
+   34522,
+   347035
+  ],
+  [
+   19,
+   6,
+   1,
+   1,
+   14,
+   0,
+   57,
+   23036,
+   478122,
+   17402,
+   198787
+  ],
+  [
+   20,
+   7,
+   0,
+   1,
+   14,
+   0,
+   78,
+   31117,
+   670749,
+   26921,
+   310583
+  ],
+  [
+   21,
+   7,
+   1,
+   1,
+   14,
+   0,
+   84,
+   33949,
+   765465,
+   34543,
+   498060
+  ],
+  [
+   22,
+   7,
+   0,
+   0,
+   13,
+   0,
+   74,
+   27975,
+   415471,
+   32829,
+   420242
+  ],
+  [
+   23,
+   7,
+   1,
+   0,
+   15,
+   0,
+   86,
+   34006,
+   547566,
+   31437,
+   448354
+  ],
+  [
+   24,
+   8,
+   0,
+   0,
+   11,
+   0,
+   70,
+   25432,
+   455177,
+   13832,
+   179453
+  ],
+  [
+   25,
+   8,
+   1,
+   0,
+   15,
+   0,
+   89,
+   39055,
+   724271,
+   40513,
+   446928
+  ],
+  [
+   26,
+   8,
+   0,
+   0,
+   21,
+   0,
+   120,
+   42954,
+   830313,
+   64037,
+   802542
+  ],
+  [
+   27,
+   8,
+   1,
+   1,
+   14,
+   0,
+   82,
+   52807,
+   1224402,
+   21056,
+   307308
+  ],
+  [
+   28,
+   11,
+   0,
+   0,
+   19,
+   0,
+   109,
+   52830,
+   885085,
+   46487,
+   634460
+  ],
+  [
+   29,
+   11,
+   1,
+   0,
+   23,
+   0,
+   112,
+   34677,
+   550985,
+   47211,
+   543723
+  ],
+  [
+   30,
+   11,
+   0,
+   0,
+   13,
+   0,
+   52,
+   19388,
+   364528,
+   17564,
+   188135
+  ],
+  [
+   31,
+   11,
+   1,
+   0,
+   13,
+   0,
+   55,
+   28502,
+   499910,
+   20850,
+   250389
+  ],
+  [
+   32,
+   12,
+   0,
+   1,
+   18,
+   0,
+   86,
+   29114,
+   437600,
+   30615,
+   319713
+  ],
+  [
+   33,
+   12,
+   1,
+   1,
+   18,
+   0,
+   102,
+   27407,
+   339168,
+   45434,
+   484562
+  ],
+  [
+   34,
+   12,
+   0,
+   0,
+   41,
+   0,
+   168,
+   38867,
+   479997,
+   53146,
+   669505
+  ],
+  [
+   35,
+   12,
+   1,
+   0,
+   21,
+   0,
+   110,
+   39876,
+   771562,
+   39643,
+   432290
+  ],
+  [
+   36,
+   13,
+   0,
+   1,
+   22,
+   0,
+   106,
+   31505,
+   398985,
+   33265,
+   359874
+  ],
+  [
+   37,
+   13,
+   1,
+   1,
+   18,
+   0,
+   92,
+   26100,
+   438000,
+   26607,
+   261715
+  ],
+  [
+   38,
+   13,
+   0,
+   0,
+   19,
+   0,
+   87,
+   19927,
+   295384,
+   30588,
+   286206
+  ],
+  [
+   39,
+   13,
+   1,
+   0,
+   21,
+   0,
+   93,
+   28350,
+   348721,
+   23931,
+   207613
+  ],
+  [
+   40,
+   16,
+   0,
+   0,
+   15,
+   0,
+   83,
+   38376,
+   988465,
+   24790,
+   322892
+  ],
+  [
+   41,
+   16,
+   1,
+   1,
+   12,
+   0,
+   68,
+   27843,
+   637181,
+   22293,
+   275430
+  ],
+  [
+   42,
+   16,
+   0,
+   0,
+   15,
+   0,
+   80,
+   21370,
+   359201,
+   31686,
+   333802
+  ],
+  [
+   43,
+   16,
+   1,
+   1,
+   14,
+   0,
+   75,
+   29620,
+   691558,
+   23376,
+   259551
+  ],
+  [
+   44,
+   17,
+   0,
+   0,
+   13,
+   0,
+   56,
+   21216,
+   330601,
+   7514,
+   61026
+  ],
+  [
+   45,
+   17,
+   1,
+   0,
+   19,
+   0,
+   92,
+   21044,
+   263533,
+   30733,
+   268710
+  ],
+  [
+   46,
+   17,
+   0,
+   1,
+   28,
+   0,
+   123,
+   30922,
+   538879,
+   37612,
+   336539
+  ],
+  [
+   47,
+   17,
+   1,
+   1,
+   14,
+   0,
+   72,
+   30342,
+   630333,
+   24329,
+   321703
+  ],
+  [
+   48,
+   20,
+   0,
+   1,
+   26,
+   0,
+   113,
+   34196,
+   566687,
+   42947,
+   401187
+  ],
+  [
+   49,
+   20,
+   1,
+   1,
+   18,
+   0,
+   87,
+   23075,
+   322524,
+   30045,
+   314545
+  ],
+  [
+   50,
+   20,
+   0,
+   0,
+   29,
+   0,
+   154,
+   60544,
+   1169143,
+   55571,
+   759123
+  ],
+  [
+   51,
+   20,
+   1,
+   0,
+   15,
+   0,
+   65,
+   19617,
+   375454,
+   36855,
+   455330
+  ],
+  [
+   52,
+   21,
+   0,
+   1,
+   18,
+   0,
+   97,
+   17265,
+   279077,
+   31937,
+   326300
+  ],
+  [
+   53,
+   21,
+   1,
+   1,
+   18,
+   0,
+   97,
+   41293,
+   913624,
+   30036,
+   422154
+  ],
+  [
+   54,
+   21,
+   0,
+   1,
+   20,
+   0,
+   101,
+   28901,
+   406383,
+   33109,
+   300755
+  ],
+  [
+   55,
+   21,
+   1,
+   1,
+   20,
+   0,
+   93,
+   25485,
+   341296,
+   22694,
+   240236
+  ],
+  [
+   56,
+   27,
+   0,
+   0,
+   13,
+   0,
+   82,
+   42259,
+   1063957,
+   29632,
+   366908
+  ],
+  [
+   57,
+   27,
+   1,
+   0,
+   31,
+   0,
+   142,
+   46501,
+   539006,
+   37278,
+   358062
+  ],
+  [
+   58,
+   27,
+   0,
+   0,
+   19,
+   0,
+   84,
+   25546,
+   633163,
+   32120,
+   370831
+  ],
+  [
+   59,
+   27,
+   1,
+   0,
+   17,
+   0,
+   78,
+   22612,
+   461585,
+   26547,
+   236462
+  ]
+ ]
+}

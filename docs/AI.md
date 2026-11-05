@@ -1,517 +1,417 @@
-# AI players
+# AI players (Rust)
 
-`gcg_sim.ai` provides the players that the benchmark runner pits against each other:
+The Python reference AI, its tuning history and its measurements are documented in
+[`docs/python/AI.md`](python/AI.md); this file describes the Rust players, the two `gcg-sim`
+presets and how their strength is measured.
 
-| Kind | What it does | Cost |
+Every number below is copied from a committed evidence file, named next to it. Budgets are
+node counts (MCTS iterations), never wall-clock time. Nothing in the players reads a clock or
+the thread count.
+
+## Players
+
+| Player | Crate and file | Reachable through | What it is |
+| --- | --- | --- | --- |
+| `random` | `crates/gcg-ai/src/random.rs` | `gcg-eval` agent spec `random` | Exact port of the Python random player: a uniform option per decision (it draws even with one option). |
+| `greedy` | `crates/gcg-ai/src/greedy.rs` | `gcg-eval` agent spec `greedy` | Exact port of the Python greedy baseline: one determinised world, every pruned move played to the next turn with the deterministic policy and scored by the evaluation. Frozen as a baseline. |
+| Reference search | `crates/gcg-ai-reference/src/mcts.rs`, presets in `crates/gcg-ai-reference/src/contracts.rs` | `gcg-eval` only: `reference-benchmark --reference-preset fast\|standard\|strong`, agent specs `ref:<preset>` and `ref:baseline-<preset>` | The equivalence-verified port of the Python information-set MCTS (`src/gcg_sim/ai/mcts.py`) with the exact reference budgets and search parameters. It reproduces Python's decisions byte for byte ([`docs/port/EQUIVALENCE.md`](port/EQUIVALENCE.md)). It anchors the equal-work speed comparison and every strength claim below. |
+| Strengthened search | `crates/gcg-search/` | `gcg-sim --ai-preset standard\|fast`; `gcg-eval` agent specs `search:<preset>`, `search:null-<preset>`, `search:FILE.json` | The reference loop with the Phase 6 extension points (`crates/gcg-search/src/mech/`), configured per preset. It plays from an information-set observation only (W-135). |
+
+`gcg-sim` links neither the reference search nor `gcg-diff`:
+`crates/gcg-cli/tests/no_reference.rs` and `scripts/verify_all_rust.sh` (`cargo tree -p
+gcg-cli`) enforce it. Agent names are `search-standard` and `search-fast` for the presets and
+`mcts-<preset>` for the reference, so no `gcg-sim` output can be mistaken for a reference run.
+
+`gcg-eval` agent specs (`gcg-eval head-to-head --help`): `random`, `greedy`, `ref:<preset>`,
+`ref:baseline-<preset>`, `search:<preset>`, `search:null-<preset>` (every mechanism off) or
+`search:FILE.json`, each with optional `:field=value,...` overrides, for example
+`search:standard:tactical_solver=false`.
+
+## Presets
+
+`gcg-sim --ai-preset` accepts exactly `standard` (the default) and `fast`; any other value,
+`strong` included, is a usage error (exit 2). The wording of each preset is the brief's and is
+the `--help` text:
+
+- `standard`: uses the full search so that each player plays at the level of the strongest
+  top-tier competitive player; for refining and polishing the final deck.
+- `fast`: trades search depth for throughput; for rapidly screening deck variants,
+  sub-variants and hypothetical builds.
+
+Both run the strengthened search. A decision with `n` options starts from
+`max(min_iterations, min(max_iterations, iterations_per_option * n))` iterations
+(`StrengthenedConfig::budget`, `crates/gcg-search/src/presets.rs`; Python
+`src/gcg_sim/ai/config.py:55-57`). Target choices that stay a close call may extend up to
+`target_extension` times that budget (`target_extension_z` sets the closeness test), as in the
+reference.
+
+The table below is the one source of the preset budgets in the documentation. It equals the
+constants of `crates/gcg-search/src/presets.rs`, and `crates/gcg-search/tests/ai_md_presets.rs`
+fails when either changes without the other (W-129, T-130).
+
+| Preset | Use | Starts from (mapping) | Budget scale | `iterations_per_option` | `min_iterations` | `max_iterations` |
+| --- | --- | --- | ---: | ---: | ---: | ---: |
+| `standard` | uses the full search so that each player plays at the level of the strongest top-tier competitive player; for refining and polishing the final deck | reference `strong` (128 / 320 / 1280) | 8 | 1024 | 2560 | 10240 |
+| `fast` | trades search depth for throughput; for rapidly screening deck variants, sub-variants and hypothetical builds | reference `standard` (64 / 160 / 640) | 1.5 | 96 | 240 | 960 |
+
+Every other search setting is the mapped reference preset's (`src/gcg_sim/ai/config.py:93-109`):
+
+| Setting | `standard` (= reference `strong`) | `fast` (= reference `standard`) |
 | --- | --- | --- |
-| `random` | Uniformly random legal action from a seeded generator. | ~0 |
-| `greedy` | One-ply look-ahead on one determinization, scored by the evaluation. | ~0.01 s per decision |
-| `mcts` | Determinized information-set MCTS with rollouts through the opponent's reply turn. | see [Presets](#presets-and-measured-throughput) |
+| `exploration` | 0.15 | 0.3 |
+| `rollout_temperature` | 0.3 | 0.5 |
+| `first_player_games` | 48 | 24 |
+| `mulligan_samples` | 192 | 96 |
+| `prior_weight`, `prior_temperature` | 0.5, 1.5 | 0.5, 1.5 |
+| `horizon_turns` | 2 | 2 |
+| `value_scale` | 1.0 | 1.0 |
+| `max_rollout_decisions` | 250 | 250 |
+| `policy_burst_yes_score` | 4.0 | 4.0 |
+| `noop_branch_choices`, `noop_resource_aware`, `strict_attack_prune`, `prune_noop_rest_targets`, `merge_equivalent_moves`, `observation_keys`, `policy_rule_polarity_table`, `policy_zero_ap_face` | true | true |
+| `target_extension`, `target_extension_z` | 3.0, 2.0 | 3.0, 2.0 |
+| weights | `ROLE_WEIGHTS` | `ROLE_WEIGHTS` |
 
-```python
-from gcg_sim.ai import make_agent
-from gcg_sim.ai.tuning import TUNING_DECKS
-from gcg_sim.engine.game import apply, new_game
+Mechanisms (the same in both presets; every other `MechanismFlags` field is off):
 
-state = new_game((TUNING_DECKS[0], TUNING_DECKS[1]), 7)
-agent = make_agent("mcts", preset="standard", seed=1234, log=True)
-action = agent.choose(state, state.pending.player)  # one of state.pending.options
-apply(state, action)
-print(agent.decision_log())  # [{"turn", "player", "decision", "chosen", "label", "alternatives"}]
-```
+| Mechanism | Item | What it does |
+| --- | --- | --- |
+| `adaptive_horizon` | W-01 | a rollout that stops at its horizon with an unsettled leaf plays one more turn boundary |
+| `capped_rollout_continuation` | W-15 | a rollout that hits its 250-decision cap finishes its step with the deterministic policy |
+| `tactical_solver` | W-03 | an exact bounded attack-step solver plays a proved lethal in rollouts (its applies are auxiliary applies, capped at 16 per iteration of the decision) |
+| `exclude_capped_play_draw` | W-44 | capped or drawn play/draw simulations leave the paired estimate |
+| `engine_error_leaf` | W-143 | a simulated line ending in an engine error scores as a loss instead of failing the real game |
+| `kill_aware_targeting` | W-26 | damage targets in rollouts prefer a Unit the damage destroys over one that survives it |
+| `tree_lethal_select` | W-25 | at an in-tree MAIN decision, the tactical solver's proved lethal is selected before the policy-ordered moves |
 
-Every agent is a deterministic function of its construction seed and the sequence of
-`choose` calls: decision number *n* draws its randomness from
-`SplitMix64(derive_seed(seed, agent_name, "decision", n))`. Nothing reads the wall clock or a
-global random generator.
+### Mapping to the reference presets
 
-## Information-set guarantees
+The reference presets keep Python's exact values (`crates/gcg-ai-reference/src/contracts.rs`,
+Python `src/gcg_sim/ai/config.py:80-111`) and are reachable only through `gcg-eval`:
 
-A player knows both decklists (a modelling assumption, see `docs/ASSUMPTIONS.md`), the public
-zones, its own hand, the number of
-cards in hidden zones, and cards it has looked at. The agents respect that boundary:
+| Reference preset | Agent name | `iterations_per_option` | `min_iterations` | `max_iterations` | `exploration` | `rollout_temperature` | `first_player_games` | `mulligan_samples` | Shipped preset that starts from it |
+| --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | --- |
+| `fast` | `mcts-fast` | 7 | 16 | 64 | 0.15 | 0.3 | 8 | 96 | none |
+| `standard` | `mcts-standard` | 64 | 160 | 640 | 0.3 | 0.5 | 24 | 96 | `fast` (1.5x the budget) |
+| `strong` | `mcts-strong` | 128 | 320 | 1280 | 0.15 | 0.3 | 48 | 192 | `standard` (8x the budget) |
 
-- From the true state an agent reads only `st.pending` (its own legal options) and what it
-  may know; every look-ahead runs on `gcg_sim.engine.observe.determinize(st, player, seed)`,
-  which redraws every card hidden from the player from the known decklists and replaces the
-  game RNG (future shuffles and draws). A determinization is a copy: it never writes into the
-  true game (`tests/ai/test_search_side_effects.py` checks that the true state's digest is
-  unchanged by `determinize`, `permute_hidden` and a whole MCTS decision).
-- Search seeds come from the agent seed and the decision counter, never from the state.
-- Move keys (below) identify hand, trash, and deck cards by definition only when the
-  deciding player knows them; otherwise by instance number, which carries no identity
-  (instance numbers are assigned after the shuffle).
-- In the tree, an opponent's action-step pass keeps the walk in the same node: the engine
-  passes silently for a player without options, so the searcher's later nodes would otherwise
-  depend on whether the opponent's hidden hand gave it an option (`observation_keys`).
-- `tests/ai/test_information_set.py` takes 25 mid-game states from greedy self-play, shuffles
-  the hidden identities with `permute_hidden` (three permutations each: a different true state
-  inside the same information set), and checks that a fresh MCTS agent and a fresh greedy
-  agent with the same seed return the same move **and** the same search statistics.
-  `test_negative_control_a_search_on_the_true_state_is_not_invariant` shows that the check
-  can fail: with `determinize` replaced by a copy of the true state, the search's decision
-  or statistics change on most of the states. The same procedure runs with each group of
-  new settings switched on separately (`test_root_moves.py`, `test_information_set_policy.py`,
-  `test_search_options.py`).
+The name `fast` therefore means different budgets in the two binaries: Python's
+`--ai-preset fast` is the reference `fast` row, `gcg-sim --ai-preset fast` starts from the
+reference `standard` row (PLAN D12). `results.json` records the mapping in
+`ai.search.mapping` (`"reference strong"` or `"reference standard"`) together with the budget,
+the enabled mechanisms and the weights. The baseline presets `ref:baseline-standard` and
+`ref:baseline-strong` (the AI as released before the October 2026 changes,
+`src/gcg_sim/ai/baseline.py:18-73`) are also in `crates/gcg-ai-reference/src/contracts.rs`.
 
-## Architecture of the MCTS player (`mcts.py`)
+### How the budgets were chosen
 
-Single-observer information-set MCTS (SO-ISMCTS) over *moves*:
+PLAN §12.8, with the adopted bundle, on the 15 tuning pairs only, 400 games per point, forced
+play/draw (`docs/port/eval/M15/README.md`, steps 3-5):
 
-1. **Moves.** `actions.canonical` merges legal actions that are the same move: two copies of a
-   card in hand, or the same play paid with a different number of EX Resources (the
-   representative spends the fewest EX Resources, which are single-use). A move key is
-   `(kind, card, target, play-variant)` with hand/trash/deck cards named by definition. At the
-   root, attacks, blocks, choices and pairings that differ only in which of two
-   interchangeable field cards they use become one move, so the search does not split its visits
-   between them. Two cards are interchangeable when their public fingerprints match:
-   definition, state, derived stats, and the same this-turn history, once-per-turn records and
-   lasting or delayed effects (for a paired Unit, its Pilot's too), with the card itself written
-   as "self"; a card that a battle, a resolving effect or a waiting trigger names is never
-   merged (`merge_equivalent_moves`). Both checks compare raw numbers conservatively: a
-   once-per-turn record or an event value that merely equals a card's instance number also
-   keeps the two cards apart, so whether copies merge can depend on their instance numbers, but
-   two different cards are never merged.
-2. **Dominated moves.** Before searching, the root drops moves that can only be worse than
-   another legal move (`actions.prune_dominated`):
-   - declining a free "【Burst】Add this card to your hand";
-   - attacking with a Unit whose AP is 0 or less, unless declaring the attack (in one
-     determinization) queues a trigger the player controls, judged by the engine's own
-     trigger tests, or opens an Action Command or ability the player can afford and aim in
-     that battle (`strict_attack_prune`; greedy keeps the older, looser test);
-   - choosing an already-rested enemy Unit for an effect whose only use of the choice is to
-     rest it, unless something reacts to a Unit being rested, a delayed effect is armed, an
-     "If you do" step follows, a once-per-turn effect has not acted yet, or resting one of the
-     active Units on offer would switch an effect on ("while this Unit is rested …"; checked
-     by comparing the derived view in a determinization) (`prune_noop_rest_targets`).
+- `standard`: the largest measured scale whose full-search time stays under the 2x floor
+  against Python `strong`, and the best point of its budget curve. Curve against `ref:strong`
+  (tuning master 11500100): 1x 195/400 (0.487), 2x 205/400 (0.512), 4x 214/400 (0.535), 8x
+  227/400 (0.568, Wilson 95% [0.518, 0.615]). 16x was not run: its projected time would not
+  fit the floor.
+- `fast`: the smallest scale with a pooled point estimate of at least 0.53 against
+  `ref:standard` and no pair upper bound below 0.5. Curve (tuning master 11500200): 0.5x
+  195/400 (0.487), 0.75x 207/400 (0.517), 1x 210/400 (0.525), 1.5x 228/400 (0.570, [0.521,
+  0.618]), 2x 224/400 (0.560).
 
-   It also drops Command plays and ability activations without effect
-   (`noop.without_effect`): in one determinization, the move and "end the main phase / pass"
-   are each followed by the deterministic policy to the next turn, and the move goes if both
-   lines end in the same position apart from the card and Resources it spent and own cards it
-   rested as a cost. Two refinements keep useful moves: the first choice inside the move's
-   resolution is tried with every option, and the move stays if one of them reaches a
-   position the evaluation scores above idling (`noop_branch_choices`; the policy alone would
-   aim a Rest at an already-rested Unit), and Resources placed, set active or removed beyond
-   the move's own payment count as an effect (`noop_resource_aware`).
-3. **Root.** Each iteration picks a root move by UCB1 with a progressive prior:
-   `mean + c·sqrt(ln(avail)/visits) + w·prior/(visits+1)` (`c = exploration`, 0.3 in the
-   standard preset; `w = prior_weight = 0.5`). Moves not yet tried go first, highest prior
-   first. Priors are the playout policy's scores through a softmax (temperature 1.5).
-4. **Common random numbers.** The *n*-th visit of every root move is played in the *n*-th
-   determinization with the *n*-th rollout seed, so root moves are compared on identical
-   worlds (paired sampling). This alone raised the win rate against greedy from 0.61 to 0.68
-   in 192-game mirrored tests. Each world is determinized once per search and copied for
-   every visit that plays in it.
-5. **Tree.** Below the root the walk chooses among the moves legal in the current world;
-   children are keyed by `(mover, decision kind, move key)` and keep availability counts, so
-   a move that exists only in some worlds (the opponent holding a certain card) is judged
-   fairly, and a card's main-phase and action-step plays stay apart. Decisions with one legal
-   move are applied without a node. One node is added per iteration.
-6. **Rollout.** The heuristic playout policy (softmax over its scores, temperature 0.5 in the
-   standard preset) plays both sides until `horizon_turns = 2` turn boundaries have passed:
-   the rest of the current turn and the whole reply turn, stopping at the start of the turn
-   after that. Every non-terminal leaf is the turn player's first main-phase decision of
-   that turn, the point at which the evaluation is fitted (measured on 250,680 leaves).
-7. **Leaf value** (for the searching player): a finished game scores `1 - 0.01·turns elapsed`
-   for a win and `0.01·turns elapsed` for a loss (win sooner, lose later; 0.5 for a draw);
-   otherwise `0.05 + 0.9·σ(score / value_scale)`, so a certain result always outranks an
-   estimate (`SearchConfig` rejects a horizon at which it would not). The presets use
-   `value_scale = 1`, the calibrated log-odds; the earlier 2 halved them, so positions that
-   win 95% of the time were valued about 0.76.
-8. **Budget and choice.** A decision with *n* distinct moves gets
-   `clamp(iterations_per_option·n, min_iterations, max_iterations)` iterations; the search stops
-   early once the most-visited move cannot be overtaken. For an effect target choice
-   (cards to choose, trash, discard or order), when the budget runs out while the move to
-   play is within two paired standard errors of another (the visits two moves share are
-   pairs, by step 4), the search goes on one budget at a time up to three budgets
-   (`target_extension`, `target_extension_z`). The move with the most visits is played
-   (ties: higher mean, then option order).
+The 2x floor was then measured on an idle M2 Pro with `gcg-sim` itself
+(`docs/port/BENCHMARKS.md`, Part 2): `standard` 133.7 s against Python `strong`'s 356.0 s for 20
+BO3 matches at the best worker count (2.66x), `fast` 76.9 s against Python `standard`'s 972.0 s
+for 100 matches (12.6x). With the M15b mechanisms (final timing, commit 8c89b5e) they are
+148.6 s (2.40x) and 82.1 s (11.8x).
 
-Pre-game choices (`setup.py`):
+Per-game cost of the shipped presets on the Part 2 workload (`docs/port/eval/M15/README.md`,
+"Cost of each scale"; instructions retired, which load does not change): `standard` 128.5G
+instructions per game against 12.9G for the reference `strong` (9.92x), `fast` 15.5G against
+8.4G for the reference `standard` (1.85x, 100 matches at 10 workers).
 
-- **Play/draw** (`CHOOSE_FIRST`): policy-vs-policy games from both choices on the same
-  determinizations (`first_player_games` pairs); the agent goes second only when that is better
-  by more than two standard errors of the paired difference. In MCTS self-play on the tuning
-  decks Player One won 436 of 720 games (60.6%), and the agent goes first with the test decks.
-- **Mulligan** (`REDRAW`): `opening_score` plays the hand out greedily over the first four
-  turns (resources = turn number, plus Player Two's EX Resource) and weights early board
-  development most. The agent redraws when the hand scores below 90% of the average of
-  `mulligan_samples` fresh five-card hands drawn from the rest of the deck. The returned hand
-  goes to the bottom and the deck is shuffled after the new five are drawn (rule 6-2-1-6-1),
-  so a returned card is never in the new hand but can come back later (in the Shields about
-  half the time); sampling the new hand from the rest of the deck is the right model.
+## Strengthened search design
 
-## Playout policy (`policy.py`)
+### Core loop and the `Mechanisms` composition
 
-The policy scores every option of every decision kind from the current board, without
-look-ahead; search uses it for rollouts and priors, and greedy uses it (deterministically) to
-finish the turn. A search configuration can change some of its rules (`PolicyKnobs`, set by
-the `policy_*` fields of `SearchConfig`); greedy always uses the original rules.
+`crates/gcg-search/src/mcts.rs` is the reference search's loop (`ai/mcts.py:82-339`) with
+explicit extension points. At every point a Phase 6 mechanism can change, the loop calls the
+`Mechanisms` trait (`crates/gcg-search/src/mech/mod.rs`): root moves, the budget, world
+building, priors, selection, rollout choices, the horizon, the leaf value, the engine-error
+leaf, the backup and the pre-game choices. Every method's default is the reference behaviour
+(`crates/gcg-search/src/mech/reference.rs`).
 
-| Decision | Heuristic |
-| --- | --- |
-| Main phase | Play the largest affordable Unit; pair Pilots, strongly preferring one that links (more so on a Unit deployed this turn, which can then attack); replace an EX Base; play Commands and abilities; spend EX Resources only when needed. |
-| Attacks | Lethal on an exposed player first; with more Blockers than attackers, play removal first. Attack a rested Unit when it dies and the attacker survives; avoid attacks into a Blocker that wins the fight; small penalty when the attacker will be exposed to a stronger enemy Unit on the reply turn. With `policy_zero_ap_face`, a face attack by a Unit that can neither deal damage nor matter through a trigger or a battle trick scores below ending the main phase, and such a Unit does not count as an attacker against the Blockers. |
-| Blocks | Must-block when the player would lose; otherwise value the Shield or Unit saved plus the fight outcome. |
-| Action steps | Tricks during a battle are tried; passing is preferred in the end phase. |
-| Targets (`SELECT`) | Reads the resolving effect's program to classify the choice as helping or harming the chosen cards, then picks the most valuable enemy card to harm or friendly card to help (least valuable for costs); rest-substitution picks cheaper cards. With `policy_rule_polarity_table`, a granted rule is signed by its kind (protection such as "can't receive damage" helps, locks such as "stays rested in the start phase" harm; the old rule called every "can't" harmful) and a rule granted to your own Units for this battle goes to the Unit in the battle. |
-| `EXCESS` / `DISCARD` | Trash or discard the least valuable card. |
-| `ARRANGE` | Keep valuable cards on top of your own deck. |
-| `BURST` | Yes, with score `policy_burst_yes_score` against 0 for no: at the presets' 4.0 a rollout at temperature 0.5 declines a Burst 0.03% of the time instead of 12% (no Burst in the example or test decks should be declined; the root decision is searched either way). |
-| `YES_NO` | Yes (score 1 against 0, so a rollout at temperature 0.5 says no about 12% of the time). |
-| `CHOOSE_FIRST` / `REDRAW` | Go first / keep (search agents use the pre-game procedures above). |
+`Composed` dispatches each method to the work packages' implementations in
+`crates/gcg-search/src/mech/<package>/` by the flags of `MechanismFlags`
+(`crates/gcg-search/src/flags.rs`), in a fixed order written in the module documentation of
+`mech/mod.rs`. With every flag off the composition is the reference, and the null
+configuration replays the reference bit for bit: `crates/gcg-search/tests/null_config.rs`
+compares action, alternatives, statistics and generator state on every decision of the D2
+vectors, and `tests/null_config_search_set.rs` (feature `slow`) does the same on every searched
+decision of the tier-1 `search` corpus set. A flag whose mechanism is not implemented is
+refused (`StrengthenedConfig::check_mechanisms`), never ignored. `StrengthenedConfig` has no
+`Default`; each preset spells out every field (W-136).
 
-## Evaluation (`evaluation.py`)
+### Observation
 
-A logistic model of the probability that `player` wins. The search evaluates determinized
-states only, so the opponent's hand composition is a sample from the player's information
-set. `Weights` carry a feature set (`evaluation.FEATURE_SETS`):
+`SearchAgent::choose` (`crates/gcg-search/src/agent.rs`) receives the true state through the
+shared `Agent` trait, builds an `Observation` from it at once
+(`crates/gcg-search/src/observation.rs`) and passes only the observation to the search. The
+observation holds the observer's information-set state, in which every card identity hidden
+from the observer has been redrawn from the observer's own pools, so the hidden identities,
+hidden history and game generator of the true state are not in it. Worlds are determinised
+from that state. Rustdoc `compile_fail` tests show that no code outside the crate can reach a
+`GameState` through an observation, and `gcg-diff lints` rule 5 checks that the agent uses the
+true state only for the decision counter, the log and `Observation::new`.
 
-- **`roles`** (the default, `DEFAULT_WEIGHTS = ROLE_WEIGHTS`, 17 features): computed from the
-  turn player's point of view, then negated for the other player. It keeps 12 of the base
-  differences below (all but `tempo` and `can_kill`), uses an intercept for the turn player,
-  and keeps the two sides' threats apart instead of forcing them to be mirror images:
-  `can_kill_turn_player`, `can_kill_other`, and `inv_race_turn_player`, `inv_race_other`, the
-  inverse of the number of turns that side needs to win if both boards stayed as they are
-  (every Unit with AP attacks the player each turn, each of the defender's Blockers stops the
-  largest blockable attack, the Base absorbs hits at the connecting attacks' mean AP, then
-  every Shield and one more hit; capped at 6 turns). Weights of note: can_kill turn player
-  +1.27, can_kill other −0.42, 1/race turn player +3.25, 1/race other −0.85, intercept −0.75.
-- **`base`** (14 features, `TUNED_WEIGHTS`, the pre-2026-10 default kept for
-  `baseline-standard`): each feature is `side(player) − side(opponent)` except `tempo`, so the
-  two players' estimates add up to 1.
+### The adopted mechanisms
 
-| Feature (base) | Meaning (per side) | Hand-set | Tuned |
-| --- | --- | ---: | ---: |
-| `tempo` | +1 if `player` is the turn player, −1 otherwise | 0.00 | −0.20 |
-| `life` | Shields + Base HP / 3 | 0.35 | 0.43 |
-| `danger` | max(0, 3 − life) | −0.30 | −0.44 |
-| `can_kill` | next attack step has enough attackers (minus Blockers not answered by castable removal in hand) to break every Shield and the Base and hit the player | 1.00 | 0.53 |
-| `ap` | total AP of Units | 0.10 | 0.11 |
-| `hp` | total remaining HP of Units | 0.10 | 0.16 |
-| `linked` | Link Units | 0.20 | 0.21 |
-| `ready` | active (unrested) Units | 0.20 | 0.53 |
-| `hand_units` | Unit cards in hand | 0.30 | 0.72 |
-| `hand_pilots` | Pilot cards in hand | 0.25 | 0.49 |
-| `hand_commands` | Command cards in hand | 0.25 | 0.37 |
-| `hand_bases` | Base cards in hand | 0.25 | 0.57 |
-| `level` | cards in the resource area | 0.15 | 0.16 |
-| `bursts` | Shields × fraction of 【Burst】 cards among the cards this player cannot see (from the known decklist) | 0.30 | 0.55 |
+- **`adaptive_horizon`** (W-01, `mech/p6a/horizon.rs`). A rollout that reaches its horizon
+  (`horizon_turns` = 2 turn boundaries after the root) in an unsettled position plays one more
+  turn boundary, once per line. Unsettled means, judged in the line's own determinised world:
+  a battle, an effect frame, a pending trigger or a non-main decision is still open, or either
+  side's race estimate is at most two turns.
+- **`capped_rollout_continuation`** (W-15, `mech/p6a/capped.rs`). The reference stops a
+  rollout after 250 decisions (`max_rollout_decisions`), possibly mid-battle, and scores it
+  there. With the flag, a capped line is continued on a copy with the deterministic policy, for
+  at most 64 more decisions, to the next main-phase decision of either player, and scored
+  there; a line still unsettled after that scores 0.5. The cap was never reached on the
+  evaluation panel (0 capped rollouts in every M15 row), so the mechanism is a guard that costs
+  nothing while the cap is not hit.
+- **`tactical_solver`** (W-03, `mech/p6b/solver.rs`). An exact, bounded AND-OR search of the
+  rest of one turn on a determinised world, played by the engine on clones: the attacker's
+  attacks (one per class of interchangeable attackers), Commands, abilities, pairings and plays;
+  every defender reply with the engine's eligible Blockers and the defender's determinised
+  tricks. It claims a lethal only when every explored defender reply loses. In a rollout, the
+  turn player plays a proved lethal line. Its engine applies count as auxiliary applies, capped
+  at 16 per iteration of the decision's iteration cap; past the cap the rollouts are the
+  reference's.
+- **`exclude_capped_play_draw`** (W-44, `mech/p6h/play_draw.rs`). The play/draw choice plays
+  the reference's paired simulations on the same seeds. A pair in which either game is capped,
+  drawn or failed leaves the paired estimate, so the choice rests on finished games only;
+  going second needs a gain of more than two paired standard errors. With every game finished
+  the choice is the reference's bit for bit.
+- **`engine_error_leaf`** (W-143, `mech/p6o/mod.rs`). A simulated line that ends in an engine
+  error (for example the W-143 redirect cycle) scores as a loss of the searching player instead
+  of failing the real game. An unimplemented card is never absorbed: it stays a hard failure.
+- **`kill_aware_targeting`** (W-26, `mech/p6f/`). The rollout policy's Damage targeting prefers
+  an enemy Unit the damage destroys, valued by what the kill removes, over a Unit that survives
+  it. Its policy-level regret per Damage decision is 0.0537 against the reference policy's
+  0.0754 (difference -0.0217 [-0.0324, -0.0110], `docs/port/eval/weakness-status/GAP-A1.md`).
+- **`tree_lethal_select`** (W-25, `mech/gapa1/mod.rs`). At a MAIN decision inside the tree, a
+  lethal line that the tactical solver proves for the deciding player is selected before the
+  moves ordered by the shared policy prior, so neither side's nodes over-extend into a lethal
+  that the solver can see (the W-25 over-extension scenario: 0/16 over-extensions with the
+  flag, 16/16 for the reference).
 
-The negative `tempo` weight reflects when positions are recorded: at the turn player's first
-decision, after its draw and resource placement, which the hand and level features already
-count.
+### Effort accounting
 
-### Feature selection
+Each search counts, per decision, iterations, engine applies by purpose (tree, rollout,
+auxiliary), worlds built and capped rollouts (PLAN §6.6). `gcg-sim` reports the totals and
+per-game distributions per seat in `results.json` `ai.effort` (schema 1.2.0). These counts are
+deterministic and never stop a search.
 
-Candidate features were compared by five-fold cross-validated log-loss (folds by game).
-- For the base set, on 11,792 turn-start positions from 720 MCTS self-play games: splitting
-  the hand by card type lowered log-loss from 0.515 to 0.491; features that did not help (Unit
-  count, Blocker count, EX Resources, deck size, exposed flag, maximum AP, trash size, a
-  continuous attack margin) were dropped.
-- For the role set (2026-10), on 7,941 positions from 540 self-play games of the pre-change standard search on
-  the tuning decks: −0.0090 nats against `TUNED_WEIGHTS` out of fold (fold SE about 0.0035),
-  −0.0074 on positions from test-deck games (never in the fit; cluster SE 0.017) and +0.0030
-  (SE 0.003, slightly worse) on example-deck games; at the tuning budget a role-feature agent
-  scored 384/800 = 0.480 [0.446, 0.515] against a base refit, so the game-level evidence is the
-  bundle measurement under "Strength"; a refit of the 14 base
-  weights on the same data was worse out of fold (+0.0025) and did not ship. Interaction terms
-  (life × enemy threat), a sharper lethal estimate, a held-trick feature and dropping
-  `bursts` were measured and gained nothing (within ±0.001).
-- `value_scale`: against outcomes, the leaf mapping at `value_scale = 2` is underconfident
-  (leaves valued 0.65–0.8 win 91% of the time); among 1, 1.5 and 2, 1 has the lowest log-loss
-  on every source (−0.026 to −0.040 nats against 2).
+### Determinism
 
-### Tuning procedure (`tuning.py`)
+- Every random choice of the search comes from the per-decision generator
+  `SplitMix64(derive_seed(agent_seed, agent_name, "decision", k))` or from a `derive_seed` of
+  it; agent seeds derive from the master seed and the match, game and seat
+  (`docs/port/PLAN.md` §7.2).
+- Nothing reads a clock, the thread id or the worker count. `gcg-diff lints` rules 2 and 3
+  reject clock, sleep, timeout and randomness APIs in the crates.
+- `scripts/verify_all_rust.sh` runs `gcg-sim benchmark --ai-preset fast` at `--workers 1`, `4`
+  and `10` and requires byte-identical reports, and the same for the reference search and
+  `gcg-eval head-to-head`.
+- The search's floating-point math goes through the platform's C math library, as the
+  reference's does. Its decisions are identical across worker counts and runs on one platform;
+  identity across platforms is not claimed. `portable_math` (pure-Rust `libm`) is implemented
+  but not adopted (W-137).
 
-1. Self-play: two MCTS agents with the small `tuning` budget (16–48 iterations), or a preset's
-   search settings with `--preset`, and the current weights play `--games` games on the three
-   tuning decks (Zeon green/red, Wing green/blue, Tekkadan purple), cycling through all nine
-   ordered deck pairings. The tuning decks are different from the AI test decks.
-2. At the turn player's first main-phase decision of every turn, record its feature vector
-   (`--feature-set base|roles`); label it 1 if that player won the game (draws dropped).
-3. Fit an L2-regularised (λ = 1) logistic regression by Newton's method on the even-indexed
-   games of all rounds so far; report log-loss on the current round's odd-indexed games
-   before (current weights) and after (fitted weights).
-4. Repeat with the fitted weights; the final weights are fitted on every position of every
-   round.
-5. Validate: a mirrored head-to-head match between the tuned and hand-set weights.
+## Ablation
 
-Every seed derives from `--seed` (default 2026); the result does not depend on `--workers`.
-`--start hand|tuned` chooses the weights round 0 plays with; the defaults reproduce the
-original procedure byte for byte. The base weights `TUNED_WEIGHTS` came from
-`python -m gcg_sim.ai.tuning --games 540 --rounds 2 --workers 13 --validate 216 --validate-preset standard`
-(13 min on 13 cores):
+Row kinds and statistics follow PLAN §12.4 and the "Phase 6 outcomes" section of
+[`docs/port/WEAKNESSES.md`](port/WEAKNESSES.md): 400 BO1 games in mirrored blocks of four on the
+15 tuning pairs, forced play/draw unless marked "agents", dev-role masters, confirm-role
+masters run once. Each cell gives wins/N (rate, Wilson 95%), the paired difference with its
+Newcombe 95% interval and the McNemar discordant counts.
 
-| Round | Positions | Held-out log-loss before | after |
-| --- | ---: | ---: | ---: |
-| 0 (hand-set weights) | 8,605 | 0.5452 | 0.5187 |
-| 1 (round-0 weights) | 7,957 | 0.5218 | 0.5188 |
+- *Individual*: the null configuration at the reference `standard` budget plus the mechanism,
+  against `ref:standard`.
+- *Leave-one-out*: the adopted bundle at twice the pre-M15 `standard` budget (256 / 640 / 2560)
+  against the same bundle without the mechanism (dev 21500200, all rows on the same deals). A
+  positive difference means the mechanism helps.
 
-Final fit on 16,562 positions. Validation, standard preset, 216 mirrored games: tuned 112,
-hand-set 104 (51.9%, Wilson 95% [0.452, 0.584]). `ROLE_WEIGHTS` came from
-`python -m gcg_sim.ai.tuning --preset baseline-standard --start tuned --feature-set roles --games 540 --rounds 1 --seed 35001`
-(self-play with the pre-change standard search and `TUNED_WEIGHTS`; `--preset` takes the
-presets, `tuning`, and the pre-change `baseline-<preset>`).
-
-A small version of the procedure runs in the test suite
-(`tests/ai/test_tuning.py`: three games, one round, run twice and compared bit for bit), and
-from the command line:
-
-```bash
-uv run python -m gcg_sim.ai.tuning --games 2 --rounds 1
-```
-
-## Presets and measured throughput
-
-| Preset | Use | Iterations per decision | Other |
+| Mechanism | Individual | Leave-one-out | Evidence |
 | --- | --- | --- | --- |
-| `fast` | screening deck variants | clamp(7·n, 16, 64) | exploration 0.15, rollout temperature 0.3, 8 play/draw game pairs, 96 mulligan samples |
-| `standard` (default) | benchmarks | clamp(64·n, 160, 640) | exploration 0.3, rollout temperature 0.5, 24 play/draw game pairs, 96 mulligan samples |
-| `strong` | confirmation runs | clamp(128·n, 320, 1280) | exploration 0.15, rollout temperature 0.3, 48 play/draw game pairs, 192 mulligan samples |
+| `adaptive_horizon` | dev 20100100: 218/400 (0.545, [0.496, 0.593]), +0.090 [+0.018, +0.161], 37/19; confirmation (confirm 30100100): 830/1600 (0.519, [0.494, 0.543]), +0.037 [+0.000, +0.075], 132/102 | 203/400 (0.507, [0.459, 0.556]), +0.015 [-0.058, +0.088], 30/27 | `docs/port/eval/weakness-status/P6-A.md`, `docs/port/eval/M15/rows/dev-loo-adaptive_horizon-400.json` |
+| `capped_rollout_continuation` | dev 20100100: 208/400 (0.520, [0.471, 0.569]), +0.040 [-0.033, +0.112], 32/24; identical to the placebo game for game | 207/400 (0.517, [0.469, 0.566]), +0.035 [-0.032, +0.101], 27/20 (the family's placebo: the cap never fires) | `docs/port/eval/weakness-status/P6-A.md`, `docs/port/eval/M15/rows/dev-loo-capped_rollout_continuation-400.json` |
+| `tactical_solver` | dev 20200100: 212/400 (0.530, [0.481, 0.578]), +0.060 [-0.007, +0.126], 30/18; confirmation at twice the budget (confirm 30200200): 811/1600 (0.507, [0.482, 0.531]), +0.014 [-0.023, +0.050], 116/105 | 215/400 (0.537, [0.488, 0.586]), +0.075 [+0.009, +0.140], 31/16 | `docs/port/eval/P6-B/rows/dev-tactical_solver-400.json`, `docs/port/eval/M15/rows/dev-loo-tactical_solver-400.json` |
+| `exclude_capped_play_draw` | agents, dev 20800044: 212/400 (0.530, [0.481, 0.578]), +0.060 [-0.007, +0.126], 30/18; identical to the null control game for game (0 of 400 changed) | agents, dev 21500250: 216/400 (0.540, [0.491, 0.588]), +0.080 [+0.002, +0.156], 40/24; identical to that protocol's placebo (0 of 400 changed) | `docs/port/eval/weakness-status/P6-H.md`, `docs/port/eval/M15/rows/dev-loo-agents-exclude_capped_play_draw-400.json` |
+| `engine_error_leaf` | the null configuration with the flag replays all 661 searched decisions of the tier-1 `search` set with 0 error leaves (`crates/gcg-search/tests/null_config_search_set.rs`) | 207/400 (0.517, [0.469, 0.566]), +0.035 [-0.032, +0.101], 27/20; identical to the placebo game for game (0 of 400 changed) | `docs/port/eval/weakness-status/P6-O.md`, `docs/port/eval/M15/rows/dev-loo-engine_error_leaf-400.json` |
+| `kill_aware_targeting` (M15b) | P6-F, dev 20600100: 216/400 (0.540, [0.491, 0.588]), +0.080 [+0.009, +0.150], 35/19; confirmation (confirm 30600100): 817/1600 (0.511, [0.486, 0.535]), +0.021 [-0.015, +0.057], 116/99 | `B_core` with it against `B_core` at twice the pre-M15 budget, dev 22710100: 207/400 (0.517), +0.035 [-0.040, +0.109], 33/26; confirmation (confirm 30271100): 830/1600 (0.519, [0.494, 0.543]), +0.037 [+0.001, +0.074], 129/99 | `docs/port/eval/weakness-status/P6-F.md`, `docs/port/eval/weakness-status/GAP-A1.md` |
+| `tree_lethal_select` (M15b) | dev 22710300: 217/400 (0.542), +0.085 [+0.016, +0.153], 34/17; confirmation (confirm 30271800): 843/1600 (0.527, [0.502, 0.551]), +0.054 [+0.018, +0.089], 128/85 | from the shipped `fast` (confirm 30271810): +0.021 [-0.014, +0.056]; from `B_core` at twice the budget (confirm 30271820): +0.007 [-0.029, +0.044] | `docs/port/eval/weakness-status/GAP-A1.md` |
 
-All three use the same settings otherwise: the root pruning and no-effect refinements, the
-policy settings (Burst score 4.0, 0-AP face attacks, the rule table), close target extension
-(3 budgets, 2 paired standard errors), observation keys, `value_scale = 1` and the role
-evaluation. The pre-change presets stay available as `gcg_sim.ai.baseline.BASELINE_PRESETS`
-(`baseline-standard`, `baseline-strong`) with `BASELINE_WEIGHTS`.
+The two zero-effect rows (`exclude_capped_play_draw` and `engine_error_leaf`) are guards: they
+change a decision only when a simulation is capped, drawn or fails, which did not happen in
+those rows. The agents-protocol placebo's +0.080 shows how far a 400-game row moves with no
+change at all (`docs/port/eval/weakness-status/M15-bundle.md`).
 
-Measured on commit fc29d5f, 8 worker processes on an otherwise idle 14-core Apple M4 Pro, two
-alternating rounds that agreed within 1% (core-seconds = wall time × workers;
-`gcg_sim.ai.throughput --games 48 --workers 8 --seed 11`, 96 games for `fast`, 16 for
-`strong`; tuning decks, MCTS vs MCTS):
+Bundle rows (`docs/port/eval/weakness-status/M15-bundle.md`), each against the null
+configuration at twice the pre-M15 `standard` budget:
 
-| Measurement | Games per core-minute | Core-seconds per game | Mean turns |
-| --- | ---: | ---: | ---: |
-| `fast` | 28.2 | 2.1 | 15.3 |
-| `standard` | 2.90 | 20.7 | 15.9 |
-| `strong` | 1.82 | 33.0 | 14.2 |
-| pre-change `standard` (`main`, bc38ab4), same machine and protocol | 4.72 | 12.7 | 16.2 |
+| Bundle | Mechanisms | Result |
+| --- | --- | --- |
+| `B_core` (adopted) | `adaptive_horizon`, `capped_rollout_continuation`, `tactical_solver` | dev 21500100: 217/400 (0.542, [0.493, 0.591]), +0.085 [+0.007, +0.162]; confirmation (confirm 30150100): 854/1600 (0.534, [0.509, 0.558]), +0.068 [+0.030, +0.105], 148/94 |
+| `B_mid` | `B_core` plus 14 mechanisms that were null alone | 212/400 (0.530); against `B_core` on the same deals -0.013 [-0.061, +0.036] |
+| `B_full` | `B_mid` plus `subtree_reuse` | 193/400 (0.482); against `B_core` -0.060 [-0.111, -0.009] (reused visits count toward the budget, so fewer fresh iterations) |
+| M15b (adopted) | the M15 shipped set plus `kill_aware_targeting` and `tree_lethal_select`, at the shipped `standard` budget | against the M15 `standard` on the 15 tuning pairs (confirm 30500001, same deals): 831/1620 (0.513, [0.489, 0.537]); against `ref:strong` (tuning 10500001): 950/1620 (0.586, [0.562, 0.610]); against greedy (dev 20500001): 338/420 (0.805, [0.764, 0.840]), where the M15 `standard` scored 328/420 (0.781) on the same deals (`docs/port/eval/M15b/README.md`) |
 
-`fast` plays 9.7× the games per core-minute of `standard`. 100 BO3 matches of
-red-green-zeon against blue-white-federation (`gcg-sim benchmark … --matches 100 --seed 1
---workers 8`) took 13.0 minutes (251 games) with `standard`, against 7.4 minutes (260 games)
-for the pre-change AI, inside the 30-minute target. The engine speedups of 2026-10
-(output-identical: same games, decision logs and results) made the old AI 1.26× faster on
-the same throughput measurement; `standard` spends that and more on twice the iterations.
-In a profiled game on the pre-change engine, 80–83% of search time was inside the engine's
-`apply`; the playout policy and the evaluation take most of the rest.
+Against the reference, the bundle's effect at equal iterations is within noise: on the same
+deals against `ref:strong`, the bundle's curve point minus the control curve without the bundle
+is -0.018 [-0.066, +0.031] per game at 2x and +0.030 [-0.017, +0.077] at 8x, while the control
+alone scored 212/400 (0.530) at 2x and 215/400 (0.537) at 8x (`docs/port/eval/M15/README.md`,
+step 3).
 
-Measure with (wall-clock is read only to report speed):
+**Not adopted.** Every other Phase 6 mechanism is implemented behind its flag, measured with
+individual rows (and high-budget or confirmation rows where promising), and left off because
+it measured null or negative. Their status is `resolved by measurement (not adopted)` or, where
+the plan has remaining work, `open`. The rows are in each item's entry of
+[`docs/port/WEAKNESSES.md`](port/WEAKNESSES.md) and in the package records of
+`docs/port/eval/weakness-status/`:
 
-```bash
-uv run python -m gcg_sim.ai.throughput --preset fast --games 2
-```
-
-## Comparing AI versions
-
-`python -m gcg_sim.ai.compare CHALLENGER OPPONENT` plays mirrored blocks of four (each deal
-with the challenger on both decks and in both seats) and prints the challenger's wins with a
-Wilson 95% interval; draws count as non-wins. An agent is `random`, `greedy`, a preset, or a
-baseline preset (`baseline-standard`: the AI as released before the 2026-10 changes), with
-`:field=value,...` to change `SearchConfig` fields or `weights=default|hand|baseline|roles`.
-Decks: `tests` (the AI test decks, from the repository root), `tuning`, `examples`, files, or
-`module:attr`. `--out` saves every game for paired analyses.
-
-```bash
-uv run python -m gcg_sim.ai.compare fast random --games 12 --seed 1 --decks tuning
-```
-
-`tests/ai/test_baseline.py` replays one game recorded on bc38ab4 with `baseline-standard`,
-moves and every logged search statistic included, so the baseline cannot drift.
-
-## Strength
-
-All results count wins; draws count as non-wins, as in the benchmark reports. "Mirrored"
-means blocks of four games per deal (each agent on each deck in each seat).
-
-**New `standard` against the pre-change `standard`** (`compare standard baseline-standard`,
-test decks, held-out seed 90001, run once): **925 of 1,600 = 0.578, Wilson 95% [0.554,
-0.602]**. On the example decks (240 games, three pairings, seed 90005):
-132 of 240 = 0.550 [0.487, 0.612] (80 games per pairing: blue-white-federation and purple-white-tekkadan 45, blue-white-federation and red-green-zeon 46, purple-white-tekkadan and red-green-zeon 41).
-
-Where the gain comes from (development seed 36005, 800 mirrored games each against
-`baseline-standard`, same deals):
-
-| Agent | Wins | Rate | Wilson 95% |
-| --- | ---: | ---: | --- |
-| new settings at twice the iterations (the new `standard`) | 472 / 800 | 0.590 | [0.556, 0.624] |
-| new settings at the old iterations | 435 / 800 | 0.544 | [0.509, 0.578] |
-| old settings at twice the iterations | 433 / 800 | 0.541 | [0.507, 0.576] |
-
-So better search and more iterations contribute about equally (about 4 points each) and
-roughly add up. After these measurements the final review found that the no-op Rest-target
-prune ignored "while this Unit is rested" effects; the fix (5a6f226) adds a check that never
-fired in 32 games on the test and example decks, which hold no such card, so it does not change
-the games behind these numbers. Settings that were measured and not adopted are listed under
-[Known weaknesses](#known-weaknesses), except the standard-budget refit of the base weights
-(under [Feature selection](#feature-selection)).
-
-Acceptance test `tests/slow/test_ai_strength.py` (default preset, test decks Federation
-blue/white and SEED red/white from `tests/ai/decks.py`, 400 mirrored games per opponent):
-
-| Opponent | MCTS wins | Win rate | Wilson 95% interval | Mean turns |
-| --- | ---: | ---: | --- | ---: |
-| random | 400 / 400 | 1.000 | [0.990, 1.000] | 11.7 |
-| greedy | 292 / 400 | 0.730 | [0.684, 0.771] | 18.4 |
-
-Before the change the same test gave 400/400 against random and 289/400 (0.723, [0.677,
-0.764]) against greedy. Greedy uses the default evaluation, so it now plays with the role
-weights too; these results are floors, not the measure of improvement.
-
-`strong` against `standard` (400 mirrored games, test decks, seed 8401): 209 of 400 = 0.523
-[0.474, 0.571]. On the same deals the pre-change `strong` beat the pre-change `standard`
-230 of 400 = 0.575 [0.526, 0.623]: `standard` gained more than `strong`, which keeps only
-twice `standard`'s iterations. Earlier measurements on the older engine: simply giving the
-old standard knobs 4× the iterations did not help (46 of 96), nor did a three-turn horizon at
-2× (51 of 96).
-
-Tactical puzzles (`tests/ai/test_puzzles.py`, each solved by the standard preset with two
-agent seeds against an MCTS defender): lethal on an exposed player; lethal by going face
-instead of taking a free kill; rest the Blocker with removal before the lethal attack; pair
-the linking Pilot so a Unit deployed this turn can attack for lethal; choose the Pilot and
-Unit that link; order attacks around a known 【Burst】 (attack with the Unit the Burst could
-rest first); hold removal for next turn's lethal instead of wasting it (the agent even casts
-it in the opponent's end step so the Blocker stays rested); take a favourable trade; do not
-attack into a bigger Blocker; block to survive; block when the Blocker wins the fight; use an
-action-step trick (AP−3) to survive; aim removal at the most valuable Unit it can destroy;
-trash the weakest Unit to the battle-area limit; take a free card from 【Burst】; mulligan a
-hand of uncastable cards and keep a hand with early plays; go first. Puzzles added with the
-2026-10 settings, each failing with the pre-change configuration: rest the Blocker while a
-bigger enemy Unit is already rested (the no-effect check used to prune the removal; 0/16 →
-16/16 agent seeds), do not rest an already-rested Unit (5/16 and 13/16 → 16/16), aim a ping
-at a Unit that keeps the damage rather than one whose <Repair> heals it and at the active
-rather than the rested Unit with hidden hands (close target extension: 11/24 → 18/24 and
-12/16 → 16/16), and protect the attacked Unit with a battle-scoped protection (0/8 → 8/8).
-`tests/ai/test_puzzles_shipped.py` plays these with the shipped `standard` preset, except the
-<Repair> ping, which the shipped preset solves only about a third of the time (see
-[Known weaknesses](#known-weaknesses), "Target choice").
-
-Blinded replay audit (30 games: 15 from the pre-change AI generated on bc38ab4 and 15 from
-the new `standard`, the same seeds 90031–90033, five BO1 games per example pairing; ten
-auditors read anonymized transcripts with boards and every option but no search statistics
-(`scripts/blind_transcripts.py`),
-and a second agent checked every flagged play): confirmed implausible plays 22 for the old AI
-and 19 for the new one. Wasted effects fell from 6 to 4 and bad targets from 5 to 2;
-passivity (5 → 6), questionable attacks (3 → 4) and two missed lethals in the new games show
-what remains.
-
-## The `fast` preset
-
-`fast` is for screening many deck variants, sub-variants and hypothetical builds; confirm the
-survivors with `standard` on different seeds and never compare or pool rates across presets
-(see the gcg-benchmark skill). Its budget is the cheapest the investigation screened (with the pre-change
-search settings) whose decisions still agreed with the pre-change `strong` on 173 confident
-positions about as often as a clamp(8·n, 20, 80) budget (0.744 against 0.733; the pre-change
-`standard` 0.808); clamp(6·n, 16, 64) agreed less (0.721) and its lower bound against greedy
-fell below 0.5.
-
-| Check (held-out seeds, each run once) | Result |
-| --- | --- |
-| Games per core-minute against `standard` (same machine, idle) | 28.2 vs 2.90: 9.7× |
-| vs random, 400 seat-swapped games (seed 90002) | 399 / 400 = 0.998 [0.986, 1.000] |
-| vs greedy, 400 games (seed 90003) | 251 / 400 = 0.628 [0.579, 0.674] |
-| vs `standard`, 400 games (seed 90004) | 156 / 400 = 0.390 [0.344, 0.439] |
-| Tactical puzzles of `tests/ai/test_puzzles.py` with `fast` agents on both sides | all 18, with both agent seeds (36/36) |
-
-Fidelity: each example pairing played 400 BO1 matches under `fast` and under `standard` on
-the same seed (the same deals), deck under test listed first:
-
-| Pairing (seed) | `fast` | `standard` | Paired difference (fast − standard) |
+| Package | Flags | Items | Record |
 | --- | --- | --- | --- |
-| red-green-zeon vs blue-white-federation (90011) | 234 / 400 = 0.585 [0.536, 0.632] | 207 / 400 = 0.518 [0.469, 0.566] | +0.068 [+0.011, +0.124] |
-| blue-white-federation vs purple-white-tekkadan (90012) | 222 / 400 = 0.555 [0.506, 0.603] | 226 / 400 = 0.565 [0.516, 0.613] | −0.010 [−0.066, +0.046] |
-| purple-white-tekkadan vs red-green-zeon (90013) | 147 / 400 = 0.368 [0.322, 0.416] | 161 / 400 = 0.403 [0.356, 0.451] | −0.035 [−0.085, +0.015] |
+| P6-A horizon and leaf | `generalized_leaf`; fixed `horizon_turns` 3 or 4 | W-01, W-02 | `docs/port/eval/weakness-status/P6-A.md` |
+| P6-B tactical solver | `lethal_root`, `threat_leaf`, `critical_extension`, `effective_blockers`, `solver_can_kill` | W-03, W-16, W-17, W-32, W-38 | `docs/port/eval/weakness-status/P6-B.md` |
+| P6-C hidden information | `opponent_buckets`, `belief_worlds`, `belief_last_n`, `exact_pools`, `opponent_view_share`, `opponent_list` | W-05, W-07, W-08, W-134, W-139 | `docs/port/eval/weakness-status/P6-C.md`, `docs/port/eval/weakness-status/GAP-B.md` |
+| P6-D tree and budget | `root_trees`, `visited_set_backup`, `in_tree_filters`, `transpositions`, `subtree_reuse`, `macro_multi_pick`, `prior_worlds` | W-04, W-06, W-11, W-18, W-138, W-140 | `docs/port/eval/weakness-status/P6-D.md` |
+| P6-E root filters and targets | `ex_variants`, `typed_fingerprint`, `prune_worlds`, `branch_all_selects`, `rest_prune_worlds`, `target_rollouts`, `real_idle_line` | W-09, W-10, W-12, W-13, W-14, W-141 | `docs/port/eval/weakness-status/P6-E.md` |
+| P6-F rollout policy | `calibrated_policy`, `modal_lookahead`, `yes_no_lookahead`, `end_phase_actions`, `burst_decline_list`, `order_trigger_scorer`, `exhaustive_polarity`, `exact_fight`, `opponent_knobs`, `kill_aware_targeting` | W-23 to W-31, W-163 | `docs/port/eval/weakness-status/P6-F.md` |
+| P6-G evaluation | `refit_weights`, `phase_weights`, `keyword_features`, `ability_count_features`, `hand_slots`, `burst_shield_probability`, `no_tempo_feature`, `determinized_fit`, `leaf_density` | W-34 to W-37, W-39, W-142 | `docs/port/eval/weakness-status/P6-G.md` |
+| P6-H pre-game | `paired_mulligan` | W-45 | `docs/port/eval/weakness-status/P6-H.md` |
+| P6-O design | `portable_math` | W-137 | `docs/port/eval/weakness-status/P6-O.md` |
+| GAP-A1 | `target_multi_rollouts`, `tree_lethal_select` | W-14, W-17 | `docs/port/eval/weakness-status/GAP-A1.md` |
 
-Where `standard`'s interval excludes 50% (the second and third pairings), `fast` favours the
-same deck. In the first pairing `standard` does not resolve the matchup and `fast` rates the
-deck under test about 7 points higher (a significant paired difference): `fast` rates are not
-`standard` rates, which is why the screening funnel confirms survivors with `standard`.
+## How strength is evaluated
 
-A deliberately weakened legal variant of red-green-zeon (`tests/data/decks/
-red-green-zeon-weakened.txt`: four Gelgoog, two Schuzrum-Galluss and three Close Combat
-replaced by weak same-colour cards), 200 BO1 matches against the original (seed 90021):
+**Panel.** Eight decks: the three example decks and the five evaluation decks of
+`examples/decks/eval/` (`examples/decks/eval/PAIRS.md`, `docs/port/eval/panel.json`). Two decks
+are held out, `blue-red-tempo` and `green-white-link`, chosen by their copy overlap with every
+tuning and AI test deck. All 28 pairs are played; the 13 pairs containing a held-out deck are
+held-out pairs, never used for tuning, screening or budget curves, and `gcg-eval` refuses them
+under `--role tuning|dev|confirm`. The split was committed before any tuning run.
 
-| Preset | Original deck wins | Rate | Wilson 95% |
-| --- | ---: | ---: | --- |
-| `fast` | 141 / 200 | 0.705 | [0.638, 0.764] |
-| `standard` | 139 / 200 | 0.695 | [0.628, 0.755] |
+**Seeds.** Master seeds have roles with disjoint ranges (PLAN A14,
+`crates/gcg-eval/src/contracts.rs`): tuning 10,000,000-19,999,999, dev 20,000,000-29,999,999,
+confirm 30,000,000-30,999,999, eval 90,000,000-90,999,999 and review 91,000,000-91,999,999.
+`gcg-eval --role R` rejects a master outside its range and records every master in
+`docs/port/eval/seed-ledger.json`. Pair `p` plays on `derive_seed(master, "pairing", p)`.
+
+**Games.** `gcg-eval head-to-head` plays BO1 games in mirrored blocks of four: two deals, each
+played twice with the agents swapped between seats. With `--choose-first seat0` the harness
+answers the play/draw decision itself (seat 0 goes first), so each agent is on the play in
+exactly half of every block. 400 games per pair, Wilson 95% intervals per pair, pooled over all
+pairs and pooled over the held-out pairs alone; draws count as non-wins.
+
+**Gates** (PLAN §12.6, read strictly as in A26; `gcg-eval gates --check` computes them from the
+`head-to-head --out` reports):
+
+| Gate | Comparison | Decks | Bar |
+| --- | --- | --- | --- |
+| E1 | `search:standard` vs `ref:strong` | panel, 28 pairs, 11,200 games | pooled Wilson lower bound at least 0.55 over all pairs and over the held-out pairs; no held-out pair with an upper bound below 0.5 |
+| E2 | `search:fast` vs `ref:standard` | panel, 28 pairs, 11,200 games | pooled point estimate at least 0.5 (all and held-out); no pair with an upper bound below 0.5 |
+| E3 | `search:standard` vs `random` | AI test decks (400 games) and panel | 400/400, or every loss documented with its replay |
+| E4 | `search:standard` vs `greedy` | AI test decks (400 games) and panel | Wilson lower bound above 0.764 on the test decks, and pooled over all panel pairs and over the held-out pairs |
+
+The 0.764 bar is the upper end of the Wilson interval of the reference's pre-change result
+against greedy on the AI test decks (289/400, [0.677, 0.764], the brief); the test-deck rows
+compare like for like and are not held-out evidence.
+
+Evaluation 1's E1 report came from this run (the ledger entry of master 90200001 in
+`docs/port/eval/seed-ledger.json` records the configuration; the worker count changes no
+output), and the gates were computed from its six reports:
+
+<!-- doc-check: skip a final-evaluation run: 11,200 games on an eval-role master that appends to the committed seed ledger and rewrites committed evidence -->
+```bash
+target/release/gcg-eval head-to-head search:standard ref:strong --decks panel --pairs all \
+  --games 11200 --seed 90200001 --role eval --choose-first seat0 --workers auto \
+  --out docs/port/eval/final-1/e1-standard-vs-ref-strong.json
+target/release/gcg-eval gates --check \
+  --e1 docs/port/eval/final-1/e1-standard-vs-ref-strong.json \
+  --e2 docs/port/eval/final-1/e2-fast-vs-ref-standard.json \
+  --e3-tests docs/port/eval/final-1/e3-tests-standard-vs-random.json \
+  --e3-panel docs/port/eval/final-1/e3-panel-standard-vs-random.json \
+  --e4-tests docs/port/eval/final-1/e4-tests-standard-vs-greedy.json \
+  --e4-panel docs/port/eval/final-1/e4-panel-standard-vs-greedy.json
+```
+
+## Measured strength
+
+### Evaluation 2 (final)
+
+The shipped presets of M15b (binaries built at 8c89b5e), eval-role masters 90300001-90300006
+run once, forced play/draw, `--workers 6`; reports, the documented losses and `gates.json` in
+`docs/port/eval/final-2/` (commands in its `README.md`):
+
+| Gate | Result | Brief bar | Plan A26 (also held-out pairs alone) |
+| --- | --- | --- | --- |
+| E1 `standard` vs ref `strong` | 6408/11200 = 0.5721 [0.5630, 0.5813]; held-out 2920/5200 = 0.5615 [0.5480, 0.5750]; no held-out pair UB < 0.5 (weakest pair 0.530) | pooled LB >= 0.55: pass | held-out LB 0.548: fail (by 0.002) |
+| E2 `fast` vs ref `standard` | 6254/11200 = 0.5584 [0.5492, 0.5676]; held-out 2880/5200 = 0.5538 [0.5403, 0.5673]; no pair UB < 0.5 (weakest 0.505) | pass | pass |
+| E3 `standard` vs random, test decks | 400/400 | pass | pass |
+| E3 `standard` vs random, panel | 11186/11200, held-out 5192/5200; the 14 losses are verified replays (`e3-losses/`) | pass (losses documented) | pass |
+| E4 `standard` vs greedy, test decks | 304/400 = 0.760 [0.7158, 0.7993] | LB > 0.764: fail | fail |
+| E4 `standard` vs greedy, panel | 8774/11200 = 0.7834 [0.7757, 0.7909]; held-out 4048/5200 = 0.7785 [0.7670, 0.7895] | pass | pass |
+
+Against evaluation 1 (below) every gate moved up: E1 by 1.3 points, E2 by 0.7, E4 on the panel
+by 1.1, and the losses to random fell from 27 to 14. E4 on the two AI test decks stays near
+0.76 in both evaluations: there the strengthened `standard` beats `greedy` about 4 points more
+often than the reference does (304 against 289 of 400), short of the roughly 8 points a lower
+bound above 0.764 needs at 400 games (about 323/400). The inspection notes of the losses and the misses are in
+`docs/port/eval/notes.md`.
+
+The Phase 7 reviewer reran E1-E4 from a clean clone on fresh review-role masters
+(`docs/port/eval/review/`, `docs/port/REVIEW.md` §4): E1 6393/11200 = 0.5708 [0.5616, 0.5799],
+held-out [0.5528]; E2 6361/11200 = 0.5679 [0.5588, 0.5771]; E3 400/400 and 11181/11200 (the 19
+losses documented with verified replays); E4 on the test decks 305/400 = 0.7625 [0.7184,
+0.8016], on the panel 8759/11200 = 0.7821 [0.7743, 0.7896], held-out [0.7623]. E4 on the AI test
+decks thus fails on all three independent seed sets.
+
+
+### Evaluation 1
+
+Copied from `docs/port/eval/final-1/README.md` (shipped presets of commit 82b0b34, binaries
+built at 34b3107, eval-role masters 90200001-90200006, forced play/draw, 28 panel pairs x 400
+games with 13 held out, and the AI test decks at 400 games). It is an earlier measurement than
+the table above and is kept as a record:
+
+| Gate | Result | Brief bar | Plan A26 (also held-out pairs alone) |
+| --- | --- | --- | --- |
+| E1 `standard` vs ref `strong` | 6268/11200 = 0.5596 [0.5504, 0.5688]; held-out 2885/5200 = 0.5548 [0.5413, 0.5683]; no held-out pair UB < 0.5 | pooled LB >= 0.55: pass (by 0.0004) | held-out LB 0.5413: fail |
+| E2 `fast` vs ref `standard` | 6171/11200 = 0.5510 [0.5418, 0.5602]; held-out 0.5544; no pair UB < 0.5 | pass | pass |
+| E3 `standard` vs random, test decks | 400/400 | pass | pass |
+| E3 `standard` vs random, panel | 11173/11200 (27 losses) | losses must be documented with replays | not documented: fail |
+| E4 `standard` vs greedy, test decks | 307/400 = 0.7675 [0.7237, 0.8062] | LB > 0.764: fail | fail |
+| E4 `standard` vs greedy, panel | 8655/11200 = 0.7728 [0.7649, 0.7804]; held-out 4011/5200 = 0.7713 [0.7597, 0.7826] | pooled LB > 0.764: pass (by 0.0009) | held-out LB 0.7597: fail |
+
+`gcg-eval gates --check` (`docs/port/eval/final-1/gates.json`) reported overall fail under the
+plan's strict reading for evaluation 1.
 
 ## Known weaknesses
 
-- **Horizon.** Rollouts stop at the start of the turn after the reply turn; plans that pay
-  off later rely on the evaluation. The leaf now prices the next turn's lethal better
-  (calibrated `value_scale` and the role features' separate can-kill and race terms; part of
-  the measured gain above). A lethal extension that played one more turn when the horizon
-  position threatened lethal, with a face-first push and a Blocker guard, was built and
-  measured: it fixed an audited defence position, but with the root, search and evaluation
-  settings at twice the budget (before the policy settings were merged) it won 449/800 against
-  448/800 without it on the same deals, and on 100 decisions where it changed the move
-  the old move did better in play-outs (36 to 23), so it was removed. A three-turn horizon
-  costs about 43% more per iteration and is deferred for `strong`.
-- **Policy bias.** Rollouts and priors come from a hand-written policy. Measured: rollouts
-  cast Commands in 33% of turns where search casts them in 45% (they are under-cast, not
-  eager), and activate abilities more than search does (55% against 22%); modal choices are
-  scored flat; the opponent is modelled with the same policy. The Burst, 0-AP face attack and
-  rule polarity fixes shipped. Kill-aware damage targeting and damage-payoff targeting made
-  the policy's own picks clearly better (regret per Damage decision −0.020) but made no
-  difference to the search's choices (+0.00025 ± 0.00032 against a reseed placebo), so they
-  were removed; effect-aware Command scoring and priors distilled from search statistics made
-  decisions worse in the investigation and were not built.
-- **Strategy fusion.** Determinized search can assume it will "know" hidden cards when a
-  later decision is made. Measured: the searcher's in-tree nodes took hidden information
-  almost only through the opponent's automatic action-step pass (276 of 288 splits), which
-  `observation_keys` removes (389 splits in 24 of 183 positions → 0; 12 splits of other
-  causes remain). Opponent nodes pool statistics across worlds where the opponent holds
-  different cards (0.84–0.89 distinct hands per visit), so a multiple-observer search would
-  have almost no visits per opponent node at these budgets; the measured fusion effect at
-  opponent nodes is small (+0.021 at a large budget). Known limit of the observation keys: when
-  the opponent passes in a battle's action step and again in the end phase's action step of the
-  same turn, and no decision with more than one move by either player comes between them (on
-  the searcher's turn: its main phase has nothing left but ending it), both passes map to one
-  child, which that iteration then counts twice (9 of 11,402 iterations in instrumented `fast`
-  self-play, all on the searcher's turn).
-- **Linear evaluation.** The model is still linear. Interaction terms gained nothing
-  (±0.001 nats); the role features replace the forced antisymmetry, which was the measured
-  misspecification. The weights are fitted to self-play of the pre-change standard search;
-  refitting to the new search's own games is a follow-up.
-- **Budget scaling.** Decision regret against a much larger search falls from 0.0035 per
-  decision at half the standard iterations to 0.0019 at the old budget, 0.0013 at twice and
-  0.0006 at four times; past about twice the old budget the limit is the model (rollouts,
-  horizon, evaluation), not the root allocation: every root rule tried (sequential halving,
-  progressive widening, near-tie extensions, visit minimums, budget-dependent exploration)
-  was null within ±0.0004 at equal iterations. `standard` therefore doubled its iterations;
-  `strong` keeps twice `standard`'s and is only slightly stronger (0.523 above).
-- **Target choice.** Close target choices now get up to three budgets (regret −0.00090 ±
-  0.00023 per target decision on 683 decisions, 32 changed choices better and 6 worse), and
-  no-op Rest targets are pruned. Choosing the less useful of two targets is still possible
-  when their values stay within noise after the extension. One target puzzle (ping a Unit that
-  keeps the damage rather than one whose <Repair> heals it) is solved by the extension in the
-  pre-change configuration (11/24 → 18/24 agent seeds on its test) but only about a third of
-  the time by the shipped `standard` (7 of 24 and 62 of 168 agent seeds in two reviews): with the calibrated leaf value the two targets score closer (with
-  `value_scale` 2 the same preset solves it about 20 of 24 times). Not adopted: a heuristic
-  tie-break toward the policy's preferred target (worse), a fixed target budget multiplier at
-  the same cost (−0.00036 ± 0.00019 against −0.00090 ± 0.00023 for the extension), and a
-  separate root prior weight for target decisions (z −1.4 and −1.0).
-- **Engine-bound speed.** Most search time is inside the engine's `apply` (80–83% before the
-  2026-10 speedups). The output-identical speedups cut function calls per game by about a third (derived-view
-  recomputations −40%, listened-events fast path, rules-management skips) and the world cache
-  cut determinizations by 73%; `standard` spent the savings on iterations. Invalidating the
-  derived view by mutation kind (74% of recomputations produce an identical view) needs a
-  dependency analysis of every condition and is deferred.
+[`docs/port/WEAKNESSES.md`](port/WEAKNESSES.md) records every item's outcome, and
+`docs/port/eval/weakness-gaps.md` the remaining work of the open ones. For the search:
 
-### Deferred proposals
+- Open: the `fast` preset's fidelity to `standard` (W-18): on held-out seeds it ranks deck
+  variants like `standard` (Spearman 0.9, the same best variant) but loses 7.5 points more
+  than `standard` on one weakened variant (-0.075 [-0.146, -0.003]), so confirm screened
+  survivors with `standard`. W-04 and W-19 hold the strength gates ("Measured strength"
+  above).
+- Measured and not adopted, so still present in the shipped search: strategy fusion at
+  opponent nodes (W-05), close target choices between similar units (W-14), the evaluation's
+  transfer to unseen decks (W-36, no refit ships) and the other "resolved by measurement" items
+  of the register. Each mechanism that targets them is implemented, scenario-tested and
+  measured null or negative at game level.
+- The blinded audit (W-17, `docs/port/eval/final-2/audit/README.md`) still finds about 1.3
+  clear mistakes per game in the shipped `standard` (2.5 for the reference), mostly passivity
+  early in the game; it found no missed lethal in 60 games.
 
-- Calibrate matchup estimates against real tournament results (needs data from the user).
-- Refit the evaluation on games of the new search, and test whether `strong` and `fast`
-  benefit from their own fits.
-- A three-turn horizon for `strong`; a larger `strong` budget relative to the new `standard`.
-- Invalidate the derived view by mutation kind; a stable, process-independent
-  `Lasting.effect_key` so saved states reload faithfully in another process.
-- A multiple-observer search, or opponent models other than the shared policy, if a larger
-  budget makes opponent nodes worth splitting.
-- Decision-level regret tooling (the oracle replay used in the investigation) as a committed
-  tool for future search changes.
-- Paired analysis of same-seed variant runs in the benchmark skill (fewer games for the same
-  precision).
+Decks that need long, precise lines may still be underrated: check a few replays
+(`gcg-sim replay FILE --log`) before trusting a surprising matchup result.

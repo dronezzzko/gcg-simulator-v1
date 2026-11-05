@@ -1,0 +1,42 @@
+[package]
+name = "gcg-cli"
+description = "The gcg-sim command line (validate, benchmark, data status, replay)"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+rust-version.workspace = true
+publish.workspace = true
+
+[lints]
+workspace = true
+
+# The shipped binary (PLAN §2.3); `main` of cli.py:386-399.
+[[bin]]
+name = "gcg-sim"
+path = "src/main.rs"
+
+# Never add gcg-ai-reference or gcg-diff here (PLAN §2.2 reachability rule, §6.5).
+[dependencies]
+gcg-core.workspace = true
+gcg-data.workspace = true
+gcg-effects.workspace = true
+# The agent factory names gcg_ai::{Agent, AgentError} (docs/port/contracts.md, Edges).
+gcg-ai.workspace = true
+gcg-runner.workspace = true
+gcg-search.workspace = true
+mimalloc = { workspace = true, optional = true }
+
+# build.rs: the code digest of build-support/digest-manifest.txt (PLAN X19, W-103).
+[build-dependencies]
+sha2.workspace = true
+
+[dev-dependencies]
+# tests/code_digest.rs includes build-support/code_digest.rs; the vector tests read JSON.
+sha2.workspace = true
+serde_json.workspace = true
+
+[features]
+# The allocator of PLAN §11.4 step 7: on by default, measured against the system allocator
+# (--no-default-features) in docs/port/BENCHMARKS.md.
+default = ["mimalloc"]
+mimalloc = ["dep:mimalloc"]

@@ -1,0 +1,134 @@
+{
+ "version": 1,
+ "entries": [
+  {
+   "role": "dev",
+   "master": 20800045,
+   "command": "ablation",
+   "config": {
+    "row": "individual",
+    "mechanism": "paired_mulligan=true",
+    "challenger": "search:null-standard:paired_mulligan=true",
+    "opponent": "ref:standard",
+    "decks": "panel",
+    "pairs": "tuning",
+    "games": 400,
+    "choose_first": "seat0"
+   }
+  },
+  {
+   "role": "dev",
+   "master": 20800045,
+   "command": "ablation",
+   "config": {
+    "row": "individual",
+    "mechanism": "paired_mulligan=false",
+    "challenger": "search:null-standard:paired_mulligan=false",
+    "opponent": "ref:standard",
+    "decks": "panel",
+    "pairs": "tuning",
+    "games": 400,
+    "choose_first": "seat0"
+   }
+  },
+  {
+   "role": "dev",
+   "master": 20800144,
+   "command": "head-to-head",
+   "config": {
+    "challenger": "search:null-standard:exclude_capped_play_draw=true",
+    "opponent": "ref:standard",
+    "decks": "panel",
+    "pairs": "tuning",
+    "games": 60,
+    "choose_first": "agents"
+   }
+  },
+  {
+   "role": "dev",
+   "master": 20800044,
+   "command": "ablation",
+   "config": {
+    "row": "individual",
+    "mechanism": "exclude_capped_play_draw=true",
+    "challenger": "search:null-standard:exclude_capped_play_draw=true",
+    "opponent": "ref:standard",
+    "decks": "panel",
+    "pairs": "tuning",
+    "games": 400,
+    "choose_first": "agents"
+   }
+  },
+  {
+   "role": "dev",
+   "master": 20800044,
+   "command": "ablation",
+   "config": {
+    "row": "individual",
+    "mechanism": "exclude_capped_play_draw=false",
+    "challenger": "search:null-standard:exclude_capped_play_draw=false",
+    "opponent": "ref:standard",
+    "decks": "panel",
+    "pairs": "tuning",
+    "games": 400,
+    "choose_first": "agents"
+   }
+  },
+  {
+   "role": "confirm",
+   "master": 30800045,
+   "command": "ablation",
+   "config": {
+    "row": "individual",
+    "mechanism": "paired_mulligan=true",
+    "challenger": "search:null-standard:paired_mulligan=true",
+    "opponent": "ref:standard",
+    "decks": "panel",
+    "pairs": "tuning",
+    "games": 1600,
+    "choose_first": "seat0"
+   }
+  },
+  {
+   "role": "dev",
+   "master": 20800245,
+   "command": "regret",
+   "config": {
+    "candidate": "ref:standard",
+    "oracle": "search:null-strong:paired_mulligan=true,mulligan_samples=768",
+    "decks": "panel",
+    "pairs": "tuning",
+    "games": 60,
+    "choose_first": "seat0"
+   }
+  },
+  {
+   "role": "dev",
+   "master": 20800245,
+   "command": "regret",
+   "config": {
+    "candidate": "search:null-standard:paired_mulligan=true",
+    "oracle": "search:null-strong:paired_mulligan=true,mulligan_samples=768",
+    "decks": "panel",
+    "pairs": "tuning",
+    "games": 60,
+    "choose_first": "seat0"
+   }
+  },
+  {
+   "role": "confirm",
+   "master": 30800045,
+   "command": "ablation",
+   "config": {
+    "row": "individual",
+    "mechanism": "paired_mulligan=false",
+    "challenger": "search:null-standard:paired_mulligan=false",
+    "opponent": "ref:standard",
+    "decks": "panel",
+    "pairs": "tuning",
+    "games": 1600,
+    "choose_first": "seat0"
+   }
+  }
+ ]
+}
