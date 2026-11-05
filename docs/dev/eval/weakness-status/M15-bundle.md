@@ -13,8 +13,8 @@ seat0`, A24) unless the row says otherwise, `--workers 8`. The bundle runs at tw
 `standard` budget (`iterations_per_option=256,min_iterations=640,max_iterations=2560` on
 `search:standard`, i.e. reference `strong` settings with `engine_error_leaf`). Masters are in
 `docs/dev/eval/M15/seed-ledger.json`. "Applies per game" counts every engine apply of the agent
-(tree, rollout and auxiliary). The "vs placebo" column (`docs/dev/eval/M15/rows_table.py
-versus`, the method of `docs/dev/eval/P6-F/versus_placebo.py`) compares a row with the placebo
+(tree, rollout and auxiliary). The "vs placebo" column (`docs/port/eval/M15/rows_table.py
+versus`, the method of `docs/port/eval/P6-F/versus_placebo.py`) compares a row with the placebo
 row of its seed family game by game: games with another outcome, length or decision count;
 challenger wins only in the row / only in the placebo; the difference per game with a Wald 95%
 interval.

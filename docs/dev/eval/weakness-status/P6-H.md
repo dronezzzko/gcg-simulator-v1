@@ -90,7 +90,7 @@ commit that adds this file and `docs/dev/eval/P6-H/`. Every ablation row ran the
     --decision-trace ...`; `docs/dev/eval/P6-H/w44-e2e-head-to-head-dev.json` carries the
     realised play/draw counts per agent for every pair (`by_pair[].result.play_draw`) and
     `docs/dev/eval/P6-H/w44-e2e-trace-summary-dev.json` (from the decision trace by
-    `docs/dev/eval/P6-H/trace_summary.py`) the choices, go-first counts and counted/excluded
+    `docs/port/eval/P6-H/trace_summary.py`) the choices, go-first counts and counted/excluded
     simulations per pair and agent: each agent chose in 30 games and went first in all 30;
     `search-standard` counted 720 of 720 pairs (0 excluded) and the reference reports 720 (it
     never excludes).
@@ -232,7 +232,7 @@ commit that adds this file and `docs/dev/eval/P6-H/`. Every ablation row ran the
    null configuration's luck on its deals (three null controls here: -0.095 [-0.168, -0.021],
    +0.060 [-0.007, 0.126], +0.028 [-0.007, 0.062]; the first excludes 0). A mechanism that
    changes few decisions is measured far more precisely against a null control on the same seed,
-   game by game (`docs/dev/eval/P6-H/pair_rows.py`). A `--control` option of `gcg-eval
+   game by game (`docs/port/eval/P6-H/pair_rows.py`). A `--control` option of `gcg-eval
    ablation` that plays and pairs the control row would make this standard.
 5. **Seeds and evidence.** Ledger entries (9, dev 20800044, 20800045, 20800144, 20800245;
    confirm 30800045) are in `docs/dev/eval/P6-H/seed-ledger.json`, to be merged into the

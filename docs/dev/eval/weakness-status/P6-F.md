@@ -100,7 +100,7 @@ Kept (non-negative, with scenario or unit evidence of a real fix): `modal_lookah
 `kill_aware_targeting`. Every flag stays implemented and available for the lead's bundle and
 its leave-one-out rows.
 
-The "vs placebo" column (`docs/dev/eval/P6-F/versus_placebo.py`) compares each row with the
+The "vs placebo" column (`docs/port/eval/P6-F/versus_placebo.py`) compares each row with the
 placebo game by game. All rows share the master seed, so game i has the same deal, seats and
 play/draw in every row, and the challenger is always the agent `search-standard` with the same
 decision seeds: a game differs from the placebo's only where the mechanism changed a decision.

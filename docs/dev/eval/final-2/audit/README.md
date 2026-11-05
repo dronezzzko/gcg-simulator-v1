@@ -41,7 +41,7 @@ classifications as written.
 
 ## Result
 
-`uv run python docs/dev/eval/final-2/audit/tally_audit.py` writes `audit-result.json`:
+`uv run python docs/port/eval/final-2/audit/tally_audit.py` writes `audit-result.json`:
 
 | | shipped `standard` (M15b) | reference `standard` |
 | --- | --- | --- |

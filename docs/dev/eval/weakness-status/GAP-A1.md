@@ -34,7 +34,7 @@ status lines from this file (PLAN §12.10).
 - **Rows.** `gcg-eval ablation individual|leave-one-out` on the 15 tuning pairs of
   `docs/dev/eval/panel.json`, 400 games (dev) or 1,600 (confirm, run once), mirrored blocks of
   four, forced play/draw (`--choose-first seat0`, A24), 3 or 4 worker threads (results do not
-  depend on the count). Tables come from `uv run python docs/dev/eval/M15/rows_table.py rows|versus FILE...`.
+  depend on the count). Tables come from `uv run python docs/port/eval/M15/rows_table.py rows|versus FILE...`.
   "vs null" compares a row with the null-configuration row on the same master game by game
   (changed games, row-only / null-only challenger wins, difference per game with a Wald 95%
   interval).
@@ -605,7 +605,7 @@ equivalence smoke is byte-identical.
    `missing mechanism field "target_multi_rollouts"` (checked:
    `gcg-eval head-to-head search:m15-fast-1.5x.json ...`). Add `"target_multi_rollouts": null`
    and `"tree_lethal_select": false` to their `mechanisms` objects (and to the field list of
-   `docs/dev/eval/M15/make_config.py`) before using them as `--search-config` or `part2
+   `docs/port/eval/M15/make_config.py`) before using them as `--search-config` or `part2
    --candidate` files; both values are off, so the files configure the same searches. Not edited
    here: they are M15's records.
 3. **W-17's blinded audit.** `bash docs/dev/eval/GAP-A1/audit/make_sample.sh transcripts OUT KEY`

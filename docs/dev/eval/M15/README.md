@@ -21,7 +21,7 @@ official Part 2 timing on an idle machine are the lead's and have not been run.
   11500200; dev 21500100, 21500200, 21500250, 21500400, 21500410 and the timing probe
   21500900; confirm 30150100). The two step-5 rows ran concurrently with other rows, so they
   wrote a scratch ledger whose entries were appended to the M15 ledger afterwards.
-- **Tables.** `uv run python docs/dev/eval/M15/rows_table.py rows|versus|versus-points|curve FILE...` prints
+- **Tables.** `uv run python docs/port/eval/M15/rows_table.py rows|versus|versus-points|curve FILE...` prints
   every row below from its report (wins/N, Wilson 95%, paired difference with the Newcombe 95%
   interval, discordant deals, iterations and applies per game, the lowest pair and the number
   of pairs whose upper bound is below 0.5); `timing_table.py` prints the cost table.

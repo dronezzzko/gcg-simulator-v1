@@ -120,7 +120,7 @@ different decision seeds:
 
 Reading the tables:
 
-- The "vs placebo" column (`docs/dev/eval/P6-A/versus_placebo.py`) compares a row with its
+- The "vs placebo" column (`docs/port/eval/P6-A/versus_placebo.py`) compares a row with its
   family's placebo game by game: game i has the same deal, seats, play/draw and decision seeds
   in every row of a family, so a game differs from the placebo only where the mechanism changed a
   decision. It is a sharper paired comparison than the row's own and isolates the mechanism; it is

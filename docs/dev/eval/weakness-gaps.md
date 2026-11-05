@@ -77,7 +77,7 @@ W-04 is resolved by final evaluation 2 and the reviewer's review-seed run: `stan
 
   ```text
   gcg-eval fidelity search:fast search:standard --variants red-green-zeon,tests/data/decks/red-green-zeon-weakened.txt,purple-white-tekkadan,docs/dev/eval/P6-D/decks/purple-white-tekkadan-weakened.txt,docs/dev/eval/P6-D/decks/blue-white-federation-weakened.txt --against blue-white-federation --games 200 --seed 90300007 --role eval --ledger docs/dev/eval/final-2/seed-ledger-fidelity.json --workers 3 --out docs/dev/eval/final-2/fidelity-fast-standard.json
-  uv run python docs/dev/eval/GAP-A2/w18_fidelity_check.py docs/dev/eval/final-2/fidelity-fast-standard.json
+  uv run python docs/port/eval/GAP-A2/w18_fidelity_check.py docs/dev/eval/final-2/fidelity-fast-standard.json
   ```
 
 ### W-137: determinism contract (strengthened-search math) — resolved

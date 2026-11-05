@@ -90,7 +90,7 @@ How the runs were made:
       --pair docs/dev/eval/GAP-A2/decks/coverage-white-blue.txt:docs/dev/eval/GAP-A2/decks/coverage-white-blue.txt \
       --games 100 --seed 22721300 --role dev --workers 1 \
       --out docs/dev/eval/GAP-A2/w13-coverage-fast-vs-ref-standard-100.json --decision-trace TRACE
-    uv run python docs/dev/eval/GAP-A2/w13_trace_summary.py TRACE
+    uv run python docs/port/eval/GAP-A2/w13_trace_summary.py TRACE
     ```
 
     The "while rested" exception fired at 123 of 8,979 searched decisions, in 65 of the 100
@@ -129,7 +129,7 @@ How the runs were made:
     evaluation and the reviewer.
   - The gap list's command used `--role eval`. If the lead wants the eval-role run as well,
     it is the same command with an eval master after the final evaluation.
-- **What was done:** the run below, with `docs/dev/eval/GAP-A2/w18_fidelity_check.py`, which
+- **What was done:** the run below, with `docs/port/eval/GAP-A2/w18_fidelity_check.py`, which
   checks a fidelity report against the verification. It also reproduces P6-D's pre-M15 table
   from `docs/dev/eval/P6-D/fidelity-fast-standard.json`, "Verification: met".
 - **Command** (the release `gcg-eval` built from `1007ca9`, the shipped presets of M15;
@@ -141,7 +141,7 @@ How the runs were made:
     --against blue-white-federation --games 200 --seed 30721801 --role confirm \
     --ledger docs/dev/eval/GAP-A2/seed-ledger.json --workers 3 \
     --out docs/dev/eval/GAP-A2/fidelity-fast-standard-m15.json
-  uv run python docs/dev/eval/GAP-A2/w18_fidelity_check.py docs/dev/eval/GAP-A2/fidelity-fast-standard-m15.json
+  uv run python docs/port/eval/GAP-A2/w18_fidelity_check.py docs/dev/eval/GAP-A2/fidelity-fast-standard-m15.json
   ```
 
 - **Evidence** (`docs/dev/eval/GAP-A2/fidelity-fast-standard-m15.json`, every game included;
@@ -179,7 +179,7 @@ How the runs were made:
 - **Decision and evidence:** the resolution plan asks for "keyword worth from the per-keyword
   evaluation features fitted in W-37". The only fitted per-keyword worths are the weights of
   W-37's `keyword_features` models (P6-G). They are no usable worth:
-  - `docs/dev/eval/GAP-A2/w31_keyword_worth.py` reads them from
+  - `docs/port/eval/GAP-A2/w31_keyword_worth.py` reads them from
     `docs/dev/eval/P6-G/fit-round1.json`. It gives each keyword's worth to its owner in each
     seat: `w_tp` for the turn player and `-w_ot` for the other player.
   - The script converts the worth to the policy's own units. `unit_value` counts one point of
@@ -391,7 +391,7 @@ How the runs were made:
 
   Every row: `gcg-eval ablation`, 15 tuning pairs, 400 games, `--workers 1`, the release
   `gcg-eval` with the runtime code of `6bdd500`. The versus column compares the row with its control game by game (the
-  same master, so the same deals and agent seeds; `docs/dev/eval/M15/rows_table.py versus`).
+  same master, so the same deals and agent seeds; `docs/port/eval/M15/rows_table.py versus`).
   "Effort" games differ only in iterations or applies; a "moves" game has another decision
   count or length.
 

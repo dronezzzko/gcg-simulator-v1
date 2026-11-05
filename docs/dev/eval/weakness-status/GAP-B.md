@@ -267,7 +267,7 @@ tuning pairs of the panel, forced play/draw (`--choose-first seat0`, A24), `--wo
 
 Masters (dev role only; no tuning, confirm, eval or review master): 22800001 (four rows) and
 22800002 (two rows), all in `docs/dev/eval/GAP-B/seed-ledger.json`. The tables are
-`uv run python docs/dev/eval/M15/rows_table.py rows|versus ...`.
+`uv run python docs/port/eval/M15/rows_table.py rows|versus ...`.
 
 ## Interface change requests (lead)
 

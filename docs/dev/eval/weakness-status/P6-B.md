@@ -90,7 +90,7 @@ from): `gcg-eval ablation individual --mechanism <flag>=true --reference standar
 configuration, which replays the reference: it measures the noise of a row whose agents draw
 different decision seeds). All individual rows share master 20200100, so game i has the same
 deal, seats and play/draw in every row and the challenger always has the same decision seeds;
-the "vs placebo" column (`docs/dev/eval/P6-B/rows_table.py`) compares each row with the placebo
+the "vs placebo" column (`docs/port/eval/P6-B/rows_table.py`) compares each row with the placebo
 game by game, which isolates the mechanism. This master favours the challenger: the placebo
 itself scores 211/400 (+0.055), so the individual rows are read against the placebo, not
 against 0.5. `p6b_solver` is `tactical_solver` + `threat_leaf` + `lethal_root`; `p6b_all` is all

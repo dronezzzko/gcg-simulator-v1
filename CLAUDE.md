@@ -8,8 +8,9 @@ and presets: `docs/AI.md`. Design and registers: `docs/dev/PLAN.md`,
 `docs/dev/WEAKNESSES.md`, `docs/dev/tests.json`. `docs/SPEC.md`, `docs/INTERFACES.md`,
 `docs/PROGRESS.md` and `docs/status.json` are the oracle's build records, not current
 documentation. The Rust build records (brief, inventory, final report, review, progress log) were
-deleted; citations of them in the registers (`BRIEF.md:131`, `Inv 06b §5`, `REVIEW.md §4`) refer
-to commit 83a06c8.
+deleted, and so were the one-off evaluation scripts under `docs/port/eval/` (all but
+`P6-F/synthetic_cards.py`); citations of them in the registers and eval records (`BRIEF.md:131`,
+`Inv 06b §5`, `REVIEW.md §4`, `docs/port/eval/M15/rows_table.py`) refer to commit 83a06c8.
 
 ## Rust commands
 
