@@ -7,7 +7,7 @@
 //! (`V.trigger_index`). The NDJSON is parsed with `serde_json` directly (the engine cannot
 //! depend on `gcg-diff`).
 //!
-//! Tier 1 (committed, 280 traces) always runs. Tier 2 (2034 traces, regenerated into
+//! Tier 1 (committed, 300 traces) always runs. Tier 2 (2169 traces, regenerated into
 //! `build/oracle/tier2/` by `uv run python oracle/traces.py --write --tier 2 --only
 //! views` and checked against `oracle/corpus/v1/MANIFEST-tier2.json`) runs with the `slow`
 //! feature (PLAN A12).
@@ -251,7 +251,7 @@ fn check_tier2_files() {
 #[test]
 fn tier2_views_match_python() {
     let expected = tier2_expected();
-    assert_eq!(expected, 2034);
+    assert_eq!(expected, 2169);
     check_tier2_files();
     check_set(&repo().join("build/oracle/tier2/views"), expected);
 }

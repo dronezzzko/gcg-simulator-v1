@@ -50,12 +50,12 @@ floating-point leaf values can differ in the last bit wherever the C library dif
 
 | Corpus | Traces | Passed | Decisions | Snapshots | Search decisions |
 | --- | ---: | ---: | ---: | ---: | ---: |
-| Tier 1 (committed) | 3804 | 3804 | 17,601 | 2,166 | 1,396 |
-| Tier 2 (regenerated, checked against its manifest) | 4154 | 4154 | 123,726 | 9,078 | 12,131 |
+| Tier 1 (committed) | 4044 | 4044 | 18,598 | 2,247 | 1,396 |
+| Tier 2 (regenerated, checked against its manifest) | 4463 | 4463 | 132,853 | 9,766 | 12,131 |
 
-Tier 1 holds baselines 8, coverage 50, full 4, fuzz 100, search 9, tests 3213, vanilla 40,
-views 280 and worlds 100 traces; tier 2 holds coverage 468, fuzz 500, search 144 (reference
-`fast`, `standard` and `strong`), views 2034 and worlds 1008. Both also pass with the
+Tier 1 holds baselines 8, coverage 55, full 4, fuzz 100, search 9, tests 3418, vanilla 40,
+views 300 and worlds 110 traces; tier 2 holds coverage 522, fuzz 500, search 144 (reference
+`fast`, `standard` and `strong`), views 2169 and worlds 1128 (the 2026-11-06 data refresh). Both also pass with the
 `paranoid` feature (every cached view recomputed and compared). Commands:
 `gcg-diff corpus --tier 1 --require-all`, `--tier 2`, `--roundtrip`, and the paranoid build.
 
