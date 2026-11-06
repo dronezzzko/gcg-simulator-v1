@@ -25,11 +25,11 @@ matched. Each card number was checked against `src/gcg_sim/data/gcgapi/cards.ndj
 
 | Topic | Official source | Date on the source |
 | --- | --- | --- |
-| Rules hub | `/en/rules/` | CR "Updated September 11, 2026"; TRM "Updated July 25, 2025"; Tournament Rules "Updated November 19, 2025"; BO3 "Updated July 3, 2026" |
+| Rules hub | `/en/rules/` | CR "Updated October 16, 2026" (re-checked 2026-11-06); TRM "Updated July 25, 2025"; Tournament Rules "Updated November 19, 2025"; BO3 "Updated July 3, 2026" |
 | Current Banned/Restricted list | `/en/news/01_279.html` | page dated September 25, 2026 |
 | B&R announcement, July 2026 | `/en/news/01_277.html` | announced 2026-07-10, effective 2026-07-24 (US) |
 | B&R announcement, April 2026 | `/en/news/01_234.html` | announced 2026-03-27, effective 2026-04-01 |
-| Comprehensive Rules | `/en/pdf/comprehensiverules_en.pdf` | Ver. 1.9.0, Sep 11, 2026 |
+| Comprehensive Rules | `/en/pdf/comprehensiverules_en.pdf` | Ver. 1.10.0, Oct 16, 2026 |
 | Tournament Rules Manual (TRM); the site labels it "Organized Play Tournament Rules Manual" | `/en/pdf/floor_rule_en.pdf` | PDF says "Last Updated: July 10th, 2025" |
 | Sanctioned Tournament Floor Rules (site label "Tournament Rules") | `/en/pdf/tournament-rules_en.pdf` | Ver. 1.1.0, last edited November 19, 2025 |
 | BO3 Match Rules | `/en/news/best-of-three.html` | July 03, 2026 |
@@ -68,7 +68,7 @@ The current list (`01_279`, dated 2026-09-25):
 | Restricted 〈2〉 | ST02-016 Corsica Base |
 | Banned pair | A: ST01-010 Amuro Ray / B: ST05-010 Mikazuki Augus |
 | Banned pair | A: GD01-008 Guntank / B: GD05-015 M1 Astray Shrike |
-| Attribute banned pairs (22 listed) | GD01-035, GD01-060, GD01-085, GD02-013, GD02-080, GD03-032, GD03-063, GD04-078, GD05-014, GD05-027, GD05-042, GD05-062, GD05-077, ST01-005, ST04-008, ST05-004, ST05-009, ST06-004, ST09-005, ST10-005, **ST11-008, ST12-010** (these two are new since July) |
+| Attribute banned pairs (22 listed; 25 with the GD06 matches, see below) | GD01-035, GD01-060, GD01-085, GD02-013, GD02-080, GD03-032, GD03-063, GD04-078, GD05-014, GD05-027, GD05-042, GD05-062, GD05-077, ST01-005, ST04-008, ST05-004, ST05-009, ST06-004, ST09-005, ST10-005, **ST11-008, ST12-010** (these two are new since July) |
 
 The attribute rule:
 
@@ -80,7 +80,11 @@ The July 2026 notice adds: "Additionally, matching cards printed in GD05 and aft
 to the above banned pair listing at the time of their release."
 
 **Predicate check.** In the card data, `UNIT ∧ level 2 ∧ cost 1 ∧ ap 2 ∧ hp 2 ∧ effect == "-"`
-matches exactly the 22 listed card numbers. No alternate printing disagrees with its canonical
+matched exactly the 22 listed card numbers. The data refresh of 2026-11-06 (GD06, released
+2026-10-30) adds three matching cards, GD06-028 Gaza D, GD06-047 Windam and GD06-063 GFreD.
+They join the enumerated list under the future-cards policy quoted above; the current-list page,
+re-fetched on 2026-11-06, does not name them yet (`banlist.json` ambiguity
+`vanilla-enumeration-vs-predicate`). No alternate printing disagrees with its canonical
 printing. `banlist.json` stores the rule as a predicate, `$matched` binding included, alongside the
 enumerated list. A scratch evaluator applied it to 10 sample decks and got the expected result each
 time. For example, 4×GD01-035 passes, while GD02-080 Nemo with ST10-005 Nemo is rejected.
@@ -217,12 +221,16 @@ equivalent is to validate both decks before the match.
 
 ## 7. Comprehensive Rules version
 
-The rules page and the PDF header both say **Ver. 1.9.0, Updated Sep 11, 2026**. The PDF's HTTP
-`Last-Modified` header is Fri, 11 Sep 2026 03:38:04 GMT, and its sha256 is `ba9c335c…`.
+The rules page and the PDF header both say **Ver. 1.10.0, Updated Oct 16, 2026** (re-checked
+2026-11-06). The PDF's HTTP `Last-Modified` header is Thu, 15 Oct 2026 11:47:44 GMT, and its
+sha256 is `035acc2b…`. Its revision history lists two changes for 1.10.0, both in the
+multiplayer section 12: 12-2-9 added (battle royale: <Blocker> only when you or one of your
+Units is attacked) and 12-3-5 revised (team battle: the redraw order across teams). Both are N/A
+for 1v1 (`rules_na.json`).
 
 The Asia PDF is byte-identical to the US PDF. The PDF and the repo's
-`gundam-card-game-comprehensive-rules.md` contain the same 566 rule ids. Section 6 was compared word
-for word and matches.
+`gundam-card-game-comprehensive-rules.md` contain the same 567 rule ids. Section 6 was compared word
+for word and matches (Ver. 1.9.0); the two 1.10.0 rules were compared word for word with the PDF.
 
 ## 8. English (Asia) differences
 
@@ -231,8 +239,11 @@ for word and matches.
   resets.
 - The BO3, April B&R and language pages match the US versions, apart from minor wording.
 - The Asia site has no TRM. Its "Floor Rules" link goes to the multi-title *BANDAI CARD GAMES Floor
-  Rules Ver.1.1.1* (2026-02-24) on carddass.com. That PDF is 3,046,969 bytes, so only its text is
-  kept in the repo; its hash is in the lock fragment. Compared with the US rules:
+  Rules* on carddass.com: Ver.1.1.1 (2026-02-24) until the 2026-11-06 refresh, now Ver.2.2.0
+  (last updated 2026-10-23, 3,300,998 bytes). Only its text is kept in the repo; its hash is in
+  the lock fragment. Ver.2.2.0 adds Gundam Card Game supplementary rules for token substitutes in
+  physical play and extends the time-extension wording to some store events. Compared with the US
+  rules:
   - the final time-out tiebreak is one round of rock-paper-scissors, not a double loss;
   - "Some tournaments may allow sideboards to be used in addition to decks.";
   - cards must be "in the language permitted for the area";
@@ -243,8 +254,9 @@ for word and matches.
 
 `banlist.json` → `ambiguities` records the B&R items. They are summarized here.
 
-1. **Predicate vs enumerated list for the vanilla pair rule.** The two are identical today.
-   Suggestion: enforce the predicate, and have the data refresh fail if the two diverge.
+1. **Predicate vs enumerated list for the vanilla pair rule.** The two are identical today, after
+   the 2026-11-06 refresh enumerated the three GD06 matches the current-list page does not name
+   yet. Suggestion: enforce the predicate, and have the data refresh fail if the two diverge.
 2. **"without effects" is not defined.** Suggestion: a card has no effects when its effect text is
    empty or "-"; keywords count as effects. No current card is affected either way.
 3. **The starter-deck exceptions (ST02, ST05) cannot be checked offline.** Neither the official

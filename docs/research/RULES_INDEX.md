@@ -6,13 +6,24 @@ each rule classified as testable or N/A for the 1v1 engine.
 | Item | Value |
 | --- | --- |
 | Source | `src/gcg_sim/data/rules/gundam-card-game-comprehensive-rules.md` (byte-identical to the repo-root copy) |
-| Version / date | **Ver. 1.9.0**, "Updated Sep 11, 2026" (parsed as `2026-09-11`) |
-| sha256 | `bf2f3d5c7a1a04d9860d97a38c316309da14707f5e7012f9241885b8635a50b6` |
+| Version / date | **Ver. 1.10.0**, "Updated Oct 16, 2026" (parsed as `2026-10-16`) |
+| sha256 | `99798d2276dc7054fa19fc1fa59be113650edd8898873023536ce6c69922ccef` |
 | Parser / API | `src/gcg_sim/rules/index.py` |
 | Generated index | `src/gcg_sim/data/rules/rules_index.json` (schema_version 1) |
 | N/A classification | `src/gcg_sim/data/rules/rules_na.json` (schema_version 1, hand-maintained) |
 | Tests | `tests/rules_index/test_rules_index.py` |
 | Provenance fragment | `data/sources.d/rules.json` |
+
+## Official version check (2026-11-06)
+
+- `https://www.gundam-gcg.com/en/rules/` (fetched 2026-11-06T05:41:39Z, sha256 `6551e11f…8152`):
+  the COMPREHENSIVE RULES block reads "Updated October 16, 2026." and links
+  `../pdf/comprehensiverules_en.pdf?261016`.
+- The PDF (fetched 2026-11-06T05:40:54Z, sha256 `035acc2b…c90e`, 730,966 bytes, Last-Modified
+  15 Oct 2026 11:47:44 GMT, 35 pages) reads **"Ver. 1.10.0 / Updated Oct 16, 2026"**. Its
+  revision history lists 12-3-5 revised and 12-2-9 added; the markdown was updated with both
+  (compared word for word with the PDF text) and both are N/A for 1v1. The PDF and the markdown
+  have the same 567 rule ids.
 
 ## Official version check (2026-09-25)
 
@@ -38,11 +49,11 @@ uv run python -m gcg_sim.rules.index --check   # exit 1 if rules_index.json is s
 from gcg_sim.rules.index import load_rules_index
 
 rules = load_rules_index()          # parses the packaged markdown + rules_na.json (cached)
-rules.version, rules.date           # "1.9.0", datetime.date(2026, 9, 11)
+rules.version, rules.date           # "1.10.0", datetime.date(2026, 10, 16)
 rules["7-5-2-2-3"].text             # rule text, markdown escapes removed
 rules.children("7-2-3")             # ("7-2-3-1", "7-2-3-2"), in document order
-rules.ids()                         # all 579 ids in document order (= numeric order)
-rules.testable_ids()                # the 399 ids that need a @pytest.mark.rule test
+rules.ids()                         # all 580 ids in document order (= numeric order)
+rules.testable_ids()                # the 395 ids that need a @pytest.mark.rule test
 rules.na_reason("12-2-7")           # reason string, or None when the rule is testable
 ```
 
@@ -66,35 +77,36 @@ notice.
 | 1 | Game Overview | 21 | 4 | 17 | 5 | 16 |
 | 2 | Card Information | 61 | 17 | 44 | 25 | 36 |
 | 3 | Card Types | 52 | 6 | 46 | 6 | 46 |
-| 4 | Game Locations | 50 | 10 | 40 | 10 | 40 |
-| 5 | Essential Game Terminology | 98 | 25 | 73 | 29 | 69 |
+| 4 | Game Locations | 50 | 10 | 40 | 11 | 39 |
+| 5 | Essential Game Terminology | 98 | 25 | 73 | 32 | 66 |
 | 6 | Preparing to Play | 26 | 3 | 23 | 6 | 20 |
 | 7 | Game Progression | 47 | 17 | 30 | 18 | 29 |
 | 8 | Attacking and Battles | 36 | 8 | 28 | 8 | 28 |
 | 9 | Action Steps | 11 | 1 | 10 | 1 | 10 |
 | 10 | Effect Activation and Resolution | 54 | 9 | 45 | 10 | 44 |
 | 11 | Rules Management | 20 | 6 | 14 | 6 | 14 |
-| 12 | Multiplayer Battle | 32 | 1 | 31 | 32 | 0 |
+| 12 | Multiplayer Battle | 33 | 1 | 32 | 33 | 0 |
 | 13 | Keyword Effects and Keywords | 71 | 24 | 47 | 24 | 47 |
-| **Total** | | **579** | **131** | **448** | **180** | **399** |
+| **Total** | | **580** | **131** | **449** | **185** | **395** |
 
 Structural checks, all enforced by tests: document order equals numeric order; every parent
 exists; the children of every entry are numbered 1..n with no gaps; heading levels match depth
 (`####` = depth 2, `#####` = 3, `######` = 4). Eight rules carry examples: 1-3-2-1, 3-2-6-4,
 5-19-1, 13-1-1-2, 13-1-2-5, 13-1-3-2, 13-2-10-2 and 13-2-12-2.
 
-## N/A policy and results (180 N/A, 399 testable)
+## N/A policy and results (185 N/A, 395 testable)
 
 The classification is deliberately conservative. A rule is N/A only in these cases:
 
 | N/A category | Count |
 | --- | ---: |
-| multiplayer (section 12): each rule has its own reason naming the 1v1 counterpart | 32 |
+| multiplayer (section 12): each rule has its own reason naming the 1v1 counterpart | 33 |
 | grouping heading: section or heading titles (every one has children) | 130 |
 | grouping lead-in: bold rules that only introduce a list of children | 6 |
 | presentational / physical: no digital or engine-observable counterpart | 8 |
 | informational: "typically" / "mainly" statements with no universal claim | 4 |
-| **Total N/A** | **180** |
+| no engine-observable effect: resource-deck and token-supply rules that never change what the 1v1 engine does (4-3-3, 5-17-4-1, 5-17-4-3, 5-17-4-4) | 4 |
+| **Total N/A** | **185** |
 
 Everything with engine-observable behaviour stays testable. That includes deck construction,
 preparing to play (including the die-roll/RPS winner choice in 6-2-1-4), public and private
@@ -115,9 +127,13 @@ N/A rules that are neither headings nor multiplayer:
 | 2-14-1 | presentational: the illustrator's name has no game effect |
 | 2-15-1 | presentational: the copyright notice has no game effect |
 | 2-16-1 | presentational: rarity has no game effect (printings of one card number are the same card, 2-1-1) |
+| 4-3-3 | Nothing in the pinned card pool moves more than one card out of the resource deck at a time, so this rule never changes what the engine does. Every placement from the resource deck is 'Place 1 (rested) Resource' (the resource step 7-4-1, GD01-025, GD01-107, GD05-106, EB01-021, ST14-015). Setup never moves resource-deck cards (6-2-1-3). No card text contains 'resource deck'. The only multi-resource effect is GD05-018 'Place 3 EX Resources', and it creates tokens instead of taking cards from the resource deck. So the 'simultaneous but physically one at a time' handling can never be triggered. Checked with a regex search over cards.ndjson ('place ([2-9]|two|three) ... Resource' / 'resource deck'): 1 hit, GD05-018. Re-test if a card that places several Resources from the resource deck is ever added. |
 | 5-2-3 | post-game physical cleanup (cards returned to their owners); no in-game state |
 | 5-17-2 | grouping lead-in ('Tokens have the following rules'); covered by children 5-17-2-1..5-17-2-5 |
 | 5-17-3 | grouping lead-in naming the two start-of-game tokens; covered by children 5-17-3-1..5-17-3-2 and setup rules 6-2-3 and 6-2-4 |
+| 5-17-4-1 | This is a limit on the physical token supply checked while preparing to play (six or fewer copies per token card number). The simulator creates token instances from card data when they are needed (the same reason 6-1-2-1 is N/A), and decklists never contain tokens, so there is no supply to validate. How many copies can be in play at once is already capped by 11-4-1 (six Units), 4-4-2-1 (five EX Resources) and 11-5-1 (one Base), and those rules are tested separately. |
+| 5-17-4-3 | The simulator has no face-down token supply prepared before the game. The only token instances outside the game are ones that left a public location (battle area, base section or resource area), so both players already saw them. There are no unrevealed token contents for the information model (engine/observe.py) to hide. The public count of tokens outside the game (5-17-4-2) is tested. |
+| 5-17-4-4 | This only permits a player to set aside tokens they will not use while preparing to play. Tokens are created when needed, so unused tokens never exist and no game state depends on them. |
 | 5-18-2 | physical: which object (chips or a die) marks counters; the engine stores damage counters as an integer (behaviour covered by 5-5-1-1, 5-18-1 and 5-18-3) |
 | 6-1-2-1 | physical: bring the token cards your deck's effects need; the simulator creates tokens from card data on demand (token behaviour covered by 5-17) |
 | 6-2-1 | grouping lead-in ('each player follows the steps listed below'); covered by children 6-2-1-1..6-2-1-7 |
@@ -125,8 +141,8 @@ N/A rules that are neither headings nor multiplayer:
 | 7-5-2-2 | grouping lead-in ('follow the steps listed below'); covered by children 7-5-2-2-1..7-5-2-2-4 |
 | 10-3-1 | grouping lead-in ('follow the steps listed below'); covered by children 10-3-1-1..10-3-1-4 |
 
-Rules deliberately left testable although they touch the physical game: 4-2-3 and 4-3-3 (cards
-"move one at a time" but count as simultaneous), 5-4-1-1 and 5-4-1-2 (vertical/horizontal is the
+Rules deliberately left testable although they touch the physical game: 4-2-3 (cards "move one at
+a time" but count as simultaneous), 5-4-1-1 and 5-4-1-2 (vertical/horizontal is the
 active/rested state), 5-5-1 and 5-5-1-1 (damage counters are the damage state), and 6-2-2 (the
 overlapping placement defines shield order).
 
@@ -144,23 +160,23 @@ excluded, and every rule in a range has the listed area.
 | pairing-link | 31 | 2-4-3, 2-5-5, 2-7-3, 2-8-4, 2-11-3, 2-12-1..2-12-2, 3-2-6..3-3-1, 3-3-3..3-3-9-2-1, 3-4-6..3-4-6-4, 5-9-1 |
 | deck-construction | 13 | 2-1-2, 3-2-2, 3-3-2, 3-4-2, 3-5-2, 3-6-2, 6-1-1..6-1-1-5 |
 | setup | 13 | 6-1-2..6-2-5 |
-| zones | 24 | 4-1-1..4-1-2, 4-1-5..4-1-6, 4-2-1, 4-2-3..4-3-1, 4-3-3..4-4-2-1, 4-5-1, 4-5-4, 4-6-1..4-6-3, 4-6-4-2..4-7-1, 4-8-1, 4-8-4..4-9-1 |
+| zones | 23 | 4-1-1..4-1-2, 4-1-5..4-1-6, 4-2-1, 4-2-3..4-3-1, 4-4-1..4-4-2-1, 4-5-1, 4-5-4, 4-6-1..4-6-3, 4-6-4-2..4-7-1, 4-8-1, 4-8-4..4-9-1 |
 | information | 16 | 4-1-3..4-1-4, 4-1-7, 4-2-2, 4-3-2, 4-4-3, 4-5-2..4-5-3, 4-5-5, 4-6-3-1..4-6-4-1, 4-7-2, 4-8-2..4-8-3, 4-9-2 |
 | terminology | 26 | 5-1-1..5-4-2, 5-7-1..5-8-1, 5-10-1..5-15-1-1, 5-19-1 |
 | damage | 16 | 5-5-1..5-6-3, 5-18-1..5-18-3, 5-21-1..5-21-2-1 |
-| tokens | 19 | 2-9-3, 2-10-3, 5-17-1..5-17-4-4 |
+| tokens | 16 | 2-9-3, 2-10-3, 5-17-1..5-17-4-2 |
 | turn-structure | 26 | 7-1-1..7-3-1, 7-4-1..7-5-3-1, 7-5-5-1..7-6-2, 7-6-4-1..7-6-7 |
 | battle | 33 | 5-22-1..5-22-4-1, 7-5-4-1, 8-1..8-3-5, 8-5-1..8-6-2 |
 | action-step | 13 | 7-6-3-1, 8-4-1..8-4-2, 9-1..9-5 |
 | effects-triggers | 48 | 1-3-7, 5-16-1, 5-20-1..5-20-2, 10-1-1..10-3-5 |
 | rules-management | 14 | 11-1-1..11-5-2-1 |
 | keywords | 47 | 13-1-1-1..13-2-13-2 |
-| multiplayer | 0 | (none; all 32 are N/A) |
+| multiplayer | 0 | (none; all 33 are N/A) |
 
 ## Internal inconsistencies in the rules file
 
-The official 1.9.0 PDF has every item below as well, so none of them comes from the markdown
-conversion. **Root cause of the stale cross-references:** Ver. 1.1.0 (July 24, 2025) inserted
+The official 1.9.0 and 1.10.0 PDFs have every item below as well, so none of them comes from the
+markdown conversion. **Root cause of the stale cross-references:** Ver. 1.1.0 (July 24, 2025) inserted
 "3. Card Types", which moved every later section up by one. Ten references still use the old
 numbers (old 6 = Game Progression → 7, old 7 = Attacking and Battles → 8, old 8 = Action Steps → 9,
 old 9 = Effects → 10, old 12 = Keywords → 13). Ver. 1.3.0 "corrected errors" in 8-5-3-2-2 and
@@ -169,7 +185,7 @@ similar rules but missed these ten. The eleventh, "5-17. Counters", is off by on
 intended rule unambiguously. Traceability should cite the intended rule; the source file is never
 edited.
 
-### Wrong cross-references (11 of the 34 references in the file)
+### Wrong cross-references (11 of the 35 references in the file)
 
 | Rule | Text in the file | Intended |
 | --- | --- | --- |
@@ -185,8 +201,9 @@ edited.
 | 13-2-1-1 | "activated effect (see 9-1-7)" (9-1-7 does not exist) | 10-1-7. Activated Effects |
 | 13-2-2-1 | "activated effect (see 9-1-7)" | 10-1-7. Activated Effects |
 
-The other 23 references all resolve correctly (checked automatically by comparing each quoted
-title with the target's title).
+The other 24 references all resolve correctly (checked automatically by comparing each quoted
+title with the target's title). The 35th, "redrawing hands (see 6-2-1-6)", arrived with the
+1.10.0 revision of 12-3-5 and names the redraw rule correctly.
 
 ### Typos and terminology
 
