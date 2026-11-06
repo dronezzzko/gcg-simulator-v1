@@ -703,7 +703,7 @@ fn register_inline_tokens(
 ) -> Result<Vec<(Box<str>, DefId)>, DataError> {
     let t_cards: Vec<DefId> = defs
         .iter()
-        .filter(|d| d.card_type == CardType::UnitToken)
+        .filter(|d| matches!(d.card_type, CardType::UnitToken | CardType::BaseToken))
         .map(|d| d.def_id)
         .collect();
     let mut specs: BTreeMap<String, TokenSpec> = BTreeMap::new();
@@ -910,6 +910,6 @@ mod tests {
                     && py::get_truthy(res, "card_number").is_none()
             })
             .count();
-        assert_eq!(inferred, 50);
+        assert_eq!(inferred, 66);
     }
 }

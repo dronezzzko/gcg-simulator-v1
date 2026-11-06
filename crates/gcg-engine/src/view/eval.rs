@@ -160,6 +160,10 @@ pub fn stat(st: &GameState, dv: &Derived, uid: Uid, s: Stat) -> i32 {
     match s {
         Stat::Ap => ap_of(st, dv, uid),
         Stat::Hp | Stat::RemainingHp => remaining(),
+        // "this card in your trash gets Lv.-3" (GD06-050)
+        Stat::Lv if st.card(uid).zone == Zone::Trash => level_of(st, uid)
+            .saturating_add(dv.level_mod_get(uid).unwrap_or(0))
+            .max(0),
         Stat::Lv => level_of(st, uid),
         Stat::Cost => cost_of(st, uid),
         Stat::Damage => st.card(uid).damage,

@@ -1,4 +1,4 @@
-//! Typed parameters of the 34 custom hooks (docs/dev/PLAN.md §5.3), decoded
+//! Typed parameters of the 36 custom hooks (docs/dev/PLAN.md §5.3), decoded
 //! once at load from the node's raw `params`.
 //!
 //! Python reads `dict(params)` on every call (`interp.py:1573`, `view.py:781,882,933`), so a
@@ -188,7 +188,7 @@ fn cond(
     })
 }
 
-/// The 9 filter hooks (`view.CUSTOM_FILTERS`).
+/// The 11 filter hooks (`view.CUSTOM_FILTERS`).
 fn filter(
     hook: FilterHook,
     params: &[(StrId, ParamValue)],
@@ -210,6 +210,14 @@ fn filter(
             r#trait: cx.text(params, "trait")?,
         },
         FilterHook::GD05bCanPair => FilterParams::GD05bCanPair,
+        // wp_gd06_a.py:82-83: var = params["var"]; assert isinstance(var, str)
+        FilterHook::GD06aNameUnlike => FilterParams::GD06aNameUnlike {
+            var: cx.var(params, "var")?,
+        },
+        // wp_gd06_b.py:100-101: name = params["name"]; assert isinstance(name, str)
+        FilterHook::GD06bLinkNames => FilterParams::GD06bLinkNames {
+            name: cx.text(params, "name")?,
+        },
     })
 }
 

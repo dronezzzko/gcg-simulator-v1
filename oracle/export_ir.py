@@ -593,9 +593,14 @@ def history_kinds() -> list[str]:
 
 
 def check_tokens(arena: Arena, reg: Registry) -> None:
-    """W-164: every ``DeployToken.token_key`` names a token definition."""
+    """W-164: every ``DeployToken.token_key`` names a token definition (a ``copy_of`` token
+    takes the kind of a card instead, GD06-021)."""
     for obj in arena.objs:
-        if isinstance(obj, d.DeployToken) and obj.token_key not in reg.db._token_by_key:
+        if (
+            isinstance(obj, d.DeployToken)
+            and not obj.copy_of
+            and obj.token_key not in reg.db._token_by_key
+        ):
             fail(f"DeployToken token_key {obj.token_key!r} has no token definition")
 
 

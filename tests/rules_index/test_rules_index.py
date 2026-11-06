@@ -40,15 +40,15 @@ def index_json() -> dict[str, object]:
 
 
 def test_version_and_date(index: RulesIndex) -> None:
-    assert index.version == "1.9.0"
-    assert index.date == dt.date(2026, 9, 11)
-    assert index.date_text == "Updated Sep 11, 2026"
+    assert index.version == "1.10.0"
+    assert index.date == dt.date(2026, 10, 16)
+    assert index.date_text == "Updated Oct 16, 2026"
 
 
 def test_entry_counts(index: RulesIndex) -> None:
-    assert len(index) == 579
+    assert len(index) == 580
     kinds = [entry.kind for entry in index.entries]
-    assert (kinds.count("section"), kinds.count("heading"), kinds.count("rule")) == (13, 118, 448)
+    assert (kinds.count("section"), kinds.count("heading"), kinds.count("rule")) == (13, 118, 449)
     per_section = {
         s: sum(1 for e in index.entries if e.section == s) for s in map(str, range(1, 14))
     }
@@ -64,7 +64,7 @@ def test_entry_counts(index: RulesIndex) -> None:
         "9": 11,
         "10": 54,
         "11": 20,
-        "12": 32,
+        "12": 33,
         "13": 71,
     }
 
@@ -150,7 +150,7 @@ def test_document_order_is_numeric_order(index: RulesIndex) -> None:
             "13-1-3",
             4,
             "<Support>",
-            1075,
+            1077,
         ),
         (
             "13-2-13-2",
@@ -160,7 +160,7 @@ def test_document_order_is_numeric_order(index: RulesIndex) -> None:
             "13-2-13",
             4,
             "【Once per Turn】",
-            1197,
+            1199,
         ),
     ],
 )
@@ -299,7 +299,7 @@ def test_na_file_is_valid_and_partitions_the_index(index: RulesIndex) -> None:
     assert list(raw["rules"]) == sorted(raw["rules"], key=rule_number)
     assert set(index.na_ids()) | set(index.testable_ids()) == set(index.ids())
     assert not set(index.na_ids()) & set(index.testable_ids())
-    assert (len(index.na_ids()), len(index.testable_ids())) == (184, 395)
+    assert (len(index.na_ids()), len(index.testable_ids())) == (185, 395)
     for rule_id, reason in reasons.items():
         assert len(reason) >= 20, rule_id
         assert index.status(rule_id) == "na"
@@ -308,7 +308,7 @@ def test_na_file_is_valid_and_partitions_the_index(index: RulesIndex) -> None:
 
 def test_all_multiplayer_rules_are_na(index: RulesIndex) -> None:
     section_12 = [entry.id for entry in index.entries if entry.section == "12"]
-    assert len(section_12) == 32
+    assert len(section_12) == 33
     for rule_id in section_12:
         reason = index.na_reason(rule_id)
         assert reason is not None, rule_id
@@ -406,11 +406,11 @@ def test_rules_index_json_matches_parse(index: RulesIndex, index_json: dict[str,
     assert isinstance(source, dict)
     markdown_bytes = RULES_MARKDOWN_PATH.read_bytes()
     assert source == {
-        "date": "2026-09-11",
-        "date_text": "Updated Sep 11, 2026",
+        "date": "2026-10-16",
+        "date_text": "Updated Oct 16, 2026",
         "file": "gundam-card-game-comprehensive-rules.md",
         "sha256": hashlib.sha256(markdown_bytes).hexdigest(),
-        "version": "1.9.0",
+        "version": "1.10.0",
     }
     rules = index_json["rules"]
     assert isinstance(rules, dict)
@@ -427,7 +427,7 @@ def test_rules_index_json_matches_parse(index: RulesIndex, index_json: dict[str,
         assert list(payload) == sorted(payload)
     counts = index_json["counts"]
     assert isinstance(counts, dict)
-    assert (counts["total"], counts["na"], counts["testable"]) == (579, 184, 395)
+    assert (counts["total"], counts["na"], counts["testable"]) == (580, 185, 395)
     assert index_json["feature_areas"] == list(FEATURE_AREAS)
 
 

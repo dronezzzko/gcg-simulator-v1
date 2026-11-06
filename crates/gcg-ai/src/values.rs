@@ -4,7 +4,7 @@
 //! Every float expression keeps Python's evaluation order: integer parts are summed as
 //! integers first, then promoted, and each `+`/`*` is one IEEE operation in the order the
 //! Python source writes it (re-associating `card_worth` changes 134 of the 1152
-//! real cards).
+//! real cards of the 2026-10-12 snapshot).
 
 use gcg_data::{CardDef, CardType};
 use gcg_effects::Kw;
@@ -64,7 +64,11 @@ pub fn card_worth(cd: &CardDef) -> f64 {
         CardType::Pilot => 1.3 + 0.1 * int_f64(i64::from(cd.ap) + i64::from(cd.hp)),
         CardType::Command => 1.4 + 0.2 * f64::from(cd.cost),
         CardType::Base => 1.2,
-        CardType::Resource | CardType::UnitToken | CardType::ExBase | CardType::ExResource => 0.5,
+        CardType::Resource
+        | CardType::UnitToken
+        | CardType::ExBase
+        | CardType::ExResource
+        | CardType::BaseToken => 0.5,
     }
 }
 

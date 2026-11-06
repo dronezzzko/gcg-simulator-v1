@@ -397,7 +397,7 @@ pub(super) fn pay_cost(
     set_did(st, fi, did);
     let host = st.frames[fi].host;
     if did && amount > 0 && host >= 0 {
-        core_::record(st, HistKind::CostPaid, p, by_of(p), host, NO_ARG);
+        core_::record_cost_paid(st, p, by_of(p), host, amount);
         core_::emit(
             st,
             Ev::CostPaid,

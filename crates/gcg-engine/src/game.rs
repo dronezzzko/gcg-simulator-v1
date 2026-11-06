@@ -518,13 +518,16 @@ fn turn_step(st: &mut GameState) -> Result<(), EngineError> {
     match s {
         Step::ActiveStep => {
             let dv = view::derived(st)?;
+            let reg = st.registry().clone();
             for z in [Zone::Battle, Zone::ResourceArea, Zone::Base] {
                 for i in 0..st.zone(p, z).len() {
                     let uid = st.zone(p, z)[i];
                     let c = &st.cards[usize::from(uid)];
-                    if c.rested
-                        && !has_rule(&dv, uid, RuleKind::CantBeSetActive)
-                        && !has_rule(&dv, uid, RuleKind::StaysRestedInStartPhase)
+                    let mut locked = false;
+                    for r in view::rules_of(&dv, uid, RuleKind::CantBeSetActive) {
+                        locked |= view::side_allows(rule_mod(&reg, r)?, c.owner, NO_ARG);
+                    }
+                    if c.rested && !locked && !has_rule(&dv, uid, RuleKind::StaysRestedInStartPhase)
                     {
                         st.cards[usize::from(uid)].rested = false;
                     }
@@ -1682,7 +1685,7 @@ fn play_or_activate(st: &mut GameState, p: u8, action: Action) -> Result<(), Eng
         let h = i32::from(host);
         crate::core::record(st, HistKind::Activate, p, p as i8, h, NO_ARG);
         if res != 0 {
-            crate::core::record(st, HistKind::CostPaid, p, p as i8, h, NO_ARG);
+            crate::core::record_cost_paid(st, p, p as i8, h, res);
             let amount = to_i32(res, "activation cost")?;
             crate::core::emit(
                 st,

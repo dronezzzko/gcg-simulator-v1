@@ -346,7 +346,7 @@ def test_attribute_predicate_matches_the_enumerated_list() -> None:
         c.card_number for c in db.real_cards() if official.matches(rule.member_predicate, c)
     }
     assert by_predicate == set(rule.enumerated)
-    assert len(by_predicate) == 22
+    assert len(by_predicate) == 25
 
 
 @pytest.mark.parametrize(

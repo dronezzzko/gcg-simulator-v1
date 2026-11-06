@@ -619,6 +619,9 @@ class RuleKind(StrEnum):
         "redirect_battle_damage"  # battle damage is dealt to the aux card instead
     )
     REST_SUBSTITUTE = "rest_substitute"  # may rest this card instead (name: "unit"|"base"; source_filters: effect host)
+    INCREASE_DAMAGE = (
+        "increase_damage"  # damage your cards matching source_filters deal to enemy Units +amount
+    )
     CUSTOM = "custom"
 
 
@@ -951,8 +954,10 @@ class DeployCard:
 
 @dataclass(frozen=True, slots=True)
 class DeployToken:
-    """Deploy ``count`` Unit tokens (rule 5-17) identified by their inline definition key, plus
-    the ``also`` (key, count) tokens in the same simultaneous deployment (rule 11-4-2-2)."""
+    """Deploy ``count`` tokens (rule 5-17) identified by their inline definition key, plus
+    the ``also`` (key, count) tokens in the same simultaneous deployment (rule 11-4-2-2). A
+    Base token goes to the base section. With ``copy_of`` (a frame variable), the token is a
+    new one of the same kind as the variable's first card (GD06-021, ruling Q498)."""
 
     token_key: str
     count: Value = 1
@@ -960,6 +965,7 @@ class DeployToken:
     player: P = P.YOU
     var: str = "tokens"
     also: tuple[tuple[str, int], ...] = ()
+    copy_of: str = ""
 
 
 @dataclass(frozen=True, slots=True)

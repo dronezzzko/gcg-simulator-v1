@@ -106,7 +106,8 @@ pub(crate) const fn rule_kind_polarity(kind: RuleKind) -> Option<Polarity> {
         | RuleKind::ShieldAreaReduction
         | RuleKind::ApCantBeReduced
         | RuleKind::RedirectBattleDamage
-        | RuleKind::RestSubstitute => Polarity::Helps,
+        | RuleKind::RestSubstitute
+        | RuleKind::IncreaseDamage => Polarity::Helps,
         RuleKind::PlayCostDelta | RuleKind::PlayLevelDelta | RuleKind::Custom => return None,
     })
 }

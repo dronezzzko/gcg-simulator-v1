@@ -566,6 +566,16 @@ def rules_of(dv: Derived, uid: int, kind: d.RuleKind) -> list[RuleInst]:
     return [r for r in dv.rules.get(uid, ()) if r.rule.kind is kind]
 
 
+def side_allows(rule: d.RuleMod, owner: int, by: int) -> bool:
+    """Whether a rule limited to effects of ``source_side`` (relative to the affected card's
+    ``owner``) covers an action performed by player ``by``; ``by < 0`` is no effect at all."""
+    if rule.source_side is d.Side.ANY:
+        return True
+    if by < 0:
+        return False
+    return (by != owner) is (rule.source_side is d.Side.ENEMY)
+
+
 def is_linked(dv: Derived, uid: int) -> bool:
     return uid in dv.linked
 
@@ -677,6 +687,8 @@ def stat(st: GameState, dv: Derived, uid: int, s: d.Stat) -> int:
         # FAQ Q96: HP referred to by card text is the current HP (printed/modified HP minus damage)
         return max(0, hp_of(st, dv, uid) - st.cards[uid].damage)
     if s is d.Stat.LV:
+        if st.cards[uid].zone is Zone.TRASH:  # "this card in your trash gets Lv.-3" (GD06-050)
+            return max(0, level_of(st, uid) + dv.level_mod.get(uid, 0))
         return level_of(st, uid)
     if s is d.Stat.COST:
         return cost_of(st, uid)

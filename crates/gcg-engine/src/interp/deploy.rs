@@ -2,15 +2,15 @@
 //! (rules 11-4, 11-5), `DeployCard` with `deploy_cards`, tokens, (EX) Resources, and setting
 //! Resources active or rested.
 
-use gcg_data::CardType;
+use gcg_data::{CardType, DefId};
 use gcg_effects::{
     DeployCard, DeployToken, Ev, NodeId, PlaceExResource, PlaceResource, Registry, RestResources,
-    RuleKind, SetResourcesActive,
+    RuleKind, SetResourcesActive, StrId,
 };
 
 use super::{
     Status, by_of, ctx_of, decide, execute, player_of, refs, set_did, set_var_uids, to_i32, to_uid,
-    val,
+    val, var_items,
 };
 use crate::core::{self as core_};
 use crate::view;
@@ -258,10 +258,14 @@ fn enter_rested(st: &mut GameState, uids: &[Uid]) -> Result<(), EngineError> {
     Ok(())
 }
 
-/// `_h_deploy_token` (`interp.py:989-1012`): the batches `[(token_key, count), *also]`; an
-/// exceeded non-empty battle area asks first (nothing protected); then one group, tokens
-/// created batch by batch up to 6 in all (each recorded), entering rested where a rule says
-/// so, DEPLOYED (`token=1`) for each, bound to `var`.
+/// `_h_deploy_token` (`interp.py`): `count` tokens of `token_key` (or, with `copy_of`, of the
+/// kind of that variable's first card, GD06-021 / Q498) plus the `also` batches, deployed
+/// together. Unit tokens go to the battle area and Base tokens to the base section (rule
+/// 5-17-2-1, GD06-129), with the same excess handling as deployed cards; each is recorded and,
+/// after the DEPLOYED_RESTED rule, announced as a token deployment.
+///
+/// # Errors
+/// An unknown token key; errors of moving, recording and emitting.
 pub(super) fn h_deploy_token(
     st: &mut GameState,
     reg: &Registry,
@@ -271,34 +275,78 @@ pub(super) fn h_deploy_token(
     let p = player_of(st, &ctx_of(st, fi)?, ins.player);
     let mut batches = vec![(ins.token_key, val(st, fi, ins.count)?)];
     batches.extend(ins.also.iter().copied());
-    let mut n: i64 = 0;
-    for &(_, k) in &batches {
-        n = n.checked_add(k.max(0)).ok_or(EngineError::Overflow {
+    let lookup = |st: &GameState, key: StrId| -> Result<DefId, EngineError> {
+        let spec_key = token_key(reg.str(key))?;
+        Ok(st
+            .db()
+            .token_for_key(&spec_key)
+            .ok_or_else(|| EngineError::Key(gcg_data::py_repr(&spec_key)))?
+            .def_id)
+    };
+    let copy_of = reg.str(ins.copy_of);
+    let mut tdefs: Vec<DefId> = Vec::with_capacity(batches.len());
+    if copy_of.is_empty() {
+        for &(key, _) in &batches {
+            tdefs.push(lookup(st, key)?);
+        }
+    } else {
+        let model = reg
+            .var_id(copy_of)
+            .map(|v| var_items(st, fi, v))
+            .unwrap_or_default();
+        let Some(&first) = model.first() else {
+            set_did(st, fi, false);
+            return Ok(Status::Next);
+        };
+        tdefs.push(st.card(to_uid(st, first)?).def_id);
+        for &(key, _) in &ins.also {
+            tdefs.push(lookup(st, key)?);
+        }
+    }
+    let is_base = |st: &GameState, d: DefId| st.db().by_id(d).card_type.is_base();
+    let (mut n, mut n_bases): (i64, i64) = (0, 0);
+    for (&(_, k), &d) in batches.iter().zip(&tdefs) {
+        let slot = if is_base(st, d) { &mut n_bases } else { &mut n };
+        *slot = slot.checked_add(k.max(0)).ok_or(EngineError::Overflow {
             what: "token count",
         })?;
     }
-    if n <= 0 {
+    if n + n_bases <= 0 {
         set_did(st, fi, false);
         return Ok(Status::Next);
     }
-    let (ex_u, _) = excess_needed(st, p, n, 0);
+    let (ex_u, ex_b) = excess_needed(st, p, n, n_bases);
     if ex_u > 0 && !st.zone(p, Zone::Battle).is_empty() {
         return ask_excess(st, fi, p, Zone::Battle, &[]);
+    }
+    if ex_b > 0 {
+        if let [only] = st.zone(p, Zone::Base) {
+            let only = *only;
+            trash_excess(st, only)?;
+        } else {
+            return ask_excess(st, fi, p, Zone::Base, &[]);
+        }
     }
     let group = to_i32(core_::next_group(st), "event group")?;
     let controller = st.frames[fi].controller;
     let mut made: Vec<Uid> = Vec::new();
-    for (key, k) in batches {
-        let spec_key = token_key(reg.str(key))?;
-        let tdef = st
-            .db()
-            .token_for_key(&spec_key)
-            .ok_or_else(|| EngineError::Key(gcg_data::py_repr(&spec_key)))?
-            .def_id;
-        let room = limit(BATTLE_LIMIT) - limit(made.len());
+    let (mut units_made, mut bases_made): (usize, usize) = (0, 0);
+    for (&(_, k), &tdef) in batches.iter().zip(&tdefs) {
+        let base = is_base(st, tdef);
+        let room = if base {
+            limit(BASE_LIMIT) - limit(bases_made)
+        } else {
+            limit(BATTLE_LIMIT) - limit(units_made)
+        };
         for _ in 0..k.min(room).max(0) {
-            let uid = core_::new_card(st, tdef, p, Zone::Battle, ins.rested)?;
+            let zone = if base { Zone::Base } else { Zone::Battle };
+            let uid = core_::new_card(st, tdef, p, zone, ins.rested)?;
             made.push(uid);
+            if base {
+                bases_made += 1;
+            } else {
+                units_made += 1;
+            }
             core_::record(
                 st,
                 HistKind::Deployed,

@@ -199,7 +199,9 @@ class CardDB:
     def _register_inline_tokens(self) -> None:
         """Map every inline token definition to a T- card when name/stats/traits match,
         otherwise register a synthetic token definition (rule 5-17)."""
-        t_cards = [d for d in self._defs if d.card_type is CardType.UNIT_TOKEN]
+        t_cards = [
+            d for d in self._defs if d.card_type in (CardType.UNIT_TOKEN, CardType.BASE_TOKEN)
+        ]
         specs: dict[str, TokenSpec] = {}
         for d in self._defs:
             for s in parse_token_specs(d.effect):

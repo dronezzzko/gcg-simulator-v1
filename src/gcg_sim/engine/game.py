@@ -230,7 +230,10 @@ def _turn_step(st: GameState) -> None:
                 c = st.cards[uid]
                 if (
                     c.rested
-                    and not V.rules_of(dv, uid, d.RuleKind.CANT_BE_SET_ACTIVE)
+                    and not any(
+                        V.side_allows(r.rule, c.owner, NO_ARG)
+                        for r in V.rules_of(dv, uid, d.RuleKind.CANT_BE_SET_ACTIVE)
+                    )
                     and not V.rules_of(dv, uid, d.RuleKind.STAYS_RESTED_IN_START_PHASE)
                 ):
                     c.rested = False
@@ -892,7 +895,7 @@ def _play_or_activate(st: GameState, p: int, action: Action) -> None:
             st.once_used.add((a.aid, host, st.cards[host].zone_seq))
         core.record(st, "activate", p, p, host)
         if res:
-            core.record(st, "cost_paid", p, p, host)
+            core.record_cost_paid(st, p, host, res)
             core.emit(st, d.Ev.COST_PAID, host, player=p, amount=res)
         I.push_frame(
             st,
