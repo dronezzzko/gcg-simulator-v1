@@ -56,40 +56,40 @@ review records that no longer match anything are listed as orphaned so they can 
 
 ## Inputs
 
-- gcg-api dataset `28-ad9da1b22fc2abd56c1176a5e64b12e6ce21ea42` (built 2026-10-12T14:37:38.154Z)
-- Comprehensive Rules Ver. 1.9.0 (updated 2026-09-11)
-- Official latest rules: Ver. 1.9.0 (updated 2026-09-11) — https://www.gundam-gcg.com/en/pdf/comprehensiverules_en.pdf
-- 2011 printings / 1152 card numbers, 368 card rulings, 119 rules-FAQ entries, 2 errata
+- gcg-api dataset `31-ebd08a4b4f8c8898bc407498229839548fb911e9` (built 2026-11-02T14:57:40.351Z)
+- Comprehensive Rules Ver. 1.10.0 (updated 2026-10-16)
+- Official latest rules: Ver. 1.10.0 (updated 2026-10-16) — https://www.gundam-gcg.com/en/pdf/comprehensiverules_en.pdf
+- 2205 printings / 1290 card numbers, 437 card rulings, 119 rules-FAQ entries, 2 errata
 - SHA-256 of every input:
-  - `curated_conflicts.json`: `a161be0db903fdd5213c2e750d110d9c6788437c4fd6829857a05e1cd094f611`
-  - `gcgapi/cards.ndjson`: `9a5517eddcc947ff55fe4cc248a6cc79942ccee521ff235cc6c7285b9e0dd682`
+  - `curated_conflicts.json`: `85a84548cdf955977def7dac6880170c262835d79236e2bce98e24f5bec47e0a`
+  - `gcgapi/cards.ndjson`: `e55d62e604c89dd923a74f21b59ab5b3b60d118ae6d0a4b52ff95bf88446653d`
   - `gcgapi/errata.json`: `243081dd30022b3cc2745f09cad218743b20654a4c386d490d7159a9faf8e6d9`
-  - `gcgapi/manifest.json`: `c8f9043d10ca0107cd860f98cb5934a445960c14845f6e5911627f6278eb8525`
+  - `gcgapi/manifest.json`: `2b0c66fdf3dd05b302400704e9bc50dcb95ba89b394074e419440da55282e841`
   - `gcgapi/rules-faq.json`: `5c6dcfd44f83eb4a97f3be91cd7bad85a9a8431870a86ef7b0c2a884c9896e71`
-  - `gcgapi/rulings.json`: `2da64f7ea88a96edd8b91399a3bd73b43ce1d766f3253474df2b1ca706bbc895`
-  - `official/banlist.json`: `6aaaf882e26575334f037b284f23154e34066d2579d1baa41011444a8f5edc4d`
-  - `official/rules_version.json`: `8260fe0ace764ed958be3fb626e89e990cb89c56f636f0fe4d73180b8028ca93`
-  - `overrides.json`: `2b6da981b70dc5442d7ccd192275c62b0b80e616cdbc775661b36e580ae4f54e`
-  - `rules/gundam-card-game-comprehensive-rules.md`: `bf2f3d5c7a1a04d9860d97a38c316309da14707f5e7012f9241885b8635a50b6`
+  - `gcgapi/rulings.json`: `f078b81ed23f6cf16d160ee86ff85dcb46e865680eafcf686aabbf4453d09f6f`
+  - `official/banlist.json`: `d2bcf63dc4fda56228d8474e6cff27af8eea95104f1c40cab10cf0e7019e88e2`
+  - `official/rules_version.json`: `418410c8ab637bcb82a10b7df9828f2506d8789f12f3f01c7a175195b64e1d51`
+  - `overrides.json`: `18c6afa841d6f18eb18ce6966bf1bda813d62e4c46cb11fd9a51e214c89d2ba3`
+  - `rules/gundam-card-game-comprehensive-rules.md`: `99798d2276dc7054fa19fc1fa59be113650edd8898873023536ce6c69922ccef`
 
 ## Summary
 
 | Kind | info | minor | major |
 | --- | ---: | ---: | ---: |
-| Divergent printings | 34 | 16 | 0 |
+| Divergent printings | 50 | 16 | 0 |
 | Errata | 2 | 0 | 1 |
 | Banned/restricted list ambiguities | 0 | 6 | 0 |
 | Keyword and timing markers vs effect text | 5 | 2 | 1 |
-| Card data vs rules | 2 | 1 | 0 |
+| Card data vs rules | 2 | 4 | 0 |
 | Rules cross-references | 0 | 11 | 0 |
 | Rules internal inconsistencies | 3 | 2 | 0 |
 | Card rulings vs card text | 22 | 166 | 4 |
 | Rules FAQ vs rules | 9 | 7 | 0 |
 | Ambiguous card text | 2 | 106 | 0 |
 
-Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entries: 0; orphaned resolutions: 0.
+Total: 421 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entries: 0; orphaned resolutions: 0.
 
-## Divergent printings (50)
+## Divergent printings (66)
 
 ### `divergent:EXB-001` — EXB-001 EX Base: printings differ in effect
 
@@ -455,13 +455,13 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
 
 - severity **info**; origin detected
 - Cards: GD05-049
-- 3 printings of GD05-049 disagree on effect (reminder_only). The differences are cosmetic or confined to reminder text.
+- 4 printings of GD05-049 disagree on effect (reminder_only). The differences are cosmetic or confined to reminder text.
 - Suggested canonical printing: `GD05-049`
 - Field differences:
   - `effect` (reminder_only):
-    - `GD05-049`: `"<Suppression> (Damage to Shields by an attack is dealt to the first 2 cards simultaneously.)\n【Attack】You may choose 1 of your Units. Destroy it. If you do, all enemy players each choose 1 of their non-battling Units. Destroy them."`
+    - `GD05-049`, `GD05-049_p3`: `"<Suppression> (Damage to Shields by an attack is dealt to the first 2 cards simultaneously.)\n【Attack】You may choose 1 of your Units. Destroy it. If you do, all enemy players each choose 1 of their non-battling Units. Destroy them."`
     - `GD05-049_p1`, `GD05-049_p2`: `"<Suppression>\n【Attack】You may choose 1 of your Units. Destroy it. If you do, all enemy players each choose 1 of their non-battling Units. Destroy them."`
-- Sources: gcg-api card GD05-049 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-049; gcg-api card GD05-049_p1 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-049_p1; gcg-api card GD05-049_p2 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-049_p2
+- Sources: gcg-api card GD05-049 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-049; gcg-api card GD05-049_p1 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-049_p1; gcg-api card GD05-049_p2 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-049_p2; gcg-api card GD05-049_p3 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-049_p3
 - **Resolution** (`canonical_printing`): Use GD05-049. The printings differ only in parenthesized reminder text.
   - Rationale: Reminder text in parentheses has no game effect (2-11-4); cosmetic differences do not change the text's meaning.
   - Canonical printing: `GD05-049`
@@ -525,6 +525,247 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
 - **Resolution** (`canonical_printing`): Use GD05-068. The printings differ only in parenthesized reminder text.
   - Rationale: Reminder text in parentheses has no game effect (2-11-4); cosmetic differences do not change the text's meaning.
   - Canonical printing: `GD05-068`
+
+### `divergent:GD06-001` — GD06-001 Gundam GP01Fb: printings differ in effect
+
+- severity **info**; origin detected
+- Cards: GD06-001
+- 2 printings of GD06-001 disagree on effect (reminder_only). The differences are cosmetic or confined to reminder text.
+- Suggested canonical printing: `GD06-001`
+- Field differences:
+  - `effect` (reminder_only):
+    - `GD06-001`: `"【Once per Turn】When this Unit is attacked, draw 1.\n【During Pair】This Unit gains<High-Maneuver>.\n\n(This Unit can't be blocked.)"`
+    - `GD06-001_p1`: `"【Once per Turn】When this Unit is attacked, draw 1.\n【During Pair】This Unit gains<High-Maneuver>."`
+- Sources: gcg-api card GD06-001 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD06-001; gcg-api card GD06-001_p1 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD06-001_p1
+- **Resolution** (`canonical_printing`): Use GD06-001. The printings differ only in parenthesized reminder text.
+  - Rationale: Reminder text in parentheses has no game effect (2-11-4); cosmetic differences do not change the text's meaning.
+  - Canonical printing: `GD06-001`
+
+### `divergent:GD06-018` — GD06-018 Elpeo Ple's Qubeley Mk-Ⅱ: printings differ in effect
+
+- severity **info**; origin detected
+- Cards: GD06-018
+- 2 printings of GD06-018 disagree on effect (reminder_only). The differences are cosmetic or confined to reminder text.
+- Suggested canonical printing: `GD06-018`
+- Field differences:
+  - `effect` (reminder_only):
+    - `GD06-018`: `"<Breach 1> (During your turn, when this Unit destroys an enemy Unit with battle damage, deal the specified amount of damage to the first card in that opponent's shield area.)\n【During Pair】【Activate･Action】【Once per Turn】Choose 1 of your (Neo Zeon)/(Long-Range Weapon) Units or 1 of your (Neo Zeon) Bases. During this battle, battle damage this Unit would receive is dealt to that Unit/Base instead."`
+    - `GD06-018_p1`: `"<Breach 1>\n【During Pair】【Activate･Action】【Once per Turn】Choose 1 of your (Neo Zeon)/(Long-Range Weapon) Units or 1 of your (Neo Zeon) Bases. During this battle, battle damage this Unit would receive is dealt to that Unit/Base instead."`
+- Sources: gcg-api card GD06-018 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD06-018; gcg-api card GD06-018_p1 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD06-018_p1
+- **Resolution** (`canonical_printing`): Use GD06-018. The printings differ only in parenthesized reminder text.
+  - Rationale: Reminder text in parentheses has no game effect (2-11-4); cosmetic differences do not change the text's meaning.
+  - Canonical printing: `GD06-018`
+
+### `divergent:GD06-029` — GD06-029 Elpeo Ple's Qubeley Mk-Ⅱ: printings differ in effect
+
+- severity **info**; origin detected
+- Cards: GD06-029
+- 3 printings of GD06-029 disagree on effect (reminder_only). The differences are cosmetic or confined to reminder text.
+- Suggested canonical printing: `GD06-029`
+- Field differences:
+  - `effect` (reminder_only):
+    - `GD06-029`, `GD06-029_p2`: `"<Breach 3> (During your turn, when this Unit destroys an enemy Unit with battle damage, deal the specified amount of damage to the first card in that opponent's shield area.)"`
+    - `GD06-029_p1`: `"<Breach 3>"`
+- Sources: gcg-api card GD06-029 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD06-029; gcg-api card GD06-029_p1 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD06-029_p1; gcg-api card GD06-029_p2 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD06-029_p2
+- **Resolution** (`canonical_printing`): Use GD06-029. The printings differ only in parenthesized reminder text.
+  - Rationale: Reminder text in parentheses has no game effect (2-11-4); cosmetic differences do not change the text's meaning.
+  - Canonical printing: `GD06-029`
+
+### `divergent:GD06-034` — GD06-034 Gundam Bael: printings differ in effect
+
+- severity **info**; origin detected
+- Cards: GD06-034
+- 3 printings of GD06-034 disagree on effect (reminder_only). The differences are cosmetic or confined to reminder text.
+- Suggested canonical printing: `GD06-034`
+- Field differences:
+  - `effect` (reminder_only):
+    - `GD06-034`: `"<High-Maneuver> (This Unit can't be blocked.)\n【Deploy】If there are 4 or more (Gjallarhorn) cards in your trash, look at the top 4 cards of your deck. You may deploy 1 (Gjallarhorn)/(Tekkadan) Unit card that is Lv.6 or lower among them. Return the remaining cards randomly to the bottom of your deck."`
+    - `GD06-034_p1`, `GD06-034_p2`: `"<High-Maneuver>\n【Deploy】If there are 4 or more (Gjallarhorn) cards in your trash, look at the top 4 cards of your deck. You may deploy 1 (Gjallarhorn)/(Tekkadan) Unit card that is Lv.6 or lower among them. Return the remaining cards randomly to the bottom of your deck."`
+- Sources: gcg-api card GD06-034 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD06-034; gcg-api card GD06-034_p1 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD06-034_p1; gcg-api card GD06-034_p2 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD06-034_p2
+- **Resolution** (`canonical_printing`): Use GD06-034. The printings differ only in parenthesized reminder text.
+  - Rationale: Reminder text in parentheses has no game effect (2-11-4); cosmetic differences do not change the text's meaning.
+  - Canonical printing: `GD06-034`
+
+### `divergent:GD06-037` — GD06-037 Reginlaze Julia: printings differ in effect
+
+- severity **info**; origin detected
+- Cards: GD06-037
+- 2 printings of GD06-037 disagree on effect (reminder_only). The differences are cosmetic or confined to reminder text.
+- Suggested canonical printing: `GD06-037`
+- Field differences:
+  - `effect` (reminder_only):
+    - `GD06-037`: `"During your turn, while this Unit is battling a damaged enemy Unit, it gains<First Strike>.\n\n(While this Unit is attacking, it deals damage before the enemy Unit.)\n【During Pair】Enemy Units can't be set as active by enemy effects."`
+    - `GD06-037_p1`: `"During your turn, while this Unit is battling a damaged enemy Unit, it gains<First Strike>.\n【During Pair】Enemy Units can't be set as active by enemy effects."`
+- Sources: gcg-api card GD06-037 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD06-037; gcg-api card GD06-037_p1 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD06-037_p1
+- **Resolution** (`canonical_printing`): Use GD06-037. The printings differ only in parenthesized reminder text.
+  - Rationale: Reminder text in parentheses has no game effect (2-11-4); cosmetic differences do not change the text's meaning.
+  - Canonical printing: `GD06-037`
+
+### `divergent:GD06-038` — GD06-038 Gundam Kimaris Vidar: printings differ in effect
+
+- severity **info**; origin detected
+- Cards: GD06-038
+- 2 printings of GD06-038 disagree on effect (reminder_only). The differences are cosmetic or confined to reminder text.
+- Suggested canonical printing: `GD06-038`
+- Field differences:
+  - `effect` (reminder_only):
+    - `GD06-038`: `"<Breach 3> (During your turn, when this Unit destroys an enemy Unit with battle damage, deal the specified amount of damage to the first card in that opponent's shield area.)\n【When Paired】Choose 1 enemy Unit with the highest Lv. Deal 3 damage to it."`
+    - `GD06-038_p1`: `"<Breach 3>\n【When Paired】Choose 1 enemy Unit with the highest Lv. Deal 3 damage to it."`
+- Sources: gcg-api card GD06-038 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD06-038; gcg-api card GD06-038_p1 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD06-038_p1
+- **Resolution** (`canonical_printing`): Use GD06-038. The printings differ only in parenthesized reminder text.
+  - Rationale: Reminder text in parentheses has no game effect (2-11-4); cosmetic differences do not change the text's meaning.
+  - Canonical printing: `GD06-038`
+
+### `divergent:GD06-052` — GD06-052 Val Walo: printings differ in effect
+
+- severity **info**; origin detected
+- Cards: GD06-052
+- 2 printings of GD06-052 disagree on effect (reminder_only). The differences are cosmetic or confined to reminder text.
+- Suggested canonical printing: `GD06-052`
+- Field differences:
+  - `effect` (reminder_only):
+    - `GD06-052`: `"While there are 5 or more (Zeon) Unit cards in your trash, this Unit gains<High-Maneuver>.\n\n(This Unit can't be blocked.)\n【Deploy】Place the top card of your deck into your trash. If you place a (Zeon) card with this effect, choose 1 enemy Unit with 4 or less AP. Rest it."`
+    - `GD06-052_p1`: `"While there are 5 or more (Zeon) Unit cards in your trash, this Unit gains<High-Maneuver>.\n【Deploy】Place the top card of your deck into your trash. If you place a (Zeon) card with this effect, choose 1 enemy Unit with 4 or less AP. Rest it."`
+- Sources: gcg-api card GD06-052 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD06-052; gcg-api card GD06-052_p1 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD06-052_p1
+- **Resolution** (`canonical_printing`): Use GD06-052. The printings differ only in parenthesized reminder text.
+  - Rationale: Reminder text in parentheses has no game effect (2-11-4); cosmetic differences do not change the text's meaning.
+  - Canonical printing: `GD06-052`
+
+### `divergent:GD06-053` — GD06-053 Xavier's Gyan Hakuji-Packs (GQ): printings differ in effect
+
+- severity **info**; origin detected
+- Cards: GD06-053
+- 2 printings of GD06-053 disagree on effect (reminder_only). The differences are cosmetic or confined to reminder text.
+- Suggested canonical printing: `GD06-053`
+- Field differences:
+  - `effect` (reminder_only):
+    - `GD06-053`: `"<Blocker> (Rest this Unit to change the attack target to it.)\n【Destroyed】Choose 1 of your Resources. Set it as active."`
+    - `GD06-053_p1`: `"<Blocker>\n【Destroyed】Choose 1 of your Resources. Set it as active."`
+- Sources: gcg-api card GD06-053 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD06-053; gcg-api card GD06-053_p1 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD06-053_p1
+- **Resolution** (`canonical_printing`): Use GD06-053. The printings differ only in parenthesized reminder text.
+  - Rationale: Reminder text in parentheses has no game effect (2-11-4); cosmetic differences do not change the text's meaning.
+  - Canonical printing: `GD06-053`
+
+### `divergent:GD06-054` — GD06-054 GFreD: printings differ in effect
+
+- severity **info**; origin detected
+- Cards: GD06-054
+- 2 printings of GD06-054 disagree on effect (reminder_only). The differences are cosmetic or confined to reminder text.
+- Suggested canonical printing: `GD06-054`
+- Field differences:
+  - `effect` (reminder_only):
+    - `GD06-054`: `"<Suppression> (Damage to Shields by an attack is dealt to the first 2 cards simultaneously.)\n【Deploy】You may choose 1 of your Units and 1 enemy Unit. Deal 1 damage to them."`
+    - `GD06-054_p1`: `"<Suppression>\n【Deploy】You may choose 1 of your Units and 1 enemy Unit. Deal 1 damage to them."`
+- Sources: gcg-api card GD06-054 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD06-054; gcg-api card GD06-054_p1 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD06-054_p1
+- **Resolution** (`canonical_printing`): Use GD06-054. The printings differ only in parenthesized reminder text.
+  - Rationale: Reminder text in parentheses has no game effect (2-11-4); cosmetic differences do not change the text's meaning.
+  - Canonical printing: `GD06-054`
+
+### `divergent:GD06-055` — GD06-055 Gundam GP02A: printings differ in effect
+
+- severity **info**; origin detected
+- Cards: GD06-055
+- 2 printings of GD06-055 disagree on effect (reminder_only). The differences are cosmetic or confined to reminder text.
+- Suggested canonical printing: `GD06-055`
+- Field differences:
+  - `effect` (reminder_only):
+    - `GD06-055`: `"【During Pair】【Attack】You may deal 1 damage to this Unit. If you do, this Unit gains<Breach 2> during this battle.\n\n(During your turn, when this Unit destroys an enemy Unit with battle damage, deal the specified amount of damage to the first card in that opponent's shield area.)"`
+    - `GD06-055_p1`: `"【During Pair】【Attack】You may deal 1 damage to this Unit. If you do, this Unit gains<Breach 2> during this battle."`
+- Sources: gcg-api card GD06-055 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD06-055; gcg-api card GD06-055_p1 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD06-055_p1
+- **Resolution** (`canonical_printing`): Use GD06-055. The printings differ only in parenthesized reminder text.
+  - Rationale: Reminder text in parentheses has no game effect (2-11-4); cosmetic differences do not change the text's meaning.
+  - Canonical printing: `GD06-055`
+
+### `divergent:GD06-064` — GD06-064 Altron Gundam (EW): printings differ in effect
+
+- severity **info**; origin detected
+- Cards: GD06-064
+- 2 printings of GD06-064 disagree on effect (reminder_only). The differences are cosmetic or confined to reminder text.
+- Suggested canonical printing: `GD06-064`
+- Field differences:
+  - `effect` (reminder_only):
+    - `GD06-064`: `"<Blocker> (Rest this Unit to change the attack target to it.)\nWhile an enemy Unit that is Lv.5 or higher is in play, this Unit gets AP+3."`
+    - `GD06-064_p1`: `"<Blocker>\nWhile an enemy Unit that is Lv.5 or higher is in play, this Unit gets AP+3."`
+- Sources: gcg-api card GD06-064 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD06-064; gcg-api card GD06-064_p1 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD06-064_p1
+- **Resolution** (`canonical_printing`): Use GD06-064. The printings differ only in parenthesized reminder text.
+  - Rationale: Reminder text in parentheses has no game effect (2-11-4); cosmetic differences do not change the text's meaning.
+  - Canonical printing: `GD06-064`
+
+### `divergent:GD06-065` — GD06-065 SUMO Gold Type: printings differ in effect
+
+- severity **info**; origin detected
+- Cards: GD06-065
+- 2 printings of GD06-065 disagree on effect (reminder_only). The differences are cosmetic or confined to reminder text.
+- Suggested canonical printing: `GD06-065`
+- Field differences:
+  - `effect` (reminder_only):
+    - `GD06-065`: `"<Blocker> (Rest this Unit to change the attack target to it.)\n【Activate･Main】【Once per Turn】④：Set all your (Dianna Counter)/(Militia) Units with<Blocker> as active. They can't attack during this turn."`
+    - `GD06-065_p1`: `"<Blocker>\n【Activate･Main】【Once per Turn】④：Set all your (Dianna Counter)/(Militia) Units with<Blocker> as active. They can't attack during this turn."`
+- Sources: gcg-api card GD06-065 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD06-065; gcg-api card GD06-065_p1 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD06-065_p1
+- **Resolution** (`canonical_printing`): Use GD06-065. The printings differ only in parenthesized reminder text.
+  - Rationale: Reminder text in parentheses has no game effect (2-11-4); cosmetic differences do not change the text's meaning.
+  - Canonical printing: `GD06-065`
+
+### `divergent:GD06-066` — GD06-066 Shadow Gundam: printings differ in effect
+
+- severity **info**; origin detected
+- Cards: GD06-066
+- 2 printings of GD06-066 disagree on effect (reminder_only). The differences are cosmetic or confined to reminder text.
+- Suggested canonical printing: `GD06-066`
+- Field differences:
+  - `effect` (reminder_only):
+    - `GD06-066`: `"<Blocker> (Rest this Unit to change the attack target to it.)\n【During Link】【Attack】Activate 【Action】 on the card paired with this Unit."`
+    - `GD06-066_p1`: `"<Blocker>\n【During Link】【Attack】Activate 【Action】 on the card paired with this Unit."`
+- Sources: gcg-api card GD06-066 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD06-066; gcg-api card GD06-066_p1 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD06-066_p1
+- **Resolution** (`canonical_printing`): Use GD06-066. The printings differ only in parenthesized reminder text.
+  - Rationale: Reminder text in parentheses has no game effect (2-11-4); cosmetic differences do not change the text's meaning.
+  - Canonical printing: `GD06-066`
+
+### `divergent:GD06-069` — GD06-069 SUMO Silver Type: printings differ in effect
+
+- severity **info**; origin detected
+- Cards: GD06-069
+- 2 printings of GD06-069 disagree on effect (reminder_only). The differences are cosmetic or confined to reminder text.
+- Suggested canonical printing: `GD06-069`
+- Field differences:
+  - `effect` (reminder_only):
+    - `GD06-069`: `"<Blocker> (Rest this Unit to change the attack target to it.)\n【Activate･Action】【Once per Turn】①：Choose 1 of your damaged (Dianna Counter) Units. It recovers 1 HP."`
+    - `GD06-069_p1`: `"<Blocker>\n【Activate･Action】【Once per Turn】①：Choose 1 of your damaged (Dianna Counter) Units. It recovers 1 HP."`
+- Sources: gcg-api card GD06-069 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD06-069; gcg-api card GD06-069_p1 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD06-069_p1
+- **Resolution** (`canonical_printing`): Use GD06-069. The printings differ only in parenthesized reminder text.
+  - Rationale: Reminder text in parentheses has no game effect (2-11-4); cosmetic differences do not change the text's meaning.
+  - Canonical printing: `GD06-069`
+
+### `divergent:GD06-081` — GD06-081 Amate Yuzuriha (Machu): printings differ in effect
+
+- severity **info**; origin detected
+- Cards: GD06-081
+- 2 printings of GD06-081 disagree on effect (reminder_only). The differences are cosmetic or confined to reminder text.
+- Suggested canonical printing: `GD06-081`
+- Field differences:
+  - `effect` (reminder_only):
+    - `GD06-081`: `"【Burst】Add this card to your hand.\nWhile this Unit is (Alphacide), it gains<Repair 2>.\n\n(At the end of your turn, this Unit recovers the specified number of HP.)"`
+    - `GD06-081_p1`: `"【Burst】Add this card to your hand.\nWhile this Unit is (Alphacide), it gains<Repair 2>."`
+- Sources: gcg-api card GD06-081 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD06-081; gcg-api card GD06-081_p1 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD06-081_p1
+- **Resolution** (`canonical_printing`): Use GD06-081. The printings differ only in parenthesized reminder text.
+  - Rationale: Reminder text in parentheses has no game effect (2-11-4); cosmetic differences do not change the text's meaning.
+  - Canonical printing: `GD06-081`
+
+### `divergent:GD06-084` — GD06-084 Elpeo Ple: printings differ in effect
+
+- severity **info**; origin detected
+- Cards: GD06-084
+- 3 printings of GD06-084 disagree on effect (reminder_only). The differences are cosmetic or confined to reminder text.
+- Suggested canonical printing: `GD06-084`
+- Field differences:
+  - `effect` (reminder_only):
+    - `GD06-084`: `"【Burst】Add this card to your hand.\n【When Paired】During this turn, this Unit gains the same number of<Breach 1> as the number of (Neo Zeon)/(Long-Range Weapon) Units you have in play.\n\n(During your turn, when this Unit destroys an enemy Unit with battle damage, deal the specified amount of damage to the first card in that opponent's shield area.)"`
+    - `GD06-084_p1`: `"【Burst】Add this card to your hand.\n【When Paired】During this turn, this Unit gains the same number of<Breach 1> as the number of (Neo Zeon)/(Long-Range Weapon) Units you have in play."`
+    - `GD06-084_p2`: `"【Burst】Add this card to your hand.\n【When Paired】During this turn, this Unit gains the same number of <Breach 1> as the number of (Neo Zeon)/(Long-Range Weapon) Units you have in play.\n\n(During your turn, when this Unit destroys an enemy Unit with battle damage, deal the specified amount of damage to the first card in that opponent's shield area.)"`
+- Sources: gcg-api card GD06-084 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD06-084; gcg-api card GD06-084_p1 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD06-084_p1; gcg-api card GD06-084_p2 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD06-084_p2
+- **Resolution** (`canonical_printing`): Use GD06-084. The printings differ only in parenthesized reminder text.
+  - Rationale: Reminder text in parentheses has no game effect (2-11-4); cosmetic differences do not change the text's meaning.
+  - Canonical printing: `GD06-084`
 
 ### `divergent:R-001` — R-001 Resource: printings differ in ap, hp, ap_raw, hp_raw
 
@@ -985,7 +1226,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
 
 - severity **minor**; origin detected
 - Cards: —
-- The vanilla banned-pair rule is defined both by description and by an enumerated list (22 cards today). The July 2026 notice says future matching cards are added 'at the time of their release', so the list can lag a new set.
+- The vanilla banned-pair rule is defined both by description and by an enumerated list (25 cards today). The July 2026 notice says future matching cards are added 'at the time of their release', so the list can lag a new set. GD06-028, GD06-047 and GD06-063 (GD06 release 2026-10-30) are enumerated under that policy; the current-list page (01_279), re-fetched 2026-11-06, does not name them yet, so their names come from the card data.
 - Sources: official banned/restricted list
 - **Resolution** (`banlist_most_defensible`): Enforce the predicate over card data and also check the enumerated list. Today they are identical (predicate_equals_enumeration). The data refresh should fail loudly if they ever diverge.
   - Rationale: The notice defines the pair by attributes and promises to add future matches, so both the predicate and the enumeration are authoritative; checking both catches either one lagging.
@@ -1005,7 +1246,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
 ### `markers-semantics:keyword-mentions` — keyword_effects lists keywords the card only mentions
 
 - severity **info**; origin detected
-- Cards: EB01-006, EB01-019, EB01-024, EB01-027, EB01-028, EB01-029, EB01-035, EB01-037, EB01-040, EB01-042, EB01-043, EB01-045, EB01-047, EB01-049, EB01-058, EB01-063, EB01-064, EB01-065, EB01-066, EB01-069, EB01-072, EB01-084, EB01-086, GD01-001, GD01-003, GD01-009, GD01-019, GD01-025, GD01-027, GD01-029, GD01-032, GD01-034, GD01-046, GD01-048, GD01-049, GD01-054, GD01-055, GD01-061, GD01-063, GD01-066, GD01-069, GD01-081, GD01-087, GD01-089, GD01-091, GD01-092, GD01-096, GD01-108, GD01-120, GD01-121, GD01-127, GD02-022, GD02-023, GD02-024, GD02-033, GD02-036, GD02-040, GD02-042, GD02-049, GD02-072, GD02-073, GD02-074, GD02-076, GD02-082, GD02-087, GD02-089, GD02-090, GD02-095, GD02-118, GD03-002, GD03-008, GD03-013, GD03-015, GD03-018, GD03-023, GD03-029, GD03-037, GD03-038, GD03-040, GD03-052, GD03-061, GD03-068, GD03-084, GD03-088, GD03-090, GD03-118, GD04-008, GD04-013, GD04-022, GD04-028, GD04-037, GD04-039, GD04-044, GD04-067, GD04-089, GD04-094, GD04-103, GD05-006, GD05-007, GD05-016, GD05-020, GD05-037, GD05-038, GD05-039, GD05-040, GD05-059, GD05-061, GD05-067, GD05-068, GD05-082, GD05-087, GD05-095, GD05-112, GD05-120, GD05-126, GD05-127, ST02-012, ST03-001, ST03-002, ST03-004, ST03-011, ST04-012, ST04-014, ST04-015, ST05-001, ST06-001, ST06-003, ST06-015, ST07-004, ST08-008, ST08-011, ST08-012, ST09-004, ST11-003, ST12-002, ST12-006, ST12-007, ST13-007, ST13-010
+- Cards: EB01-006, EB01-019, EB01-024, EB01-027, EB01-028, EB01-029, EB01-035, EB01-037, EB01-040, EB01-042, EB01-043, EB01-045, EB01-047, EB01-049, EB01-058, EB01-063, EB01-064, EB01-065, EB01-066, EB01-069, EB01-072, EB01-084, EB01-086, GD01-001, GD01-003, GD01-009, GD01-019, GD01-025, GD01-027, GD01-029, GD01-032, GD01-034, GD01-046, GD01-048, GD01-049, GD01-054, GD01-055, GD01-061, GD01-063, GD01-066, GD01-069, GD01-081, GD01-087, GD01-089, GD01-091, GD01-092, GD01-096, GD01-108, GD01-120, GD01-121, GD01-127, GD02-022, GD02-023, GD02-024, GD02-033, GD02-036, GD02-040, GD02-042, GD02-049, GD02-072, GD02-073, GD02-074, GD02-076, GD02-082, GD02-087, GD02-089, GD02-090, GD02-095, GD02-118, GD03-002, GD03-008, GD03-013, GD03-015, GD03-018, GD03-023, GD03-029, GD03-037, GD03-038, GD03-040, GD03-052, GD03-061, GD03-068, GD03-084, GD03-088, GD03-090, GD03-118, GD04-008, GD04-013, GD04-022, GD04-028, GD04-037, GD04-039, GD04-044, GD04-067, GD04-089, GD04-094, GD04-103, GD05-006, GD05-007, GD05-016, GD05-020, GD05-037, GD05-038, GD05-039, GD05-040, GD05-059, GD05-061, GD05-067, GD05-068, GD05-082, GD05-087, GD05-095, GD05-112, GD05-120, GD05-126, GD05-127, GD06-001, GD06-011, GD06-014, GD06-015, GD06-017, GD06-024, GD06-026, GD06-037, GD06-052, GD06-055, GD06-057, GD06-061, GD06-070, GD06-081, GD06-083, GD06-084, GD06-091, GD06-097, GD06-105, GD06-107, GD06-115, GD06-118, GD06-121, GD06-123, ST02-012, ST03-001, ST03-002, ST03-004, ST03-011, ST04-012, ST04-014, ST04-015, ST05-001, ST06-001, ST06-003, ST06-015, ST07-004, ST08-008, ST08-011, ST08-012, ST09-004, ST11-003, ST12-002, ST12-006, ST12-007, ST13-007, ST13-010
 - keyword_effects is every <Keyword> mentioned anywhere in the text: conditional grants ('While …, this Unit gains <Blocker>'), grants to other Units, target filters ('Unit with <Blocker>') and reminder text. For these cards at least one listed keyword is not an unconditional printed keyword of the card itself.
 - Sources: gcg-api src/normalize.js (extractKeywordEffects/extractTimingMarkers)
 - **Resolution** (`engine_derives_markers`): Keywords a Unit has come from its compiled effects (printed keywords, conditional and granted ones); keyword_effects is not used to decide which keywords a card has.
@@ -1014,7 +1255,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
 ### `markers-vocab:activate-split` — 【Activate･Main】/【Activate･Action】 are recorded as separate 'Activate' + 'Main'/'Action'
 
 - severity **info**; origin detected
-- Cards: EB01-001, EB01-020, EB01-033, EB01-070, GD01-014, GD01-023, GD01-046, GD01-048, GD01-053, GD01-055, GD01-058, GD01-061, GD01-069, GD01-082, GD01-097, GD01-098, GD01-124, GD01-127, GD01-130, GD02-011, GD02-040, GD02-047, GD02-049, GD02-069, GD03-015, GD03-035, GD03-038, GD03-050, GD03-052, GD03-073, GD04-006, GD04-065, GD04-067, GD04-071, GD04-073, GD04-089, GD04-122, GD04-125, GD04-130, GD05-001, GD05-021, GD05-022, GD05-038, GD05-040, GD05-057, GD05-079, GD05-125, GD05-126, GD05-128, GD05-129, ST01-015, ST01-016, ST02-006, ST03-002, ST03-004, ST04-015, ST04-016, ST05-003, ST05-015, ST06-003, ST06-014, ST08-015, ST09-001, ST12-006, ST12-011, ST12-016, ST13-001, ST13-006, ST13-007, ST13-010
+- Cards: EB01-001, EB01-020, EB01-033, EB01-070, GD01-014, GD01-023, GD01-046, GD01-048, GD01-053, GD01-055, GD01-058, GD01-061, GD01-069, GD01-082, GD01-097, GD01-098, GD01-124, GD01-127, GD01-130, GD02-011, GD02-040, GD02-047, GD02-049, GD02-069, GD03-015, GD03-035, GD03-038, GD03-050, GD03-052, GD03-073, GD04-006, GD04-065, GD04-067, GD04-071, GD04-073, GD04-089, GD04-122, GD04-125, GD04-130, GD05-001, GD05-021, GD05-022, GD05-038, GD05-040, GD05-057, GD05-079, GD05-125, GD05-126, GD05-128, GD05-129, GD06-018, GD06-039, GD06-051, GD06-061, GD06-065, GD06-069, GD06-078, GD06-080, GD06-124, GD06-128, ST01-015, ST01-016, ST02-006, ST03-002, ST03-004, ST04-015, ST04-016, ST05-003, ST05-015, ST06-003, ST06-014, ST08-015, ST09-001, ST12-006, ST12-011, ST12-016, ST13-001, ST13-006, ST13-007, ST13-010
 - timing_markers cannot distinguish a 【Main】 Command from an 【Activate･Main】 ability on the same card; engines must read the bracket from the effect text.
 - Sources: gcg-api src/normalize.js (extractKeywordEffects/extractTimingMarkers)
 - **Resolution** (`engine_derives_markers`): Read 【Activate･Main】/【Activate･Action】 as single timings from the effect text; never infer them from timing_markers.
@@ -1032,7 +1273,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
 ### `markers-vocab:pilot` — 【Pilot】 sections are not recorded in timing_markers
 
 - severity **info**; origin detected
-- Cards: EB01-076, EB01-080, EB01-084, GD01-101, GD01-103, GD01-106, GD01-110, GD01-112, GD01-113, GD01-114, GD01-116, GD01-119, GD01-122, GD02-102, GD02-105, GD02-106, GD02-109, GD02-113, GD02-114, GD02-115, GD02-116, GD02-118, GD02-119, GD02-120, GD03-104, GD03-107, GD03-108, GD03-111, GD03-115, GD03-120, GD03-121, GD03-122, GD04-104, GD04-106, GD04-108, GD04-111, GD04-112, GD04-116, GD04-118, GD04-119, GD04-120, GD05-103, GD05-104, GD05-108, GD05-109, GD05-112, GD05-113, GD05-116, GD05-117, GD05-119, GD05-121, GD05-122, ST01-012, ST01-013, ST02-012, ST02-013, ST03-012, ST03-014, ST04-013, ST04-014, ST06-011, ST06-013, ST08-012, ST10-015, ST11-014, ST12-014, ST13-013, ST14-014
+- Cards: EB01-076, EB01-080, EB01-084, GD01-101, GD01-103, GD01-106, GD01-110, GD01-112, GD01-113, GD01-114, GD01-116, GD01-119, GD01-122, GD02-102, GD02-105, GD02-106, GD02-109, GD02-113, GD02-114, GD02-115, GD02-116, GD02-118, GD02-119, GD02-120, GD03-104, GD03-107, GD03-108, GD03-111, GD03-115, GD03-120, GD03-121, GD03-122, GD04-104, GD04-106, GD04-108, GD04-111, GD04-112, GD04-116, GD04-118, GD04-119, GD04-120, GD05-103, GD05-104, GD05-108, GD05-109, GD05-112, GD05-113, GD05-116, GD05-117, GD05-119, GD05-121, GD05-122, GD06-103, GD06-104, GD06-107, GD06-108, GD06-111, GD06-112, GD06-117, GD06-119, GD06-121, ST01-012, ST01-013, ST02-012, ST02-013, ST03-012, ST03-014, ST04-013, ST04-014, ST06-011, ST06-013, ST08-012, ST10-015, ST11-014, ST12-014, ST13-013, ST14-014
 - Command cards with a 【Pilot】 effect (rule 3-4-6) are indistinguishable from plain Commands through timing_markers; the Pilot name and AP/HP modifiers live only in the text and the ap/hp fields.
 - Sources: gcg-api src/normalize.js (extractKeywordEffects/extractTimingMarkers)
 - **Resolution** (`engine_derives_markers`): Detect 【Pilot】[Name] sections from the effect text; the paired AP/HP modifiers are the card's ap/hp fields.
@@ -1041,7 +1282,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
 ### `markers-vocab:qualified-timing` — Pilot qualifications in 【When Paired･…】/【During Pair･…】 are dropped from timing_markers
 
 - severity **info**; origin detected
-- Cards: EB01-021, EB01-022, GD01-025, GD01-032, GD01-044, GD01-046, GD02-001, GD02-003, GD02-034, GD02-036, GD02-056, GD02-061, GD03-017, GD03-033, GD03-054, GD03-055, GD04-017, GD04-051, GD04-058, GD05-046, ST01-002, ST04-001, ST12-001
+- Cards: EB01-021, EB01-022, GD01-025, GD01-032, GD01-044, GD01-046, GD02-001, GD02-003, GD02-034, GD02-036, GD02-056, GD02-061, GD03-017, GD03-033, GD03-054, GD03-055, GD04-017, GD04-051, GD04-058, GD05-046, GD06-015, GD06-067, ST01-002, ST04-001, ST12-001
 - timing_markers keeps only 'When Paired'/'During Pair'; the qualification (trait, colour or Lv. of the Pilot, rules 13-2-9-2 and 13-2-10-2) is only in the effect text.
 - Sources: gcg-api src/normalize.js (extractKeywordEffects/extractTimingMarkers)
 - **Resolution** (`engine_derives_markers`): Parse the Pilot qualification of 【When Paired･…】/【During Pair･…】 from the effect text (13-2-9-2, 13-2-10-2).
@@ -1086,17 +1327,45 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
   - Override `effect` → `"【Activate･Main】【Once per Turn】①, exile 1 Pilot card from your trash：Deal 1 damage to all enemy Units.\n【When Linked】During this turn, this Unit may choose an active enemy Unit with AP equal to or less than this Unit as its attack target."`
 
 
-## Card data vs rules (3)
+## Card data vs rules (6)
 
 ### `data-null:BASE:ap` — BASE records with null ap
 
 - severity **info**; origin detected
-- Cards: EB01-085, EB01-086, EB01-087, EB01-088, EB01-089, EB01-090, GD01-123, GD01-124, GD01-125, GD01-126, GD01-127, GD01-128, GD01-129, GD01-130, GD02-121, GD02-122, GD02-123, GD02-124, GD02-125, GD02-126, GD02-127, GD02-128, GD02-129, GD02-130, GD03-123, GD03-124, GD03-125, GD03-126, GD03-127, GD03-128, GD03-129, GD03-130, GD03-131, GD03-132, GD04-121, GD04-122, GD04-123, GD04-124, GD04-125, GD04-126, GD04-127, GD04-128, GD04-129, GD04-130, GD05-123, GD05-124, GD05-125, GD05-126, GD05-127, GD05-128, GD05-129, GD05-130, ST01-015, ST01-016, ST02-015, ST02-016, ST03-015, ST03-016, ST04-015, ST04-016, ST05-015, ST06-014, ST06-015, ST07-015, ST08-014, ST08-015, ST09-010, ST10-016, ST11-016, ST12-016, ST13-016, ST14-016
-- 109 BASE printing(s) have no ap value although the rules give every such card one (rule 3-5-4 (Bases have AP and HP), 2-4-2, 2-9-2, 2-10-2).
+- Cards: EB01-085, EB01-086, EB01-087, EB01-088, EB01-089, EB01-090, GD01-123, GD01-124, GD01-125, GD01-126, GD01-127, GD01-128, GD01-129, GD01-130, GD02-121, GD02-122, GD02-123, GD02-124, GD02-125, GD02-126, GD02-127, GD02-128, GD02-129, GD02-130, GD03-123, GD03-124, GD03-125, GD03-126, GD03-127, GD03-128, GD03-129, GD03-130, GD03-131, GD03-132, GD04-121, GD04-122, GD04-123, GD04-124, GD04-125, GD04-126, GD04-127, GD04-128, GD04-129, GD04-130, GD05-123, GD05-124, GD05-125, GD05-126, GD05-127, GD05-128, GD05-129, GD05-130, GD06-122, GD06-123, GD06-124, GD06-125, GD06-126, GD06-127, GD06-128, GD06-129, GD06-130, ST01-015, ST01-016, ST02-015, ST02-016, ST03-015, ST03-016, ST04-015, ST04-016, ST05-015, ST06-014, ST06-015, ST07-015, ST08-014, ST08-015, ST09-010, ST10-016, ST11-016, ST12-016, ST13-016, ST14-016, T-037
+- 124 BASE printing(s) have no ap value although the rules give every such card one (rule 3-5-4 (Bases have AP and HP), 2-4-2, 2-9-2, 2-10-2).
 - Sources: gcg-api cards.ndjson
 - **Resolution** (`null_stat_is_zero`): Bases have no printed AP; treat AP as 0 (see rules-internal:base-ap).
   - Rationale: The rules give these cards an AP; the snapshot has none, and 0 is the only value consistent with that.
   - Override `ap` → `0`
+
+### `data-null:BASE:color` — BASE records with null color
+
+- severity **minor**; origin detected
+- Cards: T-037
+- 1 BASE printing(s) have no color value although the rules give every such card one (rule 3-5-4 (Bases have AP and HP), 2-4-2, 2-9-2, 2-10-2).
+- Sources: gcg-api cards.ndjson
+- **Resolution** (`token_stats_from_effect`): T-037 Axis is the Base token that GD06-129 5th Luna deploys ([Axis]((Neo Zeon)･AP0･HP5)); the engine treats it as a token, so its color comes from the token rules, not the record.
+  - Rationale: Tokens are treated as having no color (5-17-2-3), so the empty color is correct. gcg-api types the record BASE rather than as a token type, so the null-stat check reports it; the effect that creates the token specifies it in full.
+
+### `data-null:BASE:cost` — BASE records with null cost
+
+- severity **minor**; origin detected
+- Cards: T-037
+- 1 BASE printing(s) have no cost value although the rules give every such card one (rule 3-5-4 (Bases have AP and HP), 2-4-2, 2-9-2, 2-10-2).
+- Sources: gcg-api cards.ndjson
+- **Resolution** (`token_stats_from_effect`): T-037 Axis is the Base token that GD06-129 5th Luna deploys ([Axis]((Neo Zeon)･AP0･HP5)); the engine treats it as a token, so its cost comes from the token rules, not the record.
+  - Rationale: A token's cost is treated as zero (5-17-2-4). gcg-api types the record BASE rather than as a token type, so the null-stat check reports it; the effect that creates the token specifies it in full.
+
+### `data-null:BASE:level` — BASE records with null level
+
+- severity **minor**; origin detected
+- Cards: T-037
+- 1 BASE printing(s) have no level value although the rules give every such card one (rule 3-5-4 (Bases have AP and HP), 2-4-2, 2-9-2, 2-10-2).
+- Sources: gcg-api cards.ndjson
+- **Resolution** (`token_stats_from_effect`): T-037 Axis is the Base token that GD06-129 5th Luna deploys ([Axis]((Neo Zeon)･AP0･HP5)). It is typed BASE TOKEN, so the engine treats it as a token: no color (5-17-2-3), Lv and cost 0 (5-17-2-4), removed from the game when it leaves the field (5-17-2-5), and not allowed in a deck.
+  - Rationale: Rule 5-17-1 names Base tokens; gcg-api types the record BASE, which would make it a deckable Base with no Lv. A token's Lv is treated as zero (5-17-2-4), and the effect that creates the token specifies it in full.
+  - Override `card_type` → `"BASE TOKEN"`
 
 ### `data-null:EX-BASE:ap` — EX BASE records with null ap
 
@@ -1111,8 +1380,8 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
 ### `data-null:UNIT:ap` — UNIT records with null ap
 
 - severity **minor**; origin detected
-- Cards: EB01-013, EB01-052, GD01-048, GD01-061, GD02-011, GD02-034, GD02-047, GD03-060, ST05-003, ST08-009
-- 13 UNIT printing(s) have no ap value although the rules give every such card one (rule 3-2-5 (Units have AP and HP), 2-4-2, 2-9-2, 2-10-2).
+- Cards: EB01-013, EB01-052, GD01-048, GD01-061, GD02-011, GD02-034, GD02-047, GD03-060, GD06-032, ST05-003, ST08-009
+- 14 UNIT printing(s) have no ap value although the rules give every such card one (rule 3-2-5 (Units have AP and HP), 2-4-2, 2-9-2, 2-10-2).
 - Sources: gcg-api cards.ndjson
 - **Resolution** (`null_stat_is_zero`): These Units have no AP value; treat AP as 0 (they deal no battle damage, 5-5-5).
   - Rationale: The rules give these cards an AP; the snapshot has none, and 0 is the only value consistent with that.
@@ -1129,7 +1398,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
 - Reference `"(See 7. Attacking and Battles)"`; suggested target `8` (Attacking and Battles)
 - Evidence:
   - rules 2-7-1: “(See 7. Attacking and Battles)”
-- Sources: Comprehensive Rules Ver. 1.9.0 §2-7-1
+- Sources: Comprehensive Rules Ver. 1.10.0 §2-7-1
 - **Resolution** (`rules_xref_intended_target`): Read the reference in 2-7-1 as §8 (Attacking and Battles).
   - Rationale: §8 is the only section titled 'Attacking and Battles' (or, for untitled references, the only section on the cited topic); the cited number is an off-by-one/renumbering slip.
 
@@ -1141,7 +1410,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
 - Reference `"(See 12-2. Keywords)"`; suggested target `13-2` (Keywords)
 - Evidence:
   - rules 3-4-5: “(See 12-2. Keywords)”
-- Sources: Comprehensive Rules Ver. 1.9.0 §3-4-5
+- Sources: Comprehensive Rules Ver. 1.10.0 §3-4-5
 - **Resolution** (`rules_xref_intended_target`): Read the reference in 3-4-5 as §13-2 (Keywords).
   - Rationale: §13-2 is the only section titled 'Keywords' (or, for untitled references, the only section on the cited topic); the cited number is an off-by-one/renumbering slip.
 
@@ -1153,7 +1422,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
 - Reference `"(See 12-2-5. 【Burst】)"`; suggested target `13-2-5` (【Burst】)
 - Evidence:
   - rules 3-4-7: “(See 12-2-5. 【Burst】)”
-- Sources: Comprehensive Rules Ver. 1.9.0 §3-4-7
+- Sources: Comprehensive Rules Ver. 1.10.0 §3-4-7
 - **Resolution** (`rules_xref_intended_target`): Read the reference in 3-4-7 as §13-2-5 (【Burst】).
   - Rationale: §13-2-5 is the only section titled '【Burst】' (or, for untitled references, the only section on the cited topic); the cited number is an off-by-one/renumbering slip.
 
@@ -1165,7 +1434,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
 - Reference `"(See 5-17. Counters)"`; suggested target `5-18` (Counter)
 - Evidence:
   - rules 5-5-1: “(See 5-17. Counters)”
-- Sources: Comprehensive Rules Ver. 1.9.0 §5-5-1
+- Sources: Comprehensive Rules Ver. 1.10.0 §5-5-1
 - **Resolution** (`rules_xref_intended_target`): Read the reference in 5-5-1 as §5-18 (Counter).
   - Rationale: §5-18 is the only section titled 'Counter' (or, for untitled references, the only section on the cited topic); the cited number is an off-by-one/renumbering slip.
 
@@ -1177,7 +1446,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
 - Reference `"(See 12-2-5. 【Burst】)"`; suggested target `13-2-5` (【Burst】)
 - Evidence:
   - rules 5-10-3: “(See 12-2-5. 【Burst】)”
-- Sources: Comprehensive Rules Ver. 1.9.0 §5-10-3
+- Sources: Comprehensive Rules Ver. 1.10.0 §5-10-3
 - **Resolution** (`rules_xref_intended_target`): Read the reference in 5-10-3 as §13-2-5 (【Burst】).
   - Rationale: §13-2-5 is the only section titled '【Burst】' (or, for untitled references, the only section on the cited topic); the cited number is an off-by-one/renumbering slip.
 
@@ -1189,7 +1458,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
 - Reference `"(See 8. Action Steps)"`; suggested target `9` (Action Steps)
 - Evidence:
   - rules 8-4-1: “(See 8. Action Steps)”
-- Sources: Comprehensive Rules Ver. 1.9.0 §8-4-1
+- Sources: Comprehensive Rules Ver. 1.10.0 §8-4-1
 - **Resolution** (`rules_xref_intended_target`): Read the reference in 8-4-1 as §9 (Action Steps).
   - Rationale: §9 is the only section titled 'Action Steps' (or, for untitled references, the only section on the cited topic); the cited number is an off-by-one/renumbering slip.
 
@@ -1201,7 +1470,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
 - Reference `"(See 12-2-5. 【Burst】)"`; suggested target `13-2-5` (【Burst】)
 - Evidence:
   - rules 8-5-2-3-1: “(See 12-2-5. 【Burst】)”
-- Sources: Comprehensive Rules Ver. 1.9.0 §8-5-2-3-1
+- Sources: Comprehensive Rules Ver. 1.10.0 §8-5-2-3-1
 - **Resolution** (`rules_xref_intended_target`): Read the reference in 8-5-2-3-1 as §13-2-5 (【Burst】).
   - Rationale: §13-2-5 is the only section titled '【Burst】' (or, for untitled references, the only section on the cited topic); the cited number is an off-by-one/renumbering slip.
 
@@ -1213,7 +1482,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
 - Reference `"(See 12-1-5. <First Strike>)"`; suggested target `13-1-5` (<First Strike>)
 - Evidence:
   - rules 8-5-2-4-2: “(See 12-1-5. <First Strike>)”
-- Sources: Comprehensive Rules Ver. 1.9.0 §8-5-2-4-2
+- Sources: Comprehensive Rules Ver. 1.10.0 §8-5-2-4-2
 - **Resolution** (`rules_xref_intended_target`): Read the reference in 8-5-2-4-2 as §13-1-5 (<First Strike>).
   - Rationale: §13-1-5 is the only section titled '<First Strike>' (or, for untitled references, the only section on the cited topic); the cited number is an off-by-one/renumbering slip.
 
@@ -1225,7 +1494,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
 - Reference `"(See 6-5. Main Phase)"`; suggested target `7-5` (Main Phase)
 - Evidence:
   - rules 8-6-2: “(See 6-5. Main Phase)”
-- Sources: Comprehensive Rules Ver. 1.9.0 §8-6-2
+- Sources: Comprehensive Rules Ver. 1.10.0 §8-6-2
 - **Resolution** (`rules_xref_intended_target`): Read the reference in 8-6-2 as §7-5 (Main Phase).
   - Rationale: §7-5 is the only section titled 'Main Phase' (or, for untitled references, the only section on the cited topic); the cited number is an off-by-one/renumbering slip.
 
@@ -1237,7 +1506,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
 - Reference `"(see 9-1-7)"`; suggested target `10-1-7` (Activated Effects)
 - Evidence:
   - rules 13-2-1-1: “(see 9-1-7)”
-- Sources: Comprehensive Rules Ver. 1.9.0 §13-2-1-1
+- Sources: Comprehensive Rules Ver. 1.10.0 §13-2-1-1
 - **Resolution** (`rules_xref_intended_target`): Read the reference in 13-2-1-1 as §10-1-7 (Activated Effects).
   - Rationale: §10-1-7 is the only section titled 'Activated Effects' (or, for untitled references, the only section on the cited topic); the cited number is an off-by-one/renumbering slip.
 
@@ -1249,7 +1518,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
 - Reference `"(see 9-1-7)"`; suggested target `10-1-7` (Activated Effects)
 - Evidence:
   - rules 13-2-2-1: “(see 9-1-7)”
-- Sources: Comprehensive Rules Ver. 1.9.0 §13-2-2-1
+- Sources: Comprehensive Rules Ver. 1.10.0 §13-2-2-1
 - **Resolution** (`rules_xref_intended_target`): Read the reference in 13-2-2-1 as §10-1-7 (Activated Effects).
   - Rationale: §10-1-7 is the only section titled 'Activated Effects' (or, for untitled references, the only section on the cited topic); the cited number is an off-by-one/renumbering slip.
 
@@ -1264,7 +1533,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
 - Evidence:
   - rules 11-3-1: “When the HP of a Unit, Base, or Shield becomes zero less after receiving damage”
   - rules 5-5-2: “A card that receives damage equal to or greater than its HP is destroyed as a result of rules management.”
-- Sources: Comprehensive Rules Ver. 1.9.0 §11-3-1; Comprehensive Rules Ver. 1.9.0 §5-5-2
+- Sources: Comprehensive Rules Ver. 1.10.0 §11-3-1; Comprehensive Rules Ver. 1.10.0 §5-5-2
 - **Resolution** (`rules_obvious_reading`): Read 11-3-1 as 'becomes zero or less': destroyed when damage ≥ current HP.
   - Rationale: 5-5-2 states the same rule unambiguously.
 
@@ -1279,7 +1548,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
   - rules 13-1-5-2: “battle damage from the Unit or Base targeted for attack is not received”
   - rules 8-5-2-4: “If there is a Base in the enemy shield area, the attacking Unit deals an amount of battle damage equal to its AP to the Base targeted for attack.”
   - rules 5-17-3-1-1: “An EX Base is a Base token with 0 AP and 3 HP.”
-- Sources: Comprehensive Rules Ver. 1.9.0 §3-5-4; Comprehensive Rules Ver. 1.9.0 §3-5-4-1; Comprehensive Rules Ver. 1.9.0 §13-1-5-2; Comprehensive Rules Ver. 1.9.0 §8-5-2-4; Comprehensive Rules Ver. 1.9.0 §5-17-3-1-1
+- Sources: Comprehensive Rules Ver. 1.10.0 §3-5-4; Comprehensive Rules Ver. 1.10.0 §3-5-4-1; Comprehensive Rules Ver. 1.10.0 §13-1-5-2; Comprehensive Rules Ver. 1.10.0 §8-5-2-4; Comprehensive Rules Ver. 1.10.0 §5-17-3-1-1
 - **Resolution** (`most_defensible_reading`): Bases have 0 AP and never deal battle damage; an attack on a player with a Base present deals the attacker's AP to the Base only (excess is lost, 5-5-6); <First Strike> changes nothing against a Base.
   - Rationale: Every printed Base lacks AP and 8-5-2-4 describes one-way damage; 13-1-5-2's mention of a Base dealing damage has no card that could use it.
 
@@ -1295,7 +1564,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
   - rules 13-1-8-1: “you may exile (number) of (G Generation) cards in your trash from the game”
   - card EXR-001: “(Rest an EX Resource then exile it from the game when paying a cost.)”
   - card GD05-018: “When one of your EX Resources is exiled from the game, you may choose 1 of your Units. During this turn, when it receives enemy damage, reduce it by 3.”
-- Sources: Comprehensive Rules Ver. 1.9.0 §5-12-1; Comprehensive Rules Ver. 1.9.0 §5-17-4; Comprehensive Rules Ver. 1.9.0 §5-17-3-2-3; Comprehensive Rules Ver. 1.9.0 §13-1-8-1; gcg-api card EXR-001_p5 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=EXR-001_p5 (effect); gcg-api card GD05-018 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-018 (effect)
+- Sources: Comprehensive Rules Ver. 1.10.0 §5-12-1; Comprehensive Rules Ver. 1.10.0 §5-17-4; Comprehensive Rules Ver. 1.10.0 §5-17-3-2-3; Comprehensive Rules Ver. 1.10.0 §13-1-8-1; gcg-api card EXR-001_p5 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=EXR-001_p5 (effect); gcg-api card GD05-018 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-018 (effect)
 - **Resolution** (`most_defensible_reading`): 'Exile (from the game)', 'remove' and 'removed from the game' all mean: a card goes to its owner's removal area; a token (including EX Resources/EX Bases) instead leaves the game. An EX Resource used to pay a cost is 'exiled' for GD05-018's trigger.
   - Rationale: Card rulings Q194/Q211/Q213/Q220/Q226/Q229/Q232 place exiled cards in the removal area 'not including tokens', and 5-17-4 keeps tokens out of it.
 
@@ -1307,7 +1576,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
 - Evidence:
   - rules 13-2-11-1: “is a keyword that indicates an effect activates when a pilot that meets the link condition is set.”
   - rules 5-9-1: “This describes placing a Pilot card, or a Command card with a 【Pilot】 effect, beneath a Unit.”
-- Sources: Comprehensive Rules Ver. 1.9.0 §13-2-11-1; Comprehensive Rules Ver. 1.9.0 §5-9-1
+- Sources: Comprehensive Rules Ver. 1.10.0 §13-2-11-1; Comprehensive Rules Ver. 1.10.0 §5-9-1
 - **Resolution** (`rules_obvious_reading`): 【When Linked】 triggers when a Pilot that satisfies the Unit's link condition is paired with it (by playing or by an effect, ruling Q184); it does not trigger when an existing pairing later starts to satisfy the condition.
   - Rationale: 'Set' is the only placement verb used for Pilots here and pairing is the only way a Pilot is placed beneath a Unit.
 
@@ -1321,7 +1590,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
   - rules 5-5-5: “Damage is not dealt when the amount of damage dealt would be zero.”
   - faq Q35: “Can an attack from a Unit with 0 AP destroy an opponent's Shield?”
   - faq Q35: “No, it cannot. Each Shield is treated as having 1 HP.”
-- Sources: Comprehensive Rules Ver. 1.9.0 §8-5-2-2; Comprehensive Rules Ver. 1.9.0 §5-5-5; Rules FAQ Q35 — https://www.gundam-gcg.com/en/rules/faqs/list.php?sub_category=Main%20Phase%3A%20Unit%20Attacks
+- Sources: Comprehensive Rules Ver. 1.10.0 §8-5-2-2; Comprehensive Rules Ver. 1.10.0 §5-5-5; Rules FAQ Q35 — https://www.gundam-gcg.com/en/rules/faqs/list.php?sub_category=Main%20Phase%3A%20Unit%20Attacks
 - **Resolution** (`rules_obvious_reading`): A Unit with 0 AP that attacks a player with no Base and no Shields deals no damage, so the player is not defeated.
   - Rationale: 5-5-5 is general and FAQ Q35 applies the same logic to Shields (0 AP cannot destroy a Shield).
 
@@ -1338,7 +1607,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
   - ruling EB01-010:Q315: “Can I exile the appropriate cards and activate this【Deploy・Development 3】 effect even if there are no rested enemy Units in play?”
   - ruling EB01-010:Q315: “Yes, you can.”
   - rules 13-1-8-1: “you may exile (number) of (G Generation) cards in your trash from the game. If you do, activate the following effect.”
-- Sources: gcg-api card EB01-010 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=EB01-010 (effect); Card ruling EB01-010:Q315 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=EB01-010; Comprehensive Rules Ver. 1.9.0 §13-1-8-1
+- Sources: gcg-api card EB01-010 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=EB01-010 (effect); Card ruling EB01-010:Q315 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=EB01-010; Comprehensive Rules Ver. 1.10.0 §13-1-8-1
 - **Resolution** (`ruling_overrides_text`): The <Development> exile may be performed even if the following ■ effect has no legal target; then the ■ effect does nothing.
   - Rationale: Official card ruling Q315 (June 12, 2026) is authoritative for EB01-010; the same reading is applied to identical wording on other cards.
 
@@ -1352,7 +1621,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
   - ruling EB01-059:Q322: “Can this effect choose an active Resource?”
   - ruling EB01-059:Q322: “Yes, it can. However, nothing occurs since it is already active.”
   - rules 1-3-2-1: “If you are required to put an entity into some state that entity is already in, the entity remains in the state it was in, and the action putting it into that state is not performed.”
-- Sources: gcg-api card EB01-059 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=EB01-059 (effect); Card ruling EB01-059:Q322 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=EB01-059; Comprehensive Rules Ver. 1.9.0 §1-3-2-1
+- Sources: gcg-api card EB01-059 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=EB01-059 (effect); Card ruling EB01-059:Q322 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=EB01-059; Comprehensive Rules Ver. 1.10.0 §1-3-2-1
 - **Resolution** (`ruling_overrides_text`): Targets may be chosen even when the action on them would be a no-op (already active, undamaged, already has the keyword); the no-op part is simply not performed.
   - Rationale: Official card ruling Q322 (June 12, 2026) is authoritative for EB01-059; the same reading is applied to identical wording on other cards.
 
@@ -1366,7 +1635,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
   - ruling EB01-059:Q323: “Can this effect choose an active EX Resource?”
   - ruling EB01-059:Q323: “Yes. It can choose an EX Resource as a Resource. However, nothing occurs since it is already active.”
   - rules 1-3-2-1: “If you are required to put an entity into some state that entity is already in, the entity remains in the state it was in, and the action putting it into that state is not performed.”
-- Sources: gcg-api card EB01-059 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=EB01-059 (effect); Card ruling EB01-059:Q323 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=EB01-059; Comprehensive Rules Ver. 1.9.0 §1-3-2-1
+- Sources: gcg-api card EB01-059 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=EB01-059 (effect); Card ruling EB01-059:Q323 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=EB01-059; Comprehensive Rules Ver. 1.10.0 §1-3-2-1
 - **Resolution** (`ruling_overrides_text`): EX Resources are Resources for 'your Resources' choices; choosing an active one does nothing.
   - Rationale: Official card ruling Q323 (June 12, 2026) is authoritative for EB01-059; the same reading is applied to identical wording on other cards.
 
@@ -1380,7 +1649,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
   - ruling EB01-060:Q324: “Can I exile the appropriate cards and activate this 【When Paired・Development 3】 effect even if there are no enemy Units that are Lv.4 or lower in play?”
   - ruling EB01-060:Q324: “Yes, you can.”
   - rules 13-1-8-1: “you may exile (number) of (G Generation) cards in your trash from the game. If you do, activate the following effect.”
-- Sources: gcg-api card EB01-060 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=EB01-060 (effect); Card ruling EB01-060:Q324 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=EB01-060; Comprehensive Rules Ver. 1.9.0 §13-1-8-1
+- Sources: gcg-api card EB01-060 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=EB01-060 (effect); Card ruling EB01-060:Q324 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=EB01-060; Comprehensive Rules Ver. 1.10.0 §13-1-8-1
 - **Resolution** (`ruling_overrides_text`): The <Development> exile may be performed even if the following ■ effect has no legal target; then the ■ effect does nothing.
   - Rationale: Official card ruling Q324 (June 12, 2026) is authoritative for EB01-060; the same reading is applied to identical wording on other cards.
 
@@ -1395,7 +1664,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
   - ruling EB01-072:Q327: “No. It will only activate if you can choose both Units.”
   - rules 1-3-2: “If a player is required to perform an action and only part of that action is not possible, the player must perform as much of the action as possible.”
   - rules 10-2-2: “If an effect requires choosing a target, that effect will not activate if the target cannot be chosen.”
-- Sources: gcg-api card EB01-072 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=EB01-072 (effect); Card ruling EB01-072:Q327 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=EB01-072; Comprehensive Rules Ver. 1.9.0 §1-3-2; Comprehensive Rules Ver. 1.9.0 §10-2-2
+- Sources: gcg-api card EB01-072 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=EB01-072 (effect); Card ruling EB01-072:Q327 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=EB01-072; Comprehensive Rules Ver. 1.10.0 §1-3-2; Comprehensive Rules Ver. 1.10.0 §10-2-2
 - **Resolution** (`ruling_overrides_text`): 'Choose 1 X and 1 Y' activates (or the Command can be played) only if both targets can be chosen; it never resolves with just one.
   - Rationale: Official card ruling Q327 (June 12, 2026) is authoritative for EB01-072; the same reading is applied to identical wording on other cards.
 
@@ -1409,7 +1678,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
   - ruling GD01-001:Q119: “Does this Unit also gain <Repair: 1> from the first effect?”
   - ruling GD01-001:Q119: “Yes, it does.”
   - rules 10-1-5-4: “Constant effects do not wait to be triggered or activated. They are active from the moment they enter the location where they activate.”
-- Sources: gcg-api card GD01-001 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD01-001 (effect); Card ruling GD01-001:Q119 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD01-001; Comprehensive Rules Ver. 1.9.0 §10-1-5-4
+- Sources: gcg-api card GD01-001 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD01-001 (effect); Card ruling GD01-001:Q119 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD01-001; Comprehensive Rules Ver. 1.10.0 §10-1-5-4
 - **Resolution** (`ruling_overrides_text`): 'All your (X) Units' and 'when one of your (X) Units is deployed' include the source card itself; constant effects (including trait grants) apply before trigger conditions of the entering card are checked.
   - Rationale: Official card ruling Q119 (July 11, 2025) is authoritative for GD01-001; the same reading is applied to identical wording on other cards.
 
@@ -1423,7 +1692,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
   - ruling GD01-003:Q121: “If I only have 10 cards in my trash, can I still choose those 10 cards and activate this 【During Link】【Attack】 effect?”
   - ruling GD01-003:Q121: “No. You cannot activate it if you cannot choose 12 cards.”
   - rules 1-3-2: “If a player is required to perform an action and only part of that action is not possible, the player must perform as much of the action as possible.”
-- Sources: gcg-api card GD01-003 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD01-003 (effect); Card ruling GD01-003:Q121 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD01-003; Comprehensive Rules Ver. 1.9.0 §1-3-2
+- Sources: gcg-api card GD01-003 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD01-003 (effect); Card ruling GD01-003:Q121 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD01-003; Comprehensive Rules Ver. 1.10.0 §1-3-2
 - **Resolution** (`ruling_overrides_text`): An effect that chooses N cards from a public location activates only if N valid cards can be chosen; no partial resolution.
   - Rationale: Official card ruling Q121 (July 10, 2026) is authoritative for GD01-003; the same reading is applied to identical wording on other cards.
 
@@ -1437,7 +1706,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
   - ruling GD01-019:Q124: “This Unit gains <Blocker> while this effect's conditions are satisfied and blocks an enemy Unit. Then, the effect's conditions become unsatisfied, and this Unit loses <Blocker>. At this time, what happens to this Unit's block?”
   - ruling GD01-019:Q124: “Since the block is already established, the two Units continue their battle.”
   - rules 8-3-1: “When activated, this effect changes the attack target of the attacking Unit to the Unit with <Blocker>.”
-- Sources: gcg-api card GD01-019 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD01-019 (effect); Card ruling GD01-019:Q124 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD01-019; Comprehensive Rules Ver. 1.9.0 §8-3-1
+- Sources: gcg-api card GD01-019 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD01-019 (effect); Card ruling GD01-019:Q124 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD01-019; Comprehensive Rules Ver. 1.10.0 §8-3-1
 - **Resolution** (`ruling_overrides_text`): Once <Blocker> has changed the attack target, the new target stays the attack target for the rest of the battle even if the blocker loses <Blocker>.
   - Rationale: Official card ruling Q124 (July 11, 2025) is authoritative for GD01-019; the same reading is applied to identical wording on other cards.
 
@@ -1452,7 +1721,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
   - ruling GD01-023:Q125: “No, you do not.”
   - rules 5-7-1: “This typically describes revealing a card in your hand and paying its cost to use it.”
   - rules 7-5-2-2-3: “Choose the number of Resources necessary to pay its cost and rest them.”
-- Sources: gcg-api card GD01-023 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD01-023 (effect); Card ruling GD01-023:Q125 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD01-023; Comprehensive Rules Ver. 1.9.0 §5-7-1; Comprehensive Rules Ver. 1.9.0 §7-5-2-2-3
+- Sources: gcg-api card GD01-023 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD01-023 (effect); Card ruling GD01-023:Q125 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD01-023; Comprehensive Rules Ver. 1.10.0 §5-7-1; Comprehensive Rules Ver. 1.10.0 §7-5-2-2-3
 - **Resolution** (`ruling_overrides_text`): A card deployed, paired or activated by an effect pays no cost and needs no Lv. check unless the text says 'Pay its cost'; its own 【Deploy】/【When Paired】/【When Linked】 still trigger.
   - Rationale: Official card ruling Q125 (July 11, 2025) is authoritative for GD01-023; the same reading is applied to identical wording on other cards.
 
@@ -1466,7 +1735,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
   - ruling GD01-023:Q162: “Can this effect choose a Command card with a (Newtype) 【Pilot】 effect that is Lv.3 or lower?”
   - ruling GD01-023:Q162: “No, it cannot.”
   - rules 3-4-6-3: “It is a “Pilot” while paired and a “Command card” if it is in any other location.”
-- Sources: gcg-api card GD01-023 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD01-023 (effect); Card ruling GD01-023:Q162 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD01-023; Comprehensive Rules Ver. 1.9.0 §3-4-6-3
+- Sources: gcg-api card GD01-023 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD01-023 (effect); Card ruling GD01-023:Q162 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD01-023; Comprehensive Rules Ver. 1.10.0 §3-4-6-3
 - **Resolution** (`ruling_overrides_text`): Outside the battle area a Command card with a 【Pilot】 effect is only a Command card: it never matches 'Pilot card' or 'Unit card' filters.
   - Rationale: Official card ruling Q162 (July 25, 2025) is authoritative for GD01-023; the same reading is applied to identical wording on other cards.
 
@@ -1480,7 +1749,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
   - ruling GD01-025:Q127: “Does this 【When Paired】 effect activate even if there are no Resources in my resource deck?”
   - ruling GD01-025:Q127: “Yes, it does.”
   - rules 5-20-2: “Even if the text portion preceding the word “Then” in card text text cannot be resolved, resolving the succeeding portion is possible.”
-- Sources: gcg-api card GD01-025 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD01-025 (effect); Card ruling GD01-025:Q127 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD01-025; Comprehensive Rules Ver. 1.9.0 §5-20-2
+- Sources: gcg-api card GD01-025 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD01-025 (effect); Card ruling GD01-025:Q127 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD01-025; Comprehensive Rules Ver. 1.10.0 §5-20-2
 - **Resolution** (`ruling_overrides_text`): With no Resource left in the resource deck the 【When Paired】 effect still activates and 'Then, this Unit gains <First Strike>' still happens (5-20-2); this is the contrast case for Q175/Q233, where a leading condition or 'If you do' governs the 'Then' part.
   - Rationale: Official card ruling Q127 (July 11, 2025) is authoritative for GD01-025; the same reading is applied to identical wording on other cards.
 
@@ -1495,7 +1764,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
   - ruling GD01-028:Q129: “No, it does not.”
   - rules 5-7-1: “This typically describes revealing a card in your hand and paying its cost to use it.”
   - rules 7-5-2-2-3: “Choose the number of Resources necessary to pay its cost and rest them.”
-- Sources: gcg-api card GD01-028 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD01-028 (effect); Card ruling GD01-028:Q129 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD01-028; Comprehensive Rules Ver. 1.9.0 §5-7-1; Comprehensive Rules Ver. 1.9.0 §7-5-2-2-3
+- Sources: gcg-api card GD01-028 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD01-028 (effect); Card ruling GD01-028:Q129 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD01-028; Comprehensive Rules Ver. 1.10.0 §5-7-1; Comprehensive Rules Ver. 1.10.0 §7-5-2-2-3
 - **Resolution** (`ruling_overrides_text`): A card deployed, paired or activated by an effect pays no cost and needs no Lv. check unless the text says 'Pay its cost'; its own 【Deploy】/【When Paired】/【When Linked】 still trigger.
   - Rationale: Official card ruling Q129 (July 11, 2025) is authoritative for GD01-028; the same reading is applied to identical wording on other cards.
 
@@ -1510,7 +1779,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
   - ruling GD01-045:Q131: “No, you do not.”
   - rules 5-7-1: “This typically describes revealing a card in your hand and paying its cost to use it.”
   - rules 7-5-2-2-3: “Choose the number of Resources necessary to pay its cost and rest them.”
-- Sources: gcg-api card GD01-045 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD01-045 (effect); Card ruling GD01-045:Q131 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD01-045; Comprehensive Rules Ver. 1.9.0 §5-7-1; Comprehensive Rules Ver. 1.9.0 §7-5-2-2-3
+- Sources: gcg-api card GD01-045 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD01-045 (effect); Card ruling GD01-045:Q131 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD01-045; Comprehensive Rules Ver. 1.10.0 §5-7-1; Comprehensive Rules Ver. 1.10.0 §7-5-2-2-3
 - **Resolution** (`ruling_overrides_text`): A card deployed, paired or activated by an effect pays no cost and needs no Lv. check unless the text says 'Pay its cost'; its own 【Deploy】/【When Paired】/【When Linked】 still trigger.
   - Rationale: Official card ruling Q131 (July 11, 2025) is authoritative for GD01-045; the same reading is applied to identical wording on other cards.
 
@@ -1524,7 +1793,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
   - ruling GD01-059:Q135: “If this Unit is blocked by an enemy Unit after it attacks the enemy player, does its 【Attack】 effect remain in effect?”
   - ruling GD01-059:Q135: “Yes, it does.”
   - rules 10-3-3: “those targets are chosen at the point in time when the instructions appear in the effect.”
-- Sources: gcg-api card GD01-059 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD01-059 (effect); Card ruling GD01-059:Q135 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD01-059; Comprehensive Rules Ver. 1.9.0 §10-3-3
+- Sources: gcg-api card GD01-059 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD01-059 (effect); Card ruling GD01-059:Q135 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD01-059; Comprehensive Rules Ver. 1.10.0 §10-3-3
 - **Resolution** (`ruling_overrides_text`): Conditions and target restrictions of triggered/activated/command effects are evaluated once, when resolved; later changes neither undo the result nor retrigger it.
   - Rationale: Official card ruling Q135 (July 11, 2025) is authoritative for GD01-059; the same reading is applied to identical wording on other cards.
 
@@ -1538,7 +1807,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
   - ruling GD01-081:Q141: “With the conditions for its effect fulfilled, this Unit gains <Blocker> and blocks an enemy Unit. After that, the conditions become unfulfilled and it loses <Blocker>. At this time, what happens to this Unit's block?”
   - ruling GD01-081:Q141: “Since the block is already established, the two Units continue their battle.”
   - rules 8-3-1: “When activated, this effect changes the attack target of the attacking Unit to the Unit with <Blocker>.”
-- Sources: gcg-api card GD01-081 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD01-081 (effect); Card ruling GD01-081:Q141 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD01-081; Comprehensive Rules Ver. 1.9.0 §8-3-1
+- Sources: gcg-api card GD01-081 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD01-081 (effect); Card ruling GD01-081:Q141 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD01-081; Comprehensive Rules Ver. 1.10.0 §8-3-1
 - **Resolution** (`ruling_overrides_text`): Once <Blocker> has changed the attack target, the new target stays the attack target for the rest of the battle even if the blocker loses <Blocker>.
   - Rationale: Official card ruling Q141 (July 11, 2025) is authoritative for GD01-081; the same reading is applied to identical wording on other cards.
 
@@ -1552,7 +1821,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
   - ruling GD01-094:Q149: “If I destroy a damaged Link Unit with an effect that says to "destroy" a Unit, does this effect activate?”
   - ruling GD01-094:Q149: “No, it does not.”
   - rules 5-10-1: “This describes cards receiving damage equal to or greater than their HP and cards being placed from the field into the trash by effects.”
-- Sources: gcg-api card GD01-094 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD01-094 (effect); Card ruling GD01-094:Q149 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD01-094; Comprehensive Rules Ver. 1.9.0 §5-10-1
+- Sources: gcg-api card GD01-094 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD01-094 (effect); Card ruling GD01-094:Q149 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD01-094; Comprehensive Rules Ver. 1.10.0 §5-10-1
 - **Resolution** (`ruling_overrides_text`): Record the cause of every destruction (battle damage, effect damage, 'destroy' effect, rules). 'Destroyed by an effect' / 'can't be destroyed by effects' mean 'destroy' effects only; 'destroyed with damage' means battle or effect damage; 'with battle damage' means battle damage only.
   - Rationale: Official card ruling Q149 (July 11, 2025) is authoritative for GD01-094; the same reading is applied to identical wording on other cards.
 
@@ -1567,7 +1836,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
   - ruling GD01-103:Q153: “No, you cannot.”
   - rules 1-3-2: “If a player is required to perform an action and only part of that action is not possible, the player must perform as much of the action as possible.”
   - rules 10-2-2: “If an effect requires choosing a target, that effect will not activate if the target cannot be chosen.”
-- Sources: gcg-api card GD01-103 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD01-103 (effect); Card ruling GD01-103:Q153 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD01-103; Comprehensive Rules Ver. 1.9.0 §1-3-2; Comprehensive Rules Ver. 1.9.0 §10-2-2
+- Sources: gcg-api card GD01-103 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD01-103 (effect); Card ruling GD01-103:Q153 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD01-103; Comprehensive Rules Ver. 1.10.0 §1-3-2; Comprehensive Rules Ver. 1.10.0 §10-2-2
 - **Resolution** (`ruling_overrides_text`): 'Choose 1 X and 1 Y' activates (or the Command can be played) only if both targets can be chosen; it never resolves with just one.
   - Rationale: Official card ruling Q153 (July 11, 2025) is authoritative for GD01-103; the same reading is applied to identical wording on other cards.
 
@@ -1581,7 +1850,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
   - ruling GD01-109:Q161: “Can this effect choose a Command card with an (Operation Meteor) or (G Team) 【Pilot】 effect?”
   - ruling GD01-109:Q161: “No, it cannot.”
   - rules 3-4-6-3: “It is a “Pilot” while paired and a “Command card” if it is in any other location.”
-- Sources: gcg-api card GD01-109 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD01-109 (effect); Card ruling GD01-109:Q161 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD01-109; Comprehensive Rules Ver. 1.9.0 §3-4-6-3
+- Sources: gcg-api card GD01-109 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD01-109 (effect); Card ruling GD01-109:Q161 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD01-109; Comprehensive Rules Ver. 1.10.0 §3-4-6-3
 - **Resolution** (`ruling_overrides_text`): Outside the battle area a Command card with a 【Pilot】 effect is only a Command card: it never matches 'Pilot card' or 'Unit card' filters.
   - Rationale: Official card ruling Q161 (July 25, 2025) is authoritative for GD01-109; the same reading is applied to identical wording on other cards.
 
@@ -1596,7 +1865,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
   - ruling GD01-125:Q157: “No, it does not.”
   - rules 5-7-1: “This typically describes revealing a card in your hand and paying its cost to use it.”
   - rules 7-5-2-2-3: “Choose the number of Resources necessary to pay its cost and rest them.”
-- Sources: gcg-api card GD01-125 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD01-125 (effect); Card ruling GD01-125:Q157 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD01-125; Comprehensive Rules Ver. 1.9.0 §5-7-1; Comprehensive Rules Ver. 1.9.0 §7-5-2-2-3
+- Sources: gcg-api card GD01-125 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD01-125 (effect); Card ruling GD01-125:Q157 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD01-125; Comprehensive Rules Ver. 1.10.0 §5-7-1; Comprehensive Rules Ver. 1.10.0 §7-5-2-2-3
 - **Resolution** (`ruling_overrides_text`): A card deployed, paired or activated by an effect pays no cost and needs no Lv. check unless the text says 'Pay its cost'; its own 【Deploy】/【When Paired】/【When Linked】 still trigger.
   - Rationale: Official card ruling Q157 (July 11, 2025) is authoritative for GD01-125; the same reading is applied to identical wording on other cards.
 
@@ -1610,7 +1879,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
   - ruling GD02-002:Q197: “While this Unit is active, another one of my Units destroys an enemy Unit with battle damage. At this time, does this Unit get set as active and the effect end up activated?”
   - ruling GD02-002:Q197: “No. The Unit is already active, so setting it as active is not performed and the effect does not end up activated. This means its once per turn activation has not occurred at this time.”
   - rules 1-3-2-1: “If you are required to put an entity into some state that entity is already in, the entity remains in the state it was in, and the action putting it into that state is not performed.”
-- Sources: gcg-api card GD02-002 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD02-002 (effect); Card ruling GD02-002:Q197 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD02-002; Comprehensive Rules Ver. 1.9.0 §1-3-2-1
+- Sources: gcg-api card GD02-002 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD02-002 (effect); Card ruling GD02-002:Q197 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD02-002; Comprehensive Rules Ver. 1.10.0 §1-3-2-1
 - **Resolution** (`ruling_overrides_text`): If a 【Once per Turn】 effect resolves without performing its action (e.g. setting an already-active Unit active), it does not count as activated for 【Once per Turn】 and may trigger again this turn.
   - Rationale: Official card ruling Q197 (January 09, 2026) is authoritative for GD02-002; the same reading is applied to identical wording on other cards.
 
@@ -1624,7 +1893,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
   - ruling GD02-021:Q175: “If I am Lv.7 or higher, can I draw a card with this effect without discarding one green (Earth Federation) Unit card?”
   - ruling GD02-021:Q175: “No, you cannot.”
   - rules 5-20-2: “Even if the text portion preceding the word “Then” in card text text cannot be resolved, resolving the succeeding portion is possible.”
-- Sources: gcg-api card GD02-021 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD02-021 (effect); Card ruling GD02-021:Q175 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD02-021; Comprehensive Rules Ver. 1.9.0 §5-20-2
+- Sources: gcg-api card GD02-021 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD02-021 (effect); Card ruling GD02-021:Q175 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD02-021; Comprehensive Rules Ver. 1.10.0 §5-20-2
 - **Resolution** (`ruling_overrides_text`): A leading 'If <condition>,' or 'If you do,' governs every following sentence joined by 'Then' in the same effect; 'Then' only makes the next part independent of whether the immediately preceding action succeeded.
   - Rationale: Official card ruling Q175 (October 24, 2025) is authoritative for GD02-021; the same reading is applied to identical wording on other cards.
 
@@ -1639,7 +1908,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
   - ruling GD02-038:Q178: “No, it does not.”
   - rules 5-7-1: “This typically describes revealing a card in your hand and paying its cost to use it.”
   - rules 7-5-2-2-3: “Choose the number of Resources necessary to pay its cost and rest them.”
-- Sources: gcg-api card GD02-038 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD02-038 (effect); Card ruling GD02-038:Q178 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD02-038; Comprehensive Rules Ver. 1.9.0 §5-7-1; Comprehensive Rules Ver. 1.9.0 §7-5-2-2-3
+- Sources: gcg-api card GD02-038 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD02-038 (effect); Card ruling GD02-038:Q178 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD02-038; Comprehensive Rules Ver. 1.10.0 §5-7-1; Comprehensive Rules Ver. 1.10.0 §7-5-2-2-3
 - **Resolution** (`ruling_overrides_text`): A card deployed, paired or activated by an effect pays no cost and needs no Lv. check unless the text says 'Pay its cost'; its own 【Deploy】/【When Paired】/【When Linked】 still trigger.
   - Rationale: Official card ruling Q178 (October 24, 2025) is authoritative for GD02-038; the same reading is applied to identical wording on other cards.
 
@@ -1654,7 +1923,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
   - ruling GD02-071:Q183: “No, you do not.”
   - rules 5-7-1: “This typically describes revealing a card in your hand and paying its cost to use it.”
   - rules 7-5-2-2-3: “Choose the number of Resources necessary to pay its cost and rest them.”
-- Sources: gcg-api card GD02-071 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD02-071 (effect); Card ruling GD02-071:Q183 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD02-071; Comprehensive Rules Ver. 1.9.0 §5-7-1; Comprehensive Rules Ver. 1.9.0 §7-5-2-2-3
+- Sources: gcg-api card GD02-071 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD02-071 (effect); Card ruling GD02-071:Q183 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD02-071; Comprehensive Rules Ver. 1.10.0 §5-7-1; Comprehensive Rules Ver. 1.10.0 §7-5-2-2-3
 - **Resolution** (`ruling_overrides_text`): A card deployed, paired or activated by an effect pays no cost and needs no Lv. check unless the text says 'Pay its cost'; its own 【Deploy】/【When Paired】/【When Linked】 still trigger.
   - Rationale: Official card ruling Q183 (October 24, 2025) is authoritative for GD02-071; the same reading is applied to identical wording on other cards.
 
@@ -1668,7 +1937,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
   - ruling GD02-076:Q186: “With the conditions for its effect fulfilled, this Unit gains <Blocker> and blocks an enemy Unit. After that, the conditions become unfulfilled and it loses <Blocker>. At this time, what happens to this Unit's block?”
   - ruling GD02-076:Q186: “Since the block is already established, the two Units continue their battle.”
   - rules 8-3-1: “When activated, this effect changes the attack target of the attacking Unit to the Unit with <Blocker>.”
-- Sources: gcg-api card GD02-076 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD02-076 (effect); Card ruling GD02-076:Q186 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD02-076; Comprehensive Rules Ver. 1.9.0 §8-3-1
+- Sources: gcg-api card GD02-076 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD02-076 (effect); Card ruling GD02-076:Q186 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD02-076; Comprehensive Rules Ver. 1.10.0 §8-3-1
 - **Resolution** (`ruling_overrides_text`): Once <Blocker> has changed the attack target, the new target stays the attack target for the rest of the battle even if the blocker loses <Blocker>.
   - Rationale: Official card ruling Q186 (October 24, 2025) is authoritative for GD02-076; the same reading is applied to identical wording on other cards.
 
@@ -1682,7 +1951,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
   - ruling GD02-082:Q187: “With the conditions for its effect fulfilled, this Unit gains <Blocker> and blocks an enemy Unit. After that, the conditions become unfulfilled and it loses <Blocker>. At this time, what happens to this Unit's block?”
   - ruling GD02-082:Q187: “Since the block is already established, the two Units continue their battle.”
   - rules 8-3-1: “When activated, this effect changes the attack target of the attacking Unit to the Unit with <Blocker>.”
-- Sources: gcg-api card GD02-082 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD02-082 (effect); Card ruling GD02-082:Q187 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD02-082; Comprehensive Rules Ver. 1.9.0 §8-3-1
+- Sources: gcg-api card GD02-082 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD02-082 (effect); Card ruling GD02-082:Q187 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD02-082; Comprehensive Rules Ver. 1.10.0 §8-3-1
 - **Resolution** (`ruling_overrides_text`): Once <Blocker> has changed the attack target, the new target stays the attack target for the rest of the battle even if the blocker loses <Blocker>.
   - Rationale: Official card ruling Q187 (October 24, 2025) is authoritative for GD02-082; the same reading is applied to identical wording on other cards.
 
@@ -1697,7 +1966,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
   - ruling GD02-093:Q190: “Yes, it does.”
   - rules 8-5-3-2-3: “If both battling Units are destroyed, their destruction is treated as happening simultaneously.”
   - rules 10-1-6-4: “If a card with a triggered effect leaves the location where it is active while that effect is waiting to be activated after it was triggered, the effect still activates.”
-- Sources: gcg-api card GD02-093 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD02-093 (effect); Card ruling GD02-093:Q190 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD02-093; Comprehensive Rules Ver. 1.9.0 §8-5-3-2-3; Comprehensive Rules Ver. 1.9.0 §10-1-6-4
+- Sources: gcg-api card GD02-093 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD02-093 (effect); Card ruling GD02-093:Q190 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD02-093; Comprehensive Rules Ver. 1.10.0 §8-5-3-2-3; Comprehensive Rules Ver. 1.10.0 §10-1-6-4
 - **Resolution** (`ruling_overrides_text`): 'When this Unit destroys an enemy … with (battle) damage' triggers even if this Unit is destroyed simultaneously; the pending trigger resolves after both Units are in the trash (parts that need this Unit on the field do nothing).
   - Rationale: Official card ruling Q190 (October 24, 2025) is authoritative for GD02-093; the same reading is applied to identical wording on other cards.
 
@@ -1711,7 +1980,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
   - ruling GD02-106:Q192: “Does "your shield area cards can't receive damage from enemy Units that are Lv.3 or lower" mean they can't receive battle damage or damage from effects like <Breach>?”
   - ruling GD02-106:Q192: “Yes, that is correct.”
   - rules 13-1-2-1: “deals (amount) damage to the first card in the shield area of the opponent who owns the destroyed Unit.”
-- Sources: gcg-api card GD02-106 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD02-106 (effect); Card ruling GD02-106:Q192 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD02-106; Comprehensive Rules Ver. 1.9.0 §13-1-2-1
+- Sources: gcg-api card GD02-106 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD02-106 (effect); Card ruling GD02-106:Q192 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD02-106; Comprehensive Rules Ver. 1.10.0 §13-1-2-1
 - **Resolution** (`ruling_overrides_text`): <Breach> damage, and any damage dealt by a Unit's own effects (including effects it has from its Pilot), is effect damage attributed to that Unit: 'battle damage' prevention and triggers ignore it; 'damage from enemy Units' prevention and effect-damage reduction apply to it; 'when this Unit destroys … with damage' counts it.
   - Rationale: Official card ruling Q192 (October 24, 2025) is authoritative for GD02-106; the same reading is applied to identical wording on other cards.
 
@@ -1725,7 +1994,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
   - ruling GD02-111:Q194: “Where are the cards exiled by this effect placed?”
   - ruling GD02-111:Q194: “In the removal area. Since this is separate from the trash, set aside a location where only exiled cards are placed (not including tokens).”
   - rules 5-12-1: “This describes a card being placed from any location into the removal area.”
-- Sources: gcg-api card GD02-111 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD02-111 (effect); Card ruling GD02-111:Q194 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD02-111; Comprehensive Rules Ver. 1.9.0 §5-12-1
+- Sources: gcg-api card GD02-111 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD02-111 (effect); Card ruling GD02-111:Q194 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD02-111; Comprehensive Rules Ver. 1.10.0 §5-12-1
 - **Resolution** (`ruling_overrides_text`): Exiled cards go to their owner's removal area (public, 4-7); an exiled token leaves the game instead (5-17-2-5).
   - Rationale: Official card ruling Q194 (October 24, 2025) is authoritative for GD02-111; the same reading is applied to identical wording on other cards.
 
@@ -1739,7 +2008,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
   - ruling GD03-001:Q209: “Does this second effect's "When this effect destroys an enemy Unit, draw 1" mean I can draw even when the Unit dealt damage by this effect is destroyed later in battle or by some other means?”
   - ruling GD03-001:Q209: “No, you cannot. You can only draw when this effect's "Choose 1 rested enemy Unit. Deal 1 damage to it" deals damage and destroys the Unit.”
   - rules 10-3-1-4: “Resolve all events which occur in response to activating the effect.”
-- Sources: gcg-api card GD03-001 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD03-001 (effect); Card ruling GD03-001:Q209 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD03-001; Comprehensive Rules Ver. 1.9.0 §10-3-1-4
+- Sources: gcg-api card GD03-001 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD03-001 (effect); Card ruling GD03-001:Q209 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD03-001; Comprehensive Rules Ver. 1.10.0 §10-3-1-4
 - **Resolution** (`ruling_overrides_text`): 'When this effect destroys an enemy Unit' is checked right after this effect's damage is dealt (rules management); later destruction does not count.
   - Rationale: Official card ruling Q209 (January 16, 2026) is authoritative for GD03-001; the same reading is applied to identical wording on other cards.
 
@@ -1753,7 +2022,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
   - ruling GD03-009:Q211: “Where are the cards exiled by this effect placed?”
   - ruling GD03-009:Q211: “In the removal area. Since this is separate from the trash, set aside a location where only exiled cards are placed (not including tokens).”
   - rules 5-12-1: “This describes a card being placed from any location into the removal area.”
-- Sources: gcg-api card GD03-009 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD03-009 (effect); Card ruling GD03-009:Q211 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD03-009; Comprehensive Rules Ver. 1.9.0 §5-12-1
+- Sources: gcg-api card GD03-009 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD03-009 (effect); Card ruling GD03-009:Q211 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD03-009; Comprehensive Rules Ver. 1.10.0 §5-12-1
 - **Resolution** (`ruling_overrides_text`): Exiled cards go to their owner's removal area (public, 4-7); an exiled token leaves the game instead (5-17-2-5).
   - Rationale: Official card ruling Q211 (January 16, 2026) is authoritative for GD03-009; the same reading is applied to identical wording on other cards.
 
@@ -1767,7 +2036,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
   - ruling GD03-015:Q213: “Where are the cards exiled by this effect placed?”
   - ruling GD03-015:Q213: “In the removal area. Since this is separate from the trash, set aside a location where only exiled cards are placed (not including tokens).”
   - rules 5-12-1: “This describes a card being placed from any location into the removal area.”
-- Sources: gcg-api card GD03-015 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD03-015 (effect); Card ruling GD03-015:Q213 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD03-015; Comprehensive Rules Ver. 1.9.0 §5-12-1
+- Sources: gcg-api card GD03-015 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD03-015 (effect); Card ruling GD03-015:Q213 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD03-015; Comprehensive Rules Ver. 1.10.0 §5-12-1
 - **Resolution** (`ruling_overrides_text`): Exiled cards go to their owner's removal area (public, 4-7); an exiled token leaves the game instead (5-17-2-5).
   - Rationale: Official card ruling Q213 (January 16, 2026) is authoritative for GD03-015; the same reading is applied to identical wording on other cards.
 
@@ -1781,7 +2050,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
   - ruling GD03-019:Q214: “What happens if there are multiple Units in play that attract the attack target with effects like "Enemy Units choose this rested Unit as their attack target if possible when attacking"?”
   - ruling GD03-019:Q214: “Choose one of the Units attracting the attack target as the attack target.”
   - rules 8-2-1: “The attack target can be either the opposing player or a rested enemy Unit.”
-- Sources: gcg-api card GD03-019 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD03-019 (effect); Card ruling GD03-019:Q214 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD03-019; Comprehensive Rules Ver. 1.9.0 §8-2-1
+- Sources: gcg-api card GD03-019 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD03-019 (effect); Card ruling GD03-019:Q214 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD03-019; Comprehensive Rules Ver. 1.10.0 §8-2-1
 - **Resolution** (`ruling_overrides_text`): When declaring an attack: 'must choose that Unit' (GD04-107) outranks 'choose … if possible' attractors; with several eligible forced/attracting Units the attacker picks one; a forced Unit that is not a legal target (active without an active-target permission, or gone) imposes nothing; constraints apply at declaration only and never retarget an attack in progress.
   - Rationale: Official card ruling Q214 (January 16, 2026) is authoritative for GD03-019; the same reading is applied to identical wording on other cards.
 
@@ -1796,7 +2065,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
   - ruling GD03-022:Q215: “Yes, it does.”
   - rules 8-5-3-2-3: “If both battling Units are destroyed, their destruction is treated as happening simultaneously.”
   - rules 10-1-6-4: “If a card with a triggered effect leaves the location where it is active while that effect is waiting to be activated after it was triggered, the effect still activates.”
-- Sources: gcg-api card GD03-022 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD03-022 (effect); Card ruling GD03-022:Q215 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD03-022; Comprehensive Rules Ver. 1.9.0 §8-5-3-2-3; Comprehensive Rules Ver. 1.9.0 §10-1-6-4
+- Sources: gcg-api card GD03-022 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD03-022 (effect); Card ruling GD03-022:Q215 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD03-022; Comprehensive Rules Ver. 1.10.0 §8-5-3-2-3; Comprehensive Rules Ver. 1.10.0 §10-1-6-4
 - **Resolution** (`ruling_overrides_text`): 'When this Unit destroys an enemy … with (battle) damage' triggers even if this Unit is destroyed simultaneously; the pending trigger resolves after both Units are in the trash (parts that need this Unit on the field do nothing).
   - Rationale: Official card ruling Q215 (January 16, 2026) is authoritative for GD03-022; the same reading is applied to identical wording on other cards.
 
@@ -1810,7 +2079,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
   - ruling GD03-025:Q216: “What happens if there are multiple Units in play that attract the attack target with effects like "Enemy Units choose one of your rested (Maganac Corps) Units as their attack target if possible when attacking"?”
   - ruling GD03-025:Q216: “Choose one of the Units attracting the attack target as the attack target.”
   - rules 8-2-1: “The attack target can be either the opposing player or a rested enemy Unit.”
-- Sources: gcg-api card GD03-025 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD03-025 (effect); Card ruling GD03-025:Q216 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD03-025; Comprehensive Rules Ver. 1.9.0 §8-2-1
+- Sources: gcg-api card GD03-025 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD03-025 (effect); Card ruling GD03-025:Q216 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD03-025; Comprehensive Rules Ver. 1.10.0 §8-2-1
 - **Resolution** (`ruling_overrides_text`): When declaring an attack: 'must choose that Unit' (GD04-107) outranks 'choose … if possible' attractors; with several eligible forced/attracting Units the attacker picks one; a forced Unit that is not a legal target (active without an active-target permission, or gone) imposes nothing; constraints apply at declaration only and never retarget an attack in progress.
   - Rationale: Official card ruling Q216 (January 16, 2026) is authoritative for GD03-025; the same reading is applied to identical wording on other cards.
 
@@ -1825,7 +2094,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
   - ruling GD03-029:Q217: “Yes, it does.”
   - rules 8-5-3-2-3: “If both battling Units are destroyed, their destruction is treated as happening simultaneously.”
   - rules 10-1-6-4: “If a card with a triggered effect leaves the location where it is active while that effect is waiting to be activated after it was triggered, the effect still activates.”
-- Sources: gcg-api card GD03-029 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD03-029 (effect); Card ruling GD03-029:Q217 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD03-029; Comprehensive Rules Ver. 1.9.0 §8-5-3-2-3; Comprehensive Rules Ver. 1.9.0 §10-1-6-4
+- Sources: gcg-api card GD03-029 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD03-029 (effect); Card ruling GD03-029:Q217 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD03-029; Comprehensive Rules Ver. 1.10.0 §8-5-3-2-3; Comprehensive Rules Ver. 1.10.0 §10-1-6-4
 - **Resolution** (`ruling_overrides_text`): 'When this Unit destroys an enemy … with (battle) damage' triggers even if this Unit is destroyed simultaneously; the pending trigger resolves after both Units are in the trash (parts that need this Unit on the field do nothing).
   - Rationale: Official card ruling Q217 (January 16, 2026) is authoritative for GD03-029; the same reading is applied to identical wording on other cards.
 
@@ -1839,7 +2108,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
   - ruling GD03-035:Q220: “Where are the cards exiled by this effect placed?”
   - ruling GD03-035:Q220: “In the removal area. Since this is separate from the trash, set aside a location where only exiled cards are placed (not including tokens).”
   - rules 5-12-1: “This describes a card being placed from any location into the removal area.”
-- Sources: gcg-api card GD03-035 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD03-035 (effect); Card ruling GD03-035:Q220 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD03-035; Comprehensive Rules Ver. 1.9.0 §5-12-1
+- Sources: gcg-api card GD03-035 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD03-035 (effect); Card ruling GD03-035:Q220 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD03-035; Comprehensive Rules Ver. 1.10.0 §5-12-1
 - **Resolution** (`ruling_overrides_text`): Exiled cards go to their owner's removal area (public, 4-7); an exiled token leaves the game instead (5-17-2-5).
   - Rationale: Official card ruling Q220 (January 16, 2026) is authoritative for GD03-035; the same reading is applied to identical wording on other cards.
 
@@ -1853,7 +2122,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
   - ruling GD03-037:Q222: “Does this Unit gain <First Strike> when battling a Unit with a 【During Pair】【Destroyed】 or 【During Link】【Destroyed】 effect that is not paired with a Pilot?”
   - ruling GD03-037:Q222: “No, it does not.”
   - rules 13-2-10-1: “【During Pair】 is the keyword for an effect that is possessed by the Unit while a Pilot is paired with it.”
-- Sources: gcg-api card GD03-037 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD03-037 (effect); Card ruling GD03-037:Q222 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD03-037; Comprehensive Rules Ver. 1.9.0 §13-2-10-1
+- Sources: gcg-api card GD03-037 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD03-037 (effect); Card ruling GD03-037:Q222 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD03-037; Comprehensive Rules Ver. 1.10.0 §13-2-10-1
 - **Resolution** (`ruling_overrides_text`): An effect gated by 【During Pair】/【During Link】/'while …' is not possessed while the gate is closed (so it does not satisfy 'Unit with a 【Destroyed】 effect' or 'Unit card with <Keyword>'); each 【During Pair】 prefix governs only its own effect.
   - Rationale: Official card ruling Q222 (January 16, 2026) is authoritative for GD03-037; the same reading is applied to identical wording on other cards.
 
@@ -1867,7 +2136,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
   - ruling GD03-039:Q223: “For this effect, do I have to choose a friendly Unit if there is one it can choose in play even when there are no enemy Units with 2 or less AP in play?”
   - ruling GD03-039:Q223: “Yes. Choose a friendly Unit if there is one it can choose in play.”
   - rules 10-3-3: “those targets are chosen at the point in time when the instructions appear in the effect.”
-- Sources: gcg-api card GD03-039 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD03-039 (effect); Card ruling GD03-039:Q223 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD03-039; Comprehensive Rules Ver. 1.9.0 §10-3-3
+- Sources: gcg-api card GD03-039 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD03-039 (effect); Card ruling GD03-039:Q223 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD03-039; Comprehensive Rules Ver. 1.10.0 §10-3-3
 - **Resolution** (`ruling_overrides_text`): Triggered effects choose targets sentence by sentence: an available first target must be chosen (and the action performed) even if a later 'If you do' target does not exist. (Commands differ: 10-1-8-1-2.)
   - Rationale: Official card ruling Q223 (January 16, 2026) is authoritative for GD03-039; the same reading is applied to identical wording on other cards.
 
@@ -1881,7 +2150,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
   - ruling GD03-049:Q224: “When choosing a Unit with the lowest HP for this second effect, do I look at the base HP or the current HP that is reduced by damage and such?”
   - ruling GD03-049:Q224: “Choose a Unit with the lowest current HP.”
   - rules 2-8-2: “A card with HP is destroyed when that HP becomes zero.”
-- Sources: gcg-api card GD03-049 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD03-049 (effect); Card ruling GD03-049:Q224 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD03-049; Comprehensive Rules Ver. 1.9.0 §2-8-2
+- Sources: gcg-api card GD03-049 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD03-049 (effect); Card ruling GD03-049:Q224 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD03-049; Comprehensive Rules Ver. 1.10.0 §2-8-2
 - **Resolution** (`ruling_overrides_text`): Every HP reference in card text (filters, 'lowest HP') uses current HP = modified HP minus damage.
   - Rationale: Official card ruling Q224 (January 16, 2026) is authoritative for GD03-049; the same reading is applied to identical wording on other cards.
 
@@ -1895,7 +2164,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
   - ruling GD03-049:Q225: “Does this second effect's "choose 1 enemy Unit with the lowest HP" mean I choose one Unit with 3 HP when there are two Units with 3 HP and one Unit with 5 HP on the enemy's field?”
   - ruling GD03-049:Q225: “Yes. When there are multiple Units with the lowest HP, choose one of them.”
   - rules 1-3-4: “When both players are required for any reason to make a selection simultaneously, the active player chooses first.”
-- Sources: gcg-api card GD03-049 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD03-049 (effect); Card ruling GD03-049:Q225 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD03-049; Comprehensive Rules Ver. 1.9.0 §1-3-4
+- Sources: gcg-api card GD03-049 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD03-049 (effect); Card ruling GD03-049:Q225 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD03-049; Comprehensive Rules Ver. 1.10.0 §1-3-4
 - **Resolution** (`ruling_overrides_text`): 'Choose 1 … with the highest/lowest X' lets the chooser pick any tied Unit; non-choosing wording ('Units with the lowest Lv.') affects all tied Units.
   - Rationale: Official card ruling Q225 (January 16, 2026) is authoritative for GD03-049; the same reading is applied to identical wording on other cards.
 
@@ -1909,7 +2178,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
   - ruling GD03-050:Q226: “Where are the cards exiled by this effect placed?”
   - ruling GD03-050:Q226: “In the removal area. Since this is separate from the trash, set aside a location where only exiled cards are placed (not including tokens).”
   - rules 5-12-1: “This describes a card being placed from any location into the removal area.”
-- Sources: gcg-api card GD03-050 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD03-050 (effect); Card ruling GD03-050:Q226 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD03-050; Comprehensive Rules Ver. 1.9.0 §5-12-1
+- Sources: gcg-api card GD03-050 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD03-050 (effect); Card ruling GD03-050:Q226 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD03-050; Comprehensive Rules Ver. 1.10.0 §5-12-1
 - **Resolution** (`ruling_overrides_text`): Exiled cards go to their owner's removal area (public, 4-7); an exiled token leaves the game instead (5-17-2-5).
   - Rationale: Official card ruling Q226 (January 16, 2026) is authoritative for GD03-050; the same reading is applied to identical wording on other cards.
 
@@ -1923,7 +2192,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
   - ruling GD03-052:Q228: “If this Unit deals battle damage and destroys an enemy Unit with its second effect, does that fall within the criterion "when this Unit destroys an enemy Unit with battle damage"?”
   - ruling GD03-052:Q228: “No, it does not. That is destruction from an effect.”
   - rules 5-10-1: “This describes cards receiving damage equal to or greater than their HP and cards being placed from the field into the trash by effects.”
-- Sources: gcg-api card GD03-052 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD03-052 (effect); Card ruling GD03-052:Q228 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD03-052; Comprehensive Rules Ver. 1.9.0 §5-10-1
+- Sources: gcg-api card GD03-052 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD03-052 (effect); Card ruling GD03-052:Q228 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD03-052; Comprehensive Rules Ver. 1.10.0 §5-10-1
 - **Resolution** (`ruling_overrides_text`): Record the cause of every destruction (battle damage, effect damage, 'destroy' effect, rules). 'Destroyed by an effect' / 'can't be destroyed by effects' mean 'destroy' effects only; 'destroyed with damage' means battle or effect damage; 'with battle damage' means battle damage only.
   - Rationale: Official card ruling Q228 (January 16, 2026) is authoritative for GD03-052; the same reading is applied to identical wording on other cards.
 
@@ -1937,7 +2206,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
   - ruling GD03-054:Q229: “Where are the cards exiled by this effect placed?”
   - ruling GD03-054:Q229: “In the removal area. Since this is separate from the trash, set aside a location where only exiled cards are placed (not including tokens).”
   - rules 5-12-1: “This describes a card being placed from any location into the removal area.”
-- Sources: gcg-api card GD03-054 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD03-054 (effect); Card ruling GD03-054:Q229 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD03-054; Comprehensive Rules Ver. 1.9.0 §5-12-1
+- Sources: gcg-api card GD03-054 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD03-054 (effect); Card ruling GD03-054:Q229 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD03-054; Comprehensive Rules Ver. 1.10.0 §5-12-1
 - **Resolution** (`ruling_overrides_text`): Exiled cards go to their owner's removal area (public, 4-7); an exiled token leaves the game instead (5-17-2-5).
   - Rationale: Official card ruling Q229 (January 16, 2026) is authoritative for GD03-054; the same reading is applied to identical wording on other cards.
 
@@ -1952,7 +2221,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
   - ruling GD03-056:Q230: “No. It will only activate if you can choose both Units.”
   - rules 1-3-2: “If a player is required to perform an action and only part of that action is not possible, the player must perform as much of the action as possible.”
   - rules 10-2-2: “If an effect requires choosing a target, that effect will not activate if the target cannot be chosen.”
-- Sources: gcg-api card GD03-056 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD03-056 (effect); Card ruling GD03-056:Q230 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD03-056; Comprehensive Rules Ver. 1.9.0 §1-3-2; Comprehensive Rules Ver. 1.9.0 §10-2-2
+- Sources: gcg-api card GD03-056 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD03-056 (effect); Card ruling GD03-056:Q230 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD03-056; Comprehensive Rules Ver. 1.10.0 §1-3-2; Comprehensive Rules Ver. 1.10.0 §10-2-2
 - **Resolution** (`ruling_overrides_text`): 'Choose 1 X and 1 Y' activates (or the Command can be played) only if both targets can be chosen; it never resolves with just one.
   - Rationale: Official card ruling Q230 (January 16, 2026) is authoritative for GD03-056; the same reading is applied to identical wording on other cards.
 
@@ -1966,7 +2235,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
   - ruling GD03-059:Q232: “Where are the cards exiled by this effect placed?”
   - ruling GD03-059:Q232: “In the removal area. Since this is separate from the trash, set aside a location where only exiled cards are placed (not including tokens).”
   - rules 5-12-1: “This describes a card being placed from any location into the removal area.”
-- Sources: gcg-api card GD03-059 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD03-059 (effect); Card ruling GD03-059:Q232 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD03-059; Comprehensive Rules Ver. 1.9.0 §5-12-1
+- Sources: gcg-api card GD03-059 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD03-059 (effect); Card ruling GD03-059:Q232 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD03-059; Comprehensive Rules Ver. 1.10.0 §5-12-1
 - **Resolution** (`ruling_overrides_text`): Exiled cards go to their owner's removal area (public, 4-7); an exiled token leaves the game instead (5-17-2-5).
   - Rationale: Official card ruling Q232 (January 16, 2026) is authoritative for GD03-059; the same reading is applied to identical wording on other cards.
 
@@ -1980,7 +2249,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
   - ruling GD03-072:Q233: “For this second effect, do I have to discard one card even if I don't have a (Triple Ship Alliance) Unit in play?”
   - ruling GD03-072:Q233: “No. It won't activate if you don't have a (Triple Ship Alliance) Unit in play, so you don't have to discard.”
   - rules 5-20-2: “Even if the text portion preceding the word “Then” in card text text cannot be resolved, resolving the succeeding portion is possible.”
-- Sources: gcg-api card GD03-072 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD03-072 (effect); Card ruling GD03-072:Q233 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD03-072; Comprehensive Rules Ver. 1.9.0 §5-20-2
+- Sources: gcg-api card GD03-072 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD03-072 (effect); Card ruling GD03-072:Q233 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD03-072; Comprehensive Rules Ver. 1.10.0 §5-20-2
 - **Resolution** (`ruling_overrides_text`): A leading 'If <condition>,' or 'If you do,' governs every following sentence joined by 'Then' in the same effect; 'Then' only makes the next part independent of whether the immediately preceding action succeeded.
   - Rationale: Official card ruling Q233 (January 16, 2026) is authoritative for GD03-072; the same reading is applied to identical wording on other cards.
 
@@ -1994,7 +2263,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
   - ruling GD03-074:Q234: “What happens if there are multiple Units in play that attract the attack target with effects like "Enemy Units choose this rested Unit as their attack target if possible when attacking"?”
   - ruling GD03-074:Q234: “Choose one of the Units attracting the attack target as the attack target.”
   - rules 8-2-1: “The attack target can be either the opposing player or a rested enemy Unit.”
-- Sources: gcg-api card GD03-074 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD03-074 (effect); Card ruling GD03-074:Q234 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD03-074; Comprehensive Rules Ver. 1.9.0 §8-2-1
+- Sources: gcg-api card GD03-074 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD03-074 (effect); Card ruling GD03-074:Q234 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD03-074; Comprehensive Rules Ver. 1.10.0 §8-2-1
 - **Resolution** (`ruling_overrides_text`): When declaring an attack: 'must choose that Unit' (GD04-107) outranks 'choose … if possible' attractors; with several eligible forced/attracting Units the attacker picks one; a forced Unit that is not a legal target (active without an active-target permission, or gone) imposes nothing; constraints apply at declaration only and never retarget an attack in progress.
   - Rationale: Official card ruling Q234 (January 16, 2026) is authoritative for GD03-074; the same reading is applied to identical wording on other cards.
 
@@ -2008,7 +2277,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
   - ruling GD03-076:Q235: “When an enemy Unit is destroyed by battle damage, does this effect return it to the hand?”
   - ruling GD03-076:Q235: “No, it does not.”
   - rules 4-1-5: “When a card moves between locations, unless specified otherwise, treat it as a new card in the new location.”
-- Sources: gcg-api card GD03-076 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD03-076 (effect); Card ruling GD03-076:Q235 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD03-076; Comprehensive Rules Ver. 1.9.0 §4-1-5
+- Sources: gcg-api card GD03-076 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD03-076 (effect); Card ruling GD03-076:Q235 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD03-076; Comprehensive Rules Ver. 1.10.0 §4-1-5
 - **Resolution** (`ruling_overrides_text`): If the referenced Unit has left the field (e.g. destroyed by the same battle damage) the follow-up action on it does nothing.
   - Rationale: Official card ruling Q235 (January 16, 2026) is authoritative for GD03-076; the same reading is applied to identical wording on other cards.
 
@@ -2022,7 +2291,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
   - ruling GD03-079:Q425: “If I have this Unit and GD02-069 Zeta Gundam in play but there are no friendly Bases in play, can Zeta Gundam rest this Unit instead of a Base and activate its 【Activate･Main】 effect?”
   - ruling GD03-079:Q425: “No, it cannot. When you rest your Base, this effect enables you to rest the Unit instead, so if the prerequisite Base isn't present, the Unit cannot be rested in place of it.”
   - rules 10-1-9-1: “When some event would occur, a substitution effect replaces the implementation of that event with another event.”
-- Sources: gcg-api card GD03-079 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD03-079 (effect); Card ruling GD03-079:Q425 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD03-079; Comprehensive Rules Ver. 1.9.0 §10-1-9-1
+- Sources: gcg-api card GD03-079 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD03-079 (effect); Card ruling GD03-079:Q425 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD03-079; Comprehensive Rules Ver. 1.10.0 §10-1-9-1
 - **Resolution** (`ruling_overrides_text`): 'Rest X instead' may replace resting a Unit/Base only if that Unit/Base could have been rested, and replaces exactly one of them.
   - Rationale: Official card ruling Q425 (July 10, 2026) is authoritative for GD03-079; the same reading is applied to identical wording on other cards.
 
@@ -2036,7 +2305,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
   - ruling GD03-081:Q236: “For this effect, can this Unit's own deployment satisfy the condition "during a turn when one of your (Superpower Bloc)/(UN) Units is deployed"?”
   - ruling GD03-081:Q236: “Yes, it can, and it can attack on that turn if it is a Link Unit.”
   - rules 10-1-5-4: “Constant effects do not wait to be triggered or activated. They are active from the moment they enter the location where they activate.”
-- Sources: gcg-api card GD03-081 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD03-081 (effect); Card ruling GD03-081:Q236 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD03-081; Comprehensive Rules Ver. 1.9.0 §10-1-5-4
+- Sources: gcg-api card GD03-081 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD03-081 (effect); Card ruling GD03-081:Q236 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD03-081; Comprehensive Rules Ver. 1.10.0 §10-1-5-4
 - **Resolution** (`ruling_overrides_text`): 'All your (X) Units' and 'when one of your (X) Units is deployed' include the source card itself; constant effects (including trait grants) apply before trigger conditions of the entering card are checked.
   - Rationale: Official card ruling Q236 (January 16, 2026) is authoritative for GD03-081; the same reading is applied to identical wording on other cards.
 
@@ -2051,7 +2320,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
   - ruling GD03-097:Q241: “Yes, it does.”
   - rules 8-5-3-2-3: “If both battling Units are destroyed, their destruction is treated as happening simultaneously.”
   - rules 10-1-6-4: “If a card with a triggered effect leaves the location where it is active while that effect is waiting to be activated after it was triggered, the effect still activates.”
-- Sources: gcg-api card GD03-097 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD03-097 (effect); Card ruling GD03-097:Q241 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD03-097; Comprehensive Rules Ver. 1.9.0 §8-5-3-2-3; Comprehensive Rules Ver. 1.9.0 §10-1-6-4
+- Sources: gcg-api card GD03-097 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD03-097 (effect); Card ruling GD03-097:Q241 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD03-097; Comprehensive Rules Ver. 1.10.0 §8-5-3-2-3; Comprehensive Rules Ver. 1.10.0 §10-1-6-4
 - **Resolution** (`ruling_overrides_text`): 'When this Unit destroys an enemy … with (battle) damage' triggers even if this Unit is destroyed simultaneously; the pending trigger resolves after both Units are in the trash (parts that need this Unit on the field do nothing).
   - Rationale: Official card ruling Q241 (January 16, 2026) is authoritative for GD03-097; the same reading is applied to identical wording on other cards.
 
@@ -2065,7 +2334,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
   - ruling GD03-101:Q244: “I play this card when there is only one A Healthy Curiosity card in my trash. At this time, can this effect choose one enemy Unit with 4 or less HP and rest it?”
   - ruling GD03-101:Q244: “No, it cannot.”
   - rules 3-4-3: “Commands with active command effects are not considered to be located within any specific game location until those effects end.”
-- Sources: gcg-api card GD03-101 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD03-101 (effect); Card ruling GD03-101:Q244 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD03-101; Comprehensive Rules Ver. 1.9.0 §3-4-3
+- Sources: gcg-api card GD03-101 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD03-101 (effect); Card ruling GD03-101:Q244 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD03-101; Comprehensive Rules Ver. 1.10.0 §3-4-3
 - **Resolution** (`ruling_overrides_text`): While a Command resolves it is in no location; trash-count conditions on it count only cards already in the trash.
   - Rationale: Official card ruling Q244 (January 16, 2026) is authoritative for GD03-101; the same reading is applied to identical wording on other cards.
 
@@ -2079,7 +2348,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
   - ruling GD03-103:Q245: “Can I play this effect when there are two or less enemy Units in play?”
   - ruling GD03-103:Q245: “No, you cannot.”
   - rules 5-20-2: “Even if the text portion preceding the word “Then” in card text text cannot be resolved, resolving the succeeding portion is possible.”
-- Sources: gcg-api card GD03-103 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD03-103 (effect); Card ruling GD03-103:Q245 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD03-103; Comprehensive Rules Ver. 1.9.0 §5-20-2
+- Sources: gcg-api card GD03-103 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD03-103 (effect); Card ruling GD03-103:Q245 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD03-103; Comprehensive Rules Ver. 1.10.0 §5-20-2
 - **Resolution** (`ruling_overrides_text`): A Command whose effect starts with an unmet 'If <condition>,' cannot be played at all (like an unchoosable target, 10-1-8-1-1).
   - Rationale: Official card ruling Q245 (January 16, 2026) is authoritative for GD03-103; the same reading is applied to identical wording on other cards.
 
@@ -2093,7 +2362,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
   - ruling GD03-109:Q247: “If there are two or more cards with "Improved Technique" in their card name in my trash, does this effect deal 3 damage to one enemy Unit?”
   - ruling GD03-109:Q247: “Yes, it does.”
   - rules 10-1-9-1-1: “If an effect reads “(do) B instead of A,” the portion B that occurs due to that capability is a substitution effect.”
-- Sources: gcg-api card GD03-109 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD03-109 (effect); Card ruling GD03-109:Q247 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD03-109; Comprehensive Rules Ver. 1.9.0 §10-1-9-1-1
+- Sources: gcg-api card GD03-109 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD03-109 (effect); Card ruling GD03-109:Q247 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD03-109; Comprehensive Rules Ver. 1.10.0 §10-1-9-1-1
 - **Resolution** (`ruling_overrides_text`): With the condition met, only the target filter is replaced (any enemy Unit); the 3 damage is still dealt.
   - Rationale: Official card ruling Q247 (January 16, 2026) is authoritative for GD03-109; the same reading is applied to identical wording on other cards.
 
@@ -2107,7 +2376,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
   - ruling GD03-109:Q248: “I play this card when there is only one Improved Technique card in my trash. At this time, can this effect choose an enemy Unit that is any Lv.?”
   - ruling GD03-109:Q248: “No, it cannot.”
   - rules 3-4-3: “Commands with active command effects are not considered to be located within any specific game location until those effects end.”
-- Sources: gcg-api card GD03-109 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD03-109 (effect); Card ruling GD03-109:Q248 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD03-109; Comprehensive Rules Ver. 1.9.0 §3-4-3
+- Sources: gcg-api card GD03-109 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD03-109 (effect); Card ruling GD03-109:Q248 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD03-109; Comprehensive Rules Ver. 1.10.0 §3-4-3
 - **Resolution** (`ruling_overrides_text`): While a Command resolves it is in no location; trash-count conditions on it count only cards already in the trash.
   - Rationale: Official card ruling Q248 (January 16, 2026) is authoritative for GD03-109; the same reading is applied to identical wording on other cards.
 
@@ -2121,7 +2390,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
   - ruling GD03-110:Q249: “After the Pilot is destroyed with this effect, the Unit is no longer a Link Unit. At this time, can the Unit still attack?”
   - ruling GD03-110:Q249: “If it was deployed on a previous turn, it can attack. If it was deployed this turn and linked, it is no longer a Link Unit, so it cannot attack.”
   - rules 3-2-6-3: “Link Units can immediately attack during the turn in which they are deployed.”
-- Sources: gcg-api card GD03-110 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD03-110 (effect); Card ruling GD03-110:Q249 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD03-110; Comprehensive Rules Ver. 1.9.0 §3-2-6-3
+- Sources: gcg-api card GD03-110 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD03-110 (effect); Card ruling GD03-110:Q249 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD03-110; Comprehensive Rules Ver. 1.10.0 §3-2-6-3
 - **Resolution** (`ruling_overrides_text`): 'Pilot paired with an enemy Unit that is Lv.5 or lower' filters on the Unit's Lv.; destroying the Pilot leaves the Unit in play, no longer a Link Unit, so a Unit deployed this turn can no longer declare an attack.
   - Rationale: Official card ruling Q249 (January 16, 2026) is authoritative for GD03-110; the same reading is applied to identical wording on other cards.
 
@@ -2135,7 +2404,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
   - ruling GD03-110:Q426: “Which does the "Lv.5 or lower" in "Choose 1 Pilot paired with an enemy Unit that is Lv.5 or lower" refer to, the Unit or the Pilot?”
   - ruling GD03-110:Q426: “It refers to the Unit's Lv.”
   - rules 3-2-6-3: “Link Units can immediately attack during the turn in which they are deployed.”
-- Sources: gcg-api card GD03-110 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD03-110 (effect); Card ruling GD03-110:Q426 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD03-110; Comprehensive Rules Ver. 1.9.0 §3-2-6-3
+- Sources: gcg-api card GD03-110 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD03-110 (effect); Card ruling GD03-110:Q426 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD03-110; Comprehensive Rules Ver. 1.10.0 §3-2-6-3
 - **Resolution** (`ruling_overrides_text`): 'Pilot paired with an enemy Unit that is Lv.5 or lower' filters on the Unit's Lv.; destroying the Pilot leaves the Unit in play, no longer a Link Unit, so a Unit deployed this turn can no longer declare an attack.
   - Rationale: Official card ruling Q426 (July 10, 2026) is authoritative for GD03-110; the same reading is applied to identical wording on other cards.
 
@@ -2149,7 +2418,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
   - ruling GD03-114:Q251: “I play this card when there are nine or less cards in my trash. At this time, can this effect choose an active enemy Unit that is Lv.4 or lower?”
   - ruling GD03-114:Q251: “No, it cannot.”
   - rules 3-4-3: “Commands with active command effects are not considered to be located within any specific game location until those effects end.”
-- Sources: gcg-api card GD03-114 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD03-114 (effect); Card ruling GD03-114:Q251 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD03-114; Comprehensive Rules Ver. 1.9.0 §3-4-3
+- Sources: gcg-api card GD03-114 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD03-114 (effect); Card ruling GD03-114:Q251 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD03-114; Comprehensive Rules Ver. 1.10.0 §3-4-3
 - **Resolution** (`ruling_overrides_text`): While a Command resolves it is in no location; trash-count conditions on it count only cards already in the trash.
   - Rationale: Official card ruling Q251 (January 16, 2026) is authoritative for GD03-114; the same reading is applied to identical wording on other cards.
 
@@ -2163,7 +2432,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
   - ruling GD03-118:Q252: “I play this card when there is only one Awakened Potential card in my trash. At this time, can this effect choose a friendly Unit and give it <Blocker>?”
   - ruling GD03-118:Q252: “No, it cannot.”
   - rules 3-4-3: “Commands with active command effects are not considered to be located within any specific game location until those effects end.”
-- Sources: gcg-api card GD03-118 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD03-118 (effect); Card ruling GD03-118:Q252 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD03-118; Comprehensive Rules Ver. 1.9.0 §3-4-3
+- Sources: gcg-api card GD03-118 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD03-118 (effect); Card ruling GD03-118:Q252 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD03-118; Comprehensive Rules Ver. 1.10.0 §3-4-3
 - **Resolution** (`ruling_overrides_text`): While a Command resolves it is in no location; trash-count conditions on it count only cards already in the trash.
   - Rationale: Official card ruling Q252 (January 16, 2026) is authoritative for GD03-118; the same reading is applied to identical wording on other cards.
 
@@ -2178,7 +2447,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
   - ruling GD03-121:Q253: “No, you cannot.”
   - rules 1-3-2: “If a player is required to perform an action and only part of that action is not possible, the player must perform as much of the action as possible.”
   - rules 10-2-2: “If an effect requires choosing a target, that effect will not activate if the target cannot be chosen.”
-- Sources: gcg-api card GD03-121 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD03-121 (effect); Card ruling GD03-121:Q253 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD03-121; Comprehensive Rules Ver. 1.9.0 §1-3-2; Comprehensive Rules Ver. 1.9.0 §10-2-2
+- Sources: gcg-api card GD03-121 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD03-121 (effect); Card ruling GD03-121:Q253 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD03-121; Comprehensive Rules Ver. 1.10.0 §1-3-2; Comprehensive Rules Ver. 1.10.0 §10-2-2
 - **Resolution** (`ruling_overrides_text`): 'Choose 1 X and 1 Y' activates (or the Command can be played) only if both targets can be chosen; it never resolves with just one.
   - Rationale: Official card ruling Q253 (January 16, 2026) is authoritative for GD03-121; the same reading is applied to identical wording on other cards.
 
@@ -2192,7 +2461,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
   - ruling GD04-001:Q262: “After linking this Unit with ST01-010 Amuro Ray on the turn it is deployed then attacking with it as a Link Unit, I return Amuro Ray to my hand with its Attack effect, so it is no longer a Link Unit. At this time, does this Unit's attack become invalid?”
   - ruling GD04-001:Q262: “No, it does not.”
   - rules 3-2-6-3: “Link Units can immediately attack during the turn in which they are deployed.”
-- Sources: gcg-api card GD04-001 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD04-001 (effect); Card ruling GD04-001:Q262 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD04-001; Comprehensive Rules Ver. 1.9.0 §3-2-6-3
+- Sources: gcg-api card GD04-001 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD04-001 (effect); Card ruling GD04-001:Q262 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD04-001; Comprehensive Rules Ver. 1.10.0 §3-2-6-3
 - **Resolution** (`ruling_overrides_text`): Deploy-turn attack eligibility is checked only when the attack is declared; returning the Pilot later does not end the attack.
   - Rationale: Official card ruling Q262 (April 10, 2026) is authoritative for GD04-001; the same reading is applied to identical wording on other cards.
 
@@ -2206,7 +2475,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
   - ruling GD04-013:Q264: “One of my Units gains <Blocker> while this effect's conditions are satisfied and blocks an enemy Unit. Then, the effect's conditions become unsatisfied, and the Unit loses <Blocker>. At this time, what happens to the Unit's block?”
   - ruling GD04-013:Q264: “Since the block is already established, the two Units continue their battle.”
   - rules 8-3-1: “When activated, this effect changes the attack target of the attacking Unit to the Unit with <Blocker>.”
-- Sources: gcg-api card GD04-013 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD04-013 (effect); Card ruling GD04-013:Q264 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD04-013; Comprehensive Rules Ver. 1.9.0 §8-3-1
+- Sources: gcg-api card GD04-013 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD04-013 (effect); Card ruling GD04-013:Q264 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD04-013; Comprehensive Rules Ver. 1.10.0 §8-3-1
 - **Resolution** (`ruling_overrides_text`): Once <Blocker> has changed the attack target, the new target stays the attack target for the rest of the battle even if the blocker loses <Blocker>.
   - Rationale: Official card ruling Q264 (April 10, 2026) is authoritative for GD04-013; the same reading is applied to identical wording on other cards.
 
@@ -2221,7 +2490,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
   - ruling GD04-015:Q265: “No. It will only activate if you can choose both Units.”
   - rules 1-3-2: “If a player is required to perform an action and only part of that action is not possible, the player must perform as much of the action as possible.”
   - rules 10-2-2: “If an effect requires choosing a target, that effect will not activate if the target cannot be chosen.”
-- Sources: gcg-api card GD04-015 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD04-015 (effect); Card ruling GD04-015:Q265 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD04-015; Comprehensive Rules Ver. 1.9.0 §1-3-2; Comprehensive Rules Ver. 1.9.0 §10-2-2
+- Sources: gcg-api card GD04-015 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD04-015 (effect); Card ruling GD04-015:Q265 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD04-015; Comprehensive Rules Ver. 1.10.0 §1-3-2; Comprehensive Rules Ver. 1.10.0 §10-2-2
 - **Resolution** (`ruling_overrides_text`): 'Choose 1 X and 1 Y' activates (or the Command can be played) only if both targets can be chosen; it never resolves with just one.
   - Rationale: Official card ruling Q265 (April 10, 2026) is authoritative for GD04-015; the same reading is applied to identical wording on other cards.
 
@@ -2235,7 +2504,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
   - ruling GD04-021:Q267: “What does the second effect on this card mean?”
   - ruling GD04-021:Q267: “When a Command card has a 【Pilot】effect, like GD04-106 Indiscriminate Violence, and you play it as a command, this effect enables you to pair that card as a Pilot after it is placed into your trash.”
   - rules 3-4-4: “Unless an effect says otherwise, Commands are placed into your trash after their effects have ended.”
-- Sources: gcg-api card GD04-021 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD04-021 (effect); Card ruling GD04-021:Q267 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD04-021; Comprehensive Rules Ver. 1.9.0 §3-4-4
+- Sources: gcg-api card GD04-021 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD04-021 (effect); Card ruling GD04-021:Q267 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD04-021; Comprehensive Rules Ver. 1.10.0 §3-4-4
 - **Resolution** (`ruling_overrides_text`): Resolve the Command's 【Main】, place it in the trash, then (as the last step of the same resolution) optionally pair it from the trash with an eligible Unit; pairing is free and triggers 【When Paired】/【When Linked】.
   - Rationale: Official card ruling Q267 (April 10, 2026) is authoritative for GD04-021; the same reading is applied to identical wording on other cards.
 
@@ -2249,7 +2518,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
   - ruling GD04-033:Q269: “While this Unit is linked, if a Unit that originally does not have the (Neo Zeon) trait is deployed, does this Unit's first effect still activate?”
   - ruling GD04-033:Q269: “Yes. It activates because the Unit gains the (Neo Zeon) trait from the second effect at the same time as it is deployed.”
   - rules 10-1-5-4: “Constant effects do not wait to be triggered or activated. They are active from the moment they enter the location where they activate.”
-- Sources: gcg-api card GD04-033 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD04-033 (effect); Card ruling GD04-033:Q269 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD04-033; Comprehensive Rules Ver. 1.9.0 §10-1-5-4
+- Sources: gcg-api card GD04-033 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD04-033 (effect); Card ruling GD04-033:Q269 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD04-033; Comprehensive Rules Ver. 1.10.0 §10-1-5-4
 - **Resolution** (`ruling_overrides_text`): 'All your (X) Units' and 'when one of your (X) Units is deployed' include the source card itself; constant effects (including trait grants) apply before trigger conditions of the entering card are checked.
   - Rationale: Official card ruling Q269 (April 10, 2026) is authoritative for GD04-033; the same reading is applied to identical wording on other cards.
 
@@ -2264,7 +2533,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
   - ruling GD04-035:Q270: “Yes, it does.”
   - rules 8-5-3-2-3: “If both battling Units are destroyed, their destruction is treated as happening simultaneously.”
   - rules 10-1-6-4: “If a card with a triggered effect leaves the location where it is active while that effect is waiting to be activated after it was triggered, the effect still activates.”
-- Sources: gcg-api card GD04-035 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD04-035 (effect); Card ruling GD04-035:Q270 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD04-035; Comprehensive Rules Ver. 1.9.0 §8-5-3-2-3; Comprehensive Rules Ver. 1.9.0 §10-1-6-4
+- Sources: gcg-api card GD04-035 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD04-035 (effect); Card ruling GD04-035:Q270 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD04-035; Comprehensive Rules Ver. 1.10.0 §8-5-3-2-3; Comprehensive Rules Ver. 1.10.0 §10-1-6-4
 - **Resolution** (`ruling_overrides_text`): 'When this Unit destroys an enemy … with (battle) damage' triggers even if this Unit is destroyed simultaneously; the pending trigger resolves after both Units are in the trash (parts that need this Unit on the field do nothing).
   - Rationale: Official card ruling Q270 (April 10, 2026) is authoritative for GD04-035; the same reading is applied to identical wording on other cards.
 
@@ -2278,7 +2547,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
   - ruling GD04-051:Q271: “What is a keyword effect?”
   - ruling GD04-051:Q271: “It describes effects with the white <> icon, such as <Breach> and <Blocker>.”
   - rules 5-1-2: “Some effects are keyword effects such as \<Support\> and \<Blocker\>.”
-- Sources: gcg-api card GD04-051 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD04-051 (effect); Card ruling GD04-051:Q271 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD04-051; Comprehensive Rules Ver. 1.9.0 §5-1-2
+- Sources: gcg-api card GD04-051 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD04-051 (effect); Card ruling GD04-051:Q271 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD04-051; Comprehensive Rules Ver. 1.10.0 §5-1-2
 - **Resolution** (`ruling_overrides_text`): 'Unit with a keyword effect' means a Unit currently possessing one of the <> keywords of 13-1-1…13-1-7 (Repair, Breach, Support, Blocker, First Strike, High-Maneuver, Suppression); 【…・Development】 does not count.
   - Rationale: Official card ruling Q271 (April 10, 2026) is authoritative for GD04-051; the same reading is applied to identical wording on other cards.
 
@@ -2292,7 +2561,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
   - ruling GD04-067:Q276: “Using this effect, can I choose a GD03-040 Gundam Virsago & Gundam Ashtaron in my trash that gains <High-Maneuver> while linked?”
   - ruling GD04-067:Q276: “No, you cannot.”
   - rules 13-2-10-1: “【During Pair】 is the keyword for an effect that is possessed by the Unit while a Pilot is paired with it.”
-- Sources: gcg-api card GD04-067 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD04-067 (effect); Card ruling GD04-067:Q276 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD04-067; Comprehensive Rules Ver. 1.9.0 §13-2-10-1
+- Sources: gcg-api card GD04-067 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD04-067 (effect); Card ruling GD04-067:Q276 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD04-067; Comprehensive Rules Ver. 1.10.0 §13-2-10-1
 - **Resolution** (`ruling_overrides_text`): An effect gated by 【During Pair】/【During Link】/'while …' is not possessed while the gate is closed (so it does not satisfy 'Unit with a 【Destroyed】 effect' or 'Unit card with <Keyword>'); each 【During Pair】 prefix governs only its own effect.
   - Rationale: Official card ruling Q276 (April 10, 2026) is authoritative for GD04-067; the same reading is applied to identical wording on other cards.
 
@@ -2320,7 +2589,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
   - ruling GD04-070:Q279: “Yes, that is correct.”
   - rules 5-7-1: “This typically describes revealing a card in your hand and paying its cost to use it.”
   - rules 7-5-2-2-3: “Choose the number of Resources necessary to pay its cost and rest them.”
-- Sources: gcg-api card GD04-070 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD04-070 (effect); Card ruling GD04-070:Q279 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD04-070; Comprehensive Rules Ver. 1.9.0 §5-7-1; Comprehensive Rules Ver. 1.9.0 §7-5-2-2-3
+- Sources: gcg-api card GD04-070 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD04-070 (effect); Card ruling GD04-070:Q279 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD04-070; Comprehensive Rules Ver. 1.10.0 §5-7-1; Comprehensive Rules Ver. 1.10.0 §7-5-2-2-3
 - **Resolution** (`ruling_overrides_text`): A card deployed, paired or activated by an effect pays no cost and needs no Lv. check unless the text says 'Pay its cost'; its own 【Deploy】/【When Paired】/【When Linked】 still trigger.
   - Rationale: Official card ruling Q279 (April 10, 2026) is authoritative for GD04-070; the same reading is applied to identical wording on other cards.
 
@@ -2334,7 +2603,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
   - ruling GD04-087:Q280: “Is the damage received by the Unit chosen with this effect also battle damage?”
   - ruling GD04-087:Q280: “Yes, that is correct.”
   - rules 5-5-3: “This damage is called battle damage.”
-- Sources: gcg-api card GD04-087 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD04-087 (effect); Card ruling GD04-087:Q280 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD04-087; Comprehensive Rules Ver. 1.9.0 §5-5-3
+- Sources: gcg-api card GD04-087 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD04-087 (effect); Card ruling GD04-087:Q280 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD04-087; Comprehensive Rules Ver. 1.10.0 §5-5-3
 - **Resolution** (`ruling_overrides_text`): Battle damage redirected to another Unit by an 'instead' effect is still battle damage (for reductions, prevention and triggers).
   - Rationale: Official card ruling Q280 (April 10, 2026) is authoritative for GD04-087; the same reading is applied to identical wording on other cards.
 
@@ -2349,7 +2618,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
   - ruling GD04-090:Q281: “Yes, it does.”
   - rules 8-5-3-2-3: “If both battling Units are destroyed, their destruction is treated as happening simultaneously.”
   - rules 10-1-6-4: “If a card with a triggered effect leaves the location where it is active while that effect is waiting to be activated after it was triggered, the effect still activates.”
-- Sources: gcg-api card GD04-090 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD04-090 (effect); Card ruling GD04-090:Q281 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD04-090; Comprehensive Rules Ver. 1.9.0 §8-5-3-2-3; Comprehensive Rules Ver. 1.9.0 §10-1-6-4
+- Sources: gcg-api card GD04-090 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD04-090 (effect); Card ruling GD04-090:Q281 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD04-090; Comprehensive Rules Ver. 1.10.0 §8-5-3-2-3; Comprehensive Rules Ver. 1.10.0 §10-1-6-4
 - **Resolution** (`ruling_overrides_text`): 'When this Unit destroys an enemy … with (battle) damage' triggers even if this Unit is destroyed simultaneously; the pending trigger resolves after both Units are in the trash (parts that need this Unit on the field do nothing).
   - Rationale: Official card ruling Q281 (April 10, 2026) is authoritative for GD04-090; the same reading is applied to identical wording on other cards.
 
@@ -2363,7 +2632,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
   - ruling GD04-095:Q283: “Is the damage received by this Unit due to this effect also battle damage?”
   - ruling GD04-095:Q283: “Yes, that is correct.”
   - rules 5-5-3: “This damage is called battle damage.”
-- Sources: gcg-api card GD04-095 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD04-095 (effect); Card ruling GD04-095:Q283 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD04-095; Comprehensive Rules Ver. 1.9.0 §5-5-3
+- Sources: gcg-api card GD04-095 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD04-095 (effect); Card ruling GD04-095:Q283 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD04-095; Comprehensive Rules Ver. 1.10.0 §5-5-3
 - **Resolution** (`ruling_overrides_text`): Battle damage redirected to another Unit by an 'instead' effect is still battle damage (for reductions, prevention and triggers).
   - Rationale: Official card ruling Q283 (April 10, 2026) is authoritative for GD04-095; the same reading is applied to identical wording on other cards.
 
@@ -2377,7 +2646,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
   - ruling GD04-100:Q286: “Does this effect activate when I pay the cost to deploy a Unit with GD03-051 Gundam X Divider's effect?”
   - ruling GD04-100:Q286: “Yes, it does.”
   - rules 10-1-7-3: “paying a cost equal to the number printed within the symbol satisfies the condition and allows the effect to be activated.”
-- Sources: gcg-api card GD04-100 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD04-100 (effect); Card ruling GD04-100:Q286 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD04-100; Comprehensive Rules Ver. 1.9.0 §10-1-7-3
+- Sources: gcg-api card GD04-100 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD04-100 (effect); Card ruling GD04-100:Q286 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD04-100; Comprehensive Rules Ver. 1.10.0 §10-1-7-3
 - **Resolution** (`ruling_overrides_text`): Any payment of ① or more made while resolving a Unit's effect (activation cost or 'Pay its cost to deploy it') satisfies 'when you pay ① or more for one of your Units' effects'.
   - Rationale: Official card ruling Q286 (April 10, 2026) is authoritative for GD04-100; the same reading is applied to identical wording on other cards.
 
@@ -2391,7 +2660,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
   - ruling GD04-101:Q287: “Does the effect "Units can't be destroyed by enemy effects" mean they can be destroyed by effect damage?”
   - ruling GD04-101:Q287: “Yes, they can be destroyed by effect damage. It only protects against destruction by effects that say "destroy it" or similar.”
   - rules 5-10-1: “This describes cards receiving damage equal to or greater than their HP and cards being placed from the field into the trash by effects.”
-- Sources: gcg-api card GD04-101 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD04-101 (effect); Card ruling GD04-101:Q287 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD04-101; Comprehensive Rules Ver. 1.9.0 §5-10-1
+- Sources: gcg-api card GD04-101 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD04-101 (effect); Card ruling GD04-101:Q287 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD04-101; Comprehensive Rules Ver. 1.10.0 §5-10-1
 - **Resolution** (`ruling_overrides_text`): Record the cause of every destruction (battle damage, effect damage, 'destroy' effect, rules). 'Destroyed by an effect' / 'can't be destroyed by effects' mean 'destroy' effects only; 'destroyed with damage' means battle or effect damage; 'with battle damage' means battle damage only.
   - Rationale: Official card ruling Q287 (April 10, 2026) is authoritative for GD04-101; the same reading is applied to identical wording on other cards.
 
@@ -2405,7 +2674,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
   - ruling GD04-107:Q289: “I have a GD03-019 Gundam AGE-2 Normal with the effect "Enemy Units choose this rested Unit as their attack target if possible when attacking" in play when I choose 1 of my other rested Units and activate this effect. At this time, which Unit does my opponent have to give priority to for their attack?”
   - ruling GD04-107:Q289: “When your opponent's Unit attacks, they have to give priority to the Unit chosen with this effect.”
   - rules 8-2-1: “The attack target can be either the opposing player or a rested enemy Unit.”
-- Sources: gcg-api card GD04-107 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD04-107 (effect); Card ruling GD04-107:Q289 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD04-107; Comprehensive Rules Ver. 1.9.0 §8-2-1
+- Sources: gcg-api card GD04-107 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD04-107 (effect); Card ruling GD04-107:Q289 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD04-107; Comprehensive Rules Ver. 1.10.0 §8-2-1
 - **Resolution** (`ruling_overrides_text`): When declaring an attack: 'must choose that Unit' (GD04-107) outranks 'choose … if possible' attractors; with several eligible forced/attracting Units the attacker picks one; a forced Unit that is not a legal target (active without an active-target permission, or gone) imposes nothing; constraints apply at declaration only and never retarget an attack in progress.
   - Rationale: Official card ruling Q289 (April 10, 2026) is authoritative for GD04-107; the same reading is applied to identical wording on other cards.
 
@@ -2419,7 +2688,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
   - ruling GD04-107:Q290: “If multiple Units are chosen with this effect, which Unit does my opponent have to give priority to for their attack?”
   - ruling GD04-107:Q290: “They choose 1 Unit from among those chosen with this effect and attack it.”
   - rules 8-2-1: “The attack target can be either the opposing player or a rested enemy Unit.”
-- Sources: gcg-api card GD04-107 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD04-107 (effect); Card ruling GD04-107:Q290 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD04-107; Comprehensive Rules Ver. 1.9.0 §8-2-1
+- Sources: gcg-api card GD04-107 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD04-107 (effect); Card ruling GD04-107:Q290 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD04-107; Comprehensive Rules Ver. 1.10.0 §8-2-1
 - **Resolution** (`ruling_overrides_text`): When declaring an attack: 'must choose that Unit' (GD04-107) outranks 'choose … if possible' attractors; with several eligible forced/attracting Units the attacker picks one; a forced Unit that is not a legal target (active without an active-target permission, or gone) imposes nothing; constraints apply at declaration only and never retarget an attack in progress.
   - Rationale: Official card ruling Q290 (April 10, 2026) is authoritative for GD04-107; the same reading is applied to identical wording on other cards.
 
@@ -2433,7 +2702,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
   - ruling GD04-107:Q298: “I play this card during the action step after an enemy Unit has attacked. At this time, does the currently attacking Unit's attack target change to this effect's chosen Unit?”
   - ruling GD04-107:Q298: “No, it does not.”
   - rules 8-2-1: “The attack target can be either the opposing player or a rested enemy Unit.”
-- Sources: gcg-api card GD04-107 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD04-107 (effect); Card ruling GD04-107:Q298 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD04-107; Comprehensive Rules Ver. 1.9.0 §8-2-1
+- Sources: gcg-api card GD04-107 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD04-107 (effect); Card ruling GD04-107:Q298 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD04-107; Comprehensive Rules Ver. 1.10.0 §8-2-1
 - **Resolution** (`ruling_overrides_text`): When declaring an attack: 'must choose that Unit' (GD04-107) outranks 'choose … if possible' attractors; with several eligible forced/attracting Units the attacker picks one; a forced Unit that is not a legal target (active without an active-target permission, or gone) imposes nothing; constraints apply at declaration only and never retarget an attack in progress.
   - Rationale: Official card ruling Q298 (June 12, 2026) is authoritative for GD04-107; the same reading is applied to identical wording on other cards.
 
@@ -2447,7 +2716,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
   - ruling GD04-107:Q299: “If this effect's chosen Unit has left the field, can enemy Units attack?”
   - ruling GD04-107:Q299: “Yes, they can. Since this effect's chosen Unit is not present, they can choose and attack any rested enemy Unit or the player.”
   - rules 8-2-1: “The attack target can be either the opposing player or a rested enemy Unit.”
-- Sources: gcg-api card GD04-107 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD04-107 (effect); Card ruling GD04-107:Q299 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD04-107; Comprehensive Rules Ver. 1.9.0 §8-2-1
+- Sources: gcg-api card GD04-107 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD04-107 (effect); Card ruling GD04-107:Q299 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD04-107; Comprehensive Rules Ver. 1.10.0 §8-2-1
 - **Resolution** (`ruling_overrides_text`): When declaring an attack: 'must choose that Unit' (GD04-107) outranks 'choose … if possible' attractors; with several eligible forced/attracting Units the attacker picks one; a forced Unit that is not a legal target (active without an active-target permission, or gone) imposes nothing; constraints apply at declaration only and never retarget an attack in progress.
   - Rationale: Official card ruling Q299 (June 12, 2026) is authoritative for GD04-107; the same reading is applied to identical wording on other cards.
 
@@ -2461,7 +2730,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
   - ruling GD04-107:Q300: “If this effect's chosen Unit is active, can enemy Units attack?”
   - ruling GD04-107:Q300: “Yes, they can. According to the rules, this effect's chosen Unit cannot be chosen, so they can choose and attack any other rested enemy Unit or the player.”
   - rules 8-2-1: “The attack target can be either the opposing player or a rested enemy Unit.”
-- Sources: gcg-api card GD04-107 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD04-107 (effect); Card ruling GD04-107:Q300 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD04-107; Comprehensive Rules Ver. 1.9.0 §8-2-1
+- Sources: gcg-api card GD04-107 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD04-107 (effect); Card ruling GD04-107:Q300 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD04-107; Comprehensive Rules Ver. 1.10.0 §8-2-1
 - **Resolution** (`ruling_overrides_text`): When declaring an attack: 'must choose that Unit' (GD04-107) outranks 'choose … if possible' attractors; with several eligible forced/attracting Units the attacker picks one; a forced Unit that is not a legal target (active without an active-target permission, or gone) imposes nothing; constraints apply at declaration only and never retarget an attack in progress.
   - Rationale: Official card ruling Q300 (June 12, 2026) is authoritative for GD04-107; the same reading is applied to identical wording on other cards.
 
@@ -2475,7 +2744,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
   - ruling GD04-107:Q301: “If this effect's chosen Unit is active, does an enemy Unit with the effect "this Unit may choose an active enemy Unit as its attack target" have to choose that chosen Unit when it attacks?”
   - ruling GD04-107:Q301: “Yes, it does.”
   - rules 8-2-1: “The attack target can be either the opposing player or a rested enemy Unit.”
-- Sources: gcg-api card GD04-107 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD04-107 (effect); Card ruling GD04-107:Q301 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD04-107; Comprehensive Rules Ver. 1.9.0 §8-2-1
+- Sources: gcg-api card GD04-107 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD04-107 (effect); Card ruling GD04-107:Q301 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD04-107; Comprehensive Rules Ver. 1.10.0 §8-2-1
 - **Resolution** (`ruling_overrides_text`): When declaring an attack: 'must choose that Unit' (GD04-107) outranks 'choose … if possible' attractors; with several eligible forced/attracting Units the attacker picks one; a forced Unit that is not a legal target (active without an active-target permission, or gone) imposes nothing; constraints apply at declaration only and never retarget an attack in progress.
   - Rationale: Official card ruling Q301 (June 12, 2026) is authoritative for GD04-107; the same reading is applied to identical wording on other cards.
 
@@ -2490,7 +2759,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
   - ruling GD04-114:Q293: “No. It will only activate if you can choose both Units.”
   - rules 1-3-2: “If a player is required to perform an action and only part of that action is not possible, the player must perform as much of the action as possible.”
   - rules 10-2-2: “If an effect requires choosing a target, that effect will not activate if the target cannot be chosen.”
-- Sources: gcg-api card GD04-114 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD04-114 (effect); Card ruling GD04-114:Q293 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD04-114; Comprehensive Rules Ver. 1.9.0 §1-3-2; Comprehensive Rules Ver. 1.9.0 §10-2-2
+- Sources: gcg-api card GD04-114 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD04-114 (effect); Card ruling GD04-114:Q293 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD04-114; Comprehensive Rules Ver. 1.10.0 §1-3-2; Comprehensive Rules Ver. 1.10.0 §10-2-2
 - **Resolution** (`ruling_overrides_text`): 'Choose 1 X and 1 Y' activates (or the Command can be played) only if both targets can be chosen; it never resolves with just one.
   - Rationale: Official card ruling Q293 (April 10, 2026) is authoritative for GD04-114; the same reading is applied to identical wording on other cards.
 
@@ -2504,7 +2773,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
   - ruling GD04-123:Q295: “Can this Base receive damage from my opponent's <Breach> effects?”
   - ruling GD04-123:Q295: “Yes, it can, because <Breach> is effect damage.”
   - rules 13-1-2-1: “deals (amount) damage to the first card in the shield area of the opponent who owns the destroyed Unit.”
-- Sources: gcg-api card GD04-123 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD04-123 (effect); Card ruling GD04-123:Q295 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD04-123; Comprehensive Rules Ver. 1.9.0 §13-1-2-1
+- Sources: gcg-api card GD04-123 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD04-123 (effect); Card ruling GD04-123:Q295 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD04-123; Comprehensive Rules Ver. 1.10.0 §13-1-2-1
 - **Resolution** (`ruling_overrides_text`): <Breach> damage, and any damage dealt by a Unit's own effects (including effects it has from its Pilot), is effect damage attributed to that Unit: 'battle damage' prevention and triggers ignore it; 'damage from enemy Units' prevention and effect-damage reduction apply to it; 'when this Unit destroys … with damage' counts it.
   - Rationale: Official card ruling Q295 (April 10, 2026) is authoritative for GD04-123; the same reading is applied to identical wording on other cards.
 
@@ -2518,7 +2787,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
   - ruling GD04-126:Q296: “Does this effect activate in response to damage from my opponent's <Breach> effects?”
   - ruling GD04-126:Q296: “No, it does not activate, because <Breach> is effect damage.”
   - rules 13-1-2-1: “deals (amount) damage to the first card in the shield area of the opponent who owns the destroyed Unit.”
-- Sources: gcg-api card GD04-126 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD04-126 (effect); Card ruling GD04-126:Q296 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD04-126; Comprehensive Rules Ver. 1.9.0 §13-1-2-1
+- Sources: gcg-api card GD04-126 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD04-126 (effect); Card ruling GD04-126:Q296 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD04-126; Comprehensive Rules Ver. 1.10.0 §13-1-2-1
 - **Resolution** (`ruling_overrides_text`): <Breach> damage, and any damage dealt by a Unit's own effects (including effects it has from its Pilot), is effect damage attributed to that Unit: 'battle damage' prevention and triggers ignore it; 'damage from enemy Units' prevention and effect-damage reduction apply to it; 'when this Unit destroys … with damage' counts it.
   - Rationale: Official card ruling Q296 (April 10, 2026) is authoritative for GD04-126; the same reading is applied to identical wording on other cards.
 
@@ -2532,7 +2801,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
   - ruling GD04-129:Q297: “Does this effect activate when I pay the cost to deploy a Unit with GD03-051 Gundam X Divider's effect?”
   - ruling GD04-129:Q297: “Yes, it does.”
   - rules 10-1-7-3: “paying a cost equal to the number printed within the symbol satisfies the condition and allows the effect to be activated.”
-- Sources: gcg-api card GD04-129 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD04-129 (effect); Card ruling GD04-129:Q297 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD04-129; Comprehensive Rules Ver. 1.9.0 §10-1-7-3
+- Sources: gcg-api card GD04-129 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD04-129 (effect); Card ruling GD04-129:Q297 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD04-129; Comprehensive Rules Ver. 1.10.0 §10-1-7-3
 - **Resolution** (`ruling_overrides_text`): Any payment of ① or more made while resolving a Unit's effect (activation cost or 'Pay its cost to deploy it') satisfies 'when you pay ① or more for one of your Units' effects'.
   - Rationale: Official card ruling Q297 (April 10, 2026) is authoritative for GD04-129; the same reading is applied to identical wording on other cards.
 
@@ -2547,7 +2816,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
   - ruling GD05-002:Q337: “Yes, you can.”
   - rules 8-5-3-2-3: “If both battling Units are destroyed, their destruction is treated as happening simultaneously.”
   - rules 10-1-6-4: “If a card with a triggered effect leaves the location where it is active while that effect is waiting to be activated after it was triggered, the effect still activates.”
-- Sources: gcg-api card GD05-002 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-002 (effect); Card ruling GD05-002:Q337 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-002; Comprehensive Rules Ver. 1.9.0 §8-5-3-2-3; Comprehensive Rules Ver. 1.9.0 §10-1-6-4
+- Sources: gcg-api card GD05-002 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-002 (effect); Card ruling GD05-002:Q337 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-002; Comprehensive Rules Ver. 1.10.0 §8-5-3-2-3; Comprehensive Rules Ver. 1.10.0 §10-1-6-4
 - **Resolution** (`ruling_overrides_text`): 'When this Unit destroys an enemy … with (battle) damage' triggers even if this Unit is destroyed simultaneously; the pending trigger resolves after both Units are in the trash (parts that need this Unit on the field do nothing).
   - Rationale: Official card ruling Q337 (July 10, 2026) is authoritative for GD05-002; the same reading is applied to identical wording on other cards.
 
@@ -2561,7 +2830,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
   - ruling GD05-002:Q338: “If there are two Units that are Lv.3 and one Unit that is Lv.5 on my opponent's field, does "choose 1 enemy Unit with the lowest Lv." in the second effect choose one of the two Units that are Lv.3?”
   - ruling GD05-002:Q338: “Yes. If there are multiple Units with the lowest Lv., choose one from among them.”
   - rules 1-3-4: “When both players are required for any reason to make a selection simultaneously, the active player chooses first.”
-- Sources: gcg-api card GD05-002 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-002 (effect); Card ruling GD05-002:Q338 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-002; Comprehensive Rules Ver. 1.9.0 §1-3-4
+- Sources: gcg-api card GD05-002 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-002 (effect); Card ruling GD05-002:Q338 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-002; Comprehensive Rules Ver. 1.10.0 §1-3-4
 - **Resolution** (`ruling_overrides_text`): 'Choose 1 … with the highest/lowest X' lets the chooser pick any tied Unit; non-choosing wording ('Units with the lowest Lv.') affects all tied Units.
   - Rationale: Official card ruling Q338 (July 10, 2026) is authoritative for GD05-002; the same reading is applied to identical wording on other cards.
 
@@ -2575,7 +2844,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
   - ruling GD05-003:Q340: “If this Unit is paired with an (Orb) Pilot, does this effect activate when it is destroyed even if there are no other (Orb) Pilots on my field?”
   - ruling GD05-003:Q340: “Yes. Since the 【Destroyed】 effect checks the card's last state prior to it leaving the field, the effect activates if the Pilot was paired with this Unit.”
   - rules 13-2-8-2-1: “If there is text referring to the state of that card, refer to its state while it was in its last location prior to being destroyed and placed into the trash.”
-- Sources: gcg-api card GD05-003 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-003 (effect); Card ruling GD05-003:Q340 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-003; Comprehensive Rules Ver. 1.9.0 §13-2-8-2-1
+- Sources: gcg-api card GD05-003 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-003 (effect); Card ruling GD05-003:Q340 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-003; Comprehensive Rules Ver. 1.10.0 §13-2-8-2-1
 - **Resolution** (`ruling_overrides_text`): When a 【Destroyed】 effect checks 'you have an X in play', include the destroyed card and its paired Pilot as they were just before leaving the field; the paired Pilot is already in the trash when the effect resolves.
   - Rationale: Official card ruling Q340 (July 10, 2026) is authoritative for GD05-003; the same reading is applied to identical wording on other cards.
 
@@ -2590,7 +2859,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
   - ruling GD05-006:Q343: “Yes, it does.”
   - rules 8-5-3-2-3: “If both battling Units are destroyed, their destruction is treated as happening simultaneously.”
   - rules 10-1-6-4: “If a card with a triggered effect leaves the location where it is active while that effect is waiting to be activated after it was triggered, the effect still activates.”
-- Sources: gcg-api card GD05-006 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-006 (effect); Card ruling GD05-006:Q343 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-006; Comprehensive Rules Ver. 1.9.0 §8-5-3-2-3; Comprehensive Rules Ver. 1.9.0 §10-1-6-4
+- Sources: gcg-api card GD05-006 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-006 (effect); Card ruling GD05-006:Q343 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-006; Comprehensive Rules Ver. 1.10.0 §8-5-3-2-3; Comprehensive Rules Ver. 1.10.0 §10-1-6-4
 - **Resolution** (`ruling_overrides_text`): 'When this Unit destroys an enemy … with (battle) damage' triggers even if this Unit is destroyed simultaneously; the pending trigger resolves after both Units are in the trash (parts that need this Unit on the field do nothing).
   - Rationale: Official card ruling Q343 (July 10, 2026) is authoritative for GD05-006; the same reading is applied to identical wording on other cards.
 
@@ -2604,7 +2873,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
   - ruling GD05-016:Q344: “Does this effect activate even when this Unit is deployed?”
   - ruling GD05-016:Q344: “Yes, it does.”
   - rules 10-1-5-4: “Constant effects do not wait to be triggered or activated. They are active from the moment they enter the location where they activate.”
-- Sources: gcg-api card GD05-016 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-016 (effect); Card ruling GD05-016:Q344 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-016; Comprehensive Rules Ver. 1.9.0 §10-1-5-4
+- Sources: gcg-api card GD05-016 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-016 (effect); Card ruling GD05-016:Q344 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-016; Comprehensive Rules Ver. 1.10.0 §10-1-5-4
 - **Resolution** (`ruling_overrides_text`): 'All your (X) Units' and 'when one of your (X) Units is deployed' include the source card itself; constant effects (including trait grants) apply before trigger conditions of the entering card are checked.
   - Rationale: Official card ruling Q344 (July 10, 2026) is authoritative for GD05-016; the same reading is applied to identical wording on other cards.
 
@@ -2618,7 +2887,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
   - ruling GD05-017:Q346: “If I use this second effect to begin a battle between this Unit and an enemy GD02-073 Carta's Graze Ritter (Ground Type), does its "During your opponent's turn, the enemy Unit battling this Unit gains <First Strike>" effect activate?”
   - ruling GD05-017:Q346: “Yes, it does. With the exception of 【Attack】 and "when a Unit attacks" effects, effects that activate during battle are activated even during a battle started by an effect.”
   - rules 5-22-3-1: “Since the attack step was skipped, effects such as 【Attack】 and "when a Unit attacks" are not triggered.”
-- Sources: gcg-api card GD05-017 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-017 (effect); Card ruling GD05-017:Q346 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-017; Comprehensive Rules Ver. 1.9.0 §5-22-3-1
+- Sources: gcg-api card GD05-017 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-017 (effect); Card ruling GD05-017:Q346 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-017; Comprehensive Rules Ver. 1.10.0 §5-22-3-1
 - **Resolution** (`ruling_overrides_text`): A battle begun by an effect runs only the damage step and battle end step; 'battling'-conditioned effects and <First Strike> apply, destruction counts as destruction with battle damage (<Breach> etc.), only 【Attack】/'when … attacks' are skipped.
   - Rationale: Official card ruling Q346 (July 10, 2026) is authoritative for GD05-017; the same reading is applied to identical wording on other cards.
 
@@ -2632,7 +2901,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
   - ruling GD05-017:Q347: “If an enemy Unit is destroyed in a battle started by this second effect, does that fall within the criterion "when this Unit destroys an enemy Unit with battle damage"?”
   - ruling GD05-017:Q347: “Yes, it does.”
   - rules 5-22-3-1: “Since the attack step was skipped, effects such as 【Attack】 and "when a Unit attacks" are not triggered.”
-- Sources: gcg-api card GD05-017 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-017 (effect); Card ruling GD05-017:Q347 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-017; Comprehensive Rules Ver. 1.9.0 §5-22-3-1
+- Sources: gcg-api card GD05-017 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-017 (effect); Card ruling GD05-017:Q347 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-017; Comprehensive Rules Ver. 1.10.0 §5-22-3-1
 - **Resolution** (`ruling_overrides_text`): A battle begun by an effect runs only the damage step and battle end step; 'battling'-conditioned effects and <First Strike> apply, destruction counts as destruction with battle damage (<Breach> etc.), only 【Attack】/'when … attacks' are skipped.
   - Rationale: Official card ruling Q347 (July 10, 2026) is authoritative for GD05-017; the same reading is applied to identical wording on other cards.
 
@@ -2646,7 +2915,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
   - ruling GD05-018:Q349: “When is the effect "When one of your EX Resources is exiled from the game" resolved?”
   - ruling GD05-018:Q349: “If you use an EX Resource to pay the cost when playing a Unit, Pilot, or Base, resolve this effect at the same time effects such as 【Deploy】 and 【When Paired】 on that card resolve. If you use an EX Resource to pay the cost when playing a Command or activating an 【Activate･Main】 effect or similar, resolve this effect after the resolution of that card's effect.”
   - rules 7-5-1: “With the exception of actions performed due to an ability, these actions may only be performed when there are currently no abilities that have been triggered and are awaiting activation.”
-- Sources: gcg-api card GD05-018 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-018 (effect); Card ruling GD05-018:Q349 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-018; Comprehensive Rules Ver. 1.9.0 §7-5-1
+- Sources: gcg-api card GD05-018 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-018 (effect); Card ruling GD05-018:Q349 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-018; Comprehensive Rules Ver. 1.10.0 §7-5-1
 - **Resolution** (`ruling_overrides_text`): A trigger caused by paying a cost waits: for a Unit/Pilot/Base it resolves together with that card's 【Deploy】/【When Paired】 triggers; for a Command or an activated effect it resolves after that effect finishes.
   - Rationale: Official card ruling Q349 (July 10, 2026) is authoritative for GD05-018; the same reading is applied to identical wording on other cards.
 
@@ -2660,7 +2929,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
   - ruling GD05-024:Q353: “With this 【Destroyed】 effect, can I add a green (Earth Federation) Pilot card that was paired with this Unit to my hand?”
   - ruling GD05-024:Q353: “Yes, you can.”
   - rules 13-2-8-2-1: “If there is text referring to the state of that card, refer to its state while it was in its last location prior to being destroyed and placed into the trash.”
-- Sources: gcg-api card GD05-024 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-024 (effect); Card ruling GD05-024:Q353 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-024; Comprehensive Rules Ver. 1.9.0 §13-2-8-2-1
+- Sources: gcg-api card GD05-024 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-024 (effect); Card ruling GD05-024:Q353 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-024; Comprehensive Rules Ver. 1.10.0 §13-2-8-2-1
 - **Resolution** (`ruling_overrides_text`): When a 【Destroyed】 effect checks 'you have an X in play', include the destroyed card and its paired Pilot as they were just before leaving the field; the paired Pilot is already in the trash when the effect resolves.
   - Rationale: Official card ruling Q353 (July 10, 2026) is authoritative for GD05-024; the same reading is applied to identical wording on other cards.
 
@@ -2674,7 +2943,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
   - ruling GD05-026:Q354: “If a GD04-041 Gundam Throne Drei is deployed rested due to this effect, does its "When this Unit is rested by an effect, set it as active" effect activate?”
   - ruling GD05-026:Q354: “No, it does not.”
   - rules 5-4-2: “When a card is placed into the battle area, resource area, or base section, it is generally set as active.”
-- Sources: gcg-api card GD05-026 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-026 (effect); Card ruling GD05-026:Q354 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-026; Comprehensive Rules Ver. 1.9.0 §5-4-2
+- Sources: gcg-api card GD05-026 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-026 (effect); Card ruling GD05-026:Q354 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-026; Comprehensive Rules Ver. 1.10.0 §5-4-2
 - **Resolution** (`ruling_overrides_text`): A Unit deployed rested never triggers 'when this Unit is rested by an effect'.
   - Rationale: Official card ruling Q354 (July 10, 2026) is authoritative for GD05-026; the same reading is applied to identical wording on other cards.
 
@@ -2688,7 +2957,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
   - ruling GD05-030:Q355: “If I activate GD03-105 Bridge Crew and choose this non-Link Unit, can it choose an active enemy Unit with no paired Pilot as its attack target and attack it on the turn it is deployed?”
   - ruling GD05-030:Q355: “No. This Unit can only attack with this effect if it chooses a rested enemy Unit as its attack target.”
   - rules 3-2-4: “Unless specified otherwise, a newly deployed Unit cannot attack on the turn it is deployed.”
-- Sources: gcg-api card GD05-030 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-030 (effect); Card ruling GD05-030:Q355 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-030; Comprehensive Rules Ver. 1.9.0 §3-2-4
+- Sources: gcg-api card GD05-030 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-030 (effect); Card ruling GD05-030:Q355 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-030; Comprehensive Rules Ver. 1.10.0 §3-2-4
 - **Resolution** (`ruling_overrides_text`): On its deploy turn (not linked) the Unit may attack only a rested enemy Unit; permissions to target active Units do not extend this exception.
   - Rationale: Official card ruling Q355 (July 10, 2026) is authoritative for GD05-030; the same reading is applied to identical wording on other cards.
 
@@ -2703,7 +2972,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
   - ruling GD05-034:Q358: “No, you do not.”
   - rules 5-7-1: “This typically describes revealing a card in your hand and paying its cost to use it.”
   - rules 7-5-2-2-3: “Choose the number of Resources necessary to pay its cost and rest them.”
-- Sources: gcg-api card GD05-034 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-034 (effect); Card ruling GD05-034:Q358 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-034; Comprehensive Rules Ver. 1.9.0 §5-7-1; Comprehensive Rules Ver. 1.9.0 §7-5-2-2-3
+- Sources: gcg-api card GD05-034 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-034 (effect); Card ruling GD05-034:Q358 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-034; Comprehensive Rules Ver. 1.10.0 §5-7-1; Comprehensive Rules Ver. 1.10.0 §7-5-2-2-3
 - **Resolution** (`ruling_overrides_text`): A card deployed, paired or activated by an effect pays no cost and needs no Lv. check unless the text says 'Pay its cost'; its own 【Deploy】/【When Paired】/【When Linked】 still trigger.
   - Rationale: Official card ruling Q358 (July 10, 2026) is authoritative for GD05-034; the same reading is applied to identical wording on other cards.
 
@@ -2717,7 +2986,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
   - ruling GD05-035:Q361: “Does this card's first effect activate even when it destroys an enemy shield area card with <Breach> or some other effect damage?”
   - ruling GD05-035:Q361: “Yes, it does.”
   - rules 13-1-2-1: “deals (amount) damage to the first card in the shield area of the opponent who owns the destroyed Unit.”
-- Sources: gcg-api card GD05-035 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-035 (effect); Card ruling GD05-035:Q361 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-035; Comprehensive Rules Ver. 1.9.0 §13-1-2-1
+- Sources: gcg-api card GD05-035 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-035 (effect); Card ruling GD05-035:Q361 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-035; Comprehensive Rules Ver. 1.10.0 §13-1-2-1
 - **Resolution** (`ruling_overrides_text`): <Breach> damage, and any damage dealt by a Unit's own effects (including effects it has from its Pilot), is effect damage attributed to that Unit: 'battle damage' prevention and triggers ignore it; 'damage from enemy Units' prevention and effect-damage reduction apply to it; 'when this Unit destroys … with damage' counts it.
   - Rationale: Official card ruling Q361 (July 10, 2026) is authoritative for GD05-035; the same reading is applied to identical wording on other cards.
 
@@ -2732,7 +3001,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
   - ruling GD05-035:Q362: “No, you do not.”
   - rules 3-4-6-3-1: “If the Command effect portion of a Command card paired as a Pilot is referred to by some effect and that effect activates the Command effect, activate it as a Command effect.”
   - rules 3-4-4: “Unless an effect says otherwise, Commands are placed into your trash after their effects have ended.”
-- Sources: gcg-api card GD05-035 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-035 (effect); Card ruling GD05-035:Q362 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-035; Comprehensive Rules Ver. 1.9.0 §3-4-6-3-1; Comprehensive Rules Ver. 1.9.0 §3-4-4
+- Sources: gcg-api card GD05-035 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-035 (effect); Card ruling GD05-035:Q362 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-035; Comprehensive Rules Ver. 1.10.0 §3-4-6-3-1; Comprehensive Rules Ver. 1.10.0 §3-4-4
 - **Resolution** (`ruling_overrides_text`): Activating 【Main】 on a paired Command (or one discarded by GD05-097) costs nothing, counts as activating that Command's 【Main】 for other triggers, and the paired card stays paired.
   - Rationale: Official card ruling Q362 (July 10, 2026) is authoritative for GD05-035; the same reading is applied to identical wording on other cards.
 
@@ -2747,7 +3016,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
   - ruling GD05-035:Q363: “No, it is not. It remains paired.”
   - rules 3-4-6-3-1: “If the Command effect portion of a Command card paired as a Pilot is referred to by some effect and that effect activates the Command effect, activate it as a Command effect.”
   - rules 3-4-4: “Unless an effect says otherwise, Commands are placed into your trash after their effects have ended.”
-- Sources: gcg-api card GD05-035 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-035 (effect); Card ruling GD05-035:Q363 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-035; Comprehensive Rules Ver. 1.9.0 §3-4-6-3-1; Comprehensive Rules Ver. 1.9.0 §3-4-4
+- Sources: gcg-api card GD05-035 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-035 (effect); Card ruling GD05-035:Q363 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-035; Comprehensive Rules Ver. 1.10.0 §3-4-6-3-1; Comprehensive Rules Ver. 1.10.0 §3-4-4
 - **Resolution** (`ruling_overrides_text`): Activating 【Main】 on a paired Command (or one discarded by GD05-097) costs nothing, counts as activating that Command's 【Main】 for other triggers, and the paired card stays paired.
   - Rationale: Official card ruling Q363 (July 10, 2026) is authoritative for GD05-035; the same reading is applied to identical wording on other cards.
 
@@ -2762,7 +3031,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
   - ruling GD05-044:Q364: “No, you do not.”
   - rules 3-4-6-3-1: “If the Command effect portion of a Command card paired as a Pilot is referred to by some effect and that effect activates the Command effect, activate it as a Command effect.”
   - rules 3-4-4: “Unless an effect says otherwise, Commands are placed into your trash after their effects have ended.”
-- Sources: gcg-api card GD05-044 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-044 (effect); Card ruling GD05-044:Q364 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-044; Comprehensive Rules Ver. 1.9.0 §3-4-6-3-1; Comprehensive Rules Ver. 1.9.0 §3-4-4
+- Sources: gcg-api card GD05-044 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-044 (effect); Card ruling GD05-044:Q364 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-044; Comprehensive Rules Ver. 1.10.0 §3-4-6-3-1; Comprehensive Rules Ver. 1.10.0 §3-4-4
 - **Resolution** (`ruling_overrides_text`): Activating 【Main】 on a paired Command (or one discarded by GD05-097) costs nothing, counts as activating that Command's 【Main】 for other triggers, and the paired card stays paired.
   - Rationale: Official card ruling Q364 (July 10, 2026) is authoritative for GD05-044; the same reading is applied to identical wording on other cards.
 
@@ -2777,7 +3046,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
   - ruling GD05-044:Q365: “No, it is not. It remains paired.”
   - rules 3-4-6-3-1: “If the Command effect portion of a Command card paired as a Pilot is referred to by some effect and that effect activates the Command effect, activate it as a Command effect.”
   - rules 3-4-4: “Unless an effect says otherwise, Commands are placed into your trash after their effects have ended.”
-- Sources: gcg-api card GD05-044 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-044 (effect); Card ruling GD05-044:Q365 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-044; Comprehensive Rules Ver. 1.9.0 §3-4-6-3-1; Comprehensive Rules Ver. 1.9.0 §3-4-4
+- Sources: gcg-api card GD05-044 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-044 (effect); Card ruling GD05-044:Q365 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-044; Comprehensive Rules Ver. 1.10.0 §3-4-6-3-1; Comprehensive Rules Ver. 1.10.0 §3-4-4
 - **Resolution** (`ruling_overrides_text`): Activating 【Main】 on a paired Command (or one discarded by GD05-097) costs nothing, counts as activating that Command's 【Main】 for other triggers, and the paired card stays paired.
   - Rationale: Official card ruling Q365 (July 10, 2026) is authoritative for GD05-044; the same reading is applied to identical wording on other cards.
 
@@ -2791,7 +3060,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
   - ruling GD05-048:Q366: “If I activate GD03-105 Bridge Crew and choose this non-Link Unit, can it choose an active enemy Unit with no paired Pilot as its attack target and attack it on the turn it is deployed?”
   - ruling GD05-048:Q366: “No. This Unit can only attack with this effect if it chooses a rested enemy Unit as its attack target.”
   - rules 3-2-4: “Unless specified otherwise, a newly deployed Unit cannot attack on the turn it is deployed.”
-- Sources: gcg-api card GD05-048 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-048 (effect); Card ruling GD05-048:Q366 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-048; Comprehensive Rules Ver. 1.9.0 §3-2-4
+- Sources: gcg-api card GD05-048 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-048 (effect); Card ruling GD05-048:Q366 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-048; Comprehensive Rules Ver. 1.10.0 §3-2-4
 - **Resolution** (`ruling_overrides_text`): On its deploy turn (not linked) the Unit may attack only a rested enemy Unit; permissions to target active Units do not extend this exception.
   - Rationale: Official card ruling Q366 (July 10, 2026) is authoritative for GD05-048; the same reading is applied to identical wording on other cards.
 
@@ -2805,7 +3074,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
   - ruling GD05-054:Q368: “If one of my Units is destroyed by effect damage, does this card's second effect activate?”
   - ruling GD05-054:Q368: “No, it does not. It only checks for destruction by an effect that reads "destroy it" or similar.”
   - rules 5-10-1: “This describes cards receiving damage equal to or greater than their HP and cards being placed from the field into the trash by effects.”
-- Sources: gcg-api card GD05-054 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-054 (effect); Card ruling GD05-054:Q368 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-054; Comprehensive Rules Ver. 1.9.0 §5-10-1
+- Sources: gcg-api card GD05-054 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-054 (effect); Card ruling GD05-054:Q368 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-054; Comprehensive Rules Ver. 1.10.0 §5-10-1
 - **Resolution** (`ruling_overrides_text`): Record the cause of every destruction (battle damage, effect damage, 'destroy' effect, rules). 'Destroyed by an effect' / 'can't be destroyed by effects' mean 'destroy' effects only; 'destroyed with damage' means battle or effect damage; 'with battle damage' means battle damage only.
   - Rationale: Official card ruling Q368 (July 10, 2026) is authoritative for GD05-054; the same reading is applied to identical wording on other cards.
 
@@ -2819,7 +3088,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
   - ruling GD05-057:Q371: “If this Unit is active, can I destroy one of my Units with its 【Activate･Main】 effect?”
   - ruling GD05-057:Q371: “Yes, you can, and since you perform as much of the effect as possible following "If you do," it can't choose the enemy player as its attack target during this turn.”
   - rules 5-20-2: “Even if the text portion preceding the word “Then” in card text text cannot be resolved, resolving the succeeding portion is possible.”
-- Sources: gcg-api card GD05-057 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-057 (effect); Card ruling GD05-057:Q371 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-057; Comprehensive Rules Ver. 1.9.0 §5-20-2
+- Sources: gcg-api card GD05-057 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-057 (effect); Card ruling GD05-057:Q371 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-057; Comprehensive Rules Ver. 1.10.0 §5-20-2
 - **Resolution** (`ruling_overrides_text`): A leading 'If <condition>,' or 'If you do,' governs every following sentence joined by 'Then' in the same effect; 'Then' only makes the next part independent of whether the immediately preceding action succeeded.
   - Rationale: Official card ruling Q371 (July 10, 2026) is authoritative for GD05-057; the same reading is applied to identical wording on other cards.
 
@@ -2833,7 +3102,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
   - ruling GD05-060:Q372: “Does 【Deploy】/【Attack】 activate the effect during both the 【Deploy】 and the 【Attack】 timing?”
   - ruling GD05-060:Q372: “Yes, that is correct.”
   - rules 5-19-1: “It performs the same function as the conjunction “or” would in those situations.”
-- Sources: gcg-api card GD05-060 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-060 (effect); Card ruling GD05-060:Q372 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-060; Comprehensive Rules Ver. 1.9.0 §5-19-1
+- Sources: gcg-api card GD05-060 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-060 (effect); Card ruling GD05-060:Q372 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-060; Comprehensive Rules Ver. 1.10.0 §5-19-1
 - **Resolution** (`ruling_overrides_text`): '【A】/【B】' gives the effect both timings; each triggers independently (no shared once-per-turn).
   - Rationale: Official card ruling Q372 (July 10, 2026) is authoritative for GD05-060; the same reading is applied to identical wording on other cards.
 
@@ -2847,7 +3116,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
   - ruling GD05-060:Q373: “If this Unit becomes a Link Unit and attacks on the turn when I activated its 【Deploy】 effect, does its 【Attack】 effect activate?”
   - ruling GD05-060:Q373: “Yes, it does.”
   - rules 5-19-1: “It performs the same function as the conjunction “or” would in those situations.”
-- Sources: gcg-api card GD05-060 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-060 (effect); Card ruling GD05-060:Q373 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-060; Comprehensive Rules Ver. 1.9.0 §5-19-1
+- Sources: gcg-api card GD05-060 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-060 (effect); Card ruling GD05-060:Q373 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-060; Comprehensive Rules Ver. 1.10.0 §5-19-1
 - **Resolution** (`ruling_overrides_text`): '【A】/【B】' gives the effect both timings; each triggers independently (no shared once-per-turn).
   - Rationale: Official card ruling Q373 (July 10, 2026) is authoritative for GD05-060; the same reading is applied to identical wording on other cards.
 
@@ -2861,7 +3130,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
   - ruling GD05-061:Q374: “With the conditions for its effect fulfilled, this Unit gains <Blocker> and blocks an enemy Unit. After that, the conditions become unfulfilled and it loses <Blocker>. At this time, what happens to this Unit's block?”
   - ruling GD05-061:Q374: “Since the block is already established, the two Units continue their battle.”
   - rules 8-3-1: “When activated, this effect changes the attack target of the attacking Unit to the Unit with <Blocker>.”
-- Sources: gcg-api card GD05-061 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-061 (effect); Card ruling GD05-061:Q374 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-061; Comprehensive Rules Ver. 1.9.0 §8-3-1
+- Sources: gcg-api card GD05-061 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-061 (effect); Card ruling GD05-061:Q374 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-061; Comprehensive Rules Ver. 1.10.0 §8-3-1
 - **Resolution** (`ruling_overrides_text`): Once <Blocker> has changed the attack target, the new target stays the attack target for the rest of the battle even if the blocker loses <Blocker>.
   - Rationale: Official card ruling Q374 (July 10, 2026) is authoritative for GD05-061; the same reading is applied to identical wording on other cards.
 
@@ -2876,7 +3145,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
   - ruling GD05-068:Q376: “Yes, it does.”
   - rules 3-4-6-3-1: “If the Command effect portion of a Command card paired as a Pilot is referred to by some effect and that effect activates the Command effect, activate it as a Command effect.”
   - rules 3-4-4: “Unless an effect says otherwise, Commands are placed into your trash after their effects have ended.”
-- Sources: gcg-api card GD05-068 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-068 (effect); Card ruling GD05-068:Q376 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-068; Comprehensive Rules Ver. 1.9.0 §3-4-6-3-1; Comprehensive Rules Ver. 1.9.0 §3-4-4
+- Sources: gcg-api card GD05-068 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-068 (effect); Card ruling GD05-068:Q376 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-068; Comprehensive Rules Ver. 1.10.0 §3-4-6-3-1; Comprehensive Rules Ver. 1.10.0 §3-4-4
 - **Resolution** (`ruling_overrides_text`): Activating 【Main】 on a paired Command (or one discarded by GD05-097) costs nothing, counts as activating that Command's 【Main】 for other triggers, and the paired card stays paired.
   - Rationale: Official card ruling Q376 (July 10, 2026) is authoritative for GD05-068; the same reading is applied to identical wording on other cards.
 
@@ -2891,7 +3160,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
   - ruling GD05-069:Q377: “Yes, it does.”
   - rules 8-5-3-2-3: “If both battling Units are destroyed, their destruction is treated as happening simultaneously.”
   - rules 10-1-6-4: “If a card with a triggered effect leaves the location where it is active while that effect is waiting to be activated after it was triggered, the effect still activates.”
-- Sources: gcg-api card GD05-069 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-069 (effect); Card ruling GD05-069:Q377 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-069; Comprehensive Rules Ver. 1.9.0 §8-5-3-2-3; Comprehensive Rules Ver. 1.9.0 §10-1-6-4
+- Sources: gcg-api card GD05-069 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-069 (effect); Card ruling GD05-069:Q377 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-069; Comprehensive Rules Ver. 1.10.0 §8-5-3-2-3; Comprehensive Rules Ver. 1.10.0 §10-1-6-4
 - **Resolution** (`ruling_overrides_text`): 'When this Unit destroys an enemy … with (battle) damage' triggers even if this Unit is destroyed simultaneously; the pending trigger resolves after both Units are in the trash (parts that need this Unit on the field do nothing).
   - Rationale: Official card ruling Q377 (July 10, 2026) is authoritative for GD05-069; the same reading is applied to identical wording on other cards.
 
@@ -2906,7 +3175,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
   - ruling GD05-069:Q378: “No, you do not.”
   - rules 3-4-6-3-1: “If the Command effect portion of a Command card paired as a Pilot is referred to by some effect and that effect activates the Command effect, activate it as a Command effect.”
   - rules 3-4-4: “Unless an effect says otherwise, Commands are placed into your trash after their effects have ended.”
-- Sources: gcg-api card GD05-069 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-069 (effect); Card ruling GD05-069:Q378 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-069; Comprehensive Rules Ver. 1.9.0 §3-4-6-3-1; Comprehensive Rules Ver. 1.9.0 §3-4-4
+- Sources: gcg-api card GD05-069 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-069 (effect); Card ruling GD05-069:Q378 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-069; Comprehensive Rules Ver. 1.10.0 §3-4-6-3-1; Comprehensive Rules Ver. 1.10.0 §3-4-4
 - **Resolution** (`ruling_overrides_text`): Activating 【Main】 on a paired Command (or one discarded by GD05-097) costs nothing, counts as activating that Command's 【Main】 for other triggers, and the paired card stays paired.
   - Rationale: Official card ruling Q378 (July 10, 2026) is authoritative for GD05-069; the same reading is applied to identical wording on other cards.
 
@@ -2921,7 +3190,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
   - ruling GD05-069:Q379: “No, it is not. It remains paired.”
   - rules 3-4-6-3-1: “If the Command effect portion of a Command card paired as a Pilot is referred to by some effect and that effect activates the Command effect, activate it as a Command effect.”
   - rules 3-4-4: “Unless an effect says otherwise, Commands are placed into your trash after their effects have ended.”
-- Sources: gcg-api card GD05-069 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-069 (effect); Card ruling GD05-069:Q379 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-069; Comprehensive Rules Ver. 1.9.0 §3-4-6-3-1; Comprehensive Rules Ver. 1.9.0 §3-4-4
+- Sources: gcg-api card GD05-069 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-069 (effect); Card ruling GD05-069:Q379 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-069; Comprehensive Rules Ver. 1.10.0 §3-4-6-3-1; Comprehensive Rules Ver. 1.10.0 §3-4-4
 - **Resolution** (`ruling_overrides_text`): Activating 【Main】 on a paired Command (or one discarded by GD05-097) costs nothing, counts as activating that Command's 【Main】 for other triggers, and the paired card stays paired.
   - Rationale: Official card ruling Q379 (July 10, 2026) is authoritative for GD05-069; the same reading is applied to identical wording on other cards.
 
@@ -2936,7 +3205,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
   - ruling GD05-076:Q383: “No, you do not.”
   - rules 3-4-6-3-1: “If the Command effect portion of a Command card paired as a Pilot is referred to by some effect and that effect activates the Command effect, activate it as a Command effect.”
   - rules 3-4-4: “Unless an effect says otherwise, Commands are placed into your trash after their effects have ended.”
-- Sources: gcg-api card GD05-076 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-076 (effect); Card ruling GD05-076:Q383 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-076; Comprehensive Rules Ver. 1.9.0 §3-4-6-3-1; Comprehensive Rules Ver. 1.9.0 §3-4-4
+- Sources: gcg-api card GD05-076 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-076 (effect); Card ruling GD05-076:Q383 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-076; Comprehensive Rules Ver. 1.10.0 §3-4-6-3-1; Comprehensive Rules Ver. 1.10.0 §3-4-4
 - **Resolution** (`ruling_overrides_text`): Activating 【Main】 on a paired Command (or one discarded by GD05-097) costs nothing, counts as activating that Command's 【Main】 for other triggers, and the paired card stays paired.
   - Rationale: Official card ruling Q383 (July 10, 2026) is authoritative for GD05-076; the same reading is applied to identical wording on other cards.
 
@@ -2951,7 +3220,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
   - ruling GD05-076:Q384: “No, it is not. It remains paired.”
   - rules 3-4-6-3-1: “If the Command effect portion of a Command card paired as a Pilot is referred to by some effect and that effect activates the Command effect, activate it as a Command effect.”
   - rules 3-4-4: “Unless an effect says otherwise, Commands are placed into your trash after their effects have ended.”
-- Sources: gcg-api card GD05-076 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-076 (effect); Card ruling GD05-076:Q384 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-076; Comprehensive Rules Ver. 1.9.0 §3-4-6-3-1; Comprehensive Rules Ver. 1.9.0 §3-4-4
+- Sources: gcg-api card GD05-076 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-076 (effect); Card ruling GD05-076:Q384 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-076; Comprehensive Rules Ver. 1.10.0 §3-4-6-3-1; Comprehensive Rules Ver. 1.10.0 §3-4-4
 - **Resolution** (`ruling_overrides_text`): Activating 【Main】 on a paired Command (or one discarded by GD05-097) costs nothing, counts as activating that Command's 【Main】 for other triggers, and the paired card stays paired.
   - Rationale: Official card ruling Q384 (July 10, 2026) is authoritative for GD05-076; the same reading is applied to identical wording on other cards.
 
@@ -2965,7 +3234,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
   - ruling GD05-078:Q385: “If I activate GD03-105 Bridge Crew and choose this non-Link Unit, can it choose an active enemy Unit with no paired Pilot as its attack target and attack it on the turn it is deployed?”
   - ruling GD05-078:Q385: “No. This Unit can only attack with this effect if it chooses a rested enemy Unit as its attack target.”
   - rules 3-2-4: “Unless specified otherwise, a newly deployed Unit cannot attack on the turn it is deployed.”
-- Sources: gcg-api card GD05-078 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-078 (effect); Card ruling GD05-078:Q385 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-078; Comprehensive Rules Ver. 1.9.0 §3-2-4
+- Sources: gcg-api card GD05-078 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-078 (effect); Card ruling GD05-078:Q385 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-078; Comprehensive Rules Ver. 1.10.0 §3-2-4
 - **Resolution** (`ruling_overrides_text`): On its deploy turn (not linked) the Unit may attack only a rested enemy Unit; permissions to target active Units do not extend this exception.
   - Rationale: Official card ruling Q385 (July 10, 2026) is authoritative for GD05-078; the same reading is applied to identical wording on other cards.
 
@@ -2979,7 +3248,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
   - ruling GD05-086:Q388: “What happens if there are multiple Units in play that attract the attack target with effects like "Enemy Units other than Link Units choose this rested Unit as their attack target if possible when attacking"?”
   - ruling GD05-086:Q388: “Choose one of the Units attracting the attack target as the attack target.”
   - rules 8-2-1: “The attack target can be either the opposing player or a rested enemy Unit.”
-- Sources: gcg-api card GD05-086 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-086 (effect); Card ruling GD05-086:Q388 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-086; Comprehensive Rules Ver. 1.9.0 §8-2-1
+- Sources: gcg-api card GD05-086 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-086 (effect); Card ruling GD05-086:Q388 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-086; Comprehensive Rules Ver. 1.10.0 §8-2-1
 - **Resolution** (`ruling_overrides_text`): When declaring an attack: 'must choose that Unit' (GD04-107) outranks 'choose … if possible' attractors; with several eligible forced/attracting Units the attacker picks one; a forced Unit that is not a legal target (active without an active-target permission, or gone) imposes nothing; constraints apply at declaration only and never retarget an attack in progress.
   - Rationale: Official card ruling Q388 (July 10, 2026) is authoritative for GD05-086; the same reading is applied to identical wording on other cards.
 
@@ -2993,7 +3262,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
   - ruling GD05-089:Q389: “If this card is deployed as an (AP3・HP3) Unit with its 【Burst】 effect, do I treat it as Lv.6?”
   - ruling GD05-089:Q389: “Yes, treat it as Lv.6.”
   - rules 3-3-1: “When played, Pilot cards are placed beneath Units in the battle area and paired with them.”
-- Sources: gcg-api card GD05-089 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-089 (effect); Card ruling GD05-089:Q389 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-089; Comprehensive Rules Ver. 1.9.0 §3-3-1
+- Sources: gcg-api card GD05-089 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-089 (effect); Card ruling GD05-089:Q389 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-089; Comprehensive Rules Ver. 1.10.0 §3-3-1
 - **Resolution** (`ruling_overrides_text`): Deployed this way the card is a Unit with AP3/HP3 and Lv.6 (Q389) that can be paired with a Pilot (Q390); its other printed characteristics (name, colour, traits) are unchanged and it has no link condition.
   - Rationale: Official card ruling Q389 (July 10, 2026) is authoritative for GD05-089; the same reading is applied to identical wording on other cards.
 
@@ -3007,7 +3276,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
   - ruling GD05-089:Q390: “If this card is deployed as an (AP3・HP3) Unit with its 【Burst】 effect, can I pair a Pilot with it?”
   - ruling GD05-089:Q390: “Yes, you can pair a Pilot with it.”
   - rules 3-3-1: “When played, Pilot cards are placed beneath Units in the battle area and paired with them.”
-- Sources: gcg-api card GD05-089 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-089 (effect); Card ruling GD05-089:Q390 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-089; Comprehensive Rules Ver. 1.9.0 §3-3-1
+- Sources: gcg-api card GD05-089 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-089 (effect); Card ruling GD05-089:Q390 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-089; Comprehensive Rules Ver. 1.10.0 §3-3-1
 - **Resolution** (`ruling_overrides_text`): Deployed this way the card is a Unit with AP3/HP3 and Lv.6 (Q389) that can be paired with a Pilot (Q390); its other printed characteristics (name, colour, traits) are unchanged and it has no link condition.
   - Rationale: Official card ruling Q390 (July 10, 2026) is authoritative for GD05-089; the same reading is applied to identical wording on other cards.
 
@@ -3022,7 +3291,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
   - ruling GD05-089:Q391: “Yes, it does.”
   - rules 3-4-6-3-1: “If the Command effect portion of a Command card paired as a Pilot is referred to by some effect and that effect activates the Command effect, activate it as a Command effect.”
   - rules 3-4-4: “Unless an effect says otherwise, Commands are placed into your trash after their effects have ended.”
-- Sources: gcg-api card GD05-089 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-089 (effect); Card ruling GD05-089:Q391 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-089; Comprehensive Rules Ver. 1.9.0 §3-4-6-3-1; Comprehensive Rules Ver. 1.9.0 §3-4-4
+- Sources: gcg-api card GD05-089 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-089 (effect); Card ruling GD05-089:Q391 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-089; Comprehensive Rules Ver. 1.10.0 §3-4-6-3-1; Comprehensive Rules Ver. 1.10.0 §3-4-4
 - **Resolution** (`ruling_overrides_text`): Activating 【Main】 on a paired Command (or one discarded by GD05-097) costs nothing, counts as activating that Command's 【Main】 for other triggers, and the paired card stays paired.
   - Rationale: Official card ruling Q391 (July 10, 2026) is authoritative for GD05-089; the same reading is applied to identical wording on other cards.
 
@@ -3036,7 +3305,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
   - ruling GD05-092:Q392: “Does this effect still take effect if I am blocked by an enemy Unit after attacking the player?”
   - ruling GD05-092:Q392: “Yes, it does.”
   - rules 10-3-3: “those targets are chosen at the point in time when the instructions appear in the effect.”
-- Sources: gcg-api card GD05-092 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-092 (effect); Card ruling GD05-092:Q392 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-092; Comprehensive Rules Ver. 1.9.0 §10-3-3
+- Sources: gcg-api card GD05-092 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-092 (effect); Card ruling GD05-092:Q392 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-092; Comprehensive Rules Ver. 1.10.0 §10-3-3
 - **Resolution** (`ruling_overrides_text`): Conditions and target restrictions of triggered/activated/command effects are evaluated once, when resolved; later changes neither undo the result nor retrigger it.
   - Rationale: Official card ruling Q392 (July 10, 2026) is authoritative for GD05-092; the same reading is applied to identical wording on other cards.
 
@@ -3051,7 +3320,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
   - ruling GD05-093:Q393: “No, you do not.”
   - rules 5-7-1: “This typically describes revealing a card in your hand and paying its cost to use it.”
   - rules 7-5-2-2-3: “Choose the number of Resources necessary to pay its cost and rest them.”
-- Sources: gcg-api card GD05-093 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-093 (effect); Card ruling GD05-093:Q393 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-093; Comprehensive Rules Ver. 1.9.0 §5-7-1; Comprehensive Rules Ver. 1.9.0 §7-5-2-2-3
+- Sources: gcg-api card GD05-093 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-093 (effect); Card ruling GD05-093:Q393 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-093; Comprehensive Rules Ver. 1.10.0 §5-7-1; Comprehensive Rules Ver. 1.10.0 §7-5-2-2-3
 - **Resolution** (`ruling_overrides_text`): A card deployed, paired or activated by an effect pays no cost and needs no Lv. check unless the text says 'Pay its cost'; its own 【Deploy】/【When Paired】/【When Linked】 still trigger.
   - Rationale: Official card ruling Q393 (July 10, 2026) is authoritative for GD05-093; the same reading is applied to identical wording on other cards.
 
@@ -3066,7 +3335,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
   - ruling GD05-097:Q396: “No, you do not.”
   - rules 3-4-6-3-1: “If the Command effect portion of a Command card paired as a Pilot is referred to by some effect and that effect activates the Command effect, activate it as a Command effect.”
   - rules 3-4-4: “Unless an effect says otherwise, Commands are placed into your trash after their effects have ended.”
-- Sources: gcg-api card GD05-097 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-097 (effect); Card ruling GD05-097:Q396 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-097; Comprehensive Rules Ver. 1.9.0 §3-4-6-3-1; Comprehensive Rules Ver. 1.9.0 §3-4-4
+- Sources: gcg-api card GD05-097 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-097 (effect); Card ruling GD05-097:Q396 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-097; Comprehensive Rules Ver. 1.10.0 §3-4-6-3-1; Comprehensive Rules Ver. 1.10.0 §3-4-4
 - **Resolution** (`ruling_overrides_text`): Activating 【Main】 on a paired Command (or one discarded by GD05-097) costs nothing, counts as activating that Command's 【Main】 for other triggers, and the paired card stays paired.
   - Rationale: Official card ruling Q396 (July 10, 2026) is authoritative for GD05-097; the same reading is applied to identical wording on other cards.
 
@@ -3081,7 +3350,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
   - ruling GD05-097:Q397: “Yes, it does.”
   - rules 3-4-6-3-1: “If the Command effect portion of a Command card paired as a Pilot is referred to by some effect and that effect activates the Command effect, activate it as a Command effect.”
   - rules 3-4-4: “Unless an effect says otherwise, Commands are placed into your trash after their effects have ended.”
-- Sources: gcg-api card GD05-097 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-097 (effect); Card ruling GD05-097:Q397 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-097; Comprehensive Rules Ver. 1.9.0 §3-4-6-3-1; Comprehensive Rules Ver. 1.9.0 §3-4-4
+- Sources: gcg-api card GD05-097 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-097 (effect); Card ruling GD05-097:Q397 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-097; Comprehensive Rules Ver. 1.10.0 §3-4-6-3-1; Comprehensive Rules Ver. 1.10.0 §3-4-4
 - **Resolution** (`ruling_overrides_text`): Activating 【Main】 on a paired Command (or one discarded by GD05-097) costs nothing, counts as activating that Command's 【Main】 for other triggers, and the paired card stays paired.
   - Rationale: Official card ruling Q397 (July 10, 2026) is authoritative for GD05-097; the same reading is applied to identical wording on other cards.
 
@@ -3096,7 +3365,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
   - ruling GD05-099:Q399: “Yes, it does.”
   - rules 8-5-3-2-3: “If both battling Units are destroyed, their destruction is treated as happening simultaneously.”
   - rules 10-1-6-4: “If a card with a triggered effect leaves the location where it is active while that effect is waiting to be activated after it was triggered, the effect still activates.”
-- Sources: gcg-api card GD05-099 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-099 (effect); Card ruling GD05-099:Q399 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-099; Comprehensive Rules Ver. 1.9.0 §8-5-3-2-3; Comprehensive Rules Ver. 1.9.0 §10-1-6-4
+- Sources: gcg-api card GD05-099 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-099 (effect); Card ruling GD05-099:Q399 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-099; Comprehensive Rules Ver. 1.10.0 §8-5-3-2-3; Comprehensive Rules Ver. 1.10.0 §10-1-6-4
 - **Resolution** (`ruling_overrides_text`): 'When this Unit destroys an enemy … with (battle) damage' triggers even if this Unit is destroyed simultaneously; the pending trigger resolves after both Units are in the trash (parts that need this Unit on the field do nothing).
   - Rationale: Official card ruling Q399 (July 10, 2026) is authoritative for GD05-099; the same reading is applied to identical wording on other cards.
 
@@ -3110,7 +3379,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
   - ruling GD05-101:Q400: “Does this effect activate when I pay the cost to deploy a Unit with GD03-051 Gundam X Divider's effect?”
   - ruling GD05-101:Q400: “Yes, it does.”
   - rules 10-1-7-3: “paying a cost equal to the number printed within the symbol satisfies the condition and allows the effect to be activated.”
-- Sources: gcg-api card GD05-101 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-101 (effect); Card ruling GD05-101:Q400 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-101; Comprehensive Rules Ver. 1.9.0 §10-1-7-3
+- Sources: gcg-api card GD05-101 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-101 (effect); Card ruling GD05-101:Q400 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-101; Comprehensive Rules Ver. 1.10.0 §10-1-7-3
 - **Resolution** (`ruling_overrides_text`): Any payment of ① or more made while resolving a Unit's effect (activation cost or 'Pay its cost to deploy it') satisfies 'when you pay ① or more for one of your Units' effects'.
   - Rationale: Official card ruling Q400 (July 10, 2026) is authoritative for GD05-101; the same reading is applied to identical wording on other cards.
 
@@ -3124,7 +3393,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
   - ruling GD05-102:Q401: “If there are no enemy Units with 5 or less HP in play, can I play this card and choose to activate the effect "■Choose 1 enemy Unit with 5 or less HP. Return it to its owner's hand"?”
   - ruling GD05-102:Q401: “No. If the effect choice requires choosing a target and you cannot choose that target, then this card cannot be played.”
   - rules 10-1-8-1-1: “If a command effect requires choosing a target, playing that Command card is not possible if that target cannot be chosen.”
-- Sources: gcg-api card GD05-102 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-102 (effect); Card ruling GD05-102:Q401 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-102; Comprehensive Rules Ver. 1.9.0 §10-1-8-1-1
+- Sources: gcg-api card GD05-102 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-102 (effect); Card ruling GD05-102:Q401 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-102; Comprehensive Rules Ver. 1.10.0 §10-1-8-1-1
 - **Resolution** (`ruling_overrides_text`): A modal Command is chosen and played only with a mode whose targets can all be chosen; if no mode is legal the card cannot be played.
   - Rationale: Official card ruling Q401 (July 10, 2026) is authoritative for GD05-102; the same reading is applied to identical wording on other cards.
 
@@ -3138,7 +3407,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
   - ruling GD05-102:Q402: “If there are no Units in play, can I play this card and choose to activate the effect "■Choose 1 Unit. It recovers 3 HP"?”
   - ruling GD05-102:Q402: “No. If the effect choice requires choosing a target and you cannot choose that target, then this card cannot be played.”
   - rules 10-1-8-1-1: “If a command effect requires choosing a target, playing that Command card is not possible if that target cannot be chosen.”
-- Sources: gcg-api card GD05-102 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-102 (effect); Card ruling GD05-102:Q402 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-102; Comprehensive Rules Ver. 1.9.0 §10-1-8-1-1
+- Sources: gcg-api card GD05-102 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-102 (effect); Card ruling GD05-102:Q402 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-102; Comprehensive Rules Ver. 1.10.0 §10-1-8-1-1
 - **Resolution** (`ruling_overrides_text`): A modal Command is chosen and played only with a mode whose targets can all be chosen; if no mode is legal the card cannot be played.
   - Rationale: Official card ruling Q402 (July 10, 2026) is authoritative for GD05-102; the same reading is applied to identical wording on other cards.
 
@@ -3152,7 +3421,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
   - ruling GD05-103:Q403: “Can this effect choose an undamaged Unit and give it AP+2?”
   - ruling GD05-103:Q403: “Yes, it can.”
   - rules 1-3-2-1: “If you are required to put an entity into some state that entity is already in, the entity remains in the state it was in, and the action putting it into that state is not performed.”
-- Sources: gcg-api card GD05-103 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-103 (effect); Card ruling GD05-103:Q403 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-103; Comprehensive Rules Ver. 1.9.0 §1-3-2-1
+- Sources: gcg-api card GD05-103 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-103 (effect); Card ruling GD05-103:Q403 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-103; Comprehensive Rules Ver. 1.10.0 §1-3-2-1
 - **Resolution** (`ruling_overrides_text`): Targets may be chosen even when the action on them would be a no-op (already active, undamaged, already has the keyword); the no-op part is simply not performed.
   - Rationale: Official card ruling Q403 (July 10, 2026) is authoritative for GD05-103; the same reading is applied to identical wording on other cards.
 
@@ -3166,7 +3435,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
   - ruling GD05-106:Q404: “If there are no Pilot cards that are Lv.5 or higher in my trash, can I play this card and choose to activate the effect "■Choose 1 Pilot card that is Lv.5 or higher from your trash. Add it to your hand"?”
   - ruling GD05-106:Q404: “No. If the effect choice requires choosing a target and you cannot choose that target, then this card cannot be played.”
   - rules 10-1-8-1-1: “If a command effect requires choosing a target, playing that Command card is not possible if that target cannot be chosen.”
-- Sources: gcg-api card GD05-106 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-106 (effect); Card ruling GD05-106:Q404 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-106; Comprehensive Rules Ver. 1.9.0 §10-1-8-1-1
+- Sources: gcg-api card GD05-106 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-106 (effect); Card ruling GD05-106:Q404 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-106; Comprehensive Rules Ver. 1.10.0 §10-1-8-1-1
 - **Resolution** (`ruling_overrides_text`): A modal Command is chosen and played only with a mode whose targets can all be chosen; if no mode is legal the card cannot be played.
   - Rationale: Official card ruling Q404 (July 10, 2026) is authoritative for GD05-106; the same reading is applied to identical wording on other cards.
 
@@ -3180,7 +3449,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
   - ruling GD05-107:Q405: “Does an effect that destroys the first two cards in the shield area include Base cards?”
   - ruling GD05-107:Q405: “Yes, it does.”
   - rules 13-1-7-4: “When two Shields are successfully destroyed with this effect, reveal them simultaneously.”
-- Sources: gcg-api card GD05-107 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-107 (effect); Card ruling GD05-107:Q405 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-107; Comprehensive Rules Ver. 1.9.0 §13-1-7-4
+- Sources: gcg-api card GD05-107 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-107 (effect); Card ruling GD05-107:Q405 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-107; Comprehensive Rules Ver. 1.10.0 §13-1-7-4
 - **Resolution** (`ruling_overrides_text`): 'The first 2 cards' are the Base (if any) then the top Shield(s); both are destroyed simultaneously, destroyed Shields are revealed together and their owner orders the 【Burst】 effects.
   - Rationale: Official card ruling Q405 (July 10, 2026) is authoritative for GD05-107; the same reading is applied to identical wording on other cards.
 
@@ -3194,7 +3463,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
   - ruling GD05-107:Q406: “When two Shields are destroyed by this effect, do I reveal them simultaneously?”
   - ruling GD05-107:Q406: “Yes. Reveal them simultaneously, and if there are any 【Burst】 effects present, resolve them.”
   - rules 13-1-7-4: “When two Shields are successfully destroyed with this effect, reveal them simultaneously.”
-- Sources: gcg-api card GD05-107 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-107 (effect); Card ruling GD05-107:Q406 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-107; Comprehensive Rules Ver. 1.9.0 §13-1-7-4
+- Sources: gcg-api card GD05-107 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-107 (effect); Card ruling GD05-107:Q406 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-107; Comprehensive Rules Ver. 1.10.0 §13-1-7-4
 - **Resolution** (`ruling_overrides_text`): 'The first 2 cards' are the Base (if any) then the top Shield(s); both are destroyed simultaneously, destroyed Shields are revealed together and their owner orders the 【Burst】 effects.
   - Rationale: Official card ruling Q406 (July 10, 2026) is authoritative for GD05-107; the same reading is applied to identical wording on other cards.
 
@@ -3208,7 +3477,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
   - ruling GD05-107:Q407: “Two Shields are revealed after being destroyed by this effect and both of them have 【Burst】 effects. At this time, how should they be resolved?”
   - ruling GD05-107:Q407: “The Shields' owner chooses what order to resolve those 【Burst】 effects in then resolves them one at a time.”
   - rules 13-1-7-4: “When two Shields are successfully destroyed with this effect, reveal them simultaneously.”
-- Sources: gcg-api card GD05-107 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-107 (effect); Card ruling GD05-107:Q407 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-107; Comprehensive Rules Ver. 1.9.0 §13-1-7-4
+- Sources: gcg-api card GD05-107 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-107 (effect); Card ruling GD05-107:Q407 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-107; Comprehensive Rules Ver. 1.10.0 §13-1-7-4
 - **Resolution** (`ruling_overrides_text`): 'The first 2 cards' are the Base (if any) then the top Shield(s); both are destroyed simultaneously, destroyed Shields are revealed together and their owner orders the 【Burst】 effects.
   - Rationale: Official card ruling Q407 (July 10, 2026) is authoritative for GD05-107; the same reading is applied to identical wording on other cards.
 
@@ -3222,7 +3491,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
   - ruling GD05-112:Q409: “What does "After activating this card's 【Main】, you may pair this card from your trash with one of your (MF) Units" mean?”
   - ruling GD05-112:Q409: “This effect enables the card to be paired as a Pilot after it has been played as a Command and placed into the trash.”
   - rules 3-4-4: “Unless an effect says otherwise, Commands are placed into your trash after their effects have ended.”
-- Sources: gcg-api card GD05-112 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-112 (effect); Card ruling GD05-112:Q409 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-112; Comprehensive Rules Ver. 1.9.0 §3-4-4
+- Sources: gcg-api card GD05-112 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-112 (effect); Card ruling GD05-112:Q409 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-112; Comprehensive Rules Ver. 1.10.0 §3-4-4
 - **Resolution** (`ruling_overrides_text`): Resolve the Command's 【Main】, place it in the trash, then (as the last step of the same resolution) optionally pair it from the trash with an eligible Unit; pairing is free and triggers 【When Paired】/【When Linked】.
   - Rationale: Official card ruling Q409 (July 10, 2026) is authoritative for GD05-112; the same reading is applied to identical wording on other cards.
 
@@ -3236,7 +3505,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
   - ruling GD05-113:Q410: “What does "After activating this card's 【Main】, you may pair this card from your trash with one of your (MF) Units" mean?”
   - ruling GD05-113:Q410: “This effect enables the card to be paired as a Pilot after it has been played as a Command and placed into the trash.”
   - rules 3-4-4: “Unless an effect says otherwise, Commands are placed into your trash after their effects have ended.”
-- Sources: gcg-api card GD05-113 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-113 (effect); Card ruling GD05-113:Q410 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-113; Comprehensive Rules Ver. 1.9.0 §3-4-4
+- Sources: gcg-api card GD05-113 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-113 (effect); Card ruling GD05-113:Q410 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-113; Comprehensive Rules Ver. 1.10.0 §3-4-4
 - **Resolution** (`ruling_overrides_text`): Resolve the Command's 【Main】, place it in the trash, then (as the last step of the same resolution) optionally pair it from the trash with an eligible Unit; pairing is free and triggers 【When Paired】/【When Linked】.
   - Rationale: Official card ruling Q410 (July 10, 2026) is authoritative for GD05-113; the same reading is applied to identical wording on other cards.
 
@@ -3251,7 +3520,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
   - ruling GD05-117:Q412: “No. It will only activate if you can choose both Units.”
   - rules 1-3-2: “If a player is required to perform an action and only part of that action is not possible, the player must perform as much of the action as possible.”
   - rules 10-2-2: “If an effect requires choosing a target, that effect will not activate if the target cannot be chosen.”
-- Sources: gcg-api card GD05-117 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-117 (effect); Card ruling GD05-117:Q412 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-117; Comprehensive Rules Ver. 1.9.0 §1-3-2; Comprehensive Rules Ver. 1.9.0 §10-2-2
+- Sources: gcg-api card GD05-117 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-117 (effect); Card ruling GD05-117:Q412 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-117; Comprehensive Rules Ver. 1.10.0 §1-3-2; Comprehensive Rules Ver. 1.10.0 §10-2-2
 - **Resolution** (`ruling_overrides_text`): 'Choose 1 X and 1 Y' activates (or the Command can be played) only if both targets can be chosen; it never resolves with just one.
   - Rationale: Official card ruling Q412 (July 10, 2026) is authoritative for GD05-117; the same reading is applied to identical wording on other cards.
 
@@ -3265,7 +3534,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
   - ruling GD05-121:Q414: “What does "After activating this card's 【Main】, you may pair this card from your trash with one of your (MF) Units" mean?”
   - ruling GD05-121:Q414: “This effect enables the card to be paired as a Pilot after it has been played as a Command and placed into the trash.”
   - rules 3-4-4: “Unless an effect says otherwise, Commands are placed into your trash after their effects have ended.”
-- Sources: gcg-api card GD05-121 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-121 (effect); Card ruling GD05-121:Q414 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-121; Comprehensive Rules Ver. 1.9.0 §3-4-4
+- Sources: gcg-api card GD05-121 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-121 (effect); Card ruling GD05-121:Q414 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-121; Comprehensive Rules Ver. 1.10.0 §3-4-4
 - **Resolution** (`ruling_overrides_text`): Resolve the Command's 【Main】, place it in the trash, then (as the last step of the same resolution) optionally pair it from the trash with an eligible Unit; pairing is free and triggers 【When Paired】/【When Linked】.
   - Rationale: Official card ruling Q414 (July 10, 2026) is authoritative for GD05-121; the same reading is applied to identical wording on other cards.
 
@@ -3279,7 +3548,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
   - ruling GD05-122:Q415: “What does "After activating this card's 【Main】, you may pair this card from your trash with one of your (MF) Units" mean?”
   - ruling GD05-122:Q415: “This effect enables the card to be paired as a Pilot after it has been played as a Command and placed into the trash.”
   - rules 3-4-4: “Unless an effect says otherwise, Commands are placed into your trash after their effects have ended.”
-- Sources: gcg-api card GD05-122 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-122 (effect); Card ruling GD05-122:Q415 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-122; Comprehensive Rules Ver. 1.9.0 §3-4-4
+- Sources: gcg-api card GD05-122 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-122 (effect); Card ruling GD05-122:Q415 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-122; Comprehensive Rules Ver. 1.10.0 §3-4-4
 - **Resolution** (`ruling_overrides_text`): Resolve the Command's 【Main】, place it in the trash, then (as the last step of the same resolution) optionally pair it from the trash with an eligible Unit; pairing is free and triggers 【When Paired】/【When Linked】.
   - Rationale: Official card ruling Q415 (July 10, 2026) is authoritative for GD05-122; the same reading is applied to identical wording on other cards.
 
@@ -3293,7 +3562,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
   - ruling GD05-123:Q416: “During my opponent's turn, if 3 or more effect damage is reduced to 2 or less damage by some effect, do friendly (Orb) Units receive that effect damage?”
   - ruling GD05-123:Q416: “No, they do not.”
   - rules 5-21-1: “This refers to decreasing damage a Unit, Base, or Shield receives by the indicated amount before it is received.”
-- Sources: gcg-api card GD05-123 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-123 (effect); Card ruling GD05-123:Q416 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-123; Comprehensive Rules Ver. 1.9.0 §5-21-1
+- Sources: gcg-api card GD05-123 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-123 (effect); Card ruling GD05-123:Q416 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-123; Comprehensive Rules Ver. 1.10.0 §5-21-1
 - **Resolution** (`ruling_overrides_text`): Apply all damage reductions first, then 'can't receive N or less damage' to the reduced amount.
   - Rationale: Official card ruling Q416 (July 10, 2026) is authoritative for GD05-123; the same reading is applied to identical wording on other cards.
 
@@ -3307,7 +3576,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
   - ruling GD05-124:Q417: “If I have this Base and GD04-006 V-Dash Gundam in play but no other Units, can V-Dash Gundam rest this Base instead of a Unit and activate its 【Activate･Main】 effect?”
   - ruling GD05-124:Q417: “No, it cannot. When you would rest a Unit, this Base's effect enables you to rest the Base instead, so if the prerequisite Unit isn't present, the Base cannot be rested in place of it.”
   - rules 10-1-9-1: “When some event would occur, a substitution effect replaces the implementation of that event with another event.”
-- Sources: gcg-api card GD05-124 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-124 (effect); Card ruling GD05-124:Q417 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-124; Comprehensive Rules Ver. 1.9.0 §10-1-9-1
+- Sources: gcg-api card GD05-124 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-124 (effect); Card ruling GD05-124:Q417 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-124; Comprehensive Rules Ver. 1.10.0 §10-1-9-1
 - **Resolution** (`ruling_overrides_text`): 'Rest X instead' may replace resting a Unit/Base only if that Unit/Base could have been rested, and replaces exactly one of them.
   - Rationale: Official card ruling Q417 (July 10, 2026) is authoritative for GD05-124; the same reading is applied to identical wording on other cards.
 
@@ -3321,7 +3590,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
   - ruling GD05-124:Q418: “if I have this Base, GD05-001 V2 Gundam, and two other (League Militaire) Units in play, can V2 Gundam rest this Base instead of the two Units and activate its 【Activate･Main】?”
   - ruling GD05-124:Q418: “No, it cannot. It can only rest it in place of one of the Units.”
   - rules 10-1-9-1: “When some event would occur, a substitution effect replaces the implementation of that event with another event.”
-- Sources: gcg-api card GD05-124 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-124 (effect); Card ruling GD05-124:Q418 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-124; Comprehensive Rules Ver. 1.9.0 §10-1-9-1
+- Sources: gcg-api card GD05-124 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-124 (effect); Card ruling GD05-124:Q418 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-124; Comprehensive Rules Ver. 1.10.0 §10-1-9-1
 - **Resolution** (`ruling_overrides_text`): 'Rest X instead' may replace resting a Unit/Base only if that Unit/Base could have been rested, and replaces exactly one of them.
   - Rationale: Official card ruling Q418 (July 10, 2026) is authoritative for GD05-124; the same reading is applied to identical wording on other cards.
 
@@ -3336,7 +3605,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
   - ruling GD05-129:Q421: “No, you do not.”
   - rules 5-7-1: “This typically describes revealing a card in your hand and paying its cost to use it.”
   - rules 7-5-2-2-3: “Choose the number of Resources necessary to pay its cost and rest them.”
-- Sources: gcg-api card GD05-129 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-129 (effect); Card ruling GD05-129:Q421 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-129; Comprehensive Rules Ver. 1.9.0 §5-7-1; Comprehensive Rules Ver. 1.9.0 §7-5-2-2-3
+- Sources: gcg-api card GD05-129 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-129 (effect); Card ruling GD05-129:Q421 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-129; Comprehensive Rules Ver. 1.10.0 §5-7-1; Comprehensive Rules Ver. 1.10.0 §7-5-2-2-3
 - **Resolution** (`ruling_overrides_text`): A card deployed, paired or activated by an effect pays no cost and needs no Lv. check unless the text says 'Pay its cost'; its own 【Deploy】/【When Paired】/【When Linked】 still trigger.
   - Rationale: Official card ruling Q421 (July 10, 2026) is authoritative for GD05-129; the same reading is applied to identical wording on other cards.
 
@@ -3351,7 +3620,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
   - ruling GD05-130:Q423: “No, you do not.”
   - rules 5-7-1: “This typically describes revealing a card in your hand and paying its cost to use it.”
   - rules 7-5-2-2-3: “Choose the number of Resources necessary to pay its cost and rest them.”
-- Sources: gcg-api card GD05-130 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-130 (effect); Card ruling GD05-130:Q423 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-130; Comprehensive Rules Ver. 1.9.0 §5-7-1; Comprehensive Rules Ver. 1.9.0 §7-5-2-2-3
+- Sources: gcg-api card GD05-130 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-130 (effect); Card ruling GD05-130:Q423 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-130; Comprehensive Rules Ver. 1.10.0 §5-7-1; Comprehensive Rules Ver. 1.10.0 §7-5-2-2-3
 - **Resolution** (`ruling_overrides_text`): A card deployed, paired or activated by an effect pays no cost and needs no Lv. check unless the text says 'Pay its cost'; its own 【Deploy】/【When Paired】/【When Linked】 still trigger.
   - Rationale: Official card ruling Q423 (July 10, 2026) is authoritative for GD05-130; the same reading is applied to identical wording on other cards.
 
@@ -3365,7 +3634,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
   - ruling ST01-001:Q113: “Does this Unit also get AP+1 from its 【During Pair】 effect?”
   - ruling ST01-001:Q113: “Yes, it does.”
   - rules 10-1-5-4: “Constant effects do not wait to be triggered or activated. They are active from the moment they enter the location where they activate.”
-- Sources: gcg-api card ST01-001 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST01-001 (effect); Card ruling ST01-001:Q113 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST01-001; Comprehensive Rules Ver. 1.9.0 §10-1-5-4
+- Sources: gcg-api card ST01-001 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST01-001 (effect); Card ruling ST01-001:Q113 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST01-001; Comprehensive Rules Ver. 1.10.0 §10-1-5-4
 - **Resolution** (`ruling_overrides_text`): 'All your (X) Units' and 'when one of your (X) Units is deployed' include the source card itself; constant effects (including trait grants) apply before trigger conditions of the entering card are checked.
   - Rationale: Official card ruling Q113 (July 04, 2025) is authoritative for ST01-001; the same reading is applied to identical wording on other cards.
 
@@ -3379,7 +3648,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
   - ruling ST01-011:Q142: “Can this 【Attack】 effect choose an active Resource?”
   - ruling ST01-011:Q142: “Yes, it can.”
   - rules 1-3-2-1: “If you are required to put an entity into some state that entity is already in, the entity remains in the state it was in, and the action putting it into that state is not performed.”
-- Sources: gcg-api card ST01-011 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST01-011 (effect); Card ruling ST01-011:Q142 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST01-011_p5; Comprehensive Rules Ver. 1.9.0 §1-3-2-1
+- Sources: gcg-api card ST01-011 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST01-011 (effect); Card ruling ST01-011:Q142 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST01-011_p5; Comprehensive Rules Ver. 1.10.0 §1-3-2-1
 - **Resolution** (`ruling_overrides_text`): Targets may be chosen even when the action on them would be a no-op (already active, undamaged, already has the keyword); the no-op part is simply not performed.
   - Rationale: Official card ruling Q142 (July 04, 2025) is authoritative for ST01-011; the same reading is applied to identical wording on other cards.
 
@@ -3393,7 +3662,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
   - ruling ST01-011:Q143: “Can this 【Attack】 effect choose an EX Resource?”
   - ruling ST01-011:Q143: “Yes, it can.”
   - rules 1-3-2-1: “If you are required to put an entity into some state that entity is already in, the entity remains in the state it was in, and the action putting it into that state is not performed.”
-- Sources: gcg-api card ST01-011 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST01-011 (effect); Card ruling ST01-011:Q143 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST01-011_p5; Comprehensive Rules Ver. 1.9.0 §1-3-2-1
+- Sources: gcg-api card ST01-011 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST01-011 (effect); Card ruling ST01-011:Q143 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST01-011_p5; Comprehensive Rules Ver. 1.10.0 §1-3-2-1
 - **Resolution** (`ruling_overrides_text`): EX Resources are Resources for 'your Resources' choices.
   - Rationale: Official card ruling Q143 (July 04, 2025) is authoritative for ST01-011; the same reading is applied to identical wording on other cards.
 
@@ -3407,7 +3676,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
   - ruling ST01-013:Q159: “Can this effect choose an undamaged friendly Unit?”
   - ruling ST01-013:Q159: “Yes, it can.”
   - rules 1-3-2-1: “If you are required to put an entity into some state that entity is already in, the entity remains in the state it was in, and the action putting it into that state is not performed.”
-- Sources: gcg-api card ST01-013 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST01-013 (effect); Card ruling ST01-013:Q159 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST01-013; Comprehensive Rules Ver. 1.9.0 §1-3-2-1
+- Sources: gcg-api card ST01-013 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST01-013 (effect); Card ruling ST01-013:Q159 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST01-013; Comprehensive Rules Ver. 1.10.0 §1-3-2-1
 - **Resolution** (`ruling_overrides_text`): Targets may be chosen even when the action on them would be a no-op (already active, undamaged, already has the keyword); the no-op part is simply not performed.
   - Rationale: Official card ruling Q159 (July 25, 2025) is authoritative for ST01-013; the same reading is applied to identical wording on other cards.
 
@@ -3422,7 +3691,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
   - ruling ST02-003:Q115: “Yes, it does.”
   - rules 8-5-3-2-3: “If both battling Units are destroyed, their destruction is treated as happening simultaneously.”
   - rules 10-1-6-4: “If a card with a triggered effect leaves the location where it is active while that effect is waiting to be activated after it was triggered, the effect still activates.”
-- Sources: gcg-api card ST02-003 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST02-003 (effect); Card ruling ST02-003:Q115 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST02-003; Comprehensive Rules Ver. 1.9.0 §8-5-3-2-3; Comprehensive Rules Ver. 1.9.0 §10-1-6-4
+- Sources: gcg-api card ST02-003 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST02-003 (effect); Card ruling ST02-003:Q115 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST02-003; Comprehensive Rules Ver. 1.10.0 §8-5-3-2-3; Comprehensive Rules Ver. 1.10.0 §10-1-6-4
 - **Resolution** (`ruling_overrides_text`): 'When this Unit destroys an enemy … with (battle) damage' triggers even if this Unit is destroyed simultaneously; the pending trigger resolves after both Units are in the trash (parts that need this Unit on the field do nothing).
   - Rationale: Official card ruling Q115 (July 04, 2025) is authoritative for ST02-003; the same reading is applied to identical wording on other cards.
 
@@ -3437,7 +3706,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
   - ruling ST02-011:Q144: “Yes, it does.”
   - rules 8-5-3-2-3: “If both battling Units are destroyed, their destruction is treated as happening simultaneously.”
   - rules 10-1-6-4: “If a card with a triggered effect leaves the location where it is active while that effect is waiting to be activated after it was triggered, the effect still activates.”
-- Sources: gcg-api card ST02-011 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST02-011 (effect); Card ruling ST02-011:Q144 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST02-011; Comprehensive Rules Ver. 1.9.0 §8-5-3-2-3; Comprehensive Rules Ver. 1.9.0 §10-1-6-4
+- Sources: gcg-api card ST02-011 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST02-011 (effect); Card ruling ST02-011:Q144 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST02-011; Comprehensive Rules Ver. 1.10.0 §8-5-3-2-3; Comprehensive Rules Ver. 1.10.0 §10-1-6-4
 - **Resolution** (`ruling_overrides_text`): 'When this Unit destroys an enemy … with (battle) damage' triggers even if this Unit is destroyed simultaneously; the pending trigger resolves after both Units are in the trash (parts that need this Unit on the field do nothing).
   - Rationale: Official card ruling Q144 (July 04, 2025) is authoritative for ST02-011; the same reading is applied to identical wording on other cards.
 
@@ -3451,7 +3720,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
   - ruling ST02-013:Q151: “Does "your shield area cards can't receive damage from enemy Units that are Lv.4 or lower" mean they do not receive battle damage or damage from effects like <Breach>?”
   - ruling ST02-013:Q151: “Yes, that is correct.”
   - rules 13-1-2-1: “deals (amount) damage to the first card in the shield area of the opponent who owns the destroyed Unit.”
-- Sources: gcg-api card ST02-013 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST02-013 (effect); Card ruling ST02-013:Q151 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST02-013; Comprehensive Rules Ver. 1.9.0 §13-1-2-1
+- Sources: gcg-api card ST02-013 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST02-013 (effect); Card ruling ST02-013:Q151 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST02-013; Comprehensive Rules Ver. 1.10.0 §13-1-2-1
 - **Resolution** (`ruling_overrides_text`): <Breach> damage, and any damage dealt by a Unit's own effects (including effects it has from its Pilot), is effect damage attributed to that Unit: 'battle damage' prevention and triggers ignore it; 'damage from enemy Units' prevention and effect-damage reduction apply to it; 'when this Unit destroys … with damage' counts it.
   - Rationale: Official card ruling Q151 (July 04, 2025) is authoritative for ST02-013; the same reading is applied to identical wording on other cards.
 
@@ -3465,7 +3734,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
   - ruling ST03-001:Q164: “Does the "During your turn, when this Unit destroys an enemy shield area card with battle damage, choose 1 enemy Unit. Deal 2 damage to it" effect activate even if a Pilot is not paired?”
   - ruling ST03-001:Q164: “Yes, it does. "【During Pair】This Unit gains <High-Maneuver>. (This Unit can't be blocked.)" "During your turn, when this Unit destroys an enemy shield area card with battle damage, choose 1 enemy Unit. Deal 2 damage to it." The two effects cited above are each separate effects.”
   - rules 13-2-10-1: “【During Pair】 is the keyword for an effect that is possessed by the Unit while a Pilot is paired with it.”
-- Sources: gcg-api card ST03-001 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST03-001 (effect); Card ruling ST03-001:Q164 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST03-001; Comprehensive Rules Ver. 1.9.0 §13-2-10-1
+- Sources: gcg-api card ST03-001 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST03-001 (effect); Card ruling ST03-001:Q164 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST03-001; Comprehensive Rules Ver. 1.10.0 §13-2-10-1
 - **Resolution** (`ruling_overrides_text`): An effect gated by 【During Pair】/【During Link】/'while …' is not possessed while the gate is closed (so it does not satisfy 'Unit with a 【Destroyed】 effect' or 'Unit card with <Keyword>'); each 【During Pair】 prefix governs only its own effect.
   - Rationale: Official card ruling Q164 (August 22, 2025) is authoritative for ST03-001; the same reading is applied to identical wording on other cards.
 
@@ -3480,7 +3749,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
   - ruling ST03-010:Q145: “No, you do not.”
   - rules 5-7-1: “This typically describes revealing a card in your hand and paying its cost to use it.”
   - rules 7-5-2-2-3: “Choose the number of Resources necessary to pay its cost and rest them.”
-- Sources: gcg-api card ST03-010 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST03-010 (effect); Card ruling ST03-010:Q145 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST03-010_p2; Comprehensive Rules Ver. 1.9.0 §5-7-1; Comprehensive Rules Ver. 1.9.0 §7-5-2-2-3
+- Sources: gcg-api card ST03-010 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST03-010 (effect); Card ruling ST03-010:Q145 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST03-010_p2; Comprehensive Rules Ver. 1.10.0 §5-7-1; Comprehensive Rules Ver. 1.10.0 §7-5-2-2-3
 - **Resolution** (`ruling_overrides_text`): A card deployed, paired or activated by an effect pays no cost and needs no Lv. check unless the text says 'Pay its cost'; its own 【Deploy】/【When Paired】/【When Linked】 still trigger.
   - Rationale: Official card ruling Q145 (July 04, 2025) is authoritative for ST03-010; the same reading is applied to identical wording on other cards.
 
@@ -3494,7 +3763,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
   - ruling ST04-006:Q118: “Does this 【Attack】 effect activate even if the Unit's AP becomes 5 or more sometime after the block step during its attack?”
   - ruling ST04-006:Q118: “No, it does not.”
   - rules 10-3-3: “those targets are chosen at the point in time when the instructions appear in the effect.”
-- Sources: gcg-api card ST04-006 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST04-006 (effect); Card ruling ST04-006:Q118 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST04-006; Comprehensive Rules Ver. 1.9.0 §10-3-3
+- Sources: gcg-api card ST04-006 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST04-006 (effect); Card ruling ST04-006:Q118 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST04-006; Comprehensive Rules Ver. 1.10.0 §10-3-3
 - **Resolution** (`ruling_overrides_text`): Conditions and target restrictions of triggered/activated/command effects are evaluated once, when resolved; later changes neither undo the result nor retrigger it.
   - Rationale: Official card ruling Q118 (July 04, 2025) is authoritative for ST04-006; the same reading is applied to identical wording on other cards.
 
@@ -3509,7 +3778,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
   - ruling ST05-010:Q168: “No. You must be able to choose both Units to activate it.”
   - rules 1-3-2: “If a player is required to perform an action and only part of that action is not possible, the player must perform as much of the action as possible.”
   - rules 10-2-2: “If an effect requires choosing a target, that effect will not activate if the target cannot be chosen.”
-- Sources: gcg-api card ST05-010 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST05-010 (effect); Card ruling ST05-010:Q168 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST05-010_p3; Comprehensive Rules Ver. 1.9.0 §1-3-2; Comprehensive Rules Ver. 1.9.0 §10-2-2
+- Sources: gcg-api card ST05-010 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST05-010 (effect); Card ruling ST05-010:Q168 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST05-010_p3; Comprehensive Rules Ver. 1.10.0 §1-3-2; Comprehensive Rules Ver. 1.10.0 §10-2-2
 - **Resolution** (`ruling_overrides_text`): 'Choose 1 X and 1 Y' activates (or the Command can be played) only if both targets can be chosen; it never resolves with just one.
   - Rationale: Official card ruling Q168 (September 26, 2025) is authoritative for ST05-010; the same reading is applied to identical wording on other cards.
 
@@ -3524,7 +3793,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
   - ruling ST05-011:Q169: “Yes, it does.”
   - rules 8-5-3-2-3: “If both battling Units are destroyed, their destruction is treated as happening simultaneously.”
   - rules 10-1-6-4: “If a card with a triggered effect leaves the location where it is active while that effect is waiting to be activated after it was triggered, the effect still activates.”
-- Sources: gcg-api card ST05-011 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST05-011 (effect); Card ruling ST05-011:Q169 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST05-011; Comprehensive Rules Ver. 1.9.0 §8-5-3-2-3; Comprehensive Rules Ver. 1.9.0 §10-1-6-4
+- Sources: gcg-api card ST05-011 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST05-011 (effect); Card ruling ST05-011:Q169 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST05-011; Comprehensive Rules Ver. 1.10.0 §8-5-3-2-3; Comprehensive Rules Ver. 1.10.0 §10-1-6-4
 - **Resolution** (`ruling_overrides_text`): 'When this Unit destroys an enemy … with (battle) damage' triggers even if this Unit is destroyed simultaneously; the pending trigger resolves after both Units are in the trash (parts that need this Unit on the field do nothing).
   - Rationale: Official card ruling Q169 (September 26, 2025) is authoritative for ST05-011; the same reading is applied to identical wording on other cards.
 
@@ -3538,7 +3807,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
   - ruling ST05-015:Q170: “I choose one of my damaged Units for this 【Activate･Main】 effect and give it AP+2 during this turn. Afterwards, if it recovers HP due to another effect and loses its damaged status, does the AP+2 disappear?”
   - ruling ST05-015:Q170: “No, it does not.”
   - rules 10-3-3: “those targets are chosen at the point in time when the instructions appear in the effect.”
-- Sources: gcg-api card ST05-015 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST05-015 (effect); Card ruling ST05-015:Q170 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST05-015; Comprehensive Rules Ver. 1.9.0 §10-3-3
+- Sources: gcg-api card ST05-015 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST05-015 (effect); Card ruling ST05-015:Q170 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST05-015; Comprehensive Rules Ver. 1.10.0 §10-3-3
 - **Resolution** (`ruling_overrides_text`): Conditions and target restrictions of triggered/activated/command effects are evaluated once, when resolved; later changes neither undo the result nor retrigger it.
   - Rationale: Official card ruling Q170 (September 26, 2025) is authoritative for ST05-015; the same reading is applied to identical wording on other cards.
 
@@ -3552,7 +3821,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
   - ruling ST07-001:Q198: “Can this first effect choose an active Resource?”
   - ruling ST07-001:Q198: “Yes, it can.”
   - rules 1-3-2-1: “If you are required to put an entity into some state that entity is already in, the entity remains in the state it was in, and the action putting it into that state is not performed.”
-- Sources: gcg-api card ST07-001 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST07-001 (effect); Card ruling ST07-001:Q198 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST07-001; Comprehensive Rules Ver. 1.9.0 §1-3-2-1
+- Sources: gcg-api card ST07-001 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST07-001 (effect); Card ruling ST07-001:Q198 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST07-001; Comprehensive Rules Ver. 1.10.0 §1-3-2-1
 - **Resolution** (`ruling_overrides_text`): Targets may be chosen even when the action on them would be a no-op (already active, undamaged, already has the keyword); the no-op part is simply not performed.
   - Rationale: Official card ruling Q198 (January 09, 2026) is authoritative for ST07-001; the same reading is applied to identical wording on other cards.
 
@@ -3566,7 +3835,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
   - ruling ST07-001:Q199: “Can this first effect choose an EX Resource?”
   - ruling ST07-001:Q199: “Yes, it can.”
   - rules 1-3-2-1: “If you are required to put an entity into some state that entity is already in, the entity remains in the state it was in, and the action putting it into that state is not performed.”
-- Sources: gcg-api card ST07-001 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST07-001 (effect); Card ruling ST07-001:Q199 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST07-001; Comprehensive Rules Ver. 1.9.0 §1-3-2-1
+- Sources: gcg-api card ST07-001 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST07-001 (effect); Card ruling ST07-001:Q199 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST07-001; Comprehensive Rules Ver. 1.10.0 §1-3-2-1
 - **Resolution** (`ruling_overrides_text`): EX Resources are Resources for 'your Resources' choices.
   - Rationale: Official card ruling Q199 (January 09, 2026) is authoritative for ST07-001; the same reading is applied to identical wording on other cards.
 
@@ -3580,7 +3849,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
   - ruling ST07-004:Q200: “With the conditions for its effect fulfilled, this Unit gains <Blocker> and blocks an enemy Unit. After that, the conditions become unfulfilled and it loses <Blocker>. At this time, what happens to this Unit' s block?”
   - ruling ST07-004:Q200: “Since the block is already established, the two Units continue their battle.”
   - rules 8-3-1: “When activated, this effect changes the attack target of the attacking Unit to the Unit with <Blocker>.”
-- Sources: gcg-api card ST07-004 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST07-004 (effect); Card ruling ST07-004:Q200 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST07-004; Comprehensive Rules Ver. 1.9.0 §8-3-1
+- Sources: gcg-api card ST07-004 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST07-004 (effect); Card ruling ST07-004:Q200 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST07-004; Comprehensive Rules Ver. 1.10.0 §8-3-1
 - **Resolution** (`ruling_overrides_text`): Once <Blocker> has changed the attack target, the new target stays the attack target for the rest of the battle even if the blocker loses <Blocker>.
   - Rationale: Official card ruling Q200 (January 09, 2026) is authoritative for ST07-004; the same reading is applied to identical wording on other cards.
 
@@ -3594,7 +3863,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
   - ruling ST07-015:Q204: “Does " this Base can' t receive damage from enemy Units that are Lv.3 or lower, other than Unit tokens" mean it can' t receive battle damage or damage from effects like <Breach>?”
   - ruling ST07-015:Q204: “Yes, that is correct.”
   - rules 13-1-2-1: “deals (amount) damage to the first card in the shield area of the opponent who owns the destroyed Unit.”
-- Sources: gcg-api card ST07-015 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST07-015 (effect); Card ruling ST07-015:Q204 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST07-015; Comprehensive Rules Ver. 1.9.0 §13-1-2-1
+- Sources: gcg-api card ST07-015 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST07-015 (effect); Card ruling ST07-015:Q204 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST07-015; Comprehensive Rules Ver. 1.10.0 §13-1-2-1
 - **Resolution** (`ruling_overrides_text`): <Breach> damage, and any damage dealt by a Unit's own effects (including effects it has from its Pilot), is effect damage attributed to that Unit: 'battle damage' prevention and triggers ignore it; 'damage from enemy Units' prevention and effect-damage reduction apply to it; 'when this Unit destroys … with damage' counts it.
   - Rationale: Official card ruling Q204 (January 09, 2026) is authoritative for ST07-015; the same reading is applied to identical wording on other cards.
 
@@ -3608,7 +3877,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
   - ruling ST08-001:Q206: “Does this second effect' s " Choose 1 enemy Unit with the highest Lv" mean I choose one Unit that is Lv.8 when there are two Units that are Lv.8 and one Unit that is Lv.5 on the enemy' s field?”
   - ruling ST08-001:Q206: “Yes. When there are multiple Units with the highest Lv., choose one of them.”
   - rules 1-3-4: “When both players are required for any reason to make a selection simultaneously, the active player chooses first.”
-- Sources: gcg-api card ST08-001 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST08-001 (effect); Card ruling ST08-001:Q206 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST08-001; Comprehensive Rules Ver. 1.9.0 §1-3-4
+- Sources: gcg-api card ST08-001 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST08-001 (effect); Card ruling ST08-001:Q206 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST08-001; Comprehensive Rules Ver. 1.10.0 §1-3-4
 - **Resolution** (`ruling_overrides_text`): 'Choose 1 … with the highest/lowest X' lets the chooser pick any tied Unit; non-choosing wording ('Units with the lowest Lv.') affects all tied Units.
   - Rationale: Official card ruling Q206 (January 09, 2026) is authoritative for ST08-001; the same reading is applied to identical wording on other cards.
 
@@ -3622,7 +3891,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
   - ruling ST08-008:Q207: “With the conditions for its effect fulfilled, this Unit gains <Blocker> and blocks an enemy Unit. After that, the conditions become unfulfilled and it loses <Blocker>. At this time, what happens to this Unit' s block?”
   - ruling ST08-008:Q207: “Since the block is already established, the two Units continue their battle.”
   - rules 8-3-1: “When activated, this effect changes the attack target of the attacking Unit to the Unit with <Blocker>.”
-- Sources: gcg-api card ST08-008 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST08-008 (effect); Card ruling ST08-008:Q207 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST08-008; Comprehensive Rules Ver. 1.9.0 §8-3-1
+- Sources: gcg-api card ST08-008 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST08-008 (effect); Card ruling ST08-008:Q207 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST08-008; Comprehensive Rules Ver. 1.10.0 §8-3-1
 - **Resolution** (`ruling_overrides_text`): Once <Blocker> has changed the attack target, the new target stays the attack target for the rest of the battle even if the blocker loses <Blocker>.
   - Rationale: Official card ruling Q207 (January 09, 2026) is authoritative for ST08-008; the same reading is applied to identical wording on other cards.
 
@@ -3637,7 +3906,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
   - ruling ST09-001:Q256: “No, you do not.”
   - rules 5-7-1: “This typically describes revealing a card in your hand and paying its cost to use it.”
   - rules 7-5-2-2-3: “Choose the number of Resources necessary to pay its cost and rest them.”
-- Sources: gcg-api card ST09-001 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST09-001 (effect); Card ruling ST09-001:Q256 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST09-001; Comprehensive Rules Ver. 1.9.0 §5-7-1; Comprehensive Rules Ver. 1.9.0 §7-5-2-2-3
+- Sources: gcg-api card ST09-001 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST09-001 (effect); Card ruling ST09-001:Q256 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST09-001; Comprehensive Rules Ver. 1.10.0 §5-7-1; Comprehensive Rules Ver. 1.10.0 §7-5-2-2-3
 - **Resolution** (`ruling_overrides_text`): A card deployed, paired or activated by an effect pays no cost and needs no Lv. check unless the text says 'Pay its cost'; its own 【Deploy】/【When Paired】/【When Linked】 still trigger.
   - Rationale: Official card ruling Q256 (March 13, 2026) is authoritative for ST09-001; the same reading is applied to identical wording on other cards.
 
@@ -3651,7 +3920,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
   - ruling ST09-004:Q259: “Is the condition "While a friendly Base is in play" fulfilled even when an EX Base is in play?”
   - ruling ST09-004:Q259: “Yes. An EX Base fulfills this condition.”
   - rules 5-17-3-1-1: “An EX Base is a Base token with 0 AP and 3 HP.”
-- Sources: gcg-api card ST09-004 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST09-004 (effect); Card ruling ST09-004:Q259 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST09-004; Comprehensive Rules Ver. 1.9.0 §5-17-3-1-1
+- Sources: gcg-api card ST09-004 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST09-004 (effect); Card ruling ST09-004:Q259 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST09-004; Comprehensive Rules Ver. 1.10.0 §5-17-3-1-1
 - **Resolution** (`ruling_overrides_text`): Read as 'While a friendly Base is in play'; an EX Base satisfies it.
   - Rationale: Official card ruling Q259 (March 13, 2026) is authoritative for ST09-004; the same reading is applied to identical wording on other cards.
 
@@ -3665,7 +3934,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
   - ruling ST09-008:Q260: “Can this 【Attack】 effect choose an active Resource?”
   - ruling ST09-008:Q260: “Yes, it can.”
   - rules 1-3-2-1: “If you are required to put an entity into some state that entity is already in, the entity remains in the state it was in, and the action putting it into that state is not performed.”
-- Sources: gcg-api card ST09-008 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST09-008 (effect); Card ruling ST09-008:Q260 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST09-008; Comprehensive Rules Ver. 1.9.0 §1-3-2-1
+- Sources: gcg-api card ST09-008 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST09-008 (effect); Card ruling ST09-008:Q260 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST09-008; Comprehensive Rules Ver. 1.10.0 §1-3-2-1
 - **Resolution** (`ruling_overrides_text`): Targets may be chosen even when the action on them would be a no-op (already active, undamaged, already has the keyword); the no-op part is simply not performed.
   - Rationale: Official card ruling Q260 (March 13, 2026) is authoritative for ST09-008; the same reading is applied to identical wording on other cards.
 
@@ -3679,7 +3948,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
   - ruling ST09-008:Q261: “Can this 【Attack】 effect choose an EX Resource?”
   - ruling ST09-008:Q261: “Yes, it can.”
   - rules 1-3-2-1: “If you are required to put an entity into some state that entity is already in, the entity remains in the state it was in, and the action putting it into that state is not performed.”
-- Sources: gcg-api card ST09-008 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST09-008 (effect); Card ruling ST09-008:Q261 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST09-008; Comprehensive Rules Ver. 1.9.0 §1-3-2-1
+- Sources: gcg-api card ST09-008 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST09-008 (effect); Card ruling ST09-008:Q261 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST09-008; Comprehensive Rules Ver. 1.10.0 §1-3-2-1
 - **Resolution** (`ruling_overrides_text`): EX Resources are Resources for 'your Resources' choices.
   - Rationale: Official card ruling Q261 (March 13, 2026) is authoritative for ST09-008; the same reading is applied to identical wording on other cards.
 
@@ -3693,7 +3962,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
   - ruling ST10-002:Q303: “Can I exile the appropriate cards and activate this 【Deploy・Development 2】 effect even if there are no enemy Units with 4 or less HP in play?”
   - ruling ST10-002:Q303: “Yes, you can.”
   - rules 13-1-8-1: “you may exile (number) of (G Generation) cards in your trash from the game. If you do, activate the following effect.”
-- Sources: gcg-api card ST10-002 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST10-002 (effect); Card ruling ST10-002:Q303 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST10-002; Comprehensive Rules Ver. 1.9.0 §13-1-8-1
+- Sources: gcg-api card ST10-002 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST10-002 (effect); Card ruling ST10-002:Q303 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST10-002; Comprehensive Rules Ver. 1.10.0 §13-1-8-1
 - **Resolution** (`ruling_overrides_text`): The <Development> exile may be performed even if the following ■ effect has no legal target; then the ■ effect does nothing.
   - Rationale: Official card ruling Q303 (June 12, 2026) is authoritative for ST10-002; the same reading is applied to identical wording on other cards.
 
@@ -3707,7 +3976,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
   - ruling ST10-007:Q304: “Can I exile the appropriate cards and activate this 【When Linked・Development 2】 effect even if there are no Lv.4 or lower Command cards in my trash?”
   - ruling ST10-007:Q304: “Yes, you can.”
   - rules 13-1-8-1: “you may exile (number) of (G Generation) cards in your trash from the game. If you do, activate the following effect.”
-- Sources: gcg-api card ST10-007 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST10-007 (effect); Card ruling ST10-007:Q304 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST10-007; Comprehensive Rules Ver. 1.9.0 §13-1-8-1
+- Sources: gcg-api card ST10-007 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST10-007 (effect); Card ruling ST10-007:Q304 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST10-007; Comprehensive Rules Ver. 1.10.0 §13-1-8-1
 - **Resolution** (`ruling_overrides_text`): The <Development> exile may be performed even if the following ■ effect has no legal target; then the ■ effect does nothing.
   - Rationale: Official card ruling Q304 (June 12, 2026) is authoritative for ST10-007; the same reading is applied to identical wording on other cards.
 
@@ -3721,7 +3990,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
   - ruling ST11-003:Q428: “With the conditions for its effect fulfilled, this Unit gains <Blocker> and blocks an enemy Unit. After that, the conditions become unfulfilled and it loses <Blocker>. At this time, what happens to this Unit's block?”
   - ruling ST11-003:Q428: “Since the block is already established, the two Units continue their battle.”
   - rules 8-3-1: “When activated, this effect changes the attack target of the attacking Unit to the Unit with <Blocker>.”
-- Sources: gcg-api card ST11-003 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST11-003 (effect); Card ruling ST11-003:Q428 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST11-003; Comprehensive Rules Ver. 1.9.0 §8-3-1
+- Sources: gcg-api card ST11-003 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST11-003 (effect); Card ruling ST11-003:Q428 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST11-003; Comprehensive Rules Ver. 1.10.0 §8-3-1
 - **Resolution** (`ruling_overrides_text`): Once <Blocker> has changed the attack target, the new target stays the attack target for the rest of the battle even if the blocker loses <Blocker>.
   - Rationale: Official card ruling Q428 (September 11, 2026) is authoritative for ST11-003; the same reading is applied to identical wording on other cards.
 
@@ -3735,7 +4004,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
   - ruling ST11-006:Q431: “If <Breach> activates during a turn while the first effect on this card is active, is that damage reduced?”
   - ruling ST11-006:Q431: “Yes, it is reduced.”
   - rules 13-1-2-1: “deals (amount) damage to the first card in the shield area of the opponent who owns the destroyed Unit.”
-- Sources: gcg-api card ST11-006 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST11-006 (effect); Card ruling ST11-006:Q431 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST11-006; Comprehensive Rules Ver. 1.9.0 §13-1-2-1
+- Sources: gcg-api card ST11-006 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST11-006 (effect); Card ruling ST11-006:Q431 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST11-006; Comprehensive Rules Ver. 1.10.0 §13-1-2-1
 - **Resolution** (`ruling_overrides_text`): <Breach> damage, and any damage dealt by a Unit's own effects (including effects it has from its Pilot), is effect damage attributed to that Unit: 'battle damage' prevention and triggers ignore it; 'damage from enemy Units' prevention and effect-damage reduction apply to it; 'when this Unit destroys … with damage' counts it.
   - Rationale: Official card ruling Q431 (September 11, 2026) is authoritative for ST11-006; the same reading is applied to identical wording on other cards.
 
@@ -3749,7 +4018,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
   - ruling ST11-009:Q432: “Will this effect activate during my opponent's turn even if there are no other friendly (Marine) Units in play?”
   - ruling ST11-009:Q432: “Yes, it will.”
   - rules 13-2-8-2-1: “If there is text referring to the state of that card, refer to its state while it was in its last location prior to being destroyed and placed into the trash.”
-- Sources: gcg-api card ST11-009 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST11-009 (effect); Card ruling ST11-009:Q432 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST11-009; Comprehensive Rules Ver. 1.9.0 §13-2-8-2-1
+- Sources: gcg-api card ST11-009 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST11-009 (effect); Card ruling ST11-009:Q432 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST11-009; Comprehensive Rules Ver. 1.10.0 §13-2-8-2-1
 - **Resolution** (`ruling_overrides_text`): When a 【Destroyed】 effect checks 'you have an X in play', include the destroyed card and its paired Pilot as they were just before leaving the field; the paired Pilot is already in the trash when the effect resolves.
   - Rationale: Official card ruling Q432 (September 11, 2026) is authoritative for ST11-009; the same reading is applied to identical wording on other cards.
 
@@ -3764,7 +4033,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
   - ruling ST11-015:Q434: “No, you do not.”
   - rules 5-7-1: “This typically describes revealing a card in your hand and paying its cost to use it.”
   - rules 7-5-2-2-3: “Choose the number of Resources necessary to pay its cost and rest them.”
-- Sources: gcg-api card ST11-015 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST11-015 (effect); Card ruling ST11-015:Q434 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST11-015; Comprehensive Rules Ver. 1.9.0 §5-7-1; Comprehensive Rules Ver. 1.9.0 §7-5-2-2-3
+- Sources: gcg-api card ST11-015 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST11-015 (effect); Card ruling ST11-015:Q434 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST11-015; Comprehensive Rules Ver. 1.10.0 §5-7-1; Comprehensive Rules Ver. 1.10.0 §7-5-2-2-3
 - **Resolution** (`ruling_overrides_text`): A card deployed, paired or activated by an effect pays no cost and needs no Lv. check unless the text says 'Pay its cost'; its own 【Deploy】/【When Paired】/【When Linked】 still trigger.
   - Rationale: Official card ruling Q434 (September 11, 2026) is authoritative for ST11-015; the same reading is applied to identical wording on other cards.
 
@@ -3779,7 +4048,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
   - ruling ST12-001:Q436: “Yes, it does.”
   - rules 8-5-3-2-3: “If both battling Units are destroyed, their destruction is treated as happening simultaneously.”
   - rules 10-1-6-4: “If a card with a triggered effect leaves the location where it is active while that effect is waiting to be activated after it was triggered, the effect still activates.”
-- Sources: gcg-api card ST12-001 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST12-001 (effect); Card ruling ST12-001:Q436 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST12-001; Comprehensive Rules Ver. 1.9.0 §8-5-3-2-3; Comprehensive Rules Ver. 1.9.0 §10-1-6-4
+- Sources: gcg-api card ST12-001 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST12-001 (effect); Card ruling ST12-001:Q436 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST12-001; Comprehensive Rules Ver. 1.10.0 §8-5-3-2-3; Comprehensive Rules Ver. 1.10.0 §10-1-6-4
 - **Resolution** (`ruling_overrides_text`): 'When this Unit destroys an enemy … with (battle) damage' triggers even if this Unit is destroyed simultaneously; the pending trigger resolves after both Units are in the trash (parts that need this Unit on the field do nothing).
   - Rationale: Official card ruling Q436 (September 11, 2026) is authoritative for ST12-001; the same reading is applied to identical wording on other cards.
 
@@ -3793,7 +4062,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
   - ruling ST12-001:Q437: “Does this card's first effect activate even when it destroys the enemy Unit with effect damage?”
   - ruling ST12-001:Q437: “Yes, it does.”
   - rules 13-1-2-1: “deals (amount) damage to the first card in the shield area of the opponent who owns the destroyed Unit.”
-- Sources: gcg-api card ST12-001 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST12-001 (effect); Card ruling ST12-001:Q437 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST12-001; Comprehensive Rules Ver. 1.9.0 §13-1-2-1
+- Sources: gcg-api card ST12-001 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST12-001 (effect); Card ruling ST12-001:Q437 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST12-001; Comprehensive Rules Ver. 1.10.0 §13-1-2-1
 - **Resolution** (`ruling_overrides_text`): <Breach> damage, and any damage dealt by a Unit's own effects (including effects it has from its Pilot), is effect damage attributed to that Unit: 'battle damage' prevention and triggers ignore it; 'damage from enemy Units' prevention and effect-damage reduction apply to it; 'when this Unit destroys … with damage' counts it.
   - Rationale: Official card ruling Q437 (September 11, 2026) is authoritative for ST12-001; the same reading is applied to identical wording on other cards.
 
@@ -3808,7 +4077,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
   - ruling ST12-003:Q438: “Yes, it does.”
   - rules 8-5-3-2-3: “If both battling Units are destroyed, their destruction is treated as happening simultaneously.”
   - rules 10-1-6-4: “If a card with a triggered effect leaves the location where it is active while that effect is waiting to be activated after it was triggered, the effect still activates.”
-- Sources: gcg-api card ST12-003 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST12-003 (effect); Card ruling ST12-003:Q438 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST12-003; Comprehensive Rules Ver. 1.9.0 §8-5-3-2-3; Comprehensive Rules Ver. 1.9.0 §10-1-6-4
+- Sources: gcg-api card ST12-003 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST12-003 (effect); Card ruling ST12-003:Q438 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST12-003; Comprehensive Rules Ver. 1.10.0 §8-5-3-2-3; Comprehensive Rules Ver. 1.10.0 §10-1-6-4
 - **Resolution** (`ruling_overrides_text`): 'When this Unit destroys an enemy … with (battle) damage' triggers even if this Unit is destroyed simultaneously; the pending trigger resolves after both Units are in the trash (parts that need this Unit on the field do nothing).
   - Rationale: Official card ruling Q438 (September 11, 2026) is authoritative for ST12-003; the same reading is applied to identical wording on other cards.
 
@@ -3822,7 +4091,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
   - ruling ST12-003:Q439: “Does this effect activate even when it destroys the enemy Unit with effect damage?”
   - ruling ST12-003:Q439: “Yes, it does.”
   - rules 13-1-2-1: “deals (amount) damage to the first card in the shield area of the opponent who owns the destroyed Unit.”
-- Sources: gcg-api card ST12-003 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST12-003 (effect); Card ruling ST12-003:Q439 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST12-003; Comprehensive Rules Ver. 1.9.0 §13-1-2-1
+- Sources: gcg-api card ST12-003 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST12-003 (effect); Card ruling ST12-003:Q439 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST12-003; Comprehensive Rules Ver. 1.10.0 §13-1-2-1
 - **Resolution** (`ruling_overrides_text`): <Breach> damage, and any damage dealt by a Unit's own effects (including effects it has from its Pilot), is effect damage attributed to that Unit: 'battle damage' prevention and triggers ignore it; 'damage from enemy Units' prevention and effect-damage reduction apply to it; 'when this Unit destroys … with damage' counts it.
   - Rationale: Official card ruling Q439 (September 11, 2026) is authoritative for ST12-003; the same reading is applied to identical wording on other cards.
 
@@ -3836,7 +4105,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
   - ruling ST12-006:Q440: “Can this Unit activate its first 【During Pair】【Activate･Main】 effect while it is gaining <First Strike> from some effect?”
   - ruling ST12-006:Q440: “It can activate the effect, but it can't gain any additional <First Strike> effects.”
   - rules 1-3-2-1: “If you are required to put an entity into some state that entity is already in, the entity remains in the state it was in, and the action putting it into that state is not performed.”
-- Sources: gcg-api card ST12-006 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST12-006 (effect); Card ruling ST12-006:Q440 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST12-006; Comprehensive Rules Ver. 1.9.0 §1-3-2-1
+- Sources: gcg-api card ST12-006 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST12-006 (effect); Card ruling ST12-006:Q440 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST12-006; Comprehensive Rules Ver. 1.10.0 §1-3-2-1
 - **Resolution** (`ruling_overrides_text`): The effect may be activated (costs paid) even if the Unit already has <First Strike>; no second copy is gained (13-1-5-3).
   - Rationale: Official card ruling Q440 (September 11, 2026) is authoritative for ST12-006; the same reading is applied to identical wording on other cards.
 
@@ -3850,7 +4119,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
   - ruling ST12-006:Q441: “Can this Unit activate its second 【Activate･Action】 effect while it is gaining <Suppression> from some effect?”
   - ruling ST12-006:Q441: “It can activate the effect, but it can't gain any additional <Suppression> effects.”
   - rules 1-3-2-1: “If you are required to put an entity into some state that entity is already in, the entity remains in the state it was in, and the action putting it into that state is not performed.”
-- Sources: gcg-api card ST12-006 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST12-006 (effect); Card ruling ST12-006:Q441 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST12-006; Comprehensive Rules Ver. 1.9.0 §1-3-2-1
+- Sources: gcg-api card ST12-006 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST12-006 (effect); Card ruling ST12-006:Q441 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST12-006; Comprehensive Rules Ver. 1.10.0 §1-3-2-1
 - **Resolution** (`ruling_overrides_text`): The effect may be activated (costs paid) even if the Unit already has <Suppression>; no second copy is gained (13-1-7-2).
   - Rationale: Official card ruling Q441 (September 11, 2026) is authoritative for ST12-006; the same reading is applied to identical wording on other cards.
 
@@ -3864,7 +4133,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
   - ruling ST12-013:Q447: “When I use this effect to begin a battle with an enemy GD02-073 Carta's Graze Ritter (Ground Type), does its "During your opponent's turn, the enemy Unit battling this Unit gains <First Strike>" effect activate?”
   - ruling ST12-013:Q447: “Yes, it does. Effects that activate during battle apart from effects like 【Attack】 and "When [...] attacks" activate even during battles initiated by effects.”
   - rules 5-22-3-1: “Since the attack step was skipped, effects such as 【Attack】 and "when a Unit attacks" are not triggered.”
-- Sources: gcg-api card ST12-013 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST12-013 (effect); Card ruling ST12-013:Q447 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST12-013; Comprehensive Rules Ver. 1.9.0 §5-22-3-1
+- Sources: gcg-api card ST12-013 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST12-013 (effect); Card ruling ST12-013:Q447 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST12-013; Comprehensive Rules Ver. 1.10.0 §5-22-3-1
 - **Resolution** (`ruling_overrides_text`): A battle begun by an effect runs only the damage step and battle end step; 'battling'-conditioned effects and <First Strike> apply, destruction counts as destruction with battle damage (<Breach> etc.), only 【Attack】/'when … attacks' are skipped.
   - Rationale: Official card ruling Q447 (September 11, 2026) is authoritative for ST12-013; the same reading is applied to identical wording on other cards.
 
@@ -3878,7 +4147,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
   - ruling ST12-013:Q448: “When I destroy an enemy Unit in a battle initiated by this effect, does that fall within the criterion "when this Unit destroys an enemy Unit with battle damage"?”
   - ruling ST12-013:Q448: “Yes, it does.”
   - rules 5-22-3-1: “Since the attack step was skipped, effects such as 【Attack】 and "when a Unit attacks" are not triggered.”
-- Sources: gcg-api card ST12-013 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST12-013 (effect); Card ruling ST12-013:Q448 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST12-013; Comprehensive Rules Ver. 1.9.0 §5-22-3-1
+- Sources: gcg-api card ST12-013 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST12-013 (effect); Card ruling ST12-013:Q448 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST12-013; Comprehensive Rules Ver. 1.10.0 §5-22-3-1
 - **Resolution** (`ruling_overrides_text`): A battle begun by an effect runs only the damage step and battle end step; 'battling'-conditioned effects and <First Strike> apply, destruction counts as destruction with battle damage (<Breach> etc.), only 【Attack】/'when … attacks' are skipped.
   - Rationale: Official card ruling Q448 (September 11, 2026) is authoritative for ST12-013; the same reading is applied to identical wording on other cards.
 
@@ -3893,7 +4162,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
   - ruling ST12-014:Q449: “Yes, it does.”
   - rules 8-5-3-2-3: “If both battling Units are destroyed, their destruction is treated as happening simultaneously.”
   - rules 10-1-6-4: “If a card with a triggered effect leaves the location where it is active while that effect is waiting to be activated after it was triggered, the effect still activates.”
-- Sources: gcg-api card ST12-014 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST12-014 (effect); Card ruling ST12-014:Q449 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST12-014; Comprehensive Rules Ver. 1.9.0 §8-5-3-2-3; Comprehensive Rules Ver. 1.9.0 §10-1-6-4
+- Sources: gcg-api card ST12-014 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST12-014 (effect); Card ruling ST12-014:Q449 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST12-014; Comprehensive Rules Ver. 1.10.0 §8-5-3-2-3; Comprehensive Rules Ver. 1.10.0 §10-1-6-4
 - **Resolution** (`ruling_overrides_text`): 'When this Unit destroys an enemy … with (battle) damage' triggers even if this Unit is destroyed simultaneously; the pending trigger resolves after both Units are in the trash (parts that need this Unit on the field do nothing).
   - Rationale: Official card ruling Q449 (September 11, 2026) is authoritative for ST12-014; the same reading is applied to identical wording on other cards.
 
@@ -3907,7 +4176,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
   - ruling ST12-015:Q450: “When there are no enemy Units that are Lv.2 or lower in play, can I play this card and choose to activate the effect "Choose 1 enemy Unit that is Lv.2 or lower. Destroy it"?”
   - ruling ST12-015:Q450: “No. If the chosen effect requires the selection of a target, then this card can only be played if the target can be selected.”
   - rules 10-1-8-1-1: “If a command effect requires choosing a target, playing that Command card is not possible if that target cannot be chosen.”
-- Sources: gcg-api card ST12-015 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST12-015 (effect); Card ruling ST12-015:Q450 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST12-015; Comprehensive Rules Ver. 1.9.0 §10-1-8-1-1
+- Sources: gcg-api card ST12-015 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST12-015 (effect); Card ruling ST12-015:Q450 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST12-015; Comprehensive Rules Ver. 1.10.0 §10-1-8-1-1
 - **Resolution** (`ruling_overrides_text`): A modal Command is chosen and played only with a mode whose targets can all be chosen; if no mode is legal the card cannot be played.
   - Rationale: Official card ruling Q450 (September 11, 2026) is authoritative for ST12-015; the same reading is applied to identical wording on other cards.
 
@@ -3921,7 +4190,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
   - ruling ST12-015:Q451: “When there are no friendly Units or no enemy Units that are Lv.5 or higher in play, can I play this card and choose to activate the effect "Choose 1 friendly Unit and 1 enemy Unit that is Lv.5 or higher. Deal 2 damage to them"?”
   - ruling ST12-015:Q451: “No. If the chosen effect requires the selection of a target, then this card can only be played if the target can be selected.”
   - rules 10-1-8-1-1: “If a command effect requires choosing a target, playing that Command card is not possible if that target cannot be chosen.”
-- Sources: gcg-api card ST12-015 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST12-015 (effect); Card ruling ST12-015:Q451 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST12-015; Comprehensive Rules Ver. 1.9.0 §10-1-8-1-1
+- Sources: gcg-api card ST12-015 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST12-015 (effect); Card ruling ST12-015:Q451 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST12-015; Comprehensive Rules Ver. 1.10.0 §10-1-8-1-1
 - **Resolution** (`ruling_overrides_text`): A modal Command is chosen and played only with a mode whose targets can all be chosen; if no mode is legal the card cannot be played.
   - Rationale: Official card ruling Q451 (September 11, 2026) is authoritative for ST12-015; the same reading is applied to identical wording on other cards.
 
@@ -3935,7 +4204,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
   - ruling ST12-016:Q452: “Does this 【Activate･Main】 effect activate even when both Units are destroyed in battle?”
   - ruling ST12-016:Q452: “Yes, it does.”
   - rules 10-2-1: “When certain conditions are required for an effect to activate, it will not activate unless those conditions are fulfilled.”
-- Sources: gcg-api card ST12-016 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST12-016 (effect); Card ruling ST12-016:Q452 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST12-016; Comprehensive Rules Ver. 1.9.0 §10-2-1
+- Sources: gcg-api card ST12-016 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST12-016 (effect); Card ruling ST12-016:Q452 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST12-016; Comprehensive Rules Ver. 1.10.0 §10-2-1
 - **Resolution** (`ruling_overrides_text`): Keep a per-turn event log of battle destructions with the destroying Unit's pairing state at that moment; the condition is met even if that Unit is gone, and not by pairing afterwards.
   - Rationale: Official card ruling Q452 (September 11, 2026) is authoritative for ST12-016; the same reading is applied to identical wording on other cards.
 
@@ -3949,7 +4218,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
   - ruling ST12-016:Q453: “If a Pilot is paired with a friendly Unit after that Unit has destroyed an enemy Unit with battle damage, can I activate this 【Activate･Main】 effect?”
   - ruling ST12-016:Q453: “No, you cannot.”
   - rules 10-2-1: “When certain conditions are required for an effect to activate, it will not activate unless those conditions are fulfilled.”
-- Sources: gcg-api card ST12-016 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST12-016 (effect); Card ruling ST12-016:Q453 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST12-016; Comprehensive Rules Ver. 1.9.0 §10-2-1
+- Sources: gcg-api card ST12-016 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST12-016 (effect); Card ruling ST12-016:Q453 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST12-016; Comprehensive Rules Ver. 1.10.0 §10-2-1
 - **Resolution** (`ruling_overrides_text`): Keep a per-turn event log of battle destructions with the destroying Unit's pairing state at that moment; the condition is met even if that Unit is gone, and not by pairing afterwards.
   - Rationale: Official card ruling Q453 (September 11, 2026) is authoritative for ST12-016; the same reading is applied to identical wording on other cards.
 
@@ -3963,7 +4232,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
   - ruling ST13-001:Q455: “When I use this effect to begin a battle with an enemy GD02-073 Carta's Graze Ritter (Ground Type), does its "During your opponent's turn, the enemy Unit battling this Unit gains <First Strike>" effect activate?”
   - ruling ST13-001:Q455: “Yes, it does. Effects that activate during battle apart from effects like 【Attack】 and "When [...] attacks" activate even during battles initiated by effects.”
   - rules 5-22-3-1: “Since the attack step was skipped, effects such as 【Attack】 and "when a Unit attacks" are not triggered.”
-- Sources: gcg-api card ST13-001 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST13-001 (effect); Card ruling ST13-001:Q455 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST13-001; Comprehensive Rules Ver. 1.9.0 §5-22-3-1
+- Sources: gcg-api card ST13-001 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST13-001 (effect); Card ruling ST13-001:Q455 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST13-001; Comprehensive Rules Ver. 1.10.0 §5-22-3-1
 - **Resolution** (`ruling_overrides_text`): A battle begun by an effect runs only the damage step and battle end step; 'battling'-conditioned effects and <First Strike> apply, destruction counts as destruction with battle damage (<Breach> etc.), only 【Attack】/'when … attacks' are skipped.
   - Rationale: Official card ruling Q455 (September 11, 2026) is authoritative for ST13-001; the same reading is applied to identical wording on other cards.
 
@@ -3977,7 +4246,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
   - ruling ST13-001:Q456: “When I destroy an enemy Unit in a battle initiated by this effect, does that fall within the criterion "when this Unit destroys an enemy Unit with battle damage"?”
   - ruling ST13-001:Q456: “Yes, it does.”
   - rules 5-22-3-1: “Since the attack step was skipped, effects such as 【Attack】 and "when a Unit attacks" are not triggered.”
-- Sources: gcg-api card ST13-001 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST13-001 (effect); Card ruling ST13-001:Q456 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST13-001; Comprehensive Rules Ver. 1.9.0 §5-22-3-1
+- Sources: gcg-api card ST13-001 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST13-001 (effect); Card ruling ST13-001:Q456 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST13-001; Comprehensive Rules Ver. 1.10.0 §5-22-3-1
 - **Resolution** (`ruling_overrides_text`): A battle begun by an effect runs only the damage step and battle end step; 'battling'-conditioned effects and <First Strike> apply, destruction counts as destruction with battle damage (<Breach> etc.), only 【Attack】/'when … attacks' are skipped.
   - Rationale: Official card ruling Q456 (September 11, 2026) is authoritative for ST13-001; the same reading is applied to identical wording on other cards.
 
@@ -3991,7 +4260,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
   - ruling ST13-012:Q459: “If I destroy a damaged Link Unit with an effect that says to "destroy" a Unit, does this effect activate?”
   - ruling ST13-012:Q459: “No, it does not.”
   - rules 5-10-1: “This describes cards receiving damage equal to or greater than their HP and cards being placed from the field into the trash by effects.”
-- Sources: gcg-api card ST13-012 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST13-012 (effect); Card ruling ST13-012:Q459 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST13-012; Comprehensive Rules Ver. 1.9.0 §5-10-1
+- Sources: gcg-api card ST13-012 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST13-012 (effect); Card ruling ST13-012:Q459 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST13-012; Comprehensive Rules Ver. 1.10.0 §5-10-1
 - **Resolution** (`ruling_overrides_text`): Record the cause of every destruction (battle damage, effect damage, 'destroy' effect, rules). 'Destroyed by an effect' / 'can't be destroyed by effects' mean 'destroy' effects only; 'destroyed with damage' means battle or effect damage; 'with battle damage' means battle damage only.
   - Rationale: Official card ruling Q459 (September 11, 2026) is authoritative for ST13-012; the same reading is applied to identical wording on other cards.
 
@@ -4006,7 +4275,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
   - ruling ST13-014:Q460: “No, you do not.”
   - rules 5-7-1: “This typically describes revealing a card in your hand and paying its cost to use it.”
   - rules 7-5-2-2-3: “Choose the number of Resources necessary to pay its cost and rest them.”
-- Sources: gcg-api card ST13-014 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST13-014 (effect); Card ruling ST13-014:Q460 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST13-014; Comprehensive Rules Ver. 1.9.0 §5-7-1; Comprehensive Rules Ver. 1.9.0 §7-5-2-2-3
+- Sources: gcg-api card ST13-014 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST13-014 (effect); Card ruling ST13-014:Q460 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST13-014; Comprehensive Rules Ver. 1.10.0 §5-7-1; Comprehensive Rules Ver. 1.10.0 §7-5-2-2-3
 - **Resolution** (`ruling_overrides_text`): A card deployed, paired or activated by an effect pays no cost and needs no Lv. check unless the text says 'Pay its cost'; its own 【Deploy】/【When Paired】/【When Linked】 still trigger.
   - Rationale: Official card ruling Q460 (September 11, 2026) is authoritative for ST13-014; the same reading is applied to identical wording on other cards.
 
@@ -4020,7 +4289,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
   - ruling ST14-001:Q462: “If I use this second effect when there are two Units that are Lv.3 and one Unit that is Lv.5 on my opponent's field, the two Units that are Lv.3 won't be set as active during the start phase of their turn, right?”
   - ruling ST14-001:Q462: “Yes. If there are multiple Units with the lowest Lv., none of them will be set as active during the start phase of the opponent's turn.”
   - rules 1-3-4: “When both players are required for any reason to make a selection simultaneously, the active player chooses first.”
-- Sources: gcg-api card ST14-001 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST14-001 (effect); Card ruling ST14-001:Q462 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST14-001; Comprehensive Rules Ver. 1.9.0 §1-3-4
+- Sources: gcg-api card ST14-001 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST14-001 (effect); Card ruling ST14-001:Q462 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST14-001; Comprehensive Rules Ver. 1.10.0 §1-3-4
 - **Resolution** (`ruling_overrides_text`): 'Choose 1 … with the highest/lowest X' lets the chooser pick any tied Unit; non-choosing wording ('Units with the lowest Lv.') affects all tied Units.
   - Rationale: Official card ruling Q462 (September 11, 2026) is authoritative for ST14-001; the same reading is applied to identical wording on other cards.
 
@@ -4034,7 +4303,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
   - ruling ST14-005:Q466: “If there are seven or more cards in my trash and enemy Units that are Lv.6 or less that I want to give AP-2 to that are already rested, can I choose one of those Units with this 【Deploy】 effect and give it AP-2 during this turn?”
   - ruling ST14-005:Q466: “Yes, you can give it AP-2.”
   - rules 10-3-3: “those targets are chosen at the point in time when the instructions appear in the effect.”
-- Sources: gcg-api card ST14-005 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST14-005 (effect); Card ruling ST14-005:Q466 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST14-005; Comprehensive Rules Ver. 1.9.0 §10-3-3
+- Sources: gcg-api card ST14-005 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST14-005 (effect); Card ruling ST14-005:Q466 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST14-005; Comprehensive Rules Ver. 1.10.0 §10-3-3
 - **Resolution** (`ruling_overrides_text`): Conditions and target restrictions of triggered/activated/command effects are evaluated once, when resolved; later changes neither undo the result nor retrigger it.
   - Rationale: Official card ruling Q466 (September 11, 2026) is authoritative for ST14-005; the same reading is applied to identical wording on other cards.
 
@@ -4048,7 +4317,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
   - ruling ST14-013:Q468: “When there are no enemy Units with 3 or less HP in play, can I play this card and choose to activate the effect "■Choose 1 to 2 enemy Units with 3 or less HP. Rest them"?”
   - ruling ST14-013:Q468: “No. If the chosen effect requires the selection of a target, then this card can only be played if the target can be selected.”
   - rules 10-1-8-1-1: “If a command effect requires choosing a target, playing that Command card is not possible if that target cannot be chosen.”
-- Sources: gcg-api card ST14-013 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST14-013 (effect); Card ruling ST14-013:Q468 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST14-013; Comprehensive Rules Ver. 1.9.0 §10-1-8-1-1
+- Sources: gcg-api card ST14-013 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST14-013 (effect); Card ruling ST14-013:Q468 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST14-013; Comprehensive Rules Ver. 1.10.0 §10-1-8-1-1
 - **Resolution** (`ruling_overrides_text`): A modal Command is chosen and played only with a mode whose targets can all be chosen; if no mode is legal the card cannot be played.
   - Rationale: Official card ruling Q468 (September 11, 2026) is authoritative for ST14-013; the same reading is applied to identical wording on other cards.
 
@@ -4062,7 +4331,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
   - ruling ST14-013:Q469: “When there are no enemy Units in play, can I play this card and choose to activate the effect "■Choose 1 enemy Unit. It gets AP-3 during this turn"?”
   - ruling ST14-013:Q469: “No. If the chosen effect requires the selection of a target, then this card can only be played if the target can be selected.”
   - rules 10-1-8-1-1: “If a command effect requires choosing a target, playing that Command card is not possible if that target cannot be chosen.”
-- Sources: gcg-api card ST14-013 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST14-013 (effect); Card ruling ST14-013:Q469 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST14-013; Comprehensive Rules Ver. 1.9.0 §10-1-8-1-1
+- Sources: gcg-api card ST14-013 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST14-013 (effect); Card ruling ST14-013:Q469 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST14-013; Comprehensive Rules Ver. 1.10.0 §10-1-8-1-1
 - **Resolution** (`ruling_overrides_text`): A modal Command is chosen and played only with a mode whose targets can all be chosen; if no mode is legal the card cannot be played.
   - Rationale: Official card ruling Q469 (September 11, 2026) is authoritative for ST14-013; the same reading is applied to identical wording on other cards.
 
@@ -4078,7 +4347,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
   - faq Q8: “Do cards placed into the shield section of the shield area have a particular order?”
   - faq Q8: “Yes. Place them so that the top card from your deck becomes the bottom Shield.”
   - rules 6-2-2: “Each player takes the top six cards of their deck, one at a time, and places them face down into their shield section without looking at them.”
-- Sources: Rules FAQ Q8 — https://www.gundam-gcg.com/en/rules/faqs/list.php?sub_category=Preparing%20to%20Play; Comprehensive Rules Ver. 1.9.0 §6-2-2
+- Sources: Rules FAQ Q8 — https://www.gundam-gcg.com/en/rules/faqs/list.php?sub_category=Preparing%20to%20Play; Comprehensive Rules Ver. 1.10.0 §6-2-2
 - **Resolution** (`faq_clarifies_rules`): Shields are a stack filled from the deck top: the deck's top card is the bottom Shield; the sixth card placed is the top ('first', 'topmost') Shield, damaged and taken first.
   - Rationale: Official rules FAQ Q8 (2025-07-04) clarifies the comprehensive rules and is followed as written.
 
@@ -4091,7 +4360,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
   - faq Q15: “Can Player One draw a card during the draw phase of their first turn?”
   - faq Q15: “Yes, they can.”
   - rules 7-3-1: “The active player draws one card from their deck and adds it to their hand.”
-- Sources: Rules FAQ Q15 — https://www.gundam-gcg.com/en/rules/faqs/list.php?sub_category=Draw%20Phase; Comprehensive Rules Ver. 1.9.0 §7-3-1
+- Sources: Rules FAQ Q15 — https://www.gundam-gcg.com/en/rules/faqs/list.php?sub_category=Draw%20Phase; Comprehensive Rules Ver. 1.10.0 §7-3-1
 - **Resolution** (`faq_clarifies_rules`): No first-turn draw skip for Player One.
   - Rationale: Official rules FAQ Q15 (2025-07-04) clarifies the comprehensive rules and is followed as written.
 
@@ -4105,7 +4374,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
   - faq Q19: “Yes, there is. Up to 10 Resource cards from the resource deck and 5 EX Resource cards can be placed into the resource area, for a total of 15 cards.”
   - rules 4-4-2: “You may have up to 15 Resources in your resource area.”
   - rules 4-4-2-1: “You may have up to five EX Resources in your resource area.”
-- Sources: Rules FAQ Q19 — https://www.gundam-gcg.com/en/rules/faqs/list.php?sub_category=Resource%20Phase; Comprehensive Rules Ver. 1.9.0 §4-4-2; Comprehensive Rules Ver. 1.9.0 §4-4-2-1
+- Sources: Rules FAQ Q19 — https://www.gundam-gcg.com/en/rules/faqs/list.php?sub_category=Resource%20Phase; Comprehensive Rules Ver. 1.10.0 §4-4-2; Comprehensive Rules Ver. 1.10.0 §4-4-2-1
 - **Resolution** (`faq_clarifies_rules`): At most 15 cards in the resource area including at most 5 EX Resources; a placement beyond either limit is not performed (1-3-2).
   - Rationale: Official rules FAQ Q19 (2025-07-04) clarifies the comprehensive rules and is followed as written.
 
@@ -4118,7 +4387,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
   - faq Q30: “Can I activate the 【Activate･Main】 effect on a Unit during the same turn it was deployed?”
   - faq Q30: “Yes, you can.”
   - rules 3-2-4: “Unless specified otherwise, a newly deployed Unit cannot attack on the turn it is deployed.”
-- Sources: Rules FAQ Q30 — https://www.gundam-gcg.com/en/rules/faqs/list.php?sub_category=Main%20Phase%3A%20Activating%20Card%20Effects; Comprehensive Rules Ver. 1.9.0 §3-2-4
+- Sources: Rules FAQ Q30 — https://www.gundam-gcg.com/en/rules/faqs/list.php?sub_category=Main%20Phase%3A%20Activating%20Card%20Effects; Comprehensive Rules Ver. 1.10.0 §3-2-4
 - **Resolution** (`faq_clarifies_rules`): A Unit deployed this turn may use 【Activate･Main】 effects, including rest costs such as <Support>.
   - Rationale: Official rules FAQ Q30 (2025-07-04) clarifies the comprehensive rules and is followed as written.
 
@@ -4131,7 +4400,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
   - faq Q31: “Can Player One attack during their first turn?”
   - faq Q31: “Yes, they can. However, Units cannot immediately attack during the turn in which they are deployed.”
   - rules 6-2-5: “The game begins with Player One’s turn.”
-- Sources: Rules FAQ Q31 — https://www.gundam-gcg.com/en/rules/faqs/list.php?sub_category=Main%20Phase%3A%20Unit%20Attacks; Comprehensive Rules Ver. 1.9.0 §6-2-5
+- Sources: Rules FAQ Q31 — https://www.gundam-gcg.com/en/rules/faqs/list.php?sub_category=Main%20Phase%3A%20Unit%20Attacks; Comprehensive Rules Ver. 1.10.0 §6-2-5
 - **Resolution** (`faq_clarifies_rules`): No first-turn attack ban; Units deployed on an earlier turn (none on turn 1) or Link Units may attack.
   - Rationale: Official rules FAQ Q31 (2025-07-04) clarifies the comprehensive rules and is followed as written.
 
@@ -4144,7 +4413,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
   - faq Q84: “Is there a difference between "1 of your Units" and "1 friendly Unit"?”
   - faq Q84: “There is no difference when playing with 1v1 rules. "1 friendly Unit" means you can choose a teammate's Unit when playing with team battle rules, such as 2v2.”
   - rules 12-3-10: “If an effect or such indicates “friendly,” it refers to both your and your teammate’s cards.”
-- Sources: Rules FAQ Q84 — https://www.gundam-gcg.com/en/rules/faqs/list.php?sub_category=Unit; Comprehensive Rules Ver. 1.9.0 §12-3-10
+- Sources: Rules FAQ Q84 — https://www.gundam-gcg.com/en/rules/faqs/list.php?sub_category=Unit; Comprehensive Rules Ver. 1.10.0 §12-3-10
 - **Resolution** (`faq_clarifies_rules`): In 1v1, 'friendly' and 'your' select the same cards.
   - Rationale: Official rules FAQ Q84 (2025-07-04) clarifies the comprehensive rules and is followed as written.
 
@@ -4157,7 +4426,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
   - faq Q95: “A Unit with 1 AP receives the effect "it gets AP-2" then gets AP+3 from another effect after that. At this time, what is the Unit's AP value?”
   - faq Q95: “It is the result of 1-2+3, or 2 AP.”
   - rules 1-3-6: “If the result would be negative, treat it as zero unless it will be modified by another effect.”
-- Sources: Rules FAQ Q95 — https://www.gundam-gcg.com/en/rules/faqs/list.php?sub_category=AP; Comprehensive Rules Ver. 1.9.0 §1-3-6
+- Sources: Rules FAQ Q95 — https://www.gundam-gcg.com/en/rules/faqs/list.php?sub_category=AP; Comprehensive Rules Ver. 1.10.0 §1-3-6
 - **Resolution** (`faq_clarifies_rules`): Sum all AP/HP modifiers onto the printed value and clamp the final result at 0; do not clamp intermediate results.
   - Rationale: Official rules FAQ Q95 (2025-07-04) clarifies the comprehensive rules and is followed as written.
 
@@ -4170,7 +4439,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
   - faq Q96: “When an effect such as "choose 1 enemy Unit with 2 or less HP" references a card's HP, does it reference its current HP?”
   - faq Q96: “Yes, it does. If the card is damaged, reference its HP after reducing it by that damage amount.”
   - rules 2-8-2: “A card with HP is destroyed when that HP becomes zero.”
-- Sources: Rules FAQ Q96 — https://www.gundam-gcg.com/en/rules/faqs/list.php?sub_category=HP; Comprehensive Rules Ver. 1.9.0 §2-8-2
+- Sources: Rules FAQ Q96 — https://www.gundam-gcg.com/en/rules/faqs/list.php?sub_category=HP; Comprehensive Rules Ver. 1.10.0 §2-8-2
 - **Resolution** (`faq_clarifies_rules`): HP filters and comparisons use current HP (modified HP minus damage counters).
   - Rationale: Official rules FAQ Q96 (2025-07-04) clarifies the comprehensive rules and is followed as written.
 
@@ -4183,7 +4452,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
   - faq Q97: “What is "battle damage"?”
   - faq Q97: “This is damage dealt by a card's AP, typically during battle.”
   - rules 5-5-3: “This damage is called battle damage.”
-- Sources: Rules FAQ Q97 — https://www.gundam-gcg.com/en/rules/faqs/list.php?sub_category=Damage; Comprehensive Rules Ver. 1.9.0 §5-5-3
+- Sources: Rules FAQ Q97 — https://www.gundam-gcg.com/en/rules/faqs/list.php?sub_category=Damage; Comprehensive Rules Ver. 1.10.0 §5-5-3
 - **Resolution** (`faq_clarifies_rules`): Battle damage is only the damage the damage step deals (including battles begun by effects and battle damage redirected by 'instead' effects); effect damage never becomes battle damage even when it equals a Unit's AP.
   - Rationale: Official rules FAQ Q97 (2025-07-04) clarifies the comprehensive rules and is followed as written.
 
@@ -4196,7 +4465,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
   - faq Q98: “Does the damage mentioned in effects like "when a Unit is destroyed with damage" include battle damage?”
   - faq Q98: “Yes, it does.”
   - rules 5-5-4: “This damage is called effect damage.”
-- Sources: Rules FAQ Q98 — https://www.gundam-gcg.com/en/rules/faqs/list.php?sub_category=Damage; Comprehensive Rules Ver. 1.9.0 §5-5-4
+- Sources: Rules FAQ Q98 — https://www.gundam-gcg.com/en/rules/faqs/list.php?sub_category=Damage; Comprehensive Rules Ver. 1.10.0 §5-5-4
 - **Resolution** (`faq_clarifies_rules`): 'Damage' without a qualifier means battle or effect damage.
   - Rationale: Official rules FAQ Q98 (2025-07-04) clarifies the comprehensive rules and is followed as written.
 
@@ -4209,7 +4478,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
   - faq Q99: “Does damage received by a Unit disappear at the end of the turn?”
   - faq Q99: “No, it does not. Damage remains on the Unit in the form of a damage counter.”
   - rules 5-5-1-1: “Show the current amount of damage a card has received by placing a number of counters equal to that damage on top of it.”
-- Sources: Rules FAQ Q99 — https://www.gundam-gcg.com/en/rules/faqs/list.php?sub_category=Damage; Comprehensive Rules Ver. 1.9.0 §5-5-1-1
+- Sources: Rules FAQ Q99 — https://www.gundam-gcg.com/en/rules/faqs/list.php?sub_category=Damage; Comprehensive Rules Ver. 1.10.0 §5-5-1-1
 - **Resolution** (`faq_clarifies_rules`): Damage counters stay until recovered or the card leaves the field.
   - Rationale: Official rules FAQ Q99 (2025-07-04) clarifies the comprehensive rules and is followed as written.
 
@@ -4222,7 +4491,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
   - faq Q105: “A new Unit is deployed after the effect "all your Units get AP+2 during this turn" has activated. At this time, does the newly deployed Unit also get AP+2?”
   - faq Q105: “No, it does not. Effects that bestow some effect on all Units are only applied to Units that were in the battle area at that time.”
   - rules 10-1-5-7: “A constant effect with a conditional target is applied the moment a target fulfilling those conditions appears.”
-- Sources: Rules FAQ Q105 — https://www.gundam-gcg.com/en/rules/faqs/list.php?sub_category=Miscellaneous; Comprehensive Rules Ver. 1.9.0 §10-1-5-7
+- Sources: Rules FAQ Q105 — https://www.gundam-gcg.com/en/rules/faqs/list.php?sub_category=Miscellaneous; Comprehensive Rules Ver. 1.10.0 §10-1-5-7
 - **Resolution** (`faq_clarifies_rules`): An effect that resolves once and lasts for a duration fixes its affected set at resolution; constant effects (e.g. 【During Pair】 'all your Units get AP+1') keep applying to Units that arrive later.
   - Rationale: Official rules FAQ Q105 (2025-07-04) clarifies the comprehensive rules and is followed as written.
 
@@ -4235,7 +4504,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
   - faq Q106: “After an effect which specifies "during this turn" has been activated by an effect such as 【Activate･Main】, the Unit with that 【Activate･Main】 effect is destroyed. At this time, does the effect specifying "during this turn" remain in effect?”
   - faq Q106: “Yes, it does.”
   - rules 7-6-6-1: “Effects with the duration limit “during this turn” lose effect.”
-- Sources: Rules FAQ Q106 — https://www.gundam-gcg.com/en/rules/faqs/list.php?sub_category=Miscellaneous; Comprehensive Rules Ver. 1.9.0 §7-6-6-1
+- Sources: Rules FAQ Q106 — https://www.gundam-gcg.com/en/rules/faqs/list.php?sub_category=Miscellaneous; Comprehensive Rules Ver. 1.10.0 §7-6-6-1
 - **Resolution** (`faq_clarifies_rules`): 'During this turn/battle' effects last their full duration even if the card that created them leaves the field.
   - Rationale: Official rules FAQ Q106 (2025-07-04) clarifies the comprehensive rules and is followed as written.
 
@@ -4248,7 +4517,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
   - faq Q109: “Multiple effects activate at the same time and a new effect activates while they are being resolved. At this time, how do players resolve the effects?”
   - faq Q109: “Give the new effect priority and resolve it. If multiple new effects activate simultaneously, give them priority and resolve them, starting with the active player's effects.”
   - rules 10-1-6-7: “If a new effect triggers while multiple effects are being resolved, give that new effect priority and resolve it.”
-- Sources: Rules FAQ Q109 — https://www.gundam-gcg.com/en/rules/faqs/list.php?sub_category=Miscellaneous; Comprehensive Rules Ver. 1.9.0 §10-1-6-7
+- Sources: Rules FAQ Q109 — https://www.gundam-gcg.com/en/rules/faqs/list.php?sub_category=Miscellaneous; Comprehensive Rules Ver. 1.10.0 §10-1-6-7
 - **Resolution** (`faq_clarifies_rules`): New triggers that occur while a batch resolves form a nested batch resolved before the rest of the outer batch: the active player's new triggers first (in their chosen order), then the standby player's; 【Burst】 still goes first (10-1-6-8).
   - Rationale: Official rules FAQ Q109 (2025-07-04) clarifies the comprehensive rules and is followed as written.
 
@@ -4261,7 +4530,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
   - faq Q195: “A Shield destroyed by <Suppression> damage is revealed to be a Base card with a 【Burst】 effect. At this time, if I add one of my Shields to my hand for the effect on the Base deployed by the 【Burst】 effect, can I add the second Shield that would be destroyed by <Suppression> to my hand?”
   - faq Q195: “No, you cannot. The Shields destroyed by <Suppression> are destroyed simultaneously. The Shield you can add to your hand for the deployed Base is the first Shield in your shield area that was not destroyed.”
   - rules 13-1-7-4: “When two Shields are successfully destroyed with this effect, reveal them simultaneously.”
-- Sources: Rules FAQ Q195 — https://www.gundam-gcg.com/en/rules/faqs/list.php?sub_category=Suppression; Comprehensive Rules Ver. 1.9.0 §13-1-7-4
+- Sources: Rules FAQ Q195 — https://www.gundam-gcg.com/en/rules/faqs/list.php?sub_category=Suppression; Comprehensive Rules Ver. 1.10.0 §13-1-7-4
 - **Resolution** (`faq_clarifies_rules`): Both Shields destroyed by <Suppression> leave the shield section at once (revealed, pending trash) before any 【Burst】 resolves; 'add 1 of your Shields' then takes the first Shield that was not destroyed.
   - Rationale: Official rules FAQ Q195 (2026-01-09) clarifies the comprehensive rules and is followed as written.
 
@@ -4274,7 +4543,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
   - faq Q488: “When the effects "reduce damage it receives by 2" and "reduce damage it receives by 3" both activate on the same Unit, is the damage reduced by a total of five?”
   - faq Q488: “Yes. Reduce the damage by five.”
   - rules 5-21-1: “This refers to decreasing damage a Unit, Base, or Shield receives by the indicated amount before it is received.”
-- Sources: Rules FAQ Q488 — https://www.gundam-gcg.com/en/rules/faqs/list.php?sub_category=Fundamental%20Terminology; Comprehensive Rules Ver. 1.9.0 §5-21-1
+- Sources: Rules FAQ Q488 — https://www.gundam-gcg.com/en/rules/faqs/list.php?sub_category=Fundamental%20Terminology; Comprehensive Rules Ver. 1.10.0 §5-21-1
 - **Resolution** (`faq_clarifies_rules`): All applicable reductions are summed before damage is received (floor 0, 5-21-2).
   - Rationale: Official rules FAQ Q488 (2026-09-11) clarifies the comprehensive rules and is followed as written.
 
@@ -4579,7 +4848,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
   - faq Q32: “If a Base is present, the Base is attacked. Otherwise, the first Shield is attacked.”
   - ruling GD02-011:Q173: “After this Unit attacks the opposing player, an enemy Unit blocks and becomes the attack target. At this time, can I activate this Unit's 【Activate･Action】 effect?”
   - ruling GD02-011:Q173: “No, you cannot.”
-- Sources: gcg-api card GD02-011 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD02-011 (effect); Comprehensive Rules Ver. 1.9.0 §5-22-1; Rules FAQ Q32 — https://www.gundam-gcg.com/en/rules/faqs/list.php?sub_category=Main%20Phase%3A%20Unit%20Attacks; Card ruling GD02-011:Q173 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD02-011
+- Sources: gcg-api card GD02-011 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD02-011 (effect); Comprehensive Rules Ver. 1.10.0 §5-22-1; Rules FAQ Q32 — https://www.gundam-gcg.com/en/rules/faqs/list.php?sub_category=Main%20Phase%3A%20Unit%20Attacks; Card ruling GD02-011:Q173 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD02-011
 - **Resolution** (`most_defensible_reading`): While it attacks a player, the Unit is battling exactly the card that would receive its battle damage: the Base if one is present, otherwise the top Shield; only that card can be chosen (6 effect damage). After a block it battles no shield-area card (Q173).
   - Rationale: FAQ Q32 says the Base, else the first Shield, is what gets attacked.
 
@@ -5418,7 +5687,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
   - rules 13-1-2-1: “when this Unit destroys an enemy Unit with battle damage during your turn”
   - ruling GD05-017:Q347: “If an enemy Unit is destroyed in a battle started by this second effect, does that fall within the criterion "when this Unit destroys an enemy Unit with battle damage"?”
   - ruling GD05-017:Q347: “Yes, it does.”
-- Sources: gcg-api card GD01-027 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD01-027 (effect); Comprehensive Rules Ver. 1.9.0 §13-1-2-1; Card ruling GD05-017:Q347 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-017
+- Sources: gcg-api card GD01-027 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD01-027 (effect); Comprehensive Rules Ver. 1.10.0 §13-1-2-1; Card ruling GD05-017:Q347 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD05-017
 - **Resolution** (`most_defensible_reading`): Apply 13-1-2-1 for every card: <Breach> triggers when, during its controller's turn, the Unit destroys an enemy Unit with battle damage (including battles begun by effects, Q347); reminder wording is ignored.
   - Rationale: Reminder text has no rules force (2-11-4); newer printings already use the 13-1-2-1 wording.
 
@@ -5431,7 +5700,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
   - rules 8-2-3: “Effects worded “during this battle” gain effect now.”
   - rules 8-6-1: “All effects worded “during this battle” lose effect.”
   - card GD01-058: “Choose 1 Unit that is Lv.4 or higher. It gets AP+1 during this battle.”
-- Sources: Comprehensive Rules Ver. 1.9.0 §8-2-3; Comprehensive Rules Ver. 1.9.0 §8-6-1; gcg-api card GD01-058 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD01-058 (effect)
+- Sources: Comprehensive Rules Ver. 1.10.0 §8-2-3; Comprehensive Rules Ver. 1.10.0 §8-6-1; gcg-api card GD01-058 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD01-058 (effect)
 - **Resolution** (`most_defensible_reading`): A 'during this battle' effect created while no battle is in progress has no effect; the rest of the effect still resolves.
   - Rationale: Such effects exist only between 8-2-3 and 8-6-1 of a battle; with no battle there is no period for them to apply, and no reading lets them outlast the turn.
 
@@ -5445,7 +5714,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
   - rules 12-2-6: “If an effect or such indicates “enemy” or “opponent,” it refers to any and all of the other players.”
   - faq Q84: “Is there a difference between "1 of your Units" and "1 friendly Unit"?”
   - faq Q84: “There is no difference when playing with 1v1 rules. "1 friendly Unit" means you can choose a teammate's Unit when playing with team battle rules, such as 2v2.”
-- Sources: gcg-api card ST14-006 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST14-006 (effect); Comprehensive Rules Ver. 1.9.0 §12-2-6; Rules FAQ Q84 — https://www.gundam-gcg.com/en/rules/faqs/list.php?sub_category=Unit
+- Sources: gcg-api card ST14-006 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=ST14-006 (effect); Comprehensive Rules Ver. 1.10.0 §12-2-6; Rules FAQ Q84 — https://www.gundam-gcg.com/en/rules/faqs/list.php?sub_category=Unit
 - **Resolution** (`most_defensible_reading`): In 1v1: 'enemy player(s)', 'enemy team' and 'another player' mean the opponent; 'the number of enemy players' is 1, so 'if there are 2 or more enemy players' is never met; 'Choose 1 enemy player' chooses the opponent; 'all players each …' is both players, active player first and treated as simultaneous (1-3-4, Q319); ST10-001's 'same enemy player' means it cannot attack the opponent again this turn but may attack rested enemy Units.
   - Rationale: Direct specialisation of the multiplayer definitions (12-2-6, 12-3-10) to two players.
 
@@ -5458,7 +5727,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
   - rules 13-2-13-1: “【Once per Turn】 is the keyword indicating that that effect can only be activated one time during that turn.”
   - rules 10-1-3: “If told “you may” perform an effect, you may also choose not to activate that effect.”
   - ruling GD02-002:Q197: “This means its once per turn activation has not occurred at this time.”
-- Sources: Comprehensive Rules Ver. 1.9.0 §13-2-13-1; Comprehensive Rules Ver. 1.9.0 §10-1-3; Card ruling GD02-002:Q197 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD02-002
+- Sources: Comprehensive Rules Ver. 1.10.0 §13-2-13-1; Comprehensive Rules Ver. 1.10.0 §10-1-3; Card ruling GD02-002:Q197 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD02-002
 - **Resolution** (`most_defensible_reading`): A 【Once per Turn】 triggered effect is used up only if it performs at least one action (including paying a cost). If its target can't be chosen, its 'If' fails, or the player declines its 'you may', it can trigger again this turn. Activated abilities are used up when activated.
   - Rationale: 10-1-3 treats declining a 'you may' as choosing not to activate the effect, and Q197 treats an effect that performs nothing as not activated; 10-3-3-1: an effect whose target can't be chosen does not activate.
 
@@ -5472,7 +5741,7 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
   - rules 2-9-1: “The number of resources that are required when playing a card.”
   - ruling GD04-100:Q286: “Does this effect activate when I pay the cost to deploy a Unit with GD03-051 Gundam X Divider's effect?”
   - ruling GD04-100:Q286: “Yes, it does.”
-- Sources: gcg-api card GD02-110 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD02-110 (effect); Comprehensive Rules Ver. 1.9.0 §2-9-1; Card ruling GD04-100:Q286 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD04-100
+- Sources: gcg-api card GD02-110 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD02-110 (effect); Comprehensive Rules Ver. 1.10.0 §2-9-1; Card ruling GD04-100:Q286 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD04-100
 - **Resolution** (`most_defensible_reading`): Rest active Resources equal to the card's cost as modified where it is (e.g. GD03-058 'This card in your trash gets cost -1'); no Lv. check; if the cost cannot be paid the card is not deployed. The payment counts as paying for the Unit's effect (Q286/Q297/Q400) and the deployed card's 【Deploy】 triggers.
   - Rationale: Only playing requires the Lv. condition (2-9-1, 7-5-2-2-2); the text asks only for the cost; the level filter printed on each card already limits what can be deployed.
 
@@ -5485,6 +5754,6 @@ Total: 402 conflicts; unresolved: 0; invalid resolutions: 0; stale curated entri
   - card GD03-049: “<Suppression> (Damage to Shields by an attack is dealt to the first 2 cards simultaneously.)”
   - rules 13-1-7-1: “deals damage to the first two Shields simultaneously when the Unit with <Suppression> deals battle damage to an enemy Shield in the shield area.”
   - rules 8-5-2-4: “If there is a Base in the enemy shield area, the attacking Unit deals an amount of battle damage equal to its AP to the Base targeted for attack.”
-- Sources: gcg-api card GD03-049 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD03-049 (effect); Comprehensive Rules Ver. 1.9.0 §13-1-7-1; Comprehensive Rules Ver. 1.9.0 §8-5-2-4
+- Sources: gcg-api card GD03-049 — https://www.gundam-gcg.com/en/cards/detail.php?detailSearch=GD03-049 (effect); Comprehensive Rules Ver. 1.10.0 §13-1-7-1; Comprehensive Rules Ver. 1.10.0 §8-5-2-4
 - **Resolution** (`most_defensible_reading`): With a Base in the shield area the attack damages only the Base (<Suppression> does nothing, excess is lost). Without a Base, <Suppression> deals the attacker's battle damage to the top two Shields simultaneously (one if only one remains, 13-1-7-3).
   - Rationale: Reminder text has no rules force (2-11-4); 13-1-7-1 and 8-5-2-4 are explicit.

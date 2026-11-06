@@ -1,7 +1,7 @@
 {
   "ambiguities": [
     {
-      "description": "The vanilla banned-pair rule is defined both by description and by an enumerated list (22 cards today). The July 2026 notice says future matching cards are added 'at the time of their release', so the list can lag a new set.",
+      "description": "The vanilla banned-pair rule is defined both by description and by an enumerated list (25 cards today). The July 2026 notice says future matching cards are added 'at the time of their release', so the list can lag a new set. GD06-028, GD06-047 and GD06-063 (GD06 release 2026-10-30) are enumerated under that policy; the current-list page (01_279), re-fetched 2026-11-06, does not name them yet, so their names come from the card data.",
       "id": "vanilla-enumeration-vs-predicate",
       "resolution_suggestion": "Enforce the predicate over card data and also check the enumerated list. Today they are identical (predicate_equals_enumeration). The data refresh should fail loudly if they ever diverge."
     },
@@ -87,6 +87,18 @@
         {
           "card_number": "GD05-077",
           "name": "Leo"
+        },
+        {
+          "card_number": "GD06-028",
+          "name": "Gaza D"
+        },
+        {
+          "card_number": "GD06-047",
+          "name": "Windam"
+        },
+        {
+          "card_number": "GD06-063",
+          "name": "GFreD"
         },
         {
           "card_number": "ST01-005",
@@ -204,6 +216,9 @@
         "GD05-042",
         "GD05-062",
         "GD05-077",
+        "GD06-028",
+        "GD06-047",
+        "GD06-063",
         "ST01-005",
         "ST04-008",
         "ST05-004",
@@ -248,7 +263,12 @@
             }
           }
         ]
-      }
+      },
+      "enumerated_members_added_after_2026_09_25": [
+        "GD06-028",
+        "GD06-047",
+        "GD06-063"
+      ]
     }
   ],
   "banned": [
@@ -293,7 +313,7 @@
   "copy_identity": "card_number",
   "copy_identity_source_text": "Cards with the same card number and different illustrations are still considered the same card.",
   "effective_date": "2026-09-25",
-  "effective_date_notes": "01_279 is dated 2026-09-25 and gives no separate effective date. Banned, restricted and card-specific pair entries have applied since 2026-07-24 (US; 2026-07-25 Asia). ST02-016 has been restricted since 2026-04-01. ST11-008 and ST12-010 joined the vanilla list at the ST11/ST12 release (2026-09-25).",
+  "effective_date_notes": "01_279 is dated 2026-09-25 and gives no separate effective date. Banned, restricted and card-specific pair entries have applied since 2026-07-24 (US; 2026-07-25 Asia). ST02-016 has been restricted since 2026-04-01. ST11-008 and ST12-010 joined the vanilla list at the ST11/ST12 release (2026-09-25). GD06-028, GD06-047 and GD06-063 joined the vanilla list at the GD06 release (2026-10-30) under the 01_277 future-cards policy.",
   "format": "standard constructed (official and sanctioned tournaments)",
   "predicate_language": {
     "description": "Card predicates evaluated against one card's canonical data (printed values after errata/overrides). A deck violates an attribute pair rule when it contains a card X matching if_deck_contains and a card Y matching then_forbidden with $matched bound to X's card_number, unless an exception applies.",
@@ -447,6 +467,24 @@
         "status": "match"
       },
       {
+        "card_number": "GD06-028",
+        "data_name": "Gaza D",
+        "official_name": "Gaza D",
+        "status": "match"
+      },
+      {
+        "card_number": "GD06-047",
+        "data_name": "Windam",
+        "official_name": "Windam",
+        "status": "match"
+      },
+      {
+        "card_number": "GD06-063",
+        "data_name": "GFreD",
+        "official_name": "GFreD",
+        "status": "match"
+      },
+      {
         "card_number": "ST01-005",
         "data_name": "GM",
         "official_name": "GM",
@@ -519,7 +557,7 @@
         "status": "match"
       }
     ],
-    "dataset_version": "28-ad9da1b22fc2abd56c1176a5e64b12e6ce21ea42",
+    "dataset_version": "31-ebd08a4b4f8c8898bc407498229839548fb911e9",
     "mismatches": []
   }
 }

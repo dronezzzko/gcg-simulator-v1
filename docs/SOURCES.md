@@ -7,78 +7,78 @@ runs offline from the packaged copies.
 
 ## Pinned versions
 
-- gcg-api: commit `39c85b5032a72b035935b6ca29b326b297908f06`, dataset_version `28-ad9da1b22fc2abd56c1176a5e64b12e6ce21ea42` — https://github.com/yzRobo/gcg-api/commit/39c85b5032a72b035935b6ca29b326b297908f06
-- Comprehensive Rules: Ver. 1.9.0 (2026-09-11), sha256 `bf2f3d5c7a1a04d9…`
+- gcg-api: commit `78a64df3519cb6c773b3d2f4a8ecad14d8096b0e`, dataset_version `31-ebd08a4b4f8c8898bc407498229839548fb911e9` — https://github.com/yzRobo/gcg-api/commit/78a64df3519cb6c773b3d2f4a8ecad14d8096b0e
+- Comprehensive Rules: Ver. 1.10.0 (2026-10-16), sha256 `99798d2276dc7054…`
 - Banned & Restricted list: https://www.gundam-gcg.com/en/news/01_279.html (2026-09-25)
 
 ## All sources
 
 | id | kind | version / effective | retrieved (UTC) | sha256 | location |
 | --- | --- | --- | --- | --- | --- |
-| gcgapi:LICENSE-DATA | license | 28-ad9da1b22fc2abd56c1176a5e64b12e6ce21ea42 / 2026-10-12T14:37:38.154Z | 2026-10-15T19:59:36Z | `11ed028b754f` | src/gcg_sim/data/gcgapi/LICENSE-DATA |
-| gcgapi:commit | git-commit | 28-ad9da1b22fc2abd56c1176a5e64b12e6ce21ea42 / 2026-10-12T14:37:38.154Z | 2026-10-15T19:59:36Z | `980ef58abb20` | not-packaged |
-| gcgapi:data/cards.json | data-file | 28-ad9da1b22fc2abd56c1176a5e64b12e6ce21ea42 / 2026-10-12T14:37:38.154Z | 2026-10-15T19:59:36Z | `db5f96ae4225` | not-packaged |
-| gcgapi:data/cards.ndjson | data-file | 28-ad9da1b22fc2abd56c1176a5e64b12e6ce21ea42 / 2026-10-12T14:37:38.154Z | 2026-10-15T19:59:36Z | `9a5517eddcc9` | src/gcg_sim/data/gcgapi/cards.ndjson |
-| gcgapi:data/cards/en/*.json | data-file-set | 28-ad9da1b22fc2abd56c1176a5e64b12e6ce21ea42 / 2026-10-12T14:37:38.154Z | 2026-10-15T19:59:36Z | `7b8d51d3fe36` | not-packaged |
-| gcgapi:data/errata.json | data-file | 28-ad9da1b22fc2abd56c1176a5e64b12e6ce21ea42 / 2026-10-12T14:37:38.154Z | 2026-10-15T19:59:36Z | `243081dd3002` | src/gcg_sim/data/gcgapi/errata.json |
-| gcgapi:data/manifest.json | data-file | 28-ad9da1b22fc2abd56c1176a5e64b12e6ce21ea42 / 2026-10-12T14:37:38.154Z | 2026-10-15T19:59:36Z | `c8f9043d10ca` | src/gcg_sim/data/gcgapi/manifest.json |
-| gcgapi:data/products.json | data-file | 28-ad9da1b22fc2abd56c1176a5e64b12e6ce21ea42 / 2026-10-12T14:37:38.154Z | 2026-10-15T19:59:36Z | `da629d3ce7e8` | src/gcg_sim/data/gcgapi/products.json |
-| gcgapi:data/rules-faq.json | data-file | 28-ad9da1b22fc2abd56c1176a5e64b12e6ce21ea42 / 2026-10-12T14:37:38.154Z | 2026-10-15T19:59:36Z | `5c6dcfd44f83` | src/gcg_sim/data/gcgapi/rules-faq.json |
-| gcgapi:data/rulings.json | data-file | 28-ad9da1b22fc2abd56c1176a5e64b12e6ce21ea42 / 2026-10-12T14:37:38.154Z | 2026-10-15T19:59:36Z | `2da64f7ea88a` | src/gcg_sim/data/gcgapi/rulings.json |
-| gcgapi:data/sets/en/index.json | data-file | 28-ad9da1b22fc2abd56c1176a5e64b12e6ce21ea42 / 2026-10-12T14:37:38.154Z | 2026-10-15T19:59:36Z | `97cf99bc2844` | src/gcg_sim/data/gcgapi/sets/en/index.json |
-| gcgapi:schema.sql | schema | 28-ad9da1b22fc2abd56c1176a5e64b12e6ce21ea42 / 2026-10-12T14:37:38.154Z | 2026-10-15T19:59:36Z | `746c1fd036d8` | src/gcg_sim/data/gcgapi/schema.sql |
-| official-asia-bo3 | official-html | updated 2026-07-03 / 2026-07-03 | 2026-10-15T20:01:44Z | `bc26862525aa` | data/official_raw/asia-en_news_best-of-three.html |
-| official-asia-br-2026-04 | official-html | announced 2026-03-27 / 2026-04-01 | 2026-10-15T20:01:48Z | `ff504312efdd` | data/official_raw/asia-en_news_01_234.html |
-| official-asia-br-2026-07 | official-html | announced 2026-07-10 / 2026-07-25 | 2026-10-15T20:01:51Z | `95f7ebd262af` | data/official_raw/asia-en_news_01_277.html |
-| official-asia-br-current | official-html | current list / 2026-09-25 | 2026-10-15T20:01:54Z | `62efcd0db2f9` | data/official_raw/asia-en_news_01_279.html |
-| official-asia-cr-pdf | official-pdf | Ver. 1.9.0 / 2026-09-11 | 2026-09-25T12:55:21Z | `ba9c335c73b5` | data/official_raw/en_pdf_comprehensiverules_en.pdf |
-| official-asia-floor-pdf | official-pdf | BANDAI CARD GAMES Floor Rules Ver.1.1.1 (last updated 2026-02-24) / 2026-02-24 | 2026-09-25T12:55:38Z | `dd00d0e59f81` | https://www.carddass.com/bcg/en/pdf/floor-rule-forasia.pdf |
-| official-asia-lang | official-html | current as of 2025-07-11 / 2025-07-11 | 2026-10-15T20:02:14Z | `ee79b6ff1f05` | data/official_raw/asia-en_news_lang_card_rule.html |
-| official-asia-news-rules | official-html | None / None | 2026-10-15T20:02:17Z | `0838c92e0125` | data/official_raw/asia-en_news_index_rules_p1.html |
-| official-asia-rules-index | official-html | rules page / 2026-09-11 | 2026-10-15T20:02:19Z | `3f555d62c9e2` | data/official_raw/asia-en_rules_index.html |
-| official-comprehensive-rules-pdf-en | official_pdf | 1.9.0 / 2026-09-11 | 2026-09-25T12:51:13Z | `ba9c335c73b5` | https://www.gundam-gcg.com/en/pdf/comprehensiverules_en.pdf?260917 |
-| official-en-beta-battle | official-html | 2025-05-20 / None | 2026-10-15T20:02:23Z | `b4901d60dc1d` | data/official_raw/en_events_WkndBetaBattle-2025.html |
-| official-en-beta-letter | official-html | 2024-12-13 / None | 2026-10-15T20:02:26Z | `9112e5f49964` | data/official_raw/en_news_003.html |
-| official-en-beta-product | official-html | None / None | 2026-10-15T20:02:29Z | `59e56a97d8c6` | data/official_raw/en_products_limitedbox-beta.html |
-| official-en-bo3 | official-html | updated 2026-07-03 / 2026-07-03 | 2026-10-15T20:02:32Z | `cf102331f36a` | data/official_raw/en_news_best-of-three.html |
-| official-en-br-2026-04 | official-html | announced 2026-03-27 / 2026-04-01 | 2026-10-15T20:02:36Z | `5c2ae063e97d` | data/official_raw/en_news_01_234.html |
-| official-en-br-2026-07 | official-html | announced 2026-07-10 / 2026-07-24 | 2026-10-15T20:02:39Z | `69ab7c859fd5` | data/official_raw/en_news_01_277.html |
-| official-en-br-current | official-html | current list (page dated 2026-09-25) / 2026-09-25 | 2026-10-15T20:02:42Z | `4fa5f2a5019c` | data/official_raw/en_news_01_279.html |
+| gcgapi:LICENSE-DATA | license | 31-ebd08a4b4f8c8898bc407498229839548fb911e9 / 2026-11-02T14:57:40.351Z | 2026-11-06T05:39:48Z | `11ed028b754f` | src/gcg_sim/data/gcgapi/LICENSE-DATA |
+| gcgapi:commit | git-commit | 31-ebd08a4b4f8c8898bc407498229839548fb911e9 / 2026-11-02T14:57:40.351Z | 2026-11-06T05:39:48Z | `3aba32d9c923` | not-packaged |
+| gcgapi:data/cards.json | data-file | 31-ebd08a4b4f8c8898bc407498229839548fb911e9 / 2026-11-02T14:57:40.351Z | 2026-11-06T05:39:48Z | `40226bd45a94` | not-packaged |
+| gcgapi:data/cards.ndjson | data-file | 31-ebd08a4b4f8c8898bc407498229839548fb911e9 / 2026-11-02T14:57:40.351Z | 2026-11-06T05:39:48Z | `e55d62e604c8` | src/gcg_sim/data/gcgapi/cards.ndjson |
+| gcgapi:data/cards/en/*.json | data-file-set | 31-ebd08a4b4f8c8898bc407498229839548fb911e9 / 2026-11-02T14:57:40.351Z | 2026-11-06T05:39:48Z | `3963effc275b` | not-packaged |
+| gcgapi:data/errata.json | data-file | 31-ebd08a4b4f8c8898bc407498229839548fb911e9 / 2026-11-02T14:57:40.351Z | 2026-11-06T05:39:48Z | `243081dd3002` | src/gcg_sim/data/gcgapi/errata.json |
+| gcgapi:data/manifest.json | data-file | 31-ebd08a4b4f8c8898bc407498229839548fb911e9 / 2026-11-02T14:57:40.351Z | 2026-11-06T05:39:48Z | `2b0c66fdf3dd` | src/gcg_sim/data/gcgapi/manifest.json |
+| gcgapi:data/products.json | data-file | 31-ebd08a4b4f8c8898bc407498229839548fb911e9 / 2026-11-02T14:57:40.351Z | 2026-11-06T05:39:48Z | `d9fdddfb1136` | src/gcg_sim/data/gcgapi/products.json |
+| gcgapi:data/rules-faq.json | data-file | 31-ebd08a4b4f8c8898bc407498229839548fb911e9 / 2026-11-02T14:57:40.351Z | 2026-11-06T05:39:48Z | `5c6dcfd44f83` | src/gcg_sim/data/gcgapi/rules-faq.json |
+| gcgapi:data/rulings.json | data-file | 31-ebd08a4b4f8c8898bc407498229839548fb911e9 / 2026-11-02T14:57:40.351Z | 2026-11-06T05:39:48Z | `f078b81ed23f` | src/gcg_sim/data/gcgapi/rulings.json |
+| gcgapi:data/sets/en/index.json | data-file | 31-ebd08a4b4f8c8898bc407498229839548fb911e9 / 2026-11-02T14:57:40.351Z | 2026-11-06T05:39:48Z | `8ce371215d63` | src/gcg_sim/data/gcgapi/sets/en/index.json |
+| gcgapi:schema.sql | schema | 31-ebd08a4b4f8c8898bc407498229839548fb911e9 / 2026-11-02T14:57:40.351Z | 2026-11-06T05:39:48Z | `746c1fd036d8` | src/gcg_sim/data/gcgapi/schema.sql |
+| official-asia-bo3 | official-html | updated 2026-07-03 / 2026-07-03 | 2026-11-06T05:40:02Z | `9e98526bcf31` | data/official_raw/asia-en_news_best-of-three.html |
+| official-asia-br-2026-04 | official-html | announced 2026-03-27 / 2026-04-01 | 2026-11-06T05:40:05Z | `1a174ab9014b` | data/official_raw/asia-en_news_01_234.html |
+| official-asia-br-2026-07 | official-html | announced 2026-07-10 / 2026-07-25 | 2026-11-06T05:40:08Z | `ef2655aa1cbd` | data/official_raw/asia-en_news_01_277.html |
+| official-asia-br-current | official-html | current list / 2026-09-25 | 2026-11-06T05:40:12Z | `53fb296f66a0` | data/official_raw/asia-en_news_01_279.html |
+| official-asia-cr-pdf | official-pdf | Ver. 1.10.0 / 2026-10-16 | 2026-11-06T05:40:54Z | `035acc2b62b6` | data/official_raw/en_pdf_comprehensiverules_en.pdf |
+| official-asia-floor-pdf | official-pdf | BANDAI CARD GAMES Floor Rules Ver.2.2.0 (last updated 2026-10-23) / 2026-10-23 | 2026-11-06T05:43:45Z | `7bf82d9bd32d` | https://www.carddass.com/bcg/en/pdf/floor-rule-forasia.pdf |
+| official-asia-lang | official-html | current as of 2025-07-11 / 2025-07-11 | 2026-11-06T05:43:47Z | `2914769dbba1` | data/official_raw/asia-en_news_lang_card_rule.html |
+| official-asia-news-rules | official-html | None / None | 2026-11-06T05:43:49Z | `2e56f5b14a1e` | data/official_raw/asia-en_news_index_rules_p1.html |
+| official-asia-rules-index | official-html | rules page / 2026-10-16 | 2026-11-06T05:40:21Z | `76c9fbe3308b` | data/official_raw/asia-en_rules_index.html |
+| official-comprehensive-rules-pdf-en | official_pdf | 1.10.0 / 2026-10-16 | 2026-11-06T05:40:54Z | `035acc2b62b6` | https://www.gundam-gcg.com/en/pdf/comprehensiverules_en.pdf |
+| official-en-beta-battle | official-html | 2025-05-20 / None | 2026-11-06T05:40:25Z | `51bb9e4c2143` | data/official_raw/en_events_WkndBetaBattle-2025.html |
+| official-en-beta-letter | official-html | 2024-12-13 / None | 2026-11-06T05:40:28Z | `4b954d11b25e` | data/official_raw/en_news_003.html |
+| official-en-beta-product | official-html | None / None | 2026-11-06T05:40:31Z | `2aed4de0779a` | data/official_raw/en_products_limitedbox-beta.html |
+| official-en-bo3 | official-html | updated 2026-07-03 / 2026-07-03 | 2026-11-06T05:40:34Z | `b689b6e5d5b1` | data/official_raw/en_news_best-of-three.html |
+| official-en-br-2026-04 | official-html | announced 2026-03-27 / 2026-04-01 | 2026-11-06T05:40:37Z | `3cb58e9b123f` | data/official_raw/en_news_01_234.html |
+| official-en-br-2026-07 | official-html | announced 2026-07-10 / 2026-07-24 | 2026-11-06T05:40:40Z | `1cc41a046947` | data/official_raw/en_news_01_277.html |
+| official-en-br-current | official-html | current list (page dated 2026-09-25) / 2026-09-25 | 2026-11-06T05:40:43Z | `ad52d0238917` | data/official_raw/en_news_01_279.html |
 | official-en-card-st12-001 | official-html | None / None | 2026-09-25T13:05:01Z | `741c1cb8a92d` | data/official_raw/en_cards_detail_ST12-001.html |
-| official-en-cr-pdf | official-pdf | Ver. 1.9.0 / 2026-09-11 | 2026-09-25T12:49:50Z | `ba9c335c73b5` | data/official_raw/en_pdf_comprehensiverules_en.pdf |
-| official-en-decks-build | official-html | 2025-07-25 / 2025-07-25 | 2026-10-15T20:02:52Z | `736da8558963` | data/official_raw/en_news_decks-build.html |
-| official-en-errata-gd03 | official-html | 2026-01-30 / 2026-01-30 | 2026-10-15T20:02:56Z | `c5d5eda0c4f7` | data/official_raw/en_news_01_204.html |
-| official-en-errata-gd04 | official-html | 2026-04-10 / 2026-04-10 | 2026-10-15T20:02:59Z | `ae34e50c30e6` | data/official_raw/en_news_02_157.html |
-| official-en-errata-st12 | official-html | 2026-09-04 / 2026-09-04 | 2026-10-15T20:03:02Z | `0829e9f33864` | data/official_raw/en_news_02_193.html |
-| official-en-faq-index | official-html | None / None | 2026-10-15T20:03:05Z | `c5ba807315eb` | data/official_raw/en_rules_faqs.html |
-| official-en-faq-preparing | official-html | Q1-Q12 dated 2025-07-04 / 2025-07-04 | 2026-10-15T20:03:08Z | `30de61be64a4` | data/official_raw/en_rules_faqs_preparing.html |
+| official-en-cr-pdf | official-pdf | Ver. 1.10.0 / 2026-10-16 | 2026-11-06T05:40:54Z | `035acc2b62b6` | data/official_raw/en_pdf_comprehensiverules_en.pdf |
+| official-en-decks-build | official-html | 2025-07-25 / 2025-07-25 | 2026-11-06T05:40:57Z | `7114e206ea7b` | data/official_raw/en_news_decks-build.html |
+| official-en-errata-gd03 | official-html | 2026-01-30 / 2026-01-30 | 2026-11-06T05:41:00Z | `9818db0ae233` | data/official_raw/en_news_01_204.html |
+| official-en-errata-gd04 | official-html | 2026-04-10 / 2026-04-10 | 2026-11-06T05:41:03Z | `831853f07e44` | data/official_raw/en_news_02_157.html |
+| official-en-errata-st12 | official-html | 2026-09-04 / 2026-09-04 | 2026-11-06T05:41:06Z | `01d51c5a07f0` | data/official_raw/en_news_02_193.html |
+| official-en-faq-index | official-html | None / None | 2026-11-06T05:41:09Z | `c38a71d7d6cb` | data/official_raw/en_rules_faqs.html |
+| official-en-faq-preparing | official-html | Q1-Q12 dated 2025-07-04 / 2025-07-04 | 2026-11-06T05:41:12Z | `ab23c65c0755` | data/official_raw/en_rules_faqs_preparing.html |
 | official-en-floor-pdf | official-pdf | Ver. 1.1.0 (last edited 2025-11-19) / 2025-11-19 | 2026-09-25T12:50:03Z | `b6de2d7d12a9` | data/official_raw/en_pdf_tournament-rules_en.pdf |
-| official-en-lang | official-html | current as of 2025-07-11 / 2025-07-11 | 2026-10-15T20:03:15Z | `119c1dca3556` | data/official_raw/en_news_lang_card_rule.html |
-| official-en-news-index | official-html | page 1 of 14 / None | 2026-10-15T20:03:18Z | `8bd56e423f48` | data/official_raw/en_news_index.html |
-| official-en-news-rules | official-html | None / None | 2026-10-15T20:03:21Z | `a7d53d933d1a` | data/official_raw/en_news_index_rules_p1.html |
-| official-en-playguide | official-html | None / None | 2026-10-15T20:03:24Z | `a843e21fe8cc` | data/official_raw/en_welcome_playguide.html |
-| official-en-product-st02 | official-html | None / None | 2026-10-15T20:03:28Z | `bcca17abef16` | data/official_raw/en_products_st02.html |
-| official-en-product-st05 | official-html | None / None | 2026-10-15T20:03:32Z | `fd3097d6dab4` | data/official_raw/en_products_st05.html |
-| official-en-rules-index | official-html | rules page / 2026-09-11 | 2026-10-15T20:03:34Z | `dd429f6d2bca` | data/official_raw/en_rules_index.html |
-| official-en-top | official-html | None / None | 2026-10-15T20:03:38Z | `6ca33888a6bd` | data/official_raw/en_top.html |
+| official-en-lang | official-html | current as of 2025-07-11 / 2025-07-11 | 2026-11-06T05:41:22Z | `5c44244fe4fc` | data/official_raw/en_news_lang_card_rule.html |
+| official-en-news-index | official-html | page 1 of 14 / None | 2026-11-06T05:41:25Z | `f20a8ac48453` | data/official_raw/en_news_index.html |
+| official-en-news-rules | official-html | None / None | 2026-11-06T05:41:28Z | `1686378922f7` | data/official_raw/en_news_index_rules_p1.html |
+| official-en-playguide | official-html | None / None | 2026-11-06T05:41:31Z | `1dcc508a9572` | data/official_raw/en_welcome_playguide.html |
+| official-en-product-st02 | official-html | None / None | 2026-11-06T05:41:34Z | `e07e498c77f4` | data/official_raw/en_products_st02.html |
+| official-en-product-st05 | official-html | None / None | 2026-11-06T05:41:37Z | `d67c36faa62a` | data/official_raw/en_products_st05.html |
+| official-en-rules-index | official-html | rules page / 2026-10-16 | 2026-11-06T05:41:39Z | `6551e11fe530` | data/official_raw/en_rules_index.html |
+| official-en-top | official-html | None / None | 2026-11-06T05:41:43Z | `edbbdc32dae9` | data/official_raw/en_top.html |
 | official-en-trm-pdf | official-pdf | last updated 2025-07-10 / 2025-07-10 | 2026-09-25T12:49:58Z | `0e1929a52038` | data/official_raw/en_pdf_floor_rule_en.pdf |
-| official-rules-page-en | official_page | 1.9.0 / 2026-09-11 | 2026-10-15T20:03:34Z | `dd429f6d2bca` | https://www.gundam-gcg.com/en/rules/ |
-| rules-comprehensive-en-md | rules_markdown | 1.9.0 / 2026-09-11 | 2026-09-24T09:41:21Z | `bf2f3d5c7a1a` | src/gcg_sim/data/rules/gundam-card-game-comprehensive-rules.md |
+| official-rules-page-en | official_page | 1.10.0 / 2026-10-16 | 2026-11-06T05:41:39Z | `6551e11fe530` | https://www.gundam-gcg.com/en/rules/ |
+| rules-comprehensive-en-md | rules_markdown | 1.10.0 / 2026-10-16 | 2026-11-06T05:40:54Z | `99798d2276dc` | src/gcg_sim/data/rules/gundam-card-game-comprehensive-rules.md |
 
 ## Derived package data
 
 | file | sha256 |
 | --- | --- |
-| src/gcg_sim/data/official/banlist.json | `6aaaf882e2657533` |
+| src/gcg_sim/data/official/banlist.json | `d2bcf63dc4fda562` |
 | src/gcg_sim/data/official/deck_construction.json | `4e087456d484cd17` |
 | src/gcg_sim/data/official/floor_rules.json | `50016061a385254a` |
 | src/gcg_sim/data/official/bo3_match_rules.json | `89258028820ccce2` |
 | src/gcg_sim/data/official/edition_language.json | `21f34da1226b27c7` |
-| src/gcg_sim/data/official/rules_version.json | `8260fe0ace764ed9` |
-| src/gcg_sim/data/overrides.json | `2b6da981b70dc544` |
-| src/gcg_sim/data/curated_conflicts.json | `a161be0db903fdd5` |
-| src/gcg_sim/data/rules/rules_index.json | `5c110f4631928b8a` |
-| src/gcg_sim/data/rules/rules_na.json | `50f594cfa13a00e4` |
+| src/gcg_sim/data/official/rules_version.json | `418410c8ab637bcb` |
+| src/gcg_sim/data/overrides.json | `18c6afa841d6f18e` |
+| src/gcg_sim/data/curated_conflicts.json | `85a84548cdf95597` |
+| src/gcg_sim/data/rules/rules_index.json | `b77be3b300871bc6` |
+| src/gcg_sim/data/rules/rules_na.json | `a38ae1da618823ae` |
 
 ## Licences and attribution
 
