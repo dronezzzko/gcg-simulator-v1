@@ -33,7 +33,7 @@ refresh).
 | I-20 | 'Pay its cost to deploy it' skips the Lv. check | `docs/CONFLICTS.md (ambiguous:pay-its-cost-to-deploy)` | card:GD02-096, GD02-110, GD03-051, GD03-130, GD04-050; conflict:ambiguous:pay-its-cost-to-deploy | 15 | 15 |
 | I-21 | 'If ...' / 'If you do' govern a following 'Then' | `docs/ASSUMPTIONS.md, rulings Q175, Q233` | ruling:GD02-021:Q175; ruling:GD03-072:Q233 | 4 | 4 |
 | I-22 | Resolutions that remove a player decision (ST14-015, GD03-129, GD03-076) | `src/gcg_sim/engine/interp.py:1033-1038` | card:GD03-076, GD03-129, ST14-015 | 12 | 12 |
-| I-23 | Multiplayer wording in 1v1 ('each enemy player' = the opponent) | `docs/ASSUMPTIONS.md:57` | card:EB01-002, EB01-005, EB01-009, EB01-023, EB01-025, EB01-040 (+22); conflict:ambiguous:multiplayer-vocabulary | 85 | 101 |
+| I-23 | Multiplayer wording in 1v1 ('each enemy player' = the opponent) | `docs/ASSUMPTIONS.md:57` | card:EB01-002, EB01-005, EB01-009, EB01-023, EB01-025, EB01-040 (+22); conflict:ambiguous:multiplayer-vocabulary | 87 | 103 |
 | I-24 | Pilot text routing: 【Burst】, name-alias, play-modifier and hand/trash lines stay with the Pilot | `docs/ASSUMPTIONS.md:58` | rule:3-3-9-1; rule:3-3-9-2 | 21 | 43 |
 | I-25 | ST12-001 errata applied through an override (major) | `docs/CONFLICTS.md (errata-unapplied:ST12-001:news-02_193)` | card:ST12-001; conflict:errata-unapplied:ST12-001:news-02_193 | 8 | 9 |
 | I-26 | GD02-053 [Suppression] read as <Suppression> (major) | `docs/CONFLICTS.md (markers:GD02-053:unbracketed-keyword)` | card:GD02-053; conflict:markers:GD02-053:unbracketed-keyword | 2 | 4 |

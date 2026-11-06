@@ -71,7 +71,7 @@ No signal cleared the noise gate (a two-proportion z-test significant at 0.05 af
 
 ## Versions
 
-gcg-sim 0.1.0; results schema 1.1.0; card data 28-ad9da1b22fc2abd56c1176a5e64b12e6ce21ea42 (built 2026-10-12T14:37:38.154Z); Comprehensive Rules 1.9.0 (2026-09-11); Banned & Restricted list 2026-09-25; BO3 rules 2026-07-03.
+gcg-sim 0.1.0; results schema 1.1.0; card data 31-ebd08a4b4f8c8898bc407498229839548fb911e9 (built 2026-11-02T14:57:40.351Z); Comprehensive Rules 1.10.0 (2026-10-16); Banned & Restricted list 2026-09-25; BO3 rules 2026-07-03.
 
 ## Conflict resolutions affecting these decks
 
