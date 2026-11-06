@@ -28,7 +28,7 @@ from gcg_sim.effects.registry import get_registry  # noqa: E402
 
 EXPECTED = {
     "pair-from-trash-after-main": ["GD05-112", "GD05-113", "GD05-121", "GD05-122"],
-    "reduce-received-damage-this-turn": ["GD05-094", "GD05-125"],
+    "reduce-received-damage-this-turn": ["GD05-094", "GD05-125", "GD06-128"],
     "mill-top-of-deck": ["EB01-050", "GD02-127", "GD03-092", "GD03-094"],
     "placed-trait-card-with-this-effect": ["GD03-092", "GD03-094"],
     "placed-card-level-with-this-effect": ["EB01-050"],
@@ -55,7 +55,7 @@ def test_templates_reproduce_their_bindings() -> None:
     doc = check.report()
     assert doc["mismatches"] == []
     assert {t["id"]: t["reproduced_bindings"] for t in doc["templates"]} == EXPECTED
-    assert doc["reproduced_total"] == 24
+    assert doc["reproduced_total"] == 25
     assert doc["compiled_cards_with_a_template_wording"] == []
     assert [r.split(":")[0] for r in doc["reviewed_differences"]] == REVIEWED
     assert sorted(check.REVIEWED_DIFFERENCES) == REVIEWED

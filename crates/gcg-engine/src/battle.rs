@@ -454,8 +454,7 @@ fn exchange(
 /// a shield-area protection stops all of it. An attack on a Unit or Base exchanges damage.
 ///
 /// # Errors
-/// Python's assertion without a battle; [`EngineError::RedirectCycle`] (W-143); errors of the
-/// view, damage, destruction and emitting.
+/// Python's assertion without a battle; errors of the view, damage, destruction and emitting.
 pub(crate) fn damage_step(st: &mut GameState) -> Result<(), EngineError> {
     let b = current_battle(st)?;
     let dv = view::derived(st)?;

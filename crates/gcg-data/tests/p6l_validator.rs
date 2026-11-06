@@ -193,8 +193,9 @@ fn w72_packaged_model_is_one_current_list() {
 }
 
 /// The July 2026 list as a history entry: the current list's contents with its date and
-/// without the two vanilla-list members added at the ST11/ST12 release
-/// (`enumerated_members_added_after_2026_07_10`).
+/// without the vanilla-list members added later: two at the ST11/ST12 release
+/// (`enumerated_members_added_after_2026_07_10`) and three at the GD06 release
+/// (`enumerated_members_added_after_2026_09_25`).
 fn july_list(effective: &str, regions: &[&str]) -> Value {
     let mut l = banlist_doc();
     let obj = l.as_object_mut().expect("object");
@@ -208,7 +209,12 @@ fn july_list(effective: &str, regions: &[&str]) -> Value {
     obj.insert("regions".into(), json!(regions));
     let rule = &mut l["attribute_pair_rules"][0];
     let members = rule["enumerated_members"].as_array_mut().expect("members");
-    members.retain(|m| !matches!(m["card_number"].as_str(), Some("ST11-008" | "ST12-010")));
+    members.retain(|m| {
+        !matches!(
+            m["card_number"].as_str(),
+            Some("ST11-008" | "ST12-010" | "GD06-028" | "GD06-047" | "GD06-063")
+        )
+    });
     assert_eq!(members.len(), 20);
     l
 }
@@ -636,6 +642,7 @@ fn w76_release_dates_cover_every_main_deck_set() {
             "EXRP:EX RESOURCE",
             "R:RESOURCE",
             "RP:RESOURCE",
+            "T:BASE TOKEN",
             "T:UNIT TOKEN"
         ]
     );

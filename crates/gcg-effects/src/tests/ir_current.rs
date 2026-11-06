@@ -193,19 +193,19 @@ fn the_ir_carries_the_recorded_card_db_fingerprints() {
     for (name, want) in [
         (
             "carddefs",
-            "c38ea9017c2109ff622745f53eaed210c526369fd8f2aeaa7b8ae17c76baa7de",
+            "74a5c9ba693e5286efe378e83580d53c4683411b8eb75956f7375789624d0e90",
         ),
         (
             "def_ids",
-            "c4bb4d9269df02c745a753059cfb0f5993290600fc3202d8e54eadd1fc8cd5df",
+            "47ca78107d58155d52abcc1b6671a83a25682de4924f249480fa2a024799ddf3",
         ),
         (
             "token_keys",
-            "176b958ac9db6a04ae9c71285629fd390bf75f06e3c8fa90d065167958130105",
+            "f7d4551509c1c073594131c70d0468d35665986fc886d383be1fb2c7a39607c9",
         ),
         (
             "applied_overrides",
-            "613cd0b24183fe239d6806a4442f87d8ae1c0b72e8efa7cc8513123df5d8273b",
+            "ab9360ab094f791f9def55b3dd13e986727a7ebc2f270f5404371dd20dd2687f",
         ),
     ] {
         assert_eq!(fp[name].as_str(), Some(want), "db_fingerprints.{name}");

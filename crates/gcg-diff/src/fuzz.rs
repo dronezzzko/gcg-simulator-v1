@@ -629,7 +629,7 @@ mod tests {
     fn fuzz_decks_are_pythons() {
         let reg = Registry::embedded();
         let pools = Pools::new(&reg);
-        assert_eq!(pools.all().len(), 1064);
+        assert_eq!(pools.all().len(), 1194);
         // The 2026-seed summary covers every pool card (tier-1 fuzz summary).
         for (index, seed) in [(0, 1), (1, 1), (7, 5), (12, 2026)] {
             let d = pools.deck_for(index, seed);

@@ -124,7 +124,7 @@ fn first_option_games_touch_as_python_before_every_decision() {
     assert_eq!(version_of(&inv["final"]["version"]), 357);
     assert_eq!(
         inv["final"]["digest"],
-        "5ce28ed973cf9e06670a38f6a320c26a9a2c9f15fa5066e8fd8a6744c2f31e9a"
+        "b8f32aad892e6eb969a4fd17a9c9242c6bfc5c732f67669299af59bb7072cf65"
     );
 }
 

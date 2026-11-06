@@ -132,7 +132,7 @@ fn the_hp_minus_override_makes_hp_reduction_possible() {
     );
     let def = def_of(&t, "GD01-064");
     assert!(t.view().events_of(def).contains(Ev::Deployed));
-    assert_eq!(t.view().card(def).own, [AbilityId(1260)].into());
+    assert_eq!(t.view().card(def).own, [AbilityId(1447)].into());
 }
 
 #[test]

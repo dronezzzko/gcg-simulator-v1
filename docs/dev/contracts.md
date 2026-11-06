@@ -921,7 +921,8 @@ Behaviour fixed by the contract (PLAN §4.4-§4.6):
 - W-48: a view that reaches `FIXPOINT_PASSES` without converging keeps the last pass (as
   Python) and reports `Derived::converged() == false`.
 - W-47: `advance` returns `EngineError::NoProgress` after `NO_PROGRESS_STEPS` loop iterations
-  without a decision. W-143: `resolve_damage` returns `EngineError::RedirectCycle`.
+  without a decision. W-143: `resolve_damage` returned `EngineError::RedirectCycle` until the
+  2026-11-06 refresh; each redirection now applies once per damage (Q494) and it is never returned.
 
 Differences from PLAN §4.2, §4.6, §10.3.3 and §10.3.4, settled here:
 

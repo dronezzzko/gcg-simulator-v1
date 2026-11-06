@@ -23,14 +23,14 @@ fn every_node_content_id_equals_pythons() {
         wrong.len(),
         wrong.first()
     );
-    assert_eq!(t.node_content_ids.len(), 4477);
+    assert_eq!(t.node_content_ids.len(), 5047);
 }
 
 #[test]
 fn every_program_content_id_equals_pythons() {
     let t = tables();
     let v = t.view();
-    assert_eq!(t.programs.len(), 626);
+    assert_eq!(t.programs.len(), 712);
     for (i, p) in t.programs.iter().enumerate() {
         let id = ProgramId(u16::try_from(i).expect("program ids fit u16"));
         assert_eq!(
@@ -71,7 +71,7 @@ fn every_filter_set_content_id_equals_pythons() {
 fn continuous_effects_print_and_hash_like_their_nodes() {
     let t = tables();
     let v = t.view();
-    assert_eq!(t.continuous.len(), 110);
+    assert_eq!(t.continuous.len(), 120);
     let mut values = 0;
     for &(n, c) in &*t.continuous {
         assert_eq!(v.cont_of(n), c);
@@ -83,7 +83,7 @@ fn continuous_effects_print_and_hash_like_their_nodes() {
         }
     }
     assert_eq!(
-        values, 29,
+        values, 30,
         "12 StatMod + 12 KeywordGrant + 5 AbilityGrant value variants"
     );
 }
@@ -92,7 +92,7 @@ fn continuous_effects_print_and_hash_like_their_nodes() {
 fn rule_mod_reprs_equal_the_rust_repr() {
     let t = tables();
     let v = t.view();
-    assert_eq!(t.rule_mod_reprs.len(), 68);
+    assert_eq!(t.rule_mod_reprs.len(), 75);
     for (r, text) in &*t.rule_mod_reprs {
         assert_eq!(v.repr(r.node()), **text);
         assert_eq!(v.rule_mod_repr(*r), &**text);

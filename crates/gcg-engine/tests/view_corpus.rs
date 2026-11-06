@@ -202,7 +202,7 @@ fn check_set(dir: &Path, expected: usize) {
 
 #[test]
 fn tier1_views_match_python() {
-    check_set(&repo().join("oracle/corpus/v1/tier1/views"), 280);
+    check_set(&repo().join("oracle/corpus/v1/tier1/views"), 300);
 }
 
 /// The tier-2 trace count of the `views` set in `oracle/corpus/v1/MANIFEST-tier2.json`.

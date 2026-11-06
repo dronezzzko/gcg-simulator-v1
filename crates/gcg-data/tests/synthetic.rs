@@ -120,5 +120,5 @@ fn overrides_never_fall_back_to_empty() {
         .err()
         .expect("must fail");
     assert!(matches!(&e, DataError::Json { line: 3, .. }), "{e}");
-    assert_eq!(CardDb::embedded().applied_overrides().len(), 166);
+    assert_eq!(CardDb::embedded().applied_overrides().len(), 194);
 }

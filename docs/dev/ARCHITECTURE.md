@@ -16,7 +16,7 @@ Eleven crates, listed in dependency order in the workspace `Cargo.toml`:
 | --- | --- | --- |
 | `gcg-core` | lib | `SplitMix64` and `derive_seed` (`src/rng.rs`); CPython-compatible `repr`, float formatting, `round`, Neumaier `sum` and `json.dumps` (`pyrepr.rs`, `pyfloat.rs`, `pymath.rs`, `pyjson.rs`); the C math library calls (`libm.rs`, the workspace's only `unsafe`, for `erfc`); the thread pool (`pool.rs`); fixed-capacity inline arrays (`small.rs`); SHA-256-based stable keys (`stable_hash.rs`) and a hash map without iteration (`lookup.rs`); the property-test harness (`prop.rs`); CPU topology and SIGINT (`sys/topology.rs`, `sys/sigint.rs`) |
 | `gcg-data` | lib | Card model and `CardDb` (`model.rs`, `db.rs`); the official data: construction rules, Banned & Restricted list, rules and BO3 versions (`official.rs`, `legality/`); deck parsing and validation with Python's messages (`deck.rs`, `validate.rs`, `names.rs`, the Unicode tables of `unicode/`); `versions()` and the `data status` parts (`versions.rs`); the packaged sources embedded with `include_bytes!` (`embedded.rs`) |
-| `gcg-effects` | lib | The effect DSL node types, generated from the Python dataclasses by `oracle/gen_dsl.py` (`dsl.rs`); the JSON IR loader and the `Registry` (`ir.rs`, `codec.rs`, `registry.rs`); continuous-effect identity and CPython `repr` for content ids (`pyrepr.rs`); the golden-file writer (`golden.rs`); the 34 custom-hook ids with typed parameters (`hooks.rs`) |
+| `gcg-effects` | lib | The effect DSL node types, generated from the Python dataclasses by `oracle/gen_dsl.py` (`dsl.rs`); the JSON IR loader and the `Registry` (`ir.rs`, `codec.rs`, `registry.rs`); continuous-effect identity and CPython `repr` for content ids (`pyrepr.rs`); the golden-file writer (`golden.rs`); the 36 custom-hook ids with typed parameters (`hooks.rs`) |
 | `gcg-engine` | lib | `GameState` and its records (`contracts.rs`, `state.rs`, `zones.rs`), the derived view (`view/`), events, triggers, damage and rules management (`core.rs`), battle (`battle.rs`), the interpreter and the step hooks (`interp/`), setup, the step machine, legal actions and `apply` (`game.rs`), information sets (`observe.rs`), invariants (`invariants.rs`), canonical JSON and `state_digest` (`canon.rs`); features `testkit` (`testkit/`) and `paranoid` (`paranoid.rs`, `view/paranoid.rs`) |
 | `gcg-ai` | lib | The `Agent` trait, `AgentCore` and the decision log (`agent.rs`, `log.rs`); the shared exact components: move keys, canonicalisation, pruning and merging (`actions.rs`, `fingerprint.rs`), the no-effect check (`noop.rs`), pre-game choices (`setup.rs`), the playout policy (`policy.rs`, `playout.rs`), values and targeting (`values.rs`, `targeting.rs`), the evaluation and its weight tables (`evaluation.rs`); the random and greedy players (`random.rs`, `greedy.rs`); per-thread scratch states (`scratch.rs`) |
 | `gcg-ai-reference` | lib | The reference ISMCTS (`mcts.rs`, `agent.rs`) and its exact presets `fast`, `standard`, `strong`, the baseline presets and `TUNING_CONFIG` (`contracts.rs`) |
@@ -128,14 +128,14 @@ the load with the card number. Unit tests in `crates/gcg-effects/src/tests/` che
 is current against the packaged data and the Python sources (`ir_current.rs`), that the Rust
 `repr` reproduces every content id (`content_ids.rs`, `repr_vectors.rs`), and that the golden
 writer regenerates `tests/effects/golden/` byte for byte (`golden.rs`). The
-registry holds <!-- count:cards.definitions -->1,153<!-- /count --> card definitions for
-<!-- count:cards.numbers -->1,152<!-- /count --> card numbers.
+registry holds <!-- count:cards.definitions -->1,291<!-- /count --> card definitions for
+<!-- count:cards.numbers -->1,290<!-- /count --> card numbers.
 
 The interpreter (`crates/gcg-engine/src/interp/`) executes one instruction of the top frame at a
 time (`interp/mod.rs`). An instruction that needs a choice sets the pending decision and marks
 its frame as waiting; `apply` resumes it. A frame is addressed by its index and re-read after
 any call that can push frames. The 13 custom step hooks live in `interp/hooks/` (one file per
-Python binding module) and the 21 condition, filter and value hooks in `view/hooks.rs`. The
+Python binding module) and the 23 condition, filter and value hooks in `view/hooks.rs`. The
 engine draws from the game RNG at Python's four sites in Python's order.
 
 ### Triggers, batches and frames
@@ -241,7 +241,7 @@ its behaviour:
   `pytest_trace.py` records one trace per Python rule, card, effect and AI test. Each decision
   carries the state digest prefix, the RNG state, `version`, `action_count`, `event_group`, the
   rules-check marker, the ordered legal options and the chosen action, with full snapshots at
-  intervals (PLAN §8.2). Tier 1 (<!-- count:corpus.tier1.traces -->3,804<!-- /count -->
+  intervals (PLAN §8.2). Tier 1 (<!-- count:corpus.tier1.traces -->4,044<!-- /count -->
   traces) is committed in `oracle/corpus/v1/tier1/` with its `MANIFEST.json`; tier 2 is
   regenerated into `build/oracle/tier2/` and checked against `MANIFEST-tier2.json`.
   `census.py` writes the executed-program census.
@@ -267,7 +267,7 @@ passing per-test traces). End-to-end equivalence of whole runs is
 | `reports/versions.py` | `crates/gcg-data/src/versions.rs`; the code digest in `build-support/code_digest.rs` |
 | `effects/dsl.py`, `effects/program.py`, `effects/scripts.py` | `crates/gcg-effects/src/dsl.rs` (generated), `contracts.rs`, `codec.rs` |
 | `effects/registry.py` | the IR export (`oracle/export_ir.py`) and `crates/gcg-effects/src/ir.rs`, `registry.rs` |
-| `effects/text.py`, `effects/compiler/`, `effects/bindings/*.py` | not ported: their output is the IR; the 34 hook bodies of the bindings are in `crates/gcg-engine/src/interp/hooks/` and `view/hooks.rs` |
+| `effects/text.py`, `effects/compiler/`, `effects/bindings/*.py` | not ported: their output is the IR; the 36 hook bodies of the bindings are in `crates/gcg-engine/src/interp/hooks/` and `view/hooks.rs` |
 | `effects/builtins.py` | `crates/gcg-engine/src/interp/hooks/builtins.rs` |
 | `effects/golden.py`, `tools/golden.py` | `crates/gcg-effects/src/golden.rs` (the writer; the golden files stay Python's) |
 | `engine/types.py` | `crates/gcg-engine/src/enums.rs` (generated), `types.rs` |

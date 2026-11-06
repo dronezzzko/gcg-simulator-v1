@@ -1,4 +1,4 @@
-//! T-035: the embedded `CardDb` equals Python's `get_card_db()` field by field (1153
+//! T-035: the embedded `CardDb` equals Python's `get_card_db()` field by field (1291
 //! definitions), with the four recorded fingerprints, the token map, the applied overrides,
 //! the Unit variants and the lookups (`oracle/export_data.py`, `carddefs.json`).
 
@@ -15,7 +15,7 @@ fn def_id(v: &serde_json::Value) -> DefId {
 fn every_card_def_equals_python_field_by_field() {
     let fx = fixture("carddefs.json");
     let db = CardDb::embedded();
-    assert_eq!(db.len(), 1153);
+    assert_eq!(db.len(), 1291);
     assert!(!db.is_empty());
     assert_eq!(db.len() as u64, u(&fx["len"]));
     let mismatches = def_mismatches(db.defs(), arr(&fx["defs"]));
@@ -37,14 +37,14 @@ fn fingerprints_equal_python() {
     let want: Vec<&str> = arr(&fx["fingerprints"]).iter().map(s).collect();
     let got = CardDb::embedded().fingerprints();
     assert_eq!(got.as_slice(), want.as_slice());
-    // Recorded at HEAD d9d41af.
+    // Recorded at the data refresh of 2026-11-06 (gcg-api 78a64df, dataset 31-ebd08a4b).
     assert_eq!(
         got,
         [
-            "c38ea9017c2109ff622745f53eaed210c526369fd8f2aeaa7b8ae17c76baa7de",
-            "c4bb4d9269df02c745a753059cfb0f5993290600fc3202d8e54eadd1fc8cd5df",
-            "176b958ac9db6a04ae9c71285629fd390bf75f06e3c8fa90d065167958130105",
-            "613cd0b24183fe239d6806a4442f87d8ae1c0b72e8efa7cc8513123df5d8273b",
+            "74a5c9ba693e5286efe378e83580d53c4683411b8eb75956f7375789624d0e90",
+            "47ca78107d58155d52abcc1b6671a83a25682de4924f249480fa2a024799ddf3",
+            "f7d4551509c1c073594131c70d0468d35665986fc886d383be1fb2c7a39607c9",
+            "ab9360ab094f791f9def55b3dd13e986727a7ebc2f270f5404371dd20dd2687f",
         ]
     );
 }
@@ -54,7 +54,7 @@ fn tokens_overrides_and_variants_equal_python() {
     let fx = fixture("carddefs.json");
     let db = CardDb::embedded();
     let tokens = arr(&fx["tokens"]);
-    assert_eq!(tokens.len(), 29);
+    assert_eq!(tokens.len(), 37);
     for t in tokens {
         let key = s(&t[0]);
         let got = db.token_for_key(key).map(|d| d.def_id);
@@ -85,7 +85,7 @@ fn tokens_overrides_and_variants_equal_python() {
             )
         })
         .collect();
-    assert_eq!(applied.len(), 166);
+    assert_eq!(applied.len(), 194);
     assert_eq!(applied, want);
 
     let variants = arr(&fx["unit_variants"]);

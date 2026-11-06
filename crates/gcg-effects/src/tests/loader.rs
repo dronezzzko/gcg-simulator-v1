@@ -196,16 +196,19 @@ fn hook_parameters_are_typed_with_last_key_wins() {
             })
             .collect()
     };
-    assert!(
-        params("wp_gd05_a_once_free")
-            .iter()
-            .all(|p| *p == HookParams::Cond(CondParams::GD05aOnceFree { tag: -205_006 }))
-    );
-    assert!(
-        params("wp_gd05_a_use_once")
-            .iter()
-            .all(|p| *p == HookParams::Step(StepParams::GD05aUseOnce { tag: -205_006 }))
-    );
+    // GD05-006 and GD06-002 share the hook, each with its own tag.
+    assert!(params("wp_gd05_a_once_free").iter().all(|p| matches!(
+        p,
+        HookParams::Cond(CondParams::GD05aOnceFree {
+            tag: -205_006 | -206_002
+        })
+    )));
+    assert!(params("wp_gd05_a_use_once").iter().all(|p| matches!(
+        p,
+        HookParams::Step(StepParams::GD05aUseOnce {
+            tag: -205_006 | -206_002
+        })
+    )));
     let by: Vec<HookParams> = params("wp_gd05_a_destroyed_by_effect");
     assert!(
         by.contains(&HookParams::Cond(CondParams::GD05aDestroyedByEffect {

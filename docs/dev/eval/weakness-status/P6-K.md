@@ -353,7 +353,7 @@ effect (P6-K common row)".
   freshness logic lists products released after the snapshot's build date with no card
   numbers.
 - **Evidence:** `p6k_data_tripwires.rs::w145_new_sets_are_data_and_the_freshness_listing_names_gd06`
-  (as of 2026-11-01 the listing is exactly GD06, 2026-10-30; GD07, due 2027-01-29, is not
+  (since the 2026-11-06 data refresh `..._names_gd07`, over EVX10 and GD07) (as of 2026-11-01 the listing is exactly GD06, 2026-10-30; GD07, due 2027-01-29, is not
   listed; with the synthetic GD06 cards the listing is empty).
 - **Not done:** `gcg-eval data-status --freshness [--as-of DATE]`, and validating a deck against
   a non-embedded snapshot (the public `parse_deck`/`validate` use the embedded database):

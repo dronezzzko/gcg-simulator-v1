@@ -117,11 +117,13 @@ is empty).
   `parse_deck_with(db, text, name, source)` public and re-export it from `gcg_data`, so a
   refreshed-data tool can parse deck files over its own database.
 - **Evidence:**
-  - `gapc_tools.rs::w145_freshness_as_of_names_gd06_and_not_gd07`: `--freshness --as-of
+  - `gapc_tools.rs::w145_freshness_as_of_names_gd06_and_not_gd07` (since the 2026-11-06 data
+    refresh `w145_freshness_as_of_names_evx10_and_not_gd07`, over EVX10): `--freshness --as-of
     2026-11-01` prints `GD06 Stardust Trails[GD06]: released 2026-10-30, 0 card numbers` and no
     GD07; without `--as-of`, GD07 is listed with `release date 2027-01-29`; the JSON block; both
     usage errors.
-  - `gapc_tools.rs::w145_a_synthetic_gd06_snapshot_loads_and_a_deck_of_its_cards_validates`: a
+  - `gapc_tools.rs::w145_a_synthetic_gd06_snapshot_loads_and_a_deck_of_its_cards_validates`
+    (since the 2026-11-06 data refresh `..._synthetic_gd07_...`, with GD07 numbers): a
     copy of `cards.ndjson` with ten vanilla GD06 Units loads (`len + 10`), leaves no product
     missing, and a 50-card deck (4 copies of each new card, 10 packaged blue Units, 10 R-001)
     has no rules violation over it under the current B&R list. Negative control: over the

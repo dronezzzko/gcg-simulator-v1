@@ -1,6 +1,6 @@
 # gcg-sim
 
-A deterministic Gundam Card Game (Comprehensive Rules Ver. 1.9.0) engine, AI and deck benchmark
+A deterministic Gundam Card Game (Comprehensive Rules Ver. 1.10.0) engine, AI and deck benchmark
 CLI, implemented in Rust (`crates/`, binaries `gcg-sim` and `gcg-eval`). The Python package
 (`src/gcg_sim`) is the reference oracle and the effect-IR generator. Start with `README.md`.
 Architecture: `docs/dev/ARCHITECTURE.md` (Rust) and `docs/ARCHITECTURE.md` (the oracle). AI

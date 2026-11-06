@@ -397,9 +397,9 @@ mod tests {
             &*rule.description,
             "a Unit card that is Lv.2 with cost 1, 2 AP, and 2 HP, and without effects"
         );
-        assert_eq!(rule.enumerated.len(), 22);
+        assert_eq!(rule.enumerated.len(), 25);
         assert_eq!(rule.max_total_copies, 4);
-        assert_eq!(&*rules_version().latest_version, "1.9.0");
+        assert_eq!(&*rules_version().latest_version, "1.10.0");
         assert_eq!(&*bo3_rules().effective_date, "2026-07-03");
     }
 

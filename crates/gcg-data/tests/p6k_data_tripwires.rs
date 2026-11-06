@@ -252,6 +252,21 @@ fn collapse_line(raw: &str) -> String {
     out.trim().to_owned()
 }
 
+/// `_GLUED_KEYWORD.sub(r"\1 <", t)` (`effects/text.py`): a space between a word character
+/// and a keyword's `<` (GD06 prints "gains<Blocker>").
+fn unglue_keywords(t: &str) -> String {
+    let mut out = String::with_capacity(t.len());
+    let mut prev: Option<char> = None;
+    for ch in t.chars() {
+        if ch == '<' && prev.is_some_and(is_word) {
+            out.push(' ');
+        }
+        out.push(ch);
+        prev = Some(ch);
+    }
+    out
+}
+
 /// `normalize` (`effects/text.py:65-95`).
 fn normalize(text: &str, stripped: &mut Vec<String>) -> String {
     let t = text
@@ -265,6 +280,7 @@ fn normalize(text: &str, stripped: &mut Vec<String>) -> String {
         .replace("【Activate･ Action】", "【Activate･Action】")
         .replace('：', ":");
     let t = join_contractions(&t).replace("[Suppression]", "<Suppression>");
+    let t = unglue_keywords(&t);
     let t = strip_reminders(&t, stripped);
     t.split('\n')
         .map(collapse_line)
@@ -333,7 +349,7 @@ fn w55_bases_have_zero_ap_with_negative_control() {
 fn w58_conflict_counts_and_policies() {
     let cc = json(CONFLICTS);
     let summary = &cc["summary"];
-    assert_eq!(summary["total"], 402);
+    assert_eq!(summary["total"], 421);
     for key in [
         "unresolved",
         "invalid",
@@ -343,14 +359,14 @@ fn w58_conflict_counts_and_policies() {
         assert_eq!(arr(&summary[key]).len(), 0, "summary.{key}");
     }
     let conflicts = arr(&cc["conflicts"]);
-    assert_eq!(conflicts.len(), 402);
+    assert_eq!(conflicts.len(), 421);
     let mut by_policy: BTreeMap<&str, usize> = BTreeMap::new();
     for c in conflicts {
         *by_policy.entry(s(&c["resolution"], "policy")).or_default() += 1;
     }
     let want: BTreeMap<&str, usize> = [
         ("banlist_most_defensible", 6),
-        ("canonical_printing", 45),
+        ("canonical_printing", 61),
         ("edition_beta_superseded", 1),
         ("engine_derives_markers", 5),
         ("errata_supersedes_print", 3),
@@ -361,7 +377,7 @@ fn w58_conflict_counts_and_policies() {
         ("rules_xref_intended_target", 11),
         ("ruling_overrides_text", 192),
         ("text_format_correction", 3),
-        ("token_stats_from_effect", 4),
+        ("token_stats_from_effect", 7),
     ]
     .into_iter()
     .collect();
@@ -913,9 +929,10 @@ fn reviewed_null_ap(overrides: &Value) -> BTreeSet<String> {
     reviewed
 }
 
-/// Reviewed null-AP token printings: T-012 and T-014 have no printed AP (0, `cards/db.py:110`),
-/// and T-001_p1 is the defective Edition Beta record of W-83 (`divergent:T-001`).
-const REVIEWED_NULL_AP_TOKENS: [&str; 3] = ["T-001_p1", "T-012", "T-014"];
+/// Reviewed null-AP token printings: T-012, T-014 and T-030 (Gozzo, `[Gozzo]((Dianna
+/// Counter)･AP0･HP3･<Blocker>)` in GD06-070) have no printed AP (0, `cards/db.py:110`), and
+/// T-001_p1 is the defective Edition Beta record of W-83 (`divergent:T-001`).
+const REVIEWED_NULL_AP_TOKENS: [&str; 4] = ["T-001_p1", "T-012", "T-014", "T-030"];
 
 fn null_ap_findings(ps: &[Value], overrides: &Value) -> (BTreeMap<String, usize>, Vec<String>) {
     let reviewed = reviewed_null_ap(overrides);
@@ -948,10 +965,10 @@ fn w82_null_ap_printings_are_reviewed_with_negative_control() {
     let (counts, findings) = null_ap_findings(&ps, &overrides);
     assert_eq!(findings, Vec::<String>::new());
     let want: BTreeMap<String, usize> = [
-        ("BASE", 109),
+        ("BASE", 124),
         ("EX BASE", 33),
-        ("UNIT", 13),
-        ("UNIT TOKEN", 3),
+        ("UNIT", 14),
+        ("UNIT TOKEN", 4),
     ]
     .into_iter()
     .map(|(k, v)| (k.to_owned(), v))
@@ -1120,14 +1137,11 @@ fn w84_link_and_trait_anomalies_equal_the_known_set() {
             anomalies.insert(format!("{} link shape {link}", s(&p, "product_id")));
         }
     }
-    let want: BTreeSet<String> = [
-        "GD05-026 link name Ericht Samaya",
-        "GD04-069 text trait Dianna Counter",
-        "GD04-120 text trait Dianna Counter",
-    ]
-    .into_iter()
-    .map(str::to_owned)
-    .collect();
+    // GD04-069 and GD04-120 name the (Dianna Counter) trait, which no card had until GD06.
+    let want: BTreeSet<String> = ["GD05-026 link name Ericht Samaya"]
+        .into_iter()
+        .map(str::to_owned)
+        .collect();
     assert_eq!(anomalies, want);
     assert!(
         !link_shape_ok("Trait [Enhanced Human]"),
@@ -1455,10 +1469,10 @@ fn xrefs(rules: &RulesDoc) -> (usize, Vec<(String, String)>) {
 #[test]
 fn w87_every_rules_cross_reference_resolves() {
     let rules = parse_rules(&read(RULES_MD));
-    assert_eq!(rules.headings.len() + rules.paragraphs.len(), 579);
+    assert_eq!(rules.headings.len() + rules.paragraphs.len(), 580);
     let (total, broken) = xrefs(&rules);
     assert_eq!(
-        total, 32,
+        total, 33,
         "parenthesised references found by the detector's pattern"
     );
     assert_eq!(broken.len(), 11, "{broken:?}");
@@ -1617,8 +1631,8 @@ fn rule_text_differences(md: &str, pdf: &str) -> Vec<String> {
 fn w146_rules_markdown_matches_the_pdf_rule_by_rule_with_negative_control() {
     let md = read(RULES_MD);
     let pdf = read(RULES_PDF_TXT);
-    assert_eq!(md_rules(&md).len(), 566);
-    assert_eq!(pdf_rules(&pdf).len(), 566);
+    assert_eq!(md_rules(&md).len(), 567);
+    assert_eq!(pdf_rules(&pdf).len(), 567);
     assert_eq!(rule_text_differences(&md, &pdf), Vec::<String>::new());
     assert_eq!(PDF_ARTEFACTS.len(), 1, "the reviewed allowlist size");
     let edited = md.replacen(
@@ -1708,7 +1722,7 @@ fn w89_dataset_version_names_the_code_commit_not_the_data_commit() {
         .find(|e| s(e, "id") == "gcgapi:commit")
         .map(|e| s(e, "url").rsplit('/').next().unwrap_or("").to_owned())
         .expect("the gcgapi:commit source");
-    assert_eq!(commit, "39c85b5032a72b035935b6ca29b326b297908f06");
+    assert_eq!(commit, "78a64df3519cb6c773b3d2f4a8ecad14d8096b0e");
     assert_ne!(
         sha, commit,
         "the data commit differs from dataset_version's sha"
@@ -1816,25 +1830,36 @@ fn freshness(db: &CardDb, as_of: &str) -> Vec<(String, String)> {
 }
 
 #[test]
-fn w145_new_sets_are_data_and_the_freshness_listing_names_gd06() {
+fn w145_new_sets_are_data_and_the_freshness_listing_names_gd07() {
     assert_eq!(
-        freshness(packaged_db(), "2026-11-01"),
-        vec![("GD06".to_owned(), "2026-10-30".to_owned())],
-        "GD06 is released and missing; GD07 (2027-01-29) is not yet released"
+        freshness(packaged_db(), "2026-11-06"),
+        Vec::<(String, String)>::new(),
+        "the 2026-11-06 refresh holds every set released by then, GD06 included"
+    );
+    assert_eq!(
+        freshness(packaged_db(), "2027-01-29"),
+        vec![
+            ("EVX10".to_owned(), "2026-11-27".to_owned()),
+            ("GD07".to_owned(), "2027-01-29".to_owned())
+        ],
+        "EVX10 (sleeves, no cards) and GD07 are released by 2027-01-29 and not in the data"
     );
     let new_cards: Vec<Value> = (1..=10)
-        .map(|i| synthetic_printing(&format!("GD06-{i:03}"), "UNIT", Some(2), "-"))
+        .map(|i| synthetic_printing(&format!("GD07-{i:03}"), "UNIT", Some(2), "-"))
         .collect();
     let db = db_with(&new_cards);
     assert_eq!(db.len(), packaged_db().len() + 10);
     for i in 1..=10 {
-        let number = format!("GD06-{i:03}");
+        let number = format!("GD07-{i:03}");
         let def = db.get(&number).expect("a new card loads");
-        assert_eq!(&*def.set_code, "GD06");
+        assert_eq!(&*def.set_code, "GD07");
         assert!(def.is_vanilla());
         assert_eq!(resolve_card_number(&number, &db), Some(number.as_str()));
     }
-    assert_eq!(freshness(&db, "2026-11-01"), Vec::<(String, String)>::new());
+    assert_eq!(
+        freshness(&db, "2027-01-29"),
+        vec![("EVX10".to_owned(), "2026-11-27".to_owned())]
+    );
 }
 
 // ---------------------------------------------------------------------------------------------
@@ -1844,7 +1869,7 @@ fn w145_new_sets_are_data_and_the_freshness_listing_names_gd06() {
 fn w157_packaged_overrides_load_every_card_data_resolution() {
     let overrides = json(OVERRIDES);
     let resolutions = overrides["resolutions"].as_object().expect("resolutions");
-    assert_eq!(resolutions.len(), 402);
+    assert_eq!(resolutions.len(), 421);
     let applied: BTreeSet<(&str, &str)> = packaged_db()
         .applied_overrides()
         .iter()

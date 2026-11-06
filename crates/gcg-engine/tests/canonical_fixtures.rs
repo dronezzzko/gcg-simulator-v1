@@ -99,7 +99,7 @@ fn check_round_trip(reg: &Arc<Registry>, rec: &Value) -> GameState {
 #[test]
 fn every_fixture_snapshot_round_trips_with_pythons_digest() {
     let snaps = snapshots();
-    assert_eq!(snaps.len(), 69);
+    assert_eq!(snaps.len(), 70);
     let ext = registry_with_filter_sets(&snaps);
     let embedded = Registry::embedded();
     let mut on_embedded = 0;
@@ -121,7 +121,7 @@ fn every_fixture_snapshot_round_trips_with_pythons_digest() {
         }
     }
     assert_eq!(
-        on_embedded, 68,
+        on_embedded, 69,
         "every snapshot but the synthetic one names no filter set"
     );
 }

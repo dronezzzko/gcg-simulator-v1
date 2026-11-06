@@ -200,16 +200,17 @@ fn all_keys(on: bool) -> Vec<Vec<u64>> {
     ]
 }
 
-/// The keys recorded on the golden platform (macOS arm64, 2026-11-02).
+/// The keys recorded on the golden platform (macOS arm64, 2026-11-02; the searched decisions
+/// re-recorded 2026-11-06 over the D2 vectors of the 2026-11-06 data refresh).
 const RECORDED: [&[u64]; 7] = [
     &[
-        0x561fce4f2b61aa62,
-        0xc94fbafcf62c7645,
-        0xd2f30fab2fa2acf4,
-        0x0e22961f371b9d22,
-        0xdb6a638297d14393,
-        0xc1feee03bd2c1585,
-        0x61bd692fda069a22,
+        0x6e8f4a7ee1c427e4,
+        0x6b2c5f06fd3a5072,
+        0xbfece474d56657af,
+        0xc852bbffbf18943e,
+        0xeaab85662ac87e6f,
+        0xe159860131ec7503,
+        0x88dbd6976e562a5e,
         0xc0ef7391c0f162e2,
     ],
     &[
@@ -221,13 +222,13 @@ const RECORDED: [&[u64]; 7] = [
         0x92cd16b9a6f1c345,
     ],
     &[
-        0xe038fb827d7d1a9a,
-        0x9bbdd1d157d8b8f8,
-        0x210c2cac6dd155f7,
-        0x700296ac24b7d07d,
-        0xe93157c2fc8d982d,
-        0xee73611fc01fbc20,
-        0x83abcb61bc65905f,
+        0x6749faeef8ac3c2a,
+        0xe53dc71e954c8667,
+        0x41459de6013f6ac1,
+        0x769db68634e2fdd4,
+        0xf571a14d6067007b,
+        0x7e4c7d45238ebcda,
+        0x9964628d6ac1093e,
         0x68bee3c44b6f76ef,
     ],
     &[
@@ -245,13 +246,13 @@ const RECORDED: [&[u64]; 7] = [
         0x04af38f4fd348c00,
     ],
     &[
-        0xc7c01fe0094f0c04,
-        0xb32a55be078491f8,
-        0x9f315b43fb832957,
-        0x937f9346ffe918ef,
-        0xaa8ad7b456ea71c7,
-        0xb90e4eaccb102cbb,
-        0x47eeeb3fffa6c634,
+        0xbfc5edc4779663f0,
+        0xc3eedc73c1ce3f61,
+        0xfbf12dbb3719ae90,
+        0x33ad532299d5738e,
+        0xc7589d9545eafe5d,
+        0x5deae254990997df,
+        0x3fe06c0e62eeffba,
         0xa9fd8572853eb7c4,
     ],
     &[

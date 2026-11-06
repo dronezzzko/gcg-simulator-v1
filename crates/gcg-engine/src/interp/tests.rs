@@ -181,19 +181,27 @@ fn indices_follow_python() {
 #[test]
 fn every_token_key_round_trips_to_a_token() {
     // token_spec(key).key (interp.py:1018-1024, cards/tokens.py:27-30) and CardDB.token_for.
+    // A copy of a chosen card (`copy_of`, GD06-021) names no token key.
     let reg = reg();
     let mut keys = Vec::new();
+    let mut copies = 0;
     for p in programs(&reg) {
         for &ins in &reg.program(p).instrs {
             if let Node::DeployToken(t) = reg.node(ins) {
+                if !reg.str(t.copy_of).is_empty() {
+                    assert!(reg.str(t.token_key).is_empty() && t.also.is_empty());
+                    copies += 1;
+                    continue;
+                }
                 keys.push(t.token_key);
                 keys.extend(t.also.iter().map(|&(k, _)| k));
             }
         }
     }
+    assert_eq!(copies, 1, "the IR's copy_of nodes (Python: 1)");
     keys.sort();
     keys.dedup();
-    assert_eq!(keys.len(), 29, "the IR's distinct token keys (Python: 29)");
+    assert_eq!(keys.len(), 37, "the IR's distinct token keys (Python: 37)");
     for k in keys {
         let key = reg.str(k);
         let spec = deploy::token_key(key).expect("a token key");
@@ -1105,7 +1113,7 @@ fn ask_may_decisions_of_python_states_are_reraised_exactly() {
         );
         n += 1;
     }
-    assert!(n >= 5, "the fixtures hold {n} AskMay decisions");
+    assert!(n >= 4, "the fixtures hold {n} AskMay decisions");
 }
 
 /// L4 gate (needs the view, L2, and the core primitives, L3): every effect decision of the

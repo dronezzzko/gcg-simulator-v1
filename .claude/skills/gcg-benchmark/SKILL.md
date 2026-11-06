@@ -7,7 +7,7 @@ argument-hint: "<deck-under-test.txt> <benchmark-deck.txt> [--matches N] [--seed
 # Benchmarking and tuning a deck with gcg-sim
 
 gcg-sim plays the deck under test (DUT) against a benchmark deck for N matches between two
-search-based AI players under the official rules (Comprehensive Rules Ver. 1.9.0, current B&R
+search-based AI players under the official rules (Comprehensive Rules Ver. 1.10.0, current B&R
 list), then writes reproducible reports. Treat every conclusion as a measurement with an error
 bar, not a verdict.
 

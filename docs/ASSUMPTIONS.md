@@ -47,6 +47,46 @@ Every decision made without asking the user is recorded here with its rationale.
 - `fetch_official.py` verifies TLS with certifi's CA bundle: the macOS bundle that uv-managed
   Pythons read lacks GlobalSign Root R46, which gundam-gcg.com chains to.
 
+## Data refresh (2026-11-06)
+
+- gcg-api `39c85b5` → `78a64df` (dataset `31-ebd08a4b…`, built 2026-11-02): 1,290 card numbers,
+  2,205 printings, 437 rulings. New: the GD06 booster *Stardust Trails* (GD06-001..130) and the
+  tokens T-030..T-037; 69 new card rulings (October 16, 2026), 12 of them on older cards.
+  Comprehensive Rules 1.9.0 → 1.10.0 (2026-10-16): 12-2-9 added and 12-3-5 revised, both
+  multiplayer-only and N/A for 1v1. The B&R list page is unchanged.
+- GD06 prints keywords glued to the preceding word ("gains<Blocker>"). `effects/text.normalize`
+  inserts a space between a word character and `<`; no earlier card's text hash changes.
+- GD06-028, GD06-047 and GD06-063 match the vanilla-pair predicate and join the enumerated list
+  under the July 2026 policy ("added ... at the time of their release"), although the current-list
+  page (01_279), re-fetched 2026-11-06, does not name them yet.
+- T-037 Axis is typed `BASE` in gcg-api. It is the Base token GD06-129 deploys, so an override
+  (`data-null:BASE:level`) types it `BASE TOKEN`: a token (5-17-2-3/4/5) that never enters a
+  deck. A deployed Base token replaces the Base in the base section like a deployed Base.
+- A battle-damage redirection applies once per damage (ruling GD06-018:Q494), so two
+  redirections that point at each other leave the damage on the original Unit. This also
+  resolves the two-GD04-095 cycle (W-143), which used to fail the game. Redirected battle
+  damage may go to a Base (GD06-018).
+- "When your (AEUG) cards deal damage to enemy Units, increase the damage dealt by 1"
+  (GD06-033) applies after redirection and before prevention and reduction, to every hit on an
+  enemy Unit whose source matches, battle damage included (Q503, Q504).
+- "Enemy Units can't be set as active by enemy effects" (GD06-037) stops only the effects of
+  those Units' own controller; the start-phase untap is not an effect.
+- "This card in your trash gets Lv. -3" (GD06-050) changes the Lv. that selections of trash cards
+  read; Lv. modifiers in the hand still change only the Lv. needed to play the card.
+- "Draw with an effect" (GD06-080) and "paid a total of ③ for your Units' effects" (GD06-070) read
+  the turn history, which now records each effect draw and each Resource paid for an effect.
+- "This Unit" in the filters of a damage rule is the rule's source, so GD06-098's paired Unit, not
+  the protected Base, sets the Lv. limit (Q536). No earlier card's rule depends on the change.
+- GD06-115's Nu Gundam token is deployed only if the chosen Unit was destroyed; the Sazabi token
+  is deployed either way.
+- GD06-054's compiled script dropped the enemy target; it is bound by hand (Q522).
+- "When playing this card from your hand and pairing it with …, it gets cost -1" (GD06-086,
+  GD06-100) is an alternative play at the printed cost minus 1, without lowering the Lv. (Q532,
+  Q537). The alternative play replaces the cost, so it does not start from a modified cost.
+  Every cost modifier in the pool is self-only ("this card … gets cost -N", 14 cards), so the
+  two agree today; a card that changes another card's cost would need a cost delta on the
+  alternative play.
+
 ## Rules interpretation (engine)
 
 | Topic | Decision | Basis |

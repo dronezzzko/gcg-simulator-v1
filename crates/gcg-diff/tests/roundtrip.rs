@@ -50,9 +50,9 @@ fn every_tier1_snapshot_round_trips_through_the_engine() {
         .iter()
         .map(|(_, s)| s.snapshots)
         .sum();
-    // 1557 `snapshot` records, 603 `state` records and 6 `scenario` snapshots.
-    assert_eq!(snapshots, 2166);
-    assert_eq!(report.results.len(), 3804);
+    // 1627 `snapshot` records, 614 `state` records and 6 `scenario` snapshots.
+    assert_eq!(snapshots, 2247);
+    assert_eq!(report.results.len(), 4044);
 }
 
 fn first_trace(rel: &str) -> String {

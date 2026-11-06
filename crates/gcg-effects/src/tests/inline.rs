@@ -56,7 +56,7 @@ fn side_table_nodes_and_one_node_per_class_resolve_to_themselves() {
             );
         }
     }
-    assert_eq!(classes.len(), 130, "every class the IR uses");
+    assert_eq!(classes.len(), 131, "every class the IR uses");
     assert!(side > 110, "{side} continuous and filter nodes");
 }
 
