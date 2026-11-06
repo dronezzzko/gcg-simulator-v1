@@ -1,9 +1,9 @@
-//! Seed roles and the seed ledger (docs/port/PLAN.md A14, §12.5, §12.6).
+//! Seed roles and the seed ledger (docs/dev/PLAN.md A14, §12.5, §12.6).
 //!
 //! A run under `--role R` must use a master seed inside R's range ([`check_master`]), and the
 //! roles that steer the search (`tuning`, `dev`, `confirm`) may not play held-out pairs
 //! ([`check_pairs`]). Every master a role run used is appended to
-//! `docs/port/eval/seed-ledger.json` with the run's configuration ([`record`]), so the
+//! `docs/dev/eval/seed-ledger.json` with the run's configuration ([`record`]), so the
 //! reviewer can check that tuning and evaluation never shared a seed.
 //!
 //! Ledger format: `{"version": 1, "entries": [{"role", "master", "command", "config"}, ...]}`
@@ -19,7 +19,7 @@ use gcg_runner::reports::{json_from_value, write_atomic};
 use crate::SeedRole;
 
 /// The default ledger path (PLAN A14).
-pub const DEFAULT_LEDGER: &str = "docs/port/eval/seed-ledger.json";
+pub const DEFAULT_LEDGER: &str = "docs/dev/eval/seed-ledger.json";
 /// The ledger format version.
 pub const LEDGER_VERSION: u32 = 1;
 

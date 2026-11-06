@@ -1,7 +1,7 @@
 //! The per-test traces' IR fragments against their consumer (PLAN §3.4, §8.2): every
 //! `override` record of the committed `tests` set applies to the committed IR with
 //! `gcg_effects::Registry::with_fragment`, the registry numbers the fragment's nodes and
-//! programs as `port/oracle/pytest_trace.py` did (Python's content ids at the ids the trace
+//! programs as `oracle/pytest_trace.py` did (Python's content ids at the ids the trace
 //! uses), and every `{"$": NodeId}` and `Program` reference of the trace names a node or
 //! program of the registry in force at its record.
 
@@ -103,7 +103,7 @@ fn per_test_fragments_apply_and_their_references_resolve() {
         programs: len(&ir, "programs"),
     };
     let mut files = Vec::new();
-    trace_files(&root().join("port/corpus/v1/tier1/tests"), &mut files);
+    trace_files(&root().join("oracle/corpus/v1/tier1/tests"), &mut files);
     let (mut fragments, mut nodes, mut programs) = (0, 0, 0);
     for path in &files {
         for t in read_trace(path).unwrap_or_else(|e| panic!("{e}")) {

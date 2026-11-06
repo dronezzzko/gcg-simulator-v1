@@ -20,7 +20,7 @@ use crate::cli::{BenchmarkArgs, CommandError, Commands, DataStatusArgs, ReplayAr
 use crate::factory::SearchFactory;
 use crate::{CODE_DIGEST, PACKAGE_VERSION};
 
-/// The results schema `gcg-sim` writes: 1.2.0 (PLAN §12.7, A10; docs/port/contracts.md O9),
+/// The results schema `gcg-sim` writes: 1.2.0 (PLAN §12.7, A10; docs/dev/contracts.md O9),
 /// with the strengthened search's `ai.search` and per-seat `ai.effort` and the corrected
 /// reproduce line of W-100 (A23). `gcg-eval reference-benchmark` keeps Python's 1.1.0.
 pub const SCHEMA: SchemaVersion = SchemaVersion::V1_2;

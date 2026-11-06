@@ -1,4 +1,4 @@
-//! `gcg-eval compare-runs DIR_A DIR_B` (docs/port/PLAN.md §12.2 P6-I; W-42): the paired
+//! `gcg-eval compare-runs DIR_A DIR_B` (docs/dev/PLAN.md §12.2 P6-I; W-42): the paired
 //! analysis of two same-seed `gcg-sim benchmark` (or `gcg-eval *-benchmark`) report
 //! directories, game by game and match by match. The reports themselves are never changed.
 //!

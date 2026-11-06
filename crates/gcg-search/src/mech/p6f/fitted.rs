@@ -1,6 +1,6 @@
 //! The fitted constants of the calibrated policy (`calibrated.rs`), from the fit of `tests.rs`
 //! (`fitted_policy_reproduces`, feature `slow`), recorded with their provenance in
-//! `docs/port/eval/P6-F/policy-fit.json` (`own.offset_bits`; checked by
+//! `docs/dev/eval/P6-F/policy-fit.json` (`own.offset_bits`; checked by
 //! `fitted_constants_are_the_recorded_fit`).
 
 /// The calibrated policy's offsets in score units, in `calibrated::OFFSETS` order.

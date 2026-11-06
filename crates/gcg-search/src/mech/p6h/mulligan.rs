@@ -1,4 +1,4 @@
-//! `paired_mulligan` (W-45; docs/port/PLAN.md §12.3 S11): the mulligan by paired simulation of
+//! `paired_mulligan` (W-45; docs/dev/PLAN.md §12.3 S11): the mulligan by paired simulation of
 //! the opening turns on shared worlds.
 //!
 //! The reference (`mulligan_choice`, `ai/setup.py:63-83`) redraws when the hand's

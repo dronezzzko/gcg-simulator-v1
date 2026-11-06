@@ -1,11 +1,11 @@
-//! Layer L5 of the engine (docs/port/PLAN.md §10.1, docs/port/contracts.md): the game procedure
+//! Layer L5 of the engine (docs/dev/PLAN.md §10.1, docs/dev/contracts.md): the game procedure
 //! of `engine/game.py` — deck construction checks (rule 6-1), `new_game` and setup (rule 6-2),
 //! the step machine of the turn (rules 7-8), action steps (rule 9), legal options in Python's
 //! exact order per decision kind, `apply` with payment and alt-play decoding, trigger batches
-//! (rule 10-1-6), the `advance` loop and its caps (Inv 06b §4-§13, §15).
+//! (rule 10-1-6), the `advance` loop and its caps.
 //!
-//! Every function cites the Python lines it ports; `touch` calls, RNG draws, event groups and
-//! iteration orders are Python's one for one (Inv 06b §15, §19).
+//! Every function cites the Python lines it mirrors; `touch` calls, RNG draws, event groups and
+//! iteration orders are Python's one for one.
 
 use std::collections::BTreeMap;
 use std::sync::Arc;
@@ -95,8 +95,7 @@ fn ctx(controller: u8, host: i32, card_uid: i32) -> Ctx {
 }
 
 /// `c is not d.TRUE` (`game.py:405`, `:443`, `:623`): `TRUE = And(())` (`effects/dsl.py:579`);
-/// the IR is hash-consed, so every `And(())` is that node, and evaluating one is `True` anyway
-/// (Inv 04 §11 hazard 5).
+/// the IR is hash-consed, so every `And(())` is that node, and evaluating one is `True` anyway.
 fn is_true(reg: &Registry, c: CondId) -> bool {
     matches!(reg.node(c.node()), Node::And(x) if x.conds.is_empty())
 }
@@ -255,7 +254,7 @@ pub fn deck_construction_problems_by_number(
 
 /// `new_game(decks, seed, *, chooser, turn_limit, max_actions, validate)`
 /// (`engine/game.py:107-158`). RNG order: player 0's shuffle and cut, player 1's shuffle and
-/// cut, then the die roll only when `chooser` is `None` (Inv 06b §5). Uids are assigned after
+/// cut, then the die roll only when `chooser` is `None`. Uids are assigned after
 /// the shuffles: player 0's deck, player 1's deck, then the two resource decks.
 ///
 /// # Errors
@@ -512,7 +511,7 @@ fn has_rule(dv: &Derived, uid: Uid, kind: RuleKind) -> bool {
     view::rules_of(dv, uid, kind).next().is_some()
 }
 
-/// `_turn_step(st)` (`engine/game.py:223-322`): one row of the step machine (Inv 06b §8).
+/// `_turn_step(st)` (`engine/game.py:223-322`): one row of the step machine.
 fn turn_step(st: &mut GameState) -> Result<(), EngineError> {
     let s = st.step;
     let p = st.active;
@@ -1481,7 +1480,7 @@ pub fn legal_actions(st: &GameState) -> &[Action] {
 
 /// `apply(st, action, *, check=True)` (`engine/game.py:780-818`): applies `action` for the
 /// deciding player and advances to the next decision, in place. A waiting frame takes the
-/// action before the decision kind is looked at (Inv 06b §19 hazard 12).
+/// action before the decision kind is looked at.
 ///
 /// # Errors
 /// [`ApplyError::Illegal`] without a decision, or with `check` for an action the decision does

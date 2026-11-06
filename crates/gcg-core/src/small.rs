@@ -1,4 +1,4 @@
-//! Fixed-capacity inline arrays with an overflow error (docs/port/PLAN.md §2.1, §4.3
+//! Fixed-capacity inline arrays with an overflow error (docs/dev/PLAN.md §2.1, §4.3
 //! "Capacities").
 //!
 //! Inline records of the engine (`EventPayload`, `DecisionHdr.context`, `OnceKey`) never drop an
@@ -101,7 +101,7 @@ impl<T: Hash, const N: usize> Hash for InlineVec<T, N> {
 
 /// A list of `Copy` elements kept inline up to `N` and on the heap beyond, in insertion order
 /// either way: a drop-in for a short-lived `Vec<T>` that is usually small, so the common case
-/// never allocates (docs/port/PLAN.md §11.4 step 1). It reads as a slice.
+/// never allocates (docs/dev/PLAN.md §11.4 step 1). It reads as a slice.
 #[derive(Clone)]
 pub struct SmallBuf<T, const N: usize> {
     repr: Repr<T, N>,

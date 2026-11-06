@@ -1,4 +1,4 @@
-//! The common-random-number worlds of P6-E's root judgements (docs/port/PLAN.md §12.3 S6,
+//! The common-random-number worlds of P6-E's root judgements (docs/dev/PLAN.md §12.3 S6,
 //! W-12): the first K worlds the search's own iterations will use, built through the composed
 //! `Mechanisms::world` so that a world mechanism (P6-C) shapes them as it shapes the search's.
 //!

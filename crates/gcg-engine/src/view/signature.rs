@@ -1,5 +1,5 @@
 //! The view signature (`tests/paranoid.py:24-39`) in the JSON form of
-//! `port/oracle/traces.py` `view_signature_json`, which the `views` trace set records and
+//! `oracle/traces.py` `view_signature_json`, which the `views` trace set records and
 //! `gcg-diff` compares (its `paranoid.view_signature` probe).
 
 use gcg_core::pyjson::{Json, Key};
@@ -8,7 +8,7 @@ use gcg_effects::{Kw, NodeId, Registry};
 use crate::{Derived, GameState, RuleKey};
 
 /// `tests/paranoid.py:24-39` `view_signature(dv)` as `view_signature_json(st, dv)`
-/// (`port/oracle/traces.py`): `ap`, `hp`, `kw` (keyword values), `traits`, `rules` (each
+/// (`oracle/traces.py`): `ap`, `hp`, `kw` (keyword values), `traits`, `rules` (each
 /// `[rule node, controller, source, key, aux]`, a lasting key `(-1, effect_key, serial)`
 /// written `[-1, content id, serial]`), `cost_mod`, `level_mod`, `linked` (sorted) and
 /// `abilities` (aid lists). Dict keys are `str(uid)`; Python writes them in insertion order
@@ -103,7 +103,7 @@ pub fn signature(st: &GameState, dv: &Derived) -> Json {
     out
 }
 
-/// `node_json(x)` (`port/oracle/traces.py`) of an arena node: `{"_": class, field: value,
+/// `node_json(x)` (`oracle/traces.py`) of an arena node: `{"_": class, field: value,
 /// ...}` with every field in declaration order, nested nodes inline, enums as their values
 /// and tuples as arrays. It is read off the node's CPython `repr` (`Registry::repr`, PLAN
 /// §5.7), which prints every field of a dataclass in that order; a text the reader does not
@@ -127,7 +127,7 @@ pub(super) fn read_repr(text: &str) -> Option<serde_json::Value> {
     serde_json::from_str(&dumps(&v, DumpOptions::COMPACT_SORTED_ASCII)).ok()
 }
 
-/// A reader of the `repr` grammar of the DSL universe (Inv 04 §10.1; PLAN §5.7):
+/// A reader of the `repr` grammar of the DSL universe (PLAN §5.7):
 /// `Name(f=v, ...)`, `<Enum.MEMBER: 'value'>`, `()`/`(x,)`/`(x, y)`, quoted strings with
 /// CPython's escapes, ints, `True`, `False` and `None`.
 struct ReprReader<'a> {

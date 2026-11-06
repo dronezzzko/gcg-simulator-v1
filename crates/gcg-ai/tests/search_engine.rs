@@ -1,5 +1,5 @@
 //! D2's root-move functions and the play/draw choice against the Python reference, on the
-//! states of `tests/vectors/search/decisions.ndjson` (`port/oracle/export_ai_vectors.py`):
+//! states of `tests/vectors/search/decisions.ndjson` (`oracle/export_ai_vectors.py`):
 //! `prune_dominated` with all four flag sets, `merge_equivalent`, `without_effect` with the
 //! baseline flags and knobs and with every flag on and the adopted knobs, and
 //! `first_player_choice` serially and as a fork-join on four workers. They need the engine's

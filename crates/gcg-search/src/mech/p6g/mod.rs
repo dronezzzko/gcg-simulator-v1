@@ -1,4 +1,4 @@
-//! P6-G's mechanisms (docs/port/PLAN.md §12.2, §12.3 S10): the strengthened leaf evaluation
+//! P6-G's mechanisms (docs/dev/PLAN.md §12.2, §12.3 S10): the strengthened leaf evaluation
 //! (W-34, W-35, W-36, W-37, W-39, W-142).
 //!
 //! With a model flag on (`refit_weights`, `determinized_fit`, `no_tempo_feature`,

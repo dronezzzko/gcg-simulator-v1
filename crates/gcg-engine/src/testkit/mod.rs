@@ -1,5 +1,5 @@
 //! Scenario builder and decision helpers for rule, card and AI tests (`testkit.py`;
-//! docs/port/contracts.md, gcg-engine `testkit`; PLAN A18). Feature `testkit` only.
+//! docs/dev/contracts.md, gcg-engine `testkit`; PLAN A18). Feature `testkit` only.
 //!
 //! A [`Scenario`] places specific cards in specific zones and starts the game at a step of the
 //! active player's turn, so a test exercises one rule or card effect directly. The helpers
@@ -953,7 +953,7 @@ pub fn card_numbers(st: &GameState, uids: &[Uid]) -> Vec<&'static str> {
 }
 
 // ---------------------------------------------------------------------------------------------
-// trace replay hooks (docs/port/contracts.md, gcg-engine testkit)
+// trace replay hooks (docs/dev/contracts.md, gcg-engine testkit)
 
 /// A `state` record with `"derived": "stale"`: `view::derived(view_from)` becomes `st`'s cached
 /// view, so the next `view::derived(st)` returns it while `st`'s key equals `key`
@@ -989,7 +989,7 @@ pub fn set_force_link(st: &mut GameState, units: &[&str]) {
 }
 
 /// The inline side-table node of a continuous effect that no IR node spells (PLAN §4.8,
-/// §5.6), in the `node_json` form of `port/oracle/traces.py`; `None` for an IR node, which
+/// §5.6), in the `node_json` form of `oracle/traces.py`; `None` for an IR node, which
 /// resolves by its content id.
 fn value_node(reg: &Registry, c: ContRef) -> Option<serde_json::Value> {
     Some(match c {
@@ -1004,7 +1004,7 @@ fn value_node(reg: &Registry, c: ContRef) -> Option<serde_json::Value> {
     })
 }
 
-/// `st` as a trace snapshot (PLAN §4.8; the `snapshot` record of `port/oracle/traces.py`): the
+/// `st` as a trace snapshot (PLAN §4.8; the `snapshot` record of `oracle/traces.py`): the
 /// canonical state, a `continuous` side table with the value effects (a `StatMod` with int
 /// fields, a `KeywordGrant` with an int amount, an `AbilityGrant`) of its lasting effects,
 /// delayed effects and once keys, and `rules_checked`. IR effects and filter sets resolve by

@@ -1,4 +1,4 @@
-//! `gcg-eval tune-leaf` (docs/port/PLAN.md §12.3 S10, package P6-G; W-34, W-35, W-36, W-37,
+//! `gcg-eval tune-leaf` (docs/dev/PLAN.md §12.3 S10, package P6-G; W-34, W-35, W-36, W-37,
 //! W-39, W-142): records leaf-point positions from self-play of the strengthened search and fits
 //! the strengthened evaluation's models, whose weights `gcg-search` embeds
 //! (`crates/gcg-search/src/mech/p6g/weights.txt`).
@@ -1634,7 +1634,7 @@ pub fn run(
         let header = vec![
             "P6-G fitted evaluation models (crates/gcg-search/src/mech/p6g/model.rs).".to_owned(),
             "Written by gcg-eval tune-leaf; regenerate with the command in".to_owned(),
-            "docs/port/eval/P6-G/README.md, never by hand.".to_owned(),
+            "docs/dev/eval/P6-G/README.md, never by hand.".to_owned(),
         ];
         std::fs::write(path, p6g::table_text(&header, &fitted)).map_err(|e| {
             CommandError::Invalid(format!("cannot write {}: {e}", py_path_str(path)))

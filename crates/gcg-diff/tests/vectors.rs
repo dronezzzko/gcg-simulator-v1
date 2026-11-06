@@ -1,5 +1,5 @@
 //! The §8.2 encodings against vectors exported from Python 3.15 by
-//! `uv run python port/oracle/traces.py vectors` (`tests/vectors/trace_vectors.json`):
+//! `uv run python oracle/traces.py vectors` (`tests/vectors/trace_vectors.json`):
 //! `options_sha16`, `float.hex`, the u64 encoding, and `state_digest` of real canonical states.
 
 use gcg_diff::floathex::{from_hex, to_hex};

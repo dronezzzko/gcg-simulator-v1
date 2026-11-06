@@ -2,7 +2,7 @@
 //! decision, the setup decisions up to the second player's redraw choice, the deck
 //! construction checks and their messages, `apply`'s errors, `step`, `legal_actions` and
 //! `concede`, all against the Python vectors of `tests/fixtures/l5_vectors.ndjson`
-//! (`engine/game.py:58-201`, `:763-818`, `:961-965`; Inv 06b §4-§6, §12, §18).
+//! (`engine/game.py:58-201`, `:763-818`, `:961-965`).
 
 mod l5_common;
 
@@ -139,7 +139,7 @@ fn setup_decisions_draw_redraw_and_shuffle_as_python() {
 
 #[test]
 fn inventory_vector_after_new_game() {
-    // Inv 06b §18: setup_chooser 1, rng 7774064181650859138, version 120, 120 cards, the
+    // Recorded: setup_chooser 1, rng 7774064181650859138, version 120, 120 cards, the
     // CHOOSE_FIRST decision, and the first ten def ids of player 0's decklist.
     let rec = record("new_game", "inv06b-18");
     let st = start_game(rec, NewGameOptions::default()).expect("new_game");

@@ -547,7 +547,7 @@ fn cmd_selftest(repo: &Repo, rest: &[String]) -> ExitCode {
         [flag] if flag == "--real-engine" => true,
         _ => return usage("selftest takes no options but --real-engine"),
     };
-    let tier1 = repo.root.join("port/corpus/v1/tier1");
+    let tier1 = repo.root.join("oracle/corpus/v1/tier1");
     let result = if real {
         crate::selftest::run_real(&tier1)
     } else {
@@ -609,8 +609,8 @@ fn cmd_tests_json(repo: &Repo, rest: &[String]) -> ExitCode {
         return usage("tests-json takes --check");
     }
     match (
-        read(repo, "docs/port/tests.json"),
-        read(repo, "docs/port/PLAN.md"),
+        read(repo, "docs/dev/tests.json"),
+        read(repo, "docs/dev/PLAN.md"),
     ) {
         (Ok(t), Ok(p)) => verdict(&crate::testsjson::check(&t, &p), "tests.json check passed"),
         (Err(e), _) | (_, Err(e)) => verdict(&[e], ""),
@@ -635,7 +635,7 @@ fn cmd_weaknesses(repo: &Repo, rest: &[String]) -> ExitCode {
         Ok(t) => t,
         Err(e) => return verdict(&[format!("{file}: {e}")], ""),
     };
-    match read(repo, "docs/port/PLAN.md") {
+    match read(repo, "docs/dev/PLAN.md") {
         Ok(plan) => verdict(
             &crate::weaknesses::check(&weak, &plan, require),
             "weaknesses check passed",

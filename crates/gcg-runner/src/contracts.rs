@@ -1,15 +1,14 @@
-//! Contract types of `gcg-runner` (docs/port/PLAN.md §7, §10.3.6, §12.7), owned by the lead
+//! Contract types of `gcg-runner` (docs/dev/PLAN.md §7, §10.3.6, §12.7), owned by the lead
 //! (§10.1 S).
 //!
-//! Workstream E implements the functions frozen in docs/port/contracts.md (gcg-runner
+//! Workstream E implements the functions frozen in docs/dev/contracts.md (gcg-runner
 //! section) with real bodies; only the lead edits this file (§10.6 change protocol). Fields
 //! marked `pub(crate)` are E's starting layout of an opaque type.
 //!
 //! Records keep Python's field order (`runner/records.py`). Their `to_json` writes the keys in
 //! that order, except `MatchRecord.to_json`, which writes `games` last (`records.py:176-184`).
 //! Every report writer sorts keys (`reports/writer.py:34`, `:56`), so the order matters only
-//! for in-memory parity. Python sources are cited relative to `src/gcg_sim/`; Inv 01 is
-//! docs/port/inventory/01-rng-runner-cli.md and Inv 02 docs/port/inventory/02-reports.md.
+//! for in-memory parity. Python sources are cited relative to `src/gcg_sim/`.
 
 use std::io;
 use std::path::PathBuf;
@@ -162,7 +161,7 @@ impl SchemaVersion {
 /// Rust-only fields: the schema the binary writes and the `versions()` inputs
 /// (`gcg_data::versions(package, code_digest)`). Python's `__post_init__` problems
 /// (`:47-61`) are `BenchmarkConfig::problems` (E); the CLI validates first, so they are not
-/// reachable from the command line (Inv 01 §2.2).
+/// reachable from the command line.
 #[derive(Clone, PartialEq, Debug)]
 pub struct BenchmarkConfig {
     pub deck_under_test: Deck,
@@ -405,7 +404,7 @@ pub enum ReportError {
     /// `write_reports` (`reports/writer.py:79-91`) or `cmd_benchmark` (`cli.py:210-216`): a
     /// traceback and exit 1. The replays before it are written; `results.json` is not.
     Replay(ReplayError),
-    /// SIGINT seen before or after a report file (PLAN §7.5; Inv 01 hazard 54).
+    /// SIGINT seen before or after a report file (PLAN §7.5).
     Interrupted,
 }
 

@@ -1,5 +1,5 @@
 //! `GreedyAgent` decisions on the sampled states of `states-*.ndjson`
-//! (`port/oracle/export_policy_vectors.py`), against Python's chosen action, decision seed,
+//! (`oracle/export_policy_vectors.py`), against Python's chosen action, decision seed,
 //! generator state after the decision and every alternative (action, value bit for bit,
 //! visits), unranked and unrounded (`ai/agents.py:48-66`).
 //!

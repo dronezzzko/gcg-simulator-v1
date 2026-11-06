@@ -1,4 +1,4 @@
-//! P6-F's mechanisms (docs/port/PLAN.md §12.2, §12.3 S9): the strengthened rollout policy. The
+//! P6-F's mechanisms (docs/dev/PLAN.md §12.2, §12.3 S9): the strengthened rollout policy. The
 //! search asks it for every rollout move ([`rollout_choice`]) and for the priors of every new
 //! tree node ([`priors`]), where the reference asks `gcg_ai`'s hand-written policy
 //! (`ai/policy.py`). Each flag changes one piece; with every P6-F flag off the reference policy

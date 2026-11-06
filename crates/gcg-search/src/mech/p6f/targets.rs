@@ -1,5 +1,5 @@
 //! Target choices (SELECT outside a mode choice): the reference scorer (`_select`,
-//! `ai/policy.py:349-385`, ported line by line from `gcg_ai::policy`) with the exhaustive
+//! `ai/policy.py:349-385`, copied line by line from `gcg_ai::policy`) with the exhaustive
 //! polarity of W-30 and the kill-aware damage targets of W-26.
 //!
 //! - `exhaustive_polarity`: the choice is signed by `polarity::choice_polarity`; a choice that

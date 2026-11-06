@@ -1,5 +1,5 @@
-//! Native ports of the tagged deck-construction tests (PLAN §9.2). `tests/deck` is outside the
-//! per-test trace suites (`port/oracle/pytest_trace.py` traces `tests/rules`, `tests/cards`,
+//! Native Rust versions of the tagged deck-construction tests (PLAN §9.2). `tests/deck` is outside the
+//! per-test trace suites (`oracle/pytest_trace.py` traces `tests/rules`, `tests/cards`,
 //! `tests/effects` and `tests/ai`), and these tests make no engine call, so only a native test
 //! gives the Rust implementation evidence for their rules and FAQ entries.
 //!
@@ -8,7 +8,7 @@
 //! - `tests/deck/test_examples.py::test_example_deck_is_legal_and_implemented`.
 //!
 //! `validate_deck(deck)` defaults to `implemented=True`, which reads the effect registry; that
-//! is why these ports live in a crate that depends on `gcg-effects` (`gcg_data::validate` takes
+//! is why these tests live in a crate that depends on `gcg-effects` (`gcg_data::validate` takes
 //! the registry as its `ImplementationStatus`).
 
 use std::collections::BTreeSet;

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# Profile-guided build of gcg-sim and gcg-eval (docs/port/PLAN.md §11.4 step 8,
-# docs/port/BENCHMARKS.md "PGO"). Outside the crates; nothing here is timed.
+# Profile-guided build of gcg-sim and gcg-eval (docs/dev/PLAN.md §11.4 step 8,
+# docs/dev/BENCHMARKS.md "PGO"). Outside the crates; nothing here is timed.
 #
 #   scripts/build_pgo.sh            # binaries in target/pgo/use/release/{gcg-sim,gcg-eval}
 #

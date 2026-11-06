@@ -1,5 +1,5 @@
-//! Information sets and determinization (`engine/observe.py`; docs/port/contracts.md,
-//! gcg-engine `observe`; Inv 06b §16). Both decklists are known to both players; hands, deck
+//! Information sets and determinization (`engine/observe.py`; docs/dev/contracts.md,
+//! gcg-engine `observe`). Both decklists are known to both players; hands, deck
 //! order and Shields are hidden. A player knows a card's identity when its `known` bit is set;
 //! every other identity is drawn from that owner's decklist minus the cards the player knows.
 

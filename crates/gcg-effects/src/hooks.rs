@@ -1,4 +1,4 @@
-//! Typed parameters of the 34 custom hooks (docs/port/PLAN.md §5.3; Inv 04 §6.2), decoded
+//! Typed parameters of the 34 custom hooks (docs/dev/PLAN.md §5.3), decoded
 //! once at load from the node's raw `params`.
 //!
 //! Python reads `dict(params)` on every call (`interp.py:1573`, `view.py:781,882,933`), so a

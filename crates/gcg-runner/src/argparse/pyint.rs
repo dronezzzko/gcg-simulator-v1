@@ -15,7 +15,7 @@
 //!    and at most 4300 digits for base 10 (`sys.int_info.default_max_str_digits`).
 //!
 //! `str(value)` fails above 4300 decimal digits ([`PyInt::py_str`] returns `None`).
-//! Checked against `int()` vectors exported by `port/oracle/export_cli.py`.
+//! Checked against `int()` vectors exported by `oracle/export_cli.py`.
 
 use std::cmp::Ordering;
 

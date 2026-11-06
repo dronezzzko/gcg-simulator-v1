@@ -1,4 +1,4 @@
-//! `gcg-diff api-snapshot` (docs/port/WEAKNESSES.md W-129): the committed listing of the public
+//! `gcg-diff api-snapshot` (docs/dev/WEAKNESSES.md W-129): the committed listing of the public
 //! API equals the sources, it covers exactly the library crates, and a changed signature in a
 //! copy of the sources fails the check at the changed line (negative control).
 
@@ -65,7 +65,7 @@ fn a_changed_public_signature_fails_the_check_at_its_line() {
     if tmp.exists() {
         fs::remove_dir_all(&tmp).expect("clean");
     }
-    fs::create_dir_all(tmp.join("docs/port")).expect("mkdir");
+    fs::create_dir_all(tmp.join("docs/dev")).expect("mkdir");
     fs::copy(repo.join("Cargo.toml"), tmp.join("Cargo.toml")).expect("workspace manifest");
     fs::copy(repo.join(SNAPSHOT_FILE), tmp.join(SNAPSHOT_FILE)).expect("snapshot");
     for e in fs::read_dir(repo.join("crates")).expect("crates") {

@@ -1,9 +1,9 @@
-//! Contract types of `gcg-engine` (docs/port/PLAN.md §4.2-§4.6, §10.3.3, §10.3.4), owned by the
+//! Contract types of `gcg-engine` (docs/dev/PLAN.md §4.2-§4.6, §10.3.3, §10.3.4), owned by the
 //! lead (§10.1 S). The enums and the module constants of the Python engine are generated into
-//! `enums.rs` by `port/oracle/gen_engine_enums.py`.
+//! `enums.rs` by `oracle/gen_engine_enums.py`.
 //!
 //! Workstreams C (layers L1, L3, L5) and B2 (L2, L4) implement the functions frozen in
-//! docs/port/contracts.md (gcg-engine section) with real bodies; only the lead edits this file
+//! docs/dev/contracts.md (gcg-engine section) with real bodies; only the lead edits this file
 //! (§10.6 change protocol). Three kinds of type live here:
 //!
 //! - **Records** with `pub` fields (`Action`, `CardInstance`, `Battle`, `Lasting`, `TriggerInst`,
@@ -12,7 +12,7 @@
 //! - **The shared state** `GameState`: its `pub(crate)` fields are frozen like a record,
 //!   because both C and B2 read and write them inside the crate. The arenas
 //!   (zones, frame `vars`/`ints`/`buf`, lasting targets, triggers, `once_used`, `pending`) are
-//!   changed only through C's L1 helpers frozen in docs/port/contracts.md; plain scalar fields
+//!   changed only through C's L1 helpers frozen in docs/dev/contracts.md; plain scalar fields
 //!   and the `cards`/`battles` records (and `rng`, `interp.py:426`, `:534`) are written
 //!   directly, as Python does. The types of the internal layer boundary (`MoveOpts`,
 //!   `DamageOpts`, `PushFrame`, `LastingOpts`, `EngineVars`, `UidBuf`) are frozen the same way.
@@ -20,15 +20,14 @@
 //!   `GameConst`, `FrameVars`, `Lki`, `InfoSetKey`, `CardMultiset`, `Scenario` for C): the
 //!   fields are the lead's starting layout. The named owner may change them in its landing
 //!   diff, because no other crate and no other owner reads them; their methods are frozen in
-//!   docs/port/contracts.md.
+//!   docs/dev/contracts.md.
 //!
-//! Python sources are cited relative to `src/gcg_sim/`; Inv 05 is
-//! docs/port/inventory/05-engine-state-view.md and Inv 06a/06b the engine inventories.
+//! Python sources are cited relative to `src/gcg_sim/`.
 //!
 //! JSON forms. Every record documents its `to_json` list or key order; `canon::canonical_state`
 //! (C, L1) writes exactly those, with the content-id substitutions of `runner/digest.py:36-49`
 //! (PLAN §4.7). Bools are 0/1 in `CardInstance`, `Battle` and `TriggerInst`, and `true`/`false`
-//! in `Frame` and `GameState.redraws` (Inv 05 §7 hazard 24).
+//! in `Frame` and `GameState.redraws`.
 //!
 //! A field of the state cannot be written outside the crate (W-49):
 //!
@@ -69,14 +68,14 @@ pub type Uid = u16;
 /// (`engine/game.py:112`).
 pub const DEFAULT_TURN_LIMIT: i32 = 200;
 /// The derived-view fixpoint runs at most this many passes: `for _ in range(6)`
-/// (`engine/view.py:421`; Inv 05 §5.6).
+/// (`engine/view.py:421`).
 pub const FIXPOINT_PASSES: usize = 6;
 /// W-47: `advance` fails with [`EngineError::NoProgress`] after this many loop iterations
 /// without a decision (Python would loop forever, `engine/game.py:734-760`).
 pub const NO_PROGRESS_STEPS: u64 = 1_000_000;
 /// Number of [`Ev`] members (`effects/dsl.py:692-727`).
 pub const N_EVENTS: usize = Ev::ALL.len();
-/// Inline pairs of an [`EventPayload`]. At most 8 occur at any emit site (Inv 06a §5.4); the
+/// Inline pairs of an [`EventPayload`]. At most 8 occur at any emit site; the
 /// Phase 2 census (PLAN §8.6) confirms the capacity. A push beyond it is
 /// [`EngineError::Capacity`], never a silent drop.
 pub const EVENT_CAPACITY: usize = 10;
@@ -172,7 +171,7 @@ pub struct Battle {
 }
 
 /// `TriggerInst.ability_key` (`engine/state.py:274`): `(a.def_id, a.aid, int(a.unit_text))`
-/// (`core.py:280`; the second element is the global aid, Inv 05 §7 hazard 23), `(-1, -1, 0)`
+/// (`core.py:280`; the second element is the global aid), `(-1, -1, 0)`
 /// for delayed triggers (`core.py:400`), `(-2, 0, 0)` Repair and `(-3, 0, 0)` Breach
 /// (`core.py:456`, `:479`), `(c.def_id, entry.burst_aid, 0)` for a Burst (`core.py:721`).
 /// JSON `[def_id, aid, unit_text]` with `unit_text` as 0/1.
@@ -299,7 +298,7 @@ pub struct Lasting {
 }
 
 /// `TriggerInst` (`engine/state.py:265-322`), Python's field order; defaults `burst=False`,
-/// `once_key=()`, `optional=False` (`optional` is never set, Inv 06a §2).
+/// `once_key=()`, `optional=False` (`optional` is never set).
 ///
 /// JSON (`:294-306`): `[program, controller, host, host_seq, card_uid, [def_id, aid,
 /// unit_text], [[key, value], ...], int(burst), [once_key...], int(optional)]`; the canonical
@@ -361,7 +360,7 @@ pub struct VarEntry {
     pub items: Span,
 }
 
-/// A key of `Frame.ints: dict[str, int]` (Inv 06a §12.6).
+/// A key of `Frame.ints: dict[str, int]`.
 #[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)]
 pub enum IntKey {
     /// `"__hold_rules"` ([`crate::HOLD_RULES`], `interp.py:206-210`); deleted at 0.
@@ -463,7 +462,7 @@ pub struct DecisionView<'a> {
 #[derive(Clone, Copy, Debug)]
 #[allow(
     dead_code,
-    reason = "read by workstream C's FrameVars accessors (docs/port/contracts.md)"
+    reason = "read by workstream C's FrameVars accessors (docs/dev/contracts.md)"
 )]
 pub struct FrameVars<'a> {
     pub(crate) entries: &'a [VarEntry],
@@ -487,7 +486,7 @@ pub struct TestOverrides {
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
 #[allow(
     dead_code,
-    reason = "built and read by workstreams C and B2 (docs/port/contracts.md)"
+    reason = "built and read by workstreams C and B2 (docs/dev/contracts.md)"
 )]
 pub(crate) struct EngineVars {
     pub(crate) card: VarId,
@@ -503,7 +502,7 @@ pub(crate) struct EngineVars {
 /// (`state.py:561-562`) and the global registry.
 #[allow(
     dead_code,
-    reason = "built and read by workstream C (docs/port/contracts.md)"
+    reason = "built and read by workstream C (docs/dev/contracts.md)"
 )]
 pub struct GameConst {
     pub(crate) reg: Arc<Registry>,
@@ -529,7 +528,7 @@ pub struct GameConst {
 #[derive(Clone, PartialEq, Eq, Hash, Debug)]
 #[allow(
     dead_code,
-    reason = "built and read by workstream C (docs/port/contracts.md)"
+    reason = "built and read by workstream C (docs/dev/contracts.md)"
 )]
 pub struct ZoneLists {
     pub(crate) items: Vec<Uid>,
@@ -537,7 +536,7 @@ pub struct ZoneLists {
 }
 
 /// The complete state of one game (`engine/state.py:433-651`). Private to the crate (W-49):
-/// other crates read it through the accessors frozen in docs/port/contracts.md. Inside the
+/// other crates read it through the accessors frozen in docs/dev/contracts.md. Inside the
 /// crate the arenas change only through C's L1 helpers (`touch` included), and plain scalars and
 /// the `cards`/`battles` records are written in place at the Python call sites.
 ///
@@ -557,7 +556,7 @@ pub struct ZoneLists {
 #[derive(Clone)]
 #[allow(
     dead_code,
-    reason = "built and read by workstreams C and B2 (docs/port/contracts.md)"
+    reason = "built and read by workstreams C and B2 (docs/dev/contracts.md)"
 )]
 pub struct GameState {
     /// Stored unmasked in Python (`state.py:476`); seeds are `u64` here.
@@ -584,7 +583,7 @@ pub struct GameState {
     pub(crate) lasting_targets: Vec<(Uid, i32)>,
     /// `[batch 0 | ... | batch k | pending_triggers]` (PLAN §4.3).
     pub(crate) triggers: Vec<TriggerInst>,
-    /// Start of each batch in `triggers`; empty batches are representable (Inv 05 §3.1).
+    /// Start of each batch in `triggers`; empty batches are representable.
     pub(crate) batch_starts: Vec<u32>,
     /// `pending_triggers = triggers[pending_start..]`.
     pub(crate) pending_start: u32,
@@ -691,7 +690,7 @@ pub struct TraitsRef {
 #[derive(Clone, PartialEq, Eq, Debug)]
 #[allow(
     dead_code,
-    reason = "built and read by workstream B2 (docs/port/contracts.md)"
+    reason = "built and read by workstream B2 (docs/dev/contracts.md)"
 )]
 pub struct TriggerIndex {
     pub(crate) offs: [u32; N_EVENTS + 1],
@@ -703,13 +702,13 @@ pub struct TriggerIndex {
 /// `index[uid]` names the uid's [`ViewSlot`], and a uid without one has every key absent.
 /// Every accessor treats `uid >= len` as an absent key and returns Python's `.get` fallback
 /// (PLAN §4.6). Immutable once built except `by_event`, which is filled once from the zones of
-/// whichever state asks first (`view.py:317-333`; Inv 11 hazard H2). `Send + Sync`.
+/// whichever state asks first (`view.py:317-333`). `Send + Sync`.
 ///
 /// The buffers of a dropped view go to a per-thread pool and are reused by the next compute
 /// (`view::pool`, PLAN §11.4 step 1); a reused view is reset to the state of a fresh one.
 #[allow(
     dead_code,
-    reason = "built and read by workstream B2 (docs/port/contracts.md)"
+    reason = "built and read by workstream B2 (docs/dev/contracts.md)"
 )]
 pub struct Derived {
     /// The `_view_key` this view was computed for (Python's `()` default only for
@@ -755,7 +754,7 @@ pub struct Derived {
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
 #[allow(
     dead_code,
-    reason = "built and read by workstream B2 (docs/port/contracts.md)"
+    reason = "built and read by workstream B2 (docs/dev/contracts.md)"
 )]
 pub(crate) struct ViewSlot {
     pub(crate) uid: Uid,
@@ -796,7 +795,7 @@ pub struct Names<'a> {
 /// step 1); it reads as a slice and has the `Vec` methods the engine uses.
 #[allow(
     dead_code,
-    reason = "used by workstreams C and B2 (docs/port/contracts.md)"
+    reason = "used by workstreams C and B2 (docs/dev/contracts.md)"
 )]
 pub(crate) type UidBuf = gcg_core::small::SmallBuf<Uid, UID_BUF_INLINE>;
 
@@ -810,7 +809,7 @@ pub(crate) const UID_BUF_INLINE: usize = 24;
 #[derive(Clone, Copy, PartialEq, Eq, Debug, Default)]
 #[allow(
     dead_code,
-    reason = "used by workstreams C and B2 (docs/port/contracts.md)"
+    reason = "used by workstreams C and B2 (docs/dev/contracts.md)"
 )]
 pub(crate) struct MoveOpts {
     pub(crate) bottom: bool,
@@ -822,7 +821,7 @@ pub(crate) struct MoveOpts {
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
 #[allow(
     dead_code,
-    reason = "used by workstreams C and B2 (docs/port/contracts.md)"
+    reason = "used by workstreams C and B2 (docs/dev/contracts.md)"
 )]
 pub(crate) struct DamageOpts {
     pub(crate) source: i32,
@@ -835,7 +834,7 @@ pub(crate) struct DamageOpts {
 #[derive(Clone, Copy, Debug)]
 #[allow(
     dead_code,
-    reason = "used by workstreams C and B2 (docs/port/contracts.md)"
+    reason = "used by workstreams C and B2 (docs/dev/contracts.md)"
 )]
 pub(crate) struct PushFrame<'a> {
     pub(crate) controller: u8,
@@ -851,7 +850,7 @@ pub(crate) struct PushFrame<'a> {
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
 #[allow(
     dead_code,
-    reason = "used by workstreams C and B2 (docs/port/contracts.md)"
+    reason = "used by workstreams C and B2 (docs/dev/contracts.md)"
 )]
 pub(crate) struct LastingOpts {
     pub(crate) player: i8,
@@ -866,7 +865,7 @@ pub(crate) struct LastingOpts {
 #[derive(Clone, PartialEq, Eq, Debug, Default)]
 #[allow(
     dead_code,
-    reason = "built and read by workstreams C and B2 (docs/port/contracts.md)"
+    reason = "built and read by workstreams C and B2 (docs/dev/contracts.md)"
 )]
 pub(crate) struct Lki {
     pub(crate) entries: Vec<LkiEntry>,
@@ -877,7 +876,7 @@ pub(crate) struct Lki {
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
 #[allow(
     dead_code,
-    reason = "built and read by workstreams C and B2 (docs/port/contracts.md)"
+    reason = "built and read by workstreams C and B2 (docs/dev/contracts.md)"
 )]
 pub(crate) struct LkiEntry {
     pub(crate) uid: Uid,
@@ -1014,7 +1013,7 @@ pub struct StateSnapshot {
     /// `{content_id: node}` of the continuous effects the state names (lasting, delayed, the
     /// effect of `(-8 | -7, -1, effect, ...)` once keys), each a self-contained inline node
     /// (`{"_": class, field: value, ...}`, nested nodes inline, enums as their values; the
-    /// `node_json` of `port/oracle/traces.py`), or `null` for none.
+    /// `node_json` of `oracle/traces.py`), or `null` for none.
     pub continuous: serde_json::Value,
     /// `{content_id: [node, ...]}` of the filter sets the state names, each a list of inline
     /// filter nodes, or `null` for none.
@@ -1054,7 +1053,7 @@ pub enum CheckError {
 #[derive(Clone, PartialEq, Eq, Hash, Debug)]
 #[allow(
     dead_code,
-    reason = "built and read by workstream C (docs/port/contracts.md)"
+    reason = "built and read by workstream C (docs/dev/contracts.md)"
 )]
 pub struct CardMultiset(pub(crate) Box<[((u8, DefId), u32)]>);
 
@@ -1063,7 +1062,7 @@ pub struct CardMultiset(pub(crate) Box<[((u8, DefId), u32)]>);
 /// `repr(pending.to_json())`; equal headers and options are equal decisions because every
 /// prompt of one program has one [`Prompt`] form.
 #[derive(Clone, PartialEq, Eq, Hash, Debug)]
-#[allow(dead_code, reason = "built by workstream C (docs/port/contracts.md)")]
+#[allow(dead_code, reason = "built by workstream C (docs/dev/contracts.md)")]
 pub struct InfoSetKey {
     pub(crate) cards: Box<[InfoCard]>,
     pub(crate) zones: ZoneLists,
@@ -1076,7 +1075,7 @@ pub struct InfoSetKey {
 /// One card of an [`InfoSetKey`]: `(uid, -1 if hidden else def_id, owner, int(zone), rested,
 /// damage, pair)` (`observe.py:136-147`); the uid is the index.
 #[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)]
-#[allow(dead_code, reason = "built by workstream C (docs/port/contracts.md)")]
+#[allow(dead_code, reason = "built by workstream C (docs/dev/contracts.md)")]
 pub(crate) struct InfoCard {
     pub(crate) def_id: i32,
     pub(crate) owner: u8,
@@ -1144,7 +1143,7 @@ impl Default for AddOptions<'_> {
 #[cfg(feature = "testkit")]
 #[allow(
     dead_code,
-    reason = "built and read by workstream C's testkit (docs/port/contracts.md)"
+    reason = "built and read by workstream C's testkit (docs/dev/contracts.md)"
 )]
 pub struct Scenario {
     /// `self.st`, created as `GameState(seed)` with `turn`, `active` and `first_player` set

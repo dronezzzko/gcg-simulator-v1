@@ -1,4 +1,4 @@
-//! GAP-B, W-101 (docs/port/WEAKNESSES.md): the interpretation-tagged code paths of the engine
+//! GAP-B, W-101 (docs/dev/WEAKNESSES.md): the interpretation-tagged code paths of the engine
 //! record when they run (`gcg_engine::diag::interpretation_runs`), on the running thread only,
 //! without changing a game.
 //!

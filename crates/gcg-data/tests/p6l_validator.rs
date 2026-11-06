@@ -1,4 +1,4 @@
-//! P6-L validator items (docs/port/PLAN.md §12.2 P6-L; docs/port/eval/weakness-status/P6-L.md):
+//! P6-L validator items (docs/dev/PLAN.md §12.2 P6-L; docs/dev/eval/weakness-status/P6-L.md):
 //! the extended legality check of `gcg_data::legality` behind `gcg-eval validate`.
 //!
 //! - W-72: the dated, region-tagged B&R model; the default check equals `validate_deck` on the

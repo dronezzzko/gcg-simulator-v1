@@ -1,9 +1,9 @@
 //! Heuristic worth of cards and combat outcomes, shared by the playout policy and the
-//! evaluation (`ai/values.py`; docs/port/inventory/08-ai-policy-eval.md §3).
+//! evaluation (`ai/values.py`).
 //!
 //! Every float expression keeps Python's evaluation order: integer parts are summed as
 //! integers first, then promoted, and each `+`/`*` is one IEEE operation in the order the
-//! Python source writes it (Inv 08 §3: re-associating `card_worth` changes 134 of the 1152
+//! Python source writes it (re-associating `card_worth` changes 134 of the 1152
 //! real cards).
 
 use gcg_data::{CardDef, CardType};

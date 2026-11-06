@@ -1,4 +1,4 @@
-//! The floating-point library of the shared AI functions (W-137; docs/port/PLAN.md §12.3 S10).
+//! The floating-point library of the shared AI functions (W-137; docs/dev/PLAN.md §12.3 S10).
 //!
 //! The reference search reproduces CPython on the golden platform, so it calls the platform C
 //! math library ([`FloatMath::Platform`], `gcg_core::libm`). The strengthened search's

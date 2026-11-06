@@ -1,6 +1,6 @@
 //! Methods of the plain records of `engine/state.py` (`Action`, `Decision`, the event and
 //! once-key tuples, `Frame.vars`) whose types are frozen in `contracts.rs`
-//! (docs/port/contracts.md, gcg-engine public API; PLAN §4.2).
+//! (docs/dev/contracts.md, gcg-engine public API; PLAN §4.2).
 
 use std::fmt;
 use std::ops::Range;
@@ -83,7 +83,7 @@ impl EventPayload {
     /// [`EngineError::Capacity`] beyond [`EVENT_CAPACITY`] pairs (never a silent drop).
     #[allow(
         dead_code,
-        reason = "called by layers L3-L5 (docs/port/contracts.md); they land after L1"
+        reason = "called by layers L3-L5 (docs/dev/contracts.md); they land after L1"
     )]
     pub(crate) fn push(&mut self, key: EvKey, value: i32) -> Result<(), EngineError> {
         self.0
@@ -112,7 +112,7 @@ impl DecisionHdr {
     /// [`EngineError::Capacity`] beyond [`CONTEXT_CAPACITY`] pairs.
     #[allow(
         dead_code,
-        reason = "called by layers L3-L5 (docs/port/contracts.md); they land after L1"
+        reason = "called by layers L3-L5 (docs/dev/contracts.md); they land after L1"
     )]
     pub(crate) fn push_context(&mut self, key: CtxKey, value: i32) -> Result<(), EngineError> {
         self.context
@@ -152,7 +152,7 @@ impl OnceKey {
     /// [`EngineError::Capacity`] beyond [`ONCE_KEY_CAPACITY`] elements.
     #[allow(
         dead_code,
-        reason = "called by layers L3-L5 (docs/port/contracts.md); they land after L1"
+        reason = "called by layers L3-L5 (docs/dev/contracts.md); they land after L1"
     )]
     pub(crate) fn from_elems(elems: &[OnceElem]) -> Result<Self, EngineError> {
         let mut k = Self::default();

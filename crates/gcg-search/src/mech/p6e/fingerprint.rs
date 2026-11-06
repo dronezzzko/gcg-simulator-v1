@@ -1,7 +1,7 @@
-//! Uid-independent typed merge fingerprints (`typed_fingerprint`, W-10; docs/port/PLAN.md §12.3
+//! Uid-independent typed merge fingerprints (`typed_fingerprint`, W-10; docs/dev/PLAN.md §12.3
 //! S6).
 //!
-//! The reference's `merge_equivalent` (`ai/actions.py:280-393`, ported in
+//! The reference's `merge_equivalent` (`ai/actions.py:280-393`, reproduced in
 //! `gcg_ai::fingerprint`) compares raw numbers in two places: a card is "in flight" when *any*
 //! value of a resolving frame's or a waiting trigger's event equals its uid (`_in_flight`,
 //! `:284-295`), and its once-per-turn references are every once key holding an int equal to

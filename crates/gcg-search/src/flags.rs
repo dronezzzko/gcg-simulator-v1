@@ -1,4 +1,4 @@
-//! The mechanism flags of the strengthened search (docs/port/PLAN.md §12.2, §12.3): one field per
+//! The mechanism flags of the strengthened search (docs/dev/PLAN.md §12.2, §12.3): one field per
 //! planned mechanism, grouped by work package, so that an ablation row is a flag flip (§12.4).
 //!
 //! Every field is "off" in the null configuration, which replays the reference search bit for
@@ -380,7 +380,7 @@ mechanism_flags! {
     /// failing the real game (W-143, W-110).
     ["P6-O"] engine_error_leaf: bool,
 
-    // GAP-A1 residual mechanisms (docs/port/eval/weakness-gaps.md; W-14, W-25).
+    // GAP-A1 residual mechanisms (docs/dev/eval/weakness-gaps.md; W-14, W-25).
     /// `Some(R)`: at an effect-target root decision every iteration plays `R` rollouts from the
     /// end of its walk and backs up their mean, and the decision's budget is divided by `R`, so
     /// the rollouts are counted in iterations (W-14 plan item 2: several rollouts per world

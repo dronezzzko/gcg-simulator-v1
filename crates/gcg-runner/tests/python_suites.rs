@@ -1,6 +1,6 @@
 //! The T-078 register (`tests/python_suites.json`): every test function of `tests/runner`,
 //! `tests/reports`, `tests/cli` and `tests/deck`, as pytest collects them
-//! (`tests/vectors/parity/python_suites.json`, `port/oracle/export_parity.py --section
+//! (`tests/vectors/parity/python_suites.json`, `oracle/export_parity.py --section
 //! collect`), is listed once, in collection order, with its Rust coverage:
 //!
 //! - `native`: Rust tests with the Python test's inputs and assertions;

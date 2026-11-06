@@ -1,4 +1,4 @@
-//! `tests/ai/test_root_moves.py` (52 cases), ported: the root-move corrections behind the
+//! `tests/ai/test_root_moves.py` (52 cases) in Rust: the root-move corrections behind the
 //! search settings that are off in the baseline (`noop_branch_choices`,
 //! `strict_attack_prune`, `prune_noop_rest_targets`, `noop_resource_aware`,
 //! `merge_equivalent_moves`), each shown failing in the baseline configuration, the guards of

@@ -6,7 +6,7 @@
 //! The input is the parser's own help text, which is ASCII, so the `\w`, `\d` and letter
 //! classes of `wordsep_re` are their ASCII forms here (a test checks that every help string
 //! of the parser is ASCII). Checked against `textwrap.wrap` vectors exported by
-//! `port/oracle/export_cli.py`.
+//! `oracle/export_cli.py`.
 
 /// `textwrap._whitespace` (`textwrap.py:15`).
 const fn is_ws(c: char) -> bool {

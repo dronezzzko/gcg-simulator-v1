@@ -12,7 +12,7 @@ run with ``bash -euo pipefail`` from the repository root. Markers on the line be
   the workspace crates it names (``gcg_core::`` and so on), built ``--offline`` into
   ``target/doc-check``. A ```rust block without the marker is a sketch and is not run.
 
-Each block runs in its own process group (docs/port/WEAKNESSES.md W-114). When the block
+Each block runs in its own process group (docs/dev/WEAKNESSES.md W-114). When the block
 exits, the group is killed, so background jobs a block started cannot outlive it; at the
 timeout the whole group is killed and the block fails. Output goes to a file, not a pipe, so a
 background child holding the output open cannot stall the checker.

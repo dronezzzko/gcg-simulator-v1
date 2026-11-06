@@ -1,5 +1,5 @@
 //! Card-name normalisation for comparing names written in deck files with the card data
-//! (`deck/names.py`), over the generated Unicode tables (docs/port/PLAN.md A27).
+//! (`deck/names.py`), over the generated Unicode tables (docs/dev/PLAN.md A27).
 
 use crate::unicode;
 
@@ -27,7 +27,7 @@ pub fn strip_invisible(s: &str) -> String {
 }
 
 /// `normalize_name(name)` (`deck/names.py:29-33`): NFKC, zero-width characters removed, quotes
-/// straightened (after NFKC, so `´` and `″` are already decomposed, Inv 03 §3.2), whitespace
+/// straightened (after NFKC, so `´` and `″` are already decomposed), whitespace
 /// runs collapsed by `str.split()`, then `casefold()`.
 #[must_use]
 pub fn normalize_name(s: &str) -> String {
@@ -50,7 +50,7 @@ pub fn names_match(written: &str, names: &[Box<str>]) -> bool {
 mod tests {
     use super::*;
 
-    /// `tests/deck/test_parse.py:65-68` and Inv 03 §3.2.
+    /// `tests/deck/test_parse.py:65-68`.
     #[test]
     fn python_examples() {
         assert_eq!(normalize_name("Zaku \u{2161}"), normalize_name("ZAKU II"));

@@ -1,4 +1,4 @@
-//! GAP-B, W-08 (docs/port/WEAKNESSES.md): the exact-pools API of `observe` and the `_fit`
+//! GAP-B, W-08 (docs/dev/WEAKNESSES.md): the exact-pools API of `observe` and the `_fit`
 //! pad/trim counter.
 //!
 //! - The testkit scenario of W-08's verification: a card of player 0 moved into player 1's
@@ -373,7 +373,7 @@ fn with_decklists_moves_the_pools_and_the_same_lists_change_nothing() {
 /// W-08's fuzz invariant: over 10,000 seeded random games, at every 16th decision and the
 /// final state, for both observers, the exact world's hidden card counts of each owner equal
 /// the true state's; the reference's `_fit` never pads or trims in them (the one-off probe of
-/// `docs/port/eval/weakness-gaps.md`, 0 of 3,528 pools, now over every sampled state).
+/// `docs/dev/eval/weakness-gaps.md`, 0 of 3,528 pools, now over every sampled state).
 #[test]
 fn w08_fuzz_exact_worlds_keep_every_owners_hidden_card_counts() {
     let (mut states, mut worlds, mut decisions) = (0u64, 0u64, 0u64);

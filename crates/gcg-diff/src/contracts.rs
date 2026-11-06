@@ -1,15 +1,15 @@
-//! Contract types of `gcg-diff` (docs/port/PLAN.md §8.2, §8.7, §10.3.7), owned by the lead
+//! Contract types of `gcg-diff` (docs/dev/PLAN.md §8.2, §8.7, §10.3.7), owned by the lead
 //! (§10.1 S): the trace records of format version 1 and the differential runner's interface.
 //!
 //! A trace file is NDJSON, one compact object per line with sorted keys and `ensure_ascii`,
-//! written by `port/oracle/traces.py` and `port/oracle/pytest_trace.py` (G). A file holds one
+//! written by `oracle/traces.py` and `oracle/pytest_trace.py` (G). A file holds one
 //! or more traces; each starts with a `header` record. Encoding rules (§8.2): floats are
 //! `float.hex()` strings, ints are JSON numbers except u64 values of 2^53 and above, which are
 //! decimal strings; actions are `[kind value, a, b, c]` (`engine/state.py:21-24`). Every record
 //! carries its tag in `"t"`; the variant comments below give the tag and the JSON keys.
 //!
 //! Workstream G implements the reader, the replay and the readers' error texts with the
-//! signatures frozen in docs/port/contracts.md (gcg-diff section); only the lead edits this
+//! signatures frozen in docs/dev/contracts.md (gcg-diff section); only the lead edits this
 //! file (§10.6 change protocol). Python sources are cited relative to `src/gcg_sim/`.
 
 use std::path::PathBuf;
@@ -154,7 +154,7 @@ pub struct AltRec {
 /// `search` and `baselines` traces. The search fields are absent for decisions the agent took
 /// without a search (one option, mulligan, play/draw, greedy, random). The replay compares it
 /// with the [`gcg_ai::DecisionTrace`] that `Agent::choose_traced` returns for the same
-/// decision (docs/port/contracts.md, gcg-diff section).
+/// decision (docs/dev/contracts.md, gcg-diff section).
 #[derive(Clone, PartialEq, Debug)]
 pub struct AgentRec {
     /// `"k"`: the agent's decision counter (`ai/base.py:64`).
@@ -172,7 +172,7 @@ pub struct AgentRec {
     /// `"alts"`: every alternative, unranked and unrounded, in the agent's order.
     pub alternatives: Vec<AltRec>,
     /// `"log"`: the entries the seat's `decision_log()` gained with this decision, as Python
-    /// wrote them (`port/oracle/traces.py` `agent_block`, trace lines have sorted keys); the
+    /// wrote them (`oracle/traces.py` `agent_block`, trace lines have sorted keys); the
     /// replay compares them value by value with the Rust agent's new entries.
     pub log: Vec<serde_json::Value>,
 }
@@ -248,7 +248,7 @@ pub struct OutcomeRec {
 // Per-test records (§8.2)
 
 /// An argument of a `scenario`, `call` or `probe` record (§8.2 "Argument encoding",
-/// `port/oracle/pytest_trace.py` `TestTrace.enc`). Tuples, lists, `Action`s (`to_json()`),
+/// `oracle/pytest_trace.py` `TestTrace.enc`). Tuples, lists, `Action`s (`to_json()`),
 /// dicts (`[key, value]` pairs in insertion order), sets (sorted), a `Ctx`
 /// (`[controller, host, card_uid, vars, event]`) and a `RuleInst` (`[{"$": rule}, controller,
 /// source, key, aux]`) are JSON lists; a float is its `float.hex()` string and an int of
@@ -440,7 +440,7 @@ pub struct StateRec {
 
 /// `"t": "probe"`: a `testkit.*` or `view.*` query of a test, in call order (probes call
 /// `derived`, so Rust evaluates them in the same order), or one of the two probes of a `views`
-/// trace, `views.cards` and `V.trigger_index` (`port/oracle/traces.py` `generate_view`).
+/// trace, `views.cards` and `V.trigger_index` (`oracle/traces.py` `generate_view`).
 #[derive(Clone, PartialEq, Debug)]
 pub struct ProbeRec {
     pub call: CallSpec,
@@ -493,7 +493,7 @@ pub struct MemoCheck {
 }
 
 /// `"t": "override"`: from here on, states are built on the embedded registry with
-/// `fragment` applied (`Registry::with_fragment`; the format of `port/oracle/export_ir.py`
+/// `fragment` applied (`Registry::with_fragment`; the format of `oracle/export_ir.py`
 /// `build_fragment`, `fragment_version` 1). Every fragment of a test holds the test's own
 /// objects with the same ids.
 #[derive(Clone, PartialEq, Debug)]

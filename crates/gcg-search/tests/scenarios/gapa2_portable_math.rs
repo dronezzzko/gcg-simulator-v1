@@ -1,4 +1,4 @@
-//! W-137 (GAP-A2, docs/port/eval/weakness-status/GAP-A2.md): with `portable_math` the
+//! W-137 (GAP-A2, docs/dev/eval/weakness-status/GAP-A2.md): with `portable_math` the
 //! strengthened search's results are recorded bits that do not depend on the platform C
 //! library. Every float path of the search goes through its provider (the lint
 //! `mech::gapa2::every_float_path_of_the_search_goes_through_its_math`), and the portable

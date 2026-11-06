@@ -1,4 +1,4 @@
-//! The 21 pure custom hooks (PLAN §5.3; Inv 04 §6.2): 7 conds, 9 filters and 5 values that
+//! The 21 pure custom hooks (PLAN §5.3): 7 conds, 9 filters and 5 values that
 //! the binding modules register in `view.CUSTOM_CONDS`, `CUSTOM_FILTERS` and `CUSTOM_VALUES`
 //! (`engine/view.py:112-118`). Python calls them with `dict(params)` (`view.py:781`, `:882`,
 //! `:933`); the registry decodes those parameters once at load (last key wins) into
@@ -119,7 +119,7 @@ fn attack_target_damaged(st: &GameState) -> Result<bool, EngineError> {
 
 /// How a destroyed card was destroyed (W-64: the three destroyed-cause conditions are one
 /// predicate, [`destroyed`], with each card's exact test as this parameter; interpretation I-10
-/// of `docs/port/audit/interpretations.json`, `docs/ASSUMPTIONS.md:68`).
+/// of `docs/dev/audit/interpretations.json`, `docs/ASSUMPTIONS.md:68`).
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
 enum Cause {
     /// #8 `wp_gd01_b_destroyed_with_damage` (`effects/bindings/wp_gd01_b.py:117-123`):

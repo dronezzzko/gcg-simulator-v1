@@ -1,5 +1,5 @@
 //! The playout policy, the evaluation and the random player on decision states sampled from
-//! the tier-1 game traces (`states-*.ndjson` of `port/oracle/export_policy_vectors.py`), bit
+//! the tier-1 game traces (`states-*.ndjson` of `oracle/export_policy_vectors.py`), bit
 //! for bit against Python: `option_scores` for the baseline and the adopted knobs, `choose`
 //! with `rng=None` and seeded (with the generator state after), `burst_density` for both
 //! observers, `features`, `role_features`, `score` and `evaluate` for both players, the choice
@@ -333,7 +333,7 @@ fn random_agent_matches_python() {
     m.assert_none(7 * 300);
 }
 
-/// Runs one agent call with an `AgentCx` built outside the pool (docs/port/contracts.md,
+/// Runs one agent call with an `AgentCx` built outside the pool (docs/dev/contracts.md,
 /// gcg-ai section).
 fn run<T>(
     _st: &GameState,

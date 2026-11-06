@@ -1,5 +1,5 @@
 //! Decoding of every record type, the per-test records included (PLAN §8.2), in the form
-//! `port/oracle/pytest_trace.py` (workstream G2) writes them. The `call` arguments cover one
+//! `oracle/pytest_trace.py` (workstream G2) writes them. The `call` arguments cover one
 //! synthetic value per argument kind (T-157, the Rust side; the Python encoder's own round
 //! trip is `pytest_trace.py --selftest`).
 

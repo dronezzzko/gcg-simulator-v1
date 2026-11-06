@@ -1,4 +1,4 @@
-//! What the strengthened search knows at one decision (docs/port/PLAN.md §12.3, W-135).
+//! What the strengthened search knows at one decision (docs/dev/PLAN.md §12.3, W-135).
 //!
 //! The agent adapter (`agent.rs`) receives the true `GameState` through the shared `Agent`
 //! trait, builds an [`Observation`] from it at once and passes only the observation to the
@@ -148,7 +148,7 @@ mod tests {
             ));
         }
         for set in ["search", "worlds"] {
-            let dir = root.join("../../port/corpus/v1/tier1").join(set);
+            let dir = root.join("../../oracle/corpus/v1/tier1").join(set);
             let mut files: Vec<PathBuf> = std::fs::read_dir(&dir)
                 .expect("a corpus set")
                 .map(|e| e.expect("an entry").path())

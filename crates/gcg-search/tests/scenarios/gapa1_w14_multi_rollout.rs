@@ -6,7 +6,7 @@
 //!
 //! The extra rollouts cut the rollout noise of each world, and the rollouts' own preference is
 //! the wrong target (they favour pinging the Guncannon, as the critic's multi-rollout variant
-//! did, docs/port/eval/weakness-status/P6-E.md, W-14): the search converges on it. So the
+//! did, docs/dev/eval/weakness-status/P6-E.md, W-14): the search converges on it. So the
 //! mechanism misses the W-14 bar (20/24) alone and costs the critic three seeds.
 
 use crate::aiport::positions::damage_the_unit_that_cannot_repair;

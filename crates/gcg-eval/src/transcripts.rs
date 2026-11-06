@@ -13,7 +13,7 @@
 //! the same game gets the same id wherever its replay file lives; the key file maps each id to
 //! every file that holds the game.
 //!
-//! The run directories are a repeatable `--run` option, because the shared argparse port has
+//! The run directories are a repeatable `--run` option, because the shared argparse implementation has
 //! no `nargs='+'` positional; the rest is the script's command line.
 
 use std::collections::BTreeSet;

@@ -4,7 +4,7 @@
 //!
 //! Byte compatibility with Python comes from `gcg_core::pyjson` (sorted keys, CPython float
 //! `repr`, per-file `ensure_ascii`) and `gcg_core::pyfloat` (`round`, fixed-precision
-//! formatting); docs/port/inventory/02-reports.md lists every rule.
+//! formatting).
 //!
 //! The values gcg-data provides (card facts, `versions()`, conflict resolutions) enter
 //! through [`ResultsData`] ([`ResultsData::embedded`] reads the packaged sources; tests pass

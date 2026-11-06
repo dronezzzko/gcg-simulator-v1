@@ -2,7 +2,7 @@
 //!
 //! - T-055: `tests/slow/test_robustness.py:15-24`, 10,000 games at seed 2026, whose summary is
 //!   byte-equal to Python's `python -m gcg_sim.tools.fuzz --games 10000 --seed 2026` stdout
-//!   (`port/corpus/v1/tier1/fuzz/summary-2026-10000.json`) and whose every game equals Python's
+//!   (`oracle/corpus/v1/tier1/fuzz/summary-2026-10000.json`) and whose every game equals Python's
 //!   row (`summary-2026-10000.games.jsonl`);
 //! - T-056: 2,000 games at the seed derived from the checked-out commit
 //!   (`derive_seed(0, "fuzz-commit", HEAD)`, as `gcg-diff fuzz --seed-from-commit`).
@@ -71,7 +71,7 @@ fn ten_thousand_games_at_seed_2026_equal_pythons_summary() {
     assert_robust(&games, 10_000);
     let reg = Registry::embedded();
     let text = fuzz::summary_text(&games, &Pools::new(&reg));
-    let file = root().join("port/corpus/v1/tier1/fuzz/summary-2026-10000.json");
+    let file = root().join("oracle/corpus/v1/tier1/fuzz/summary-2026-10000.json");
     let want = std::fs::read_to_string(&file).expect("Python's summary");
     assert_eq!(text, want);
     fuzz::compare(&text, &games, &file).expect("every game equals Python's row");

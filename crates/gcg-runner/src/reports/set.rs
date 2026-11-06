@@ -1,5 +1,5 @@
 //! The report set written as one unit (W-102) and the opt-in files of `gcg-eval benchmark`
-//! (A30: `--compress`, `--analysis`, `--replays-extremes`, `--diagnostics`; docs/port/PLAN.md
+//! (A30: `--compress`, `--analysis`, `--replays-extremes`, `--diagnostics`; docs/dev/PLAN.md
 //! §12.2 P6-M).
 //!
 //! [`write_report_set`] builds every file in memory first: a schema violation, a failing

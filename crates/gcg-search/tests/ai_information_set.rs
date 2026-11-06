@@ -1,5 +1,5 @@
 //! T-067 (part): `tests/ai/test_information_set.py` (52 cases),
-//! `test_information_set_policy.py` (26) and `test_information_set_weights.py` (50), ported.
+//! `test_information_set_policy.py` (26) and `test_information_set_weights.py` (50), in Rust.
 //! The 25 mid-game states come from Rust greedy self-play and must have Python's digests;
 //! `permute_hidden` must give Python's states and keep `information_set_key`; and a fresh
 //! agent with the same seed must make the same move with the same logged statistics on every

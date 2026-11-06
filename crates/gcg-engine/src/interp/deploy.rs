@@ -1,6 +1,6 @@
 //! Deploying and resources (`interp.py:879-1100`): battle-area and base-section excess
 //! (rules 11-4, 11-5), `DeployCard` with `deploy_cards`, tokens, (EX) Resources, and setting
-//! Resources active or rested (Inv 06a §13.4).
+//! Resources active or rested.
 
 use gcg_data::CardType;
 use gcg_effects::{
@@ -187,7 +187,7 @@ pub(super) fn h_deploy_card(
 /// Any error of `move`, the view or `emit`.
 #[allow(
     dead_code,
-    reason = "called by layer L5 (game, testkit) and C's tests (docs/port/contracts.md); they land after L4"
+    reason = "called by layer L5 (game, testkit) and C's tests (docs/dev/contracts.md); they land after L4"
 )]
 pub(crate) fn deploy_cards(
     st: &mut GameState,
@@ -242,7 +242,7 @@ pub(crate) fn deploy_cards(
 }
 
 /// `_enter_rested(st, uids)` (`interp.py:979-986`): GD04-022, GD05-026; one view decides for
-/// every card (Inv 06a §14), one touch per card rested.
+/// every card, one touch per card rested.
 fn enter_rested(st: &mut GameState, uids: &[Uid]) -> Result<(), EngineError> {
     let dv = view::derived(st)?;
     for &u in uids {
@@ -465,7 +465,7 @@ pub(super) fn h_place_resource(
 /// Any error of `move` or `emit`.
 #[allow(
     dead_code,
-    reason = "called by layer L5 (game, testkit) and C's tests (docs/port/contracts.md); they land after L4"
+    reason = "called by layer L5 (game, testkit) and C's tests (docs/dev/contracts.md); they land after L4"
 )]
 pub(crate) fn place_resource(
     st: &mut GameState,
@@ -501,8 +501,7 @@ pub(crate) fn place_resource(
 }
 
 /// The resource area with normal Resources before EX Resources, area order kept within each
-/// (`sorted(area, key=lambda u: card_type(u) is EX_RESOURCE)`, a stable sort; Inv 06a
-/// hazard 9).
+/// (`sorted(area, key=lambda u: card_type(u) is EX_RESOURCE)`, a stable sort).
 fn normal_first(st: &GameState, p: u8) -> Vec<Uid> {
     let mut ordered = st.zone(p, Zone::ResourceArea).to_vec();
     ordered.sort_by_key(|&u| core_::card_type(st, u) == CardType::ExResource);

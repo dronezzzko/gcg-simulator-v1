@@ -1,4 +1,4 @@
-"""Snapshot of every `--help` text of the Rust binaries (docs/port/WEAKNESSES.md W-129).
+"""Snapshot of every `--help` text of the Rust binaries (docs/dev/WEAKNESSES.md W-129).
 
 The command-line interface documentation is generated from the binaries, never typed: this
 script runs ``--help`` of ``gcg-sim``, ``gcg-eval`` and ``gcg-diff`` and of every subcommand the
@@ -21,7 +21,7 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-SNAPSHOT = ROOT / "docs" / "port" / "eval" / "P6-N" / "cli-help.txt"
+SNAPSHOT = ROOT / "docs" / "dev" / "eval" / "P6-N" / "cli-help.txt"
 BINARIES = ("gcg-sim", "gcg-eval", "gcg-diff")
 # A subcommand group in an argparse usage line: `{a,b,c} ...` (option choices such as
 # `[--decks {examples,tests}]` are not followed by `...`).

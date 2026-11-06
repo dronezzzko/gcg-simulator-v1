@@ -1,4 +1,4 @@
-//! `tests/ai/test_policy_knobs.py` (15 cases), ported: the policy settings a search
+//! `tests/ai/test_policy_knobs.py` (15 cases) in Rust: the policy settings a search
 //! configuration carries (`policy_*`), the rule-polarity table, and attacks that cannot deal
 //! damage. Agent decisions are compared with Python's records (`aiport::Recorder`); the
 //! `card_text` override of `:167` is the committed IR fragment fixture of `ST04-005`.
@@ -10,7 +10,7 @@
 //! (`choice_polarity_matches_python_at_every_choose`) and the table's coverage of every rule
 //! kind (`the_rule_table_covers_every_rule_kind`). The `_board(...).blocked_from_lethal` reads
 //! of `test_zero_ap_attacker_does_not_count_against_the_blockers` use a private Python helper
-//! whose Rust counterpart is private too; the test's score assertion is ported, and
+//! whose Rust counterpart is private too; the test's score assertion is reproduced, and
 //! `policy_states.rs` compares `option_scores`, which read the board, bit for bit.
 
 mod aiport;

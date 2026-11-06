@@ -1,11 +1,11 @@
-# Rust gate on an arm64 macOS runner (docs/port/PLAN.md §13 M17, A29; T-133).
+# Rust gate on an arm64 macOS runner (docs/dev/PLAN.md §13 M17, A29; T-133).
 #
 # fmt, clippy, the workspace tests, the tier-1 differential corpus, the lints and the register
 # checks. There is no timing job: the only timing activity of the project is
-# scripts/compare_python_vs_rust.sh, run by hand on an idle machine (docs/port/BENCHMARKS.md).
+# scripts/compare_python_vs_rust.sh, run by hand on an idle machine (docs/dev/BENCHMARKS.md).
 # scripts/ci_local.sh runs the same steps locally.
 #
-# Byte equivalence with Python is defined on the golden platform (docs/port/EQUIVALENCE.md):
+# Byte equivalence with Python is defined on the golden platform (docs/dev/EQUIVALENCE.md):
 # the reference search takes exp, log, pow and erfc from the C library. The first test step runs
 # the libm vectors exported from Python; when they fail, the runner's C library differs, the
 # float-dependent steps are skipped, the corpus sets that replay recorded actions without floats
@@ -99,7 +99,7 @@ jobs:
         run: |
           target/release/gcg-diff corpus --tier 1 --require-all --only full,vanilla,fuzz,coverage,tests,views,worlds
           cargo test -p gcg-search --release --locked --offline --test scenarios gapa2_portable_math
-          echo "non-golden platform: libm differs (see docs/port/EQUIVALENCE.md); search, components and baselines sets not checked" >&2
+          echo "non-golden platform: libm differs (see docs/dev/EQUIVALENCE.md); search, components and baselines sets not checked" >&2
           exit 1
 
   # W-137 item 2: the strengthened search's portable_math results are recorded bits that hold on

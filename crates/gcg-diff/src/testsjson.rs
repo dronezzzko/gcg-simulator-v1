@@ -1,7 +1,7 @@
-//! `gcg-diff tests-json --check` (PLAN §9.10): `docs/port/tests.json` is a JSON array of
+//! `gcg-diff tests-json --check` (PLAN §9.10): `docs/dev/tests.json` is a JSON array of
 //! objects with exactly the keys `id`, `name` and `status`; ids are unique `T-NNN`; a status is
 //! `passing`, `failing` or `not-started`; and the id list equals Appendix A of
-//! `docs/port/PLAN.md`, in order.
+//! `docs/dev/PLAN.md`, in order.
 
 use serde_json::Value;
 

@@ -74,7 +74,7 @@ fn tier1_decodes_and_replays_against_mock_engines() {
 #[test]
 fn negative_controls_fire_at_their_records() {
     let lines =
-        gcg_diff::selftest::run(&repo().root.join("port/corpus/v1/tier1")).expect("selftest");
+        gcg_diff::selftest::run(&repo().root.join("oracle/corpus/v1/tier1")).expect("selftest");
     assert!(lines.len() >= 20, "{lines:?}");
 }
 
@@ -106,7 +106,7 @@ fn baseline_trace_reproduces_the_test_baseline_digest() {
     use serde_json::{Value, json};
     let path = repo()
         .root
-        .join("port/corpus/v1/tier1/search/baseline.ndjson");
+        .join("oracle/corpus/v1/tier1/search/baseline.ndjson");
     let text = std::fs::read_to_string(path).expect("baseline trace");
     let (mut actions, mut logs) = (Vec::new(), [Vec::new(), Vec::new()]);
     let mut end = (Value::Null, Value::Null);

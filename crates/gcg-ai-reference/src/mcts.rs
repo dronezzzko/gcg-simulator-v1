@@ -1,5 +1,5 @@
-//! The reference information-set MCTS with determinizations, ported statement by statement from
-//! `ai/mcts.py:82-339` (PLAN §6.2 items 1-11, Inv 07 §3-§7, §12, §16).
+//! The reference information-set MCTS with determinizations, reproduced statement by statement from
+//! `ai/mcts.py:82-339` (PLAN §6.2 items 1-11).
 //!
 //! One tree is built from the deciding player's point of view. Every iteration picks a root
 //! move by UCB1 plus a progressive prior, plays it in the k-th determinization (k = that move's

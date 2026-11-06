@@ -1,15 +1,15 @@
-//! Shared harness of the native ports of the Python AI tests (`tests/ai/*.py`; PLAN §9.1,
+//! Shared harness of the native Rust versions of the Python AI tests (`tests/ai/*.py`; PLAN §9.1,
 //! T-066, T-067): the Rust testkit, the reference agents and searches, and the decision
-//! records of `port/oracle/export_ai_tests.py` (`crates/gcg-ai/tests/vectors/ai_tests/`).
+//! records of `oracle/export_ai_tests.py` (`crates/gcg-ai/tests/vectors/ai_tests/`).
 //!
-//! Each ported test opens a [`Recorder`] for its Python node id and makes every agent
+//! Each reproduced test opens a [`Recorder`] for its Python node id and makes every agent
 //! decision through it. The recorder compares each decision, as it happens, with the one the
 //! Python test made at the same point: the digest of the state decided on, the agent, the
 //! player, the action, the per-decision counter, seed and generator state afterwards, every
 //! alternative unranked and unrounded (values bit for bit), the search's iterations, budget,
 //! cap and root keys, and the decision-log entries written (bytes of
 //! `json.dumps(entry, sort_keys=True)`). [`Recorder::finish`] requires that no Python decision
-//! is left over. The test's own assertions are ported line by line on top.
+//! is left over. The test's own assertions are reproduced line by line on top.
 //!
 //! These tests live in `gcg-search` because its test targets are the only ones of the AI
 //! crates that build the engine with the `testkit` feature (through the `gcg-diff`
@@ -194,7 +194,7 @@ pub fn python_record(module_name: &str, test: &str) -> Value {
 }
 
 /// Asserts that the ids of a module's records are exactly `ported` (as `<test>[<params>]`):
-/// every Python test of the module has a Rust port and nothing else is claimed.
+/// every Python test of the module has a Rust version and nothing else is claimed.
 pub fn assert_ported(module_name: &str, ported: &[String]) {
     let prefix = format!("tests/ai/{module_name}.py::");
     let mut python: Vec<String> = python_ids(module_name)
@@ -219,7 +219,7 @@ pub fn ids<T: std::fmt::Display>(name: &str, params: impl IntoIterator<Item = T>
 // ---------------------------------------------------------------------------------------------
 // Agent context
 
-/// `f(cx)` with an agent context outside the pool (`Pool::run_inline`, docs/port/contracts.md).
+/// `f(cx)` with an agent context outside the pool (`Pool::run_inline`, docs/dev/contracts.md).
 pub fn with_cx<T>(f: impl FnOnce(&mut AgentCx<'_>) -> T) -> T {
     let cancel = Cancel::new();
     Pool::run_inline(|scratch: &mut Scratch, par: &TaskCx<'_, Scratch>| {

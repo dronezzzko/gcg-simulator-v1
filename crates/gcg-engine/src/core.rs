@@ -1,16 +1,16 @@
-//! Layer L3 of the engine, part 1 (docs/port/PLAN.md §5.5, §10.3.4): a function-for-function
-//! port of `engine/core.py` — zone movement with new-card semantics, history, events and
+//! Layer L3 of the engine, part 1 (docs/dev/PLAN.md §5.5, §10.3.4): a function-for-function
+//! counterpart of `engine/core.py` — zone movement with new-card semantics, history, events and
 //! trigger collection, last-known information, damage, destruction and rules management.
 //!
-//! Every function keeps Python's statement order, so every `touch()` (Inv 06a §4), every
-//! `next_group()` (Inv 06a hazard 13), every `derived()` call and every iteration order is
+//! Every function keeps Python's statement order, so every `touch()`, every
+//! `next_group()`, every `derived()` call and every iteration order is
 //! Python's. Integers that Python keeps unbounded are checked: leaving the Rust type is
 //! [`EngineError::Overflow`] (PLAN §4.1 item 6). Python list indexing with a negative index
-//! (`st.cards[-1]`, Inv 06a hazard 3) is reproduced by [`card_at`].
+//! (`st.cards[-1]`) is reproduced by [`card_at`].
 
 #![allow(
     dead_code,
-    reason = "called by layers L4 (interp) and L5 (game, procedures, testkit), which land after L3 (docs/port/contracts.md)"
+    reason = "called by layers L4 (interp) and L5 (game, procedures, testkit), which land after L3 (docs/dev/contracts.md)"
 )]
 
 use gcg_data::{CardType, DefId};
@@ -44,7 +44,7 @@ fn incr(x: i32, what: &'static str) -> Result<i32, EngineError> {
 }
 
 /// The index of `st.cards[i]` with Python's list semantics: a negative `i` counts from the
-/// end (Inv 06a hazard 3: `_delayed_triggers` reads `st.cards[-1]` for a host-less delayed
+/// end (`_delayed_triggers` reads `st.cards[-1]` for a host-less delayed
 /// trigger), and an index outside the list is Python's `IndexError`.
 pub(crate) fn py_index(len: usize, i: i32) -> Result<usize, EngineError> {
     let at = if i < 0 {
@@ -124,7 +124,7 @@ fn sel_node(reg: &Registry, id: SelId) -> Result<&dsl::Sel, EngineError> {
 
 /// `cond is d.TRUE` (`core.py:349`): the identity check on the singleton `And(())`. The IR
 /// hash-conses nodes by equality, so every `And(())` is this node; Python evaluates an equal
-/// but distinct `And(())` to `True` with no side effect, so the two agree (Inv 06a hazard 16).
+/// but distinct `And(())` to `True` with no side effect, so the two agree.
 pub(crate) fn is_true(reg: &Registry, c: CondId) -> bool {
     matches!(reg.node(c.node()), Node::And(a) if a.conds.is_empty())
 }
@@ -171,7 +171,7 @@ fn knowledge_on_enter(c: &mut CardInstance, src: Zone, dst: Zone, reveal: bool) 
 /// `move(st, uid, dst, *, bottom=False, reveal=False, rested=False)` (`core.py:55-81`): a card
 /// moves to `dst` of its owner with new-card semantics (rule 4-1-5). A paired Pilot follows
 /// its Unit and moves first, always active (rule 3-3-6); a Pilot leaving PAIRED unpairs both.
-/// One `touch` per call, after both moves (Inv 06a §3.1).
+/// One `touch` per call, after both moves.
 ///
 /// # Errors
 /// Python's `ValueError` when a listed card is missing from its zone list; overflows.
@@ -292,7 +292,7 @@ pub(crate) fn new_card(
 }
 
 /// `shuffle_deck(st, player)` (`core.py:134-139`): one `st.rng.shuffle` of the whole DECK
-/// list in place (Inv 06a §15 item 1), every deck card unknown to both players, one touch.
+/// list in place, every deck card unknown to both players, one touch.
 pub(crate) fn shuffle_deck(st: &mut GameState, p: u8) {
     st.rng.shuffle(st.zones.get_mut(p, Zone::Deck));
     for &uid in st.zones.get(p, Zone::Deck) {
@@ -334,7 +334,7 @@ pub(crate) fn record(
 // events and triggers (core.py:158-482)
 
 /// `next_group(st)` (`core.py:158-160`): `st.event_group += 1` and the new value; called
-/// unconditionally at Python's sites (Inv 06a hazard 13).
+/// unconditionally at Python's sites.
 pub(crate) fn next_group(st: &mut GameState) -> i64 {
     st.event_group += 1;
     st.event_group
@@ -383,7 +383,7 @@ fn subject_matches(
 }
 
 /// `_trigger_ok(st, dv, trig, host, host_owner, event)` (`core.py:194-233`), checks in
-/// Python's order (Inv 06a §6.1): `whose_turn` YOU means the host owner's turn and every other
+/// Python's order: `whose_turn` YOU means the host owner's turn and every other
 /// value the opponent's.
 pub(crate) fn trigger_ok(
     st: &GameState,
@@ -501,7 +501,7 @@ pub(crate) fn card_uid_for(st: &GameState, a: &AbilityEntry, host: Uid) -> i32 {
 /// `queue_trigger(st, a, host, controller, event, card_uid=-1, host_seq=-1)`
 /// (`core.py:248-284`): the simultaneous-event dedupe on `(aid, host, group)` over
 /// `st.pending_triggers` only (rule 10-1-6-3), the once-per-turn check, then a new pending
-/// `TriggerInst` (Inv 06a §6.2).
+/// `TriggerInst`.
 ///
 /// # Errors
 /// Python's assertion when `a` is not a triggered ability; capacities.
@@ -619,7 +619,7 @@ fn event_payload(
 /// over; nothing when no card of the game listens, no delayed trigger is armed and no LKI is
 /// given. Candidates come in trigger-index order (live hosts not in `lki`), then the LKI
 /// hosts sorted by `(owner != active, uid)` with their snapshot abilities; then delayed and
-/// keyword triggers (Inv 06a §6.7). One view serves every check.
+/// keyword triggers. One view serves every check.
 ///
 /// # Errors
 /// Errors of the view and of filter, condition and value evaluation; capacities.
@@ -690,7 +690,7 @@ pub(crate) fn emit(
 
 /// `_delayed_triggers(st, dv, ev, event, lki)` (`core.py:359-403`): every armed delayed
 /// trigger whose event this is and whose trigger is fulfilled queues its program, every time
-/// (rule 10-1-6-1-1), with no dedupe, once key or condition (Inv 06a §6.4). `_find_delayed`
+/// (rule 10-1-6-1-1), with no dedupe, once key or condition. `_find_delayed`
 /// (`core.py:411-421`) is the IR's per-card `delayed` table in `_walk_delayed` order over the
 /// card's own then unit abilities (PLAN §3.3), and `R.program(dt.steps, ...)` its program.
 fn delayed_triggers(
@@ -994,7 +994,7 @@ fn rules(dv: &Derived, uid: Uid, kind: RuleKind) -> Vec<RuleInst> {
 /// (`core.py:503-529`): a "can't receive damage" rule applies. With `thresholds`, only rules
 /// limited to damage of their `amount` or less (GD05-123), against the already reduced amount
 /// (Q416); otherwise only unlimited rules. A once-per-turn rule's key is consumed here, even
-/// when the caller only asks (Inv 06a hazard 12).
+/// when the caller only asks.
 #[allow(
     clippy::too_many_arguments,
     reason = "Python's parameter list (core.py:503-513)"
@@ -1407,7 +1407,7 @@ pub(crate) fn shield_area_reduction(
 /// `shields_receiving_damage(st, uids, amount, *, source, battle, by)` (`core.py:681-697`):
 /// the Shields among `uids` that `amount` damage would destroy: not protected by an unlimited
 /// "can't receive damage" rule, and (only then) not by a limited one against the amount left
-/// after the shield-area reduction. Both checks consume once keys (Inv 06a hazard 12).
+/// after the shield-area reduction. Both checks consume once keys.
 ///
 /// # Errors
 /// Errors of the view and of filter evaluation.
@@ -1443,7 +1443,7 @@ pub(crate) fn shields_receiving_damage(
 /// destroyed simultaneously (rules 5-10-3, 13-1-7-4): one group; each is revealed, a Burst card
 /// moves to RESOLVING and queues its Burst trigger (so every Burst precedes the triggers of the
 /// destruction events), any other card goes to the trash; then SHIELD_DESTROYED and, with a
-/// source, DESTROYS_SHIELD_CARD per Shield (Inv 06a §6.6).
+/// source, DESTROYS_SHIELD_CARD per Shield.
 ///
 /// # Errors
 /// Errors of moving and emitting; capacities.
@@ -1710,7 +1710,7 @@ pub(crate) fn set_winner(st: &mut GameState, losers: &[u8], reason: EndReason) {
 /// of cards whose damage reached their HP (11-3), repeated until nothing changes. A scan that
 /// finds nothing damaged, or nothing lethal, records `_rules_checked = version`, and the state
 /// is not checked again until a `touch`; only the "nothing lethal" exit and a full scan clear
-/// `effect_hits` (Inv 06a §9.3, hazard 19).
+/// `effect_hits`.
 ///
 /// # Errors
 /// Errors of the view, destroying and emitting.
@@ -1884,7 +1884,7 @@ pub(crate) fn card_type(st: &GameState, uid: Uid) -> CardType {
 #[cfg(feature = "paranoid")]
 mod paranoid {
     //! The shortcut checks of `tests/paranoid.py:44-121` (`CacheChecker.emit`, `.damage_scan`,
-    //! `.rules_management`) for the `paranoid` feature (W-49, W-124; docs/port/contracts.md):
+    //! `.rules_management`) for the `paranoid` feature (W-49, W-124; docs/dev/contracts.md):
     //! each skip is shown to change nothing, and a mismatch panics with the check's name.
     //! Gate diagnostics only, never in a shipped build.
 
@@ -2145,7 +2145,7 @@ mod paranoid {
 
 #[cfg(test)]
 pub(crate) mod vectors {
-    //! The layer-3 primitive vectors of `port/oracle/export_core_vectors.py`
+    //! The layer-3 primitive vectors of `oracle/export_core_vectors.py`
     //! (`tests/fixtures/core_vectors.ndjson`): a Python call of a `core` or `battle` function
     //! captured in play, with the canonical state before it, its arguments, its result or
     //! exception, and the state after it (a delta of the canonical form, the digest and
@@ -2363,7 +2363,7 @@ pub(crate) mod vectors {
         out
     }
 
-    /// The Rust port of the Python function `fun` (`core.*`, `battle.*`) called with the
+    /// The Rust counterpart of the Python function `fun` (`core.*`, `battle.*`) called with the
     /// vector's arguments; the result in the exporter's JSON encoding.
     ///
     /// # Panics
@@ -2779,7 +2779,7 @@ mod tests {
     }
 
     /// The event tuple is `subject, player, group, *sorted(extra)` (`core.py:328-333`), e.g.
-    /// Inv 06a §5.2's DESTROYED; a popped `group` of -1 is the current group.
+    /// DESTROYED; a popped `group` of -1 is the current group.
     #[test]
     fn event_payload_layout() {
         let (_, st) = crate::canon::fixtures::states().swap_remove(0);

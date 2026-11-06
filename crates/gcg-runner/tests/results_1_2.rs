@@ -1,4 +1,4 @@
-//! Results schema 1.2.0 (docs/port/PLAN.md §12.7, A10; docs/port/contracts.md O9): the runner
+//! Results schema 1.2.0 (docs/dev/PLAN.md §12.7, A10; docs/dev/contracts.md O9): the runner
 //! records the factory's search block (`AgentFactory::search_block`) and each seat's
 //! `Agent::effort` per game, `results.json` 1.2.0 writes them as `ai.search` and `ai.effort`
 //! (totals and per-game distributions), the 1.2.0 schema accepts exactly such documents, and

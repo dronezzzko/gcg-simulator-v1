@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Full Rust gate on a clean clone of the committed HEAD (uncommitted changes are not included).
-# Mirrors scripts/verify_all.sh (docs/port/PLAN.md §9.11, D17; W-118).
+# Mirrors scripts/verify_all.sh (docs/dev/PLAN.md §9.11, D17; W-118).
 #
 #   scripts/verify_all_rust.sh          # every gate that runs offline from the committed tree
 #   scripts/verify_all_rust.sh --full   # plus the Python-side checks and regenerations (needs
@@ -80,13 +80,13 @@ target/paranoid/release/gcg-diff corpus --tier 1 --require-all --paranoid --jobs
 target/release/gcg-diff coverage --check
 target/release/gcg-diff traceability --check
 target/release/gcg-diff tests-json --check
-target/release/gcg-diff weaknesses --check docs/port/WEAKNESSES.md
+target/release/gcg-diff weaknesses --check docs/dev/WEAKNESSES.md
 target/release/gcg-diff api-snapshot --check
 
 # Fuzz with invariants after every action (PLAN §9.4): Python's seed-2026 games, a
 # commit-derived seed, and the W-110 strategic games in the paranoid build.
 target/release/gcg-diff fuzz --games 10000 --seed 2026 --workers "$rust_workers" \
-  --compare port/corpus/v1/tier1/fuzz/summary-2026-10000.json
+  --compare oracle/corpus/v1/tier1/fuzz/summary-2026-10000.json
 target/release/gcg-diff fuzz --games 2000 --seed-from-commit "$(git rev-parse HEAD)" \
   --workers "$rust_workers"
 target/paranoid/release/gcg-diff paranoid-games
@@ -175,7 +175,7 @@ if [[ -n "$(git status --porcelain --untracked-files=all -- src/gcg_sim tests)" 
 if [[ $full == 1 ]]; then
   uv sync --locked
   uv run ruff check . && uv run ruff format --check .
-  MYPYPATH=src uv run mypy --strict port/oracle
+  MYPYPATH=src uv run mypy --strict oracle
   # The documented commands (W-114, W-154) run in their own clone of HEAD, so a regeneration
   # they document cannot change the tree under test. The only tracked file they may rewrite
   # there is docs/RULES_TRACEABILITY.md, which `gcg-diff traceability --write` generates
@@ -193,24 +193,24 @@ if [[ $full == 1 ]]; then
   uv run python scripts/blind_transcripts.py --selftest
   uv run python scripts/fuzz_census.py --selftest
   uv run python scripts/fuzz_census.py --games 10000 --seed 2026 --workers "$py_workers" \
-    --check docs/port/eval/P6-N/fuzz-census-2026-10000.json
-  uv run python scripts/test_census.py --check docs/port/eval/P6-N/test-execution.json
-  PYTHONHASHSEED=1 uv run python port/oracle/traces.py --check --tier 1 --workers "$py_workers"
-  PYTHONHASHSEED=2 uv run python port/oracle/traces.py --check --tier 1 --workers "$py_workers"
-  uv run python port/oracle/traces.py --check --tier 1 --nocache --workers "$py_workers"
-  uv run python port/oracle/traces.py vectors --check
-  uv run python port/oracle/census.py --check
-  uv run python port/oracle/eval_decks.py --check
-  uv run python port/oracle/p6k_vectors.py --check
-  uv run python port/oracle/p6k_audit.py --check
-  uv run python port/oracle/templates/check.py --check
-  uv run pytest port/oracle/tests -q
+    --check docs/dev/eval/P6-N/fuzz-census-2026-10000.json
+  uv run python scripts/test_census.py --check docs/dev/eval/P6-N/test-execution.json
+  PYTHONHASHSEED=1 uv run python oracle/traces.py --check --tier 1 --workers "$py_workers"
+  PYTHONHASHSEED=2 uv run python oracle/traces.py --check --tier 1 --workers "$py_workers"
+  uv run python oracle/traces.py --check --tier 1 --nocache --workers "$py_workers"
+  uv run python oracle/traces.py vectors --check
+  uv run python oracle/census.py --check
+  uv run python oracle/eval_decks.py --check
+  uv run python oracle/p6k_vectors.py --check
+  uv run python oracle/p6k_audit.py --check
+  uv run python oracle/templates/check.py --check
+  uv run pytest oracle/tests -q
   scripts/compare_python_vs_rust.sh equivalence --selftest
   scripts/compare_python_vs_rust.sh report --selftest
   COMPARE_OUT="build/comparison" scripts/compare_python_vs_rust.sh equivalence --matches 2 \
     --seeds 1 --formats bo1 --pairs red-green-zeon:blue-white-federation --workers 1 \
     --decision-logs off
-  uv run python port/oracle/traces.py --write --tier 2 --workers "$py_workers"
+  uv run python oracle/traces.py --write --tier 2 --workers "$py_workers"
   target/release/gcg-diff corpus --tier 2 --require-all --jobs "$corpus_jobs"
   cargo test --workspace --release --locked --offline --features "$SLOW_TIER2"
 fi

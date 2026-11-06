@@ -3,7 +3,7 @@
 //! canonical state there, and the two option lists side by side.
 //!
 //! Python's state is the trace's own snapshot at that decision when it stores one (offline);
-//! otherwise `uv run python port/oracle/traces.py state --trace ID --decision K` regenerates it.
+//! otherwise `uv run python oracle/traces.py state --trace ID --decision K` regenerates it.
 //! Rust's state comes from replaying the recorded choices of every earlier decision through
 //! the real engine. The diff names card and battle fields after `CardInstance.to_json` and
 //! `Battle.to_json` (`engine/state.py:118-130`, `:173-185`), zones by their `Zone` name and
@@ -175,7 +175,7 @@ pub fn python_snapshot(
         return Ok((s, "stored in the trace"));
     }
     let out = Command::new("uv")
-        .args(["run", "python", "port/oracle/traces.py", "state", "--trace"])
+        .args(["run", "python", "oracle/traces.py", "state", "--trace"])
         .arg(&t.header.id)
         .arg("--decision")
         .arg(k.to_string())

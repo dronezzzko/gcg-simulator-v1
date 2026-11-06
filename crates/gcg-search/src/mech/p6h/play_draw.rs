@@ -1,4 +1,4 @@
-//! `exclude_capped_play_draw` (W-44; docs/port/PLAN.md §12.3 S11): the play/draw choice from
+//! `exclude_capped_play_draw` (W-44; docs/dev/PLAN.md §12.3 S11): the play/draw choice from
 //! paired simulations in which a game that did not finish no longer counts as an even game.
 //!
 //! The reference (`first_player_choice`, `ai/setup.py:86-120`) plays `first_player_games` pairs

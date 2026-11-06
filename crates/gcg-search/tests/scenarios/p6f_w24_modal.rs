@@ -1,7 +1,7 @@
 //! W-24 (modal choices scored flat): the value of a card depends on choosing its mode well
 //! later, inside the search's simulated lines.
 //!
-//! Synthetic cards (`docs/port/eval/P6-F/synthetic_modal_fragment.json`, from
+//! Synthetic cards (`docs/dev/eval/P6-F/synthetic_modal_fragment.json`, from
 //! `synthetic_cards.py`): S = GD02-084 (1/3, cost 2) with "At the end of your turn, choose 1 of
 //! the following effects and activate it: ■Draw 1. ■Draw 3.";
 //! T = GD01-022 (2/3, cost 2) with "【Deploy】Draw 2.". Player 0 holds both and can deploy one.

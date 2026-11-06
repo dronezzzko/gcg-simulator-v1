@@ -1,4 +1,4 @@
-//! The paired-simulation machinery of the pre-game choices (docs/port/PLAN.md §12.3 S11): one
+//! The paired-simulation machinery of the pre-game choices (docs/dev/PLAN.md §12.3 S11): one
 //! simulated line per `(choice, seed)`, played from a world determinised from the observer's
 //! information-set state by the strengthened rollout policy (`Mechanisms::rollout_choice` of the
 //! configuration, for both players) and scored by its leaf value (`Mechanisms::leaf_value`).

@@ -1,5 +1,4 @@
-//! Per-card instrumentation of the real game, never of search copies (`runner/instrument.py`;
-//! docs/port/inventory/01-rng-runner-cli.md §2.7).
+//! Per-card instrumentation of the real game, never of search copies (`runner/instrument.py`).
 //!
 //! The observer sees every decision of the real game: the action about to be applied and the
 //! state after it. Plays come from the action stream; draws from the hand and the engine's
@@ -83,7 +82,7 @@ pub(crate) struct GameObserver {
     played_uids: BTreeSet<Uid>,
     bench_seen: BTreeSet<Box<str>>,
     /// The identity of `st.history` (`self._history`): the engine replaces the list at the
-    /// end of setup and at each new turn (`engine/game.py:190`, `:336`; Inv 01 hazard 18).
+    /// end of setup and at each new turn (`engine/game.py:190`, `:336`).
     history_epoch: u32,
     history_done: usize,
 }

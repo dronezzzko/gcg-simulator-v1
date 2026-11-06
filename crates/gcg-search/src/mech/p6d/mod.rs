@@ -1,4 +1,4 @@
-//! P6-D's tree and budget mechanisms (docs/port/PLAN.md §12.2, §12.3 S1, S4, S7, S8):
+//! P6-D's tree and budget mechanisms (docs/dev/PLAN.md §12.2, §12.3 S1, S4, S7, S8):
 //!
 //! - `root_trees` (S1, W-04): a deterministic root ensemble, `ensemble.rs`, run by the core
 //!   loop (`mcts.rs`) through `gcg_core::pool` fork-join;

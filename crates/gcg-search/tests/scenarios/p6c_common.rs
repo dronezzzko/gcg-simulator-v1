@@ -1,4 +1,4 @@
-//! Shared helpers of P6-C's scenario tests (docs/port/PLAN.md §9.8): positions on the Rust
+//! Shared helpers of P6-C's scenario tests (docs/dev/PLAN.md §9.8): positions on the Rust
 //! testkit, the reference `standard` configuration as the strengthened search's null
 //! configuration (which replays the reference bit for bit, `tests/null_config.rs`) with P6-C
 //! flags set, and counts over the agent seeds 1..=16 through the shared `Agent` interface.

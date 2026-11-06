@@ -1,4 +1,4 @@
-//! Per-thread recycling of derived-view buffers (docs/port/PLAN.md §11.4 step 1).
+//! Per-thread recycling of derived-view buffers (docs/dev/PLAN.md §11.4 step 1).
 //!
 //! A view is computed hundreds of thousands of times per game. Each compute works in a
 //! [`Work`] set of three buffers taken from the calling thread's pool (the base view and the

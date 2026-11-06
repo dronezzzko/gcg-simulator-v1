@@ -1,5 +1,5 @@
 //! Direct calls of Python tests into engine internals (`call` records, PLAN §8.2;
-//! docs/port/contracts.md, gcg-engine `testkit::engine`): each forwards to the internal
+//! docs/dev/contracts.md, gcg-engine `testkit::engine`): each forwards to the internal
 //! function with Python's parameters. The primitives after [`deploy_cards`] serve the touch
 //! catalogue (PLAN §4.4: each primitive's `version` delta against Python) and the
 //! `once_used` set tests (T-150).

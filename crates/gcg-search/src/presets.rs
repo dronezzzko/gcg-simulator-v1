@@ -1,7 +1,7 @@
 //! The shipped `gcg-sim` presets of the strengthened search (PLAN §6.4, §12.8) and the
 //! configuration helpers the search reads.
 //!
-//! The presets start from the reference presets as the brief maps them: `standard` from
+//! The presets start from the reference presets as follows: `standard` from
 //! reference `strong`, `fast` from reference `standard` (`ai/config.py:93-109`), renamed, with
 //! `ROLE_WEIGHTS` (`DEFAULT_WEIGHTS`, `ai/evaluation.py:129`). M15 (PLAN §12.8) changed only
 //! the three budget fields, scaled from the mapped reference preset's, and the mechanisms;
@@ -13,8 +13,8 @@
 //! | `fast` | reference `standard` (64 / 160 / 640) | 1.5 | 96 | 240 | 960 |
 //!
 //! Both presets run the same mechanisms (`SHIPPED_MECHANISMS`). The measurements behind the
-//! choice are in `docs/port/eval/M15/README.md` (bundle and leave-one-out rows, budget curves,
-//! per-game cost) and `docs/port/eval/M15b/README.md` (the two mechanisms added after the first
+//! choice are in `docs/dev/eval/M15/README.md` (bundle and leave-one-out rows, budget curves,
+//! per-game cost) and `docs/dev/eval/M15b/README.md` (the two mechanisms added after the first
 //! final evaluation).
 
 use std::borrow::Cow;
@@ -26,11 +26,11 @@ use gcg_core::stable_hash::StableHasher;
 use crate::{MechanismFlags, OpponentList, Preset, StrengthenedConfig};
 
 /// The mechanisms of both shipped presets, every field spelled out (M15 bundle,
-/// `docs/port/eval/M15/README.md`): the adaptive horizon (W-01) with the capped-rollout
+/// `docs/dev/eval/M15/README.md`): the adaptive horizon (W-01) with the capped-rollout
 /// continuation (W-15), the tactical solver in rollouts (W-03), capped play/draw simulations
 /// excluded from the paired estimate (W-44), a simulated line ending in an engine error
 /// scored as a loss instead of failing the real game (W-143), and, from M15b
-/// (`docs/port/eval/M15b/README.md`), kill-aware damage targeting (W-26) and the solver's proved
+/// (`docs/dev/eval/M15b/README.md`), kill-aware damage targeting (W-26) and the solver's proved
 /// lethal at in-tree MAIN decisions (W-25). Everything else is the reference.
 const SHIPPED_MECHANISMS: MechanismFlags = MechanismFlags {
     adaptive_horizon: true,

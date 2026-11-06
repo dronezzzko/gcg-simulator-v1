@@ -1,4 +1,4 @@
-//! P6-M `analysis.json` (docs/port/PLAN.md §12.2; `gcg_runner::analysis`): the unit checks
+//! P6-M `analysis.json` (docs/dev/PLAN.md §12.2; `gcg_runner::analysis`): the unit checks
 //! the WEAKNESSES entries name, on synthetic game sets with known structure, and the
 //! re-simulation observer on real engine games of the random test agent.
 //!

@@ -14,7 +14,7 @@ impl AgentCore {
     /// `AgentCore._begin(st, player)` (`ai/base.py:60-65`): the pending decision of `player`
     /// and its generator `SplitMix64(derive_seed(seed, name, "decision", k))`, where `k` is
     /// the decision counter after the increment. The counter goes up for every decision,
-    /// single options included (Inv 07 §1.2).
+    /// single options included.
     ///
     /// # Errors
     /// [`AgentError::NoDecision`] when no decision is pending for `player` (the counter does
@@ -151,7 +151,7 @@ mod tests {
         );
     }
 
-    /// Inv 07 §1.2 vectors: `derive_seed(17449794008030232776, 'mcts-standard', 'decision', k)`.
+    /// Recorded vectors: `derive_seed(17449794008030232776, 'mcts-standard', 'decision', k)`.
     #[test]
     fn per_decision_seeds_follow_the_counter() {
         let core = AgentCore::new("mcts-standard", 17_449_794_008_030_232_776, false);

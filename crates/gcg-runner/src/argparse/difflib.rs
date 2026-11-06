@@ -4,7 +4,7 @@
 //! (`argparse.py:2814-2841`). `SequenceMatcher(None, a, b, autojunk=True)` with `b = word`
 //! and `a` each possibility in turn, so the "popular element" pruning applies to the word
 //! once it has 200 or more code points. Checked against vectors exported by
-//! `port/oracle/export_cli.py`.
+//! `oracle/export_cli.py`.
 
 use gcg_core::lookup::LookupMap;
 

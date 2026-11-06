@@ -1,5 +1,5 @@
 //! The null-configuration test over every decision of the tier-1 `search` set
-//! (`port/corpus/v1/tier1/search/`, presets `fast`, `standard`, `strong` and
+//! (`oracle/corpus/v1/tier1/search/`, presets `fast`, `standard`, `strong` and
 //! `baseline-standard`), not only those with a stored snapshot (`null_config_traces.rs`): each
 //! trace is replayed from its first snapshot by applying the recorded choices (the state's
 //! digest prefix must match the trace's before every decision). At every decision whose agent
@@ -45,7 +45,7 @@ fn bits(alts: &[gcg_ai::Alternative]) -> Bits {
 
 #[test]
 fn the_copy_replays_every_decision_of_the_search_set() {
-    let dir = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../port/corpus/v1/tier1/search");
+    let dir = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../oracle/corpus/v1/tier1/search");
     let reg = Registry::embedded();
     let mut files: Vec<PathBuf> = std::fs::read_dir(&dir)
         .expect("the search set")

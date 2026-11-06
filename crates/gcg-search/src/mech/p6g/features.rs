@@ -1,4 +1,4 @@
-//! P6-G's leaf features (docs/port/PLAN.md §12.3 S10; W-37, W-39, W-142): one superset vector
+//! P6-G's leaf features (docs/dev/PLAN.md §12.3 S10; W-37, W-39, W-142): one superset vector
 //! of a position, from the turn player's point of view, from which every P6-G model takes its
 //! columns ([`super::model::ModelSpec::columns`]).
 //!

@@ -1,5 +1,5 @@
 //! Layer L2 (workstream B2): the derived view of `engine/view.py` and the 21 cond, filter and
-//! value hooks of the binding modules (docs/port/PLAN.md §4.6, §5.3; docs/port/contracts.md,
+//! value hooks of the binding modules (docs/dev/PLAN.md §4.6, §5.3; docs/dev/contracts.md,
 //! gcg-engine "L2 (B2) — view/").
 //!
 //! - [`derived`] fills the state's cache exactly as `view.py:232-239` fills `st._derived`;
@@ -43,12 +43,12 @@ pub(crate) use pool::recycle;
 
 #[allow(
     unused_imports,
-    reason = "the L2 boundary names that layers L3-L5 call (docs/port/contracts.md)"
+    reason = "the L2 boundary names that layers L3-L5 call (docs/dev/contracts.md)"
 )]
 pub(crate) use eval::{cond, player_of, resolve, resolve_ref, select, value};
 #[allow(
     unused_imports,
-    reason = "the L2 boundary names that layers L3-L5 call (docs/port/contracts.md)"
+    reason = "the L2 boundary names that layers L3-L5 call (docs/dev/contracts.md)"
 )]
 pub(crate) use query::{cost_mod_of, player_cost_mod, zone_loc_code};
 
@@ -90,7 +90,7 @@ impl Ctx {
 
     /// `ctx.ev(key, default)` for an IR key string (`EventAmount.key`, `EventFlag.key`,
     /// `EventCard.key`): a string outside the keys `emit` writes never matches, as Python's
-    /// `ev` returns the default (docs/port/contracts.md, gcg-engine differences).
+    /// `ev` returns the default (docs/dev/contracts.md, gcg-engine differences).
     pub(crate) fn ev_str(&self, reg: &Registry, key: StrId, default: i32) -> i32 {
         EvKey::from_value(reg.str(key)).map_or(default, |k| self.ev(k, default))
     }

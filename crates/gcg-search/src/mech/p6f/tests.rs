@@ -96,11 +96,11 @@ fn rollout_counts(cfg: &StrengthenedConfig, st: &GameState, t: f64, n: u32) -> V
 // W-23, W-25: the fit
 
 /// The fit's master seeds: tuning role for the fit, dev role for the out-of-sample check
-/// (PLAN A14; recorded in `docs/port/eval/P6-F/seed-ledger.json`).
+/// (PLAN A14; recorded in `docs/dev/eval/P6-F/seed-ledger.json`).
 pub(super) const FIT_MASTER: u64 = 10_600_001;
 pub(super) const CHECK_MASTER: u64 = 20_600_001;
 pub(super) fn report_path() -> PathBuf {
-    repo().join("docs/port/eval/P6-F/policy-fit.json")
+    repo().join("docs/dev/eval/P6-F/policy-fit.json")
 }
 
 fn bits_of(v: &Value) -> Vec<f64> {
@@ -166,10 +166,10 @@ fn burst_tripwire(reg: &Registry) -> Result<(), String> {
 }
 
 /// The registry with the synthetic Burst "Discard 2 cards. Draw 1." on EB01-007
-/// (`docs/port/eval/P6-F/synthetic_burst_fragment.json`, from `synthetic_cards.py`).
+/// (`docs/dev/eval/P6-F/synthetic_burst_fragment.json`, from `synthetic_cards.py`).
 fn synthetic_burst_registry() -> Registry {
     let doc: Value = serde_json::from_str(
-        &std::fs::read_to_string(repo().join("docs/port/eval/P6-F/synthetic_burst_fragment.json"))
+        &std::fs::read_to_string(repo().join("docs/dev/eval/P6-F/synthetic_burst_fragment.json"))
             .expect("the fragment"),
     )
     .expect("JSON");

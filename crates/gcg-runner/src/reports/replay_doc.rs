@@ -3,7 +3,7 @@
 //!
 //! Python re-simulates the record's actions (`replay_with_log`, `:75-101`) to get the readable
 //! log and `winner_seat`; `turns` and `final_state_sha256` are copied from the record, and
-//! nothing compares the re-simulation with the record at write time (Inv 02 hazard 29). The
+//! nothing compares the re-simulation with the record at write time. The
 //! re-simulation needs the engine and lives in the runner's `replay` module; this module only
 //! builds the document from its [`Resimulation`].
 

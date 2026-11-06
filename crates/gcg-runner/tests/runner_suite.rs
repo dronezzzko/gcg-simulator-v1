@@ -1,5 +1,5 @@
-//! Native ports of the `tests/runner` and `tests/reports` cases that no other Rust test
-//! ports (T-078; the register `tests/python_suites.json` maps every Python test): the digest
+//! Native Rust versions of the `tests/runner` and `tests/reports` cases that no other Rust
+//! test covers (T-078; the register `tests/python_suites.json` maps every Python test): the digest
 //! changing with the state, per-card instrumentation against the action stream, searching
 //! agents that leave the records alone, decision-log order, the agent specs a game builds,
 //! the game-1 chooser (FAQ Q9), every example pairing replaying (`@pytest.mark.slow` in

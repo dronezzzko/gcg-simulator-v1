@@ -1,6 +1,6 @@
 //! The golden-format writer: `effects/golden.py:40-51` per card (`Registry::golden_json`) and
 //! `tools/golden.py:22-36` per file (test-only: the crate's test regenerates
-//! `tests/effects/golden/*.json` byte for byte from the IR, docs/port/PLAN.md §3.4 test 3).
+//! `tests/effects/golden/*.json` byte for byte from the IR, docs/dev/PLAN.md §3.4 test 3).
 
 use gcg_core::pyjson::Json;
 #[cfg(test)]

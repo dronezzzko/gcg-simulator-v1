@@ -1,6 +1,6 @@
 //! Deck legality (`deck/validate.py`): rules 6-1-1, 2-1-2 and 3-x-2, the Banned & Restricted
 //! list, and the simulator's own requirement that every card has an implemented effect, with
-//! Python's messages in Python's order (Inv 03 §4). Counts are the run-length totals of
+//! Python's messages in Python's order. Counts are the run-length totals of
 //! [`Deck`] (W-144), so no list is expanded per copy.
 
 use std::collections::BTreeMap;

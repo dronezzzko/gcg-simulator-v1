@@ -1,6 +1,6 @@
-//! W-13's end-to-end evidence (GAP-A2, docs/port/eval/weakness-status/GAP-A2.md): the decision
+//! W-13's end-to-end evidence (GAP-A2, docs/dev/eval/weakness-status/GAP-A2.md): the decision
 //! trace counts the branches of the no-op Rest-target prune, and on the effect-coverage decks
-//! (`docs/port/eval/GAP-A2/decks/`, every packaged card that reads its own rested state) its
+//! (`docs/dev/eval/GAP-A2/decks/`, every packaged card that reads its own rested state) its
 //! "while rested" exception fires in 100 `gcg-eval` games.
 //!
 //! - `w13_the_coverage_decks_fire_the_while_rested_exception`: 100 head-to-head games of two
@@ -24,8 +24,8 @@ use gcg_engine::{DecisionKind, NewGameOptions, apply, new_game};
 use serde_json::Value;
 
 const TINY: &str = "search:null-fast:max_iterations=8,min_iterations=4,iterations_per_option=2";
-const WHITE_BLUE: &str = "docs/port/eval/GAP-A2/decks/coverage-white-blue.txt";
-const RED_GREEN: &str = "docs/port/eval/GAP-A2/decks/coverage-red-green.txt";
+const WHITE_BLUE: &str = "docs/dev/eval/GAP-A2/decks/coverage-white-blue.txt";
+const RED_GREEN: &str = "docs/dev/eval/GAP-A2/decks/coverage-red-green.txt";
 
 fn root() -> PathBuf {
     Path::new(env!("CARGO_MANIFEST_DIR")).join("../..")

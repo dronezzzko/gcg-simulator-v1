@@ -1,8 +1,8 @@
-//! Corpus manifests (PLAN §8.3, §8.4): `port/corpus/v1/MANIFEST.json` for tier 1 (committed
-//! files under `port/corpus/v1/tier1/`, the `tests/` subdirectory of G2 included) and
-//! `port/corpus/v1/MANIFEST-tier2.json` for tier 2 (regenerated into `build/oracle/tier2/`).
+//! Corpus manifests (PLAN §8.3, §8.4): `oracle/corpus/v1/MANIFEST.json` for tier 1 (committed
+//! files under `oracle/corpus/v1/tier1/`, the `tests/` subdirectory of G2 included) and
+//! `oracle/corpus/v1/MANIFEST-tier2.json` for tier 2 (regenerated into `build/oracle/tier2/`).
 //!
-//! Format 1, written by `port/oracle/traces.py`: `{"format": 1, "tier": n, "root": dir,
+//! Format 1, written by `oracle/traces.py`: `{"format": 1, "tier": n, "root": dir,
 //! "files": [{"path", "set", "sha256", "bytes"[, "records", "traces", "generator"]}],
 //! "totals": {...}}`; `.ndjson` entries carry the record and trace counts and the generator
 //! block of the file's first header without `max_uid`.
@@ -47,7 +47,7 @@ pub struct Repo {
 
 impl Repo {
     /// The repository root: `GCG_REPO_ROOT`, else the first ancestor of the working directory
-    /// holding `port/corpus/v1`, else the checkout this binary was built from.
+    /// holding `oracle/corpus/v1`, else the checkout this binary was built from.
     #[must_use]
     pub fn locate() -> Self {
         if let Some(root) = std::env::var_os("GCG_REPO_ROOT") {
@@ -55,7 +55,7 @@ impl Repo {
         }
         if let Ok(cwd) = std::env::current_dir() {
             for dir in cwd.ancestors() {
-                if dir.join("port/corpus/v1").is_dir() && dir.join("Cargo.toml").is_file() {
+                if dir.join("oracle/corpus/v1").is_dir() && dir.join("Cargo.toml").is_file() {
                     return Self {
                         root: dir.to_path_buf(),
                     };
@@ -74,7 +74,7 @@ impl Repo {
         } else {
             "MANIFEST-tier2.json"
         };
-        self.root.join("port/corpus/v1").join(name)
+        self.root.join("oracle/corpus/v1").join(name)
     }
 
     #[must_use]

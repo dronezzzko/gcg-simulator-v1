@@ -1,5 +1,5 @@
 //! Exact fights (`exact_fight`, W-31): the attack and block scorers of the reference policy
-//! (`_attack`, `_block_risk`, `_block`, `ai/policy.py:209-285`, ported from `gcg_ai::policy`)
+//! (`_attack`, `_block_risk`, `_block`, `ai/policy.py:209-285`, taken from `gcg_ai::policy`)
 //! with every `fight()` (`ai/values.py:65-71`: AP against remaining HP and First Strike only)
 //! replaced by the engine's own resolution of the battle on a clone. The clone plays the
 //! attack (or the block) and the rest of the battle: the forced block or none, passes in the

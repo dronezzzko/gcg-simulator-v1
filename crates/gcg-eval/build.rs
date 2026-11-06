@@ -1,5 +1,5 @@
 //! Build script of `gcg-eval`: the code digest of `build-support/digest-manifest.txt`
-//! (docs/port/PLAN.md §2.4, X19, W-103), exposed as `env!("GCG_CODE_DIGEST")`, and the deck
+//! (docs/dev/PLAN.md §2.4, X19, W-103), exposed as `env!("GCG_CODE_DIGEST")`, and the deck
 //! files of `examples/decks/` and `examples/decks/eval/` embedded as
 //! `$OUT_DIR/embedded_decks.rs` (W-123: the named deck sets work from any directory).
 

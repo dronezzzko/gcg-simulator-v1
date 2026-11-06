@@ -1,4 +1,4 @@
-//! P6-M's `gcg-eval` tools end to end (docs/port/PLAN.md §12.2, A30), through the binary:
+//! P6-M's `gcg-eval` tools end to end (docs/dev/PLAN.md §12.2, A30), through the binary:
 //!
 //! - T-153: `gcg-eval benchmark` without an opt-in option writes `gcg-sim benchmark`'s bytes
 //!   (the shared `cli_support::benchmark_command` pipeline with `gcg-sim`'s factory, run in

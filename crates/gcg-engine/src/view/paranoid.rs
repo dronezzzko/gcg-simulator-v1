@@ -2,7 +2,7 @@
 //! Every cache hit of `derived` is recomputed and compared (`:59-73`), and every reference
 //! resolved without the view is resolved again with it (`:125-132`). A mismatch panics with
 //! the check's name: these are gate diagnostics, never part of a shipped build
-//! (docs/port/contracts.md, gcg-engine behaviour).
+//! (docs/dev/contracts.md, gcg-engine behaviour).
 
 use gcg_effects::RefId;
 

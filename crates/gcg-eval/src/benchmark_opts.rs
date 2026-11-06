@@ -1,4 +1,4 @@
-//! The opt-in user tools of A30 for P6-M (docs/port/PLAN.md §12.2): `gcg-eval benchmark`,
+//! The opt-in user tools of A30 for P6-M (docs/dev/PLAN.md §12.2): `gcg-eval benchmark`,
 //! `gcg-eval replay-game` (W-148) and `gcg-eval replay-check` (W-156).
 //!
 //! `benchmark` is `gcg-sim benchmark`'s pipeline with the shipped presets: the same deck and
@@ -59,7 +59,7 @@ use crate::cli::{PROG, WORKERS_HELP};
 
 /// The results schema `gcg-sim benchmark` writes (`gcg-cli`'s `commands::SCHEMA`): 1.2.0, with
 /// the strengthened search's `ai.search` and `ai.effort` (PLAN §12.7, A10;
-/// docs/port/contracts.md O9). `gcg-eval benchmark` writes the same, so T-153 holds.
+/// docs/dev/contracts.md O9). `gcg-eval benchmark` writes the same, so T-153 holds.
 pub const SIM_SCHEMA: SchemaVersion = SchemaVersion::V1_2;
 
 /// The options of `gcg-eval benchmark` besides `gcg-sim benchmark`'s.

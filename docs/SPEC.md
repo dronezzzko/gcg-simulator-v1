@@ -1,5 +1,8 @@
 # gcg-sim — Execution Spec
 
+> Build record of the reference oracle (the Python package in `src/gcg_sim`), kept as
+> history. The Rust implementation is described in [`README.md`](../README.md).
+
 This file is the contract for the build. Every phase is verified against it.
 
 ## Goal

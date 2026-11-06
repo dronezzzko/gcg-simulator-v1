@@ -1,4 +1,4 @@
-//! The positions the Python AI tests build with the testkit, ported line by line:
+//! The positions the Python AI tests build with the testkit, reproduced line by line:
 //! `tests/ai/situations.py`, and the builders of `test_root_moves.py`,
 //! `test_puzzles_targets.py`, `test_policy_knobs.py`, `test_search_options.py` and
 //! `test_evaluation_roles.py` that other modules import.

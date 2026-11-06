@@ -1,4 +1,4 @@
-//! The `gcg-eval` command line (docs/port/PLAN.md §2.1, §10.4 F, §12.2 P6-I, §12.4-§12.8, A30),
+//! The `gcg-eval` command line (docs/dev/PLAN.md §2.1, §10.4 F, §12.2 P6-I, §12.4-§12.8, A30),
 //! on the argparse-compatible parser that `gcg-sim` shares (`gcg_runner::argparse`), with
 //! `gcg-sim`'s exit codes (0, 1 with `error: {message}`, 2 for usage errors, 130 on SIGINT).
 //!
@@ -65,7 +65,7 @@ use crate::{ChooseFirst, DeckSet, PairSet, SeedRole};
 /// `prog` of the top-level parser.
 pub const PROG: &str = "gcg-eval";
 /// The top-level description.
-pub const DESCRIPTION: &str = "Evaluation harness of the gcg-sim port: the reference search, \
+pub const DESCRIPTION: &str = "Evaluation harness of gcg-sim: the reference search, \
      head-to-head comparisons of agents and the tuning tools.";
 /// `--workers` help, as `gcg-sim`'s (PLAN A5, §7.4).
 pub const WORKERS_HELP: &str =
@@ -253,7 +253,7 @@ fn push_run_options(p: &mut Parser, d: &RunDefaults) {
             Some(PairSet::ALL.iter().map(|s| s.as_str()).collect()),
             Value::Str(PyStr::from(d.pair_set.as_str())),
             format!(
-                "which pairs of the deck set (held-out split: docs/port/eval/panel.json; \
+                "which pairs of the deck set (held-out split: docs/dev/eval/panel.json; \
                  default {})",
                 d.pair_set.as_str()
             ),
@@ -837,7 +837,7 @@ fn decks_parser() -> Parser {
     p.push(Action::flag(
         "--check",
         "check",
-        "exit 1 when a held-out deck of docs/port/eval/panel.json breaks the bound".to_owned(),
+        "exit 1 when a held-out deck of docs/dev/eval/panel.json breaks the bound".to_owned(),
     ));
     p.push(path_option("--out", "out", "also write the report here"));
     p
@@ -897,7 +897,7 @@ fn evidence_parser() -> Parser {
     add.push(Action::positional(
         "file",
         Converter::Path,
-        help("a report under docs/port/eval/evidence/"),
+        help("a report under docs/dev/eval/evidence/"),
     ));
     add.push(required(str_option(
         "--command",
@@ -911,7 +911,7 @@ fn evidence_parser() -> Parser {
         "path",
         Converter::Path,
         None,
-        "a file or directory to check (repeatable; default docs/port/eval)".to_owned(),
+        "a file or directory to check (repeatable; default docs/dev/eval)".to_owned(),
     ));
     let mut p = Parser::new(
         &format!("{PROG} evidence"),
@@ -1318,7 +1318,7 @@ fn bench_args(
 }
 
 /// A `type=int` option of `compare.py` (`ai/compare.py:203-205`, converted by the parser's
-/// [`Converter::Int`]) as `i128`: a usage error beyond what this port holds (Python accepts
+/// [`Converter::Int`]) as `i128`: a usage error beyond what gcg-eval holds (Python accepts
 /// any size).
 fn compare_int(
     ns: &Namespace,
@@ -1507,7 +1507,7 @@ fn phase6_command(name: &str, ns: &Namespace, sub: &Parser, columns: i64) -> Res
 /// The typed command of a parsed namespace.
 ///
 /// # Errors
-/// A usage error of a value this port cannot hold.
+/// A usage error of a value gcg-eval cannot hold.
 pub fn command(ns: &Namespace, columns: i64) -> Result<Command, Exit> {
     let parser = build_parser();
     let name = need_text(ns, "command");

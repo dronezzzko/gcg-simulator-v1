@@ -296,7 +296,7 @@ fn leaf(key: &str, value: &Value, card: &CardDef, matched: Option<&str>) -> bool
 }
 
 /// `matches(pred, card, matched=None)` (`deck/official.py:160-173`): the keys in JSON order,
-/// stopping at the first false one (Inv 03 §10 H8).
+/// stopping at the first false one.
 ///
 /// # Panics
 /// On an operator outside `predicate_language`. [`banlist`] rejects those when it loads, so a

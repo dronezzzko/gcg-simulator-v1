@@ -8,7 +8,7 @@
 //!
 //! The Phase 6 tools play through [`run_game_with`]: it asks the agents through
 //! `Agent::choose_traced` with [`NoTrace`] (whose action, draws, decision counter and log equal
-//! `choose`'s, docs/port/contracts.md gcg-ai), so each seat's deterministic search effort
+//! `choose`'s, docs/dev/contracts.md gcg-ai), so each seat's deterministic search effort
 //! ([`SeatEffort`]: iterations and engine applies, PLAN §6.6) is summed per game, and an
 //! [`Observer`] sees every decision (positions for `tune` and `regret`, the decision traces of
 //! W-21). Python's protocol paths (`compare`) keep [`play_all`] and plain `choose`.

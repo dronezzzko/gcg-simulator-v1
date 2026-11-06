@@ -1,10 +1,10 @@
-//! `gcg-eval compare`: the exact port of `python -m gcg_sim.ai.compare` (`ai/compare.py`):
+//! `gcg-eval compare`: the exact Rust version of `python -m gcg_sim.ai.compare` (`ai/compare.py`):
 //! mirrored blocks of four on every pair of the decks, the challenger's wins with Wilson
 //! intervals by seat and deck, and the report JSON (`--out`: `json.dumps(report, indent=1)`;
 //! stdout: the report without `outcomes`, `indent=2`).
 //!
 //! `--games`, `--seed` and `--workers` are Python ints (`type=int`). The seed is echoed as
-//! given and masked to 64 bits by `derive_seed`, as Python does; this port holds the three in
+//! given and masked to 64 bits by `derive_seed`, as Python does; gcg-eval holds the three in
 //! an `i128`, which bounds them (Python's ints are unbounded), and holds `games` in a `u32`.
 
 use std::path::Path;
@@ -36,11 +36,11 @@ pub const fn indented(indent: usize) -> DumpOptions {
 /// A Python int argument held as `i128`.
 ///
 /// # Errors
-/// `{value} is outside the range this port supports`.
+/// `{value} is outside the range gcg-eval supports`.
 pub fn int_arg(v: &PyInt) -> Result<i128, String> {
     v.to_decimal()
         .parse::<i128>()
-        .map_err(|_| format!("{} is outside the range this port supports", v.to_decimal()))
+        .map_err(|_| format!("{} is outside the range gcg-eval supports", v.to_decimal()))
 }
 
 /// `master & (2**64 - 1)` (`rng.py:52-59`).
@@ -76,7 +76,7 @@ pub fn compare_with(
     } else {
         u32::try_from(games).map_err(|_| {
             invalid(format!(
-                "games {games} is outside the range this port supports"
+                "games {games} is outside the range gcg-eval supports"
             ))
         })?
     };

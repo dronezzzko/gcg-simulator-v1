@@ -269,7 +269,7 @@ pub enum Side {
 
 #[expect(
     clippy::result_large_err,
-    reason = "replay_with returns Divergence by value (frozen in docs/port/contracts.md, gcg-diff)"
+    reason = "replay_with returns Divergence by value (frozen in docs/dev/contracts.md, gcg-diff)"
 )]
 fn replay_side(
     side: Side,

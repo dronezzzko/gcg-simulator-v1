@@ -1,5 +1,5 @@
-//! The null-configuration test on the `search` corpus traces (`port/corpus/v1/tier1/search/`,
-//! read with `gcg_diff::read_trace`; docs/port/contracts.md, gcg-search section): at every
+//! The null-configuration test on the `search` corpus traces (`oracle/corpus/v1/tier1/search/`,
+//! read with `gcg_diff::read_trace`; docs/dev/contracts.md, gcg-search section): at every
 //! decision that has a snapshot and whose agent block records a search, the reference search
 //! and the `gcg-search` copy under `null_config` of the trace's preset, started from the
 //! recorded per-decision seed, return the same action, alternatives, statistics and generator
@@ -32,7 +32,7 @@ fn preset(name: &str) -> (&'static ReferenceConfig, &'static gcg_ai::Weights) {
 
 #[test]
 fn the_copy_replays_the_reference_on_the_search_traces() {
-    let dir = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../port/corpus/v1/tier1/search");
+    let dir = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../oracle/corpus/v1/tier1/search");
     let reg = Registry::embedded();
     let mut checked = 0;
     let mut files: Vec<PathBuf> = std::fs::read_dir(&dir)

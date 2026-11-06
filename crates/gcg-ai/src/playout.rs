@@ -1,5 +1,4 @@
-//! Playing a (determinised) state forward with the heuristic policy (`ai/playout.py`;
-//! docs/port/inventory/08-ai-policy-eval.md §5).
+//! Playing a (determinised) state forward with the heuristic policy (`ai/playout.py`).
 //!
 //! Both functions mutate `st` in place and make both players' decisions with
 //! [`crate::policy::choose`]; the engine's own randomness comes from the state's generator.

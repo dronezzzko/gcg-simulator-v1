@@ -1,5 +1,5 @@
 //! The M5.2 gate (PLAN §10.4 B2, §13): every trace of the `views` set
-//! (`port/oracle/traces.py` `generate_view`) loads its snapshot with `canon::from_canonical`,
+//! (`oracle/traces.py` `generate_view`) loads its snapshot with `canon::from_canonical`,
 //! computes `view::derived`, and reproduces Python's records: the view signature
 //! (`tests/paranoid.py:24-39` as `view_signature_json`), the per-card queries of
 //! `views.cards` (`ap_of`, `hp_of`, `keywords`, `traits_of`, `play_cost`, `play_level` for
@@ -8,8 +8,8 @@
 //! depend on `gcg-diff`).
 //!
 //! Tier 1 (committed, 280 traces) always runs. Tier 2 (2034 traces, regenerated into
-//! `build/oracle/tier2/` by `uv run python port/oracle/traces.py --write --tier 2 --only
-//! views` and checked against `port/corpus/v1/MANIFEST-tier2.json`) runs with the `slow`
+//! `build/oracle/tier2/` by `uv run python oracle/traces.py --write --tier 2 --only
+//! views` and checked against `oracle/corpus/v1/MANIFEST-tier2.json`) runs with the `slow`
 //! feature (PLAN A12).
 
 use std::fs;
@@ -106,7 +106,7 @@ fn kw_json(k: gcg_effects::KwAmounts) -> Value {
     Value::Object(m)
 }
 
-/// `views.cards` (`port/oracle/traces.py` `generate_view`).
+/// `views.cards` (`oracle/traces.py` `generate_view`).
 fn cards_probe(st: &GameState, reg: &Registry) -> Result<Value, String> {
     let dv = derived(st).map_err(|e| e.to_string())?;
     let mut out = Vec::new();
@@ -202,13 +202,13 @@ fn check_set(dir: &Path, expected: usize) {
 
 #[test]
 fn tier1_views_match_python() {
-    check_set(&repo().join("port/corpus/v1/tier1/views"), 280);
+    check_set(&repo().join("oracle/corpus/v1/tier1/views"), 280);
 }
 
-/// The tier-2 trace count of the `views` set in `port/corpus/v1/MANIFEST-tier2.json`.
+/// The tier-2 trace count of the `views` set in `oracle/corpus/v1/MANIFEST-tier2.json`.
 #[cfg(feature = "slow")]
 fn tier2_expected() -> usize {
-    let text = fs::read_to_string(repo().join("port/corpus/v1/MANIFEST-tier2.json"))
+    let text = fs::read_to_string(repo().join("oracle/corpus/v1/MANIFEST-tier2.json"))
         .expect("the tier-2 manifest");
     let m: Value = serde_json::from_str(&text).expect("JSON");
     m["files"]
@@ -224,7 +224,7 @@ fn tier2_expected() -> usize {
 #[cfg(feature = "slow")]
 fn check_tier2_files() {
     use sha2::{Digest, Sha256};
-    let text = fs::read_to_string(repo().join("port/corpus/v1/MANIFEST-tier2.json"))
+    let text = fs::read_to_string(repo().join("oracle/corpus/v1/MANIFEST-tier2.json"))
         .expect("the tier-2 manifest");
     let m: Value = serde_json::from_str(&text).expect("JSON");
     for f in m["files"].as_array().expect("files") {

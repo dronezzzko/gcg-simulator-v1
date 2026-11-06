@@ -1,16 +1,16 @@
-//! Layer L3 of the engine, part 2 (docs/port/PLAN.md §5.5, §10.3.4): a function-for-function
-//! port of `engine/battle.py` — attack declaration, blocking, the damage step with First
+//! Layer L3 of the engine, part 2 (docs/dev/PLAN.md §5.5, §10.3.4): a function-for-function
+//! counterpart of `engine/battle.py` — attack declaration, blocking, the damage step with First
 //! Strike, Suppression and <Breach>'s payload, battle destruction, the end of a battle and
-//! damage-only battles (rules section 8, keyword effects 13-1; Inv 06b §14).
+//! damage-only battles (rules section 8, keyword effects 13-1).
 //!
-//! Every `touch()` and `next_group()` is at Python's line (Inv 06b §15): two touches in
+//! Every `touch()` and `next_group()` is at Python's line: two touches in
 //! `declare_attack` (`battle.py:16`, `:28`) and in `damage_only_battle` (`:277`, `:282`). The
 //! views Python holds across damage (`damage_step`, `_exchange`, `_destroy_battle`) are held
-//! here the same way (Inv 06b hazard 16).
+//! here the same way.
 
 #![allow(
     dead_code,
-    reason = "called by layers L4 (interp: StartBattle) and L5 (game, procedures), which land after L3 (docs/port/contracts.md)"
+    reason = "called by layers L4 (interp: StartBattle) and L5 (game, procedures), which land after L3 (docs/dev/contracts.md)"
 )]
 
 use gcg_effects::{Ev, Kw, RuleKind};
@@ -228,8 +228,8 @@ pub(crate) fn block(st: &mut GameState, blocker: Uid) -> Result<(), EngineError>
 
 /// `victims: dict[int, int]` of `_destroy_battle` (`battle.py:99-111`): uid → destroyer uid in
 /// insertion order. Building it from Python's dict literal `{x: attacker, y: target}`
-/// (`battle.py:193`) with `x == y` keeps the key's first position and the last value
-/// (Inv 06b hazard 3), which [`Victims::insert`] reproduces.
+/// (`battle.py:193`) with `x == y` keeps the key's first position and the last value,
+/// which [`Victims::insert`] reproduces.
 #[derive(Default)]
 struct Victims(Vec<(Uid, Uid)>);
 
@@ -618,7 +618,7 @@ mod tests {
     }
 
     /// `{to_target[0]: attacker, to_attacker[0]: target}` with equal keys keeps the key's
-    /// first position and the last value (`battle.py:193`, Inv 06b hazard 3).
+    /// first position and the last value (`battle.py:193`).
     #[test]
     fn victims_follow_dict_literal_semantics() {
         let v = Victims::of(&[(5, 1), (5, 2)]);

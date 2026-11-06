@@ -1,4 +1,4 @@
-//! Shared helpers of P6-B's scenario tests (docs/port/PLAN.md §12.2, §12.3 S3): the reference
+//! Shared helpers of P6-B's scenario tests (docs/dev/PLAN.md §12.2, §12.3 S3): the reference
 //! agents of each reference preset, the strengthened search at a reference preset's budget with
 //! P6-B's flags, and the play of one turn by a pair of agents.
 

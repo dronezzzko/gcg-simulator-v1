@@ -1,4 +1,4 @@
-"""Generated counts for the port's documents (docs/port/WEAKNESSES.md W-128).
+"""Generated counts for the documents under docs/dev (docs/dev/WEAKNESSES.md W-128).
 
 A count in a document is written as ``<!-- count:NAME -->VALUE<!-- /count -->``. This tool
 computes every named count from the packaged data and the committed records, never from
@@ -8,7 +8,7 @@ not be hand-typed or go stale. Standard library only (the gate runs it with the 
 
 ``cards.numbers``           real card numbers in the packaged gcg-api snapshot
 ``cards.definitions``       card definitions of the effect IR (the numbers plus synthetic ones)
-``cards.non_vanilla``       real cards with an ability (``port/corpus/v1/census.json``)
+``cards.non_vanilla``       real cards with an ability (``oracle/corpus/v1/census.json``)
 ``cards.vanilla``           real cards without one
 ``cards.effect_only``       Unit token, EX Base and EX Resource numbers (never in a deck)
 ``cards.fuzz_pool``         numbers the fuzz decks are built from (the fuzz census pool)
@@ -16,7 +16,7 @@ not be hand-typed or go stale. Standard library only (the gate runs it with the 
 ``faq.entries``, ``rulings.entries``                the packaged FAQ and rulings
 ``conflicts.resolutions``   resolutions of ``src/gcg_sim/data/overrides.json``
 ``corpus.tier1.traces``     traces of the committed tier-1 corpus
-``tests_json.entries``      entries of ``docs/port/tests.json``
+``tests_json.entries``      entries of ``docs/dev/tests.json``
 
     python3 scripts/doc_counts.py [--check | --write | --list] [files...]
 """
@@ -31,7 +31,7 @@ from pathlib import Path
 from typing import Any
 
 ROOT = Path(__file__).resolve().parents[1]
-DEFAULT_FILES = ("docs/port/**/*.md",)
+DEFAULT_FILES = ("docs/dev/**/*.md",)
 MARK = re.compile(r"<!-- count:(?P<name>[a-z0-9_.]+) -->(?P<value>[^<]*)<!-- /count -->")
 EFFECT_ONLY = ("UNIT TOKEN", "EX BASE", "EX RESOURCE")
 
@@ -48,7 +48,7 @@ def counts(root: Path = ROOT) -> dict[str, int]:
         if line.strip():
             rec = json.loads(line)
             types[str(rec["card_number"])] = str(rec["card_type"])
-    census = _json(root, "port/corpus/v1/census.json")["cards"]
+    census = _json(root, "oracle/corpus/v1/census.json")["cards"]
     rules = _json(root, "src/gcg_sim/data/rules/rules_index.json")["counts"]
     out = {
         "cards.numbers": len(types),
@@ -57,7 +57,7 @@ def counts(root: Path = ROOT) -> dict[str, int]:
         "cards.vanilla": int(census["vanilla"]),
         "cards.effect_only": sum(1 for t in types.values() if t in EFFECT_ONLY),
         "cards.fuzz_pool": len(
-            _json(root, "docs/port/eval/P6-N/fuzz-census-2026-10000.json")["pool"]
+            _json(root, "docs/dev/eval/P6-N/fuzz-census-2026-10000.json")["pool"]
         ),
         "rules.total": int(rules["total"]),
         "rules.testable": int(rules["testable"]),
@@ -65,14 +65,16 @@ def counts(root: Path = ROOT) -> dict[str, int]:
         "faq.entries": len(_json(root, "src/gcg_sim/data/gcgapi/rules-faq.json")),
         "rulings.entries": len(_json(root, "src/gcg_sim/data/gcgapi/rulings.json")),
         "conflicts.resolutions": len(_json(root, "src/gcg_sim/data/overrides.json")["resolutions"]),
-        "corpus.tier1.traces": int(_json(root, "port/corpus/v1/MANIFEST.json")["totals"]["traces"]),
-        "tests_json.entries": len(_json(root, "docs/port/tests.json")),
+        "corpus.tier1.traces": int(
+            _json(root, "oracle/corpus/v1/MANIFEST.json")["totals"]["traces"]
+        ),
+        "tests_json.entries": len(_json(root, "docs/dev/tests.json")),
     }
     return out
 
 
 def fmt(n: int) -> str:
-    """The way the port's prose writes a count: 1,152 (thousands separated), 840."""
+    """The way the documents' prose writes a count: 1,152 (thousands separated), 840."""
     return f"{n:,}"
 
 

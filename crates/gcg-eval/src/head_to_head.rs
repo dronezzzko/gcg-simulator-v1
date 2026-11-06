@@ -1,4 +1,4 @@
-//! `gcg-eval head-to-head` (docs/port/PLAN.md §10.4 F, §12.6, A24, A26): any two agent specs
+//! `gcg-eval head-to-head` (docs/dev/PLAN.md §10.4 F, §12.6, A24, A26): any two agent specs
 //! in mirrored blocks of four on named deck pairs, with the challenger's Wilson intervals per
 //! pair, pooled over every pair and pooled over the held-out pairs alone, the W-42 paired
 //! statistics, the realised play/draw counts per agent, and the agents' search effort.
@@ -121,7 +121,7 @@ pub struct Selection {
     pub pairings_total: usize,
 }
 
-/// The held-out split of `docs/port/eval/panel.json` in the working directory, if it exists.
+/// The held-out split of `docs/dev/eval/panel.json` in the working directory, if it exists.
 ///
 /// # Errors
 /// A malformed file.
@@ -134,7 +134,7 @@ pub fn panel_if_present() -> Result<Option<Panel>, String> {
     }
 }
 
-/// The pairs of `source`, with the held-out split of `docs/port/eval/panel.json` when it
+/// The pairs of `source`, with the held-out split of `docs/dev/eval/panel.json` when it
 /// exists (`--pairs tuning|held-out` require it).
 ///
 /// # Errors

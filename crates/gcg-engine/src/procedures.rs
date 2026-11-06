@@ -1,6 +1,6 @@
-//! Engine entry points the AI calls on its own clones (docs/port/contracts.md, gcg-engine
+//! Engine entry points the AI calls on its own clones (docs/dev/contracts.md, gcg-engine
 //! `procedures`; PLAN §10.3.3). The read-only ones may fill the state's view cache, exactly as
-//! the Python functions they port do (`view::derived`, PLAN §4.6).
+//! the Python functions they mirror do (`view::derived`, PLAN §4.6).
 
 use gcg_effects::Timing;
 

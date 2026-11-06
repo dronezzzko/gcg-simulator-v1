@@ -1,12 +1,12 @@
-//! P6-J engine hardening (docs/port/PLAN.md §12.2 P6-J; docs/port/eval/weakness-status/P6-J.md):
+//! P6-J engine hardening (docs/dev/PLAN.md §12.2 P6-J; docs/dev/eval/weakness-status/P6-J.md):
 //! the engine-side evidence of W-46, W-47, W-48, W-50, W-53, W-125, W-143, W-159, W-161 and
 //! W-162 on the Rust testkit, each pinned to the result of the same position on the Python
 //! testkit.
 //!
 //! The test-only scripts (`*_FRAGMENT` at the end of the file) are IR fragments of a
 //! `registry.override_script` with a hand-written DSL script, exported by
-//! `port/oracle/export_ir.py` `build_fragment` in a fresh Python process, as
-//! `port/oracle/p6k_vectors.py` `hp_fragment` does:
+//! `oracle/export_ir.py` `build_fragment` in a fresh Python process, as
+//! `oracle/p6k_vectors.py` `hp_fragment` does:
 //!
 //! ```text
 //! reg = get_registry(); cdef = reg.db[number]

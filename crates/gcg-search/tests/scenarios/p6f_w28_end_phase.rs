@@ -3,7 +3,7 @@
 //!
 //! Player 0's Gundam (GD01-013) was deployed this turn and cannot attack; player 1 has no
 //! Shields and one Blocker, G-Falcon (GD04-061, 3/1, which cannot attack while its trash is
-//! small). Player 0's Base is a synthetic GD01-126 (`docs/port/eval/P6-F/
+//! small). Player 0's Base is a synthetic GD01-126 (`docs/dev/eval/P6-F/
 //! synthetic_end_phase_fragment.json`, from `synthetic_cards.py`): "【Activate･Action】Rest this
 //! Base：Choose 1 enemy Unit with 3 or less HP. Rest it. Then, draw 1." Used in player 0's own
 //! end phase it draws a card but the Blocker stands up in player 1's start phase; kept for player

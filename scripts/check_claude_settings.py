@@ -1,4 +1,4 @@
-"""Check the project's Claude permission rules (docs/port/WEAKNESSES.md W-120).
+"""Check the project's Claude permission rules (docs/dev/WEAKNESSES.md W-120).
 
 The project rule is that only ``/gcg-refresh-data`` uses the network (CLAUDE.md). This check
 parses ``.claude/settings.json`` and fails on
@@ -8,7 +8,7 @@ parses ``.claude/settings.json`` and fails on
 - a permission pattern with leading or trailing whitespace inside its parentheses, which may
   never match (``Bash(git -C * )`` does not match ``git -C path cmd``).
 
-It only reads the file: changing the settings is the user's decision (docs/port/PLAN.md §0.1,
+It only reads the file: changing the settings is the user's decision (docs/dev/PLAN.md §0.1,
 A32 item 3), so until the user approves W-120's change this check reports the current findings
 and exits 1. ``--selftest`` checks the rules on fixed examples, including the settings as the
 proposed change would leave them.

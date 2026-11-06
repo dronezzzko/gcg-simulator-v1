@@ -1,9 +1,9 @@
-//! T-057, first part: native ports of the 12 lead-example tests
+//! T-057, first part: native Rust versions of the 12 lead-example tests
 //! (`tests/rules/test_lead_examples.py`, `tests/cards/test_lead_examples.py`), written against
 //! `gcg_engine::testkit` as the Python tests are against `gcg_sim.testkit`. Each asserts the
 //! Python test's outcomes and, in addition, that it ran Python's game: the state after
 //! `Scenario.start` has the digest that the test's per-test trace
-//! (`port/corpus/v1/tier1/tests/{rules,cards}/test_lead_examples.ndjson`) recorded, the test
+//! (`oracle/corpus/v1/tier1/tests/{rules,cards}/test_lead_examples.ndjson`) recorded, the test
 //! applies as many actions as Python's, and its final state has Python's digest.
 
 use std::fs;
@@ -43,7 +43,7 @@ struct PythonRun {
 /// after `Scenario.start`.
 fn like_python(st: &GameState, dir: &str, name: &str) -> PythonRun {
     let path = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-        .join("../../port/corpus/v1/tier1/tests")
+        .join("../../oracle/corpus/v1/tier1/tests")
         .join(dir)
         .join("test_lead_examples.ndjson");
     let test = format!("tests/{dir}/test_lead_examples.py::{name}");

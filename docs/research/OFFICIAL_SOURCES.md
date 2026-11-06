@@ -138,9 +138,9 @@ by your opponent is not necessary provided that both players agree to skip it."
 and the stacks are recombined in that order.
 
 **Simulator model.** Each main deck is shuffled with a seeded Fisher–Yates permutation and then
-cut once at a seeded random point (`engine/game.py:137-140`: `rng.shuffle`, then
-`k = 1 + rng.randrange(len - 1)`). The cut leaves a uniform permutation uniform, but it consumes a
-draw of the game's RNG, so replays and the Rust port reproduce it draw for draw. The opponent's
+cut once at a seeded random point (`crates/gcg-engine/src/game.rs:291-293`: `rng.shuffle`, then
+`k = 1 + rng.randrange_usize(len - 1)`). The cut leaves a uniform permutation uniform, but it
+consumes a draw of the game's RNG, so replays reproduce it draw for draw. The opponent's
 confirming shuffle or cut is not modelled separately.
 
 **First player.** CR 6-2-1-4: "The winner decides who becomes Player One." FAQ Q9 adds that the

@@ -1,4 +1,4 @@
-//! `tests/ai/test_search_side_effects.py` (2 tests), ported: determinized and permuted copies
+//! `tests/ai/test_search_side_effects.py` (2 tests) in Rust: determinized and permuted copies
 //! and a whole reference MCTS decision leave the true state, and so its digest, exactly as it
 //! was. The decision is compared with Python's record (`aiport::Recorder`).
 

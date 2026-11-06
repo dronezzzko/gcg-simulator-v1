@@ -1,5 +1,5 @@
 //! `Registry::decode_inline`: the side-table nodes of trace snapshots (PLAN §4.8; the
-//! `node_json` form of `port/oracle/traces.py`, nested nodes inline) resolve to the arena node
+//! `node_json` form of `oracle/traces.py`, nested nodes inline) resolve to the arena node
 //! with their CPython `repr`, runtime values decode detached, and malformed nodes are refused.
 
 use serde_json::{Value, json};

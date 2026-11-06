@@ -1,4 +1,4 @@
-//! Per-decision traces of `gcg-eval` (docs/port/PLAN.md §6.6, §12.2 P6-I; W-21, W-22): a file
+//! Per-decision traces of `gcg-eval` (docs/dev/PLAN.md §6.6, §12.2 P6-I; W-21, W-22): a file
 //! of its own, never `games.ndjson`, a replay or the decision log, which stay Python's.
 //!
 //! One NDJSON line per agent decision with what the agent reported through

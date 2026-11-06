@@ -1,4 +1,4 @@
-//! In-house property-test harness (docs/port/PLAN.md §9.6): case `i` of property `name` draws
+//! In-house property-test harness (docs/dev/PLAN.md §9.6): case `i` of property `name` draws
 //! from `SplitMix64(derive_seed(TEST_SEED, name, i))`; there is no shrinking, and a failure
 //! names the property, the case index and its seed so that it can be replayed alone.
 

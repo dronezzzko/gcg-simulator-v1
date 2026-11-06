@@ -1,4 +1,4 @@
-//! `gcg-eval tune` (docs/port/PLAN.md §12.2 P6-I, §12.3 S10; W-40): a deterministic,
+//! `gcg-eval tune` (docs/dev/PLAN.md §12.2 P6-I, §12.3 S10; W-40): a deterministic,
 //! L2-regularised logistic fit of the evaluation weights from recorded positions, with
 //! cross-validation by game, the regularisation chosen by cross-validation, a held-out check
 //! and an optional validation match.

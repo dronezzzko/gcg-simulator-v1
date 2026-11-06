@@ -1,5 +1,5 @@
 //! T-057, second part: every `scenario` record of the per-test traces
-//! (`port/corpus/v1/tier1/tests/**`, PLAN §8.2, §8.7) rebuilds through the Rust testkit alone,
+//! (`oracle/corpus/v1/tier1/tests/**`, PLAN §8.2, §8.7) rebuilds through the Rust testkit alone,
 //! without `gcg-diff`'s dispatcher.
 //!
 //! - A Scenario build (`testkit.py:38-182`) replays its recorded calls on
@@ -29,7 +29,7 @@ use gcg_engine::{
 use serde_json::Value;
 
 fn tests_dir() -> PathBuf {
-    PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../port/corpus/v1/tier1/tests")
+    PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../oracle/corpus/v1/tier1/tests")
 }
 
 fn trace_files(dir: &Path, out: &mut Vec<PathBuf>) {

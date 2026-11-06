@@ -252,7 +252,7 @@ pub fn lint_text(rel: &str, text: &str) -> Vec<Finding> {
         lint_code(rel, text, &code, &mut hit);
     }
     // The untracked bytecode lives in three directories (W-122); a bare `__pycache__` is not
-    // a reference to them (the Rust ports of the `code_digest` walk must name it).
+    // a reference to them (the Rust versions of the `code_digest` walk must name it).
     for w in [cat(&["tests/", "bench"]), cat(&["tests/", "perf"])] {
         for at in word_at(text, &w) {
             hit(

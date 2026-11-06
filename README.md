@@ -5,16 +5,18 @@ plays many matches between two search-based AI players under a deterministic imp
 the Comprehensive Rules (Ver. 1.9.0, 2026-09-11). It then writes reproducible matchup reports
 with honest error bars, which you can use to tune the deck.
 
-The tool is a Rust workspace (`crates/`). The original Python implementation (`src/gcg_sim`)
-stays in the repository as the reference oracle: the Rust rules engine and card behaviour are
-verified against it trace by trace, and the Rust port of its AI reproduces its decisions byte
-for byte.
+The tool is a Rust workspace (`crates/`) with two binaries, `gcg-sim` and `gcg-eval`, plus the
+development tool `gcg-diff`. Its
+rules engine, card behaviour and reference search are verified trace by trace against a
+reference oracle kept in the repository (`src/gcg_sim`), which also generates the effect IR
+that the binaries embed.
 
 - Every card in the packaged card data is implemented (1152/1152 card numbers), and every
   non-vanilla card has a behaviour test.
 - Every 1v1 rule is covered by a tagged test or has a written N/A reason
   ([`docs/RULES_TRACEABILITY.md`](docs/RULES_TRACEABILITY.md)).
-- Everything runs offline from data embedded in the binary; no Python is needed at run time.
+- Everything runs offline from data embedded in the binaries; nothing else is needed at run
+  time.
 
 ## Build and run on the Apple M2 Pro
 
@@ -59,7 +61,7 @@ evaluation harness). Build settings:
 
 `-C target-cpu` cannot change results: Rust never fuses `a * b + c` into an FMA without
 `mul_add`, which `clippy.toml` bans. On the M2 Pro, `generic`, `apple-m2` and `native` ran
-within 0.4% of each other in instructions with identical outputs (`docs/port/BENCHMARKS.md`,
+within 0.4% of each other in instructions with identical outputs (`docs/dev/BENCHMARKS.md`,
 Phase 5 log).
 
 ## Apple M6
@@ -81,27 +83,8 @@ No M6 was available, so nothing in this repository was measured on one. What is 
   Pro, and the 2 super + 4 performance cores of the M6 layout, at most one worker per match. A
   match is the unit of work and runs sequentially, so a match that starts late on an efficiency
   core (about 2.1 times slower per game on the M2 Pro) finishes after the others. On the M2 Pro,
-  6 workers beat 10 on every timed workload (`docs/port/BENCHMARKS.md`, Part 1 and Part 2). The
+  6 workers beat 10 on every timed workload (`docs/dev/BENCHMARKS.md`, Part 1 and Part 2). The
   worker count never changes an output.
-- **Comparison procedure on an M6.** Run the external comparison of
-  [`docs/port/BENCHMARKS.md`](docs/port/BENCHMARKS.md) on the M6 itself, with Python baselines
-  measured there:
-
-  <!-- doc-check: skip the external wall-clock comparison: hours of hyperfine runs of both implementations on an idle machine -->
-  ```bash
-  scripts/compare_python_vs_rust.sh env
-  scripts/compare_python_vs_rust.sh best-workers python
-  scripts/compare_python_vs_rust.sh python --best N          # N: the Python best count
-  scripts/compare_python_vs_rust.sh best-workers rust-reference
-  scripts/compare_python_vs_rust.sh part1 --best N           # N: the Rust best count
-  scripts/compare_python_vs_rust.sh best-workers rust-presets
-  scripts/compare_python_vs_rust.sh part2 --best N
-  scripts/compare_python_vs_rust.sh report
-  ```
-
-  `best-workers` tries 6, 8 and 10 workers (and `auto`, 6 on the M6 layout, for Rust); also
-  time all 12 cores with `--best 12`. Record the results next to the M2 Pro tables, with the
-  machine description that `env` prints.
 
 ## Usage
 
@@ -136,10 +119,10 @@ The two presets:
 - `fast`: trades search depth for throughput; for rapidly screening deck variants,
   sub-variants and hypothetical builds.
 
-Both run the strengthened search. Their budgets start from the Python presets `strong`
+Both run the strengthened search. Their budgets start from the reference presets `strong`
 (`standard`) and `standard` (`fast`) and were then tuned; [`docs/AI.md`](docs/AI.md) has the
-table of budgets and mechanisms. Note that Python's `--ai-preset fast` is a different, smaller
-budget.
+table of budgets and mechanisms. The reference preset `fast` (`gcg-eval reference-benchmark
+--reference-preset fast`) is a different, smaller budget.
 
 Other commands:
 
@@ -152,9 +135,7 @@ target/release/gcg-sim replay "$(ls /tmp/gcg-sim-rust-demo/replays/*.json | head
 conflict counts (`--json` for JSON). `replay` re-simulates a saved game from its seeds and
 verifies its outcome and final state (`--log` prints the game). Errors print a clear message and
 exit non-zero: 1 for an invalid deck, data or replay, 2 for a usage error, 130 for an
-interrupt. The commands, options, defaults, help and usage texts and exit codes are the Python
-tool's, except the `--ai-preset` values and the additive `--workers auto`; the few message
-differences are listed in [`docs/port/EQUIVALENCE.md`](docs/port/EQUIVALENCE.md).
+interrupt.
 
 ## Two-stage workflow
 
@@ -165,9 +146,10 @@ differences are listed in [`docs/port/EQUIVALENCE.md`](docs/port/EQUIVALENCE.md)
    different seeds from the screen.
 
 Never compare or pool a `fast` rate with a `standard` rate: they are different measurements.
-On the M2 Pro, 100 BO3 matches of the comparison workload took 82.1 s with `fast` at 6
-workers, and 20 BO3 matches took 148.6 s with `standard` at 6 workers
-(`docs/port/BENCHMARKS.md`, Part 2). The
+On an idle M2 Pro, 100 BO3 matches of red-green-zeon against blue-white-federation (seed 1)
+took 82.1 s with `fast` at 6 workers, and 20 BO3 matches took 148.6 s with `standard` at 6
+workers (hyperfine; method, tables and the optimisation log in
+[`docs/dev/BENCHMARKS.md`](docs/dev/BENCHMARKS.md), Part 2). The
 [`gcg-benchmark`](.claude/skills/gcg-benchmark/SKILL.md) Claude Code skill walks through this
 workflow with adequate sample sizes.
 
@@ -199,20 +181,20 @@ A benchmark writes these files to `--out`:
 | `timing.json` | Wall-clock information and the CPU tiers, kept separate so the other files stay reproducible. |
 
 `gcg-sim` writes results schema **1.2.0** (`crates/gcg-runner/schema/results.v1_2.schema.json`):
-the Python schema 1.1.0 plus `ai.search` (algorithm `gcg-search`, the preset, its mapping to a
+schema 1.1.0 plus `ai.search` (algorithm `gcg-search`, the preset, its mapping to a
 reference preset, the iteration budget, the auxiliary apply cap, the enabled mechanisms and the
 weights) and `ai.effort` (per seat: games, decisions, searches, iterations, engine applies by
 purpose, worlds, capped rollouts, and per-game distributions). `gcg-eval reference-benchmark`
-writes schema **1.1.0**, byte-identical to Python's (`src/gcg_sim/reports/schema/results.v1.schema.json`).
+writes schema **1.1.0** (`src/gcg_sim/reports/schema/results.v1.schema.json`).
 Replay files are the same in both, so `gcg-sim replay` verifies replays from either binary.
-Read [`docs/REPORTS.md`](docs/REPORTS.md) for the 1.1.0 fields and for how to interpret the
+Read [`docs/REPORTS.md`](docs/REPORTS.md) for the fields and for how to interpret the
 numbers.
 
 ## The evaluation harness `gcg-eval`
 
-`gcg-eval` is the second binary. It is the only route to the reference search: the
-equivalence-verified port of the Python ISMCTS with the exact reference budgets and
-parameters, which `gcg-sim --ai-preset` never reaches.
+`gcg-eval` is the second binary. It is the only route to the reference search: the frozen
+information-set MCTS with the exact reference budgets and parameters, which `gcg-sim
+--ai-preset` never reaches.
 
 ```bash
 target/release/gcg-eval reference-benchmark examples/decks/red-green-zeon.txt examples/decks/blue-white-federation.txt \
@@ -221,8 +203,7 @@ target/release/gcg-eval head-to-head search:fast ref:standard --decks examples -
 ```
 
 - `reference-benchmark`: the benchmark pipeline with the reference search
-  (`--reference-preset fast|standard|strong`, Python's `--ai-preset`); its outputs are
-  byte-identical to Python's.
+  (`--reference-preset fast|standard|strong`), writing results schema 1.1.0.
 - `head-to-head`: two agents (`random`, `greedy`, `ref:<preset>`, `ref:baseline-<preset>`,
   `search:<preset>`, `search:FILE.json`, with `:field=value` overrides) in mirrored blocks of four
   BO1 games on deck pairs, with Wilson intervals per pair and pooled; `--role` checks the seed
@@ -232,7 +213,7 @@ target/release/gcg-eval head-to-head search:fast ref:standard --decks examples -
 - Evaluation and tuning tools: `compare`, `preset-benchmark`, `ablation`, `budget-curve`,
   `fidelity`, `regret`, `tune`, `tune-leaf`, `calibrate`, `compare-runs`, `decks`, `gates`,
   `evidence`, `transcripts`, `weakness` and `env`.
-- Opt-in user tools, kept out of `gcg-sim` so its command line stays the Python one:
+- Opt-in user tools, kept out of `gcg-sim` so its command line stays fixed:
   `benchmark` (`gcg-sim benchmark` plus `--analysis`, `--swiss-draws`, `--compress`, `--resume`,
   `--replays-extremes`, `--diagnostics`, `--opponent-list`; without them it writes the same
   bytes as `gcg-sim`), `replay-game` (re-simulate one game of a `games.ndjson`), `replay-check`
@@ -243,43 +224,29 @@ target/release/gcg-eval head-to-head search:fast ref:standard --decks examples -
 `gcg-eval --help` and `gcg-eval <command> --help` describe every option. How the presets'
 strength is measured with it is in [`docs/AI.md`](docs/AI.md).
 
-## How equivalence was verified
+## How correctness is verified
 
-The Rust engine replays a differential corpus of Python traces (game, search, fuzz, coverage,
-view, world and per-test traces of the Python rule and card tests) and stops at the first
-divergence in state digest, legal options, RNG, error or agent decision: tier 1 (committed)
-passes 3804/3804 traces and tier 2 (regenerated) 4154/4154. End to end, Python `gcg-sim
-benchmark` and Rust `gcg-eval reference-benchmark` were compared byte for byte (after masking
-three implementation fields) on 108 configurations (3 seeds x 3 example pairings x BO1/BO3 x the
-reference presets `fast`, `standard`, `strong` x decision log off/on, 10 matches) at 1, 4 and 10
-Rust workers: 324/324 identical, plus the 100-match headline configuration 3/3. The matrix
-binaries were built before the Phase 5 optimisations; the headline run was rebuilt afterwards
-(e14c839), and the corpus passes after every later commit. Byte
-equivalence is defined on the golden platform (this M2 Pro, macOS 27.2, Python 3.15.1, rustc
-1.99.1), because the reference search takes `exp`, `log`, `pow` and `erfc` from the C library.
-Method, results and the seven known differences (none changes a compared byte):
-[`docs/port/EQUIVALENCE.md`](docs/port/EQUIVALENCE.md).
-
-## How speed was measured
-
-`scripts/compare_python_vs_rust.sh` times both implementations with hyperfine on an idle M2 Pro
-on the workload `benchmark examples/decks/red-green-zeon.txt
-examples/decks/blue-white-federation.txt --format bo3 --seed 1`; it is the project's only
-timing activity, and it lives outside the crates. At equal work (Rust `gcg-eval
-reference-benchmark` at the reference budgets): 23.5x at the best worker count and 20.3x at 10
-workers for the 100-match screening headline, 45.3x single-threaded, and 24.7x for the full
-search. Shipped presets against the Python preset each starts from: `fast` 11.8x (best
-workers) and 10.4x (10 workers) for the headline and 21.2x single-threaded; `standard`, which
-spends 8 times the reference `strong` budget, 2.40x for the full search. Tables, machine,
-versions, the profile and the Phase 5 optimisation log:
-[`docs/port/BENCHMARKS.md`](docs/port/BENCHMARKS.md).
+The engine replays a differential corpus of traces recorded from the reference oracle (game,
+search, fuzz, coverage, view, world and per-test traces of the oracle's rule and card tests)
+and stops at the first divergence in state digest, legal options, RNG, error or agent
+decision: tier 1 (committed) passes 3804/3804 traces and tier 2 (regenerated) 4154/4154. End
+to end, `gcg-eval reference-benchmark` matched the oracle's benchmark byte for byte (after
+masking three implementation fields) on 108 configurations (3 seeds x 3 example pairings x
+BO1/BO3 x the reference presets `fast`, `standard`, `strong` x decision log off/on, 10
+matches) at 1, 4 and 10 workers: 324/324 identical, plus the 100-match headline configuration
+3/3. The matrix binaries were built before the optimisations of the Phase 5 log
+(`docs/dev/BENCHMARKS.md`); the headline run was rebuilt afterwards (e14c839), and the corpus
+passes after every later commit. Byte equivalence is defined on the golden platform (this M2
+Pro, macOS 27.2, Python 3.15.1, rustc 1.99.1), because the reference search takes `exp`,
+`log`, `pow` and `erfc` from the C library. Method, results and the seven known differences
+(none changes a compared byte): [`docs/dev/EQUIVALENCE.md`](docs/dev/EQUIVALENCE.md).
 
 ## Measured strength
 
-Final evaluation 2 of the shipped presets (`docs/port/eval/final-2/README.md`): eval-role
+Final evaluation 2 of the shipped presets (`docs/dev/eval/final-2/README.md`): eval-role
 seeds never used for tuning, BO1 games in mirrored blocks with play and draw balanced, the 28
 pairs of an 8-deck panel at 400 games each (13 pairs held out from all tuning), and the AI
-test decks of the Python suite.
+test decks (the `tests` deck set of `gcg-eval head-to-head --decks`).
 
 | Comparison | Result (Wilson 95%) | Bar |
 | --- | --- | --- |
@@ -292,30 +259,29 @@ test decks of the Python suite.
 The strength measurements of both presets against the reference search, random and greedy,
 with the evaluation protocol and the gates, are in [`docs/AI.md`](docs/AI.md).
 
-## The Python reference (oracle)
+## The reference oracle
 
-The Python package is kept unchanged as the oracle for the differential tests, and its effect
-toolchain generates the effect IR that the Rust binaries embed (`port/oracle/export_ir.py`).
-It needs [uv](https://docs.astral.sh/uv/) and Python 3.15 or later (uv installs it if needed):
+The Python package in `src/gcg_sim` is the reference oracle: the differential corpus is
+recorded from it, and its effect toolchain generates the effect IR that the binaries embed
+(`oracle/export_ir.py`). Python is needed only for development and data refreshes:
+building and running the binaries needs none, although they embed data files from
+`src/gcg_sim/data/`. It needs [uv](https://docs.astral.sh/uv/) and Python 3.15 or later (uv
+installs it if needed):
 
 ```bash
 uv sync --locked
-uv run gcg-sim validate examples/decks/red-green-zeon.txt
-uv run gcg-sim benchmark examples/decks/red-green-zeon.txt examples/decks/blue-white-federation.txt \
-    --matches 1 --seed 1 --format bo1 --ai-preset fast --out /tmp/gcg-sim-python-demo
+uv run python oracle/export_ir.py --check
 ```
 
-Its presets are `fast`, `standard` (the default) and `strong` ([`docs/python/AI.md`](docs/python/AI.md)).
-Its architecture is in [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md); the Rust architecture
-and where each Python module went are in [`docs/port/ARCHITECTURE.md`](docs/port/ARCHITECTURE.md).
+The oracle's architecture is in [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md).
 
 ## Development
 
 The Rust gate runs on a clean clone of the committed HEAD: fmt, clippy, every test tier, the
 differential corpus, the negative controls, fuzzing with invariants, the 1/4/10-worker identity
-runs, schema validation and the offline binary check (`--full` adds the Python-side checks and
+runs, schema validation and the offline binary check (`--full` adds the oracle's checks and
 regenerations). `scripts/ci_local.sh` runs the steps of the GitHub Actions workflow
-(`.github/workflows/rust.yml`) locally. The Python gate is `scripts/verify_all.sh`.
+(`.github/workflows/rust.yml`) locally. The oracle's own gate is `scripts/verify_all.sh`.
 
 <!-- doc-check: skip the full gates clone the repository and run every test tier, the corpus and the fuzz runs; they are run on their own, not from the docs -->
 ```bash
@@ -325,9 +291,9 @@ scripts/verify_all.sh
 ```
 
 The day-to-day commands, the oracle regeneration steps and the rules of the codebase are in
-[`CLAUDE.md`](CLAUDE.md). Design: [`docs/port/ARCHITECTURE.md`](docs/port/ARCHITECTURE.md) and
-[`docs/port/PLAN.md`](docs/port/PLAN.md); known weaknesses and their status:
-[`docs/port/WEAKNESSES.md`](docs/port/WEAKNESSES.md).
+[`CLAUDE.md`](CLAUDE.md). Design: [`docs/dev/ARCHITECTURE.md`](docs/dev/ARCHITECTURE.md) and
+[`docs/dev/PLAN.md`](docs/dev/PLAN.md); known weaknesses and their status:
+[`docs/dev/WEAKNESSES.md`](docs/dev/WEAKNESSES.md).
 
 Where sources disagree or card text is ambiguous, the decision is recorded:
 [`docs/CONFLICTS.md`](docs/CONFLICTS.md) lists every conflict and its resolution (reviewable in
@@ -366,21 +332,19 @@ artefacts, and runs the full verification gate.
   safety cap (200 turns or 20,000 decisions) are reported as `turn_limit` draws.
 - **The AI is strong but not perfect.** Decks that need long, precise lines may be underrated.
   Check replays before trusting a surprising result. The open AI items are listed in
-  [`docs/port/WEAKNESSES.md`](docs/port/WEAKNESSES.md); measured strength is only what
+  [`docs/dev/WEAKNESSES.md`](docs/dev/WEAKNESSES.md); measured strength is only what
   [`docs/AI.md`](docs/AI.md) reports.
 - **Card behaviour follows the packaged data and the resolutions in `docs/CONFLICTS.md`.** Where
   no official ruling exists, the most defensible reading was chosen and recorded there.
 - **Two official deck-building exceptions are not applied**: unmodified ST02/ST05 starter decks.
   The validator cannot tell that a deck is an unmodified starter deck, so it reports them as
   violations and says so.
-- **Byte equivalence with Python holds on the golden platform only.** On another platform the
-  engine is still integer-only, but the reference search's floating-point values can differ in
-  the last bit where the C math library differs, and the presets' decisions are not claimed to
-  match across platforms (`docs/port/EQUIVALENCE.md`, W-137).
-- **A few error messages differ from Python's**: messages that embed CPython exception text, a
-  redirect-cycle failure, integer limits on `--matches` and `--replays` and on replay fields
-  (`docs/port/EQUIVALENCE.md`, D1-D7).
-- **New card sets need the Python toolchain.** The binaries embed an effect IR exported from the
-  Python compiler and bindings; a data refresh regenerates it (`/gcg-refresh-data`).
-- **Nothing was measured on an Apple M6.** The M6 support is build settings, run-time detection
-  and the comparison procedure above.
+- **Reproducibility is per platform.** The engine is integer-only, but the searches'
+  floating-point math uses the platform's C math library, so on another platform their values
+  can differ in the last bit. Every report but `timing.json` is byte-identical across runs and
+  worker counts on one platform; decisions are not claimed to match across platforms
+  (`docs/dev/EQUIVALENCE.md`, W-137).
+- **New card sets need the oracle's toolchain.** The binaries embed an effect IR exported from
+  the Python compiler and bindings; a data refresh regenerates it (`/gcg-refresh-data`).
+- **Nothing was measured on an Apple M6.** The M6 support is the build settings and run-time
+  detection above.

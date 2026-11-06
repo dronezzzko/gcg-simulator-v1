@@ -1,5 +1,5 @@
 //! D2's shared search components against the Python reference, on the states of
-//! `tests/vectors/search/decisions.ndjson` (`port/oracle/export_ai_vectors.py`): canonical move
+//! `tests/vectors/search/decisions.ndjson` (`oracle/export_ai_vectors.py`): canonical move
 //! keys, per-decision seeding, the decision log, opening scores and the mulligan. These read
 //! only the state layer, the card database and the effect registry. The components that need
 //! the derived view, determinisation or `apply` are in `search_engine.rs`.
@@ -176,7 +176,7 @@ fn per_decision_seeds_follow_the_agent_counter() {
             format!("{name}: no decision pending for player {}", 1 - player)
         );
     }
-    // The seed path material is the masked master (Inv 07 §1.2).
+    // The seed path material is the masked master.
     assert_eq!(
         derive_seed(u64::MAX, &[gcg_core::rng::SeedPart::Str("x")]),
         15_212_809_081_249_037_171

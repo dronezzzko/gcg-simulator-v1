@@ -1,5 +1,5 @@
 //! The registry-only parts of the policy against Python (`registry.ndjson` of
-//! `port/oracle/export_policy_vectors.py`): the choice polarity of every `Choose` instruction
+//! `oracle/export_policy_vectors.py`): the choice polarity of every `Choose` instruction
 //! with and without the rule table, the battle-only rule flag and the class of the first step
 //! (`ai/targeting.py`), and per card definition `card_worth` (`ai/values.py:36-47`) and
 //! `command_harms_enemy_units` (`ai/targeting.py:96-112`).
@@ -153,7 +153,7 @@ fn node_ref_covers_every_class_with_a_ref_field() {
 }
 
 /// `RULE_POLARITY` (`ai/targeting.py:22-52`) covers every rule kind, with the 10 harmful and
-/// the 3 unknown ones of Inv 07 §15.
+/// the 3 unknown ones.
 #[test]
 fn the_rule_table_covers_every_rule_kind() {
     use gcg_ai::targeting::Polarity;

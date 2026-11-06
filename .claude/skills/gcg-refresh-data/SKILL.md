@@ -1,6 +1,6 @@
 ---
 name: gcg-refresh-data
-description: Refresh gcg-sim's offline data. Fetches the latest gcg-api card data (or a pinned ref) and the official English Gundam Card Game pages (Comprehensive Rules, banned/restricted list, deck construction, floor and BO3 rules, errata notices). It diffs them against the cached snapshot, updates the packaged cache and the provenance lock, and re-runs conflict detection. It then implements and tests new or changed cards and any new keywords or timings, regenerates the Rust port's effect IR, test vectors and trace corpus, and ends with the Python and Rust verification gates. Use it when gcg-api publishes a weekly refresh or a new set, when Bandai posts new rules, errata or a B&R update, or to check whether the cached data is current.
+description: Refresh gcg-sim's offline data. Fetches the latest gcg-api card data (or a pinned ref) and the official English Gundam Card Game pages (Comprehensive Rules, banned/restricted list, deck construction, floor and BO3 rules, errata notices). It diffs them against the cached snapshot, updates the packaged cache and the provenance lock, and re-runs conflict detection. It then implements and tests new or changed cards and any new keywords or timings, regenerates the effect IR, test vectors and trace corpus that the Rust binaries and tests use, and ends with the Python and Rust verification gates. Use it when gcg-api publishes a weekly refresh or a new set, when Bandai posts new rules, errata or a B&R update, or to check whether the cached data is current.
 argument-hint: "[--ref <gcg-api commit|tag|branch>] [--dry-run]"
 disable-model-invocation: true
 ---
@@ -56,7 +56,7 @@ Arguments: `$ARGUMENTS`
 git status --short                                  # must be clean
 uv sync --locked
 uv run python -m gcg_sim.tools.sources --check      # the current lock verifies
-uv run python port/oracle/export_ir.py --check      # the embedded effect IR is current
+uv run python oracle/export_ir.py --check      # the embedded effect IR is current
 cargo build --release --locked --offline -p gcg-cli -p gcg-eval
 cargo build --release --locked --offline -p gcg-diff
 ```
@@ -350,7 +350,7 @@ engine does not know, extend the engine before binding cards. Follow
 
 Prefer one engine feature with `@pytest.mark.rule` tests over per-card workarounds.
 
-## 9. Regenerate the Rust port's artefacts
+## 9. Regenerate the Rust artefacts
 
 Run this after every change to the packaged data, the cards, the effects or the tests, once the
 Python side of steps 3–8 is complete and its tests pass. Run each command as written from the
@@ -358,17 +358,17 @@ repository root.
 
 ### 9.1 Find what is stale
 
-Every exporter in `port/oracle/` has a read-only `--check`:
+Every exporter in `oracle/` has a read-only `--check`:
 
 ```bash
 for s in export_ir gen_dsl gen_engine_enums export_vectors export_core_vectors export_data \
     export_unicode export_engine_vectors export_state_fixtures export_ai_vectors \
     export_policy_vectors export_ai_tests export_records export_stats export_cli export_parity \
     export_decks export_tags p6k_vectors p6k_audit eval_decks; do
-  uv run python "port/oracle/$s.py" --check || echo "STALE: $s"
+  uv run python "oracle/$s.py" --check || echo "STALE: $s"
 done
-uv run python port/oracle/traces.py vectors --check || echo "STALE: traces.py vectors"
-uv run python port/oracle/templates/check.py --check || echo "STALE: templates/check.py"
+uv run python oracle/traces.py vectors --check || echo "STALE: traces.py vectors"
+uv run python oracle/templates/check.py --check || echo "STALE: templates/check.py"
 ```
 
 ### 9.2 Regenerate
@@ -376,7 +376,7 @@ uv run python port/oracle/templates/check.py --check || echo "STALE: templates/c
 1. The effect IR first, because the vectors and the corpus are labelled with its hash:
 
    ```bash
-   uv run python port/oracle/export_ir.py --write
+   uv run python oracle/export_ir.py --write
    ```
 
 2. Every other script that 9.1 reported stale. `gen_dsl.py`, `gen_engine_enums.py`,
@@ -384,8 +384,8 @@ uv run python port/oracle/templates/check.py --check || echo "STALE: templates/c
    the others write when run without `--check`, for example:
 
    ```bash
-   uv run python port/oracle/export_data.py
-   uv run python port/oracle/traces.py vectors
+   uv run python oracle/export_data.py
+   uv run python oracle/traces.py vectors
    ```
 
    A stale `gen_dsl.py` or `gen_engine_enums.py` means the DSL or the engine enums changed:
@@ -397,13 +397,13 @@ uv run python port/oracle/templates/check.py --check || echo "STALE: templates/c
    trace under `PYTHONHASHSEED=1` and `=2` and refuse to write if the runs differ:
 
    ```bash
-   uv run python port/oracle/export_tags.py
-   uv run python port/oracle/pytest_trace.py --write
-   uv run python port/oracle/traces.py --write --tier 1
-   uv run python port/oracle/census.py --write
+   uv run python oracle/export_tags.py
+   uv run python oracle/pytest_trace.py --write
+   uv run python oracle/traces.py --write --tier 1
+   uv run python oracle/census.py --write
    ```
 
-   `traces.py --write --tier 1` rewrites `port/corpus/v1/MANIFEST.json` over every tier-1
+   `traces.py --write --tier 1` rewrites `oracle/corpus/v1/MANIFEST.json` over every tier-1
    file, the per-test traces included, and reports a breach of the tier-1 size limit.
 
 4. Rerun the 9.1 loop: nothing may be stale. Then check the regenerated artefacts with the
@@ -418,15 +418,15 @@ uv run python port/oracle/templates/check.py --check || echo "STALE: templates/c
    ```
 
    `cargo test -p gcg-data` runs the data tripwires (W-155: a reworded reminder parenthetical
-   or another precondition the port relies on), and `-p gcg-effects` checks that the embedded
+   or another precondition the Rust engine relies on), and `-p gcg-effects` checks that the embedded
    IR is current with the packaged data and the Python sources. A corpus divergence means the
    Rust engine does not reproduce the new Python behaviour: fix the Rust side (for a new hook
-   or DSL feature, port it as `references/engine-extension.md` describes); never edit a trace.
+   or DSL feature, implement it in Rust as `references/engine-extension.md` describes); never edit a trace.
    `traceability --write` regenerates `docs/RULES_TRACEABILITY.md` and
-   `docs/port/TRACEABILITY_CARDS.md` with the Rust column.
+   `docs/dev/TRACEABILITY_CARDS.md` with the Rust column.
 
 5. Commit each regeneration (IR, vectors, corpus) on its own once the user asked for commits,
-   and note the reason in `docs/port/progress.md`.
+   with the reason in the commit message.
 
 ## 10. Verification gate
 
@@ -476,7 +476,7 @@ Also run these, and report the refreshed coverage numbers:
 - `uv run python -m gcg_sim.tools.refresh coverage`.
 
 `gcg-diff traceability --write` (step 9.2) rewrites `docs/RULES_TRACEABILITY.md` and
-`docs/port/TRACEABILITY_CARDS.md`. Check that `git diff` shows only the expected changes.
+`docs/dev/TRACEABILITY_CARDS.md`. Check that `git diff` shows only the expected changes.
 
 ## Report
 

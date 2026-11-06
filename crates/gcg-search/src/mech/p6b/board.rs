@@ -1,4 +1,4 @@
-//! The static attack step of P6-B (docs/port/PLAN.md §12.3 S3; W-32, W-38): the board of one
+//! The static attack step of P6-B (docs/dev/PLAN.md §12.3 S3; W-32, W-38): the board of one
 //! attacking player against one defending player as numbers, with engine-correct Blockers, and
 //! the exact solution of the attack step those numbers describe.
 //!

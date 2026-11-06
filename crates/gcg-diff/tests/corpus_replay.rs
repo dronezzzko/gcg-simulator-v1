@@ -1,6 +1,6 @@
 //! The real-engine gates of the tier-1 corpus (PLAN §8.7, §8.8 item 1, §9.2-§9.4; M5.5 and
 //! M6): every trace of every set replays against `gcg-engine` and the Rust agents, the
-//! negative controls fire against the real engine, the fuzz port reproduces the recorded fuzz
+//! negative controls fire against the real engine, the Rust fuzz runner reproduces the recorded fuzz
 //! games, and the coverage and traceability checks hold. Feature `slow` (A12): they need the
 //! engine layers L2-L5 and the agents, and `scripts/verify_all_rust.sh` runs them.
 #![cfg(feature = "slow")]
@@ -54,7 +54,7 @@ fn every_tier1_trace_replays_against_the_real_engine() {
 
 #[test]
 fn negative_controls_fire_against_the_real_engine() {
-    let lines = gcg_diff::selftest::run_real(&repo().root.join("port/corpus/v1/tier1"))
+    let lines = gcg_diff::selftest::run_real(&repo().root.join("oracle/corpus/v1/tier1"))
         .expect("every control fires");
     assert!(lines.iter().any(|l| l.contains("(real engine)")));
 }
@@ -63,7 +63,7 @@ fn negative_controls_fire_against_the_real_engine() {
 fn the_fuzz_port_plays_the_recorded_fuzz_games() {
     let file = repo()
         .root
-        .join("port/corpus/v1/tier1/fuzz/s1-g0000-0019.ndjson");
+        .join("oracle/corpus/v1/tier1/fuzz/s1-g0000-0019.ndjson");
     let traces = read_trace(&file).expect("fuzz traces");
     let args = FuzzArgs {
         games: 20,

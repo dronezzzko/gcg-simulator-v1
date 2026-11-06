@@ -23,7 +23,7 @@ use crate::{
 /// The snapshot of the `index`-th trace of a tier-1 `views` file.
 pub(crate) fn corpus_state(file: &str, index: usize) -> GameState {
     let path = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-        .join("../../port/corpus/v1/tier1/views")
+        .join("../../oracle/corpus/v1/tier1/views")
         .join(file);
     let text = fs::read_to_string(&path).expect("a committed views file");
     let snap: Value = text
@@ -143,7 +143,7 @@ fn the_cached_trigger_index_equals_the_zone_scan() {
         let name = format!("views-{file:03}.ndjson");
         for i in 0.. {
             let path = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-                .join("../../port/corpus/v1/tier1/views")
+                .join("../../oracle/corpus/v1/tier1/views")
                 .join(&name);
             let n = fs::read_to_string(&path)
                 .unwrap()

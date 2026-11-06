@@ -1,5 +1,5 @@
 //! IR fragments of script overrides (PLAN §3.4 "Test overrides"): the fixtures that
-//! `port/oracle/export_ir.py` exports by applying three `testkit.card_text` overrides of the
+//! `oracle/export_ir.py` exports by applying three `testkit.card_text` overrides of the
 //! Python tests in fresh processes. Applying a fragment to the base IR must give the
 //! overridden card Python's golden record, Python's content ids for every new node and
 //! program, and the registry-global values of `_index_events`.

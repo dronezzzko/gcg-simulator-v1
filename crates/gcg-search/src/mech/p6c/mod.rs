@@ -1,4 +1,4 @@
-//! P6-C's mechanisms (docs/port/PLAN.md §12.2, §12.3 S4, S5): hidden information.
+//! P6-C's mechanisms (docs/dev/PLAN.md §12.2, §12.3 S4, S5): hidden information.
 //!
 //! | Flag | Item | Module |
 //! | --- | --- | --- |

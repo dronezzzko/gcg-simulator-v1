@@ -1,4 +1,4 @@
-//! Contract types of `gcg-search` (docs/port/PLAN.md §6.4, §6.5, §10.3.5, §12.3), owned by the
+//! Contract types of `gcg-search` (docs/dev/PLAN.md §6.4, §6.5, §10.3.5, §12.3), owned by the
 //! lead (§10.1 S).
 //!
 //! The strengthened search is the reference's core loop with Phase 6 extension points
@@ -60,7 +60,7 @@
 //! let _cfg: gcg_search::StrengthenedConfig = gcg_ai_reference::STRONG.clone();
 //! ```
 //!
-//! Workstream D2 implements the functions frozen in docs/port/contracts.md (gcg-search
+//! Workstream D2 implements the functions frozen in docs/dev/contracts.md (gcg-search
 //! section); only the lead edits this file (§10.6 change protocol).
 
 use std::borrow::Cow;
@@ -74,7 +74,7 @@ use crate::MechanismFlags;
 /// the reference's `mcts-*`.
 pub const AGENT_PREFIX: &str = "search-";
 
-/// A `gcg-sim --ai-preset` value (BRIEF `<ai_presets>`, PLAN §6.4, §6.5 item 3): exactly
+/// A `gcg-sim --ai-preset` value (PLAN §6.4, §6.5 item 3): exactly
 /// `standard` (the default) and `fast`, nothing else, no aliases.
 #[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Debug)]
 pub enum Preset {
@@ -121,7 +121,7 @@ impl Preset {
     }
 
     /// `results.json` 1.2.0 `ai.search.mapping` (PLAN §12.7): the reference preset the
-    /// budgets start from (BRIEF `<ai_presets>`).
+    /// budgets start from.
     #[must_use]
     pub const fn mapping(self) -> &'static str {
         match self {
@@ -130,7 +130,7 @@ impl Preset {
         }
     }
 
-    /// The `--ai-preset` help wording of each value (BRIEF `<ai_presets>`, PLAN A11, §6.4).
+    /// The `--ai-preset` help wording of each value (PLAN A11, §6.4).
     #[must_use]
     pub const fn help(self) -> &'static str {
         match self {
@@ -278,7 +278,7 @@ mod tests {
             );
         }
         assert_eq!(Preset::DEFAULT, Preset::Standard);
-        // The brief's wording (docs/port/BRIEF.md:36-37) without the final period, one line.
+        // The preset descriptions without the final period, one line.
         let standard = "uses the full search so that each player plays at the level of the strongest top-tier competitive player; for refining and polishing the final deck";
         let fast = "trades search depth for throughput; for rapidly screening deck variants, sub-variants and hypothetical builds";
         assert_eq!(Preset::ALL.map(Preset::help), [standard, fast]);

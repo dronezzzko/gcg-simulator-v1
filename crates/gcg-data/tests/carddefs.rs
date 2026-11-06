@@ -1,6 +1,6 @@
 //! T-035: the embedded `CardDb` equals Python's `get_card_db()` field by field (1153
-//! definitions), with the four Inv 03 §9 fingerprints, the token map, the applied overrides,
-//! the Unit variants and the lookups (`port/oracle/export_data.py`, `carddefs.json`).
+//! definitions), with the four recorded fingerprints, the token map, the applied overrides,
+//! the Unit variants and the lookups (`oracle/export_data.py`, `carddefs.json`).
 
 mod common;
 
@@ -37,7 +37,7 @@ fn fingerprints_equal_python() {
     let want: Vec<&str> = arr(&fx["fingerprints"]).iter().map(s).collect();
     let got = CardDb::embedded().fingerprints();
     assert_eq!(got.as_slice(), want.as_slice());
-    // Inv 03 §9, recorded at HEAD d9d41af.
+    // Recorded at HEAD d9d41af.
     assert_eq!(
         got,
         [

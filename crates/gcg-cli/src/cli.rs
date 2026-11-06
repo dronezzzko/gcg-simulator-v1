@@ -1,10 +1,10 @@
 //! The `gcg-sim` command line (`cli.py:68-95`, `:376-399`): the parser, the typed commands it
 //! yields, and `main`'s flow from arguments to an exit status.
 //!
-//! The parser is Python's exactly, except the two differences the brief allows
-//! (`BRIEF.md` scope; PLAN A5, A30, §6.5): `--ai-preset` accepts exactly `standard` (the
-//! default) and `fast`, with the brief's wording in its help, and `--workers` also accepts
-//! `auto`. `port/oracle/export_cli.py` builds the same parser from Python's with these two
+//! The parser is Python's exactly, except two deliberate differences
+//! (PLAN A5, A30, §6.5): `--ai-preset` accepts exactly `standard` (the
+//! default) and `fast`, with the preset descriptions in its help, and `--workers` also accepts
+//! `auto`. `oracle/export_cli.py` builds the same parser from Python's with these two
 //! changes, and the transcripts of both are compared in `tests/transcripts.rs` (T-072,
 //! T-152).
 
@@ -27,7 +27,7 @@ pub const PROG: &str = "gcg-sim";
 pub const WORKERS_HELP: &str =
     "worker processes; auto uses one per performance-core CPU (at most one per match)";
 
-/// `--ai-preset` help: the brief's wording for each value (`BRIEF.md` `<ai_presets>`, PLAN
+/// `--ai-preset` help: the description of each value (PLAN
 /// A11) and the mapping to the Python presets the budgets start from (PLAN D12).
 #[must_use]
 pub fn preset_help() -> String {
@@ -176,7 +176,7 @@ pub fn build_parser() -> Parser {
 
 /// The terminal width argparse formats for: `shutil.get_terminal_size().columns`
 /// (`argparse.py:186-191`) is `int(COLUMNS)` when that parses as a positive base-10 integer,
-/// else the size of the terminal on stdout, else 80. This port has no safe way to ask the
+/// else the size of the terminal on stdout, else 80. The Rust implementation has no safe way to ask the
 /// terminal for its size, so it uses 80 there too: the only difference from Python, and only
 /// on a terminal without `COLUMNS` (transcripts are taken with a pipe).
 #[must_use]
@@ -199,7 +199,7 @@ pub fn parse_namespace(args: &[OsString], columns: i64) -> Result<Namespace, Exi
     build_parser().parse_args(args, columns)
 }
 
-/// A `type=Path` argument: Python's `str(Path(text))` (Inv 01 hazard 49), which is both what
+/// A `type=Path` argument: Python's `str(Path(text))`, which is both what
 /// Python prints and what it opens.
 #[derive(Clone, PartialEq, Eq, Debug)]
 pub struct PathArg(pub PyStr);
@@ -292,8 +292,8 @@ fn text(ns: &Namespace, dest: &str) -> PyStr {
     }
 }
 
-/// `BenchmarkConfig.matches` and `.replays` are `u32` (docs/port/contracts.md, gcg-runner).
-/// Python accepts any size; above `u32::MAX` this port reports a usage error in Python's
+/// `BenchmarkConfig.matches` and `.replays` are `u32` (docs/dev/contracts.md, gcg-runner).
+/// Python accepts any size; above `u32::MAX` the Rust implementation reports a usage error in Python's
 /// style instead (a documented difference: Python would start billions of matches).
 fn to_u32(
     ns: &Namespace,

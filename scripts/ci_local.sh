@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# The steps of .github/workflows/rust.yml, run locally in this working tree (docs/port/PLAN.md
+# The steps of .github/workflows/rust.yml, run locally in this working tree (docs/dev/PLAN.md
 # §13 M17, A29; T-156), so the workflow is exercised before any push.
 #
 #   scripts/ci_local.sh
@@ -12,7 +12,7 @@
 # machine shared with other work (default: every online CPU). No output depends on it.
 #
 # As in the workflow, the libm vectors decide whether this machine is the golden platform
-# (docs/port/EQUIVALENCE.md). If they fail, the float-dependent steps are skipped, the corpus
+# (docs/dev/EQUIVALENCE.md). If they fail, the float-dependent steps are skipped, the corpus
 # sets that replay recorded actions without floats run instead, and the script exits 1.
 set -euo pipefail
 
@@ -87,7 +87,7 @@ if [[ $golden != 1 ]]; then
   target/release/gcg-diff corpus --tier 1 --require-all --jobs "$jobs" \
     --only full,vanilla,fuzz,coverage,tests,views,worlds
   cargo test -p gcg-search --release --locked --offline --test scenarios gapa2_portable_math
-  echo "non-golden platform: libm differs (see docs/port/EQUIVALENCE.md); search, components and baselines sets not checked" >&2
+  echo "non-golden platform: libm differs (see docs/dev/EQUIVALENCE.md); search, components and baselines sets not checked" >&2
   exit 1
 fi
 

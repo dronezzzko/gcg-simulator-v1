@@ -1,4 +1,4 @@
-//! P6-O's mechanisms (docs/port/PLAN.md §12.2): `portable_math` (W-137, `math.rs`) and
+//! P6-O's mechanisms (docs/dev/PLAN.md §12.2): `portable_math` (W-137, `math.rs`) and
 //! `engine_error_leaf` (W-143, W-110).
 
 pub(crate) mod math;

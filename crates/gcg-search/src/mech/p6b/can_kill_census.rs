@@ -5,7 +5,7 @@
 //! exhaustive search of the attack lines on the true state: the solver with attacks only, every
 //! Blocker and every action-step reply of the defender explored, 20,000 applies per position.
 //! Positions whose exhaustive search reaches the bound are counted and left out. The
-//! disagreement rates are recorded in docs/port/eval/weakness-status/P6-B.md.
+//! disagreement rates are recorded in docs/dev/eval/weakness-status/P6-B.md.
 
 use std::path::PathBuf;
 

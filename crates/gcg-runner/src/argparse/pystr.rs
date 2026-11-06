@@ -6,7 +6,7 @@
 //! `U+DC00 + b`; it writes stdout with `surrogateescape` (the original bytes come back) and
 //! stderr with `backslashreplace` (a surrogate prints as `\udcff`). Rust `String` cannot hold
 //! a lone surrogate, so arguments are kept as code points. Checked with the transcripts of
-//! `port/oracle/export_cli.py` (the undecodable-byte cases).
+//! `oracle/export_cli.py` (the undecodable-byte cases).
 
 use std::ffi::{OsStr, OsString};
 use std::fmt::Write as _;

@@ -1,0 +1,958 @@
+$ gcg-sim --help
+usage: gcg-sim [-h] {benchmark,validate,data,replay} ...
+
+Gundam Card Game deck benchmarking simulator.
+
+positional arguments:
+  {benchmark,validate,data,replay}
+    benchmark           play a deck under test against a benchmark deck
+    validate            check a deck file against the construction rules
+    data                packaged data
+    replay              re-simulate a saved replay and verify its outcome
+
+options:
+  -h, --help            show this help message and exit
+
+$ gcg-sim benchmark --help
+usage: gcg-sim benchmark [-h] --matches MATCHES [--seed SEED]
+                         [--workers WORKERS] [--format {bo3,bo1}]
+                         [--ai-preset {standard,fast}] [--out OUT]
+                         [--decision-log] [--replays REPLAYS]
+                         deck_under_test benchmark_deck
+
+positional arguments:
+  deck_under_test       deck file of the deck under test
+  benchmark_deck        deck file of the benchmark deck
+
+options:
+  -h, --help            show this help message and exit
+  --matches MATCHES     number of matches
+  --seed SEED           master seed (default 0)
+  --workers WORKERS     worker processes; auto uses one per performance-core
+                        CPU (at most one per match)
+  --format {bo3,bo1}    match format
+  --ai-preset {standard,fast}
+                        AI strength. standard (default): uses the full search
+                        so that each player plays at the level of the
+                        strongest top-tier competitive player; for refining
+                        and polishing the final deck. fast: trades search
+                        depth for throughput; for rapidly screening deck
+                        variants, sub-variants and hypothetical builds. Both
+                        start from the budgets of the Python presets strong
+                        (standard) and standard (fast); docs/AI.md has the
+                        table
+  --out OUT             report directory
+  --decision-log        record AI decision logs
+  --replays REPLAYS     replays saved per result
+
+$ gcg-sim validate --help
+usage: gcg-sim validate [-h] deck
+
+positional arguments:
+  deck
+
+options:
+  -h, --help  show this help message and exit
+
+$ gcg-sim data --help
+usage: gcg-sim data [-h] {status} ...
+
+positional arguments:
+  {status}
+    status    data snapshot, rules, B&R, coverage, conflicts
+
+options:
+  -h, --help  show this help message and exit
+
+$ gcg-sim replay --help
+usage: gcg-sim replay [-h] [--log] replay_json
+
+positional arguments:
+  replay_json
+
+options:
+  -h, --help   show this help message and exit
+  --log        print the game log
+
+$ gcg-sim data status --help
+usage: gcg-sim data status [-h] [--json]
+
+options:
+  -h, --help  show this help message and exit
+  --json      print JSON instead of text
+
+$ gcg-eval --help
+usage: gcg-eval [-h]
+                {reference-benchmark,preset-benchmark,head-to-head,head-to-head-replay,compare,ablation,budget-curve,fidelity,regret,tune,tune-leaf,calibrate,compare-runs,decks,gates,evidence,validate,data-status,transcripts,env,benchmark,replay-game,replay-check,weakness} ...
+
+Evaluation harness of gcg-sim: the reference search, head-to-head comparisons
+of agents and the tuning tools.
+
+positional arguments:
+  {reference-benchmark,preset-benchmark,head-to-head,head-to-head-replay,compare,ablation,budget-curve,fidelity,regret,tune,tune-leaf,calibrate,compare-runs,decks,gates,evidence,validate,data-status,transcripts,env,benchmark,replay-game,replay-check,weakness}
+    reference-benchmark
+                        the benchmark pipeline with the reference search and
+                        its presets
+    preset-benchmark    the gcg-sim benchmark pipeline with a search
+                        configuration file
+    head-to-head        two agents in mirrored blocks of four on deck pairs
+    head-to-head-replay
+                        games of a head-to-head report as verified replay
+                        files
+    compare             python -m gcg_sim.ai.compare
+    ablation            an individual or leave-one-out ablation row
+    budget-curve        a search at scaled budgets against a fixed opponent
+    fidelity            do two agents rank deck variants alike
+    regret              decision-level regret against an oracle search
+    tune                fit the evaluation weights from recorded positions
+    tune-leaf           record leaf-point positions and fit the strengthened
+                        evaluation (P6-G)
+    calibrate           simulated against observed matchup rates
+    compare-runs        paired analysis of two same-seed benchmark runs
+    decks               deck-set tools: --overlap
+    gates               the final-evaluation gates E1-E4
+    evidence            the evidence directory: add, check
+    validate            the deck report of W-71 to W-78 (A30)
+    data-status         gcg-sim data status with sources, freshness, templates
+                        (A30)
+    transcripts         blinded transcripts of saved games for a replay audit
+                        (W-119)
+    env                 build, CPU tiers and CPU features as JSON
+    benchmark           gcg-sim benchmark with opt-in analysis, compression,
+                        resume
+    replay-game         re-simulate and verify one game of a games.ndjson
+    replay-check        gcg-sim replay with the data, rules and code version
+                        check
+    weakness            deterministic weakness measurements: scenarios, audit,
+                        damage-regret, census
+
+options:
+  -h, --help            show this help message and exit
+
+$ gcg-eval reference-benchmark --help
+usage: gcg-eval reference-benchmark [-h] --matches MATCHES [--seed SEED]
+                                    [--workers WORKERS] [--format {bo3,bo1}]
+                                    [--reference-preset {fast,standard,strong}]
+                                    [--out OUT] [--decision-log]
+                                    [--replays REPLAYS]
+                                    [--agent {test-random,test-illegal}]
+                                    [--decision-trace DECISION_TRACE]
+                                    deck_under_test benchmark_deck
+
+positional arguments:
+  deck_under_test       deck file of the deck under test
+  benchmark_deck        deck file of the benchmark deck
+
+options:
+  -h, --help            show this help message and exit
+  --matches MATCHES     number of matches
+  --seed SEED           master seed (default 0)
+  --workers WORKERS     worker processes; auto uses one per performance-core
+                        CPU (at most one per match)
+  --format {bo3,bo1}    match format
+  --reference-preset {fast,standard,strong}
+                        reference search budget: Python's --ai-preset (default
+                        standard)
+  --out OUT             report directory
+  --decision-log        record AI decision logs
+  --replays REPLAYS     replays saved per result
+  --agent {test-random,test-illegal}
+                        play with a test agent of tests/runner/random_agent.py
+                        instead of the reference search
+  --decision-trace DECISION_TRACE
+                        also write every decision's search trace here (NDJSON;
+                        W-21)
+
+$ gcg-eval preset-benchmark --help
+usage: gcg-eval preset-benchmark [-h] --matches MATCHES [--seed SEED]
+                                 [--workers WORKERS] [--format {bo3,bo1}]
+                                 [--ai-preset {standard,fast}] [--out OUT]
+                                 [--decision-log] [--replays REPLAYS]
+                                 --search-config SEARCH_CONFIG
+                                 [--decision-trace DECISION_TRACE]
+                                 deck_under_test benchmark_deck
+
+positional arguments:
+  deck_under_test       deck file of the deck under test
+  benchmark_deck        deck file of the benchmark deck
+
+options:
+  -h, --help            show this help message and exit
+  --matches MATCHES     number of matches
+  --seed SEED           master seed (default 0)
+  --workers WORKERS     worker processes; auto uses one per performance-core
+                        CPU (at most one per match)
+  --format {bo3,bo1}    match format
+  --ai-preset {standard,fast}
+                        the preset the configuration stands in for (labels
+                        results.json; default standard)
+  --out OUT             report directory
+  --decision-log        record AI decision logs
+  --replays REPLAYS     replays saved per result
+  --search-config SEARCH_CONFIG
+                        JSON file with every strengthened-search setting
+  --decision-trace DECISION_TRACE
+                        also write every decision's search trace here (NDJSON;
+                        W-21)
+
+$ gcg-eval head-to-head --help
+usage: gcg-eval head-to-head [-h] [--decks {examples,tests,tuning,eval,panel}]
+                             [--pairs {all,tuning,held-out}] [--pair PAIR]
+                             [--games GAMES] [--seed SEED]
+                             [--role {tuning,dev,confirm,eval,review}]
+                             [--ledger LEDGER] [--workers WORKERS]
+                             [--choose-first {seat0,agents}] [--out OUT]
+                             [--decision-trace DECISION_TRACE]
+                             challenger opponent
+
+Two agents in mirrored blocks of four games on deck pairs, with Wilson
+intervals per pair and pooled.
+
+positional arguments:
+  challenger            agent under test: random, greedy, ref:<preset>,
+                        ref:baseline-<preset>, search:<preset>,
+                        search:null-<preset> or search:FILE.json, each with
+                        optional :field=value,...
+  opponent              the other agent, same grammar
+
+options:
+  -h, --help            show this help message and exit
+  --decks {examples,tests,tuning,eval,panel}
+                        deck set; every pair of its decks is played (default
+                        tests)
+  --pairs {all,tuning,held-out}
+                        which pairs of the deck set (held-out split:
+                        docs/dev/eval/panel.json; default all)
+  --pair PAIR           explicit pairs DECK_A:DECK_B[,DECK_C:DECK_D...] (deck
+                        names or files); repeatable; replaces --decks
+  --games GAMES         games in all, a multiple of 4 per pair (default 400)
+  --seed SEED           master seed (default 1)
+  --role {tuning,dev,confirm,eval,review}
+                        seed role: the seed must lie in its range and is
+                        recorded in the ledger
+  --ledger LEDGER       seed ledger of --role runs (default
+                        docs/dev/eval/seed-ledger.json)
+  --workers WORKERS     worker threads; auto uses one per performance-core CPU
+  --choose-first {seat0,agents}
+                        seat0: seat 0 goes first in every game (balanced
+                        play/draw); agents: the chooser's agent decides
+  --out OUT             also write the report, with every game, here
+  --decision-trace DECISION_TRACE
+                        also write every decision's search trace here (NDJSON;
+                        W-21)
+
+$ gcg-eval head-to-head-replay --help
+usage: gcg-eval head-to-head-replay [-h] [--index INDEX] [--losses]
+                                    [--challenger CHALLENGER]
+                                    [--opponent OPPONENT] --out OUT
+                                    report
+
+Re-play games of a head-to-head --out report and write each as a gcg-sim
+replay file, after checking that it reproduces its row (PLAN §12.6).
+
+positional arguments:
+  report                a report written by head-to-head --out
+
+options:
+  -h, --help            show this help message and exit
+  --index INDEX         the outcome index of a game to re-play (repeatable)
+  --losses              re-play every game the challenger did not win (losses,
+                        draws, unfinished games)
+  --challenger CHALLENGER
+                        play the challenger with this agent spec instead of
+                        the report's (the games must still reproduce their
+                        rows)
+  --opponent OPPONENT   play the opponent with this agent spec instead of the
+                        report's (the games must still reproduce their rows)
+  --out OUT             directory for the game-<index>.json replays and
+                        index.json
+
+$ gcg-eval compare --help
+usage: gcg-eval compare [-h] [--games GAMES] [--seed SEED] [--workers WORKERS]
+                        [--decks DECKS] [--out OUT]
+                        challenger opponent
+
+Head-to-head comparison of two AI versions in mirrored blocks of four games.
+
+positional arguments:
+  challenger
+  opponent
+
+options:
+  -h, --help         show this help message and exit
+  --games GAMES      a multiple of 4 per deck pairing
+  --seed SEED
+  --workers WORKERS
+  --decks DECKS
+  --out OUT          also write the report, with every game, here
+
+$ gcg-eval ablation --help
+usage: gcg-eval ablation [-h] --mechanism MECHANISM
+                         [--reference {fast,standard,strong,baseline-standard,baseline-strong}]
+                         [--bundle BUNDLE] [--search-config SEARCH_CONFIG]
+                         [--decks {examples,tests,tuning,eval,panel}]
+                         [--pairs {all,tuning,held-out}] [--pair PAIR]
+                         [--games GAMES] [--seed SEED]
+                         [--role {tuning,dev,confirm,eval,review}]
+                         [--ledger LEDGER] [--workers WORKERS]
+                         [--choose-first {seat0,agents}] [--out OUT]
+                         {individual,leave-one-out}
+
+An ablation row (PLAN §12.4): individual (the reference configuration plus one
+mechanism against the reference) or leave-one-out (the bundle against the
+bundle without one mechanism).
+
+positional arguments:
+  {individual,leave-one-out}
+                        individual or leave-one-out
+
+options:
+  -h, --help            show this help message and exit
+  --mechanism MECHANISM
+                        field=value[,...] that switches the mechanism on
+                        (individual) or off (leave-one-out)
+  --reference {fast,standard,strong,baseline-standard,baseline-strong}
+                        individual: the reference preset (default strong)
+  --bundle BUNDLE       leave-one-out: the bundle, a search: spec (default
+                        search:standard)
+  --search-config SEARCH_CONFIG
+                        leave-one-out: the bundle from a configuration file
+                        (replaces --bundle)
+  --decks {examples,tests,tuning,eval,panel}
+                        deck set; every pair of its decks is played (default
+                        panel)
+  --pairs {all,tuning,held-out}
+                        which pairs of the deck set (held-out split:
+                        docs/dev/eval/panel.json; default tuning)
+  --pair PAIR           explicit pairs DECK_A:DECK_B[,DECK_C:DECK_D...] (deck
+                        names or files); repeatable; replaces --decks
+  --games GAMES         games per row, a multiple of 4, blocks dealt round-
+                        robin over the pairs (default 400)
+  --seed SEED           master seed (default 1)
+  --role {tuning,dev,confirm,eval,review}
+                        seed role: the seed must lie in its range and is
+                        recorded in the ledger
+  --ledger LEDGER       seed ledger of --role runs (default
+                        docs/dev/eval/seed-ledger.json)
+  --workers WORKERS     worker threads; auto uses one per performance-core CPU
+  --choose-first {seat0,agents}
+                        seat0: seat 0 goes first in every game (balanced
+                        play/draw); agents: the chooser's agent decides
+  --out OUT             also write the report, with every game, here
+
+$ gcg-eval budget-curve --help
+usage: gcg-eval budget-curve [-h] [--scales SCALES] [--fields FIELDS]
+                             [--decks {examples,tests,tuning,eval,panel}]
+                             [--pairs {all,tuning,held-out}] [--pair PAIR]
+                             [--games GAMES] [--seed SEED]
+                             [--role {tuning,dev,confirm,eval,review}]
+                             [--ledger LEDGER] [--workers WORKERS]
+                             [--choose-first {seat0,agents}] [--out OUT]
+                             challenger opponent
+
+A search: challenger at scaled budgets against a fixed opponent (PLAN §12.8).
+
+positional arguments:
+  challenger            a search: spec whose budget fields are scaled
+  opponent              the fixed opponent: random, greedy, ref:<preset>,
+                        ref:baseline-<preset>, search:<preset>,
+                        search:null-<preset> or search:FILE.json, each with
+                        optional :field=value,...
+
+options:
+  -h, --help            show this help message and exit
+  --scales SCALES       comma-separated budget scales (default
+                        0.25,0.5,1,2,4,8)
+  --fields FIELDS       comma-separated integer fields to scale (default
+                        iterations_per_option,min_iterations,max_iterations)
+  --decks {examples,tests,tuning,eval,panel}
+                        deck set; every pair of its decks is played (default
+                        panel)
+  --pairs {all,tuning,held-out}
+                        which pairs of the deck set (held-out split:
+                        docs/dev/eval/panel.json; default tuning)
+  --pair PAIR           explicit pairs DECK_A:DECK_B[,DECK_C:DECK_D...] (deck
+                        names or files); repeatable; replaces --decks
+  --games GAMES         games per row, a multiple of 4, blocks dealt round-
+                        robin over the pairs (default 400)
+  --seed SEED           master seed (default 1)
+  --role {tuning,dev,confirm,eval,review}
+                        seed role: the seed must lie in its range and is
+                        recorded in the ledger
+  --ledger LEDGER       seed ledger of --role runs (default
+                        docs/dev/eval/seed-ledger.json)
+  --workers WORKERS     worker threads; auto uses one per performance-core CPU
+  --choose-first {seat0,agents}
+                        seat0: seat 0 goes first in every game (balanced
+                        play/draw); agents: the chooser's agent decides
+  --out OUT             also write the report, with every game, here
+
+$ gcg-eval fidelity --help
+usage: gcg-eval fidelity [-h] --variants VARIANTS --against AGAINST
+                         [--min-spearman MIN_SPEARMAN] [--games GAMES]
+                         [--seed SEED]
+                         [--role {tuning,dev,confirm,eval,review}]
+                         [--ledger LEDGER] [--workers WORKERS]
+                         [--choose-first {seat0,agents}] [--out OUT]
+                         agent_a agent_b
+
+Do two agents rank deck variants alike on the same deals (W-18)?
+
+positional arguments:
+  agent_a               first agent (plays both seats)
+  agent_b               second agent (plays both seats)
+
+options:
+  -h, --help            show this help message and exit
+  --variants VARIANTS   comma-separated deck variants (deck names or files),
+                        at least two
+  --against AGAINST     the deck every variant plays against
+  --min-spearman MIN_SPEARMAN
+                        exit 1 when the rank correlation is below this value
+  --games GAMES         games per variant and agent, a multiple of 4 (default
+                        400)
+  --seed SEED           master seed (default 1)
+  --role {tuning,dev,confirm,eval,review}
+                        seed role: the seed must lie in its range and is
+                        recorded in the ledger
+  --ledger LEDGER       seed ledger of --role runs (default
+                        docs/dev/eval/seed-ledger.json)
+  --workers WORKERS     worker threads; auto uses one per performance-core CPU
+  --choose-first {seat0,agents}
+                        seat0: seat 0 goes first in every game (balanced
+                        play/draw); agents: the chooser's agent decides
+  --out OUT             also write the report, with every game, here
+
+$ gcg-eval regret --help
+usage: gcg-eval regret [-h] [--recorder RECORDER] [--per-game PER_GAME]
+                       [--decisions DECISIONS] [--worlds WORLDS]
+                       [--judge JUDGE] [--temperature TEMPERATURE]
+                       [--max-decisions MAX_DECISIONS]
+                       [--decks {examples,tests,tuning,eval,panel}]
+                       [--pairs {all,tuning,held-out}] [--pair PAIR]
+                       [--games GAMES] [--seed SEED]
+                       [--role {tuning,dev,confirm,eval,review}]
+                       [--ledger LEDGER] [--workers WORKERS]
+                       [--choose-first {seat0,agents}] [--out OUT]
+                       candidate oracle
+
+Decision-level regret of a candidate against an oracle search (W-43).
+
+positional arguments:
+  candidate             the agent judged: random, greedy, ref:<preset>,
+                        ref:baseline-<preset>, search:<preset>,
+                        search:null-<preset> or search:FILE.json, each with
+                        optional :field=value,...
+  oracle                the much larger search
+
+options:
+  -h, --help            show this help message and exit
+  --recorder RECORDER   the agent whose self-play games give the positions
+                        (default the candidate)
+  --per-game PER_GAME   positions sampled per game (default 2)
+  --decisions DECISIONS
+                        which decisions are sampled: all, target, or a
+                        decision kind such as main or select (default all)
+  --worlds WORLDS       shared worlds per position (default 8)
+  --judge JUDGE         policy (the playout policy) or an agent spec that
+                        finishes the playouts (default policy)
+  --temperature TEMPERATURE
+                        playout policy temperature (default 0)
+  --max-decisions MAX_DECISIONS
+                        decisions per playout before the evaluation scores it
+                        (default 2000)
+  --decks {examples,tests,tuning,eval,panel}
+                        deck set; every pair of its decks is played (default
+                        panel)
+  --pairs {all,tuning,held-out}
+                        which pairs of the deck set (held-out split:
+                        docs/dev/eval/panel.json; default tuning)
+  --pair PAIR           explicit pairs DECK_A:DECK_B[,DECK_C:DECK_D...] (deck
+                        names or files); repeatable; replaces --decks
+  --games GAMES         recording games, a multiple of 4 (default 40)
+  --seed SEED           master seed (default 1)
+  --role {tuning,dev,confirm,eval,review}
+                        seed role: the seed must lie in its range and is
+                        recorded in the ledger
+  --ledger LEDGER       seed ledger of --role runs (default
+                        docs/dev/eval/seed-ledger.json)
+  --workers WORKERS     worker threads; auto uses one per performance-core CPU
+  --choose-first {seat0,agents}
+                        seat0: seat 0 goes first in every game (balanced
+                        play/draw); agents: the chooser's agent decides
+  --out OUT             also write the report, with every game, here
+
+$ gcg-eval tune --help
+usage: gcg-eval tune [-h] [--agent AGENT] [--feature-set {base,roles}]
+                     [--folds FOLDS] [--lambdas LAMBDAS] [--steps STEPS]
+                     [--holdout-pairs HOLDOUT_PAIRS] [--validate VALIDATE]
+                     [--positions POSITIONS] [--record RECORD]
+                     [--decks {examples,tests,tuning,eval,panel}]
+                     [--pairs {all,tuning,held-out}] [--pair PAIR]
+                     [--games GAMES] [--seed SEED]
+                     [--role {tuning,dev,confirm,eval,review}]
+                     [--ledger LEDGER] [--workers WORKERS]
+                     [--choose-first {seat0,agents}] [--out OUT]
+
+Fit the evaluation weights by L2 logistic regression with cross-validation by
+game (W-40).
+
+options:
+  -h, --help            show this help message and exit
+  --agent AGENT         the self-play agent; its weights are the starting
+                        weights (default search:standard)
+  --feature-set {base,roles}
+                        features recorded and fitted (default the agent's
+                        weights' set)
+  --folds FOLDS         cross-validation folds (default 5)
+  --lambdas LAMBDAS     comma-separated L2 strengths scored by cross-
+                        validation (default 0.01,0.1,1,10,100)
+  --steps STEPS         Newton steps (default 30)
+  --holdout-pairs HOLDOUT_PAIRS
+                        the last N selected pairs are only the held-out check
+                        (default 1 with two or more pairs)
+  --validate VALIDATE   validation games, fitted against starting weights
+                        (default 0)
+  --positions POSITIONS
+                        fit these recorded positions instead of playing
+  --record RECORD       write the positions here
+  --decks {examples,tests,tuning,eval,panel}
+                        deck set; every pair of its decks is played (default
+                        panel)
+  --pairs {all,tuning,held-out}
+                        which pairs of the deck set (held-out split:
+                        docs/dev/eval/panel.json; default tuning)
+  --pair PAIR           explicit pairs DECK_A:DECK_B[,DECK_C:DECK_D...] (deck
+                        names or files); repeatable; replaces --decks
+  --games GAMES         self-play games, a multiple of 4 (default 240)
+  --seed SEED           master seed (default 1)
+  --role {tuning,dev,confirm,eval,review}
+                        seed role: the seed must lie in its range and is
+                        recorded in the ledger
+  --ledger LEDGER       seed ledger of --role runs (default
+                        docs/dev/eval/seed-ledger.json)
+  --workers WORKERS     worker threads; auto uses one per performance-core CPU
+  --choose-first {seat0,agents}
+                        seat0: seat 0 goes first in every game (balanced
+                        play/draw); agents: the chooser's agent decides
+  --out OUT             also write the report, with every game, here
+
+$ gcg-eval tune-leaf --help
+usage: gcg-eval tune-leaf [-h] [--agent AGENT] [--positions POSITIONS]
+                          [--record RECORD] [--model MODEL]
+                          [--weights-out WEIGHTS_OUT]
+                          [--test-positions TEST_POSITIONS] [--folds FOLDS]
+                          [--fold-by {game,pair}] [--signs] [--deck-transfer]
+                          [--lambdas LAMBDAS] [--steps STEPS]
+                          [--holdout-pairs HOLDOUT_PAIRS]
+                          [--min-turn MIN_TURN]
+                          [--decks {examples,tests,tuning,eval,panel}]
+                          [--pairs {all,tuning,held-out}] [--pair PAIR]
+                          [--games GAMES] [--seed SEED]
+                          [--role {tuning,dev,confirm,eval,review}]
+                          [--ledger LEDGER] [--workers WORKERS]
+                          [--choose-first {seat0,agents}] [--out OUT]
+
+Record leaf-point positions from self-play of the strengthened search and fit
+the P6-G evaluation models (W-34 to W-37, W-39, W-142).
+
+options:
+  -h, --help            show this help message and exit
+  --agent AGENT         the self-play agent (default search:standard)
+  --positions POSITIONS
+                        fit these recorded positions instead of playing;
+                        repeatable
+  --record RECORD       write the recorded positions here
+  --model MODEL         a model to fit, by its P6-G flags joined with + (for
+                        example determinized_fit+keyword_features); repeatable
+  --weights-out WEIGHTS_OUT
+                        write the fitted models as the table gcg-search embeds
+  --test-positions TEST_POSITIONS
+                        also score the fitted models and ROLE_WEIGHTS on these
+                        recorded positions; repeatable
+  --folds FOLDS         cross-validation folds (default 5)
+  --fold-by {game,pair}
+                        deal the cross-validation folds by game or by pair
+                        (every game of a pair in one fold; judges transfer to
+                        other decks, W-36) (default game)
+  --signs               constrain each weight's sign: the turn player's assets
+                        help the turn player, the other player's assets and
+                        the danger term hurt it, the intercept is free
+  --deck-transfer       also refit each model without the games of each deck,
+                        at its chosen lambda, and score those games: the per-
+                        deck transfer table of W-36
+  --lambdas LAMBDAS     comma-separated L2 strengths scored by cross-
+                        validation (default 1,10,100,1000,10000)
+  --steps STEPS         Newton steps (default 30)
+  --holdout-pairs HOLDOUT_PAIRS
+                        the last N pairs are only the held-out check (default
+                        1)
+  --min-turn MIN_TURN   the first turn of a fitted position (default 3)
+  --decks {examples,tests,tuning,eval,panel}
+                        deck set; every pair of its decks is played (default
+                        panel)
+  --pairs {all,tuning,held-out}
+                        which pairs of the deck set (held-out split:
+                        docs/dev/eval/panel.json; default tuning)
+  --pair PAIR           explicit pairs DECK_A:DECK_B[,DECK_C:DECK_D...] (deck
+                        names or files); repeatable; replaces --decks
+  --games GAMES         games per row, a multiple of 4, blocks dealt round-
+                        robin over the pairs (default 400)
+  --seed SEED           master seed (default 1)
+  --role {tuning,dev,confirm,eval,review}
+                        seed role: the seed must lie in its range and is
+                        recorded in the ledger
+  --ledger LEDGER       seed ledger of --role runs (default
+                        docs/dev/eval/seed-ledger.json)
+  --workers WORKERS     worker threads; auto uses one per performance-core CPU
+  --choose-first {seat0,agents}
+                        seat0: seat 0 goes first in every game (balanced
+                        play/draw); agents: the chooser's agent decides
+  --out OUT             also write the report, with every game, here
+
+$ gcg-eval calibrate --help
+usage: gcg-eval calibrate [-h] [--agent AGENT] [--bins BINS] [--games GAMES]
+                          [--seed SEED]
+                          [--role {tuning,dev,confirm,eval,review}]
+                          [--ledger LEDGER] [--workers WORKERS]
+                          [--choose-first {seat0,agents}] [--out OUT]
+                          observed
+
+Simulated matchup rates against observed results (W-41).
+
+positional arguments:
+  observed              observed matches (crates/gcg-eval/schema/observed-
+                        matches.v1.schema.json)
+
+options:
+  -h, --help            show this help message and exit
+  --agent AGENT         the agent of both seats (default search:standard)
+  --bins BINS           reliability bins (default 10)
+  --games GAMES         games per matchup, a multiple of 4 (default 400)
+  --seed SEED           master seed (default 1)
+  --role {tuning,dev,confirm,eval,review}
+                        seed role: the seed must lie in its range and is
+                        recorded in the ledger
+  --ledger LEDGER       seed ledger of --role runs (default
+                        docs/dev/eval/seed-ledger.json)
+  --workers WORKERS     worker threads; auto uses one per performance-core CPU
+  --choose-first {seat0,agents}
+                        seat0: seat 0 goes first in every game (balanced
+                        play/draw); agents: the chooser's agent decides
+  --out OUT             also write the report, with every game, here
+
+$ gcg-eval compare-runs --help
+usage: gcg-eval compare-runs [-h] [--out OUT] [--allow-mixed] run_a run_b
+
+Paired analysis of two same-seed benchmark report directories (W-42).
+
+positional arguments:
+  run_a          first report directory
+  run_b          second report directory
+
+options:
+  -h, --help     show this help message and exit
+  --out OUT      also write the report here
+  --allow-mixed  compare runs whose AI identity or data and code versions
+                 differ (W-91)
+
+$ gcg-eval decks --help
+usage: gcg-eval decks [-h] [--overlap] [--rows ROWS] [--cols COLS]
+                      [--bound BOUND] [--check] [--out OUT]
+
+Deck-set tools (W-20).
+
+options:
+  -h, --help     show this help message and exit
+  --overlap      main-deck copy overlaps between deck sets
+  --rows ROWS    comma-separated deck sets of the rows (default panel)
+  --cols COLS    comma-separated deck sets of the columns (default
+                 tuning,tests)
+  --bound BOUND  largest overlap a held-out deck may have with a tuning or
+                 test deck (default 10)
+  --check        exit 1 when a held-out deck of docs/dev/eval/panel.json
+                 breaks the bound
+  --out OUT      also write the report here
+
+$ gcg-eval gates --help
+usage: gcg-eval gates [-h] [--e1 E1] [--e2 E2] [--e3-tests E3_TESTS]
+                      [--e3-panel E3_PANEL] [--e4-tests E4_TESTS]
+                      [--e4-panel E4_PANEL] [--losses-documented LOSSES]
+                      [--out OUT] [--check]
+
+The final-evaluation gates E1-E4 from head-to-head --out reports (PLAN §12.6).
+
+options:
+  -h, --help            show this help message and exit
+  --e1 E1               E1: search:standard vs ref:strong on the panel
+  --e2 E2               E2: search:fast vs ref:standard on the panel
+  --e3-tests E3_TESTS   E3: search:standard vs random on the AI test decks
+  --e3-panel E3_PANEL   E3: search:standard vs random on the panel
+  --e4-tests E4_TESTS   E4: search:standard vs greedy on the AI test decks
+  --e4-panel E4_PANEL   E4: search:standard vs greedy on the panel
+  --losses-documented LOSSES
+                        E3: the documented losses with their replays
+  --out OUT             also write the report here
+  --check               exit 1 unless every gate has its reports and passes
+
+$ gcg-eval evidence --help
+usage: gcg-eval evidence [-h] {add,check} ...
+
+The evidence directory and its commit and path check (W-127).
+
+positional arguments:
+  {add,check}
+    add        record a report in the evidence manifest
+    check      check cited commits, paths and the manifest
+
+options:
+  -h, --help   show this help message and exit
+
+$ gcg-eval validate --help
+usage: gcg-eval validate [-h] [--as-of AS_OF] [--region {asia-en,en}]
+                         [--no-banlist] [--no-implemented]
+                         [--event-date EVENT_DATE] [--scope]
+                         deck
+
+The deck report of W-71 to W-78: gcg-sim validate's checks with the Banned &
+Restricted list chosen by date and region, the rules apart from simulator
+support, the optional 7-day new-card rule, hints and the validator's scope.
+
+positional arguments:
+  deck                  deck file
+
+options:
+  -h, --help            show this help message and exit
+  --as-of AS_OF         apply the Banned & Restricted list in effect on this
+                        date (YYYY-MM-DD)
+  --region {asia-en,en}
+                        apply the list of this region of the official site
+                        (en: North America, Latin America, Europe, Oceania;
+                        asia-en: English Asia)
+  --no-banlist          check the Comprehensive Rules only: no Banned &
+                        Restricted list
+  --no-implemented      skip the simulator-support check (validation only: the
+                        deck may not be playable)
+  --event-date EVENT_DATE
+                        also check the 7-day new-card rule for an event on
+                        this date (YYYY-MM-DD)
+  --scope               also list what the validator does not check
+
+$ gcg-eval data-status --help
+usage: gcg-eval data-status [-h] [--json] [--sources] [--freshness]
+                            [--as-of AS_OF] [--templates]
+
+gcg-sim data status, with the provenance of every source, the products missing
+from the card data and the bindings the general templates reproduce.
+
+options:
+  -h, --help     show this help message and exit
+  --json         print JSON instead of text
+  --sources      also list every source with its hash: packaged, text-only or
+                 hash-only (W-88)
+  --freshness    also list the products dated after the snapshot with no card
+                 numbers in the data (W-145)
+  --as-of AS_OF  with --freshness: only products released on or before this
+                 date (YYYY-MM-DD)
+  --templates    also report the binding cards each general template
+                 reproduces (W-63, W-67)
+
+$ gcg-eval transcripts --help
+usage: gcg-eval transcripts [-h] --run RUN out_dir key_file
+
+Blinded transcripts of saved games for a replay audit of the AI
+(scripts/blind_transcripts.py, W-119): no search statistics, agent names or
+versions, and file ids from the game alone.
+
+positional arguments:
+  out_dir     directory of the game-<id>.txt transcripts
+  key_file    JSON file mapping each id to its replay files
+
+options:
+  -h, --help  show this help message and exit
+  --run RUN   a run directory whose replays/*.json files (at any depth) are
+              transcribed (repeatable)
+
+$ gcg-eval env --help
+usage: gcg-eval env [-h]
+
+options:
+  -h, --help  show this help message and exit
+
+$ gcg-eval benchmark --help
+usage: gcg-eval benchmark [-h] --matches MATCHES [--seed SEED]
+                          [--workers WORKERS] [--format {bo3,bo1}]
+                          [--ai-preset {standard,fast}] [--out OUT]
+                          [--decision-log] [--replays REPLAYS] [--analysis]
+                          [--swiss-draws] [--compress] [--resume]
+                          [--replays-extremes] [--diagnostics]
+                          [--opponent-list {known,archetype}]
+                          deck_under_test benchmark_deck
+
+gcg-sim benchmark with opt-in reports: the same options and, without the
+options below --replays, the same files.
+
+positional arguments:
+  deck_under_test       deck file of the deck under test
+  benchmark_deck        deck file of the benchmark deck
+
+options:
+  -h, --help            show this help message and exit
+  --matches MATCHES     number of matches
+  --seed SEED           master seed (default 0)
+  --workers WORKERS     worker processes; auto uses one per performance-core
+                        CPU (at most one per match)
+  --format {bo3,bo1}    match format
+  --ai-preset {standard,fast}
+                        the shipped preset, as gcg-sim's --ai-preset (default
+                        standard)
+  --out OUT             report directory
+  --decision-log        record AI decision logs
+  --replays REPLAYS     replays saved per result
+  --analysis            also write analysis.json: stratified, clustered and
+                        run-level statistics (W-90 ...)
+  --swiss-draws         with --analysis: also score matches decided by a
+                        double defeat as Swiss draws (W-109)
+  --compress            write games.ndjson compressed (games.ndjson.zst, or
+                        .gz without the zstd encoder; W-99)
+  --resume              checkpoint finished matches in the report directory
+                        and resume from them (W-105)
+  --replays-extremes    also save the shortest and longest win and loss
+                        (W-148)
+  --diagnostics         also write diagnostics.json: which safety cap ended
+                        each capped game (W-46)
+  --opponent-list {known,archetype}
+                        where the search samples the opponent's unseen cards
+                        from (W-134; default: the preset's, known)
+
+$ gcg-eval replay-game --help
+usage: gcg-eval replay-game [-h] --games-ndjson GAMES_NDJSON --results RESULTS
+                            --match MATCH --game GAME
+
+Re-simulate one game of a run's games.ndjson from its results.json, verify it
+and print its log (W-148).
+
+options:
+  -h, --help            show this help message and exit
+  --games-ndjson GAMES_NDJSON
+                        the run's games.ndjson
+  --results RESULTS     the run's results.json
+  --match MATCH         match index (from 0)
+  --game GAME           game number within the match (from 1)
+
+$ gcg-eval replay-check --help
+usage: gcg-eval replay-check [-h] [--results RESULTS] [--log] replay_json
+
+gcg-sim replay with a version check: on a mismatch it says whether the run's
+data, rules or code versions differ from this build's (W-156).
+
+positional arguments:
+  replay_json        a replay file written by benchmark
+
+options:
+  -h, --help         show this help message and exit
+  --results RESULTS  the run's results.json (default: the one above replays/)
+  --log              print the readable game log
+
+$ gcg-eval weakness --help
+usage: gcg-eval weakness [-h] [--agents AGENTS] [--scenarios SCENARIOS]
+                         [--seeds SEEDS] [--runs RUNS] [--recorder RECORDER]
+                         [--policy POLICY] [--worlds WORLDS]
+                         [--per-game PER_GAME]
+                         [--decks {examples,tests,tuning,eval,panel}]
+                         [--pairs {all,tuning,held-out}] [--pair PAIR]
+                         [--games GAMES] [--seed SEED]
+                         [--role {tuning,dev,confirm,eval,review}]
+                         [--ledger LEDGER] [--workers WORKERS]
+                         [--choose-first {seat0,agents}] [--out OUT]
+                         {scenarios,audit,damage-regret,census}
+
+Deterministic weakness measurements (W-05, W-17, W-26): the frozen WK
+scenarios, the rule-based audit of recorded games, the policy-level Damage
+regret and the observation-key split census.
+
+positional arguments:
+  {scenarios,audit,damage-regret,census}
+                        scenarios, audit, damage-regret or census
+
+options:
+  -h, --help            show this help message and exit
+  --agents AGENTS       comma-separated agent specs: scenarios scores them
+                        (default ref:standard,search:fast,search:standard);
+                        census runs these search configurations (default
+                        search:null-standard and the same with
+                        observation_keys=false)
+  --scenarios SCENARIOS
+                        scenarios: the frozen scenario file
+  --seeds SEEDS         scenarios: agent seeds per scenario and agent (default
+                        16)
+  --runs RUNS           audit: comma-separated run directories with a replays/
+                        directory
+  --recorder RECORDER   damage-regret, census: the agent whose self-play games
+                        give the positions (default ref:standard)
+  --policy POLICY       audit, damage-regret: the strengthened configuration
+                        whose solver, policy settings and weights judge
+                        (default search:standard)
+  --worlds WORLDS       audit: worlds of a proved lethal; damage-regret:
+                        shared oracle worlds (default 8)
+  --per-game PER_GAME   census: positions sampled per game (default 3)
+  --decks {examples,tests,tuning,eval,panel}
+                        deck set; every pair of its decks is played (default
+                        panel)
+  --pairs {all,tuning,held-out}
+                        which pairs of the deck set (held-out split:
+                        docs/dev/eval/panel.json; default tuning)
+  --pair PAIR           explicit pairs DECK_A:DECK_B[,DECK_C:DECK_D...] (deck
+                        names or files); repeatable; replaces --decks
+  --games GAMES         games per row, a multiple of 4, blocks dealt round-
+                        robin over the pairs (default 400)
+  --seed SEED           master seed (default 1)
+  --role {tuning,dev,confirm,eval,review}
+                        seed role: the seed must lie in its range and is
+                        recorded in the ledger
+  --ledger LEDGER       seed ledger of --role runs (default
+                        docs/dev/eval/seed-ledger.json)
+  --workers WORKERS     worker threads; auto uses one per performance-core CPU
+  --choose-first {seat0,agents}
+                        seat0: seat 0 goes first in every game (balanced
+                        play/draw); agents: the chooser's agent decides
+  --out OUT             also write the report, with every game, here
+
+$ gcg-eval evidence add --help
+usage: gcg-eval evidence add [-h] --command EVIDENCE_COMMAND file
+
+positional arguments:
+  file                  a report under docs/dev/eval/evidence/
+
+options:
+  -h, --help            show this help message and exit
+  --command EVIDENCE_COMMAND
+                        the exact command that wrote the file
+
+$ gcg-eval evidence check --help
+usage: gcg-eval evidence check [-h] [--path PATH]
+
+options:
+  -h, --help   show this help message and exit
+  --path PATH  a file or directory to check (repeatable; default
+               docs/dev/eval)
+
+$ gcg-diff --help
+usage: gcg-diff <command> [options]
+
+commands:
+  corpus [--tier 1|2] [--only SET[:FILTER] ...] [--file TRACE.ndjson] [--parse-only | --mock]
+         [--roundtrip] [--paranoid] [--require-all] [--jobs N] [--report FILE] [--junit FILE]
+  explain <trace-id> <decision> [--tier 1|2] [--file TRACE.ndjson] [--limit N]
+  trace-search <trace-id> <decision> [--level 2|3] [--iteration N] [--tier 1|2] [--file TRACE.ndjson]
+  selftest [--real-engine]
+  fuzz --games N (--seed S | --seed-from-commit SHA) [--workers W|auto] [--compare FILE]
+       [--agent random|greedy|ref:<preset>|search:<preset>|mixed:<spec>,<spec>] [--paranoid] [--show N]
+  paranoid-games
+  coverage --check
+  traceability (--check | --write) [--junit FILE]
+  tests-json --check
+  schema-check [--expect-invalid] FILE...
+  weaknesses --check FILE [--require-resolved]
+  lints
+  api-snapshot (--check | --write)

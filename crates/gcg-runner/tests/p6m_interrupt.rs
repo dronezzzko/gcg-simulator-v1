@@ -1,4 +1,4 @@
-//! W-106 (docs/port/WEAKNESSES.md; PLAN §12.2 P6-M): games run on threads with a shared
+//! W-106 (docs/dev/WEAKNESSES.md; PLAN §12.2 P6-M): games run on threads with a shared
 //! cancellation flag, so an interrupt returns no results, every time, with no worker process
 //! to reap. 200 runs, each interrupted by a real SIGINT while a match is being set up, at 1
 //! and 4 workers. Its own test binary, so the SIGINT handler reaches no other test.

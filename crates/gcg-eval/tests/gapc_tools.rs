@@ -1,4 +1,4 @@
-//! GAP-C's opt-in tools (docs/port/PLAN.md A30; docs/port/eval/weakness-status/GAP-C.md),
+//! GAP-C's opt-in tools (docs/dev/PLAN.md A30; docs/dev/eval/weakness-status/GAP-C.md),
 //! through the `gcg-eval` binary where the verification names a command:
 //!
 //! - W-88: `data-status --sources` lists every source of `data/sources.d/*.json` with its hash
@@ -407,7 +407,7 @@ fn w145_a_synthetic_gd06_snapshot_loads_and_a_deck_of_its_cards_validates() {
 
 #[test]
 fn w63_data_status_templates_reports_the_committed_template_report() {
-    let committed = fs::read_to_string(root().join("docs/port/audit/templates.json"))
+    let committed = fs::read_to_string(root().join("docs/dev/audit/templates.json"))
         .expect("the committed report");
     let report = templates_of(&committed).expect("a templates report");
     assert_eq!(
@@ -419,7 +419,7 @@ fn w63_data_status_templates_reports_the_committed_template_report() {
     let out = ok(&["data-status", "--templates"]);
     let header = format!(
         "templates: {} general template(s) reproduce {} of {} binding cards byte for byte; {} \
-         bindings remain (docs/port/audit/templates.json)",
+         bindings remain (docs/dev/audit/templates.json)",
         report.templates.len(),
         report.reproduced_total,
         report.binding_cards,

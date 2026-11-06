@@ -1,6 +1,6 @@
 //! Pairing, playing and paying (`interp.py:1340-1575`): `can_pair`, `Pair` and `pair`,
 //! `PlayCard`, `pay_generic`, `ActivateMain`, `StartBattle`, `ChangeAttackTarget`, `BindVar`,
-//! `PayCost` and the custom-step dispatcher (Inv 06a §13.4).
+//! `PayCost` and the custom-step dispatcher.
 
 use gcg_data::CardType;
 use gcg_effects::{
@@ -23,7 +23,7 @@ use crate::{
 /// and without a CANT_BE_PAIRED rule.
 #[allow(
     dead_code,
-    reason = "called by layer L5 (game, testkit) and C's tests (docs/port/contracts.md); they land after L4"
+    reason = "called by layer L5 (game, testkit) and C's tests (docs/dev/contracts.md); they land after L4"
 )]
 pub(crate) fn can_pair(st: &GameState, dv: &Derived, unit: Uid) -> bool {
     let c = &st.cards[usize::from(unit)];
@@ -229,7 +229,7 @@ fn ability_program(
 /// Any error of `remove_from_game` or `emit`.
 #[allow(
     dead_code,
-    reason = "called by layer L5 (game, testkit) and C's tests (docs/port/contracts.md); they land after L4"
+    reason = "called by layer L5 (game, testkit) and C's tests (docs/dev/contracts.md); they land after L4"
 )]
 pub(crate) fn pay_generic(
     st: &mut GameState,

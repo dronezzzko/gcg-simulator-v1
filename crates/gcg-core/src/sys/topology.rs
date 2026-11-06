@@ -1,4 +1,4 @@
-//! CPU topology for `--workers auto`, `timing.json` and `gcg-eval env` (docs/port/PLAN.md A4,
+//! CPU topology for `--workers auto`, `timing.json` and `gcg-eval env` (docs/dev/PLAN.md A4,
 //! §7.4, §11.6).
 //!
 //! `detect()` runs `/usr/sbin/sysctl` (absolute path, so an empty `PATH` works) for
@@ -74,7 +74,7 @@ impl Topology {
     /// `--workers auto`: `max(1, min(self.fast_logical_cpus(), matches))` (PLAN §7.4). A match
     /// is the unit of work and runs sequentially, so a match that starts late on an efficiency
     /// core (about 2.1x slower per game on the M2 Pro) finishes after the others and leaves
-    /// the fast cores idle. Measured on the M2 Pro (docs/port/BENCHMARKS.md, Part 1 and
+    /// the fast cores idle. Measured on the M2 Pro (docs/dev/BENCHMARKS.md, Part 1 and
     /// Part 2): 6 workers beat 10 on every timed workload, e.g. 100 reference `standard`
     /// matches in 41.3 s against 47.9 s, and 20 `standard` matches in 133.7 s against 150.0 s.
     /// The worker count never changes any output.
@@ -210,9 +210,9 @@ mod tests {
     use super::*;
 
     /// `sysctl hw.nperflevels hw.cachelinesize hw.perflevel0 hw.perflevel1 hw.optional.arm`,
-    /// captured on the Apple M2 Pro (macOS 27.2) this port is measured on.
+    /// captured on the Apple M2 Pro (macOS 27.2) the project is measured on.
     const M2_PRO: &str = include_str!("../../tests/fixtures/sysctl-m2pro.txt");
-    /// The same listing for the M6 layout of the brief (2 super + 4 performance + 6
+    /// The same listing for the Apple M6 layout (2 super + 4 performance + 6
     /// efficiency cores). Synthetic: written by hand, not captured (no M6 was available).
     const THREE_TIER: &str = include_str!("../../tests/fixtures/sysctl-3tier-synthetic.txt");
 

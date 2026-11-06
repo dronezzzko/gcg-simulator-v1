@@ -1,19 +1,18 @@
-//! Contract types and data of `gcg-ai-reference` (docs/port/PLAN.md §6.2, §6.4, §6.5,
+//! Contract types and data of `gcg-ai-reference` (docs/dev/PLAN.md §6.2, §6.4, §6.5,
 //! §10.3.5), owned by the lead (§10.1 S).
 //!
 //! `ReferenceConfig` is `SearchConfig` (`ai/config.py:13-57`) with Python's field defaults
 //! (W-136 keeps defaults in the reference type only). The presets are data: every field of
 //! `PRESETS` (`ai/config.py:80-111`), `BASELINE_PRESETS` (`ai/baseline.py:18-73`) and
 //! `TUNING_CONFIG` (`ai/tuning.py:50-57`) is spelled out below and checked by the tests against
-//! the values printed from the live Python objects (Inv 07 §2.1) and against Python's own
+//! the values printed from the live Python objects and against Python's own
 //! construction (`_adopted`, `:60-77`). They exist only in this crate, which `gcg-sim` cannot
 //! reach (PLAN §2.2, §6.5).
 //!
-//! Workstream D2 implements the functions frozen in docs/port/contracts.md
+//! Workstream D2 implements the functions frozen in docs/dev/contracts.md
 //! (gcg-ai-reference section); only the lead edits this file (§10.6 change protocol).
 //!
-//! Python sources are cited relative to `src/gcg_sim/`; Inv 07 is
-//! docs/port/inventory/07-ai-search.md.
+//! Python sources are cited relative to `src/gcg_sim/`.
 
 use std::borrow::Cow;
 use std::fmt;
@@ -40,7 +39,7 @@ pub const FACTORY_DESCRIPTION: &str = "gcg-ai-reference::make_agent('mcts')";
 // SearchConfig (ai/config.py:13-57)
 
 /// `SearchConfig` (`ai/config.py:13-57`), a frozen dataclass: the 24 fields in Python's
-/// declaration order (Inv 07 §2). A decision with `n` distinct root moves gets
+/// declaration order. A decision with `n` distinct root moves gets
 /// `clamp(iterations_per_option * n, min_iterations, max_iterations)` iterations
 /// ([`ReferenceConfig::budget`]).
 ///
@@ -513,7 +512,7 @@ mod tests {
 
     /// One row per configuration: the integer fields, the float fields as bit patterns and
     /// the boolean fields, in Python's field order, as printed from the live objects
-    /// (`dataclasses.fields`, floats via `float.hex()`, Python 3.15.1; Inv 07 §2.1).
+    /// (`dataclasses.fields`, floats via `float.hex()`, Python 3.15.1).
     #[test]
     fn presets_equal_the_live_python_objects() {
         type Row = (&'static str, [u32; 6], i32, [f64; 9], [bool; 9]);
@@ -650,7 +649,7 @@ mod tests {
 
     #[test]
     fn budgets_lookups_and_names_follow_python() {
-        // Inv 07 §2.1: budgets for n = 1, 2, 3, 5, 10, 20, 30 root moves.
+        // Budgets for n = 1, 2, 3, 5, 10, 20, 30 root moves.
         let budgets = |c: &ReferenceConfig| [1, 2, 3, 5, 10, 20, 30].map(|n| c.budget(n));
         assert_eq!(budgets(&FAST), [16, 16, 21, 35, 64, 64, 64]);
         assert_eq!(budgets(&STANDARD), [160, 160, 192, 320, 640, 640, 640]);

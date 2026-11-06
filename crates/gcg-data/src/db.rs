@@ -1,5 +1,5 @@
 //! `CardDB` (`cards/db.py`): printings grouped by card number, overrides applied, inline tokens
-//! and Unit variants registered, in Python's def_id order (Inv 03 §2).
+//! and Unit variants registered, in Python's def_id order.
 
 use std::collections::BTreeMap;
 use std::fmt;
@@ -613,7 +613,7 @@ impl CardDb {
         &self.applied_overrides
     }
 
-    /// The four fingerprints of Inv 03 §9: the full CardDef dump, def_id → card number, token
+    /// The four recorded fingerprints: the full CardDef dump, def_id → card number, token
     /// key → card number, and the applied overrides (lowercase SHA-256 hex each).
     #[must_use]
     pub fn fingerprints(&self) -> [String; 4] {
@@ -657,7 +657,7 @@ impl CardDb {
     }
 }
 
-/// The record of one definition in the Inv 03 §9 dump (`[def_id, card_number, ...,
+/// The record of one definition in the definitions dump (`[def_id, card_number, ...,
 /// source_title]`).
 pub(crate) fn dump_record(d: &CardDef) -> Json {
     let strs = |xs: &[Box<str>]| Json::Array(xs.iter().map(|x| Json::from(&**x)).collect());

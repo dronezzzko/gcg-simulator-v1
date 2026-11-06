@@ -5,7 +5,7 @@
 //! recorded positions, the priors are computed in eight determinisations from the decider's
 //! information set and compared bit for bit, per decision kind; a difference would show a
 //! scorer that reads hidden state. The positions are every snapshot of the tier-1 game sets
-//! (`port/corpus/v1/tier1/`) whose decision has at least two canonical moves (745), topped up
+//! (`oracle/corpus/v1/tier1/`) whose decision has at least two canonical moves (745), topped up
 //! with every fifth such decision of rollout-policy games on the fuzz decks.
 
 use std::path::PathBuf;
@@ -47,7 +47,7 @@ fn searched(st: &GameState) -> bool {
 
 /// The corpus positions, in set and file order.
 fn corpus_positions(reg: &Arc<Registry>) -> Vec<GameState> {
-    let base = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../port/corpus/v1/tier1");
+    let base = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../oracle/corpus/v1/tier1");
     let mut out = Vec::new();
     for set in SETS {
         let mut files: Vec<PathBuf> = std::fs::read_dir(base.join(set))

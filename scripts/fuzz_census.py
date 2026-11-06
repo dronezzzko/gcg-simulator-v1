@@ -1,8 +1,8 @@
-"""Executed-program census of the fuzz games (docs/port/WEAKNESSES.md W-151, W-117).
+"""Executed-program census of the fuzz games (docs/dev/WEAKNESSES.md W-151, W-117).
 
 Plays the random-agent fuzz games of ``gcg_sim.tools.fuzz`` (the same decks, game seeds, agent
 draws and invariant checks as ``play_one``) under the executed-program census of
-``port/oracle/census.py``: a card's program "ran" when a frame of one of its programs was
+``oracle/census.py``: a card's program "ran" when a frame of one of its programs was
 pushed, one of its triggers resolved, or one of its constant abilities applied in a view. Per
 card number it records
 
@@ -19,9 +19,9 @@ whether its program ran, every program card that never ran with the tagged test 
 and every effect-only number with its creation count.
 
     uv run python scripts/fuzz_census.py --games 10000 --seed 2026 --workers 8 \
-        --out docs/port/eval/P6-N/fuzz-census-2026-10000.json
+        --out docs/dev/eval/P6-N/fuzz-census-2026-10000.json
     uv run python scripts/fuzz_census.py --games 10000 --seed 2026 --workers 8 \
-        --check docs/port/eval/P6-N/fuzz-census-2026-10000.json
+        --check docs/dev/eval/P6-N/fuzz-census-2026-10000.json
     uv run python scripts/fuzz_census.py --selftest
 """
 
@@ -36,9 +36,9 @@ from pathlib import Path
 from typing import Any
 
 ROOT = Path(__file__).resolve().parents[1]
-sys.path.insert(0, str(ROOT / "port" / "oracle"))
+sys.path.insert(0, str(ROOT / "oracle"))
 
-import census as census_mod  # noqa: E402  (port/oracle, after the path insert)
+import census as census_mod  # noqa: E402  (oracle, after the path insert)
 
 from gcg_sim.effects.registry import get_registry  # noqa: E402
 from gcg_sim.engine.game import apply, new_game  # noqa: E402

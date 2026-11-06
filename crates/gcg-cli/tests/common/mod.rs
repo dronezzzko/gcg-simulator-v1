@@ -1,4 +1,4 @@
-//! Reading `tests/vectors/cli.json` (written by `port/oracle/export_cli.py`).
+//! Reading `tests/vectors/cli.json` (written by `oracle/export_cli.py`).
 
 #![allow(
     dead_code,

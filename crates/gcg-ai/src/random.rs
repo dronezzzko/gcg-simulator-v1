@@ -1,5 +1,4 @@
-//! The uniformly random player (`RandomAgent`, `ai/agents.py:22-32`;
-//! docs/port/inventory/08-ai-policy-eval.md §7.1).
+//! The uniformly random player (`RandomAgent`, `ai/agents.py:22-32`).
 
 use gcg_engine::{Action, GameState};
 

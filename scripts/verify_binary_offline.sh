@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# The distributable gcg-sim binary runs fully offline and without Python (docs/port/PLAN.md
+# The distributable gcg-sim binary runs fully offline and without Python (docs/dev/PLAN.md
 # §9.11, T-145; the Rust counterpart of scripts/verify_wheel_offline.sh). The binary and the
 # example decks are copied into a fresh directory outside the repository, then, with networking
 # denied by sandbox-exec and an environment holding only HOME and an empty PATH (so no python,

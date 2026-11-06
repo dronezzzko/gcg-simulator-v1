@@ -4,7 +4,7 @@
 //! officially undecided. The lists come from the packaged official data where it records them
 //! (`deck_construction.json`, `banlist.json`, `bo3_match_rules.json`, `edition_language.json`);
 //! the rest cite the floor rules. `edition_language.json` is not a file the Python runtime
-//! reads, so gcg-data does not embed it (docs/port/PLAN.md §2.4): the caller passes its text to
+//! reads, so gcg-data does not embed it (docs/dev/PLAN.md §2.4): the caller passes its text to
 //! [`Scope::new`] (`gcg-eval validate` embeds it); the other three are gcg-data's embedded
 //! files.
 

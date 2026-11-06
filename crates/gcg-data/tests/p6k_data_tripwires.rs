@@ -1,4 +1,4 @@
-//! P6-K data tripwires (docs/port/PLAN.md §12.2 P6-K; docs/port/eval/weakness-status/P6-K.md).
+//! P6-K data tripwires (docs/dev/PLAN.md §12.2 P6-K; docs/dev/eval/weakness-status/P6-K.md).
 //!
 //! Each tripwire is a pure function over the packaged sources (or a modified copy of them held
 //! in memory, the "temporary data copy" of the WEAKNESSES entries) that returns its findings.
@@ -93,7 +93,7 @@ fn db_with(extra: &[Value]) -> CardDb {
 }
 
 // ---------------------------------------------------------------------------------------------
-// The Python text normaliser (effects/text.py), ported for the text tripwires. Its output is
+// The Python text normaliser (effects/text.py), reimplemented for the text tripwires. Its output is
 // checked against the IR's `text_hash` of every card (`text_hash`, text.py:98-99).
 
 fn is_word(c: char) -> bool {
@@ -529,7 +529,7 @@ fn gate_on(cards: &[(String, String)]) -> Vec<String> {
 
 #[test]
 fn w155_stripped_parentheticals_equal_python() {
-    let vector = json("port/oracle/tests/vectors/p6k_parentheticals.json");
+    let vector = json("oracle/tests/vectors/p6k_parentheticals.json");
     let mut want: BTreeMap<String, BTreeSet<String>> = BTreeMap::new();
     for (text, numbers) in vector["stripped"].as_object().expect("stripped") {
         for n in arr(numbers) {

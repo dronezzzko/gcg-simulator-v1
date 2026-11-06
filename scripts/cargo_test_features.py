@@ -1,4 +1,4 @@
-"""Feature lists for the Rust gate (docs/port/PLAN.md §9.11), from ``cargo metadata``.
+"""Feature lists for the Rust gate (docs/dev/PLAN.md §9.11), from ``cargo metadata``.
 
 Reads ``cargo metadata --format-version 1 --no-deps`` JSON on stdin and prints shell
 assignments for ``eval``:
@@ -7,7 +7,7 @@ assignments for ``eval``:
 - ``SLOW_OFFLINE``: the ``slow`` features whose tests read only committed files;
 - ``SLOW_TIER2``: the ``slow`` features of packages whose tests read the regenerated tier-2
   corpus (a test file under the package's ``tests/`` names ``build/oracle/tier2``). They need
-  ``port/oracle/traces.py --write --tier 2`` first, so the gate runs them in ``--full`` after
+  ``oracle/traces.py --write --tier 2`` first, so the gate runs them in ``--full`` after
   that step, and nothing is skipped (W-112, W-118);
 - ``DIAG``: every ``<package>/paranoid`` and ``<package>/testkit`` feature.
 

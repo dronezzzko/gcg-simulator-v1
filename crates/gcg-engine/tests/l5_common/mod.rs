@@ -1,6 +1,6 @@
 //! Shared helpers of the engine's integration tests: the Python vectors of
 //! `tests/fixtures/l5_vectors.ndjson` (`tests/fixtures/export_l5_vectors.py`) and
-//! `tests/fixtures/engine_vectors.ndjson` (`port/oracle/export_engine_vectors.py`), decks by
+//! `tests/fixtures/engine_vectors.ndjson` (`oracle/export_engine_vectors.py`), decks by
 //! card number, snapshots, decision JSON and the replay of Scenario operations.
 
 #![allow(dead_code, reason = "each test target uses a different part")]

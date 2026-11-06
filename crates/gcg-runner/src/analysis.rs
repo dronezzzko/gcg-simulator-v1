@@ -1,4 +1,4 @@
-//! `analysis.json`, written only by `gcg-eval benchmark --analysis` (A30; docs/port/PLAN.md
+//! `analysis.json`, written only by `gcg-eval benchmark --analysis` (A30; docs/dev/PLAN.md
 //! §12.2 P6-M): additive statistics next to the reference reports, which stay byte-identical.
 //!
 //! - W-90: per-card win rates stratified by game length (Mantel-Haenszel risk difference with
@@ -16,7 +16,7 @@
 //! - W-96: a broader "observed" definition for benchmark cards (any reveal, discard or trash
 //!   entry), lift in both directions, and draw/play statistics of benchmark cards.
 //! - W-98: unrounded means and interpolated (Hyndman-Fan type 7) p10, median and p90.
-//! - W-101: the interpretations of `docs/port/audit/interpretations.json` whose cards were used
+//! - W-101: the interpretations of `docs/dev/audit/interpretations.json` whose cards were used
 //!   in the run's games, or whose engine code path ran while a game was re-simulated
 //!   (`gcg_engine::diag::interpretation_runs`).
 //! - W-109: double defeats and how they were scored, and with `--swiss-draws` the match
@@ -58,7 +58,7 @@ pub const ANALYSIS_VERSION: u32 = 1;
 /// Cluster-bootstrap replicates per rate (W-92).
 pub const BOOTSTRAP_REPLICATES: u32 = 2000;
 /// The P6-K interpretation audit table (W-56, W-101).
-pub const INTERPRETATIONS: &str = include_str!("../../../docs/port/audit/interpretations.json");
+pub const INTERPRETATIONS: &str = include_str!("../../../docs/dev/audit/interpretations.json");
 
 /// The opt-in settings of the analysis.
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
@@ -1175,7 +1175,7 @@ pub fn interpretations_used(facts: &[GameFacts]) -> Json {
     );
     o.set(
         "note",
-        "an interpretation of docs/port/audit/interpretations.json is listed when one of its \
+        "an interpretation of docs/dev/audit/interpretations.json is listed when one of its \
          cards was played, deployed, paired, activated, attacked with or revealed as a Burst in \
          a game of this run (card_games: a card-level trace, whose code path may still not have \
          run), or when the engine recorded its code path while the game was re-simulated \
@@ -1530,7 +1530,7 @@ pub fn analysis_json(
     o.set("version", ANALYSIS_VERSION);
     o.set(
         "note",
-        "additive statistics of gcg-eval benchmark --analysis (docs/port/PLAN.md section 12.2 \
+        "additive statistics of gcg-eval benchmark --analysis (docs/dev/PLAN.md section 12.2 \
          P6-M); results.json, summary.md and the other reports are unchanged",
     );
     o.set("outcomes", outcomes(run));

@@ -1,4 +1,4 @@
-//! The frozen `Registry` API of docs/port/contracts.md (gcg-effects), over the contract's
+//! The frozen `Registry` API of docs/dev/contracts.md (gcg-effects), over the contract's
 //! `pub(crate)` layout: a generation, the card database and the decoded IR
 //! ([`crate::ir::Tables`]). Every lookup reads through [`Registry::view`]; the logic is
 //! [`crate::view::View`]'s, shared with the crate's tests on the decoded tables.
@@ -19,7 +19,7 @@ use crate::ir::{DB_FINGERPRINTS, Tables};
 use crate::view::View;
 
 /// The IR checked into the repository (`crates/gcg-effects/ir/registry.json`, written by
-/// `port/oracle/export_ir.py --write`; PLAN §3.1).
+/// `oracle/export_ir.py --write`; PLAN §3.1).
 pub(crate) const EMBEDDED_IR: &str = include_str!("../ir/registry.json");
 
 /// Every registry gets a generation no other registry of the process has, so AI memo tables
@@ -36,7 +36,7 @@ impl Tables {
         }
     }
 
-    /// The card-database check of `Registry::from_ir` (PLAN §3.4 test 6, Inv 03 §9): the IR
+    /// The card-database check of `Registry::from_ir` (PLAN §3.4 test 6): the IR
     /// lists `db`'s definitions in def_id order, and its four `db_fingerprints` are `db`'s.
     pub(crate) fn check_db(&self, db: &CardDb) -> Result<(), IrError> {
         if self.cards.len() != db.len() {
@@ -106,7 +106,7 @@ impl Registry {
 
     /// The registry with a script-override fragment applied (`registry.py:209-220`
     /// `override_script`; PLAN §3.4 "Test overrides"; the format of
-    /// `port/oracle/export_ir.py` `build_fragment`). The fragment's values are applied
+    /// `oracle/export_ir.py` `build_fragment`). The fragment's values are applied
     /// verbatim; the result has a new generation (W-33).
     ///
     /// # Errors
@@ -275,7 +275,7 @@ impl Registry {
     }
 
     /// Resolves a self-contained node of a trace snapshot's side table (PLAN §4.8; the
-    /// `node_json` form of `port/oracle/traces.py`) against this registry: the arena node with
+    /// `node_json` form of `oracle/traces.py`) against this registry: the arena node with
     /// equal CPython `repr`, or else the decoded node, whose nested nodes must all be arena
     /// nodes.
     ///

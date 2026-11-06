@@ -1,5 +1,5 @@
 //! Replay verification in both directions (T-004; PLAN §8.8 item 6), against the transcripts of
-//! Python's `gcg-sim replay` and `gcg-sim replay --log` (`port/oracle/export_parity.py`):
+//! Python's `gcg-sim replay` and `gcg-sim replay --log` (`oracle/export_parity.py`):
 //!
 //! - Python to Rust: every committed Python replay
 //!   (`crates/gcg-runner/tests/vectors/records/*/replays/*.json`) verifies under the Rust
@@ -194,7 +194,7 @@ fn needs_engine_rust_replays_are_the_files_python_verified() {
                 sha256(&bytes),
                 str_of(&want["sha256"], "sha256"),
                 "{id}/{name} is not the file Python verified; rerun \
-                 port/oracle/export_parity.py --section rust-replays"
+                 oracle/export_parity.py --section rust-replays"
             );
             assert_eq!(want["exit"], 0, "{id}/{name}: Python verified it");
             check_transcripts(&path, want, &format!("{id}/{name}"));

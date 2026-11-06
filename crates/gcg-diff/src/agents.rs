@@ -1,10 +1,10 @@
 //! The agent oracle of the real-engine replay (PLAN §8.7 "Search and baselines traces",
-//! drill-down levels 1-3; docs/port/contracts.md, gcg-diff section "Agent replay").
+//! drill-down levels 1-3; docs/dev/contracts.md, gcg-diff section "Agent replay").
 //!
 //! [`RustAgents`] builds one Rust agent per seat from the trace header, with `log = true` and
 //! the seat's `agent_seeds` entry, and at every decision with an agent block runs
 //! `Agent::choose_traced` on the engine's current state (before `apply`), through
-//! `Pool::run_inline`. The constructor follows the generator (`port/oracle/traces.py`): the
+//! `Pool::run_inline`. The constructor follows the generator (`oracle/traces.py`): the
 //! agent names `random` and `greedy` (`DEFAULT_WEIGHTS`), and `mcts-<preset>` with
 //! `reference_preset(preset)` and `DEFAULT_WEIGHTS`, or with `baseline_preset(..)` and
 //! `BASELINE_WEIGHTS` for a `baseline-*` preset (`tests/ai/test_baseline.py:27-33`).

@@ -1,4 +1,4 @@
-//! `gcg-eval regret CANDIDATE ORACLE` (docs/port/PLAN.md §12.2 P6-I; W-43): decision-level
+//! `gcg-eval regret CANDIDATE ORACLE` (docs/dev/PLAN.md §12.2 P6-I; W-43): decision-level
 //! regret of a candidate agent against a much larger search, the committed form of the
 //! investigation's oracle replay.
 //!

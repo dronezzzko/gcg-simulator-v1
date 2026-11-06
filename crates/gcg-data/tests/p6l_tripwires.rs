@@ -1,4 +1,4 @@
-//! P6-L data tripwires (docs/port/PLAN.md §12.2 P6-L; docs/port/eval/weakness-status/P6-L.md).
+//! P6-L data tripwires (docs/dev/PLAN.md §12.2 P6-L; docs/dev/eval/weakness-status/P6-L.md).
 //!
 //! Each tripwire is a pure function over the packaged sources (or a modified copy held in
 //! memory, the "temporary data copy" of the WEAKNESSES entries) that returns its findings. The

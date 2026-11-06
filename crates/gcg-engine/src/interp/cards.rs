@@ -1,7 +1,7 @@
 //! Card and zone actions (`interp.py:477-873`, `:1103-1246`): drawing, discarding, damage,
 //! destruction, resting (with rest substitution), setting active, returning to hand or deck,
 //! exiling, trashing, adding to hand or shields, milling, looking, arranging, revealing,
-//! shuffling and recovering (Inv 06a §13.4).
+//! shuffling and recovering.
 
 use gcg_effects::{
     AddToHand, AddToShields, Arrange, Damage, Destroy, Discard, Draw, Ev, Exile, LookTop, Mill, P,
@@ -50,7 +50,7 @@ pub(super) fn h_draw(st: &mut GameState, fi: usize, ins: &Draw) -> Result<Status
 /// Any error of `move`, `emit` or the payload conversions.
 #[allow(
     dead_code,
-    reason = "called by layer L5 (game, testkit) and C's tests (docs/port/contracts.md); they land after L4"
+    reason = "called by layer L5 (game, testkit) and C's tests (docs/dev/contracts.md); they land after L4"
 )]
 pub(crate) fn draw(st: &mut GameState, p: u8, n: i64, by_effect: bool) -> Result<i64, EngineError> {
     let mut drawn = 0;
@@ -157,7 +157,7 @@ pub(super) fn h_discard(
 
 /// `_r_discard` (`interp.py:544-556`): appends the pick; discards the picks in pick order once
 /// `n` are picked or none is left; else asks again with the candidates above the highest
-/// picked uid, or every candidate when there is none (Inv 06a hazard 22).
+/// picked uid, or every candidate when there is none.
 pub(super) fn r_discard(
     st: &mut GameState,
     fi: usize,
@@ -510,7 +510,7 @@ pub(super) fn h_rest_continue(
 }
 
 /// `_h_set_active` (`interp.py:716-732`): one view before the loop decides CANT_BE_SET_ACTIVE
-/// for every card (Inv 06a §14); one group (always); each rested card in BATTLE, BASE or the
+/// for every card; one group (always); each rested card in BATTLE, BASE or the
 /// resource area is set active, touched, recorded when it is a Resource, and announced.
 pub(super) fn h_set_active(
     st: &mut GameState,
@@ -887,7 +887,7 @@ pub(super) fn h_add_to_hand(
     Ok(Status::Next)
 }
 
-/// `zones[p][z][:max(0, n)]` copied before any card moves (Inv 06a hazard 26).
+/// `zones[p][z][:max(0, n)]` copied before any card moves.
 fn top_cards(st: &GameState, p: u8, z: Zone, n: i64) -> Vec<Uid> {
     let list = st.zone(p, z);
     let k = usize::try_from(n.max(0)).map_or(list.len(), |k| k.min(list.len()));

@@ -1,6 +1,6 @@
 //! Lasting effects and delayed triggers (`interp.py:1249-1337`, `:1526-1559`): `Apply` with
 //! frozen amounts and AP_REDUCED, `add_lasting`, `ApplyPlayer`, and `DelayedTrigger`
-//! (Inv 06a §13.4; PLAN §5.6 for the identity of runtime effects).
+//! (PLAN §5.6 for the identity of runtime effects).
 
 use gcg_effects::{
     Apply, ApplyPlayer, ContRef, ContinuousId, Duration, Ev, Node, NodeId, RefId, Registry,
@@ -21,7 +21,7 @@ pub(super) enum Effect {
 }
 
 /// `isinstance(eff, d.StatMod) and eff.ap != 0` on the effect as written
-/// (`interp.py:1265-1266`): a non-literal amount is never equal to 0 (Inv 06a hazard 14).
+/// (`interp.py:1265-1266`): a non-literal amount is never equal to 0.
 fn lowers_ap(reg: &Registry, effect: Effect) -> bool {
     match effect {
         Effect::Ir(id) => match reg.node(id.node()) {
@@ -173,7 +173,7 @@ pub(super) fn apply_to(
 /// Arena or serial overflow.
 #[allow(
     dead_code,
-    reason = "called by layer L5 (game, testkit) and C's tests (docs/port/contracts.md); they land after L4"
+    reason = "called by layer L5 (game, testkit) and C's tests (docs/dev/contracts.md); they land after L4"
 )]
 pub(crate) fn add_lasting(
     st: &mut GameState,
@@ -258,7 +258,7 @@ pub(super) fn h_apply_player(
 
 /// `_h_delayed` (`interp.py:1526-1559`): the trigger's index among the card's own then unit
 /// delayed triggers in `core._walk_delayed` order (the first structurally equal one, which is
-/// the first equal `NodeId`: the IR is hash-consed; Inv 06a hazard 16); not found is
+/// the first equal `NodeId`: the IR is hash-consed); not found is
 /// `EngineError("delayed trigger not registered on its card")`. A THIS_BATTLE trigger outside
 /// a battle clears `did`. Else the bound vars' cards (with their `zone_seq`) become the
 /// targets of a delayed `Lasting` keyed by `AbilityGrant(card_number, index)`, with Python's

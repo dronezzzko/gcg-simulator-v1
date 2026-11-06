@@ -3,8 +3,8 @@
 ## Running a benchmark
 
 ```bash
-uv run gcg-sim benchmark examples/decks/red-green-zeon.txt examples/decks/blue-white-federation.txt \
-    --matches 2 --seed 1 --workers 2 --out /tmp/gcg-sim-demo
+target/release/gcg-sim benchmark examples/decks/red-green-zeon.txt examples/decks/blue-white-federation.txt \
+    --matches 2 --seed 1 --workers 2 --ai-preset fast --out /tmp/gcg-sim-demo
 ```
 
 | Option | Default | Meaning |
@@ -12,9 +12,9 @@ uv run gcg-sim benchmark examples/decks/red-green-zeon.txt examples/decks/blue-w
 | `DECK_UNDER_TEST BENCHMARK_DECK` | required | Deck files (see `docs/DECK_FORMAT.md`). Both must be legal. |
 | `--matches N` | required | Number of matches. Use hundreds for decisions; the demo above only shows the output. |
 | `--seed S` | 0 | Master seed. Every game and agent seed is derived from it. |
-| `--workers W` | 1 | Worker processes. The results do not depend on it. |
+| `--workers N\|auto` | 1 | Worker threads. `auto` uses one per performance-core CPU, at most one per match. The results do not depend on it. |
 | `--format bo3\|bo1` | bo3 | Best-of-three matches or single games. |
-| `--ai-preset fast\|standard\|strong` | standard | Search budget of the AI that plays both seats (see `docs/python/AI.md`). `fast` is for screening deck variants; confirm with `standard`. |
+| `--ai-preset standard\|fast` | standard | Strength of the search AI that plays both seats (see `docs/AI.md`). `fast` is for screening deck variants; confirm with `standard`. Any other value is a usage error. |
 | `--out DIR` | `gcg-sim-out` | Report directory. It is created if needed, and existing report files are replaced. |
 | `--decision-log` | off | Record the AI's decision log in `games.ndjson` and in the replays. This makes them large. |
 | `--replays K` | 3 | Representative wins and losses to save, K of each, plus one draw if any. |
@@ -23,9 +23,11 @@ Progress goes to stderr. When the run finishes, the command prints the match and
 of the deck under test (DUT) and the report paths. Exit codes: 0 success, 1 invalid deck, data,
 or replay, or a failed simulation, 2 usage error, 130 interrupted.
 
-**Ctrl-C** stops the worker processes, writes no reports, and exits with 130. Each report file is
-written to a temporary name and then renamed. `results.json` is written last, so a report file
-is either complete or absent.
+**Ctrl-C** stops the workers, writes no reports, and exits with 130. The report files are built
+in memory and written as one set: into a staging directory that then replaces `--out`, so the
+directory holds either the complete previous set or the complete new one. When `--out` also
+holds files that are not reports, each report file is written to a temporary name and renamed
+instead, `results.json` last, so a report file is either complete or absent.
 
 ### Match procedure
 
@@ -33,7 +35,8 @@ is either complete or absent.
 - **Seeds.** Each game's seed is `derive_seed(master, "match", m, "game", g)`. Each agent's seed
   is `derive_seed(master, "match", m, "game", g, "agent", seat)`. Randomness uses SplitMix64.
 - **BO3 (official BO3 Match Rules).** The first player to 2 game wins takes the match.
-  - In game 1, a seeded fair draw (`randrange(2)` of the game's RNG, `engine/game.py:153`)
+  - In game 1, a seeded fair draw (`randrange(2)` of the game's RNG,
+    `crates/gcg-engine/src/game.rs:328`)
     picks who decides Player One (rule 6-2-1-4, FAQ Q9).
   - In games 2 and 3, the loser of the previous game decides.
 - **Simultaneous defeat** (`both_defeated`) is a draw in the game statistics. For BO3 match
@@ -53,25 +56,28 @@ is either complete or absent.
 | `summary.md` | A readable view of `results.json` with a reproduce command. | yes |
 | `games.ndjson` | One `GameRecord` per line, in match and game order. | yes |
 | `replays/*.json` | Self-contained replays of representative games. | yes |
-| `timing.json` | Wall-clock times, the number of worker processes actually used (`min(--workers, matches)`, or 1 for a serial run), Python version and platform. | no; it is the only such file |
+| `timing.json` | Wall-clock times, the number of worker threads actually used (`min(--workers, matches)`, or 1 for a serial run; `auto` resolved first), the platform and the CPU tiers (`topology`). | no; it is the only such file |
 
 ### results.json
 
-- **Schema.** The schema is `src/gcg_sim/reports/schema/results.v1.schema.json`, with `$id`
-  `urn:gcg-sim:schema:results:1.1.0` (1.1.0 added the `fast` preset to `ai.preset`). Every document repeats the id in `schema` and the version
-  in `schema_version`. Load the schema with `gcg_sim.reports.load_schema()` and check a document
-  with `gcg_sim.reports.validate_results(obj)`.
+- **Schema.** The schema is `crates/gcg-runner/schema/results.v1_2.schema.json`, with `$id`
+  `urn:gcg-sim:schema:results:1.2.0`: schema 1.1.0
+  (`src/gcg_sim/reports/schema/results.v1.schema.json`, which `gcg-eval reference-benchmark`
+  writes) plus `ai.search` and `ai.effort`. Every document repeats the id in `schema` and the
+  version in `schema_version`. Check a document with `target/release/gcg-diff schema-check
+  FILE` (build it with `cargo build --release --locked --offline -p gcg-diff`).
 - **Comparability.** A rate depends on the AI that played it. Compare runs only with the same
-  preset and the same version (`versions.code_digest`); reports made before the October 2026
-  AI update (schema 1.0.0) are not comparable with new ones.
+  preset and the same version (`versions.code_digest`). Reports with schema 1.0.0 (made before
+  the October 2026 AI update) or 1.1.0 (the reference search) are not comparable with 1.2.0
+  reports.
 - **Win rates.** All rates are from the DUT's point of view. A rate block is
   `{"successes", "n", "rate", "ci95"}`. `ci95` is a 95% Wilson score interval, and `rate` and
   `ci95` are `null` when `n` is 0. Draws count as non-wins and are reported separately.
 
 | Key | Content |
 | --- | --- |
-| `versions` | Package version, `code_digest` (SHA-256 over every file of the installed package, so reports from different builds are distinguishable), results schema, gcg-api `dataset_version`, the dataset manifest's `data_source_commit` (the gcg-api commit the dataset build ran from, the parent of the data commit pinned in `data/SOURCES.lock.json`) and build time, Comprehensive Rules version and date, B&R effective date, deck-rules and BO3-rules dates. |
-| `config`, `seeds`, `ai` | Match count, format, turn and decision caps, replays per result; the master seed and derivation formulas; the agent factory, preset, agent names and decision-log flag. |
+| `versions` | Package version, `code_digest` (SHA-256 over the files listed in `build-support/digest-manifest.txt`: the workspace's manifests and sources and the embedded data, so reports from different builds are distinguishable), results schema, gcg-api `dataset_version`, the dataset manifest's `data_source_commit` (the gcg-api commit the dataset build ran from, the parent of the data commit pinned in `data/SOURCES.lock.json`) and build time, Comprehensive Rules version and date, B&R effective date, deck-rules and BO3-rules dates. |
+| `config`, `seeds`, `ai` | Match count, format, turn and decision caps, replays per result; the master seed and derivation formulas; the agent factory, preset, agent names and decision-log flag; the search (`ai.search`: algorithm, preset, its mapping to a reference preset, budget, mechanisms, weights) and its effort per seat (`ai.effort`: games, decisions, searches, iterations, engine applies by purpose, worlds, capped rollouts and per-game distributions). |
 | `decks` | For each deck: name, sha256 digest of the card counts, colors, and the main and resource listings. |
 | `results` | Match and game outcomes: `n`, `dut_wins`, `bench_wins`, `draws`, and `dut_win_rate`. |
 | `splits` | Outcomes on the play and on the draw, and by game number (`"1"`, `"2"`, `"3"`). |
@@ -110,48 +116,21 @@ final-state sha256, and a readable log. To re-simulate a replay and check that i
 same final state:
 
 ```bash
-uv run gcg-sim replay "$(ls /tmp/gcg-sim-demo/replays/*.json | head -n 1)" --log
+target/release/gcg-sim replay "$(ls /tmp/gcg-sim-demo/replays/*.json | head -n 1)" --log
 ```
 
 The command exits 0 when the replay matches and 1 when it does not. The final-state digest
 replaces the engine's process-local registry numbers with content ids, so it is the same in
-every process. Every `GameRecord` in `games.ndjson` can be replayed the same way with
-`gcg_sim.runner.replay(record, config)`.
+every process. Any game in `games.ndjson` can be re-simulated and verified with `gcg-eval
+replay-game --games-ndjson FILE --results RESULTS --match M --game G`.
 
 ## Data status
 
 ```bash
-uv run gcg-sim data status
-uv run gcg-sim data status --json
+target/release/gcg-sim data status
+target/release/gcg-sim data status --json
 ```
 
 This prints the card-data snapshot (`dataset_version`, build time, counts), the Comprehensive
 Rules version and date, the B&R list date and contents, per-card-type implementation coverage
 from the effect registry, and the number of conflict resolutions and card-data overrides.
-
-## Python API
-
-```python
-from pathlib import Path
-from gcg_sim.deck import load_deck
-from gcg_sim.runner import BenchmarkConfig, run_benchmark
-from gcg_sim.reports import write_reports
-
-if __name__ == "__main__":  # required: workers are started with the "spawn" method
-    config = BenchmarkConfig(
-        deck_under_test=load_deck("examples/decks/red-green-zeon.txt"),
-        benchmark_deck=load_deck("examples/decks/blue-white-federation.txt"),
-        matches=200, seed=1, workers=8,
-    )
-    run = run_benchmark(config, progress=lambda done, total: None)
-    paths = write_reports(run, Path("gcg-sim-out/zeon-vs-federation"))
-```
-
-## Test hook: `GCG_SIM_AGENT_FACTORY`
-
-The test suite sets the environment variable `GCG_SIM_AGENT_FACTORY` to replace the search AI
-with a seeded random agent. The value is `package.module:attr` or `/path/to/file.py:attr`, and
-it names a callable that takes an `AgentSpec` and returns an agent. `results.json` records the
-factory under `ai.factory`. Do not set it for real benchmarks. In Python, pass
-`agent_factory=...` to `run_benchmark`; with `workers > 1` it must be picklable, for example a
-module-level function or `gcg_sim.runner.FactoryRef("module:attr")`.

@@ -213,7 +213,7 @@ fn deck_cases_equal_python() {
     assert!(all.is_empty(), "violation codes without a case: {all:?}");
 }
 
-/// `tests/deck/test_parse.py:132-139` and Inv 03 §3.3: the blue-white example's digest.
+/// `tests/deck/test_parse.py:132-139`: the blue-white example's digest.
 #[test]
 fn example_digest() {
     let path = Path::new(env!("CARGO_MANIFEST_DIR"))

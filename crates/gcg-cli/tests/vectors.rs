@@ -1,5 +1,5 @@
 //! The parser's Python building blocks against CPython 3.15.1 vectors
-//! (`port/oracle/export_cli.py`): `int(text, 0)`, `int(text)`, `str(int)` and its digit
+//! (`oracle/export_cli.py`): `int(text, 0)`, `int(text)`, `str(int)` and its digit
 //! limit, `repr(str)`, `difflib.get_close_matches`, `str(Path(text))`, `textwrap.wrap`, and
 //! the Unicode database version of the generated tables.
 

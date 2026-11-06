@@ -170,7 +170,7 @@ mod tests {
 
     /// The portable `exp` and `ln` are within one unit in the last place of CPython's results
     /// on the golden platform (Apple libm) on the 4,000 recorded inputs of
-    /// `port/oracle/export_vectors.py` (`crates/gcg-core/tests/vectors.json`, `libm`). They are
+    /// `oracle/export_vectors.py` (`crates/gcg-core/tests/vectors.json`, `libm`). They are
     /// not bit-identical to it: 7,358 of the 8,000 results agree exactly (measured 2026-11-02),
     /// which is why the reference keeps the platform functions.
     #[test]

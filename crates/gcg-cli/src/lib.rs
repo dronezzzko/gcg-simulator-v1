@@ -1,6 +1,6 @@
 //! The `gcg-sim` command line: `validate`, `benchmark`, `data status` and `replay` with
 //! Python's flags, messages and exit codes 0/1/2/130, and the two-value `--ai-preset`
-//! (docs/port/PLAN.md §2.1, §2.3, §6.5).
+//! (docs/dev/PLAN.md §2.1, §2.3, §6.5).
 //!
 //! Workstream E: the `gcg-sim` parser, its typed commands and `main`'s flow ([`cli`]), built
 //! on the argparse-compatible parser that `gcg-sim` and `gcg-eval` share

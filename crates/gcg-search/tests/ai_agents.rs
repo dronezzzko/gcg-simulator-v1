@@ -1,4 +1,4 @@
-//! `tests/ai/test_agents.py` (81 cases), ported: legal choices for every decision kind,
+//! `tests/ai/test_agents.py` (81 cases) in Rust: legal choices for every decision kind,
 //! determinism, the decision-log format, root-move pruning and the no-effect check of the
 //! reference factory's agents (random, greedy and the reference MCTS). Every agent decision is
 //! compared with Python's record (`aiport::Recorder`).

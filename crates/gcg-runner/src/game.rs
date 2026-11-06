@@ -1,5 +1,4 @@
-//! Playing and replaying single games (`runner/game.py`; docs/port/inventory/01-rng-runner-cli.md
-//! §2.4, §2.10).
+//! Playing and replaying single games (`runner/game.py`).
 //!
 //! Agents get the true state read-only (`&GameState`, W-135), so Python's "mutated the game
 //! state" check (`runner/game.py:92-93`) cannot fail and has no counterpart (W-49). Between

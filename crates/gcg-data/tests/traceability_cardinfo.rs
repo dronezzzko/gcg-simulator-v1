@@ -1,6 +1,6 @@
-//! Native ports of the card-information rule tests that leave no engine trace (PLAN §9.2): the
-//! per-test trace plugin (`port/oracle/pytest_trace.py`) records only engine calls, so these
-//! data-only tests are listed as `untraced` in `port/corpus/v1/tier1/tests/MANIFEST-tests.json`
+//! Native Rust versions of the card-information rule tests that leave no engine trace (PLAN §9.2): the
+//! per-test trace plugin (`oracle/pytest_trace.py`) records only engine calls, so these
+//! data-only tests are listed as `untraced` in `oracle/corpus/v1/tier1/tests/MANIFEST-tests.json`
 //! and need a native test for Rust evidence.
 //!
 //! - `tests/rules/test_cardinfo.py::test_there_are_five_card_types` (rule 2-3-2)

@@ -2,7 +2,7 @@
 //! and the replay stops at the first divergence, reported as a [`Divergence`] whose `Display`
 //! is the §8.7 report.
 //!
-//! Game and search traces (`port/oracle/traces.py`): a header with a seed starts the game with
+//! Game and search traces (`oracle/traces.py`): a header with a seed starts the game with
 //! `new_game`; a trace without one starts from its first snapshot (determinised worlds,
 //! sampled view states). Each decision compares the pending decision, the option list and the
 //! fingerprint, then the agent block (through an [`AgentOracle`]), then applies the recorded
@@ -15,7 +15,7 @@
 
 #![expect(
     clippy::result_large_err,
-    reason = "replay_trace returns Divergence by value (frozen in docs/port/contracts.md, gcg-diff); \
+    reason = "replay_trace returns Divergence by value (frozen in docs/dev/contracts.md, gcg-diff); \
               every replay step shares that error type"
 )]
 
@@ -34,7 +34,7 @@ use crate::{
 };
 
 /// The function name under which the replay asks the engine for `tests/paranoid.py:24-39`'s
-/// view signature (a `view` record), in the JSON form of `port/oracle/traces.py`
+/// view signature (a `view` record), in the JSON form of `oracle/traces.py`
 /// `view_signature_json`.
 pub const VIEW_SIGNATURE_PROBE: &str = "paranoid.view_signature";
 
@@ -42,7 +42,7 @@ pub const VIEW_SIGNATURE_PROBE: &str = "paranoid.view_signature";
 /// (`EngineUnderTest::call`).
 pub const SCENARIO_START: &str = "Scenario.start";
 
-/// The `new_game` of a game trace's header (`port/oracle/traces.py` `_start`: Python's default
+/// The `new_game` of a game trace's header (`oracle/traces.py` `_start`: Python's default
 /// `validate=True`), or `None` for a header without decks and seed.
 #[must_use]
 pub fn header_spec(h: &Header) -> Option<NewGameSpec> {
@@ -981,7 +981,7 @@ impl<'a> Replay<'a> {
 /// order (`tests/cards/test_wp_gd03_a.py:183` asserts `keywords(...) == {...}`), and no engine
 /// or AI logic reads that order (`ai/values.py:30` uses `len`, `ai/actions.py:356` sorts), so
 /// the replay compares them as mappings. The Rust view keeps keyword amounts in declaration
-/// order (docs/port/EQUIVALENCE.md).
+/// order (docs/dev/EQUIVALENCE.md).
 const DICT_RESULT_PROBES: &[&str] = &["testkit.keywords"];
 
 /// A `[key, value]` pair list as a mapping: the pairs sorted by their JSON-encoded key. Any

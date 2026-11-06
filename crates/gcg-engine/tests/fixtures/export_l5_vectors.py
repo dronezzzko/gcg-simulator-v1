@@ -1,4 +1,4 @@
-"""Export the reference vectors of the gcg-engine layer-5 tests (docs/port/PLAN.md §10.4 C).
+"""Export the reference vectors of the gcg-engine layer-5 tests (docs/dev/PLAN.md §10.4 C).
 
 Writes crates/gcg-engine/tests/fixtures/l5_vectors.ndjson, one record per line, keyed by "t":
 
@@ -10,7 +10,7 @@ Writes crates/gcg-engine/tests/fixtures/l5_vectors.ndjson, one record per line, 
 - ``game``: a game played by a fixed policy (option 0, or seeded random options), with every
   decision (turn, step, kind, player, option count, chosen action, digest before it) and the
   final state;
-- ``observe``: a snapshot (the side tables of ``port/oracle/export_state_fixtures.py``) with
+- ``observe``: a snapshot (the side tables of ``oracle/export_state_fixtures.py``) with
   ``unknown_instances``, ``unknown_pools``, ``determinize`` and ``permute_hidden`` results and
   information-set-key equalities per (observer, seed);
 - ``invariants``: a snapshot (possibly broken on purpose) with the result of
@@ -31,7 +31,7 @@ from pathlib import Path
 from typing import Any
 
 ROOT = Path(__file__).resolve().parents[4]
-sys.path.insert(0, str(ROOT / "port" / "oracle"))
+sys.path.insert(0, str(ROOT / "oracle"))
 
 from export_state_fixtures import snapshot_record  # noqa: E402
 
