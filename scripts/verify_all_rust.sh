@@ -167,8 +167,9 @@ python3 scripts/check_claude_settings.py --selftest
 python3 scripts/doc_counts.py --check
 python3 scripts/gate_summary.py
 
-# The Python reference stays untouched (PLAN A15).
-git diff --quiet d9d41af -- src/gcg_sim tests
+# The Python reference stays untouched (PLAN A15) since its last change, the package commit of
+# the latest data refresh (/gcg-refresh-data moves this baseline; d9d41af before 2026-11-06).
+git diff --quiet 8f2ba29 -- src/gcg_sim tests
 if [[ -n "$(git status --porcelain --untracked-files=all -- src/gcg_sim tests)" ]]; then
   echo "files were added under src/gcg_sim or tests" >&2; exit 1; fi
 

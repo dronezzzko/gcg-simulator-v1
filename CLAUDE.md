@@ -71,7 +71,8 @@ scripts/verify_all_rust.sh
 ## The Python oracle
 
 The Python package stays unchanged as the oracle: never edit `src/gcg_sim/` or `tests/`
-(every gate checks `git diff --quiet d9d41af -- src/gcg_sim tests`). Its effect toolchain
+outside a data refresh (every gate checks `git diff --quiet 8f2ba29 -- src/gcg_sim tests`,
+the package commit of the 2026-11-06 refresh). Its effect toolchain
 (`effects/`, `cards/`, `data/`) is also the generator of the effect IR that the Rust binaries
 embed. Tooling outside the package lives in `oracle/` (the oracle exporters) and
 `scripts/` (the gates and helpers).
