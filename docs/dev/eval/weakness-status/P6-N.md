@@ -2,7 +2,7 @@
 
 Package P6-N of docs/dev/PLAN.md §12.2: W-110, W-111, W-112, W-113, W-114, W-115, W-117, W-118,
 W-119, W-120, W-121, W-122, W-126, W-128, W-129, W-130, W-151, W-153, W-154, W-160. Built on
-commit 8ae4767. This file does not edit docs/dev/WEAKNESSES.md: the lead copies the status lines
+rust-port at 8ae4767 (squashed into commit 83a06c8). This file does not edit docs/dev/WEAKNESSES.md: the lead copies the status lines
 in (PLAN §12.10). Evidence files are under docs/dev/eval/P6-N/.
 
 Every change is in the package's files: `crates/gcg-diff/src/coverage.rs`,
@@ -451,7 +451,7 @@ search:fast --paranoid --workers auto` and the `mixed:greedy,search:fast` one wi
 10. `gcg-data`: public from-text loaders for `manifest.json` and the official JSON files would let
     W-121's fixture test cover those formats too (the P6-K notes 1-2 move the same code).
 11. W-120's settings change waits for the user's answer.
-12. `target/release/gcg-diff traceability --check` fails at the base commit 8ae4767, before any
+12. `target/release/gcg-diff traceability --check` fails at the base (rust-port at 8ae4767, squashed into commit 83a06c8), before any
     P6-N change: P6-K (7614bec) added native tests tagged `// gcg-tags:` in
     `crates/gcg-engine/tests/p6k_behaviour.rs` (for example `w66_two_target_commands_need_both_targets`
     on rules 10-1-8-1-1, 10-2-2 and 10-3-3-1) after docs/RULES_TRACEABILITY.md and

@@ -2,8 +2,8 @@
 
 The raw reports behind `docs/dev/eval/weakness-status/P6-H.md`. Every row ran
 `target/release/gcg-eval` built (release profile, `--offline`) from the mechanism code of
-commit 86e481d (`crates/gcg-search/src/mech/p6h/`; later P6-H commits change tests and
-documents only), with `--workers 10` (4 for the two regret runs; outputs are identical for any
+the P6-H worktree at 86e481d (integrated at M13 and squashed into commit 83a06c8;
+`crates/gcg-search/src/mech/p6h/`; later P6-H commits change tests and documents only), with `--workers 10` (4 for the two regret runs; outputs are identical for any
 worker count). The seeds are dev- and confirm-role masters (PLAN A14) recorded in
 `docs/dev/eval/P6-H/seed-ledger.json`, to be merged into the shared ledger (the default
 `--ledger`, `seed-ledger.json` next to `docs/dev/eval/panel.json`). The files are not yet in the

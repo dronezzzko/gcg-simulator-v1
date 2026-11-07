@@ -2,7 +2,7 @@
 
 Package P6-I of docs/dev/PLAN.md §12.2: W-19, W-20, W-21, W-22, W-40, W-41, W-42, W-43,
 W-123, W-127, W-150, W-152, and the `gcg-eval` tools every later Phase 6 package measures with.
-Built on commit 3fbb8aa. Every change is in `crates/gcg-eval/` (sources, tests, schema, fixture)
+Built on rust-port at 3fbb8aa (squashed into commit 83a06c8). Every change is in `crates/gcg-eval/` (sources, tests, schema, fixture)
 and this file; no engine, AI, runner or CLI crate was edited. This file does not edit
 docs/dev/WEAKNESSES.md: the lead copies the status lines in (PLAN §12.10).
 

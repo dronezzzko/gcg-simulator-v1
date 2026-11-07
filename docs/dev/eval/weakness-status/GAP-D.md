@@ -3,7 +3,7 @@
 Package GAP-D closes residual items of `docs/dev/eval/weakness-gaps.md`: W-110 (§6), W-118 (§6),
 W-126 (§6), W-129 (§6), W-154 (§6), the re-verification of W-150 and W-152 on the M15 presets
 (§8), and the `docs/dev/tests.json` bookkeeping list (§10). Written on 2026-11-02/03 in worktree
-branch `worktree-wf_9f38bb2b-c03-5`, from commit 1007ca9. WEAKNESSES.md and tests.json are not
+branch `worktree-wf_9f38bb2b-c03-5`, from rust-port at 1007ca9 (squashed into commit 83a06c8). WEAKNESSES.md and tests.json are not
 edited here; the lead records the status lines from this file.
 
 Commits on the branch:

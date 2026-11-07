@@ -261,7 +261,7 @@ each item says "Ablation: no AI effect (P6-L common row)".
 - **Ablation:** no AI effect (P6-L common row).
 
 ### W-144 — resolved (landed at M4; P6-L adds the e2e and memory evidence)
-- **What landed** (M4, commit `a4977be`, workstream A: `crates/gcg-data/src/deck.rs`, `contracts.rs`):
+- **What landed** (M4, rust-port at `a4977be`, squashed into commit 83a06c8; workstream A: `crates/gcg-data/src/deck.rs`, `contracts.rs`):
   - counts are read as `u64` with Python's grammar (Unicode digits);
   - a count longer than `int()` accepts (4,300 digits) is a SYNTAX violation naming the line,
     as is a count that does not fit `u64` when nothing else stops the parse;

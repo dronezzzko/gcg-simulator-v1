@@ -337,7 +337,7 @@ Answer: the single tree is flat from 0.5x to 2x (0.502, 0.502, 0.510) and gains 
 - `crates/gcg-eval/src/agent_spec.rs` (outside the owned files, needed for the gate):
   `search_overrides_reach_the_mechanism_flags` used `root_trees` as its unavailable
   mechanism; it now checks that `root_trees` parses and pins `opponent_buckets` (P6-C) as the
-  refused one (commit `95cc313`).
+  refused one (the P6-D worktree at `95cc313`, integrated at M13 and squashed into commit 83a06c8).
 
 ## Gate
 
