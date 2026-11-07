@@ -75,8 +75,8 @@ decision the hits of the rest of the turn with no Blocker.
 
 ## Ablation rows (PLAN §12.4)
 
-All rows ran with one `gcg-eval` build of this package's code (commit `941c71b`; later edits
-touched test code only), 400 games per row (1,600 for the confirmations) in mirrored blocks of
+All rows ran with one `gcg-eval` build of this package's code (its worktree head `941c71b`,
+integrated at M14 and squashed into commit 83a06c8; later edits touched test code only), 400 games per row (1,600 for the confirmations) in mirrored blocks of
 four, stratified round-robin over the 15 tuning pairs of `docs/dev/eval/panel.json`, forced
 play/draw (`--choose-first seat0`, A24), `--workers 10`.
 The machine was shared with other packages' runs (load average 40 to 100 on 10 cores), which
