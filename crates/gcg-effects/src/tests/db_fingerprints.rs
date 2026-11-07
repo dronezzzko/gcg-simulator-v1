@@ -114,8 +114,8 @@ fn an_ir_of_another_card_database_is_refused() {
         err,
         IrError::DataMismatch {
             which: "defs",
-            expected: "1153 definitions".into(),
-            found: "1152 definitions".into(),
+            expected: "1291 definitions".into(),
+            found: "1290 definitions".into(),
         }
     );
     // One alternative printing fewer: the same definitions with other product ids.

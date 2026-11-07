@@ -1,6 +1,6 @@
 # gcg-sim
 
-A deterministic Gundam Card Game (Comprehensive Rules Ver. 1.9.0) engine, AI and deck benchmark
+A deterministic Gundam Card Game (Comprehensive Rules Ver. 1.10.0) engine, AI and deck benchmark
 CLI, implemented in Rust (`crates/`, binaries `gcg-sim` and `gcg-eval`). The Python package
 (`src/gcg_sim`) is the reference oracle and the effect-IR generator. Start with `README.md`.
 Architecture: `docs/dev/ARCHITECTURE.md` (Rust) and `docs/ARCHITECTURE.md` (the oracle). AI
@@ -71,7 +71,8 @@ scripts/verify_all_rust.sh
 ## The Python oracle
 
 The Python package stays unchanged as the oracle: never edit `src/gcg_sim/` or `tests/`
-(every gate checks `git diff --quiet d9d41af -- src/gcg_sim tests`). Its effect toolchain
+outside a data refresh (every gate checks `git diff --quiet 8f2ba29 -- src/gcg_sim tests`,
+the package commit of the 2026-11-06 refresh). Its effect toolchain
 (`effects/`, `cards/`, `data/`) is also the generator of the effect IR that the Rust binaries
 embed. Tooling outside the package lives in `oracle/` (the oracle exporters) and
 `scripts/` (the gates and helpers).

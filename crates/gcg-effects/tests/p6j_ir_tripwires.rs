@@ -124,8 +124,8 @@ fn redirect_sources(ir: &Value) -> Vec<String> {
         .collect()
 }
 
-/// A new redirect source can close a new chain or cycle (the two-GD04-095 cycle fails a game,
-/// `RedirectCycle`), so each one is reviewed before this list changes. Python lists the same
+/// A new redirect source can close a new chain or cycle (each redirection applies once per
+/// damage, ruling GD06-018:Q494), so each one is reviewed before this list changes. Python lists the same
 /// two (`"REDIRECT_BATTLE_DAMAGE" in repr(ability)` over `R.cards`); the registry-level twin
 /// is `gcg-engine` `core::tests::redirect_sources_are_reviewed`.
 #[test]
@@ -133,7 +133,7 @@ fn w143_redirect_sources_are_reviewed() {
     let ir = load();
     assert_eq!(
         redirect_sources(&ir),
-        ["GD04-087", "GD04-095"],
+        ["GD04-087", "GD04-095", "GD06-018"],
         "a new battle-damage redirect source: review it for redirect cycles (W-143)"
     );
 }
@@ -146,7 +146,7 @@ fn w143_a_third_redirect_source_fails_the_tripwire() {
     let i = card_index(&ir, "GD01-060");
     ir["cards"][i]["script"] = script;
     let found = redirect_sources(&ir);
-    assert_ne!(found, ["GD04-087", "GD04-095"]);
+    assert_ne!(found, ["GD04-087", "GD04-095", "GD06-018"]);
     assert!(found.iter().any(|c| c == "GD01-060"), "{found:?}");
 }
 
@@ -194,7 +194,7 @@ fn w158_no_prevention_threshold_is_computed() {
     );
     assert_eq!(
         counts,
-        [125, 25, 24],
+        [140, 26, 25],
         "RuleMods, CANT_RECEIVE_DAMAGE ones, their cards"
     );
 }
@@ -300,8 +300,9 @@ fn strs(xs: &[&str]) -> Vec<String> {
 
 /// `HappenedThisTurn` matches its filters against the card as it is now, not as it was when the
 /// event happened (W-159; Rust keeps this exactly). Each new use is reviewed before this list
-/// changes: exactly the five bindings of the entry. GD03-001's identity-only filter is not on
-/// it.
+/// changes: the five bindings of the entry, and GD06-070, whose `IsKind(UNIT)` on the paying
+/// card reads its printed type, which does not change after the payment (2026-11-06).
+/// GD03-001's identity-only filter is not on it.
 #[test]
 fn w159_history_filters_on_characteristics_are_reviewed() {
     let got = history_characteristics(&load());
@@ -330,6 +331,11 @@ fn w159_history_filters_on_characteristics_are_reviewed() {
             "GD05-129".to_owned(),
             "destroyed".to_owned(),
             strs(&["HasTrait", "IsKind"]),
+        ),
+        (
+            "GD06-070".to_owned(),
+            "resource_paid".to_owned(),
+            strs(&["IsKind"]),
         ),
     ];
     assert_eq!(

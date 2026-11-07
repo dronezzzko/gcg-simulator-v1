@@ -16,26 +16,26 @@ fn count(name: &str) -> i64 {
 #[test]
 fn counts_match_the_inventory_and_the_ir() {
     let t = tables();
-    assert_eq!(t.cards.len(), 1153);
+    assert_eq!(t.cards.len(), 1291);
     assert_eq!(t.cards.iter().filter(|c| c.script.is_none()).count(), 0);
     let by_source = |s: ScriptSource| t.cards.iter().filter(|c| c.source == s).count();
-    assert_eq!(by_source(ScriptSource::Binding), 302);
-    assert_eq!(by_source(ScriptSource::Compiled), 538);
-    assert_eq!(by_source(ScriptSource::Vanilla), 313);
-    assert_eq!(t.abilities.len(), 1260);
-    assert_eq!(t.programs.len(), 623 + 3);
-    let build_instrs: usize = t.programs[..623].iter().map(|p| p.instrs.len()).sum();
-    assert_eq!(build_instrs, 1830);
-    assert_eq!(t.aliases.len(), 3);
+    assert_eq!(by_source(ScriptSource::Binding), 352);
+    assert_eq!(by_source(ScriptSource::Compiled), 607);
+    assert_eq!(by_source(ScriptSource::Vanilla), 332);
+    assert_eq!(t.abilities.len(), 1447);
+    assert_eq!(t.programs.len(), 709 + 3);
+    let build_instrs: usize = t.programs[..709].iter().map(|p| p.instrs.len()).sum();
+    assert_eq!(build_instrs, 2099);
+    assert_eq!(t.aliases.len(), 5);
     assert_eq!(
         t.cards.iter().filter(|c| c.events != EvSet::EMPTY).count(),
-        480
+        549
     );
     assert!(!t.hp_reduction_possible);
     for (name, n) in [
         ("defs", t.cards.len()),
         ("abilities", t.abilities.len()),
-        ("build_programs", 623),
+        ("build_programs", 709),
         ("system_programs", 3),
         ("build_instrs", build_instrs),
         ("instrs", t.programs.iter().map(|p| p.instrs.len()).sum()),
@@ -54,7 +54,10 @@ fn counts_match_the_inventory_and_the_ir() {
 fn always_events_and_aliases_match_the_inventory() {
     let t = tables();
     let v = t.view();
-    let always = EvSet::EMPTY.with(Ev::DestroysByBattle).with(Ev::TurnEnd);
+    let always = EvSet::EMPTY
+        .with(Ev::DestroysByBattle)
+        .with(Ev::TurnEnd)
+        .with(Ev::DealsDamage);
     assert_eq!(t.always_events, always);
     let alias =
         |def: u16| -> Vec<&str> { v.aliases(DefId(def)).iter().map(|s| v.str(*s)).collect() };
@@ -67,6 +70,8 @@ fn always_events_and_aliases_match_the_inventory() {
         named,
         [
             ("GD02-098", vec!["Char Aznable"]),
+            ("GD06-090", vec!["Gaelio Bauduin"]),
+            ("GD06-092", vec!["Mu La Flaga"]),
             ("ST12-011", vec!["Zechs Merquise"]),
             ("ST12-012", vec!["Marida Cruz"]),
         ]
@@ -86,12 +91,12 @@ fn keyword_and_system_programs_have_fixed_ids_and_labels() {
         assert_eq!(v.keyword_program(kw), ProgramId(id));
         assert_eq!(v.str(v.program(ProgramId(id)).label), label);
     }
-    for (s, id) in SystemProgram::ALL.into_iter().zip([623u16, 624, 625]) {
+    for (s, id) in SystemProgram::ALL.into_iter().zip([709u16, 710, 711]) {
         assert_eq!(v.system_program(s), ProgramId(id));
         assert_eq!(v.str(v.program(ProgramId(id)).label), s.label());
     }
     assert_eq!(
-        v.repr(v.program(ProgramId(625)).instrs[0]),
+        v.repr(v.program(ProgramId(711)).instrs[0]),
         "Discard(count=Sum(terms=(HandSize(player=<P.YOU: 'you'>), -10)), \
          player=<P.YOU: 'you'>, chooser=None, random=False, filters=(), var='discarded')"
     );
@@ -109,7 +114,7 @@ fn happened_this_turn_kinds_are_recorded_kinds() {
         .iter()
         .map(|k| k.as_str().expect("kind"))
         .collect();
-    assert_eq!(recorded.len(), 22);
+    assert_eq!(recorded.len(), 24);
     let mut kinds: Vec<&str> = t
         .nodes
         .iter()
@@ -129,13 +134,16 @@ fn happened_this_turn_kinds_are_recorded_kinds() {
     assert_eq!(
         kinds,
         [
+            "attack",
             "command_activated",
             "cost_paid",
             "deployed",
             "destroyed",
             "destroys_by_battle_paired",
             "discard",
+            "draw_by_effect",
             "paired",
+            "resource_paid",
             "resource_set_active"
         ]
     );

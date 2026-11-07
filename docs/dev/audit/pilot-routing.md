@@ -106,6 +106,27 @@ abilities stay with the Pilot card; every other ability is gained by the paired 
 | GD05-099 | Trowa Barton | Burst | Triggered(destroys_by_battle) |
 | GD05-100 | Quatre Raberba Winner | Burst | Triggered(paired) |
 | GD05-101 | Gavane Goonny | Burst | Triggered(cost_paid) |
+| GD06-080 | Kou Uraki | Burst | Activated(action) |
+| GD06-081 | Amate Yuzuriha (Machu) | Burst | Constant |
+| GD06-082 | Athrun Zala | Burst | Triggered(paired) |
+| GD06-083 | Challia Bull (GQ) | Burst | Constant(gate=linked) |
+| GD06-084 | Elpeo Ple | Burst | Triggered(paired) |
+| GD06-085 | Gym Ghingnham | Burst | Constant(gate=linked) |
+| GD06-086 | Mashymre Cello | Burst; PlayModifier | — |
+| GD06-087 | Merrybell Gadget | Burst | Triggered(attacks) |
+| GD06-088 | Judau Ashta | Burst | Triggered(destroyed, gate=linked) |
+| GD06-089 | McGillis Fareed | Burst | Triggered(destroys_shield_card, gate=linked) |
+| GD06-090 | Vidar | NameAlias(Gaelio Bauduin); Burst | Triggered(attacks) |
+| GD06-091 | Roux Louka | Burst | Constant |
+| GD06-092 | Neo Lorrnoke | NameAlias(Mu La Flaga); Burst | Triggered(paired) |
+| GD06-093 | Anavel Gato | Burst | Triggered(attacks) |
+| GD06-094 | Nyaan | Burst | Triggered(paired) |
+| GD06-095 | Kelley Layzner | Burst | Triggered(attacks) |
+| GD06-096 | Xavier Olivette | Burst | Triggered(attacks, gate=linked) |
+| GD06-097 | Harry Ord | Burst | Triggered(blocks) |
+| GD06-098 | Duo Maxwell | Burst | Constant(gate=linked) |
+| GD06-099 | Chang Wufei | Burst | Triggered(attacks) |
+| GD06-100 | Corin Nander | Burst; PlayModifier | — |
 | ST01-010 | Amuro Ray | Burst | Triggered(paired) |
 | ST01-011 | Suletta Mercury | Burst | Triggered(attacks) |
 | ST02-010 | Heero Yuy | Burst | Constant(gate=linked) |
@@ -137,4 +158,4 @@ abilities stay with the Pilot card; every other ability is gained by the paired 
 | ST14-011 | Paptimus Scirocco | Burst | Triggered(attacks) |
 | ST14-012 | Banagher Links | Burst | Triggered(paired) |
 
-Pilot cards: 127.
+Pilot cards: 148.

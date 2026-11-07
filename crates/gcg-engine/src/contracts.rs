@@ -940,8 +940,9 @@ pub enum EngineError {
     Assertion(String),
     /// `UnimplementedCardError` (`effects/registry.py:143-147`).
     Unimplemented(UnimplementedCardError),
-    /// W-143: a REDIRECT_BATTLE_DAMAGE chain revisits a Unit (`core.py:576-599`); Python
-    /// raises `RecursionError`.
+    /// W-143: a REDIRECT_BATTLE_DAMAGE chain revisited a Unit; Python raised `RecursionError`.
+    /// Since the 2026-11-06 refresh each redirection applies once per damage (ruling
+    /// GD06-018:Q494) and the engine no longer returns it; the variant stays for the API.
     RedirectCycle { uids: Box<[Uid]> },
     /// A data-dependent integer left its Rust type (PLAN §4.1 item 6).
     Overflow { what: &'static str },

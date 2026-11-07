@@ -114,15 +114,15 @@ fn w73_vanilla_predicate_equals_the_enumerated_list_with_negative_control() {
         .real_cards()
         .filter(|d| official::matches(&rule.member_predicate, d, None))
         .count();
-    assert_eq!((matched, rule.enumerated.len()), (22, 22));
+    assert_eq!((matched, rule.enumerated.len()), (25, 25));
 
     let (_, copy) = with_printings(&[vanilla_shape("SY01-001", "-", "-", json!("Blue"))]);
     assert_eq!(
         vanilla_divergence(&copy, bl, &doc),
         [
             "vanilla-lv2-cost1-ap2-hp2: SY01-001 matches the predicate but is not enumerated",
-            "vanilla-lv2-cost1-ap2-hp2: predicate_matches_in_card_data lists 22 cards, the pool \
-             has 23"
+            "vanilla-lv2-cost1-ap2-hp2: predicate_matches_in_card_data lists 25 cards, the pool \
+             has 26"
         ]
     );
     let mut edited = doc.clone();
@@ -322,6 +322,8 @@ fn w74_name_contains_misses_no_alias_with_negative_control() {
         text_aliases,
         [
             ("GD02-098", vec!["Char Aznable".to_owned()]),
+            ("GD06-090", vec!["Gaelio Bauduin".to_owned()]),
+            ("GD06-092", vec!["Mu La Flaga".to_owned()]),
             ("ST12-011", vec!["Zechs Merquise".to_owned()]),
             ("ST12-012", vec!["Marida Cruz".to_owned()]),
         ]
@@ -331,7 +333,7 @@ fn w74_name_contains_misses_no_alias_with_negative_control() {
         .real_cards()
         .filter(|d| d.card_type == gcg_data::CardType::Command && d.pilot_name.is_some())
         .collect();
-    assert_eq!(pilot_commands.len(), 68);
+    assert_eq!(pilot_commands.len(), 77);
 
     // Negative controls: a name rule on a 【Pilot】 name and on a text alias.
     let probe = pilot_commands

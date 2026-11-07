@@ -14,7 +14,7 @@
 //! `Option<X>` and `tuple[X, ...]` is `Box<[X]>`.
 //!
 //! Sources (SHA-256):
-//! - `src/gcg_sim/effects/dsl.py` `221b5a63e17cdb39da12c098a9b4837e6cd7c5b5eb351355d8ca3c212e00386a`
+//! - `src/gcg_sim/effects/dsl.py` `c8ce7ab48ac24132fd39ee1856f9ca01204aa1d3f3f5ddc4f50a8894ddf5399c`
 //! - `src/gcg_sim/effects/program.py` `bd7dc5f56ec1da875cf640c4b57a1f8290d4e9b7001b1c392120194425c1bb19`
 //! - `src/gcg_sim/engine/types.py` `bb8fba6517d4aaad62e21ef96322ee62ebaf6e89b435322eb15a7b709e4a998b`
 
@@ -677,14 +677,16 @@ pub enum RuleKind {
     RedirectBattleDamage = 26,
     /// `REST_SUBSTITUTE = 'rest_substitute'`
     RestSubstitute = 27,
+    /// `INCREASE_DAMAGE = 'increase_damage'`
+    IncreaseDamage = 28,
     /// `CUSTOM = 'custom'`
-    Custom = 28,
+    Custom = 29,
 }
 
 impl RuleKind {
     pub const PY_CLASS: &'static str = "RuleKind";
     /// Declaration order.
-    pub const ALL: [Self; 29] = [
+    pub const ALL: [Self; 30] = [
         Self::CantAttack,
         Self::CantAttackPlayer,
         Self::CantAttackUnits,
@@ -713,10 +715,11 @@ impl RuleKind {
         Self::ApCantBeReduced,
         Self::RedirectBattleDamage,
         Self::RestSubstitute,
+        Self::IncreaseDamage,
         Self::Custom,
     ];
     /// Sorted by value string, as Python's `sorted()` orders a `StrEnum`.
-    pub const SORTED_BY_VALUE: [Self; 29] = [
+    pub const SORTED_BY_VALUE: [Self; 30] = [
         Self::ApCantBeReduced,
         Self::AttackOnDeployTurn,
         Self::AttackTargetFixed,
@@ -735,6 +738,7 @@ impl RuleKind {
         Self::Custom,
         Self::DeployedRested,
         Self::ForceAttackTarget,
+        Self::IncreaseDamage,
         Self::MayAttackActive,
         Self::MustAttack,
         Self::NoBlockerVs,
@@ -780,6 +784,7 @@ impl RuleKind {
             Self::ApCantBeReduced => "ap_cant_be_reduced",
             Self::RedirectBattleDamage => "redirect_battle_damage",
             Self::RestSubstitute => "rest_substitute",
+            Self::IncreaseDamage => "increase_damage",
             Self::Custom => "custom",
         }
     }
@@ -816,6 +821,7 @@ impl RuleKind {
             Self::ApCantBeReduced => "AP_CANT_BE_REDUCED",
             Self::RedirectBattleDamage => "REDIRECT_BATTLE_DAMAGE",
             Self::RestSubstitute => "REST_SUBSTITUTE",
+            Self::IncreaseDamage => "INCREASE_DAMAGE",
             Self::Custom => "CUSTOM",
         }
     }
@@ -852,13 +858,14 @@ impl RuleKind {
             "ap_cant_be_reduced" => Some(Self::ApCantBeReduced),
             "redirect_battle_damage" => Some(Self::RedirectBattleDamage),
             "rest_substitute" => Some(Self::RestSubstitute),
+            "increase_damage" => Some(Self::IncreaseDamage),
             "custom" => Some(Self::Custom),
             _ => None,
         }
     }
 }
 
-/// Python `DamageKind` (`effects/dsl.py:625`), a `StrEnum`: discriminants are the
+/// Python `DamageKind` (`effects/dsl.py:628`), a `StrEnum`: discriminants are the
 /// declaration order, which is also the derived `Ord`; sort by value only through
 /// `SORTED_BY_VALUE`.
 #[repr(u8)]
@@ -911,7 +918,7 @@ impl DamageKind {
     }
 }
 
-/// Python `Ev` (`effects/dsl.py:692`), a `StrEnum`: discriminants are the
+/// Python `Ev` (`effects/dsl.py:695`), a `StrEnum`: discriminants are the
 /// declaration order, which is also the derived `Ord`; sort by value only through
 /// `SORTED_BY_VALUE`.
 #[repr(u8)]
@@ -1182,7 +1189,7 @@ impl Ev {
     }
 }
 
-/// Python `Timing` (`effects/dsl.py:1250`), a `StrEnum`: discriminants are the
+/// Python `Timing` (`effects/dsl.py:1256`), a `StrEnum`: discriminants are the
 /// declaration order, which is also the derived `Ord`; sort by value only through
 /// `SORTED_BY_VALUE`.
 #[repr(u8)]
@@ -1235,7 +1242,7 @@ impl Timing {
     }
 }
 
-/// Python `Where` (`effects/dsl.py:1256`), a `StrEnum`: discriminants are the
+/// Python `Where` (`effects/dsl.py:1262`), a `StrEnum`: discriminants are the
 /// declaration order, which is also the derived `Ord`; sort by value only through
 /// `SORTED_BY_VALUE`.
 #[repr(u8)]
@@ -1293,7 +1300,7 @@ impl Where {
     }
 }
 
-/// Python `Gate` (`effects/dsl.py:1265`), a `StrEnum`: discriminants are the
+/// Python `Gate` (`effects/dsl.py:1271`), a `StrEnum`: discriminants are the
 /// declaration order, which is also the derived `Ord`; sort by value only through
 /// `SORTED_BY_VALUE`.
 #[repr(u8)]
@@ -1605,11 +1612,15 @@ pub enum FilterHook {
     GD04aHasPartnerInTrash = 7,
     /// `wp_gd05_b_can_pair` (`effects/bindings/wp_gd05_b.py:106`)
     GD05bCanPair = 8,
+    /// `wp_gd06_a_name_unlike` (`effects/bindings/wp_gd06_a.py:77`)
+    GD06aNameUnlike = 9,
+    /// `wp_gd06_b_link_names` (`effects/bindings/wp_gd06_b.py:95`)
+    GD06bLinkNames = 10,
 }
 
 impl FilterHook {
     /// Registration order.
-    pub const ALL: [Self; 9] = [
+    pub const ALL: [Self; 11] = [
         Self::IsAttackTarget,
         Self::GD03aHasDestroyedEffect,
         Self::GD03aLowestHp,
@@ -1619,6 +1630,8 @@ impl FilterHook {
         Self::GD04aHasPrintedKeyword,
         Self::GD04aHasPartnerInTrash,
         Self::GD05bCanPair,
+        Self::GD06aNameUnlike,
+        Self::GD06bLinkNames,
     ];
 
     /// The Python hook name.
@@ -1634,6 +1647,8 @@ impl FilterHook {
             Self::GD04aHasPrintedKeyword => "wp_gd04_a_has_printed_keyword",
             Self::GD04aHasPartnerInTrash => "wp_gd04_a_has_partner_in_trash",
             Self::GD05bCanPair => "wp_gd05_b_can_pair",
+            Self::GD06aNameUnlike => "wp_gd06_a_name_unlike",
+            Self::GD06bLinkNames => "wp_gd06_b_link_names",
         }
     }
 
@@ -1650,6 +1665,8 @@ impl FilterHook {
             "wp_gd04_a_has_printed_keyword" => Some(Self::GD04aHasPrintedKeyword),
             "wp_gd04_a_has_partner_in_trash" => Some(Self::GD04aHasPartnerInTrash),
             "wp_gd05_b_can_pair" => Some(Self::GD05bCanPair),
+            "wp_gd06_a_name_unlike" => Some(Self::GD06aNameUnlike),
+            "wp_gd06_b_link_names" => Some(Self::GD06bLinkNames),
             _ => None,
         }
     }
@@ -2196,7 +2213,7 @@ pub struct CustomCond {
     pub params: Box<[(StrId, ParamValue)]>,
 }
 
-/// Python `RuleMod` (`effects/dsl.py:631`).
+/// Python `RuleMod` (`effects/dsl.py:634`).
 #[derive(Clone, PartialEq, Eq, Hash, Debug)]
 pub struct RuleMod {
     /// `kind: RuleKind`
@@ -2215,7 +2232,7 @@ pub struct RuleMod {
     pub name: StrId,
 }
 
-/// Python `StatMod` (`effects/dsl.py:648`).
+/// Python `StatMod` (`effects/dsl.py:651`).
 #[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)]
 pub struct StatMod {
     /// `ap: Value = 0`
@@ -2224,7 +2241,7 @@ pub struct StatMod {
     pub hp: ValueRef,
 }
 
-/// Python `KeywordGrant` (`effects/dsl.py:654`).
+/// Python `KeywordGrant` (`effects/dsl.py:657`).
 #[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)]
 pub struct KeywordGrant {
     /// `keyword: Kw`
@@ -2233,21 +2250,21 @@ pub struct KeywordGrant {
     pub amount: ValueRef,
 }
 
-/// Python `TraitGrant` (`effects/dsl.py:660`).
+/// Python `TraitGrant` (`effects/dsl.py:663`).
 #[derive(Clone, PartialEq, Eq, Hash, Debug)]
 pub struct TraitGrant {
     /// `traits: tuple[str, ...]`
     pub traits: Box<[StrId]>,
 }
 
-/// Python `RuleGrant` (`effects/dsl.py:665`).
+/// Python `RuleGrant` (`effects/dsl.py:668`).
 #[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)]
 pub struct RuleGrant {
     /// `rule: RuleMod`
     pub rule: RuleModId,
 }
 
-/// Python `AbilityGrant` (`effects/dsl.py:670`).
+/// Python `AbilityGrant` (`effects/dsl.py:673`).
 #[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)]
 pub struct AbilityGrant {
     /// `card_number: str`
@@ -2256,7 +2273,7 @@ pub struct AbilityGrant {
     pub ability_index: i64,
 }
 
-/// Python `CostMod` (`effects/dsl.py:678`).
+/// Python `CostMod` (`effects/dsl.py:681`).
 #[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)]
 pub struct CostMod {
     /// `cost: Value = 0`
@@ -2265,7 +2282,7 @@ pub struct CostMod {
     pub level: ValueRef,
 }
 
-/// Python `Trigger` (`effects/dsl.py:730`).
+/// Python `Trigger` (`effects/dsl.py:733`).
 #[derive(Clone, PartialEq, Eq, Hash, Debug)]
 pub struct Trigger {
     /// `event: Ev`
@@ -2288,18 +2305,18 @@ pub struct Trigger {
     pub include_self: bool,
 }
 
-/// Python `RestSelf` (`effects/dsl.py:753`).
+/// Python `RestSelf` (`effects/dsl.py:756`).
 #[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)]
 pub struct RestSelf;
 
-/// Python `PayResources` (`effects/dsl.py:758`).
+/// Python `PayResources` (`effects/dsl.py:761`).
 #[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)]
 pub struct PayResources {
     /// `amount: int`
     pub amount: i64,
 }
 
-/// Python `RestCards` (`effects/dsl.py:765`).
+/// Python `RestCards` (`effects/dsl.py:768`).
 #[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)]
 pub struct RestCards {
     /// `sel: Sel`
@@ -2308,7 +2325,7 @@ pub struct RestCards {
     pub count: i64,
 }
 
-/// Python `DestroyCards` (`effects/dsl.py:771`).
+/// Python `DestroyCards` (`effects/dsl.py:774`).
 #[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)]
 pub struct DestroyCards {
     /// `sel: Sel`
@@ -2317,7 +2334,7 @@ pub struct DestroyCards {
     pub count: i64,
 }
 
-/// Python `DiscardCards` (`effects/dsl.py:777`).
+/// Python `DiscardCards` (`effects/dsl.py:780`).
 #[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)]
 pub struct DiscardCards {
     /// `sel: Sel`
@@ -2326,7 +2343,7 @@ pub struct DiscardCards {
     pub count: i64,
 }
 
-/// Python `ExileCards` (`effects/dsl.py:783`).
+/// Python `ExileCards` (`effects/dsl.py:786`).
 #[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)]
 pub struct ExileCards {
     /// `sel: Sel`
@@ -2335,19 +2352,19 @@ pub struct ExileCards {
     pub count: i64,
 }
 
-/// Python `ReturnSelf` (`effects/dsl.py:789`).
+/// Python `ReturnSelf` (`effects/dsl.py:792`).
 #[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)]
 pub struct ReturnSelf;
 
-/// Python `DestroySelf` (`effects/dsl.py:794`).
+/// Python `DestroySelf` (`effects/dsl.py:797`).
 #[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)]
 pub struct DestroySelf;
 
-/// Python `TrashSelf` (`effects/dsl.py:799`).
+/// Python `TrashSelf` (`effects/dsl.py:802`).
 #[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)]
 pub struct TrashSelf;
 
-/// Python `Choose` (`effects/dsl.py:820`).
+/// Python `Choose` (`effects/dsl.py:823`).
 #[derive(Clone, PartialEq, Eq, Hash, Debug)]
 pub struct Choose {
     /// `var: str`
@@ -2372,7 +2389,7 @@ pub struct Choose {
     pub after_then: bool,
 }
 
-/// Python `ChooseMode` (`effects/dsl.py:842`).
+/// Python `ChooseMode` (`effects/dsl.py:845`).
 #[derive(Clone, PartialEq, Eq, Hash, Debug)]
 pub struct ChooseMode {
     /// `options: tuple[tuple[str, tuple[Step, ...]], ...]`
@@ -2381,7 +2398,7 @@ pub struct ChooseMode {
     pub chooser: P,
 }
 
-/// Python `Draw` (`effects/dsl.py:850`).
+/// Python `Draw` (`effects/dsl.py:853`).
 #[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)]
 pub struct Draw {
     /// `count: Value = 1`
@@ -2392,7 +2409,7 @@ pub struct Draw {
     pub each_player: bool,
 }
 
-/// Python `Discard` (`effects/dsl.py:860`).
+/// Python `Discard` (`effects/dsl.py:863`).
 #[derive(Clone, PartialEq, Eq, Hash, Debug)]
 pub struct Discard {
     /// `count: Value = 1`
@@ -2409,7 +2426,7 @@ pub struct Discard {
     pub var: VarId,
 }
 
-/// Python `Damage` (`effects/dsl.py:870`).
+/// Python `Damage` (`effects/dsl.py:873`).
 #[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)]
 pub struct Damage {
     /// `ref: Ref`
@@ -2418,7 +2435,7 @@ pub struct Damage {
     pub amount: ValueRef,
 }
 
-/// Python `DamageShieldArea` (`effects/dsl.py:878`).
+/// Python `DamageShieldArea` (`effects/dsl.py:881`).
 #[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)]
 pub struct DamageShieldArea {
     /// `player: P`
@@ -2429,7 +2446,7 @@ pub struct DamageShieldArea {
     pub cards: i64,
 }
 
-/// Python `DamagePlayer` (`effects/dsl.py:887`).
+/// Python `DamagePlayer` (`effects/dsl.py:890`).
 #[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)]
 pub struct DamagePlayer {
     /// `player: P`
@@ -2438,35 +2455,35 @@ pub struct DamagePlayer {
     pub amount: ValueRef,
 }
 
-/// Python `Destroy` (`effects/dsl.py:893`).
+/// Python `Destroy` (`effects/dsl.py:896`).
 #[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)]
 pub struct Destroy {
     /// `ref: Ref`
     pub r#ref: RefId,
 }
 
-/// Python `Rest` (`effects/dsl.py:898`).
+/// Python `Rest` (`effects/dsl.py:901`).
 #[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)]
 pub struct Rest {
     /// `ref: Ref`
     pub r#ref: RefId,
 }
 
-/// Python `SetActive` (`effects/dsl.py:903`).
+/// Python `SetActive` (`effects/dsl.py:906`).
 #[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)]
 pub struct SetActive {
     /// `ref: Ref`
     pub r#ref: RefId,
 }
 
-/// Python `ReturnToHand` (`effects/dsl.py:908`).
+/// Python `ReturnToHand` (`effects/dsl.py:911`).
 #[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)]
 pub struct ReturnToHand {
     /// `ref: Ref`
     pub r#ref: RefId,
 }
 
-/// Python `ToDeck` (`effects/dsl.py:913`).
+/// Python `ToDeck` (`effects/dsl.py:916`).
 #[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)]
 pub struct ToDeck {
     /// `ref: Ref`
@@ -2477,21 +2494,21 @@ pub struct ToDeck {
     pub shuffle: bool,
 }
 
-/// Python `Exile` (`effects/dsl.py:920`).
+/// Python `Exile` (`effects/dsl.py:923`).
 #[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)]
 pub struct Exile {
     /// `ref: Ref`
     pub r#ref: RefId,
 }
 
-/// Python `ToTrash` (`effects/dsl.py:927`).
+/// Python `ToTrash` (`effects/dsl.py:930`).
 #[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)]
 pub struct ToTrash {
     /// `ref: Ref`
     pub r#ref: RefId,
 }
 
-/// Python `AddToHand` (`effects/dsl.py:934`).
+/// Python `AddToHand` (`effects/dsl.py:937`).
 #[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)]
 pub struct AddToHand {
     /// `ref: Ref`
@@ -2500,7 +2517,7 @@ pub struct AddToHand {
     pub reveal: bool,
 }
 
-/// Python `DeployCard` (`effects/dsl.py:940`).
+/// Python `DeployCard` (`effects/dsl.py:943`).
 #[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)]
 pub struct DeployCard {
     /// `ref: Ref`
@@ -2515,7 +2532,7 @@ pub struct DeployCard {
     pub as_unit: bool,
 }
 
-/// Python `DeployToken` (`effects/dsl.py:952`).
+/// Python `DeployToken` (`effects/dsl.py:955`).
 #[derive(Clone, PartialEq, Eq, Hash, Debug)]
 pub struct DeployToken {
     /// `token_key: str`
@@ -2530,9 +2547,11 @@ pub struct DeployToken {
     pub var: VarId,
     /// `also: tuple[tuple[str, int], ...] = ()`
     pub also: Box<[(StrId, i64)]>,
+    /// `copy_of: str = ''`
+    pub copy_of: StrId,
 }
 
-/// Python `PlaceExResource` (`effects/dsl.py:965`).
+/// Python `PlaceExResource` (`effects/dsl.py:971`).
 #[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)]
 pub struct PlaceExResource {
     /// `player: P = <P.YOU: 'you'>`
@@ -2541,7 +2560,7 @@ pub struct PlaceExResource {
     pub rested: bool,
 }
 
-/// Python `PlaceResource` (`effects/dsl.py:971`).
+/// Python `PlaceResource` (`effects/dsl.py:977`).
 #[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)]
 pub struct PlaceResource {
     /// `player: P = <P.YOU: 'you'>`
@@ -2550,7 +2569,7 @@ pub struct PlaceResource {
     pub rested: bool,
 }
 
-/// Python `SetResourcesActive` (`effects/dsl.py:979`).
+/// Python `SetResourcesActive` (`effects/dsl.py:985`).
 #[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)]
 pub struct SetResourcesActive {
     /// `count: Value = 1`
@@ -2559,7 +2578,7 @@ pub struct SetResourcesActive {
     pub player: P,
 }
 
-/// Python `RestResources` (`effects/dsl.py:985`).
+/// Python `RestResources` (`effects/dsl.py:991`).
 #[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)]
 pub struct RestResources {
     /// `count: Value = 1`
@@ -2568,7 +2587,7 @@ pub struct RestResources {
     pub player: P,
 }
 
-/// Python `ShieldToHand` (`effects/dsl.py:991`).
+/// Python `ShieldToHand` (`effects/dsl.py:997`).
 #[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)]
 pub struct ShieldToHand {
     /// `count: Value = 1`
@@ -2577,7 +2596,7 @@ pub struct ShieldToHand {
     pub player: P,
 }
 
-/// Python `AddToShields` (`effects/dsl.py:999`).
+/// Python `AddToShields` (`effects/dsl.py:1005`).
 #[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)]
 pub struct AddToShields {
     /// `ref: Ref | None = None`
@@ -2590,7 +2609,7 @@ pub struct AddToShields {
     pub top: bool,
 }
 
-/// Python `Mill` (`effects/dsl.py:1009`).
+/// Python `Mill` (`effects/dsl.py:1015`).
 #[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)]
 pub struct Mill {
     /// `count: Value`
@@ -2601,7 +2620,7 @@ pub struct Mill {
     pub var: VarId,
 }
 
-/// Python `LookTop` (`effects/dsl.py:1018`).
+/// Python `LookTop` (`effects/dsl.py:1024`).
 #[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)]
 pub struct LookTop {
     /// `count: Value`
@@ -2614,7 +2633,7 @@ pub struct LookTop {
     pub reveal: bool,
 }
 
-/// Python `Arrange` (`effects/dsl.py:1028`).
+/// Python `Arrange` (`effects/dsl.py:1034`).
 #[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)]
 pub struct Arrange {
     /// `ref: Ref`
@@ -2625,21 +2644,21 @@ pub struct Arrange {
     pub player: P,
 }
 
-/// Python `Reveal` (`effects/dsl.py:1038`).
+/// Python `Reveal` (`effects/dsl.py:1044`).
 #[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)]
 pub struct Reveal {
     /// `ref: Ref`
     pub r#ref: RefId,
 }
 
-/// Python `Shuffle` (`effects/dsl.py:1043`).
+/// Python `Shuffle` (`effects/dsl.py:1049`).
 #[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)]
 pub struct Shuffle {
     /// `player: P = <P.YOU: 'you'>`
     pub player: P,
 }
 
-/// Python `Recover` (`effects/dsl.py:1048`).
+/// Python `Recover` (`effects/dsl.py:1054`).
 #[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)]
 pub struct Recover {
     /// `ref: Ref`
@@ -2648,7 +2667,7 @@ pub struct Recover {
     pub amount: ValueRef,
 }
 
-/// Python `Apply` (`effects/dsl.py:1054`).
+/// Python `Apply` (`effects/dsl.py:1060`).
 #[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)]
 pub struct Apply {
     /// `ref: Ref`
@@ -2661,7 +2680,7 @@ pub struct Apply {
     pub aux: Option<RefId>,
 }
 
-/// Python `ApplyPlayer` (`effects/dsl.py:1067`).
+/// Python `ApplyPlayer` (`effects/dsl.py:1073`).
 #[derive(Clone, PartialEq, Eq, Hash, Debug)]
 pub struct ApplyPlayer {
     /// `player: P`
@@ -2676,7 +2695,7 @@ pub struct ApplyPlayer {
     pub uses: i64,
 }
 
-/// Python `Pair` (`effects/dsl.py:1078`).
+/// Python `Pair` (`effects/dsl.py:1084`).
 #[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)]
 pub struct Pair {
     /// `pilot: Ref`
@@ -2685,7 +2704,7 @@ pub struct Pair {
     pub unit: RefId,
 }
 
-/// Python `PlayCard` (`effects/dsl.py:1086`).
+/// Python `PlayCard` (`effects/dsl.py:1092`).
 #[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)]
 pub struct PlayCard {
     /// `ref: Ref`
@@ -2698,14 +2717,14 @@ pub struct PlayCard {
     pub cost_delta: ValueRef,
 }
 
-/// Python `ActivateMain` (`effects/dsl.py:1096`).
+/// Python `ActivateMain` (`effects/dsl.py:1102`).
 #[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)]
 pub struct ActivateMain {
     /// `ref: Ref = ThisCard()`
     pub r#ref: RefId,
 }
 
-/// Python `StartBattle` (`effects/dsl.py:1103`).
+/// Python `StartBattle` (`effects/dsl.py:1109`).
 #[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)]
 pub struct StartBattle {
     /// `attacker: Ref`
@@ -2716,14 +2735,14 @@ pub struct StartBattle {
     pub damage_only: bool,
 }
 
-/// Python `ChangeAttackTarget` (`effects/dsl.py:1113`).
+/// Python `ChangeAttackTarget` (`effects/dsl.py:1119`).
 #[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)]
 pub struct ChangeAttackTarget {
     /// `target: Ref`
     pub target: RefId,
 }
 
-/// Python `If` (`effects/dsl.py:1118`).
+/// Python `If` (`effects/dsl.py:1124`).
 #[derive(Clone, PartialEq, Eq, Hash, Debug)]
 pub struct If {
     /// `cond: Cond`
@@ -2734,7 +2753,7 @@ pub struct If {
     pub otherwise: Box<[StepId]>,
 }
 
-/// Python `May` (`effects/dsl.py:1125`).
+/// Python `May` (`effects/dsl.py:1131`).
 #[derive(Clone, PartialEq, Eq, Hash, Debug)]
 pub struct May {
     /// `steps: tuple[Step, ...]`
@@ -2745,21 +2764,21 @@ pub struct May {
     pub player: P,
 }
 
-/// Python `Simultaneous` (`effects/dsl.py:1134`).
+/// Python `Simultaneous` (`effects/dsl.py:1140`).
 #[derive(Clone, PartialEq, Eq, Hash, Debug)]
 pub struct Simultaneous {
     /// `steps: tuple[Step, ...]`
     pub steps: Box<[StepId]>,
 }
 
-/// Python `IfYouDo` (`effects/dsl.py:1142`).
+/// Python `IfYouDo` (`effects/dsl.py:1148`).
 #[derive(Clone, PartialEq, Eq, Hash, Debug)]
 pub struct IfYouDo {
     /// `steps: tuple[Step, ...]`
     pub steps: Box<[StepId]>,
 }
 
-/// Python `ForEach` (`effects/dsl.py:1149`).
+/// Python `ForEach` (`effects/dsl.py:1155`).
 #[derive(Clone, PartialEq, Eq, Hash, Debug)]
 pub struct ForEach {
     /// `ref: Ref`
@@ -2770,7 +2789,7 @@ pub struct ForEach {
     pub steps: Box<[StepId]>,
 }
 
-/// Python `Repeat` (`effects/dsl.py:1158`).
+/// Python `Repeat` (`effects/dsl.py:1164`).
 #[derive(Clone, PartialEq, Eq, Hash, Debug)]
 pub struct Repeat {
     /// `times: Value`
@@ -2779,7 +2798,7 @@ pub struct Repeat {
     pub steps: Box<[StepId]>,
 }
 
-/// Python `BindVar` (`effects/dsl.py:1164`).
+/// Python `BindVar` (`effects/dsl.py:1170`).
 #[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)]
 pub struct BindVar {
     /// `var: str`
@@ -2788,7 +2807,7 @@ pub struct BindVar {
     pub r#ref: RefId,
 }
 
-/// Python `DelayedTrigger` (`effects/dsl.py:1172`).
+/// Python `DelayedTrigger` (`effects/dsl.py:1178`).
 #[derive(Clone, PartialEq, Eq, Hash, Debug)]
 pub struct DelayedTrigger {
     /// `trigger: Trigger`
@@ -2801,7 +2820,7 @@ pub struct DelayedTrigger {
     pub bind_vars: Box<[VarId]>,
 }
 
-/// Python `PayCost` (`effects/dsl.py:1183`).
+/// Python `PayCost` (`effects/dsl.py:1189`).
 #[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)]
 pub struct PayCost {
     /// `amount: int`
@@ -2810,7 +2829,7 @@ pub struct PayCost {
     pub player: P,
 }
 
-/// Python `CustomStep` (`effects/dsl.py:1191`).
+/// Python `CustomStep` (`effects/dsl.py:1197`).
 #[derive(Clone, PartialEq, Eq, Hash, Debug)]
 pub struct CustomStep {
     /// `name: str`
@@ -2819,7 +2838,7 @@ pub struct CustomStep {
     pub params: Box<[(StrId, ParamValue)]>,
 }
 
-/// Python `Keyword` (`effects/dsl.py:1273`).
+/// Python `Keyword` (`effects/dsl.py:1279`).
 #[derive(Clone, PartialEq, Eq, Hash, Debug)]
 pub struct Keyword {
     /// `keyword: Kw`
@@ -2832,7 +2851,7 @@ pub struct Keyword {
     pub gate_filters: Box<[FilterId]>,
 }
 
-/// Python `Constant` (`effects/dsl.py:1281`).
+/// Python `Constant` (`effects/dsl.py:1287`).
 #[derive(Clone, PartialEq, Eq, Hash, Debug)]
 pub struct Constant {
     /// `effects: tuple[Continuous, ...]`
@@ -2849,7 +2868,7 @@ pub struct Constant {
     pub gate_filters: Box<[FilterId]>,
 }
 
-/// Python `Triggered` (`effects/dsl.py:1293`).
+/// Python `Triggered` (`effects/dsl.py:1299`).
 #[derive(Clone, PartialEq, Eq, Hash, Debug)]
 pub struct Triggered {
     /// `trigger: Trigger`
@@ -2868,7 +2887,7 @@ pub struct Triggered {
     pub gate_filters: Box<[FilterId]>,
 }
 
-/// Python `Activated` (`effects/dsl.py:1306`).
+/// Python `Activated` (`effects/dsl.py:1312`).
 #[derive(Clone, PartialEq, Eq, Hash, Debug)]
 pub struct Activated {
     /// `timing: Timing`
@@ -2891,7 +2910,7 @@ pub struct Activated {
     pub support: i64,
 }
 
-/// Python `Command` (`effects/dsl.py:1321`).
+/// Python `Command` (`effects/dsl.py:1327`).
 #[derive(Clone, PartialEq, Eq, Hash, Debug)]
 pub struct Command {
     /// `timing: Timing`
@@ -2902,14 +2921,14 @@ pub struct Command {
     pub cond: CondId,
 }
 
-/// Python `Burst` (`effects/dsl.py:1330`).
+/// Python `Burst` (`effects/dsl.py:1336`).
 #[derive(Clone, PartialEq, Eq, Hash, Debug)]
 pub struct Burst {
     /// `steps: tuple[Step, ...]`
     pub steps: Box<[StepId]>,
 }
 
-/// Python `Replacement` (`effects/dsl.py:1337`).
+/// Python `Replacement` (`effects/dsl.py:1343`).
 #[derive(Clone, PartialEq, Eq, Hash, Debug)]
 pub struct Replacement {
     /// `event: Ev`
@@ -2928,14 +2947,14 @@ pub struct Replacement {
     pub gate: Gate,
 }
 
-/// Python `NameAlias` (`effects/dsl.py:1350`).
+/// Python `NameAlias` (`effects/dsl.py:1356`).
 #[derive(Clone, PartialEq, Eq, Hash, Debug)]
 pub struct NameAlias {
     /// `names: tuple[str, ...]`
     pub names: Box<[StrId]>,
 }
 
-/// Python `PlayModifier` (`effects/dsl.py:1357`).
+/// Python `PlayModifier` (`effects/dsl.py:1363`).
 #[derive(Clone, PartialEq, Eq, Hash, Debug)]
 pub struct PlayModifier {
     /// `cond: Cond = And(conds=())`
@@ -2950,7 +2969,7 @@ pub struct PlayModifier {
     pub pair_filters: Box<[FilterId]>,
 }
 
-/// Python `CardScript` (`effects/dsl.py:1386`).
+/// Python `CardScript` (`effects/dsl.py:1392`).
 #[derive(Clone, PartialEq, Eq, Hash, Debug)]
 pub struct CardScript {
     /// `card_number: str`
@@ -3735,7 +3754,7 @@ impl NodeKind {
         Self::CustomCond,
     ];
 
-    /// Members of `type Continuous` (`effects/dsl.py:686`).
+    /// Members of `type Continuous` (`effects/dsl.py:689`).
     pub const CONTINUOUS: &'static [Self] = &[
         Self::StatMod,
         Self::KeywordGrant,
@@ -3745,7 +3764,7 @@ impl NodeKind {
         Self::CostMod,
     ];
 
-    /// Members of `type Cost` (`effects/dsl.py:804`).
+    /// Members of `type Cost` (`effects/dsl.py:807`).
     pub const COST: &'static [Self] = &[
         Self::RestSelf,
         Self::PayResources,
@@ -3758,7 +3777,7 @@ impl NodeKind {
         Self::TrashSelf,
     ];
 
-    /// Members of `type Step` (`effects/dsl.py:1197`).
+    /// Members of `type Step` (`effects/dsl.py:1203`).
     pub const STEP: &'static [Self] = &[
         Self::Choose,
         Self::ChooseMode,
@@ -3808,7 +3827,7 @@ impl NodeKind {
         Self::CustomStep,
     ];
 
-    /// Members of `type Ability` (`effects/dsl.py:1373`).
+    /// Members of `type Ability` (`effects/dsl.py:1379`).
     pub const ABILITY: &'static [Self] = &[
         Self::Keyword,
         Self::Constant,
@@ -4637,7 +4656,7 @@ pub const CLASSES: &[ClassSchema] = &[
     },
     ClassSchema {
         name: "RuleMod",
-        source: "effects/dsl.py:631",
+        source: "effects/dsl.py:634",
         fields: &[
             FieldSchema {
                 name: "kind",
@@ -4678,7 +4697,7 @@ pub const CLASSES: &[ClassSchema] = &[
     },
     ClassSchema {
         name: "StatMod",
-        source: "effects/dsl.py:648",
+        source: "effects/dsl.py:651",
         fields: &[
             FieldSchema {
                 name: "ap",
@@ -4694,7 +4713,7 @@ pub const CLASSES: &[ClassSchema] = &[
     },
     ClassSchema {
         name: "KeywordGrant",
-        source: "effects/dsl.py:654",
+        source: "effects/dsl.py:657",
         fields: &[
             FieldSchema {
                 name: "keyword",
@@ -4710,7 +4729,7 @@ pub const CLASSES: &[ClassSchema] = &[
     },
     ClassSchema {
         name: "TraitGrant",
-        source: "effects/dsl.py:660",
+        source: "effects/dsl.py:663",
         fields: &[FieldSchema {
             name: "traits",
             annotation: "tuple[str, ...]",
@@ -4719,7 +4738,7 @@ pub const CLASSES: &[ClassSchema] = &[
     },
     ClassSchema {
         name: "RuleGrant",
-        source: "effects/dsl.py:665",
+        source: "effects/dsl.py:668",
         fields: &[FieldSchema {
             name: "rule",
             annotation: "RuleMod",
@@ -4728,7 +4747,7 @@ pub const CLASSES: &[ClassSchema] = &[
     },
     ClassSchema {
         name: "AbilityGrant",
-        source: "effects/dsl.py:670",
+        source: "effects/dsl.py:673",
         fields: &[
             FieldSchema {
                 name: "card_number",
@@ -4744,7 +4763,7 @@ pub const CLASSES: &[ClassSchema] = &[
     },
     ClassSchema {
         name: "CostMod",
-        source: "effects/dsl.py:678",
+        source: "effects/dsl.py:681",
         fields: &[
             FieldSchema {
                 name: "cost",
@@ -4760,7 +4779,7 @@ pub const CLASSES: &[ClassSchema] = &[
     },
     ClassSchema {
         name: "Trigger",
-        source: "effects/dsl.py:730",
+        source: "effects/dsl.py:733",
         fields: &[
             FieldSchema {
                 name: "event",
@@ -4811,12 +4830,12 @@ pub const CLASSES: &[ClassSchema] = &[
     },
     ClassSchema {
         name: "RestSelf",
-        source: "effects/dsl.py:753",
+        source: "effects/dsl.py:756",
         fields: &[],
     },
     ClassSchema {
         name: "PayResources",
-        source: "effects/dsl.py:758",
+        source: "effects/dsl.py:761",
         fields: &[FieldSchema {
             name: "amount",
             annotation: "int",
@@ -4825,7 +4844,7 @@ pub const CLASSES: &[ClassSchema] = &[
     },
     ClassSchema {
         name: "RestCards",
-        source: "effects/dsl.py:765",
+        source: "effects/dsl.py:768",
         fields: &[
             FieldSchema {
                 name: "sel",
@@ -4841,7 +4860,7 @@ pub const CLASSES: &[ClassSchema] = &[
     },
     ClassSchema {
         name: "DestroyCards",
-        source: "effects/dsl.py:771",
+        source: "effects/dsl.py:774",
         fields: &[
             FieldSchema {
                 name: "sel",
@@ -4857,7 +4876,7 @@ pub const CLASSES: &[ClassSchema] = &[
     },
     ClassSchema {
         name: "DiscardCards",
-        source: "effects/dsl.py:777",
+        source: "effects/dsl.py:780",
         fields: &[
             FieldSchema {
                 name: "sel",
@@ -4873,7 +4892,7 @@ pub const CLASSES: &[ClassSchema] = &[
     },
     ClassSchema {
         name: "ExileCards",
-        source: "effects/dsl.py:783",
+        source: "effects/dsl.py:786",
         fields: &[
             FieldSchema {
                 name: "sel",
@@ -4889,22 +4908,22 @@ pub const CLASSES: &[ClassSchema] = &[
     },
     ClassSchema {
         name: "ReturnSelf",
-        source: "effects/dsl.py:789",
+        source: "effects/dsl.py:792",
         fields: &[],
     },
     ClassSchema {
         name: "DestroySelf",
-        source: "effects/dsl.py:794",
+        source: "effects/dsl.py:797",
         fields: &[],
     },
     ClassSchema {
         name: "TrashSelf",
-        source: "effects/dsl.py:799",
+        source: "effects/dsl.py:802",
         fields: &[],
     },
     ClassSchema {
         name: "Choose",
-        source: "effects/dsl.py:820",
+        source: "effects/dsl.py:823",
         fields: &[
             FieldSchema {
                 name: "var",
@@ -4960,7 +4979,7 @@ pub const CLASSES: &[ClassSchema] = &[
     },
     ClassSchema {
         name: "ChooseMode",
-        source: "effects/dsl.py:842",
+        source: "effects/dsl.py:845",
         fields: &[
             FieldSchema {
                 name: "options",
@@ -4976,7 +4995,7 @@ pub const CLASSES: &[ClassSchema] = &[
     },
     ClassSchema {
         name: "Draw",
-        source: "effects/dsl.py:850",
+        source: "effects/dsl.py:853",
         fields: &[
             FieldSchema {
                 name: "count",
@@ -4997,7 +5016,7 @@ pub const CLASSES: &[ClassSchema] = &[
     },
     ClassSchema {
         name: "Discard",
-        source: "effects/dsl.py:860",
+        source: "effects/dsl.py:863",
         fields: &[
             FieldSchema {
                 name: "count",
@@ -5033,7 +5052,7 @@ pub const CLASSES: &[ClassSchema] = &[
     },
     ClassSchema {
         name: "Damage",
-        source: "effects/dsl.py:870",
+        source: "effects/dsl.py:873",
         fields: &[
             FieldSchema {
                 name: "ref",
@@ -5049,7 +5068,7 @@ pub const CLASSES: &[ClassSchema] = &[
     },
     ClassSchema {
         name: "DamageShieldArea",
-        source: "effects/dsl.py:878",
+        source: "effects/dsl.py:881",
         fields: &[
             FieldSchema {
                 name: "player",
@@ -5070,7 +5089,7 @@ pub const CLASSES: &[ClassSchema] = &[
     },
     ClassSchema {
         name: "DamagePlayer",
-        source: "effects/dsl.py:887",
+        source: "effects/dsl.py:890",
         fields: &[
             FieldSchema {
                 name: "player",
@@ -5086,7 +5105,7 @@ pub const CLASSES: &[ClassSchema] = &[
     },
     ClassSchema {
         name: "Destroy",
-        source: "effects/dsl.py:893",
+        source: "effects/dsl.py:896",
         fields: &[FieldSchema {
             name: "ref",
             annotation: "Ref",
@@ -5095,7 +5114,7 @@ pub const CLASSES: &[ClassSchema] = &[
     },
     ClassSchema {
         name: "Rest",
-        source: "effects/dsl.py:898",
+        source: "effects/dsl.py:901",
         fields: &[FieldSchema {
             name: "ref",
             annotation: "Ref",
@@ -5104,7 +5123,7 @@ pub const CLASSES: &[ClassSchema] = &[
     },
     ClassSchema {
         name: "SetActive",
-        source: "effects/dsl.py:903",
+        source: "effects/dsl.py:906",
         fields: &[FieldSchema {
             name: "ref",
             annotation: "Ref",
@@ -5113,7 +5132,7 @@ pub const CLASSES: &[ClassSchema] = &[
     },
     ClassSchema {
         name: "ReturnToHand",
-        source: "effects/dsl.py:908",
+        source: "effects/dsl.py:911",
         fields: &[FieldSchema {
             name: "ref",
             annotation: "Ref",
@@ -5122,7 +5141,7 @@ pub const CLASSES: &[ClassSchema] = &[
     },
     ClassSchema {
         name: "ToDeck",
-        source: "effects/dsl.py:913",
+        source: "effects/dsl.py:916",
         fields: &[
             FieldSchema {
                 name: "ref",
@@ -5143,7 +5162,7 @@ pub const CLASSES: &[ClassSchema] = &[
     },
     ClassSchema {
         name: "Exile",
-        source: "effects/dsl.py:920",
+        source: "effects/dsl.py:923",
         fields: &[FieldSchema {
             name: "ref",
             annotation: "Ref",
@@ -5152,7 +5171,7 @@ pub const CLASSES: &[ClassSchema] = &[
     },
     ClassSchema {
         name: "ToTrash",
-        source: "effects/dsl.py:927",
+        source: "effects/dsl.py:930",
         fields: &[FieldSchema {
             name: "ref",
             annotation: "Ref",
@@ -5161,7 +5180,7 @@ pub const CLASSES: &[ClassSchema] = &[
     },
     ClassSchema {
         name: "AddToHand",
-        source: "effects/dsl.py:934",
+        source: "effects/dsl.py:937",
         fields: &[
             FieldSchema {
                 name: "ref",
@@ -5177,7 +5196,7 @@ pub const CLASSES: &[ClassSchema] = &[
     },
     ClassSchema {
         name: "DeployCard",
-        source: "effects/dsl.py:940",
+        source: "effects/dsl.py:943",
         fields: &[
             FieldSchema {
                 name: "ref",
@@ -5208,7 +5227,7 @@ pub const CLASSES: &[ClassSchema] = &[
     },
     ClassSchema {
         name: "DeployToken",
-        source: "effects/dsl.py:952",
+        source: "effects/dsl.py:955",
         fields: &[
             FieldSchema {
                 name: "token_key",
@@ -5240,26 +5259,15 @@ pub const CLASSES: &[ClassSchema] = &[
                 annotation: "tuple[tuple[str, int], ...]",
                 default_repr: Some("()"),
             },
+            FieldSchema {
+                name: "copy_of",
+                annotation: "str",
+                default_repr: Some("''"),
+            },
         ],
     },
     ClassSchema {
         name: "PlaceExResource",
-        source: "effects/dsl.py:965",
-        fields: &[
-            FieldSchema {
-                name: "player",
-                annotation: "P",
-                default_repr: Some("<P.YOU: 'you'>"),
-            },
-            FieldSchema {
-                name: "rested",
-                annotation: "bool",
-                default_repr: Some("False"),
-            },
-        ],
-    },
-    ClassSchema {
-        name: "PlaceResource",
         source: "effects/dsl.py:971",
         fields: &[
             FieldSchema {
@@ -5275,8 +5283,24 @@ pub const CLASSES: &[ClassSchema] = &[
         ],
     },
     ClassSchema {
+        name: "PlaceResource",
+        source: "effects/dsl.py:977",
+        fields: &[
+            FieldSchema {
+                name: "player",
+                annotation: "P",
+                default_repr: Some("<P.YOU: 'you'>"),
+            },
+            FieldSchema {
+                name: "rested",
+                annotation: "bool",
+                default_repr: Some("False"),
+            },
+        ],
+    },
+    ClassSchema {
         name: "SetResourcesActive",
-        source: "effects/dsl.py:979",
+        source: "effects/dsl.py:985",
         fields: &[
             FieldSchema {
                 name: "count",
@@ -5292,7 +5316,7 @@ pub const CLASSES: &[ClassSchema] = &[
     },
     ClassSchema {
         name: "RestResources",
-        source: "effects/dsl.py:985",
+        source: "effects/dsl.py:991",
         fields: &[
             FieldSchema {
                 name: "count",
@@ -5308,7 +5332,7 @@ pub const CLASSES: &[ClassSchema] = &[
     },
     ClassSchema {
         name: "ShieldToHand",
-        source: "effects/dsl.py:991",
+        source: "effects/dsl.py:997",
         fields: &[
             FieldSchema {
                 name: "count",
@@ -5324,7 +5348,7 @@ pub const CLASSES: &[ClassSchema] = &[
     },
     ClassSchema {
         name: "AddToShields",
-        source: "effects/dsl.py:999",
+        source: "effects/dsl.py:1005",
         fields: &[
             FieldSchema {
                 name: "ref",
@@ -5350,7 +5374,7 @@ pub const CLASSES: &[ClassSchema] = &[
     },
     ClassSchema {
         name: "Mill",
-        source: "effects/dsl.py:1009",
+        source: "effects/dsl.py:1015",
         fields: &[
             FieldSchema {
                 name: "count",
@@ -5371,7 +5395,7 @@ pub const CLASSES: &[ClassSchema] = &[
     },
     ClassSchema {
         name: "LookTop",
-        source: "effects/dsl.py:1018",
+        source: "effects/dsl.py:1024",
         fields: &[
             FieldSchema {
                 name: "count",
@@ -5397,7 +5421,7 @@ pub const CLASSES: &[ClassSchema] = &[
     },
     ClassSchema {
         name: "Arrange",
-        source: "effects/dsl.py:1028",
+        source: "effects/dsl.py:1034",
         fields: &[
             FieldSchema {
                 name: "ref",
@@ -5418,7 +5442,7 @@ pub const CLASSES: &[ClassSchema] = &[
     },
     ClassSchema {
         name: "Reveal",
-        source: "effects/dsl.py:1038",
+        source: "effects/dsl.py:1044",
         fields: &[FieldSchema {
             name: "ref",
             annotation: "Ref",
@@ -5427,7 +5451,7 @@ pub const CLASSES: &[ClassSchema] = &[
     },
     ClassSchema {
         name: "Shuffle",
-        source: "effects/dsl.py:1043",
+        source: "effects/dsl.py:1049",
         fields: &[FieldSchema {
             name: "player",
             annotation: "P",
@@ -5436,7 +5460,7 @@ pub const CLASSES: &[ClassSchema] = &[
     },
     ClassSchema {
         name: "Recover",
-        source: "effects/dsl.py:1048",
+        source: "effects/dsl.py:1054",
         fields: &[
             FieldSchema {
                 name: "ref",
@@ -5452,7 +5476,7 @@ pub const CLASSES: &[ClassSchema] = &[
     },
     ClassSchema {
         name: "Apply",
-        source: "effects/dsl.py:1054",
+        source: "effects/dsl.py:1060",
         fields: &[
             FieldSchema {
                 name: "ref",
@@ -5478,7 +5502,7 @@ pub const CLASSES: &[ClassSchema] = &[
     },
     ClassSchema {
         name: "ApplyPlayer",
-        source: "effects/dsl.py:1067",
+        source: "effects/dsl.py:1073",
         fields: &[
             FieldSchema {
                 name: "player",
@@ -5509,7 +5533,7 @@ pub const CLASSES: &[ClassSchema] = &[
     },
     ClassSchema {
         name: "Pair",
-        source: "effects/dsl.py:1078",
+        source: "effects/dsl.py:1084",
         fields: &[
             FieldSchema {
                 name: "pilot",
@@ -5525,7 +5549,7 @@ pub const CLASSES: &[ClassSchema] = &[
     },
     ClassSchema {
         name: "PlayCard",
-        source: "effects/dsl.py:1086",
+        source: "effects/dsl.py:1092",
         fields: &[
             FieldSchema {
                 name: "ref",
@@ -5551,7 +5575,7 @@ pub const CLASSES: &[ClassSchema] = &[
     },
     ClassSchema {
         name: "ActivateMain",
-        source: "effects/dsl.py:1096",
+        source: "effects/dsl.py:1102",
         fields: &[FieldSchema {
             name: "ref",
             annotation: "Ref",
@@ -5560,7 +5584,7 @@ pub const CLASSES: &[ClassSchema] = &[
     },
     ClassSchema {
         name: "StartBattle",
-        source: "effects/dsl.py:1103",
+        source: "effects/dsl.py:1109",
         fields: &[
             FieldSchema {
                 name: "attacker",
@@ -5581,7 +5605,7 @@ pub const CLASSES: &[ClassSchema] = &[
     },
     ClassSchema {
         name: "ChangeAttackTarget",
-        source: "effects/dsl.py:1113",
+        source: "effects/dsl.py:1119",
         fields: &[FieldSchema {
             name: "target",
             annotation: "Ref",
@@ -5590,7 +5614,7 @@ pub const CLASSES: &[ClassSchema] = &[
     },
     ClassSchema {
         name: "If",
-        source: "effects/dsl.py:1118",
+        source: "effects/dsl.py:1124",
         fields: &[
             FieldSchema {
                 name: "cond",
@@ -5611,7 +5635,7 @@ pub const CLASSES: &[ClassSchema] = &[
     },
     ClassSchema {
         name: "May",
-        source: "effects/dsl.py:1125",
+        source: "effects/dsl.py:1131",
         fields: &[
             FieldSchema {
                 name: "steps",
@@ -5632,7 +5656,7 @@ pub const CLASSES: &[ClassSchema] = &[
     },
     ClassSchema {
         name: "Simultaneous",
-        source: "effects/dsl.py:1134",
+        source: "effects/dsl.py:1140",
         fields: &[FieldSchema {
             name: "steps",
             annotation: "tuple[Step, ...]",
@@ -5641,7 +5665,7 @@ pub const CLASSES: &[ClassSchema] = &[
     },
     ClassSchema {
         name: "IfYouDo",
-        source: "effects/dsl.py:1142",
+        source: "effects/dsl.py:1148",
         fields: &[FieldSchema {
             name: "steps",
             annotation: "tuple[Step, ...]",
@@ -5650,7 +5674,7 @@ pub const CLASSES: &[ClassSchema] = &[
     },
     ClassSchema {
         name: "ForEach",
-        source: "effects/dsl.py:1149",
+        source: "effects/dsl.py:1155",
         fields: &[
             FieldSchema {
                 name: "ref",
@@ -5671,7 +5695,7 @@ pub const CLASSES: &[ClassSchema] = &[
     },
     ClassSchema {
         name: "Repeat",
-        source: "effects/dsl.py:1158",
+        source: "effects/dsl.py:1164",
         fields: &[
             FieldSchema {
                 name: "times",
@@ -5687,7 +5711,7 @@ pub const CLASSES: &[ClassSchema] = &[
     },
     ClassSchema {
         name: "BindVar",
-        source: "effects/dsl.py:1164",
+        source: "effects/dsl.py:1170",
         fields: &[
             FieldSchema {
                 name: "var",
@@ -5703,7 +5727,7 @@ pub const CLASSES: &[ClassSchema] = &[
     },
     ClassSchema {
         name: "DelayedTrigger",
-        source: "effects/dsl.py:1172",
+        source: "effects/dsl.py:1178",
         fields: &[
             FieldSchema {
                 name: "trigger",
@@ -5729,7 +5753,7 @@ pub const CLASSES: &[ClassSchema] = &[
     },
     ClassSchema {
         name: "PayCost",
-        source: "effects/dsl.py:1183",
+        source: "effects/dsl.py:1189",
         fields: &[
             FieldSchema {
                 name: "amount",
@@ -5745,7 +5769,7 @@ pub const CLASSES: &[ClassSchema] = &[
     },
     ClassSchema {
         name: "CustomStep",
-        source: "effects/dsl.py:1191",
+        source: "effects/dsl.py:1197",
         fields: &[
             FieldSchema {
                 name: "name",
@@ -5761,7 +5785,7 @@ pub const CLASSES: &[ClassSchema] = &[
     },
     ClassSchema {
         name: "Keyword",
-        source: "effects/dsl.py:1273",
+        source: "effects/dsl.py:1279",
         fields: &[
             FieldSchema {
                 name: "keyword",
@@ -5787,7 +5811,7 @@ pub const CLASSES: &[ClassSchema] = &[
     },
     ClassSchema {
         name: "Constant",
-        source: "effects/dsl.py:1281",
+        source: "effects/dsl.py:1287",
         fields: &[
             FieldSchema {
                 name: "effects",
@@ -5823,7 +5847,7 @@ pub const CLASSES: &[ClassSchema] = &[
     },
     ClassSchema {
         name: "Triggered",
-        source: "effects/dsl.py:1293",
+        source: "effects/dsl.py:1299",
         fields: &[
             FieldSchema {
                 name: "trigger",
@@ -5864,7 +5888,7 @@ pub const CLASSES: &[ClassSchema] = &[
     },
     ClassSchema {
         name: "Activated",
-        source: "effects/dsl.py:1306",
+        source: "effects/dsl.py:1312",
         fields: &[
             FieldSchema {
                 name: "timing",
@@ -5915,7 +5939,7 @@ pub const CLASSES: &[ClassSchema] = &[
     },
     ClassSchema {
         name: "Command",
-        source: "effects/dsl.py:1321",
+        source: "effects/dsl.py:1327",
         fields: &[
             FieldSchema {
                 name: "timing",
@@ -5936,7 +5960,7 @@ pub const CLASSES: &[ClassSchema] = &[
     },
     ClassSchema {
         name: "Burst",
-        source: "effects/dsl.py:1330",
+        source: "effects/dsl.py:1336",
         fields: &[FieldSchema {
             name: "steps",
             annotation: "tuple[Step, ...]",
@@ -5945,7 +5969,7 @@ pub const CLASSES: &[ClassSchema] = &[
     },
     ClassSchema {
         name: "Replacement",
-        source: "effects/dsl.py:1337",
+        source: "effects/dsl.py:1343",
         fields: &[
             FieldSchema {
                 name: "event",
@@ -5986,7 +6010,7 @@ pub const CLASSES: &[ClassSchema] = &[
     },
     ClassSchema {
         name: "NameAlias",
-        source: "effects/dsl.py:1350",
+        source: "effects/dsl.py:1356",
         fields: &[FieldSchema {
             name: "names",
             annotation: "tuple[str, ...]",
@@ -5995,7 +6019,7 @@ pub const CLASSES: &[ClassSchema] = &[
     },
     ClassSchema {
         name: "PlayModifier",
-        source: "effects/dsl.py:1357",
+        source: "effects/dsl.py:1363",
         fields: &[
             FieldSchema {
                 name: "cond",
@@ -6026,7 +6050,7 @@ pub const CLASSES: &[ClassSchema] = &[
     },
     ClassSchema {
         name: "CardScript",
-        source: "effects/dsl.py:1386",
+        source: "effects/dsl.py:1392",
         fields: &[
             FieldSchema {
                 name: "card_number",
@@ -6335,17 +6359,18 @@ pub const ENUMS: &[EnumSchema] = &[
             ("AP_CANT_BE_REDUCED", "ap_cant_be_reduced"),
             ("REDIRECT_BATTLE_DAMAGE", "redirect_battle_damage"),
             ("REST_SUBSTITUTE", "rest_substitute"),
+            ("INCREASE_DAMAGE", "increase_damage"),
             ("CUSTOM", "custom"),
         ],
     },
     EnumSchema {
         name: "DamageKind",
-        source: "effects/dsl.py:625",
+        source: "effects/dsl.py:628",
         members: &[("ANY", "any"), ("BATTLE", "battle"), ("EFFECT", "effect")],
     },
     EnumSchema {
         name: "Ev",
-        source: "effects/dsl.py:692",
+        source: "effects/dsl.py:695",
         members: &[
             ("DEPLOYED", "deployed"),
             ("ATTACKS", "attacks"),
@@ -6384,7 +6409,7 @@ pub const ENUMS: &[EnumSchema] = &[
     },
     EnumSchema {
         name: "Timing",
-        source: "effects/dsl.py:1250",
+        source: "effects/dsl.py:1256",
         members: &[
             ("MAIN", "main"),
             ("ACTION", "action"),
@@ -6393,7 +6418,7 @@ pub const ENUMS: &[EnumSchema] = &[
     },
     EnumSchema {
         name: "Where",
-        source: "effects/dsl.py:1256",
+        source: "effects/dsl.py:1262",
         members: &[
             ("FIELD", "field"),
             ("HAND", "hand"),
@@ -6403,7 +6428,7 @@ pub const ENUMS: &[EnumSchema] = &[
     },
     EnumSchema {
         name: "Gate",
-        source: "effects/dsl.py:1265",
+        source: "effects/dsl.py:1271",
         members: &[("NONE", "none"), ("PAIRED", "paired"), ("LINKED", "linked")],
     },
     EnumSchema {
@@ -7076,7 +7101,7 @@ impl Node {
                 })
             }
             NodeKind::DeployToken => {
-                d.exact_fields(obj, 6)?;
+                d.exact_fields(obj, 7)?;
                 Self::DeployToken(DeployToken {
                     token_key: d.field(obj, "token_key")?,
                     count: d.field(obj, "count")?,
@@ -7084,6 +7109,7 @@ impl Node {
                     player: d.field(obj, "player")?,
                     var: d.field(obj, "var")?,
                     also: d.field(obj, "also")?,
+                    copy_of: d.field(obj, "copy_of")?,
                 })
             }
             NodeKind::PlaceExResource => {
@@ -8089,6 +8115,8 @@ impl Node {
                 x.var.repr(cx, out);
                 out.push_str(", also=");
                 x.also.repr(cx, out);
+                out.push_str(", copy_of=");
+                x.copy_of.repr(cx, out);
                 out.push(')');
             }
             Self::PlaceExResource(x) => {
@@ -8765,6 +8793,7 @@ impl Node {
                 g.field(3, &x.player);
                 g.field(4, &x.var);
                 g.field(5, &x.also);
+                g.field(6, &x.copy_of);
             }
             Self::PlaceExResource(x) => {
                 g.field(0, &x.player);
@@ -8992,7 +9021,7 @@ mod tests {
         assert_eq!(ENUMS.len(), 14);
         assert_eq!(StepHook::ALL.len(), 13);
         assert_eq!(CondHook::ALL.len(), 7);
-        assert_eq!(FilterHook::ALL.len(), 9);
+        assert_eq!(FilterHook::ALL.len(), 11);
         assert_eq!(ValueHook::ALL.len(), 5);
     }
 

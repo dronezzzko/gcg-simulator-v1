@@ -16,13 +16,13 @@
 //! Choose prompt sites: `engine/interp.py:433`, `engine/interp.py:461`.
 //!
 //! Sources (SHA-256):
-//! - `src/gcg_sim/effects/bindings/wp_gd02_b.py` `4e31ab22e1fbea5b2484b0a0c2ec82277d1900d0f01f023342bb66de32b5e877`
+//! - `src/gcg_sim/effects/bindings/wp_gd02_b.py` `4bcab9505656379ff7e1db1a120e5d2e104afddd25405695a94c7d957b95948c`
 //! - `src/gcg_sim/effects/bindings/wp_gd04_a.py` `c3565d4c145793e1d5ad8e29f3408c9999f448c9a14838fdf61c9aae65448070`
 //! - `src/gcg_sim/effects/builtins.py` `dbda4daf7a1c964f73a22800f98b9820da3e88446c5b8dd673c5c020afbc1ce7`
 //! - `src/gcg_sim/engine/battle.py` `0129560e8e4dd522e1db0a6f6b9746830ba6ab188ab9957ce29ddca1b36dbdc4`
-//! - `src/gcg_sim/engine/core.py` `b9f8c8cd93707096bdef2b51f69f6328173eb7853fd17c9450ea43cd53715207`
-//! - `src/gcg_sim/engine/game.py` `ef19280f19404f9923749b375b1b0a1e7b7f870d801a34c9673dbe1d8495ee15`
-//! - `src/gcg_sim/engine/interp.py` `13c64aa76e9506ea7db20038085300eddc375f30590d6631dab6a8a64fb48078`
+//! - `src/gcg_sim/engine/core.py` `a47812a03da11899381b5aad7e93cd61d033802f5ccb51377aaaf151f9e86340`
+//! - `src/gcg_sim/engine/game.py` `fa5314e82ac95bad7a139763f358afaf36a365e8e8c63e5e7e01e7f93a0562a3`
+//! - `src/gcg_sim/engine/interp.py` `261f1b44546ac273453e430201498ad0b82b79990465389f150075a807a4960c`
 //! - `src/gcg_sim/engine/invariants.py` `03ae6651c7ebbbf4fd8c6cca956e99b613984c1cacfcb3491662ad6ff9223b64`
 //! - `src/gcg_sim/engine/observe.py` `e8630ea0271a2bb7ef412c4c1f1e65677cf6ed121c1044891d7762d62a83b623`
 //! - `src/gcg_sim/engine/state.py` `ad8d29581b48e36de3a563609b1004d9e9bef9601e37d2cbf53536edea971fc3`
@@ -800,55 +800,59 @@ impl EndReason {
 #[repr(u8)]
 #[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Debug)]
 pub enum HistKind {
-    /// "activate": `engine/game.py:882`, `engine/game.py:893`
+    /// "activate": `engine/game.py:885`, `engine/game.py:896`
     Activate = 0,
     /// "attack": `engine/battle.py:29`
     Attack = 1,
     /// "block": `engine/battle.py:86`
     Block = 2,
-    /// "burst_revealed": `engine/game.py:717`
+    /// "burst_revealed": `engine/game.py:720`
     BurstRevealed = 3,
-    /// "command_activated": `engine/game.py:946`, `engine/interp.py:1426`, `engine/interp.py:1483`
+    /// "command_activated": `engine/game.py:949`, `engine/interp.py:1460`, `engine/interp.py:1517`
     CommandActivated = 4,
-    /// "cost_paid": `effects/bindings/wp_gd02_b.py:67`, `engine/game.py:895`, `engine/interp.py:1566`
+    /// "cost_paid": `engine/core.py:157`
     CostPaid = 5,
-    /// "deployed": `effects/builtins.py:41`, `engine/interp.py:964`, `engine/interp.py:1006`
+    /// "deployed": `effects/builtins.py:41`, `engine/interp.py:969`, `engine/interp.py:1040`
     Deployed = 6,
-    /// "destroyed": `engine/core.py:808`
+    /// "destroyed": `engine/core.py:852`
     Destroyed = 7,
     /// "destroys_by_battle": `engine/battle.py:133`
     DestroysByBattle = 8,
     /// "destroys_by_battle_paired": `engine/battle.py:135`
     DestroysByBattlePaired = 9,
-    /// "discard": `engine/interp.py:571`
+    /// "discard": `engine/interp.py:573`
     Discard = 10,
     /// "draw": `engine/interp.py:510`
     Draw = 11,
-    /// "ex_exiled": `engine/interp.py:1467`
-    ExExiled = 12,
-    /// "ex_resource": `engine/interp.py:1040`
-    ExResource = 13,
-    /// "excess": `engine/interp.py:908`
-    Excess = 14,
-    /// "paired": `engine/interp.py:1375`
-    Paired = 15,
-    /// "play": `engine/game.py:921`
-    Play = 16,
-    /// "played_with_ex": `engine/game.py:923`
-    PlayedWithEx = 17,
+    /// "draw_by_effect": `engine/interp.py:512`
+    DrawByEffect = 12,
+    /// "ex_exiled": `engine/interp.py:1501`
+    ExExiled = 13,
+    /// "ex_resource": `engine/interp.py:1074`
+    ExResource = 14,
+    /// "excess": `engine/interp.py:913`
+    Excess = 15,
+    /// "paired": `engine/interp.py:1409`
+    Paired = 16,
+    /// "play": `engine/game.py:924`
+    Play = 17,
+    /// "played_with_ex": `engine/game.py:926`
+    PlayedWithEx = 18,
     /// "player_damage": `engine/battle.py:231`
-    PlayerDamage = 18,
-    /// "resource_set_active": `engine/interp.py:729`, `engine/interp.py:1076`
-    ResourceSetActive = 19,
-    /// "shield_destroyed": `engine/core.py:728`
-    ShieldDestroyed = 20,
-    /// "shield_to_hand": `engine/interp.py:1110`
-    ShieldToHand = 21,
+    PlayerDamage = 19,
+    /// "resource_paid": `engine/core.py:159`
+    ResourcePaid = 20,
+    /// "resource_set_active": `engine/interp.py:734`, `engine/interp.py:1110`
+    ResourceSetActive = 21,
+    /// "shield_destroyed": `engine/core.py:772`
+    ShieldDestroyed = 22,
+    /// "shield_to_hand": `engine/interp.py:1144`
+    ShieldToHand = 23,
 }
 
 impl HistKind {
     /// Sorted by value string (= declaration order).
-    pub const ALL: [Self; 22] = [
+    pub const ALL: [Self; 24] = [
         Self::Activate,
         Self::Attack,
         Self::Block,
@@ -861,6 +865,7 @@ impl HistKind {
         Self::DestroysByBattlePaired,
         Self::Discard,
         Self::Draw,
+        Self::DrawByEffect,
         Self::ExExiled,
         Self::ExResource,
         Self::Excess,
@@ -868,6 +873,7 @@ impl HistKind {
         Self::Play,
         Self::PlayedWithEx,
         Self::PlayerDamage,
+        Self::ResourcePaid,
         Self::ResourceSetActive,
         Self::ShieldDestroyed,
         Self::ShieldToHand,
@@ -889,6 +895,7 @@ impl HistKind {
             Self::DestroysByBattlePaired => "destroys_by_battle_paired",
             Self::Discard => "discard",
             Self::Draw => "draw",
+            Self::DrawByEffect => "draw_by_effect",
             Self::ExExiled => "ex_exiled",
             Self::ExResource => "ex_resource",
             Self::Excess => "excess",
@@ -896,6 +903,7 @@ impl HistKind {
             Self::Play => "play",
             Self::PlayedWithEx => "played_with_ex",
             Self::PlayerDamage => "player_damage",
+            Self::ResourcePaid => "resource_paid",
             Self::ResourceSetActive => "resource_set_active",
             Self::ShieldDestroyed => "shield_destroyed",
             Self::ShieldToHand => "shield_to_hand",
@@ -918,6 +926,7 @@ impl HistKind {
             "destroys_by_battle_paired" => Some(Self::DestroysByBattlePaired),
             "discard" => Some(Self::Discard),
             "draw" => Some(Self::Draw),
+            "draw_by_effect" => Some(Self::DrawByEffect),
             "ex_exiled" => Some(Self::ExExiled),
             "ex_resource" => Some(Self::ExResource),
             "excess" => Some(Self::Excess),
@@ -925,6 +934,7 @@ impl HistKind {
             "play" => Some(Self::Play),
             "played_with_ex" => Some(Self::PlayedWithEx),
             "player_damage" => Some(Self::PlayerDamage),
+            "resource_paid" => Some(Self::ResourcePaid),
             "resource_set_active" => Some(Self::ResourceSetActive),
             "shield_destroyed" => Some(Self::ShieldDestroyed),
             "shield_to_hand" => Some(Self::ShieldToHand),
@@ -939,46 +949,46 @@ impl HistKind {
 #[repr(u8)]
 #[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Debug, Default)]
 pub enum EvKey {
-    /// "amount": `effects/bindings/wp_gd02_b.py:68`, `engine/core.py:612`, `engine/core.py:623`, `engine/game.py:896` and 2 more
+    /// "amount": `effects/bindings/wp_gd02_b.py:68`, `engine/core.py:656`, `engine/core.py:667`, `engine/game.py:899` and 2 more
     #[default]
     Amount = 0,
-    /// "as_command": `engine/interp.py:1484`
+    /// "as_command": `engine/interp.py:1518`
     AsCommand = 1,
     /// "attacker": `engine/battle.py:88`
     Attacker = 2,
-    /// "battle": `engine/battle.py:121`, `engine/battle.py:136`, `engine/core.py:612`, `engine/core.py:623` and 4 more
+    /// "battle": `engine/battle.py:121`, `engine/battle.py:136`, `engine/core.py:656`, `engine/core.py:667` and 4 more
     Battle = 3,
     /// "blocker": `engine/battle.py:89`
     Blocker = 4,
     /// "breach": `engine/battle.py:136`
     Breach = 5,
-    /// "by": `effects/bindings/wp_gd04_a.py:106`, `effects/builtins.py:42`, `engine/core.py:612`, `engine/core.py:623` and 17 more
+    /// "by": `effects/bindings/wp_gd04_a.py:106`, `effects/builtins.py:42`, `engine/core.py:656`, `engine/core.py:667` and 17 more
     By = 6,
-    /// "by_effect": `engine/interp.py:511`
+    /// "by_effect": `engine/interp.py:513`
     ByEffect = 7,
     /// "defender": `engine/battle.py:31`
     Defender = 8,
-    /// "ex_resource": `engine/interp.py:1468`
+    /// "ex_resource": `engine/interp.py:1502`
     ExResource = 9,
-    /// "ex_used": `engine/game.py:947`, `engine/interp.py:967`, `engine/interp.py:1427`, `engine/interp.py:1484`
+    /// "ex_used": `engine/game.py:950`, `engine/interp.py:972`, `engine/interp.py:1461`, `engine/interp.py:1518`
     ExUsed = 10,
-    /// "from_loc": `engine/interp.py:967`, `engine/interp.py:1379`
+    /// "from_loc": `engine/interp.py:972`, `engine/interp.py:1413`
     FromLoc = 11,
     /// "group": `effects/bindings/wp_gd04_a.py:106`, `engine/battle.py:88`, `engine/battle.py:89`, `engine/battle.py:121` and 19 more
     Group = 12,
-    /// "linked": `engine/core.py:811`, `engine/interp.py:1379`
+    /// "linked": `engine/core.py:855`, `engine/interp.py:1413`
     Linked = 13,
-    /// "pilot": `engine/core.py:811`, `engine/interp.py:1379`, `engine/interp.py:1391`
+    /// "pilot": `engine/core.py:855`, `engine/interp.py:1413`, `engine/interp.py:1425`
     Pilot = 14,
     /// "player": `engine/core.py:330`
     Player = 15,
-    /// "source": `engine/core.py:612`, `engine/core.py:730`, `engine/core.py:811`
+    /// "source": `engine/core.py:656`, `engine/core.py:774`, `engine/core.py:855`
     Source = 16,
     /// "subject": `engine/core.py:330`
     Subject = 17,
     /// "target": `effects/builtins.py:71`, `engine/battle.py:31`, `engine/battle.py:121`, `engine/battle.py:136` and 4 more
     Target = 18,
-    /// "token": `engine/interp.py:1009`
+    /// "token": `engine/interp.py:1043`
     Token = 19,
 }
 
@@ -1069,19 +1079,19 @@ impl EvKey {
 #[repr(u8)]
 #[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Debug)]
 pub enum FrameKind {
-    /// "activate_main_sub": `engine/interp.py:1485`
+    /// "activate_main_sub": `engine/interp.py:1519`
     ActivateMainSub = 0,
-    /// "activated": `engine/game.py:883`, `engine/game.py:897`
+    /// "activated": `engine/game.py:886`, `engine/game.py:900`
     Activated = 1,
-    /// "burst": `engine/game.py:715`
+    /// "burst": `engine/game.py:718`
     Burst = 2,
-    /// "command": `engine/game.py:948`, `engine/interp.py:1428`
+    /// "command": `engine/game.py:951`, `engine/interp.py:1462`
     Command = 3,
-    /// "play_sub": `engine/interp.py:1410`
+    /// "play_sub": `engine/interp.py:1444`
     PlaySub = 4,
-    /// "system": `engine/game.py:308`, `engine/game.py:925`, `engine/game.py:935`, `engine/game.py:954`
+    /// "system": `engine/game.py:311`, `engine/game.py:928`, `engine/game.py:938`, `engine/game.py:957`
     System = 5,
-    /// "trigger": `engine/game.py:715`
+    /// "trigger": `engine/game.py:718`
     Trigger = 6,
 }
 
@@ -1133,31 +1143,31 @@ impl FrameKind {
 #[repr(u8)]
 #[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Debug)]
 pub enum EnginePrompt {
-    /// "action step": `engine/game.py:353`
+    /// "action step": `engine/game.py:356`
     ActionStep = 0,
-    /// "battle area excess": `engine/interp.py:894`
+    /// "battle area excess": `engine/interp.py:899`
     BattleAreaExcess = 1,
-    /// "block?": `engine/game.py:272`
+    /// "block?": `engine/game.py:275`
     Block = 2,
     /// "choose Player One": `engine/game.py:163`
     ChoosePlayerOne = 3,
     /// "choose mode": `engine/interp.py:274`
     ChooseMode = 4,
-    /// "discard": `engine/interp.py:540`, `engine/interp.py:555`
+    /// "discard": `engine/interp.py:542`, `engine/interp.py:557`
     Discard = 5,
-    /// "main phase": `engine/game.py:259`
+    /// "main phase": `engine/game.py:262`
     MainPhase = 6,
-    /// "next card (top first)": `engine/interp.py:1189`
+    /// "next card (top first)": `engine/interp.py:1223`
     NextCardTopFirst = 7,
-    /// "order (top first)": `engine/interp.py:821`
+    /// "order (top first)": `engine/interp.py:826`
     OrderTopFirst = 8,
-    /// "order triggers": `engine/game.py:704`
+    /// "order triggers": `engine/game.py:707`
     OrderTriggers = 9,
     /// "redraw?": `engine/game.py:177`
     Redraw = 10,
-    /// "rest instead?": `engine/interp.py:691`
+    /// "rest instead?": `engine/interp.py:693`
     RestInstead = 11,
-    /// "top(0) or bottom(1)": `engine/interp.py:1164`, `engine/interp.py:1172`
+    /// "top(0) or bottom(1)": `engine/interp.py:1198`, `engine/interp.py:1206`
     Top0OrBottom1 = 12,
     /// "you may": `engine/interp.py:216`
     YouMay = 13,
@@ -1232,12 +1242,12 @@ impl EnginePrompt {
 #[repr(u8)]
 #[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Debug, Default)]
 pub enum CtxKey {
-    /// "all": `engine/interp.py:1164`
+    /// "all": `engine/interp.py:1198`
     #[default]
     All = 0,
-    /// "card": `engine/interp.py:1172`
+    /// "card": `engine/interp.py:1206`
     Card = 1,
-    /// "count": `engine/interp.py:540`, `engine/interp.py:555`
+    /// "count": `engine/interp.py:542`, `engine/interp.py:557`
     Count = 2,
     /// "max": `engine/interp.py:433`, `engine/interp.py:461`
     Max = 3,
@@ -1245,13 +1255,13 @@ pub enum CtxKey {
     Min = 4,
     /// "mode": `engine/interp.py:274`
     Mode = 5,
-    /// "order": `engine/interp.py:1189`
+    /// "order": `engine/interp.py:1223`
     Order = 6,
-    /// "owner": `engine/interp.py:821`
+    /// "owner": `engine/interp.py:826`
     Owner = 7,
-    /// "rest_sub": `engine/interp.py:691`
+    /// "rest_sub": `engine/interp.py:693`
     RestSub = 8,
-    /// "zone": `engine/interp.py:894`
+    /// "zone": `engine/interp.py:899`
     Zone = 9,
 }
 
@@ -1551,7 +1561,7 @@ mod tests {
                 .windows(2)
                 .all(|w| w[0] < w[1] && w[0].as_str() < w[1].as_str())
         );
-        assert_eq!(HistKind::ALL.len(), 22);
+        assert_eq!(HistKind::ALL.len(), 24);
         for k in EvKey::ALL {
             assert_eq!(EvKey::from_value(k.as_str()), Some(k));
         }

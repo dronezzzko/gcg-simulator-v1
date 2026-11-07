@@ -977,7 +977,7 @@ fn attribute_predicate_matches_the_enumerated_list() {
     let mut enumerated: Vec<&str> = rule.enumerated.iter().map(|n| &**n).collect();
     enumerated.sort();
     assert_eq!(by_predicate, enumerated);
-    assert_eq!(by_predicate.len(), 22);
+    assert_eq!(by_predicate.len(), 25);
 }
 
 #[test]

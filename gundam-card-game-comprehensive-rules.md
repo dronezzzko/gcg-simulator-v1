@@ -1,8 +1,8 @@
 # Gundam Card Game Comprehensive Rules
 
-Ver. 1.9.0
+Ver. 1.10.0
 
-Updated Sep 11, 2026
+Updated Oct 16, 2026
 
 ## Table of Contents
 
@@ -1006,6 +1006,8 @@ Updated Sep 11, 2026
 
 **12-2-8.** Action steps are performed in order starting with the next player after the active player. They end when all players have chosen to pass.
 
+**12-2-9.** You can only activate \<Blocker\> when you or one of your Units is attacked.
+
 **12-3.** Team battle rules are for multiplayer battles between two teams consisting of two players each. Rules for deck construction (see 6. Preparing to Play) and game progression (see 7. Game Progression) are generally the same as those for two player battles.
 
 **12-3-1.** Each team proceeds through each turn phase as a team rather than individually.
@@ -1016,7 +1018,7 @@ Updated Sep 11, 2026
 
 **12-3-4.** Team members are free to share information and strategies. If there is a disagreement, the team leader has the final say.
 
-**12-3-5.** Unlike preparing to play for a two-player battle (see 6. Preparing to Play), each player takes the top four cards of their deck, one at a time while taking turns, and places them face down into the team’s shared shield area without looking at them. When doing so, place each card so it overlaps the previous one, starting with the card nearest to you.
+**12-3-5.** Unlike preparing to play for a two-player battle (see 6. Preparing to Play), redrawing hands (see 6-2-1-6) occurs after both teams have confirmed them among their members. First, Team One's members each choose whether or not to redraw, and if they both choose to redraw, they do so simultaneously. Then, Team Two does the same. After that, each player takes the top four cards of their deck, one at a time while taking turns, and places them face down into the team’s shared shield area without looking at them. When doing so, place each card so it overlaps the previous one, starting with the card nearest to you.
 
 **12-3-6.** When placing EX Resources while preparing to play, each player on Team Two places one card.
 

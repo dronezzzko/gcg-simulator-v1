@@ -16,10 +16,16 @@ class CardType(StrEnum):
     UNIT_TOKEN = "UNIT TOKEN"
     EX_BASE = "EX BASE"
     EX_RESOURCE = "EX RESOURCE"
+    BASE_TOKEN = "BASE TOKEN"
 
     @property
     def is_token(self) -> bool:
-        return self in (CardType.UNIT_TOKEN, CardType.EX_BASE, CardType.EX_RESOURCE)
+        return self in (
+            CardType.UNIT_TOKEN,
+            CardType.EX_BASE,
+            CardType.EX_RESOURCE,
+            CardType.BASE_TOKEN,
+        )
 
     @property
     def is_unit(self) -> bool:
@@ -27,7 +33,7 @@ class CardType(StrEnum):
 
     @property
     def is_base(self) -> bool:
-        return self in (CardType.BASE, CardType.EX_BASE)
+        return self in (CardType.BASE, CardType.EX_BASE, CardType.BASE_TOKEN)
 
     @property
     def is_resource(self) -> bool:

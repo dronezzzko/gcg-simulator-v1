@@ -116,9 +116,13 @@ pub fn hand_slot(t: CardType) -> Result<usize, EngineError> {
         CardType::Pilot => Ok(1),
         CardType::Command => Ok(2),
         CardType::Base => Ok(3),
-        CardType::Resource | CardType::UnitToken | CardType::ExBase | CardType::ExResource => Err(
-            EngineError::Assertion(format!("P6-G: a {t:?} card in hand has no hand slot")),
-        ),
+        CardType::Resource
+        | CardType::UnitToken
+        | CardType::ExBase
+        | CardType::ExResource
+        | CardType::BaseToken => Err(EngineError::Assertion(format!(
+            "P6-G: a {t:?} card in hand has no hand slot"
+        ))),
     }
 }
 

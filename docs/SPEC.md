@@ -10,7 +10,7 @@ This file is the contract for the build. Every phase is verified against it.
 An installable, uv-managed Python package (`gcg-sim`) whose CLI benchmarks a Gundam Card Game
 (English) deck under test against a benchmark deck. It plays N matches between two strong,
 information-set-honest AI players under a faithful, deterministic implementation of the
-Comprehensive Rules (Ver. 1.9.0, Sep 11 2026). It writes reproducible, statistically honest
+Comprehensive Rules (Ver. 1.10.0, Oct 16 2026). It writes reproducible, statistically honest
 matchup reports that a later Claude Code session can use to tune the deck. Rules fidelity,
 reproducibility, and honest statistics come before speed.
 

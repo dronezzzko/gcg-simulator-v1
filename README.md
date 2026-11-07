@@ -2,7 +2,7 @@
 
 `gcg-sim` measures how a Gundam Card Game (English) deck performs against a benchmark deck. It
 plays many matches between two search-based AI players under a deterministic implementation of
-the Comprehensive Rules (Ver. 1.9.0, 2026-09-11). It then writes reproducible matchup reports
+the Comprehensive Rules (Ver. 1.10.0, 2026-10-16). It then writes reproducible matchup reports
 with honest error bars, which you can use to tune the deck.
 
 The tool is a Rust workspace (`crates/`) with two binaries, `gcg-sim` and `gcg-eval`, plus the
@@ -11,7 +11,7 @@ rules engine, card behaviour and reference search are verified trace by trace ag
 reference oracle kept in the repository (`src/gcg_sim`), which also generates the effect IR
 that the binaries embed.
 
-- Every card in the packaged card data is implemented (1152/1152 card numbers), and every
+- Every card in the packaged card data is implemented (1290/1290 card numbers), and every
   non-vanilla card has a behaviour test.
 - Every 1v1 rule is covered by a tagged test or has a written N/A reason
   ([`docs/RULES_TRACEABILITY.md`](docs/RULES_TRACEABILITY.md)).
@@ -304,10 +304,10 @@ engine's interpretation decisions.
 
 | Source | Version |
 | --- | --- |
-| Comprehensive Rules | Ver. 1.9.0, updated 2026-09-11 |
-| Card data | [gcg-api](https://github.com/yzRobo/gcg-api) data files at commit `39c85b5`, dataset `28-ad9da1b`, built 2026-10-12 |
+| Comprehensive Rules | Ver. 1.10.0, updated 2026-10-16 |
+| Card data | [gcg-api](https://github.com/yzRobo/gcg-api) data files at commit `78a64df`, dataset `31-ebd08a4b`, built 2026-11-02 |
 | Banned & restricted list | effective 2026-09-25 |
-| BO3 match rules, deck construction, floor rules | gundam-gcg.com/en pages, last checked 2026-10-15 |
+| BO3 match rules, deck construction, floor rules | gundam-gcg.com/en pages, last checked 2026-11-06 |
 
 Every source's URL, version, retrieval time and SHA-256 is locked in `data/SOURCES.lock.json` and
 summarized in [`docs/SOURCES.md`](docs/SOURCES.md). Cached source files are never edited. To

@@ -50,12 +50,12 @@ floating-point leaf values can differ in the last bit wherever the C library dif
 
 | Corpus | Traces | Passed | Decisions | Snapshots | Search decisions |
 | --- | ---: | ---: | ---: | ---: | ---: |
-| Tier 1 (committed) | 3804 | 3804 | 17,601 | 2,166 | 1,396 |
-| Tier 2 (regenerated, checked against its manifest) | 4154 | 4154 | 123,726 | 9,078 | 12,131 |
+| Tier 1 (committed) | 4044 | 4044 | 18,598 | 2,247 | 1,396 |
+| Tier 2 (regenerated, checked against its manifest) | 4463 | 4463 | 132,853 | 9,766 | 12,131 |
 
-Tier 1 holds baselines 8, coverage 50, full 4, fuzz 100, search 9, tests 3213, vanilla 40,
-views 280 and worlds 100 traces; tier 2 holds coverage 468, fuzz 500, search 144 (reference
-`fast`, `standard` and `strong`), views 2034 and worlds 1008. Both also pass with the
+Tier 1 holds baselines 8, coverage 55, full 4, fuzz 100, search 9, tests 3418, vanilla 40,
+views 300 and worlds 110 traces; tier 2 holds coverage 522, fuzz 500, search 144 (reference
+`fast`, `standard` and `strong`), views 2169 and worlds 1128 (the 2026-11-06 data refresh). Both also pass with the
 `paranoid` feature (every cached view recomputed and compared). Commands:
 `gcg-diff corpus --tier 1 --require-all`, `--tier 2`, `--roundtrip`, and the paranoid build.
 
@@ -133,7 +133,7 @@ None of these changes a game, a decision or a byte of `results.json`, `games.ndj
 | # | Difference | Root cause | Impact |
 | --- | --- | --- | --- |
 | D1 | Error messages that embed CPython exception text (e.g. `GameFailure "…: {TypeName}: {exc}"`, `KeyError` reprs, `JSONDecodeError` details, `strerror`) | The text comes from CPython internals | Rust matches the prefix, the exit code and the file side effects (PLAN A19); tested as prefix relations |
-| D2 | A battle-damage redirect cycle (two GD04-095) ends the game with `EngineError::RedirectCycle` instead of Python's `RecursionError` | Python recurses without a cycle guard (W-143) | Same outcome: the game fails and the run exits 1 with no reports; only the message differs |
+| D2 | None since 2026-11-06. Before, a battle-damage redirect cycle (two GD04-095) ended the game with `EngineError::RedirectCycle` instead of Python's `RecursionError` | Python recursed without a cycle guard (W-143) | Both implementations now apply each redirection once per damage (ruling GD06-018:Q494), so the cycle resolves the same way and the game goes on |
 | D3 | `--matches` and `--replays` above 4,294,967,295 are a usage error (exit 2) | The Rust config stores them as `u32` | Python would accept and try to run them; no realistic run is affected |
 | D4 | `gcg-sim replay` of a document whose seed, chooser, action arguments or deck sizes fall outside the simulator's integer types reports a malformed replay (exit 1); non-dict `counts`/`expected` report malformed instead of a traceback (exit 1) | Fixed-width Rust types | Exit code and absence of reports are the same |
 | D5 | Replay JSON parsing: serde_json rejects `NaN`/`Infinity` and reads integers above u64 as floats, where Python's `json.loads` accepts them | Different JSON parsers | No file the simulator writes contains them |

@@ -1,11 +1,12 @@
 //! `engine_error_leaf` (W-143, W-110): the strategic fuzz game that failed
 //! (`gcg-diff fuzz --games 400 --seed 2026 --agent search:fast`, game index 221, game seed
-//! 11012090770908643750) reaches the GD04-095 redirect cycle `[36, 3, 36]` inside a rollout of
+//! 11012090770908643750) reached the GD04-095 redirect cycle `[36, 3, 36]` inside a rollout of
 //! the strengthened search at the reference `standard` budget (`reference_mapping(Fast)`, the
-//! shipped `fast` preset when the game failed). With the flag on the simulated line scores as a
-//! loss and the real game completes; with the flag off the same decision fails with the engine's
-//! `RedirectCycle` (Python's `RecursionError`), as before. The shipped `fast` preset (the flag
-//! on) finishes the game too.
+//! shipped `fast` preset when the game failed). Since the 2026-11-06 refresh each redirection
+//! applies once per damage (ruling GD06-018:Q494), so the cycle no longer fails a simulated
+//! line: the game completes at both configurations, with the flag on and off, and no line is
+//! scored as an engine error. The error-leaf mechanism keeps its unit tests on synthetic engine
+//! errors (`crates/gcg-search/src/mech/tests.rs`).
 
 use std::num::NonZeroUsize;
 use std::sync::Arc;
@@ -15,7 +16,7 @@ use gcg_core::derive_seed;
 use gcg_core::pool::{Cancel, Pool, TaskCx};
 use gcg_diff::fuzz::{AgentKind, AgentSpec, FuzzArgs, Pools, play_one};
 use gcg_effects::Registry;
-use gcg_engine::{EngineError, GameState, NewGameOptions, apply, new_game_by_number};
+use gcg_engine::{GameState, NewGameOptions, apply, new_game_by_number};
 use gcg_search::{
     MechanismEffort, Preset, SearchAgent, make_search_agent, preset_config, reference_mapping,
 };
@@ -103,25 +104,20 @@ fn the_failing_fuzz_game_completes_with_the_shipped_preset() {
     let (outcome, _) = play(preset_config(Preset::Fast));
     let (actions, _) = outcome.expect("the game completes");
     assert_eq!(u64::try_from(actions).expect("a count"), out.actions);
-    // At the configuration the game failed with, the simulated redirect cycles were scored as
-    // losses and counted, and the real game finished.
+    // At the configuration the game failed with, the simulated redirect cycles resolve, so no
+    // line is scored as an engine error, and the real game finishes.
     let failing = reference_mapping(Preset::Fast);
     assert!(failing.mechanisms.engine_error_leaf);
     let (outcome, effort) = play(failing);
     outcome.expect("the game completes");
-    assert!(effort.engine_error_leaves > 0, "{effort:?}");
+    assert_eq!(effort.engine_error_leaves, 0, "{effort:?}");
 }
 
 #[test]
-fn without_the_flag_the_cycle_fails_the_game_as_before() {
+fn without_the_flag_the_game_completes_too() {
     let mut cfg = reference_mapping(Preset::Fast).clone();
     cfg.mechanisms.engine_error_leaf = false;
     let (outcome, effort) = play(&cfg);
-    match outcome {
-        Err(AgentError::Engine(EngineError::RedirectCycle { uids })) => {
-            assert_eq!(&*uids, &[36, 3, 36]);
-        }
-        other => panic!("expected the redirect cycle, got {other:?}"),
-    }
+    outcome.expect("the game completes: the redirect cycle resolves");
     assert_eq!(effort, MechanismEffort::default());
 }

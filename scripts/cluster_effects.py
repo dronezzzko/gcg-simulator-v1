@@ -26,7 +26,7 @@ OUT_DIR = REPO / "docs" / "research"
 TEMPLATES_JSON = OUT_DIR / "effect_templates.json"
 PACKAGES_JSON = OUT_DIR / "work_packages.json"
 MARKDOWN = OUT_DIR / "EFFECT_TEMPLATES.md"
-GCG_API_COMMIT = "39c85b5032a72b035935b6ca29b326b297908f06"
+GCG_API_COMMIT = "78a64df3519cb6c773b3d2f4a8ecad14d8096b0e"
 
 REGULAR_MIN_CARDS = 2
 COVERAGE_KS = (1, 2, 3, 4, 5, 6, 8, 10, 15, 20, 30, 50)
@@ -2615,7 +2615,7 @@ def build_outputs(data_dir: Path) -> tuple[dict[str, object], dict[str, object]]
         "gcg_api_commit": GCG_API_COMMIT,
         "dataset_version": manifest.get("dataset_version"),
         "built_at": manifest.get("built_at"),
-        "rules": "gundam-card-game-comprehensive-rules.md (Ver. 1.9.0)",
+        "rules": "gundam-card-game-comprehensive-rules.md (Ver. 1.10.0)",
     }
     templates_doc: dict[str, object] = {
         "schema_version": 1,

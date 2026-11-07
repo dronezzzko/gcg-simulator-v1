@@ -330,6 +330,16 @@ pub(crate) fn record(
     });
 }
 
+/// `record_cost_paid(st, player, host, amount)` (`core.py`): a payment of `amount` Resources
+/// for an effect of `host` is one "cost_paid" event, then one "resource_paid" event per
+/// Resource, for totals such as "paid a total of ③" (GD06-070).
+pub(crate) fn record_cost_paid(st: &mut GameState, player: u8, by: i8, host: i32, amount: i64) {
+    record(st, HistKind::CostPaid, player, by, host, NO_ARG);
+    for _ in 0..amount.max(0) {
+        record(st, HistKind::ResourcePaid, player, by, host, NO_ARG);
+    }
+}
+
 // ---------------------------------------------------------------------------------------------
 // events and triggers (core.py:158-482)
 
@@ -1068,9 +1078,16 @@ fn damage_rule_applies(
         if source < 0 {
             return Ok(false);
         }
+        // "this Unit" in the filters is the rule's source (GD06-098: a Pilot's Unit guarding
+        // the Bases), or the protected card when the rule has none.
+        let host = if r.source >= 0 {
+            r.source
+        } else {
+            i32::from(uid)
+        };
         let ctx = Ctx::new(
             st.cards[usize::from(uid)].owner,
-            i32::from(uid),
+            host,
             NO_ARG,
             CtxVars::Empty,
             EventPayload::default(),
@@ -1138,7 +1155,7 @@ fn reduce(
 /// a Unit or Base and returns the damage actually dealt (rules 5-5, 5-21).
 ///
 /// # Errors
-/// [`EngineError::RedirectCycle`] (W-143) and the errors of the view and of emitting.
+/// The errors of the view and of emitting.
 pub(crate) fn damage_card(
     st: &mut GameState,
     uid: Uid,
@@ -1149,17 +1166,16 @@ pub(crate) fn damage_card(
     apply_damage(st, dest, fin, d)
 }
 
-/// `resolve_damage(st, uid, amount, *, source, battle, by)` (`core.py:576-599`): where damage
-/// lands and how much after redirection, prevention and reduction, on the current state (so
-/// simultaneous battle damage uses the pre-damage state, rule 8-5-3-2).
+/// `resolve_damage(st, uid, amount, *, source, battle, by, redirected=())` (`core.py`): where
+/// damage lands and how much after redirection, increase, prevention and reduction, on the
+/// current state (so simultaneous battle damage uses the pre-damage state, rule 8-5-3-2).
 ///
-/// Battle damage follows the REDIRECT_BATTLE_DAMAGE chain first ([`follow_redirects`]): Python
-/// recurses once per hop and, on a cycle, until `RecursionError`; Rust walks the chain and
-/// returns [`EngineError::RedirectCycle`] (W-143). Every chain without a repeat lands where
-/// Python's does.
+/// Battle damage follows the REDIRECT_BATTLE_DAMAGE rules first ([`follow_redirects`]): Python
+/// recurses once per hop with the keys of the rules already applied, so each rule applies once
+/// per damage (ruling GD06-018:Q494) and a cycle ends on the card it started from (W-143).
 ///
 /// # Errors
-/// [`EngineError::RedirectCycle`]; errors of the view, filters and values.
+/// Errors of the view, filters and values.
 pub(crate) fn resolve_damage(
     st: &mut GameState,
     uid: Uid,
@@ -1173,15 +1189,16 @@ pub(crate) fn resolve_damage(
         return Ok((uid, 0));
     }
     let dv = view::derived(st)?;
-    // Every hop lands on a Unit in BATTLE with the same `amount`, and nothing touches the
-    // state between hops, so Python's recursive call re-checks nothing new and reads the same
-    // cached view (core.py:582-591).
+    // Every hop lands on a Unit in BATTLE or a Base with the same `amount`, and nothing
+    // touches the state between hops, so Python's recursive call re-checks nothing new and
+    // reads the same cached view.
     let uid = if d.battle {
-        follow_redirects(uid, |u| redirect_of(st, &dv, u))?
+        follow_redirects(uid, |u, applied| redirect_of(st, &dv, u, applied))?
     } else {
         uid
     };
     let (source, battle, by) = (d.source, d.battle, d.by);
+    let amount = increase(st, &dv, uid, amount, source, by)?;
     if prevented(st, &dv, uid, amount, source, battle, by, false)? {
         return Ok((uid, 0));
     }
@@ -1199,39 +1216,100 @@ pub(crate) fn resolve_damage(
     Ok((uid, amount))
 }
 
-/// The destination of the first usable REDIRECT_BATTLE_DAMAGE rule on `uid`
-/// (`core.py:588-591`): its `aux` is another Unit in BATTLE.
-fn redirect_of(st: &GameState, dv: &Derived, uid: Uid) -> Result<Option<Uid>, EngineError> {
+/// The first REDIRECT_BATTLE_DAMAGE rule on `uid` not yet in `applied` whose `aux` is another
+/// Unit in BATTLE or a Base (GD06-018), with that destination (`core.py` `resolve_damage`).
+fn redirect_of(
+    st: &GameState,
+    dv: &Derived,
+    uid: Uid,
+    applied: &[RuleKey],
+) -> Result<Option<(Uid, RuleKey)>, EngineError> {
     for r in view::rules_of(dv, uid, RuleKind::RedirectBattleDamage) {
+        if applied.contains(&r.key) {
+            continue;
+        }
         let dest = r.aux;
-        if dest >= 0 && dest != i32::from(uid) && card_at(st, dest)?.zone == Zone::Battle {
-            return Ok(Some(uid_at(st, dest)?));
+        if dest >= 0
+            && dest != i32::from(uid)
+            && matches!(card_at(st, dest)?.zone, Zone::Battle | Zone::Base)
+        {
+            return Ok(Some((uid_at(st, dest)?, r.key)));
         }
     }
     Ok(None)
 }
 
-/// The end of the redirect chain from `start`, where `next(u)` is `u`'s redirect destination.
-/// Python recurses once per hop (`core.py:591`); a destination already on the chain repeats
-/// the same calls forever, until `RecursionError`. Here it is [`EngineError::RedirectCycle`]
-/// naming the chain and the repeated Unit (W-143).
+/// Where battle damage dealt to `start` lands: `next(u, applied)` is `u`'s redirect not yet
+/// applied and its rule key. Python recurses once per hop with the applied keys
+/// (`redirected`), so every rule applies once and the walk ends (ruling GD06-018:Q494: two
+/// redirections that point at each other leave the damage on the first Unit; W-143).
 fn follow_redirects(
     start: Uid,
-    mut next: impl FnMut(Uid) -> Result<Option<Uid>, EngineError>,
+    mut next: impl FnMut(Uid, &[RuleKey]) -> Result<Option<(Uid, RuleKey)>, EngineError>,
 ) -> Result<Uid, EngineError> {
-    let mut chain: UidBuf = UidBuf::new();
+    let mut applied: Vec<RuleKey> = Vec::new();
     let mut uid = start;
-    while let Some(dest) = next(uid)? {
-        chain.push(uid);
-        if chain.contains(&dest) {
-            chain.push(dest);
-            return Err(EngineError::RedirectCycle {
-                uids: chain.to_vec().into_boxed_slice(),
-            });
-        }
+    while let Some((dest, key)) = next(uid, &applied)? {
+        applied.push(key);
         uid = dest;
     }
     Ok(uid)
+}
+
+/// `_increase(st, dv, uid, amount, source, by)` (`core.py`): "When your (X) cards deal damage
+/// to enemy Units, increase the damage dealt by N" (GD06-033): every INCREASE_DAMAGE rule on a
+/// card in BATTLE or BASE of the dealing player `by` whose filters the source matches adds its
+/// amount, when the damage goes to an enemy Unit (battle damage too, Q503; each Unit an area
+/// effect hits, Q504).
+fn increase(
+    st: &GameState,
+    dv: &Derived,
+    uid: Uid,
+    mut amount: i64,
+    source: i32,
+    by: i32,
+) -> Result<i64, EngineError> {
+    let c = st.cards[usize::from(uid)];
+    if source < 0 || by < 0 || c.zone != Zone::Battle || i32::from(c.owner) == by {
+        return Ok(amount);
+    }
+    let p = u8::try_from(by).map_err(|_| EngineError::Overflow { what: "player" })?;
+    let src = uid_at(st, source)?;
+    let hosts: Vec<Uid> = st
+        .zone(p, Zone::Battle)
+        .iter()
+        .chain(st.zone(p, Zone::Base))
+        .copied()
+        .collect();
+    for h in hosts {
+        for r in rules(dv, h, RuleKind::IncreaseDamage) {
+            let rule = rule_mod(st.registry(), r.rule)?;
+            if !rule.source_filters.is_empty() {
+                let ctx = Ctx::new(
+                    r.controller,
+                    i32::from(h),
+                    NO_ARG,
+                    CtxVars::Empty,
+                    EventPayload::default(),
+                );
+                if !view::matches(st, dv, &ctx, src, &rule.source_filters)? {
+                    continue;
+                }
+            }
+            let ctx = Ctx::new(
+                r.controller,
+                r.source,
+                NO_ARG,
+                CtxVars::Empty,
+                EventPayload::default(),
+            );
+            let v = view::value(st, dv, &ctx, rule.amount)?;
+            amount = amount
+                .checked_add(v)
+                .ok_or(EngineError::Overflow { what: "damage" })?;
+        }
+    }
+    Ok(amount)
 }
 
 /// `apply_damage(st, uid, amount, *, source, battle, by)` (`core.py:602-633`): nothing for no
@@ -2698,7 +2776,7 @@ mod tests {
             .collect();
         assert_eq!(
             found,
-            ["GD04-087", "GD04-095"],
+            ["GD04-087", "GD04-095", "GD06-018"],
             "a new battle-damage redirect source: review it for redirect cycles (W-143)"
         );
     }
@@ -2718,38 +2796,34 @@ mod tests {
         assert!(py_index(0, -1).is_err());
     }
 
-    /// W-143: Python recurses once per redirect hop (`core.py:591`) and, on a cycle, until
-    /// `RecursionError`; the chain walk names the cycle and lands where Python does otherwise.
+    /// W-143 / ruling GD06-018:Q494: Python recurses once per redirect hop with the keys of the
+    /// rules already applied; each edge below is one rule (its key names the Unit holding it),
+    /// so a cycle ends on the card whose rule was applied first.
     #[test]
-    fn redirect_chains_land_and_cycles_fail() {
+    fn redirect_chains_land_and_each_rule_applies_once() {
+        fn key(u: Uid) -> RuleKey {
+            RuleKey::Constant {
+                aid: AbilityId(7),
+                host: u,
+            }
+        }
         fn graph(
             edges: &'static [(Uid, Uid)],
-        ) -> impl FnMut(Uid) -> Result<Option<Uid>, EngineError> {
-            move |u| Ok(edges.iter().find(|e| e.0 == u).map(|e| e.1))
+        ) -> impl FnMut(Uid, &[RuleKey]) -> Result<Option<(Uid, RuleKey)>, EngineError> {
+            move |u, applied| {
+                Ok(edges
+                    .iter()
+                    .find(|e| e.0 == u && !applied.contains(&key(e.0)))
+                    .map(|e| (e.1, key(e.0))))
+            }
         }
         assert_eq!(follow_redirects(1, graph(&[])), Ok(1));
         assert_eq!(follow_redirects(1, graph(&[(1, 2)])), Ok(2));
         assert_eq!(follow_redirects(1, graph(&[(1, 2), (2, 3)])), Ok(3));
         assert_eq!(follow_redirects(2, graph(&[(1, 2), (2, 3)])), Ok(3));
-        let cycle = follow_redirects(1, graph(&[(1, 2), (2, 1)])).unwrap_err();
-        assert_eq!(
-            cycle,
-            EngineError::RedirectCycle {
-                uids: Box::new([1, 2, 1])
-            }
-        );
-        assert_eq!(cycle.py_class(), "RecursionError");
-        assert_eq!(
-            cycle.to_string(),
-            "battle damage redirect cycle through units [1, 2, 1]"
-        );
-        assert_eq!(
-            follow_redirects(1, graph(&[(1, 2), (2, 3), (3, 2)])),
-            Err(EngineError::RedirectCycle {
-                uids: Box::new([1, 2, 3, 2])
-            })
-        );
-        let failing = |_: Uid| Err(EngineError::Internal("view".to_owned()));
+        assert_eq!(follow_redirects(1, graph(&[(1, 2), (2, 1)])), Ok(1));
+        assert_eq!(follow_redirects(1, graph(&[(1, 2), (2, 3), (3, 2)])), Ok(2));
+        let failing = |_: Uid, _: &[RuleKey]| Err(EngineError::Internal("view".to_owned()));
         assert_eq!(
             follow_redirects(5, failing),
             Err(EngineError::Internal("view".to_owned()))

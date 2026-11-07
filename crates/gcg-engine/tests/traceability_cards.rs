@@ -9,7 +9,7 @@
 //!   (rules 3-3-9, 3-3-9-1, 3-3-9-2, 2-11-3).
 //!
 //! The coverage tests reproduce `tests/effects/test_card_coverage.py::test_every_card_is_implemented`
-//! and `::test_vanilla_cards_have_no_abilities`: every one of the 1152 real card numbers (1153
+//! and `::test_vanilla_cards_have_no_abilities`: every one of the 1290 real card numbers (1291
 //! definitions) has a script in the embedded IR, and no definition reports an unimplemented
 //! effect to deck validation.
 
@@ -148,16 +148,16 @@ fn every_card_is_implemented() {
         missing.len(),
         &missing[..missing.len().min(10)]
     );
-    // The Rust IR holds a script for every definition: the 1152 real card numbers and the
+    // The Rust IR holds a script for every definition: the 1290 real card numbers and the
     // Unit variant.
-    assert_eq!(db().len(), 1153);
-    assert_eq!(db().real_cards().count(), 1152);
+    assert_eq!(db().len(), 1291);
+    assert_eq!(db().real_cards().count(), 1290);
     let scripted = db()
         .defs()
         .iter()
         .filter(|d| reg.card(d.def_id).script.is_some())
         .count();
-    assert_eq!(scripted, 1153);
+    assert_eq!(scripted, 1291);
     let unimplemented: Vec<&str> = db()
         .defs()
         .iter()
@@ -180,5 +180,5 @@ fn vanilla_cards_have_no_abilities() {
         assert!(s.abilities.is_empty(), "{}", c.card_number);
         assert!(s.unit_abilities.is_empty(), "{}", c.card_number);
     }
-    assert_eq!(vanilla, 312, "Python parametrises 312 vanilla real cards");
+    assert_eq!(vanilla, 331, "Python parametrises 331 vanilla real cards");
 }

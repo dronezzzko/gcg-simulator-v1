@@ -65,7 +65,7 @@ fn node_and_program_lookups_agree_with_the_tables() {
     for (kw, id) in KeywordProgram::ALL.into_iter().zip([0u16, 1, 2]) {
         assert_eq!(reg.keyword_program(kw), ProgramId(id));
     }
-    for (s, id) in SystemProgram::ALL.into_iter().zip([623u16, 624, 625]) {
+    for (s, id) in SystemProgram::ALL.into_iter().zip([709u16, 710, 711]) {
         assert_eq!(reg.system_program(s), ProgramId(id));
     }
     for (n, params) in t.hook_params.iter() {
@@ -121,7 +121,7 @@ fn continuous_effects_round_trip_through_their_content_ids() {
     let reg = Registry::embedded();
     let t = tables();
     let v = t.view();
-    assert_eq!(t.continuous.len(), 110);
+    assert_eq!(t.continuous.len(), 120);
     for (h, c) in t.continuous.iter() {
         let cid = t.node_content_ids[h.node().0 as usize];
         assert_eq!(reg.cont_of(*h), *c);
@@ -166,7 +166,7 @@ fn with_fragment_gives_a_new_generation_and_keeps_the_card_data() {
         serde_json::from_str(&dumps(&over.golden_json(d), GOLDEN_DUMP)).expect("JSON");
     assert_eq!(ours, fx["golden"]);
     assert_ne!(over.golden_json(d), reg.golden_json(d));
-    assert_eq!(over.card(d).own, [AbilityId(1260)].into());
+    assert_eq!(over.card(d).own, [AbilityId(1447)].into());
     let again = reg
         .with_fragment(&fx["fragment"])
         .expect("applies again to the base");

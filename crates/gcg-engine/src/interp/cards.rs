@@ -62,6 +62,16 @@ pub(crate) fn draw(st: &mut GameState, p: u8, n: i64, by_effect: bool) -> Result
         core_::move_card(st, uid, Zone::Hand, MoveOpts::default())?;
         drawn += 1;
         core_::record(st, HistKind::Draw, p, by_of(p), i32::from(uid), NO_ARG);
+        if by_effect {
+            core_::record(
+                st,
+                HistKind::DrawByEffect,
+                p,
+                by_of(p),
+                i32::from(uid),
+                NO_ARG,
+            );
+        }
         core_::emit(
             st,
             Ev::Drawn,
@@ -524,10 +534,15 @@ pub(super) fn h_set_active(
     for u in refs(st, fi, ins.r#ref)? {
         let c = st.cards[usize::from(u)];
         if matches!(c.zone, Zone::Battle | Zone::Base | Zone::ResourceArea) && c.rested {
-            if view::rules_of(&dv, u, RuleKind::CantBeSetActive)
-                .next()
-                .is_some()
-            {
+            let mut locked = false;
+            for r in view::rules_of(&dv, u, RuleKind::CantBeSetActive) {
+                locked |= view::side_allows(
+                    rule_mod(st.registry(), r.rule)?,
+                    c.owner,
+                    i32::from(controller),
+                );
+            }
+            if locked {
                 continue;
             }
             st.cards[usize::from(u)].rested = false;

@@ -264,25 +264,21 @@ fn w115_w153_the_gate_summary_flags_stale_research_and_shows_the_news_scan_date(
     let root = repo();
     let (ok, lines) = gate_summary(&root);
     assert!(ok, "{lines:?}");
-    for stale in &RESEARCH[..2] {
+    for current in &RESEARCH {
         assert!(
             lines.iter().any(|l| l
                 == &format!(
-                    "WARNING: stale research artifact {stale}: profiles f57b7c0, the packaged \
-                     snapshot is 39c85b5 (regenerate it on the Python side)"
-                )),
-            "{stale}: {lines:?}"
-        );
-    }
-    for current in &RESEARCH[2..] {
-        assert!(
-            lines.iter().any(|l| l
-                == &format!(
-                    "research artifact {current}: profiles 39c85b5, the packaged snapshot"
+                    "research artifact {current}: profiles 78a64df, the packaged snapshot"
                 )),
             "{current}: {lines:?}"
         );
     }
+    assert!(
+        !lines
+            .iter()
+            .any(|l| l.starts_with("WARNING: stale research")),
+        "{lines:?}"
+    );
     let official: Value = serde_json::from_str(&read(&root.join("data/sources.d/official.json")))
         .expect("official.json");
     let newest = newest_news_scan(&official);
@@ -311,11 +307,11 @@ fn w115_w153_negative_controls_follow_the_packaged_commit_and_the_news_dates() {
         fs::create_dir_all(dst.parent().expect("a parent")).expect("mkdir");
         fs::copy(root.join(rel), &dst).expect("copy");
     }
-    // The packaged snapshot moves back to f57b7c0: the profile is current, the templates stale.
+    // The packaged snapshot moves back to 39c85b5: every research artefact is stale.
     let lock = tmp.join("data/SOURCES.lock.json");
     let text = read(&lock).replace(
+        "78a64df3519cb6c773b3d2f4a8ecad14d8096b0e",
         "39c85b5032a72b035935b6ca29b326b297908f06",
-        "f57b7c0b0ebc4c13d359649de19750c793ecbefc",
     );
     fs::write(&lock, text).expect("write the lock");
     // A newer news scan of one listing source.
@@ -329,17 +325,16 @@ fn w115_w153_negative_controls_follow_the_packaged_commit_and_the_news_dates() {
     fs::write(&off, serde_json::to_string(&official).expect("JSON")).expect("write");
     let (ok, lines) = gate_summary(&tmp);
     assert!(ok, "{lines:?}");
-    assert!(
-        lines.iter().any(|l| l
-            == "research artifact docs/research/DATA_INGESTION.md: profiles f57b7c0, the packaged snapshot"),
-        "{lines:?}"
-    );
-    assert!(
-        lines.iter().any(|l| l.starts_with(
-            "WARNING: stale research artifact docs/research/effect_templates.json: profiles 39c85b5"
-        )),
-        "{lines:?}"
-    );
+    for stale in &RESEARCH {
+        assert!(
+            lines.iter().any(|l| l
+                == &format!(
+                    "WARNING: stale research artifact {stale}: profiles 78a64df, the packaged \
+                     snapshot is 39c85b5 (regenerate it on the Python side)"
+                )),
+            "{stale}: {lines:?}"
+        );
+    }
     assert!(
         lines.iter().any(|l| l.starts_with(
             "news scan: newest retrieved_at of the news sources is 2026-12-01T08:00:00Z"

@@ -4,9 +4,10 @@
 //! - W-88: `data-status --sources` lists every source of `data/sources.d/*.json` with its hash
 //!   and flags the Asia floor-rules PDF as text-only; the embedded classes equal P6-K's
 //!   file-based ones;
-//! - W-145: `data-status --freshness --as-of 2026-11-01` names GD06 (released 2026-10-30, 0
-//!   card numbers) and not GD07; a synthetic snapshot with ten GD06 cards loads, leaves nothing
-//!   missing, and a deck of its cards validates over that database with no code change;
+//! - W-145: after the 2026-11-06 refresh `data-status --freshness --as-of 2026-11-06` lists
+//!   nothing, `--as-of 2027-01-01` names EVX10 (released 2026-11-27, 0 card numbers) and not
+//!   GD07; a synthetic snapshot with ten GD07 cards loads, leaves only EVX10 missing on
+//!   2027-01-29, and a deck of its cards validates over that database with no code change;
 //! - W-63, W-67: `data-status --templates` reports the committed templates report;
 //! - W-75, W-76: `benchmark --analysis` writes the validator's `scope` block into
 //!   `analysis.json`, and every other report equals the run without `--analysis`;
@@ -207,7 +208,7 @@ fn w88_data_status_sources_lists_every_source_and_flags_the_asia_pdf_text_only()
     }
     assert!(
         out.lines().any(|l| l
-            .starts_with("  text-only official-asia-floor-pdf (official-pdf) sha256 dd00d0e59f81")
+            .starts_with("  text-only official-asia-floor-pdf (official-pdf) sha256 7bf82d9bd32d")
             && l.ends_with(" data/official_raw/asia_pdf_floor-rule-forasia.txt"))
     );
     let doc: Value =
@@ -215,7 +216,7 @@ fn w88_data_status_sources_lists_every_source_and_flags_the_asia_pdf_text_only()
     assert_eq!(doc["sources"]["entries"].as_array().map(Vec::len), Some(49));
     assert_eq!(doc["sources"]["counts"]["text-only"], 1);
     assert_eq!(
-        doc["coverage"]["card_numbers"], 1152,
+        doc["coverage"]["card_numbers"], 1290,
         "gcg-sim data status --json's keys stay"
     );
 }
@@ -224,23 +225,31 @@ fn w88_data_status_sources_lists_every_source_and_flags_the_asia_pdf_text_only()
 // W-145
 
 #[test]
-fn w145_freshness_as_of_names_gd06_and_not_gd07() {
-    let out = ok(&["data-status", "--freshness", "--as-of", "2026-11-01"]);
+fn w145_freshness_as_of_names_evx10_and_not_gd07() {
+    let current = ok(&["data-status", "--freshness", "--as-of", "2026-11-06"]);
+    assert!(
+        current.contains(
+            "freshness: snapshot built 2026-11-02; products released after it and on or before \
+             2026-11-06 with no card numbers in the data: 0"
+        ),
+        "the refresh holds every set released by 2026-11-06, GD06 included: {current}"
+    );
+    let out = ok(&["data-status", "--freshness", "--as-of", "2027-01-01"]);
     assert!(
         out.contains(
-            "freshness: snapshot built 2026-10-12; products released after it and on or before \
-             2026-11-01 with no card numbers in the data: 1"
+            "freshness: snapshot built 2026-11-02; products released after it and on or before \
+             2027-01-01 with no card numbers in the data: 1"
         ),
         "{out}"
     );
     assert!(
-        out.lines()
-            .any(|l| l == "  GD06 Stardust Trails[GD06]: released 2026-10-30, 0 card numbers"),
+        out.lines().any(|l| l
+            == "  EVX10 Official Card Sleeves EX 02[EVX10]: released 2026-11-27, 0 card numbers"),
         "{out}"
     );
     assert!(
         !out.contains("GD07"),
-        "GD07 (2027-01-29) is not released on 2026-11-01"
+        "GD07 (2027-01-29) is not released on 2027-01-01"
     );
     let all = ok(&["data-status", "--freshness"]);
     assert!(
@@ -252,22 +261,23 @@ fn w145_freshness_as_of_names_gd06_and_not_gd07() {
         "data-status",
         "--freshness",
         "--as-of",
-        "2026-11-01",
+        "2027-01-01",
         "--json",
     ]))
     .expect("JSON");
     assert_eq!(
         doc["freshness"],
         serde_json::json!({
-            "as_of": "2026-11-01",
-            "built": "2026-10-12",
-            "missing": [{"card_numbers": 0, "name": "Stardust Trails[GD06]", "product_id": "gd06",
-                         "release_date": "2026-10-30", "set_code": "GD06"}],
+            "as_of": "2027-01-01",
+            "built": "2026-11-02",
+            "missing": [{"card_numbers": 0, "name": "Official Card Sleeves EX 02[EVX10]",
+                         "product_id": "evx10", "release_date": "2026-11-27",
+                         "set_code": "EVX10"}],
         })
     );
     for (args, message) in [
         (
-            vec!["data-status", "--as-of", "2026-11-01"],
+            vec!["data-status", "--as-of", "2027-01-01"],
             "argument --as-of: needs --freshness",
         ),
         (
@@ -332,30 +342,34 @@ fn deck_of(name: &str, main: &[(&str, u64)], resources: &[(&str, u64)]) -> Deck 
 }
 
 #[test]
-fn w145_a_synthetic_gd06_snapshot_loads_and_a_deck_of_its_cards_validates() {
+fn w145_a_synthetic_gd07_snapshot_loads_and_a_deck_of_its_cards_validates() {
     let cards = fs::read_to_string(root().join("src/gcg_sim/data/gcgapi/cards.ndjson"))
         .expect("cards.ndjson");
     let overrides =
         fs::read_to_string(root().join("src/gcg_sim/data/overrides.json")).expect("overrides");
-    let numbers: Vec<String> = (1..=10).map(|i| format!("GD06-{i:03}")).collect();
+    let numbers: Vec<String> = (1..=10).map(|i| format!("GD07-{i:03}")).collect();
     let mut ndjson = cards.clone();
     for (ap, n) in (1..).zip(&numbers) {
         ndjson.push_str(&format!("{}\n", synthetic_unit(n, ap)));
     }
     let db = CardDb::from_sources(&ndjson, &overrides).expect("the synthetic copy loads");
     assert_eq!(db.len(), CardDb::embedded().len() + 10);
-    let built = built_date("2026-10-12T14:37:38.154Z").expect("a date");
-    let as_of = gcg_data::legality::IsoDate::parse("2026-11-01");
-    assert_eq!(
-        missing_products(CardDb::embedded(), packaged_releases(), built, as_of)
+    let built = built_date("2026-11-02T14:57:40.351Z").expect("a date");
+    let as_of = gcg_data::legality::IsoDate::parse("2027-01-29");
+    let missing = |db| {
+        missing_products(db, packaged_releases(), built, as_of)
             .iter()
-            .map(|m| (m.set_code.as_str(), m.card_numbers))
-            .collect::<Vec<_>>(),
-        [("GD06", 0)]
+            .map(|m| (m.set_code.clone(), m.card_numbers))
+            .collect::<Vec<_>>()
+    };
+    assert_eq!(
+        missing(CardDb::embedded()),
+        [("EVX10".to_owned(), 0), ("GD07".to_owned(), 0)]
     );
-    assert!(
-        missing_products(&db, packaged_releases(), built, as_of).is_empty(),
-        "with GD06 cards in the data nothing is missing"
+    assert_eq!(
+        missing(&db),
+        [("EVX10".to_owned(), 0)],
+        "with GD07 cards in the data only EVX10 (sleeves, no cards) is missing"
     );
     // Forty copies of the new cards, ten blue Units with effects of the packaged data, ten
     // Resources.
@@ -370,7 +384,7 @@ fn w145_a_synthetic_gd06_snapshot_loads_and_a_deck_of_its_cards_validates() {
     assert_eq!(blue.len(), 3);
     let mut main: Vec<(&str, u64)> = numbers.iter().map(|n| (n.as_str(), 4)).collect();
     main.extend([(blue[0], 4), (blue[1], 4), (blue[2], 2)]);
-    let deck = deck_of("synthetic-gd06", &main, &[("R-001", 10)]);
+    let deck = deck_of("synthetic-gd07", &main, &[("R-001", 10)]);
     let request = LegalityOptions {
         banlist: Some(ListRequest::default()),
         implemented: None,
@@ -388,7 +402,7 @@ fn w145_a_synthetic_gd06_snapshot_loads_and_a_deck_of_its_cards_validates() {
         [],
         "a deck of the new cards is legal over the refreshed data"
     );
-    // Negative control: the packaged data does not know the GD06 numbers.
+    // Negative control: the packaged data does not know the GD07 numbers.
     let packaged = check(&deck, &sources(CardDb::embedded()), &request).expect("the current list");
     let unknown: Vec<&str> = packaged
         .rules

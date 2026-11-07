@@ -604,8 +604,9 @@ fn exhaustive_polarity_signs_the_listed_sites_and_computed_effects() {
         assert!(sites > 0, "{kind:?} has sites");
     }
     // Every stat change a card applies with a computed amount is signed; the reference
-    // (literal parts only) leaves each UNKNOWN.
-    let mut computed = 0;
+    // (literal parts only) leaves each UNKNOWN. The one negative computed amount of the
+    // packaged pool is GD06-130's "AP-1 for each" (`Times` by -1) on an enemy Unit.
+    let (mut helps, mut harms) = (0, 0);
     for node in nodes(&reg) {
         let Node::Apply(a) = node else { continue };
         let Node::StatMod(m) = reg.node(a.effect.node()) else {
@@ -615,11 +616,15 @@ fn exhaustive_polarity_signs_the_listed_sites_and_computed_effects() {
             .iter()
             .any(|v| matches!(v, gcg_effects::ValueRef::Node(_)))
         {
-            computed += 1;
-            assert_eq!(polarity::effect_polarity(&reg, a.effect), Polarity::Helps);
+            match polarity::effect_polarity(&reg, a.effect) {
+                Polarity::Helps => helps += 1,
+                Polarity::Harms => harms += 1,
+                other => panic!("an unsigned computed stat change: {other:?}"),
+            }
         }
     }
-    assert!(computed > 0, "computed stat changes");
+    assert!(helps > 0, "computed stat buffs");
+    assert_eq!(harms, 1, "GD06-130's computed AP-1 for each");
 }
 
 // ---------------------------------------------------------------------------------------------

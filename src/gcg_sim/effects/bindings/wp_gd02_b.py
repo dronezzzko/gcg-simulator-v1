@@ -64,7 +64,7 @@ def pay_deploy_cost(st: GameState, f: Frame, ctx: V.Ctx, params: dict[str, objec
     if not I.pay_generic(st, f.controller, cost):
         return False
     if cost > 0 and f.host >= 0:
-        core.record(st, "cost_paid", f.controller, f.controller, f.host)
+        core.record_cost_paid(st, f.controller, f.host, cost)
         core.emit(st, d.Ev.COST_PAID, f.host, player=f.controller, amount=cost)
     return True
 

@@ -18,7 +18,7 @@ fn all_golden_files_regenerate_byte_for_byte() {
     let files = tables().golden_files();
     let names: Vec<String> = files.iter().map(|(p, _)| format!("{p}.json")).collect();
     assert_eq!(names, on_disk);
-    assert_eq!(files.len(), 27);
+    assert_eq!(files.len(), 28);
     for (prefix, text) in &files {
         let want = fs::read_to_string(dir.join(format!("{prefix}.json"))).expect("golden file");
         if *text != want {
@@ -46,7 +46,7 @@ fn golden_records_cover_the_real_cards_only() {
         .map(|(_, text)| text.lines().filter(|l| l.starts_with(" \"")).count())
         .sum();
     assert_eq!(
-        records, 1152,
+        records, 1290,
         "the synthetic Unit variant has no golden record"
     );
 }

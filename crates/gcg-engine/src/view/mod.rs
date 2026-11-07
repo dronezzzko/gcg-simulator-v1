@@ -35,7 +35,7 @@ pub use eval::{matches, stat};
 pub use query::{
     abilities_of, ap_of, cost_of, has_kw, hp_of, is_linked, keywords, kw_amount, level_of,
     link_satisfied, link_satisfied_unpatched, names_of, play_cost, play_level, rules_all, rules_of,
-    traits_of, traits_present,
+    side_allows, traits_of, traits_present,
 };
 pub use signature::signature;
 

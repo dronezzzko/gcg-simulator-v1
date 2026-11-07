@@ -8,7 +8,8 @@ lead records the status lines from this file, §12.10). Both flags stay off in t
 
 Commits: 86e481d (the mechanisms and their unit tests), e6a6204 (the scenario tests), and the
 commit that adds this file and `docs/dev/eval/P6-H/`. Every ablation row ran the release
-`gcg-eval` built from the mechanism code of commit 86e481d; the exact commands are in
+`gcg-eval` built from the mechanism code of the P6-H worktree at 86e481d (integrated at
+M13 and squashed into commit 83a06c8); the exact commands are in
 `docs/dev/eval/P6-H/README.md`.
 
 ## Shared machinery: paired pre-game simulations
@@ -253,7 +254,7 @@ commit that adds this file and `docs/dev/eval/P6-H/`. Every ablation row ran the
   in this build; the simulations call `Mechanisms::rollout_choice`, so they use it as soon as the
   bundle switches it on, and the rows above then need re-measuring in the bundle.
 
-## Gate (run after the last code change, commit e6a6204)
+## Gate (run after the last code change, P6-H worktree at e6a6204, squashed into commit 83a06c8)
 
 | Command | Result |
 | --- | --- |

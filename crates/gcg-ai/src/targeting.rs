@@ -64,7 +64,8 @@ pub const fn rule_polarity_of(kind: RuleKind) -> Polarity {
         | RuleKind::ShieldAreaReduction
         | RuleKind::ApCantBeReduced
         | RuleKind::RedirectBattleDamage
-        | RuleKind::RestSubstitute => Polarity::Helps,
+        | RuleKind::RestSubstitute
+        | RuleKind::IncreaseDamage => Polarity::Helps,
     }
 }
 

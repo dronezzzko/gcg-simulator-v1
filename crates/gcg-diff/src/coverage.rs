@@ -1,12 +1,12 @@
 //! `gcg-diff coverage --check` (PLAN §9.3 "Behaviour"): every real card has Rust evidence.
 //!
-//! - A non-vanilla card (its registry entry has abilities; 840 numbers) needs a passing Rust
+//! - A non-vanilla card (its registry entry has abilities; 959 numbers) needs a passing Rust
 //!   replay of a per-test trace tagged with its number, a native Rust test tagged with it, or
 //!   an executed program in the corpus games. The last is the Python executed-program census
 //!   (`oracle/corpus/v1/census.json`, `oracle/census.py`), which counts for Rust only when
 //!   every census game trace passes the real-engine replay: a passing replay reproduces every
 //!   recorded state digest, so the same programs ran.
-//! - A vanilla card (312 numbers) needs a card of it in a state the Rust replay reached, or is
+//! - A vanilla card (331 numbers) needs a card of it in a state the Rust replay reached, or is
 //!   a token or EX card, which the load-time IR check covers (vanilla tokens that nothing
 //!   creates, PLAN §9.3).
 //!
@@ -28,8 +28,8 @@
 //!   seed-2026 fuzz games whose decks held it, in which one of its programs ran, and the
 //!   instances effects or the setup created ([`FUZZ_CENSUS`]); `gcg-diff fuzz --compare` proves
 //!   the Rust fuzz plays the same games. The Rust deck generator must give the census's deck
-//!   membership (all 1,064 pool numbers). Every pool card with a program that never ran is listed
-//!   with the passing tagged test that covers it, and each of the 88 effect-only numbers (Unit
+//!   membership (all 1,194 pool numbers). Every pool card with a program that never ran is listed
+//!   with the passing tagged test that covers it, and each of the 95 effect-only numbers (Unit
 //!   tokens, EX Bases, EX Resources) needs a creation in fuzz or a golden record and a tagged
 //!   test. The check fails on any card without that evidence.
 
@@ -725,14 +725,14 @@ mod tests {
     fn evidence_credits_cards_in_order_of_strength() {
         let reg = Registry::embedded();
         let real: Vec<_> = reg.db().real_cards().collect();
-        assert_eq!(real.len(), 1152);
+        assert_eq!(real.len(), 1290);
         let vanilla = real.iter().filter(|c| is_vanilla(&reg, c.def_id)).count();
-        assert_eq!(vanilla, 312);
+        assert_eq!(vanilla, 331);
         // Without any evidence every non-vanilla card and every non-token vanilla card is
         // missing.
         let none = judge(&reg, &Evidence::default(), &[]);
-        assert_eq!(none.non_vanilla, 840);
-        assert!(none.missing.len() > 840);
+        assert_eq!(none.non_vanilla, 959);
+        assert!(none.missing.len() > 959);
         // A passing tagged trace, and a passing census.
         let first = real
             .iter()
@@ -750,10 +750,10 @@ mod tests {
         let all = judge(&reg, &ev, &[]);
         assert!(all.missing.is_empty(), "{:?}", all.missing);
         assert_eq!(all.by_trace, 1);
-        assert_eq!(all.by_census, 839);
+        assert_eq!(all.by_census, 958);
         ev.failed_games = 1;
         let failed = judge(&reg, &ev, &[]);
-        assert_eq!(failed.missing.len(), 839);
+        assert_eq!(failed.missing.len(), 958);
     }
 
     const CARD: &str = "GD01-001";
@@ -832,7 +832,7 @@ mod tests {
             .collect();
         let ev = passing_trace();
         let never = judge_fuzz(&reg, &ev, &run(&[CARD]), &census(0), &pool, &decks, &golden);
-        assert_eq!(never.in_decks, 1064);
+        assert_eq!(never.in_decks, 1194);
         assert_eq!(
             never.never_ran,
             vec![(CARD.to_owned(), Some(TEST.to_owned()))]
@@ -852,9 +852,9 @@ mod tests {
         );
         assert!(bare.problems.iter().any(|p| p.starts_with(CARD)));
         assert!(bare.problems.iter().any(|p| p.contains("deck membership")));
-        // The 88 effect-only numbers, none created here: each needs covering evidence.
-        assert_eq!(bare.effect_only.len(), 88);
-        assert_eq!(bare.effect_only_uncreated.len(), 88);
+        // The 95 effect-only numbers, none created here: each needs covering evidence.
+        assert_eq!(bare.effect_only.len(), 95);
+        assert_eq!(bare.effect_only_uncreated.len(), 95);
         assert!(bare.problems.iter().any(|p| p.starts_with("EXB-002:")));
     }
 

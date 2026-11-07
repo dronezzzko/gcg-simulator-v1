@@ -479,7 +479,7 @@ def test_level_counts_rested_resources_too() -> None:
 @pytest.mark.rule("2-9-2")
 def test_all_cards_except_resources_and_tokens_have_a_level() -> None:
     for rec in load_raw_printings():
-        ctype = CardType(rec["card_type"])
+        ctype = _db()[rec["card_number"]].card_type  # T-037: a Base token typed BASE in the data
         if ctype in MAIN_DECK_TYPES:
             assert isinstance(rec["level"], int) and rec["level"] >= 1, rec["product_id"]
         else:
@@ -521,7 +521,7 @@ def test_cost_is_paid_by_resting_active_resources() -> None:
 @pytest.mark.rule("2-10-2")
 def test_all_cards_except_resources_and_tokens_have_a_cost() -> None:
     for rec in load_raw_printings():
-        ctype = CardType(rec["card_type"])
+        ctype = _db()[rec["card_number"]].card_type  # T-037: a Base token typed BASE in the data
         if ctype in MAIN_DECK_TYPES:
             assert isinstance(rec["cost"], int) and rec["cost"] >= 1, rec["product_id"]
         else:

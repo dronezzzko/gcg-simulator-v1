@@ -9,7 +9,7 @@ per game is reported with its interval.
 20 BO1 games per example pairing for each AI version, both seats the same version, dev-role
 masters 22710601-22710603 (the pairings in the order of the 2026-10 audit):
 
-- shipped strengthened `standard` (M15b, commit 8c89b5e binaries):
+- shipped strengthened `standard` (M15b, binaries of rust-port at 8c89b5e, squashed into commit 83a06c8):
   `runs/search-standard/` (`gcg-sim benchmark ... --format bo1 --matches 20 --seed 2271060N
   --workers 2 --replays 20 --ai-preset standard`);
 - reference `standard`: `docs/dev/eval/GAP-A1/audit/runs/mcts-standard/` (the reference search

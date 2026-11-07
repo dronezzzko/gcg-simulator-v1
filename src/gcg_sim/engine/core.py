@@ -151,6 +151,14 @@ def record(
     st.history.append(HistoryEvent(kind, player, by, uid, def_id, source))
 
 
+def record_cost_paid(st: GameState, player: int, host: int, amount: int) -> None:
+    """A payment of ``amount`` Resources for an effect of ``host``: one "cost_paid" event, and
+    one "resource_paid" event per Resource for totals ("paid a total of ③", GD06-070)."""
+    record(st, "cost_paid", player, player, host)
+    for _ in range(amount):
+        record(st, "resource_paid", player, player, host)
+
+
 # ---------------------------------------------------------------------------------------------
 # events and triggers
 
@@ -545,7 +553,8 @@ def _damage_rule_applies(
     if rule.source_filters:
         if source < 0:
             return False
-        if not V.matches(st, dv, V.Ctx(owner, uid), source, rule.source_filters):
+        host = r.source if r.source >= 0 else uid  # "this Unit" is the rule's source (GD06-098)
+        if not V.matches(st, dv, V.Ctx(owner, host), source, rule.source_filters):
             return False
     return True
 
@@ -573,11 +582,35 @@ def damage_card(st: GameState, uid: int, amount: int, *, source: int, battle: bo
     return apply_damage(st, dest, final, source=source, battle=battle, by=by)
 
 
+def _increase(st: GameState, dv: V.Derived, uid: int, amount: int, source: int, by: int) -> int:
+    """ "When your (X) cards deal damage to enemy Units, increase the damage dealt by N"
+    (GD06-033): battle damage too (Q503), and each Unit an area effect hits (Q504)."""
+    if source < 0 or by < 0 or st.cards[uid].zone is not Zone.BATTLE or st.cards[uid].owner == by:
+        return amount
+    for h in (*st.zones[by][Zone.BATTLE], *st.zones[by][Zone.BASE]):
+        for r in V.rules_of(dv, h, d.RuleKind.INCREASE_DAMAGE):
+            if r.rule.source_filters and not V.matches(
+                st, dv, V.Ctx(r.controller, h), source, r.rule.source_filters
+            ):
+                continue
+            amount += V.value(st, dv, V.Ctx(r.controller, r.source), r.rule.amount)
+    return amount
+
+
 def resolve_damage(
-    st: GameState, uid: int, amount: int, *, source: int, battle: bool, by: int
+    st: GameState,
+    uid: int,
+    amount: int,
+    *,
+    source: int,
+    battle: bool,
+    by: int,
+    redirected: tuple[tuple[int, ...], ...] = (),
 ) -> tuple[int, int]:
-    """Where damage lands and how much after redirection, prevention and reduction, evaluated
-    on the current state (so simultaneous battle damage uses the pre-damage state, 8-5-3-2)."""
+    """Where damage lands and how much after redirection, increase, prevention and reduction,
+    evaluated on the current state (so simultaneous battle damage uses the pre-damage state,
+    8-5-3-2). Each redirection applies once per damage (Q494), and may send battle damage to a
+    Base (GD06-018)."""
     if amount <= 0:
         return uid, 0
     c = st.cards[uid]
@@ -587,8 +620,19 @@ def resolve_damage(
     if battle:
         for r in V.rules_of(dv, uid, d.RuleKind.REDIRECT_BATTLE_DAMAGE):
             dest = r.aux
-            if dest >= 0 and dest != uid and st.cards[dest].zone is Zone.BATTLE:
-                return resolve_damage(st, dest, amount, source=source, battle=battle, by=by)
+            if r.key in redirected:
+                continue
+            if dest >= 0 and dest != uid and st.cards[dest].zone in (Zone.BATTLE, Zone.BASE):
+                return resolve_damage(
+                    st,
+                    dest,
+                    amount,
+                    source=source,
+                    battle=battle,
+                    by=by,
+                    redirected=(*redirected, r.key),
+                )
+    amount = _increase(st, dv, uid, amount, source, by)
     if _prevented(st, dv, uid, amount, source, battle, by):
         return uid, 0
     amount = _reduce(st, dv, uid, amount, source, battle, by)

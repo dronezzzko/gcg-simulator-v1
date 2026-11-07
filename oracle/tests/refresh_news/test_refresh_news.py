@@ -3,9 +3,10 @@
 ``fetch_official.py`` pages through the US and Asia all-news listings until an entry older than
 the cutoff appears, fails loudly when the page cap runs out first, fetches every uncached entry
 since the cutoff, and flags an entry whose text names a card number or says errata. The US
-listing's page 1 is the recorded ``data/official_raw/en_news_index.html`` (read only); pages 2-4,
-the Asia pages and the entry pages are trimmed fixtures in ``fixtures/`` with the same markup.
-No test touches the network.
+listing's page 1 is ``fixtures/en_p1.html``, the recorded ``data/official_raw/en_news_index.html``
+as retrieved 2026-10-15 (frozen, so a data refresh that replaces the cached page leaves these
+tests unchanged); pages 2-4, the Asia pages and the entry pages are trimmed fixtures in
+``fixtures/`` with the same markup. No test touches the network.
 
     uv run pytest oracle/tests/refresh_news -q
 """
@@ -25,7 +26,7 @@ import pytest
 REPO = Path(__file__).resolve().parents[3]
 SCRIPTS = REPO / ".claude" / "skills" / "gcg-refresh-data" / "scripts"
 FIXTURES = Path(__file__).resolve().parent / "fixtures"
-PAGE_1 = REPO / "data" / "official_raw" / "en_news_index.html"
+PAGE_1 = FIXTURES / "en_p1.html"
 CUTOFF = "2026-08-20"
 EN = "https://www.gundam-gcg.com/en/"
 ASIA = "https://www.gundam-gcg.com/asia-en/"

@@ -8,7 +8,7 @@ This file lists every item of `docs/dev/WEAKNESSES.md` whose status is `open`, a
 - whether it is an AI item that needs ablation rows (PLAN §12.4);
 - an effort estimate.
 
-The statuses come from the package records in `docs/dev/eval/weakness-status/` and were checked against the repository. The first version of this file (2026-11-02, HEAD `d750b6c`) listed 33 open items. The gap-closing packages GAP-A1, GAP-A2, GAP-B, GAP-C and GAP-D (commit b8483dc) closed or measured most of them, and M15b (`docs/dev/eval/M15b/README.md`, commit 8c89b5e) adopted two of their mechanisms into both presets. Each entry's "Status" line in WEAKNESSES.md gives the same remaining work in short. This file also lists:
+The statuses come from the package records in `docs/dev/eval/weakness-status/` and were checked against the repository. The first version of this file (2026-11-02, HEAD `d750b6c`) listed 33 open items. The gap-closing packages GAP-A1, GAP-A2, GAP-B, GAP-C and GAP-D (rust-port at b8483dc, squashed into commit 83a06c8) closed or measured most of them, and M15b (`docs/dev/eval/M15b/README.md`, rust-port at 8c89b5e, squashed into commit 83a06c8) adopted two of their mechanisms into both presets. Each entry's "Status" line in WEAKNESSES.md gives the same remaining work in short. This file also lists:
 
 - resolved items whose slow evidence ran on the presets from before M15b;
 - resolved items that carry a follow-up or a hand-off;
@@ -33,7 +33,7 @@ AI row: "yes" means the work changes a strengthened-search mechanism or adds one
 
 Changes since the first version of this file:
 
-- resolved: W-13, W-25, W-26, W-64, W-75, W-76, W-88, W-104, W-110, W-118, W-119 and W-145 (the gap-closing records and M15b), and W-129 (Phase 8 documentation, commit 8c89b5e);
+- resolved: W-13, W-25, W-26, W-64, W-75, W-76, W-88, W-104, W-110, W-118, W-119 and W-145 (the gap-closing records and M15b), and W-129 (Phase 8 documentation, rust-port at 8c89b5e, squashed into commit 83a06c8);
 - resolved by measurement (not adopted): W-08, W-14, W-31, W-36, W-134, W-139 and W-142;
 - by the lead's decisions of `docs/dev/PLAN.md` §0.1 (end of Phase 6): W-05 resolved by measurement (the break-even share replaces the scenario bar), W-63 and W-67 resolved (`templates/check.py --check` is T-154's assertion; no IR `template` field) and W-111 resolved (tag-based coverage stands for rules, FAQ entries and rulings). W-137's adoption question is decided (not adopted); its Linux run remains;
 - resolved: W-101 (engine anchors for the last rule-level interpretations I-04, I-11, I-13 and I-17; I-21 and I-24 are compile-time readings with no engine path; section 3).
@@ -150,7 +150,7 @@ No item is open here. W-104 is resolved by the decision recorded in `docs/dev/ev
 
 ## 8. Resolved items to re-verify after the M15b preset change
 
-The presets changed again at M15b (commit 8c89b5e: `kill_aware_targeting` and `tree_lethal_select` in both). The M15b gate ran `cargo test --workspace --release` (1320 passed), the slow `gcg-search` tests (306 passed) and the tier-1 corpus (`docs/port/progress.md`). These resolved items' slow or long evidence ran on the M15 presets, and no later run is recorded:
+The presets changed again at M15b (rust-port at 8c89b5e, squashed into commit 83a06c8: `kill_aware_targeting` and `tree_lethal_select` in both). The M15b gate ran `cargo test --workspace --release` (1320 passed), the slow `gcg-search` tests (306 passed) and the tier-1 corpus (`docs/port/progress.md`). These resolved items' slow or long evidence ran on the M15 presets, and no later run is recorded:
 
 - **W-150:** the 1/4/10-worker identity of the shipped presets (`phase6_slow::w150_every_preset_is_identical_at_1_4_and_10_workers`; passed with the M15 presets in GAP-D's gate at 54c2bd2).
 - **W-152:** seat symmetry with `search:fast` (`phase6_slow::w152_seats_and_first_player_are_symmetric`; M15 `search:fast` 198/400 at 54c2bd2).

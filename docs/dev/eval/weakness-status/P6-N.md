@@ -2,7 +2,7 @@
 
 Package P6-N of docs/dev/PLAN.md §12.2: W-110, W-111, W-112, W-113, W-114, W-115, W-117, W-118,
 W-119, W-120, W-121, W-122, W-126, W-128, W-129, W-130, W-151, W-153, W-154, W-160. Built on
-commit 8ae4767. This file does not edit docs/dev/WEAKNESSES.md: the lead copies the status lines
+rust-port at 8ae4767 (squashed into commit 83a06c8). This file does not edit docs/dev/WEAKNESSES.md: the lead copies the status lines
 in (PLAN §12.10). Evidence files are under docs/dev/eval/P6-N/.
 
 Every change is in the package's files: `crates/gcg-diff/src/coverage.rs`,
@@ -64,7 +64,7 @@ below).
   directly. Rules: execution of a rule's code path needs per-rule code-path ids (W-56's
   interpretation ids are data, not hooks), so rule, FAQ and ruling coverage keeps the
   traceability of PLAN §9.2 (a passing trace or native test per id).
-- **Evidence:** `gcg-diff coverage --check` (passed): of <!-- count:cards.non_vanilla -->840<!-- /count -->
+- **Evidence:** `gcg-diff coverage --check` (passed): of <!-- count:cards.non_vanilla -->959<!-- /count -->
   non-vanilla cards, 724 run by a passing tagged trace, 1 only in a census game (GD04-089, a
   Python-side test gap: its tagged tests never run its program), 115 without a program, 0 with a
   program and no execution evidence; 545 of 2,270 card-tagged Python tests never run one of
@@ -156,7 +156,7 @@ below).
   membership in the fuzz games, recomputed by the Rust deck generator for the census's games and
   compared with the census; execution per pool card with a program, each that never ran listed
   with the passing tagged test covering it; and the
-  <!-- count:cards.effect_only -->88<!-- /count --> effect-only numbers, each created in fuzz, or
+  <!-- count:cards.effect_only -->95<!-- /count --> effect-only numbers, each created in fuzz, or
   instantiated in a passing per-test trace, or a vanilla printing with the characteristics of a
   created one (the alternate EX Base and EX Resource printings, which the engine never
   instantiates: it creates `ex_base` and `ex_resource` only), or covered by a tagged test, with
@@ -277,11 +277,11 @@ below).
 - **Status:** resolved for the port's documents; the stale Python-doc counts are listed for the
   lead (lead note 6).
 - **Resolution as implemented:** `scripts/doc_counts.py` computes 14 named counts from the
-  packaged data and committed records (card numbers <!-- count:cards.numbers -->1,152<!-- /count -->,
-  definitions <!-- count:cards.definitions -->1,153<!-- /count -->, fuzz pool
-  <!-- count:cards.fuzz_pool -->1,064<!-- /count -->, testable rules
+  packaged data and committed records (card numbers <!-- count:cards.numbers -->1,290<!-- /count -->,
+  definitions <!-- count:cards.definitions -->1,291<!-- /count -->, fuzz pool
+  <!-- count:cards.fuzz_pool -->1,194<!-- /count -->, testable rules
   <!-- count:rules.testable -->395<!-- /count -->, tier-1 traces
-  <!-- count:corpus.tier1.traces -->3,804<!-- /count -->, and the others of its docstring) and
+  <!-- count:corpus.tier1.traces -->4,044<!-- /count -->, and the others of its docstring) and
   checks every `<!-- count:NAME -->VALUE<!-- /count -->` in `docs/dev/**/*.md`; `--write`
   regenerates them. The counts in this file are such markers. The gate runs `--check`.
 - **Evidence:** p6n_tooling `w128_marked_counts_are_regenerated_from_the_data` (a correct marker
@@ -451,7 +451,7 @@ search:fast --paranoid --workers auto` and the `mixed:greedy,search:fast` one wi
 10. `gcg-data`: public from-text loaders for `manifest.json` and the official JSON files would let
     W-121's fixture test cover those formats too (the P6-K notes 1-2 move the same code).
 11. W-120's settings change waits for the user's answer.
-12. `target/release/gcg-diff traceability --check` fails at the base commit 8ae4767, before any
+12. `target/release/gcg-diff traceability --check` fails at the base (rust-port at 8ae4767, squashed into commit 83a06c8), before any
     P6-N change: P6-K (7614bec) added native tests tagged `// gcg-tags:` in
     `crates/gcg-engine/tests/p6k_behaviour.rs` (for example `w66_two_target_commands_need_both_targets`
     on rules 10-1-8-1-1, 10-2-2 and 10-3-3-1) after docs/RULES_TRACEABILITY.md and

@@ -461,7 +461,8 @@ Interface notes for the lead:
 
 ## Gate
 
-Run after the last code change (commit `6bdd500`; later edits are this file and evidence).
+Run after the last code change (the GAP-A2 worktree at `6bdd500`, integrated at the gap
+closing and squashed into commit 83a06c8; later edits are this file and evidence).
 Logs are not committed.
 
 | Command | Result |

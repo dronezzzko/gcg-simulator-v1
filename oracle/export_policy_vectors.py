@@ -122,7 +122,7 @@ MASK = (1 << 64) - 1
 # The recorded game digests, reproduced here before anything is written.
 RANDOM_GAME_DIGEST = "ed729d1efd8bd75a513fb2a89eba83ced433d8d4c2ca86fa5342f22999aa45f3"
 COVER_GAMES_DIGEST = "18b42cb9d7917ddcbe4af568dc842d779bbc67ad396f29a146c6793df95e856e"
-GREEDY_GAME_DIGEST = "9241c6142b26faadd6d1b782c7f4aed57f259331a9090fb35090971eb2d67b62"
+GREEDY_GAME_DIGEST = "57ddd0d6a1b47122f99194a43d7f90b71869ba591bdd0476fb3ec9db15120e85"
 
 
 def fx(x: float) -> str:

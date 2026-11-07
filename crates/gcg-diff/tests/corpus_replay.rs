@@ -43,7 +43,7 @@ fn every_tier1_trace_replays_against_the_real_engine() {
         .take(5)
         .collect();
     assert!(failures.is_empty(), "{}", failures.join("\n"));
-    assert_eq!(report.results.len(), 3804);
+    assert_eq!(report.results.len(), 4044);
     let agent: u64 = corpus::set_stats(&report)
         .iter()
         .map(|(_, s)| s.agent_decisions)

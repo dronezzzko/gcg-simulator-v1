@@ -108,12 +108,12 @@ Notes:
 | --- | --- | --- |
 | N01 | Convert CRLF to LF and delete zero-width characters (U+200B, U+200C, U+200D, U+FEFF). | 0 |
 | N02 | Unify middle dots: U+30FB '・' becomes U+FF65 '･' (the majority form); spaces around '･' are removed. | 11 |
-| N03 | Unify colons: ASCII ':' becomes U+FF1A '：' (the majority form); spaces around '：' are removed. | 14 |
+| N03 | Unify colons: ASCII ':' becomes U+FF1A '：' (the majority form); spaces around '：' are removed. | 17 |
 | N04 | Unify apostrophes: '’'/'‘' become "'"; OCR-split contractions such as "owner' s", "won' t" are rejoined. | 3 |
 | N05 | Unify double quotes: '“'/'”' become '"'; spaces just inside quoted names are trimmed. | 0 |
 | N06 | Keyword written with square brackets ('[Suppression]') becomes angle brackets ('\<Suppression>'). | 1 |
-| N07 | Strip explanatory parentheticals (rule 2-11-4): a balanced '(...)' group is removed when it is not immediately preceded by ']' (token stat block) and its content ends with '.' or has 5+ words. Traits '(Zeon)', token definitions '[Zaku Ⅱ]((Zeon)･AP1･HP1)', names '[Zeong (Head)]' and stat blocks '(AP3･HP3)' are kept. | 379 |
-| N08 | Whitespace: runs of spaces/tabs collapse to one space, lines are trimmed, empty lines are dropped, spaces after a leading 【...】 marker chain and before '.'/',' are removed. | 150 |
+| N07 | Strip explanatory parentheticals (rule 2-11-4): a balanced '(...)' group is removed when it is not immediately preceded by ']' (token stat block) and its content ends with '.' or has 5+ words. Traits '(Zeon)', token definitions '[Zaku Ⅱ]((Zeon)･AP1･HP1)', names '[Zeong (Head)]' and stat blocks '(AP3･HP3)' are kept. | 411 |
+| N08 | Whitespace: runs of spaces/tabs collapse to one space, lines are trimmed, empty lines are dropped, spaces after a leading 【...】 marker chain and before '.'/',' are removed. | 174 |
 | N09 | A capitalised verb after 'Then, ' or 'If you do, ' is lower-cased ('Then, Choose' -> 'Then, choose'). | 1 |
 
 Stripped explanatory parentheticals (all distinct texts):
@@ -121,17 +121,17 @@ Stripped explanatory parentheticals (all distinct texts):
 | occurrences | cards | text | examples |
 | --- | --- | --- | --- |
 | 108 | 108 | (Rest a Resource when paying a cost.) | R-001, R-002, R-003, R-004 |
-| 65 | 65 | (Rest this Unit to change the attack target to it.) | GD01-019, GD01-065, GD01-068, GD01-072 |
+| 77 | 77 | (Rest this Unit to change the attack target to it.) | GD01-019, GD01-065, GD01-068, GD01-072 |
 | 42 | 42 | (When this Unit's attack destroys an enemy Unit, deal the specified amount of damage to the first card in that opponent's shield area.) | GD01-027, GD01-029, GD01-030, GD01-034 |
-| 33 | 33 | (At the end of your turn, this Unit recovers the specified number of HP.) | GD01-001, GD01-004, GD01-006, GD01-017 |
+| 37 | 37 | (At the end of your turn, this Unit recovers the specified number of HP.) | GD01-001, GD01-004, GD01-006, GD01-017 |
 | 29 | 29 | (At the start of the game, place 1 active EX Base as your shield area's base.) | EXB-001, EXB-002, EXB-003, EXBP-001 |
 | 28 | 28 | (Rest an EX Resource then exile it from the game when paying a cost.) | EXR-001, EXR-002, EXR-003, EXR-004 |
+| 27 | 27 | (This Unit can't be blocked.) | GD01-009, GD01-024, GD02-024, GD02-042 |
 | 26 | 26 | (At the start of the game, the second-turn player places 1 active EX Resource into their resource area.) | EXR-002, EXR-003, EXR-004, EXR-005 |
-| 22 | 22 | (This Unit can't be blocked.) | GD01-009, GD01-024, GD02-024, GD02-042 |
-| 16 | 16 | (Damage to Shields by an attack is dealt to the first 2 cards simultaneously.) | GD02-036, GD02-053, GD03-034, GD03-049 |
-| 15 | 15 | (While this Unit is attacking, it deals damage before the enemy Unit.) | GD01-003, GD01-025, GD01-049, GD01-063 |
-| 14 | 14 | (Rest this Unit. 1 other friendly Unit gets AP+(specified amount) during this turn.) | GD01-046, GD01-048, GD01-055, GD01-061 |
-| 10 | 10 | (During your turn, when this Unit destroys an enemy Unit with battle damage, deal the specified amount of damage to the first card in that opponent's shield area.) | GD05-017, GD05-020, GD05-022, GD05-037 |
+| 17 | 17 | (Damage to Shields by an attack is dealt to the first 2 cards simultaneously.) | GD02-036, GD02-053, GD03-034, GD03-049 |
+| 17 | 17 | (During your turn, when this Unit destroys an enemy Unit with battle damage, deal the specified amount of damage to the first card in that opponent's shield area.) | GD05-017, GD05-020, GD05-022, GD05-037 |
+| 17 | 17 | (While this Unit is attacking, it deals damage before the enemy Unit.) | GD01-003, GD01-025, GD01-049, GD01-063 |
+| 15 | 15 | (Rest this Unit. 1 other friendly Unit gets AP+(specified amount) during this turn.) | GD01-046, GD01-048, GD01-055, GD01-061 |
 | 2 | 2 | (At the start of the game, the second-turn player places 1 EX Resource into their resource area.) | EXR-001, EXRP-001 |
 | 1 | 1 | (Don't treat it as a Pilot.) | GD05-089 |
 | 1 | 1 | (This card that is being activated is not counted.) | ST14-014 |
@@ -152,57 +152,58 @@ Stripped explanatory parentheticals (all distinct texts):
 <!-- GENERATED:kinds:start -->
 | ability kind | cards | occurrences | examples |
 | --- | --- | --- | --- |
-| triggered | 515 | 675 | GD01-001, GD01-002, GD01-003, GD01-004, GD01-005, GD01-007 |
-| command | 157 | 157 | GD01-099, GD01-100, GD01-101, GD01-102, GD01-103, GD01-104 |
-| constant | 125 | 127 | GD01-001, GD01-006, GD01-019, GD01-034, GD01-042, GD01-054 |
-| keyword | 108 | 109 | GD01-004, GD01-006, GD01-017, GD01-024, GD01-027, GD01-029 |
-| triggered_text | 96 | 96 | GD01-046, GD01-065, GD01-094, GD02-001, GD02-002, GD02-009 |
-| pilot_name | 68 | 68 | GD01-101, GD01-103, GD01-106, GD01-110, GD01-112, GD01-113 |
-| activated | 56 | 57 | GD01-014, GD01-023, GD01-053, GD01-058, GD01-069, GD01-082 |
-| option | 13 | 17 | GD05-102, GD05-106, ST10-002, ST10-007, ST10-008, ST12-015 |
-| activated_keyword | 14 | 14 | GD01-046, GD01-048, GD01-055, GD01-061, GD02-040, GD02-049 |
-| cost_modifier | 13 | 13 | GD01-016, GD01-070, GD03-014, GD03-030, GD03-058, GD03-082 |
-| play_modifier | 4 | 4 | GD01-002, GD03-085, ST10-014, EB01-039 |
-| alias | 3 | 3 | GD02-098, ST12-011, ST12-012 |
+| triggered | 592 | 775 | GD01-001, GD01-002, GD01-003, GD01-004, GD01-005, GD01-007 |
+| command | 178 | 178 | GD01-099, GD01-100, GD01-101, GD01-102, GD01-103, GD01-104 |
+| constant | 144 | 147 | GD01-001, GD01-006, GD01-019, GD01-034, GD01-042, GD01-054 |
+| keyword | 125 | 126 | GD01-004, GD01-006, GD01-017, GD01-024, GD01-027, GD01-029 |
+| triggered_text | 108 | 108 | GD01-046, GD01-065, GD01-094, GD02-001, GD02-002, GD02-009 |
+| pilot_name | 77 | 77 | GD01-101, GD01-103, GD01-106, GD01-110, GD01-112, GD01-113 |
+| activated | 65 | 66 | GD01-014, GD01-023, GD01-053, GD01-058, GD01-069, GD01-082 |
+| option | 14 | 19 | GD05-102, GD05-106, GD06-114, ST10-002, ST10-007, ST10-008 |
+| activated_keyword | 15 | 15 | GD01-046, GD01-048, GD01-055, GD01-061, GD02-040, GD02-049 |
+| cost_modifier | 14 | 14 | GD01-016, GD01-070, GD03-014, GD03-030, GD03-058, GD03-082 |
+| play_modifier | 6 | 6 | GD01-002, GD03-085, GD06-086, GD06-100, ST10-014, EB01-039 |
+| alias | 5 | 5 | GD02-098, GD06-090, GD06-092, ST12-011, ST12-012 |
 
 | marker chain template | cards | examples |
 | --- | --- | --- |
-| `【Burst】` | 252 | GD01-087, GD01-088, GD01-089, GD01-090, GD01-091, GD01-092 |
-| `【Deploy】` | 184 | GD01-008, GD01-009, GD01-020, GD01-024, GD01-027, GD01-028 |
-| `【Pilot】` | 68 | GD01-101, GD01-103, GD01-106, GD01-110, GD01-112, GD01-113 |
-| `【Main】` | 66 | GD01-100, GD01-102, GD01-103, GD01-104, GD01-105, GD01-106 |
-| `【Main】/【Action】` | 59 | GD01-099, GD01-101, GD01-110, GD01-111, GD01-113, GD01-115 |
-| `【Attack】` | 52 | GD01-002, GD01-015, GD01-029, GD01-047, GD01-050, GD01-059 |
-| `【When Linked】` | 42 | GD01-088, GD01-095, GD02-008, GD02-036, GD02-087, GD02-088 |
-| `【When Paired】` | 42 | GD01-001, GD01-004, GD01-010, GD01-012, GD01-045, GD01-067 |
-| `【Destroyed】` | 35 | GD01-007, GD01-056, GD01-080, GD02-044, GD02-083, GD02-126 |
-| `【Once per Turn】` | 34 | GD01-094, GD02-009, GD02-010, GD02-022, GD03-060, GD03-076 |
-| `【Action】` | 32 | GD01-114, GD01-120, GD02-105, GD02-106, GD02-118, GD02-119 |
-| `【Activate･Main】` | 30 | GD01-023, GD01-046, GD01-048, GD01-055, GD01-061, GD01-124 |
-| `【During Link】` | 30 | GD01-006, GD01-090, GD02-020, GD02-023, GD02-024, GD02-053 |
-| `【Activate･Main】【Once per Turn】` | 23 | GD01-053, GD01-069, GD01-097, GD03-015, GD03-035, GD04-006 |
-| `【During Link】【Attack】` | 19 | GD01-003, GD01-071, GD01-073, GD01-093, GD02-005, GD02-092 |
-| `【During Pair】` | 13 | GD01-034, GD02-074, GD03-002, GD03-008, GD03-019, GD03-074 |
-| `【During Pair】【Attack】` | 9 | GD01-066, GD02-057, GD04-007, GD04-049, GD04-050, GD04-052 |
+| `【Burst】` | 288 | GD01-087, GD01-088, GD01-089, GD01-090, GD01-091, GD01-092 |
+| `【Deploy】` | 212 | GD01-008, GD01-009, GD01-020, GD01-024, GD01-027, GD01-028 |
+| `【Pilot】` | 77 | GD01-101, GD01-103, GD01-106, GD01-110, GD01-112, GD01-113 |
+| `【Main】` | 73 | GD01-100, GD01-102, GD01-103, GD01-104, GD01-105, GD01-106 |
+| `【Attack】` | 65 | GD01-002, GD01-015, GD01-029, GD01-047, GD01-050, GD01-059 |
+| `【Main】/【Action】` | 64 | GD01-099, GD01-101, GD01-110, GD01-111, GD01-113, GD01-115 |
+| `【When Paired】` | 48 | GD01-001, GD01-004, GD01-010, GD01-012, GD01-045, GD01-067 |
+| `【When Linked】` | 46 | GD01-088, GD01-095, GD02-008, GD02-036, GD02-087, GD02-088 |
+| `【Action】` | 41 | GD01-114, GD01-120, GD02-105, GD02-106, GD02-118, GD02-119 |
+| `【Destroyed】` | 41 | GD01-007, GD01-056, GD01-080, GD02-044, GD02-083, GD02-126 |
+| `【Once per Turn】` | 40 | GD01-094, GD02-009, GD02-010, GD02-022, GD03-060, GD03-076 |
+| `【Activate･Main】` | 35 | GD01-023, GD01-046, GD01-048, GD01-055, GD01-061, GD01-124 |
+| `【During Link】` | 35 | GD01-006, GD01-090, GD02-020, GD02-023, GD02-024, GD02-053 |
+| `【Activate･Main】【Once per Turn】` | 25 | GD01-053, GD01-069, GD01-097, GD03-015, GD03-035, GD04-006 |
+| `【During Link】【Attack】` | 21 | GD01-003, GD01-071, GD01-073, GD01-093, GD02-005, GD02-092 |
+| `【During Pair】` | 15 | GD01-034, GD02-074, GD03-002, GD03-008, GD03-019, GD03-074 |
+| `【During Pair】【Attack】` | 10 | GD01-066, GD02-057, GD04-007, GD04-049, GD04-050, GD04-052 |
 | `【When Paired･{TRAIT} Pilot】` | 9 | GD01-025, GD01-032, GD01-044, GD03-017, GD03-054, GD04-017 |
+| `【Activate･Action】【Once per Turn】` | 8 | GD01-058, GD01-098, GD05-021, GD06-069, GD06-080, ST12-011 |
+| `【During Link】【Destroyed】` | 8 | GD01-005, GD03-078, GD03-099, GD04-086, GD05-104, GD06-004 |
 | `【During Link】【Once per Turn】` | 7 | GD02-002, GD02-085, GD03-097, GD04-042, GD04-053, GD04-085 |
-| `【Activate･Action】【Once per Turn】` | 6 | GD01-058, GD01-098, GD05-021, ST12-011, ST13-006, EB01-033 |
 | `【Deploy･Development {N}】` | 6 | ST10-002, ST10-008, EB01-008, EB01-010, EB01-025, EB01-027 |
-| `【During Link】【Destroyed】` | 6 | GD01-005, GD03-078, GD03-099, GD04-086, GD05-104, EB01-068 |
+| `【During Pair】【Once per Turn】` | 5 | GD01-065, GD03-053, GD05-034, GD06-073, ST14-006 |
+| `【During Pair･{TRAIT} Pilot】` | 5 | GD02-001, GD03-033, GD04-051, GD06-015, EB01-022 |
 | `【Activate･Action】` | 4 | GD01-127, GD02-011, GD05-022, ST12-006 |
 | `【During Link】【Activate･Action】【Once per Turn】` | 4 | GD01-014, GD03-073, EB01-020, EB01-070 |
-| `【During Pair】【Once per Turn】` | 4 | GD01-065, GD03-053, GD05-034, ST14-006 |
-| `【During Pair･{TRAIT} Pilot】` | 4 | GD02-001, GD03-033, GD04-051, EB01-022 |
 | `【Attack】【Once per Turn】` | 3 | GD05-066, ST01-011, EB01-062 |
+| `【During Pair】【Destroyed】` | 3 | GD01-026, GD06-072, ST04-009 |
 | `【During Link】【Attack】【Once per Turn】` | 2 | EB01-002, EB01-059 |
-| `【During Pair】【Destroyed】` | 2 | GD01-026, ST04-009 |
+| `【During Pair】【Activate･Action】【Once per Turn】` | 2 | GD01-082, GD06-018 |
 | `【During Pair･{TRAIT} Pilot】【Destroyed】` | 2 | GD02-056, GD04-058 |
 | `【When Paired･Development {N}】` | 2 | EB01-047, EB01-060 |
+| `【When Paired･Lv.{N} {CMP} Pilot】` | 2 | GD06-067, ST04-001 |
 | `【When Paired･{COLOR} Pilot】` | 2 | GD02-061, GD03-055 |
 | `【Deploy】/【Attack】` | 1 | GD05-060 |
 | `【During Link】【Activate･Main】` | 1 | GD04-065 |
 | `【During Link】【Activate･Main】【Once per Turn】` | 1 | GD02-069 |
-| `【During Pair】【Activate･Action】【Once per Turn】` | 1 | GD01-082 |
 | `【During Pair】【Activate･Main】` | 1 | ST12-006 |
 | `【During Pair】【Attack】【Once per Turn】` | 1 | ST08-006 |
 | `【During Pair･Lv.{N} {CMP} Pilot】` | 1 | ST12-001 |
@@ -211,7 +212,6 @@ Stripped explanatory parentheticals (all distinct texts):
 | `【During Pair･{TRAIT} Pilot】【Attack】` | 1 | GD02-036 |
 | `【During Pair･{TRAIT} Pilot】【Once per Turn】` | 1 | GD01-046 |
 | `【When Linked･Development {N}】` | 1 | ST10-007 |
-| `【When Paired･Lv.{N} {CMP} Pilot】` | 1 | ST04-001 |
 <!-- GENERATED:kinds:end -->
 
 ## 4. Coverage
@@ -222,48 +222,48 @@ compositional layer (plus `{SEL}`).
 <!-- GENERATED:stats:start -->
 | figure | value |
 | --- | --- |
-| n_card_numbers | 1152 |
-| n_printings | 2011 |
-| n_vanilla | 312 |
-| n_nonvanilla | 840 |
-| n_templates | 648 |
-| n_templates_regular | 233 |
-| sentences_total | 1909 |
-| sentences_templated | 1519 |
-| segments_total | 2380 |
-| segments_templated | 1963 |
-| cards_fully_templated | 494 |
-| n_irregular_cards | 346 |
-| n_irregular_sentences | 390 |
-| structural_lines | {"activated_keyword": 14, "keyword": 109, "pilot_name": 68} |
-| templates_by_role | {"condition": {"total": 126, "regular": 47}, "core": {"total": 423, "regular": 156}, "cost": {"total": 17, "regular": 6}, "scope": {"total": 6, "regular": 5}, "trigger": {"total": 76, "regular": 19}} |
-| compositional.n_templates | 410 |
-| compositional.n_templates_regular | 185 |
-| compositional.sentences_total | 1909 |
-| compositional.sentences_templated | 1700 |
-| compositional.segments_total | 2380 |
-| compositional.segments_templated | 2155 |
-| compositional.cards_fully_templated | 651 |
-| compositional.n_irregular_cards | 189 |
-| compositional.n_irregular_sentences | 209 |
-| compositional.n_selector_phrases | 271 |
+| n_card_numbers | 1290 |
+| n_printings | 2205 |
+| n_vanilla | 331 |
+| n_nonvanilla | 959 |
+| n_templates | 721 |
+| n_templates_regular | 257 |
+| sentences_total | 2195 |
+| sentences_templated | 1758 |
+| segments_total | 2747 |
+| segments_templated | 2282 |
+| cards_fully_templated | 571 |
+| n_irregular_cards | 388 |
+| n_irregular_sentences | 437 |
+| structural_lines | {"activated_keyword": 15, "keyword": 126, "pilot_name": 77} |
+| templates_by_role | {"condition": {"total": 141, "regular": 52}, "core": {"total": 471, "regular": 172}, "cost": {"total": 18, "regular": 6}, "scope": {"total": 6, "regular": 5}, "trigger": {"total": 85, "regular": 22}} |
+| compositional.n_templates | 464 |
+| compositional.n_templates_regular | 204 |
+| compositional.sentences_total | 2195 |
+| compositional.sentences_templated | 1952 |
+| compositional.segments_total | 2747 |
+| compositional.segments_templated | 2487 |
+| compositional.cards_fully_templated | 742 |
+| compositional.n_irregular_cards | 217 |
+| compositional.n_irregular_sentences | 243 |
+| compositional.n_selector_phrases | 288 |
 <!-- GENERATED:stats:end -->
 
 <!-- GENERATED:coverage:start -->
 | k (min cards per template) | flat templates >= k | flat sentences covered | flat cards fully covered | {SEL} templates >= k | {SEL} sentences covered | {SEL} cards fully covered |
 | --- | --- | --- | --- | --- | --- | --- |
-| 1 | 648 | 1909 | 840 | 410 | 1909 | 840 |
-| 2 | 233 | 1519 | 494 | 185 | 1700 | 651 |
-| 3 | 148 | 1372 | 385 | 133 | 1611 | 581 |
-| 4 | 107 | 1275 | 314 | 101 | 1533 | 515 |
-| 5 | 83 | 1211 | 276 | 77 | 1457 | 458 |
-| 6 | 65 | 1152 | 243 | 65 | 1418 | 431 |
-| 8 | 58 | 1115 | 225 | 59 | 1388 | 408 |
-| 10 | 46 | 1029 | 183 | 50 | 1323 | 365 |
-| 15 | 29 | 904 | 137 | 33 | 1176 | 284 |
-| 20 | 23 | 817 | 119 | 22 | 1024 | 195 |
-| 30 | 13 | 618 | 89 | 11 | 808 | 133 |
-| 50 | 9 | 530 | 72 | 8 | 746 | 102 |
+| 1 | 721 | 2195 | 959 | 464 | 2195 | 959 |
+| 2 | 257 | 1758 | 571 | 204 | 1952 | 742 |
+| 3 | 167 | 1603 | 458 | 149 | 1858 | 664 |
+| 4 | 123 | 1499 | 376 | 116 | 1778 | 599 |
+| 5 | 101 | 1431 | 341 | 91 | 1691 | 537 |
+| 6 | 75 | 1341 | 287 | 70 | 1617 | 483 |
+| 8 | 60 | 1276 | 250 | 61 | 1576 | 452 |
+| 10 | 49 | 1200 | 222 | 53 | 1521 | 417 |
+| 15 | 34 | 1071 | 177 | 35 | 1354 | 327 |
+| 20 | 26 | 990 | 140 | 28 | 1259 | 267 |
+| 30 | 14 | 749 | 107 | 13 | 988 | 160 |
+| 50 | 9 | 611 | 82 | 8 | 855 | 119 |
 <!-- GENERATED:coverage:end -->
 
 ### Top flat templates
@@ -273,86 +273,86 @@ The full list, with regexes, slot values and every card number, is in `templates
 <!-- GENERATED:templates:start -->
 | id | role | cards | pattern | {SEL} template | examples |
 | --- | --- | --- | --- | --- | --- |
-| T001 | core | 138 | `Add this card to your hand.` | C002 | GD01-087, GD01-088 |
-| T002 | core | 87 | `Deal {N} damage to it.` | C003 | GD01-008, GD01-020 |
-| T003 | core | 72 | `Add {N} of your Shields to your hand.` | C004 | GD01-123, GD01-124 |
-| T004 | core | 72 | `Deploy this card.` | C005 | GD01-123, GD01-124 |
-| T005 | core | 67 | `Draw {N}.` | C006 | GD01-001, GD01-007 |
-| T006 | core | 64 | `Choose {N} enemy Unit.` | C001 | GD01-002, GD01-047 |
-| T007 | scope | 51 | `During your turn` | C007 | GD01-063, GD01-091 |
-| T008 | core | 50 | `Rest it.` | C008 | GD01-002, GD01-004 |
-| T009 | core | 50 | `Choose {N} enemy Unit that is Lv.{N} {CMP}.` | C001 | GD01-080, GD01-119 |
-| T010 | core | 36 | `Choose {N} enemy Unit with {N} {CMP} HP.` | C001 | GD01-004, GD01-010 |
-| T011 | scope | 36 | `During this turn` | C009 | GD01-043, GD01-110 |
-| T012 | core | 31 | `Return it to its owner's hand.` | C010 | GD01-068, GD01-073 |
-| T013 | core | 30 | `It gets AP+{N} during this turn.` | C011 | GD01-113, GD01-120 |
-| T014 | core | 28 | `It gets AP-{N} during this turn.` | C013 | GD01-065, GD01-078 |
-| T015 | core | 27 | `This Unit gains {KW}.` | C014 | GD01-019, GD01-034 |
-| T016 | core | 25 | `Destroy it.` | C015 | GD01-029, GD01-032 |
-| T017 | core | 24 | `It gains {KW} during this turn.` | C016 | GD01-003, GD01-009 |
-| T018 | core | 22 | `Look at the top {N} {TYPE} of your deck.` | C019 | GD01-045, GD01-109 |
-| T019 | core | 22 | `Return the remaining cards randomly to the bottom of your deck.` | C020 | GD01-045, GD01-109 |
-| T020 | core | 22 | `Set it as active.` | C021 | GD01-069, GD01-121 |
-| T021 | core | 21 | `Choose {N} friendly {TRAIT} Unit.` | C001 | GD01-113, GD02-102 |
-| T022 | core | 21 | `Choose {N} of your {TRAIT} Units.` | C001 | GD01-009, GD02-014 |
-| T023 | core | 20 | `Add it to your hand.` | C022 | GD01-067, GD02-056 |
-| T024 | core | 18 | `Discard {N}.` | C026 | GD01-005, GD01-074 |
-| T025 | cost | 18 | `{RES}` | C028 | GD01-053, GD01-058 |
-| T026 | core | 17 | `Choose {N} enemy Unit with {N} {CMP} AP.` | C001 | GD01-053, GD01-056 |
-| T027 | core | 17 | `It recovers {N} HP.` | C030 | GD01-014, GD01-015 |
-| T028 | core | 16 | `Rest them.` | C032 | GD01-099, GD01-103 |
-| T029 | core | 15 | `Choose {N} rested enemy Unit.` | C001 | GD01-008, GD01-020 |
-| T030 | condition | 14 | `If there are {N} {CMP} {TRAIT} {TYPE} in your {ZONE}` | C024 | GD01-027, GD02-061 |
-| T031 | core | 14 | `Place {N} EX Resource.` | C034 | GD01-107, GD02-021 |
-| T032 | trigger | 14 | `When this Unit destroys an enemy Unit with battle damage` | C023 | GD03-022, GD03-029 |
-| T033 | core | 13 | `Deploy {N} {TOKEN} Unit token.` | C035 | GD01-066, GD03-108 |
-| T034 | core | 13 | `Choose {N} friendly Unit.` | C001 | GD01-124, GD03-105 |
-| T035 | core | 13 | `Reduce it by {N}.` | C036 | GD04-029, GD04-053 |
-| T036 | core | 12 | `Activate this card's {TIMING}.` | C038 | GD01-117, GD01-121 |
-| T037 | core | 12 | `Choose {N} of your Units.` | C001 | GD01-015, GD02-058 |
-| T038 | core | 12 | `Deploy {N} rested {TOKEN} Unit token.` | C040 | GD01-026, GD02-043 |
-| T039 | core | 12 | `Exile them from the game.` | C041 | GD02-111, GD03-009 |
-| T040 | core | 12 | `It gains {KW}.` | C042 | GD01-054, GD01-063 |
-| T041 | core | 11 | `It gets AP-{N} during this battle.` | C044 | GD01-071, GD01-082 |
-| T042 | core | 11 | `Set this Unit as active.` | C045 | GD01-003, GD01-046 |
-| T043 | core | 11 | `This Unit gains {KW} during this turn.` | C046 | GD01-025, GD02-036 |
-| T044 | cost | 11 | `Rest this Base` | C047 | GD01-124, GD01-127 |
-| T045 | core | 10 | `Look at the top card of your deck.` | C049 | GD01-039, GD01-048 |
-| T046 | core | 10 | `This Unit gets AP+{N}.` | C050 | GD02-020, GD02-031 |
-| T047 | condition | 9 | `If you have another {TRAIT} Unit in play` | C017 | GD01-007, GD02-043 |
-| T048 | core | 9 | `Activate the following effect：` | C051 | ST10-002, ST10-007 |
-| T049 | core | 9 | `Choose {N} {TRAIT} {TYPE} from your {ZONE}.` | C012 | GD02-103, GD02-117 |
-| T050 | core | 9 | `It can't attack during this turn.` | C052 | GD01-069, GD01-097 |
-| T051 | core | 9 | `This card in your {ZONE} gets cost -{N}.` | C053 | GD01-016, GD01-070 |
-| T052 | core | 9 | `You may choose {N} {TRAIT} {TYPE} from your {ZONE}.` | C043 | GD03-009, GD03-054 |
-| T053 | core | 9 | `You may exile the specified number of {TRAIT} {TYPE} in your {ZONE} from the game.` | C054 | ST10-002, ST10-007 |
-| T054 | condition | 8 | `If it is your turn` | C056 | GD01-125, GD02-125 |
-| T055 | condition | 8 | `If {N} {CMP} enemy Units are in play` | C037 | GD01-038, GD03-103 |
-| T056 | core | 8 | `Deal {N} damage to them.` | C058 | GD01-044, GD02-055 |
-| T057 | core | 8 | `This Unit can't choose the enemy player as its attack target.` | C059 | GD02-018, GD02-035 |
-| T058 | core | 8 | `You may reveal {N} {TRAIT} {TYPE} among them and add it to your hand.` | C031 | GD01-109, GD02-094 |
-| T059 | core | 7 | `Choose {N} to {N} enemy Units with {N} {CMP} HP.` | C001 | GD01-099, GD03-006 |
-| T060 | core | 7 | `It may choose an active enemy Unit with {N} {CMP} AP as its attack target.` | C027 | GD01-043, GD01-110 |
-| T061 | condition | 6 | `If a friendly {TRAIT} Unit is in play` | C018 | GD01-130, GD02-130 |
-| T062 | condition | 6 | `If there are {N} {CMP} {TYPE} in your {ZONE}` | C061 | GD02-060, GD02-116 |
-| T063 | condition | 6 | `While you have another {TRAIT} Unit in play` | C025 | GD01-081, GD02-082 |
-| T064 | core | 6 | `Place the top {N} {TYPE} of your deck into your trash.` | C062 | GD02-127, GD03-094 |
-| T065 | core | 6 | `Return them to their owners' hands.` | C063 | GD03-077, GD04-117 |
-| T066 | condition | 5 | `If a friendly {TRAIT} Link Unit is in play` | C018 | GD02-113, GD03-104 |
-| T067 | condition | 5 | `If another friendly {TRAIT} Unit is in play` | C018 | GD04-011, ST06-001 |
-| T068 | condition | 5 | `If this is a {TRAIT} Unit` | C048 | GD04-081, GD05-101 |
-| T069 | condition | 5 | `While there are {N} {CMP} {TYPE} in your {ZONE}` | C067 | GD01-070, GD01-076 |
-| T070 | core | 5 | `Choose {N} Unit.` | C001 | GD01-014, GD05-102 |
-| T071 | core | 5 | `Choose {N} enemy player.` | C068 | GD05-107, ST12-013 |
-| T072 | core | 5 | `Choose {N} of your Units and {N} enemy Unit.` | C039 | GD02-055, GD03-056 |
-| T073 | core | 5 | `Choose {N} rested enemy Unit that is Lv.{N} {CMP}.` | C001 | GD02-122, GD03-118 |
-| T074 | core | 5 | `Choose {N} {TYPE} that is Lv.{N} {CMP} from your {ZONE}.` | C012 | GD01-067, GD02-110 |
-| T075 | core | 5 | `Destroy that enemy Unit.` | C069 | GD03-052, GD04-054 |
-| T076 | core | 5 | `It may choose an active enemy Unit that is Lv.{N} {CMP} as its attack target.` | C027 | GD02-108, GD02-116 |
-| T077 | core | 5 | `It won't be set as active during the start phase of your opponent's next turn.` | C070 | GD02-004, GD04-102 |
-| T078 | core | 5 | `Pay its cost to deploy it.` | C071 | GD02-096, GD02-110 |
-| T079 | core | 5 | `Place {N} rested Resource.` | C072 | GD01-025, GD01-107 |
-| T080 | core | 5 | `Return it to the top or bottom of your deck.` | C073 | GD01-039, GD02-025 |
+| T001 | core | 162 | `Add this card to your hand.` | C002 | GD01-087, GD01-088 |
+| T002 | core | 103 | `Deal {N} damage to it.` | C003 | GD01-008, GD01-020 |
+| T003 | core | 81 | `Add {N} of your Shields to your hand.` | C004 | GD01-123, GD01-124 |
+| T004 | core | 81 | `Deploy this card.` | C005 | GD01-123, GD01-124 |
+| T005 | core | 73 | `Draw {N}.` | C006 | GD01-001, GD01-007 |
+| T006 | core | 73 | `Choose {N} enemy Unit.` | C001 | GD01-002, GD01-047 |
+| T007 | core | 61 | `Choose {N} enemy Unit that is Lv.{N} {CMP}.` | C001 | GD01-080, GD01-119 |
+| T008 | core | 57 | `Rest it.` | C007 | GD01-002, GD01-004 |
+| T009 | scope | 57 | `During your turn` | C008 | GD01-063, GD01-091 |
+| T010 | core | 41 | `Choose {N} enemy Unit with {N} {CMP} HP.` | C001 | GD01-004, GD01-010 |
+| T011 | scope | 41 | `During this turn` | C009 | GD01-043, GD01-110 |
+| T012 | core | 38 | `Return it to its owner's hand.` | C010 | GD01-068, GD01-073 |
+| T013 | core | 33 | `Destroy it.` | C011 | GD01-029, GD01-032 |
+| T014 | core | 33 | `It gets AP+{N} during this turn.` | C012 | GD01-113, GD01-120 |
+| T015 | core | 29 | `It gets AP-{N} during this turn.` | C014 | GD01-065, GD01-078 |
+| T016 | core | 27 | `This Unit gains {KW}.` | C017 | GD01-019, GD01-034 |
+| T017 | core | 26 | `Choose {N} of your {TRAIT} Units.` | C001 | GD01-009, GD02-014 |
+| T018 | core | 26 | `Look at the top {N} {TYPE} of your deck.` | C018 | GD01-045, GD01-109 |
+| T019 | core | 25 | `Return the remaining cards randomly to the bottom of your deck.` | C019 | GD01-045, GD01-109 |
+| T020 | core | 24 | `It gains {KW} during this turn.` | C020 | GD01-003, GD01-009 |
+| T021 | core | 24 | `Set it as active.` | C021 | GD01-069, GD01-121 |
+| T022 | core | 23 | `Choose {N} friendly {TRAIT} Unit.` | C001 | GD01-113, GD02-102 |
+| T023 | core | 23 | `Choose {N} enemy Unit with {N} {CMP} AP.` | C001 | GD01-053, GD01-056 |
+| T024 | core | 22 | `Add it to your hand.` | C023 | GD01-067, GD02-056 |
+| T025 | cost | 22 | `{RES}` | C024 | GD01-053, GD01-058 |
+| T026 | core | 20 | `It recovers {N} HP.` | C028 | GD01-014, GD01-015 |
+| T027 | core | 19 | `Discard {N}.` | C029 | GD01-005, GD01-074 |
+| T028 | condition | 18 | `If there are {N} {CMP} {TRAIT} {TYPE} in your {ZONE}` | C022 | GD01-027, GD02-061 |
+| T029 | core | 18 | `Choose {N} rested enemy Unit.` | C001 | GD01-008, GD01-020 |
+| T030 | core | 16 | `Reduce it by {N}.` | C033 | GD04-029, GD04-053 |
+| T031 | core | 16 | `Rest them.` | C034 | GD01-099, GD01-103 |
+| T032 | core | 15 | `Deploy {N} {TOKEN} Unit token.` | C035 | GD01-066, GD03-108 |
+| T033 | core | 15 | `Choose {N} of your Units.` | C001 | GD01-015, GD02-058 |
+| T034 | trigger | 15 | `When this Unit destroys an enemy Unit with battle damage` | C025 | GD03-022, GD03-029 |
+| T035 | core | 14 | `Choose {N} friendly Unit.` | C001 | GD01-124, GD03-105 |
+| T036 | core | 14 | `It gets AP-{N} during this battle.` | C036 | GD01-071, GD01-082 |
+| T037 | core | 14 | `Place {N} EX Resource.` | C037 | GD01-107, GD02-021 |
+| T038 | core | 14 | `This Unit gets AP+{N}.` | C038 | GD02-020, GD02-031 |
+| T039 | core | 13 | `Exile them from the game.` | C040 | GD02-111, GD03-009 |
+| T040 | cost | 13 | `Rest this Base` | C041 | GD01-124, GD01-127 |
+| T041 | condition | 12 | `If you have another {TRAIT} Unit in play` | C015 | GD01-007, GD02-043 |
+| T042 | core | 12 | `Activate this card's {TIMING}.` | C043 | GD01-117, GD01-121 |
+| T043 | core | 12 | `Deploy {N} rested {TOKEN} Unit token.` | C045 | GD01-026, GD02-043 |
+| T044 | core | 12 | `It gains {KW}.` | C046 | GD01-054, GD01-063 |
+| T045 | core | 12 | `Set this Unit as active.` | C047 | GD01-003, GD01-046 |
+| T046 | core | 11 | `This Unit gains {KW} during this turn.` | C049 | GD01-025, GD02-036 |
+| T047 | condition | 10 | `If it is your turn` | C050 | GD01-125, GD02-125 |
+| T048 | core | 10 | `Look at the top card of your deck.` | C052 | GD01-039, GD01-048 |
+| T049 | core | 10 | `You may reveal {N} {TRAIT} {TYPE} among them and add it to your hand.` | C030 | GD01-109, GD02-094 |
+| T050 | core | 9 | `Activate the following effect：` | C054 | ST10-002, ST10-007 |
+| T051 | core | 9 | `Choose {N} {TRAIT} {TYPE} from your {ZONE}.` | C013 | GD02-103, GD02-117 |
+| T052 | core | 9 | `Deal {N} damage to them.` | C055 | GD01-044, GD02-055 |
+| T053 | core | 9 | `It can't attack during this turn.` | C056 | GD01-069, GD01-097 |
+| T054 | core | 9 | `This card in your {ZONE} gets cost -{N}.` | C057 | GD01-016, GD01-070 |
+| T055 | core | 9 | `You may choose {N} {TRAIT} {TYPE} from your {ZONE}.` | C039 | GD03-009, GD03-054 |
+| T056 | core | 9 | `You may exile the specified number of {TRAIT} {TYPE} in your {ZONE} from the game.` | C058 | ST10-002, ST10-007 |
+| T057 | scope | 9 | `During this battle` | C059 | GD02-106, GD04-087 |
+| T058 | condition | 8 | `If {N} {CMP} enemy Units are in play` | C042 | GD01-038, GD03-103 |
+| T059 | core | 8 | `It may choose an active enemy Unit with {N} {CMP} AP as its attack target.` | C026 | GD01-043, GD01-110 |
+| T060 | core | 8 | `This Unit can't choose the enemy player as its attack target.` | C061 | GD02-018, GD02-035 |
+| T061 | condition | 7 | `If a friendly {TRAIT} Unit is in play` | C016 | GD01-130, GD02-130 |
+| T062 | condition | 7 | `If another friendly {TRAIT} Unit is in play` | C016 | GD04-011, GD06-006 |
+| T063 | condition | 7 | `While you have another {TRAIT} Unit in play` | C027 | GD01-081, GD02-082 |
+| T064 | core | 7 | `Choose {N} to {N} enemy Units with {N} {CMP} HP.` | C001 | GD01-099, GD03-006 |
+| T065 | core | 7 | `It may choose an active enemy Unit that is Lv.{N} {CMP} as its attack target.` | C026 | GD02-108, GD02-116 |
+| T066 | core | 7 | `Place the top {N} {TYPE} of your deck into your trash.` | C062 | GD02-127, GD03-094 |
+| T067 | condition | 6 | `If a friendly {TRAIT} Link Unit is in play` | C016 | GD02-113, GD03-104 |
+| T068 | condition | 6 | `If there are {N} {CMP} {TYPE} in your {ZONE}` | C064 | GD02-060, GD02-116 |
+| T069 | condition | 6 | `If this is a {TRAIT} Unit` | C048 | GD04-081, GD05-101 |
+| T070 | core | 6 | `Choose {N} {TRAIT} {TYPE} that is Lv.{N} {CMP} from your {ZONE}.` | C013 | GD01-023, GD02-056 |
+| T071 | core | 6 | `Destroy that enemy Unit.` | C065 | GD03-052, GD04-054 |
+| T072 | core | 6 | `It won't be set as active during the start phase of your opponent's next turn.` | C066 | GD02-004, GD04-102 |
+| T073 | core | 6 | `Return them to their owners' hands.` | C067 | GD03-077, GD04-117 |
+| T074 | core | 6 | `This Unit gains{KW}.` | C068 | GD06-001, GD06-014 |
+| T075 | trigger | 6 | `When this Unit destroys an enemy shield area card with battle damage` | C025 | GD03-049, GD05-034 |
+| T076 | condition | 5 | `If you deploy this Unit from your {ZONE}` | C071 | GD03-062, GD04-060 |
+| T077 | condition | 5 | `While there are {N} {CMP} {TYPE} in your {ZONE}` | C072 | GD01-070, GD01-076 |
+| T078 | condition | 5 | `While this Unit is rested` | C073 | GD03-070, GD04-013 |
+| T079 | condition | 5 | `While this Unit is {TRAIT}` | C074 | GD01-092, GD05-087 |
+| T080 | core | 5 | `Activate {TIMING} on the card paired with this Unit.` | C075 | GD05-035, GD05-044 |
 <!-- GENERATED:templates:end -->
 
 ### Top compositional templates and selector phrases
@@ -360,91 +360,91 @@ The full list, with regexes, slot values and every card number, is in `templates
 <!-- GENERATED:compositional:start -->
 | id | role | cards | flat templates merged | pattern | examples |
 | --- | --- | --- | --- | --- | --- |
-| C001 | core | 363 | 94 | `Choose {SEL}.` | GD01-002, GD01-004, GD01-008 |
-| C002 | core | 138 | 1 | `Add this card to your hand.` | GD01-087, GD01-088, GD01-089 |
-| C003 | core | 87 | 1 | `Deal {N} damage to it.` | GD01-008, GD01-020, GD01-047 |
-| C004 | core | 72 | 1 | `Add {SEL} to your hand.` | GD01-123, GD01-124, GD01-125 |
-| C005 | core | 72 | 1 | `Deploy this card.` | GD01-123, GD01-124, GD01-125 |
-| C006 | core | 67 | 1 | `Draw {N}.` | GD01-001, GD01-007, GD01-074 |
-| C007 | scope | 51 | 1 | `During your turn` | GD01-063, GD01-091, GD02-002 |
-| C008 | core | 50 | 1 | `Rest it.` | GD01-002, GD01-004, GD01-010 |
-| C009 | scope | 36 | 1 | `During this turn` | GD01-043, GD01-110, GD02-108 |
-| C010 | core | 31 | 1 | `Return it to its owner's hand.` | GD01-068, GD01-073, GD01-075 |
-| C011 | core | 30 | 1 | `It gets AP+{N} during this turn.` | GD01-113, GD01-120, GD02-014 |
-| C012 | core | 28 | 10 | `Choose {SEL} from your {ZONE}.` | GD01-003, GD01-023, GD01-067 |
-| C013 | core | 28 | 1 | `It gets AP-{N} during this turn.` | GD01-065, GD01-078, GD01-119 |
-| C014 | core | 27 | 1 | `This Unit gains {KW}.` | GD01-019, GD01-034, GD02-023 |
-| C015 | core | 25 | 1 | `Destroy it.` | GD01-029, GD01-032, GD02-057 |
-| C016 | core | 24 | 1 | `It gains {KW} during this turn.` | GD01-003, GD01-009, GD01-049 |
-| C017 | condition | 23 | 12 | `If you have {SEL} in play` | GD01-007, GD01-122, GD02-043 |
-| C018 | condition | 22 | 7 | `If {SEL} is in play` | GD01-098, GD01-130, GD02-071 |
-| C019 | core | 22 | 1 | `Look at the top {N} {TYPE} of your deck.` | GD01-045, GD01-109, GD02-020 |
-| C020 | core | 22 | 1 | `Return the remaining cards randomly to the bottom of your deck.` | GD01-045, GD01-109, GD02-020 |
-| C021 | core | 22 | 1 | `Set it as active.` | GD01-069, GD01-121, GD02-083 |
-| C022 | core | 20 | 1 | `Add it to your hand.` | GD01-067, GD02-056, GD02-103 |
-| C023 | trigger | 19 | 3 | `When this Unit destroys {SEL} with battle damage` | GD02-093, GD03-022, GD03-029 |
-| C024 | condition | 18 | 3 | `If there are {N} {CMP} {SEL} in your {ZONE}` | GD01-027, GD02-061, GD02-070 |
-| C025 | condition | 18 | 9 | `While you have {SEL} in play` | GD01-081, GD02-082, GD02-086 |
-| C026 | core | 18 | 1 | `Discard {N}.` | GD01-005, GD01-074, GD01-095 |
-| C027 | core | 18 | 6 | `It may choose {SEL} as its attack target.` | GD01-043, GD01-110, GD02-108 |
-| C028 | cost | 18 | 1 | `{RES}` | GD01-053, GD01-058, GD01-069 |
-| C029 | core | 17 | 11 | `Deal {N} damage to {SEL}.` | GD01-024, GD01-027, GD01-038 |
-| C030 | core | 17 | 1 | `It recovers {N} HP.` | GD01-014, GD01-015, GD01-101 |
-| C031 | core | 17 | 7 | `You may reveal {SEL} among them and add it to your hand.` | GD01-109, GD02-020, GD02-088 |
-| C032 | core | 16 | 1 | `Rest them.` | GD01-099, GD01-103, GD01-112 |
-| C033 | core | 15 | 10 | `You may choose {SEL}.` | GD02-057, GD03-067, GD03-118 |
-| C034 | core | 14 | 1 | `Place {N} EX Resource.` | GD01-107, GD02-021, GD02-103 |
-| C035 | core | 13 | 1 | `Deploy {N} {TOKEN} Unit token.` | GD01-066, GD03-108, GD03-117 |
-| C036 | core | 13 | 1 | `Reduce it by {N}.` | GD04-029, GD04-053, GD04-068 |
-| C037 | condition | 12 | 5 | `If {N} {CMP} {SEL} are in play` | GD01-038, GD01-047, GD03-103 |
-| C038 | core | 12 | 1 | `Activate this card's {TIMING}.` | GD01-117, GD01-121, GD03-109 |
-| C039 | core | 12 | 8 | `Choose {SEL} and {SEL}.` | GD01-103, GD02-055, GD03-056 |
-| C040 | core | 12 | 1 | `Deploy {N} rested {TOKEN} Unit token.` | GD01-026, GD02-043, GD02-044 |
+| C001 | core | 415 | 96 | `Choose {SEL}.` | GD01-002, GD01-004, GD01-008 |
+| C002 | core | 162 | 1 | `Add this card to your hand.` | GD01-087, GD01-088, GD01-089 |
+| C003 | core | 103 | 1 | `Deal {N} damage to it.` | GD01-008, GD01-020, GD01-047 |
+| C004 | core | 81 | 1 | `Add {SEL} to your hand.` | GD01-123, GD01-124, GD01-125 |
+| C005 | core | 81 | 1 | `Deploy this card.` | GD01-123, GD01-124, GD01-125 |
+| C006 | core | 73 | 1 | `Draw {N}.` | GD01-001, GD01-007, GD01-074 |
+| C007 | core | 57 | 1 | `Rest it.` | GD01-002, GD01-004, GD01-010 |
+| C008 | scope | 57 | 1 | `During your turn` | GD01-063, GD01-091, GD02-002 |
+| C009 | scope | 41 | 1 | `During this turn` | GD01-043, GD01-110, GD02-108 |
+| C010 | core | 38 | 1 | `Return it to its owner's hand.` | GD01-068, GD01-073, GD01-075 |
+| C011 | core | 33 | 1 | `Destroy it.` | GD01-029, GD01-032, GD02-057 |
+| C012 | core | 33 | 1 | `It gets AP+{N} during this turn.` | GD01-113, GD01-120, GD02-014 |
+| C013 | core | 31 | 11 | `Choose {SEL} from your {ZONE}.` | GD01-003, GD01-023, GD01-067 |
+| C014 | core | 29 | 1 | `It gets AP-{N} during this turn.` | GD01-065, GD01-078, GD01-119 |
+| C015 | condition | 28 | 12 | `If you have {SEL} in play` | GD01-007, GD01-122, GD02-043 |
+| C016 | condition | 27 | 8 | `If {SEL} is in play` | GD01-098, GD01-130, GD02-071 |
+| C017 | core | 27 | 1 | `This Unit gains {KW}.` | GD01-019, GD01-034, GD02-023 |
+| C018 | core | 26 | 1 | `Look at the top {N} {TYPE} of your deck.` | GD01-045, GD01-109, GD02-020 |
+| C019 | core | 25 | 1 | `Return the remaining cards randomly to the bottom of your deck.` | GD01-045, GD01-109, GD02-020 |
+| C020 | core | 24 | 1 | `It gains {KW} during this turn.` | GD01-003, GD01-009, GD01-049 |
+| C021 | core | 24 | 1 | `Set it as active.` | GD01-069, GD01-121, GD02-083 |
+| C022 | condition | 22 | 3 | `If there are {N} {CMP} {SEL} in your {ZONE}` | GD01-027, GD02-061, GD02-070 |
+| C023 | core | 22 | 1 | `Add it to your hand.` | GD01-067, GD02-056, GD02-103 |
+| C024 | cost | 22 | 1 | `{RES}` | GD01-053, GD01-058, GD01-069 |
+| C025 | trigger | 22 | 3 | `When this Unit destroys {SEL} with battle damage` | GD02-093, GD03-022, GD03-029 |
+| C026 | core | 21 | 6 | `It may choose {SEL} as its attack target.` | GD01-043, GD01-110, GD02-108 |
+| C027 | condition | 20 | 9 | `While you have {SEL} in play` | GD01-081, GD02-082, GD02-086 |
+| C028 | core | 20 | 1 | `It recovers {N} HP.` | GD01-014, GD01-015, GD01-101 |
+| C029 | core | 19 | 1 | `Discard {N}.` | GD01-005, GD01-074, GD01-095 |
+| C030 | core | 19 | 7 | `You may reveal {SEL} among them and add it to your hand.` | GD01-109, GD02-020, GD02-088 |
+| C031 | core | 18 | 11 | `Deal {N} damage to {SEL}.` | GD01-024, GD01-027, GD01-038 |
+| C032 | core | 18 | 13 | `You may choose {SEL}.` | GD02-057, GD03-067, GD03-118 |
+| C033 | core | 16 | 1 | `Reduce it by {N}.` | GD04-029, GD04-053, GD04-068 |
+| C034 | core | 16 | 1 | `Rest them.` | GD01-099, GD01-103, GD01-112 |
+| C035 | core | 15 | 1 | `Deploy {N} {TOKEN} Unit token.` | GD01-066, GD03-108, GD03-117 |
+| C036 | core | 14 | 1 | `It gets AP-{N} during this battle.` | GD01-071, GD01-082, GD02-075 |
+| C037 | core | 14 | 1 | `Place {N} EX Resource.` | GD01-107, GD02-021, GD02-103 |
+| C038 | core | 14 | 1 | `This Unit gets AP+{N}.` | GD02-020, GD02-031, GD02-034 |
+| C039 | core | 14 | 4 | `You may choose {SEL} from your {ZONE}.` | GD02-096, GD03-009, GD03-051 |
+| C040 | core | 13 | 1 | `Exile them from the game.` | GD02-111, GD03-009, GD03-050 |
 
-Selector phrases found by the grammar (271 distinct; top 40):
+Selector phrases found by the grammar (288 distinct; top 40):
 
 | cards | selector phrase (flat pattern) | examples |
 | --- | --- | --- |
-| 74 | `{N} enemy Unit` | GD01-002, GD01-047, GD01-050 |
-| 72 | `{N} of your Shields` | GD01-123, GD01-124, GD01-125 |
-| 54 | `{N} enemy Unit that is Lv.{N} {CMP}` | GD01-080, GD01-119, GD02-039 |
-| 37 | `{N} enemy Unit with {N} {CMP} HP` | GD01-004, GD01-010, GD01-012 |
-| 36 | `an enemy Unit` | GD01-050, GD02-002, GD02-045 |
-| 35 | `{N} {TRAIT} {TYPE}` | GD01-023, GD01-028, GD01-109 |
-| 26 | `{TRAIT} {TYPE}` | GD01-027, GD02-061, GD02-070 |
-| 25 | `{N} of your {TRAIT} Units` | GD01-009, GD02-014, GD02-016 |
-| 23 | `{N} friendly {TRAIT} Unit` | GD01-113, GD02-102, GD02-108 |
-| 21 | `{N} of your Units` | GD01-015, GD02-055, GD02-058 |
-| 17 | `{N} enemy Unit with {N} {CMP} AP` | GD01-053, GD01-056, GD01-116 |
-| 16 | `{N} friendly Unit` | GD01-124, GD03-105, GD03-118 |
-| 15 | `another {TRAIT} Unit` | GD01-007, GD01-081, GD02-043 |
-| 15 | `{N} rested enemy Unit` | GD01-008, GD01-020, GD01-104 |
-| 14 | `enemy Units` | GD01-019, GD01-038, GD02-105 |
-| 13 | `{N} {TRAIT} {TYPE} that is Lv.{N} {CMP}` | GD01-023, GD01-045, GD01-125 |
-| 13 | `{N} {TYPE}` | GD01-003, GD02-003, GD03-035 |
-| 12 | `a friendly {TRAIT} Unit` | GD01-130, GD02-130, GD03-120 |
-| 11 | `enemy Unit` | GD03-052, GD03-076, GD04-054 |
+| 89 | `{N} enemy Unit` | GD01-002, GD01-047, GD01-050 |
+| 81 | `{N} of your Shields` | GD01-123, GD01-124, GD01-125 |
+| 65 | `{N} enemy Unit that is Lv.{N} {CMP}` | GD01-080, GD01-119, GD02-039 |
+| 43 | `{N} enemy Unit with {N} {CMP} HP` | GD01-004, GD01-010, GD01-012 |
+| 38 | `an enemy Unit` | GD01-050, GD02-002, GD02-045 |
+| 38 | `{N} {TRAIT} {TYPE}` | GD01-023, GD01-028, GD01-109 |
+| 34 | `{TRAIT} {TYPE}` | GD01-027, GD02-061, GD02-070 |
+| 32 | `{N} of your {TRAIT} Units` | GD01-009, GD02-014, GD02-016 |
+| 25 | `{N} friendly {TRAIT} Unit` | GD01-113, GD02-102, GD02-108 |
+| 25 | `{N} of your Units` | GD01-015, GD02-055, GD02-058 |
+| 23 | `{N} enemy Unit with {N} {CMP} AP` | GD01-053, GD01-056, GD01-116 |
+| 19 | `another {TRAIT} Unit` | GD01-007, GD01-081, GD02-043 |
+| 18 | `enemy Units` | GD01-019, GD01-038, GD02-105 |
+| 18 | `{N} rested enemy Unit` | GD01-008, GD01-020, GD01-104 |
+| 17 | `{N} friendly Unit` | GD01-124, GD03-105, GD03-118 |
+| 17 | `{N} {TRAIT} {TYPE} that is Lv.{N} {CMP}` | GD01-023, GD01-045, GD01-125 |
+| 14 | `a friendly {TRAIT} Unit` | GD01-130, GD02-130, GD03-120 |
+| 14 | `enemy Unit` | GD03-052, GD03-076, GD04-054 |
+| 14 | `{N} {TYPE}` | GD01-003, GD02-003, GD03-035 |
+| 12 | `one of your {TRAIT} Units` | GD02-001, GD03-053, GD03-081 |
+| 11 | `a {TRAIT} Unit` | GD01-046, GD03-084, GD04-081 |
+| 11 | `an active enemy Unit that is Lv.{N} {CMP}` | GD01-042, GD02-108, GD02-116 |
+| 11 | `another friendly {TRAIT} Unit` | GD04-011, GD06-003, GD06-006 |
 | 10 | `a {TRAIT} {TYPE}` | GD01-048, GD03-092, GD03-094 |
-| 10 | `one of your {TRAIT} Units` | GD02-001, GD03-053, GD03-081 |
-| 9 | `a {TRAIT} Unit` | GD01-046, GD03-084, GD04-081 |
-| 9 | `an active enemy Unit that is Lv.{N} {CMP}` | GD01-042, GD02-108, GD02-116 |
+| 10 | `an enemy shield area card` | GD02-001, GD03-049, GD04-042 |
+| 9 | `an active enemy Unit with {N} {CMP} AP` | GD01-043, GD01-110, GD02-123 |
+| 9 | `an enemy Unit that is Lv.{N} {CMP}` | GD01-063, GD03-052, GD03-110 |
 | 9 | `enemy Units that are Lv.{N} {CMP}` | GD02-006, GD02-106, GD04-123 |
-| 8 | `an active enemy Unit with {N} {CMP} AP` | GD01-043, GD01-110, GD02-123 |
-| 8 | `an enemy shield area card` | GD02-001, GD03-049, GD04-042 |
 | 8 | `one of your Units` | GD02-002, GD03-079, GD03-124 |
+| 8 | `{N} {TYPE} that is Lv.{N} {CMP}` | GD01-067, GD02-110, GD03-051 |
+| 8 | `{TRAIT} Units` | GD01-016, GD03-014, GD03-082 |
+| 7 | `All your {TRAIT} Units` | GD01-001, GD03-017, GD03-033 |
+| 7 | `Enemy Units` | GD03-019, GD03-025, GD03-074 |
 | 7 | `a Pilot` | GD01-023, GD01-065, GD03-069 |
-| 7 | `an enemy Unit that is Lv.{N} {CMP}` | GD01-063, GD03-052, GD03-110 |
-| 7 | `another friendly {TRAIT} Unit` | GD04-011, ST06-001, ST06-002 |
+| 7 | `a friendly {TRAIT} Link Unit` | GD02-113, GD02-128, GD03-104 |
 | 7 | `{N} to {N} enemy Units with {N} {CMP} HP` | GD01-099, GD03-006, GD03-077 |
-| 7 | `{N} {TYPE} that is Lv.{N} {CMP}` | GD01-067, GD02-110, GD03-051 |
-| 6 | `a friendly {TRAIT} Link Unit` | GD02-113, GD02-128, GD03-104 |
 | 6 | `a {TRAIT} Pilot` | GD02-104, GD03-052, GD04-004 |
-| 5 | `All your {TRAIT} Units` | GD01-001, GD03-017, GD03-033 |
-| 5 | `Enemy Units` | GD03-019, GD03-025, GD03-074 |
+| 6 | `{N} of your other {TRAIT} Units` | GD02-040, GD04-006, GD04-030 |
+| 5 | `All enemy Units` | GD03-119, GD04-065, GD04-107 |
 | 5 | `a friendly {COLOR} Base` | GD02-071, GD02-072, GD02-081 |
-| 5 | `{N} Unit` | GD01-014, GD05-102, EB01-020 |
-| 5 | `{N} of your other Units` | GD02-057, GD03-084, GD05-052 |
-| 5 | `{N} of your other {TRAIT} Units` | GD02-040, GD04-006, GD04-030 |
 <!-- GENERATED:compositional:end -->
 
 ## 5. DSL primitive inventory
@@ -461,32 +461,32 @@ re-derived or refined. Counts are exact for the regex, not hand-checked for ever
 
 | id | description | cards | occ. | examples |
 | --- | --- | --- | --- | --- |
-| `trigger.burst` | 【Burst】 shield trigger | 252 | 252 | GD01-087, GD01-088, GD01-089, GD01-090, GD01-091, GD01-092 |
-| `trigger.deploy` | 【Deploy】 (incl. 【Deploy･Development n】) | 191 | 191 | GD01-008, GD01-009, GD01-020, GD01-024, GD01-027, GD01-028 |
-| `trigger.attack` | 【Attack】 on attack declaration | 88 | 88 | GD01-002, GD01-003, GD01-015, GD01-029, GD01-047, GD01-050 |
-| `trigger.when_paired` | 【When Paired】 (all variants incl. qualified and Development) | 56 | 56 | GD01-001, GD01-004, GD01-010, GD01-012, GD01-025, GD01-032 |
-| `trigger.destroyed` | 【Destroyed】 (resolves from trash, rule 13-2-8-2) | 46 | 46 | GD01-005, GD01-007, GD01-026, GD01-056, GD01-080, GD02-003 |
-| `trigger.when_linked` | 【When Linked】 | 43 | 43 | GD01-088, GD01-095, GD02-008, GD02-036, GD02-087, GD02-088 |
-| `trigger.self_destroys_enemy_unit` | when this Unit destroys an enemy Unit with (battle) damage | 16 | 16 | GD03-022, GD03-029, GD03-097, GD04-090, GD05-069, GD05-070 |
-| `trigger.self_receives_damage` | when this Unit/Base receives (enemy/effect/battle) damage | 12 | 12 | GD02-010, GD03-060, GD03-095, GD04-029, GD04-053, GD04-068 |
-| `trigger.when_paired_qualified` | 【When Paired･(qualifier)】 pilot trait/colour/Lv qualifier (rule 13-2-9-2) | 12 | 12 | GD01-025, GD01-032, GD01-044, GD02-061, GD03-017, GD03-054 |
+| `trigger.burst` | 【Burst】 shield trigger | 288 | 288 | GD01-087, GD01-088, GD01-089, GD01-090, GD01-091, GD01-092 |
+| `trigger.deploy` | 【Deploy】 (incl. 【Deploy･Development n】) | 219 | 219 | GD01-008, GD01-009, GD01-020, GD01-024, GD01-027, GD01-028 |
+| `trigger.attack` | 【Attack】 on attack declaration | 104 | 104 | GD01-002, GD01-003, GD01-015, GD01-029, GD01-047, GD01-050 |
+| `trigger.when_paired` | 【When Paired】 (all variants incl. qualified and Development) | 63 | 63 | GD01-001, GD01-004, GD01-010, GD01-012, GD01-025, GD01-032 |
+| `trigger.destroyed` | 【Destroyed】 (resolves from trash, rule 13-2-8-2) | 55 | 55 | GD01-005, GD01-007, GD01-026, GD01-056, GD01-080, GD02-003 |
+| `trigger.when_linked` | 【When Linked】 | 47 | 47 | GD01-088, GD01-095, GD02-008, GD02-036, GD02-087, GD02-088 |
+| `trigger.self_destroys_enemy_unit` | when this Unit destroys an enemy Unit with (battle) damage | 17 | 17 | GD03-022, GD03-029, GD03-097, GD04-090, GD05-069, GD05-070 |
+| `trigger.self_receives_damage` | when this Unit/Base receives (enemy/effect/battle) damage | 14 | 14 | GD02-010, GD03-060, GD03-095, GD04-029, GD04-053, GD04-068 |
+| `trigger.when_paired_qualified` | 【When Paired･(qualifier)】 pilot trait/colour/Lv qualifier (rule 13-2-9-2) | 13 | 13 | GD01-025, GD01-032, GD01-044, GD02-061, GD03-017, GD03-054 |
+| `trigger.friendly_receives_damage` | when one of your / a friendly Unit (token, shield area card) receives damage | 11 | 11 | GD03-053, GD03-129, GD04-018, GD05-018, GD05-084, GD05-094 |
+| `trigger.play_this_card` | when playing this card (from hand): alternative/modified play cost or modal choice | 11 | 11 | GD01-002, GD03-085, GD05-102, GD05-106, GD06-086, GD06-100 |
+| `trigger.destroys_enemy_shield_card` | when (this/one of your) Unit destroys an enemy shield area card | 10 | 10 | GD02-001, GD03-049, GD04-042, GD05-034, GD05-035, GD05-098 |
 | `trigger.development` | ･Development n (optional exile n (G Generation) cards, then ■ effect) | 9 | 9 | ST10-002, ST10-007, ST10-008, EB01-008, EB01-010, EB01-025 |
-| `trigger.friendly_receives_damage` | when one of your / a friendly Unit (token, shield area card) receives damage | 9 | 9 | GD03-053, GD03-129, GD04-018, GD05-018, GD05-084, GD05-094 |
-| `trigger.destroys_enemy_shield_card` | when (this/one of your) Unit destroys an enemy shield area card | 8 | 8 | GD02-001, GD03-049, GD04-042, GD05-034, GD05-035, GD05-098 |
-| `trigger.play_this_card` | when playing this card (from hand): alternative/modified play cost or modal choice | 8 | 8 | GD01-002, GD03-085, GD05-102, GD05-106, ST10-014, ST12-015 |
-| `trigger.deals_battle_damage` | when this/your Unit deals battle damage to an enemy Unit | 6 | 6 | GD03-052, GD03-076, GD04-054, GD04-096, GD04-115, GD05-050 |
-| `trigger.end_of_turn` | at the end of your turn / a turn | 6 | 6 | GD03-069, GD04-069, GD05-051, ST07-001, EB01-003, EB01-022 |
+| `trigger.deals_battle_damage` | when this/your Unit deals battle damage to an enemy Unit | 7 | 7 | GD03-052, GD03-076, GD04-054, GD04-096, GD04-115, GD05-050 |
+| `trigger.end_of_turn` | at the end of your turn / a turn | 7 | 7 | GD03-069, GD04-069, GD05-051, GD06-051, ST07-001, EB01-003 |
+| `trigger.after_command_main` | after activating this card's 【Main】 (Command pairs itself from trash) | 5 | 5 | GD05-112, GD05-113, GD05-121, GD05-122, GD06-119 |
 | `trigger.friendly_destroys_enemy_unit` | when one of your/a friendly/chosen Unit destroys an enemy Unit with battle damage | 5 | 5 | GD02-002, GD03-125, GD04-002, GD04-035, EB01-087 |
-| `trigger.after_command_main` | after activating this card's 【Main】 (Command pairs itself from trash) | 4 | 4 | GD05-112, GD05-113, GD05-121, GD05-122 |
 | `trigger.pilot_paired` | when you pair a (qualified) Pilot with this/one of your Units | 4 | 4 | GD01-065, GD03-124, GD04-004, ST13-001 |
 | `trigger.unit_links` | when a friendly (X) Unit links | 4 | 4 | GD05-127, ST06-015, ST14-016, EB01-086 |
+| `trigger.command_activated` | when you activate a (X) Command's 【Main】/【Action】 | 3 | 3 | GD04-066, GD05-068, GD06-071 |
 | `trigger.command_played_with_ex` | when you play and activate a (X) Command card using an EX Resource | 3 | 3 | GD04-020, GD04-021, GD04-085 |
 | `trigger.cost_paid_for_effect` | when you pay ① or more for a Unit's effect | 3 | 3 | GD04-100, GD04-129, GD05-101 |
+| `trigger.destroys_enemy_card` | when this Unit/they destroy an enemy card with battle damage | 3 | 3 | GD05-002, GD05-006, GD06-002 |
 | `trigger.place_ex_resource` | when you place an EX Resource | 3 | 3 | GD02-022, GD03-023, GD04-124 |
 | `trigger.rested_by_effect` | when this/one of your Units is rested by an (opponent's) effect | 3 | 3 | GD03-038, GD03-128, GD04-041 |
 | `trigger.unit_deployed` | when this Unit / one of your (X) Units / another friendly Unit is deployed | 3 | 3 | GD04-033, GD05-016, EB01-035 |
-| `trigger.command_activated` | when you activate a (X) Command's 【Main】/【Action】 | 2 | 2 | GD04-066, GD05-068 |
-| `trigger.destroys_enemy_card` | when this Unit/they destroy an enemy card with battle damage | 2 | 2 | GD05-002, GD05-006 |
 | `trigger.enemy_destroyed_while_attacking` | when an enemy (Link) Unit is destroyed with (effect) damage while this Unit is attacking | 2 | 2 | GD01-094, ST13-012 |
 | `trigger.recovers_hp` | when this Unit recovers HP | 2 | 2 | GD02-085, EB01-004 |
 | `trigger.rest_substitution` | when you (would) rest a Base/Unit with an effect -> rest this instead | 2 | 2 | GD03-079, GD05-124 |
@@ -506,50 +506,50 @@ re-derived or refined. Counts are exact for the regex, not hand-checked for ever
 
 | id | description | cards | occ. | examples |
 | --- | --- | --- | --- | --- |
-| `timing.pilot_name` | Command 【Pilot】[Name] pilot mode (rule 3-4-6) | 68 | 68 | GD01-101, GD01-103, GD01-106, GD01-110, GD01-112, GD01-113 |
-| `timing.command_main` | Command 【Main】 only | 66 | 66 | GD01-100, GD01-102, GD01-103, GD01-104, GD01-105, GD01-106 |
-| `timing.command_main_or_action` | Command 【Main】/【Action】 | 59 | 59 | GD01-099, GD01-101, GD01-110, GD01-111, GD01-113, GD01-115 |
-| `timing.activate_main` | 【Activate･Main】 activated ability | 56 | 56 | GD01-023, GD01-046, GD01-048, GD01-053, GD01-055, GD01-061 |
-| `timing.command_action` | Command 【Action】 only | 32 | 32 | GD01-114, GD01-120, GD02-105, GD02-106, GD02-118, GD02-119 |
-| `timing.activate_action` | 【Activate･Action】 activated ability | 15 | 15 | GD01-014, GD01-058, GD01-082, GD01-098, GD01-127, GD02-011 |
+| `timing.pilot_name` | Command 【Pilot】[Name] pilot mode (rule 3-4-6) | 77 | 77 | GD01-101, GD01-103, GD01-106, GD01-110, GD01-112, GD01-113 |
+| `timing.command_main` | Command 【Main】 only | 73 | 73 | GD01-100, GD01-102, GD01-103, GD01-104, GD01-105, GD01-106 |
+| `timing.command_main_or_action` | Command 【Main】/【Action】 | 64 | 64 | GD01-099, GD01-101, GD01-110, GD01-111, GD01-113, GD01-115 |
+| `timing.activate_main` | 【Activate･Main】 activated ability | 63 | 63 | GD01-023, GD01-046, GD01-048, GD01-053, GD01-055, GD01-061 |
+| `timing.command_action` | Command 【Action】 only | 41 | 41 | GD01-114, GD01-120, GD02-105, GD02-106, GD02-118, GD02-119 |
+| `timing.activate_action` | 【Activate･Action】 activated ability | 18 | 18 | GD01-014, GD01-058, GD01-082, GD01-098, GD01-127, GD02-011 |
 
 #### qualifier
 
 | id | description | cards | occ. | examples |
 | --- | --- | --- | --- | --- |
-| `qualifier.once_per_turn` | 【Once per Turn】 (rule 13-2-13) | 85 | 87 | GD01-014, GD01-046, GD01-053, GD01-058, GD01-065, GD01-069 |
-| `qualifier.during_link` | 【During Link】 | 70 | 70 | GD01-003, GD01-005, GD01-006, GD01-014, GD01-071, GD01-073 |
-| `qualifier.during_pair` | 【During Pair】 (any pilot) | 31 | 31 | GD01-026, GD01-034, GD01-065, GD01-066, GD01-082, GD02-057 |
-| `qualifier.during_pair_qualified` | 【During Pair･(qualifier)】 | 11 | 11 | GD01-046, GD02-001, GD02-003, GD02-034, GD02-036, GD02-056 |
+| `qualifier.once_per_turn` | 【Once per Turn】 (rule 13-2-13) | 97 | 99 | GD01-014, GD01-046, GD01-053, GD01-058, GD01-065, GD01-069 |
+| `qualifier.during_link` | 【During Link】 | 79 | 79 | GD01-003, GD01-005, GD01-006, GD01-014, GD01-071, GD01-073 |
+| `qualifier.during_pair` | 【During Pair】 (any pilot) | 37 | 37 | GD01-026, GD01-034, GD01-065, GD01-066, GD01-082, GD02-057 |
+| `qualifier.during_pair_qualified` | 【During Pair･(qualifier)】 | 12 | 12 | GD01-046, GD02-001, GD02-003, GD02-034, GD02-036, GD02-056 |
 
 #### condition
 
 | id | description | cards | occ. | examples |
 | --- | --- | --- | --- | --- |
-| `condition.unit_exists` | a/an/another (filtered) Unit/Pilot/Base is in play (you have ...) | 72 | 73 | GD01-007, GD01-081, GD01-098, GD01-122, GD01-130, GD02-033 |
-| `condition.trash_count` | N or more (filtered) cards in your/an enemy's trash | 31 | 31 | GD01-027, GD01-070, GD01-076, GD02-053, GD02-060, GD02-061 |
-| `condition.units_in_play_count` | N or more / 1 to N (filtered) Units in play (either side) | 28 | 29 | GD01-001, GD01-016, GD01-019, GD01-038, GD01-047, GD03-004 |
-| `condition.self_color_or_trait` | this (Unit) is (a) colour / (Trait) Unit (Pilot text checks its paired Unit) | 17 | 17 | GD01-087, GD01-092, GD01-096, GD02-087, GD02-091, GD02-098 |
-| `condition.effect_result` | result of the preceding step (placed/drew/discarded/rested with this effect, revealed card is ...) | 15 | 15 | GD01-048, GD03-084, GD03-092, GD03-094, GD04-090, GD05-034 |
+| `condition.unit_exists` | a/an/another (filtered) Unit/Pilot/Base is in play (you have ...) | 87 | 88 | GD01-007, GD01-081, GD01-098, GD01-122, GD01-130, GD02-033 |
+| `condition.trash_count` | N or more (filtered) cards in your/an enemy's trash | 37 | 37 | GD01-027, GD01-070, GD01-076, GD02-053, GD02-060, GD02-061 |
+| `condition.units_in_play_count` | N or more / 1 to N (filtered) Units in play (either side) | 33 | 34 | GD01-001, GD01-016, GD01-019, GD01-038, GD01-047, GD03-004 |
+| `condition.self_color_or_trait` | this (Unit) is (a) colour / (Trait) Unit (Pilot text checks its paired Unit) | 20 | 20 | GD01-087, GD01-092, GD01-096, GD02-087, GD02-091, GD02-098 |
+| `condition.effect_result` | result of the preceding step (placed/drew/discarded/rested with this effect, revealed card is ...) | 19 | 19 | GD01-048, GD03-084, GD03-092, GD03-094, GD04-090, GD05-034 |
+| `condition.turn_owner` | it is your / your opponent's turn | 18 | 19 | GD01-125, GD02-083, GD02-125, GD02-128, GD03-130, GD04-058 |
 | `condition.multiplayer` | multiplayer wording (2+ enemy players, each enemy player, most Units); 1v1 has exactly one enemy player | 15 | 16 | GD05-049, ST10-008, ST14-006, ST14-015, EB01-002, EB01-005 |
-| `condition.turn_owner` | it is your / your opponent's turn | 14 | 15 | GD01-125, GD02-083, GD02-125, GD02-128, GD03-130, GD04-058 |
 | `condition.attack_target_kind` | you are attacking the enemy player / an enemy Unit / a damaged enemy Unit | 11 | 11 | GD01-050, GD01-059, GD02-045, GD03-028, GD04-001, GD04-044 |
 | `condition.rested_units_count` | N or more (other) rested Units in play (either side) | 8 | 8 | GD01-047, GD05-067, ST10-011, EB01-002, EB01-015, EB01-019 |
-| `condition.self_rested` | this Unit is rested | 7 | 7 | GD03-070, GD04-013, ST11-002, EB01-003, EB01-028, EB01-042 |
+| `condition.self_rested` | this Unit is rested | 8 | 8 | GD03-070, GD04-013, GD06-098, ST11-002, EB01-003, EB01-028 |
+| `condition.hand_size` | a player has N or more/less cards in hand | 7 | 7 | GD01-097, GD02-085, GD04-035, GD05-046, GD06-003, GD06-110 |
 | `condition.self_stat` | this Unit has N (or more) AP / N HP | 7 | 7 | GD01-050, GD01-054, GD02-045, GD02-076, GD03-042, GD03-061 |
+| `condition.turn_history` | event already happened this turn (activated, destroyed, discarded, set active, paid) | 7 | 7 | GD04-069, GD05-041, GD05-089, GD05-129, GD06-070, ST12-016 |
 | `condition.ex_resource` | EX Resource state: none left / opponent has one / used to play this card | 6 | 6 | GD04-085, GD04-086, GD04-106, GD04-108, GD05-118, EB01-025 |
 | `condition.player_level` | you are Lv.N or higher (player level = resources) | 6 | 6 | GD02-021, GD02-023, GD02-026, GD02-031, GD02-124, GD03-115 |
-| `condition.turn_history` | event already happened this turn (activated, destroyed, discarded, set active, paid) | 6 | 6 | GD04-069, GD05-041, GD05-089, GD05-129, ST12-016, ST14-015 |
-| `condition.hand_size` | a player has N or more/less cards in hand | 5 | 5 | GD01-097, GD02-085, GD04-035, GD05-046, EB01-013 |
-| `condition.deployed_from_trash` | if you deploy this Unit from your trash | 4 | 4 | GD03-062, GD04-060, GD05-064, ST09-006 |
-| `condition.none_in_play` | no (filtered) Units/tokens/Base in play | 4 | 5 | GD03-093, GD05-004, ST04-012, ST08-001 |
+| `condition.deployed_from_trash` | if you deploy this Unit from your trash | 5 | 5 | GD03-062, GD04-060, GD05-064, GD06-050, ST09-006 |
+| `condition.none_in_play` | no (filtered) Units/tokens/Base in play | 5 | 6 | GD03-093, GD05-004, GD06-019, ST04-012, ST08-001 |
+| `condition.shield_count` | N or less (enemy) Shields / a player with N or less Shields | 5 | 5 | GD02-037, GD03-048, GD06-129, ST12-009, ST12-012 |
+| `condition.battling` | while this Unit is battling an enemy Unit with a property | 4 | 4 | GD01-063, GD03-037, GD06-037, EB01-037 |
 | `condition.self_damaged` | this Unit is damaged | 4 | 4 | GD02-054, GD02-095, ST05-001, ST05-002 |
-| `condition.shield_count` | N or less (enemy) Shields / a player with N or less Shields | 4 | 4 | GD02-037, GD03-048, ST12-009, ST12-012 |
-| `condition.battling` | while this Unit is battling an enemy Unit with a property | 3 | 3 | GD01-063, GD03-037, EB01-037 |
 | `condition.name_in_play` | you have a Unit with "X" in its card name in play | 3 | 3 | GD03-020, GD05-110, GD05-126 |
 | `condition.self_has_keyword` | this Unit has \<Keyword> | 3 | 3 | GD01-089, GD01-091, EB01-064 |
+| `condition.target_property` | if it (the chosen card) has/is ... | 3 | 3 | GD04-039, GD05-109, GD06-121 |
 | `condition.destroyed_how` | if this Unit is destroyed with battle damage / by your (X) card's effect | 2 | 2 | GD05-053, EB01-017 |
-| `condition.target_property` | if it (the chosen card) has/is ... | 2 | 2 | GD04-039, GD05-109 |
 | `condition.self_is_link` | this / it is a Link Unit | 1 | 1 | ST03-011 |
 | `condition.self_unpaired` | a Pilot is not paired with this Unit | 1 | 1 | GD01-023 |
 
@@ -557,9 +557,9 @@ re-derived or refined. Counts are exact for the regex, not hand-checked for ever
 
 | id | description | cards | occ. | examples |
 | --- | --- | --- | --- | --- |
-| `cost.resource` | ① / ② / ④ pay N resources | 18 | 18 | GD01-053, GD01-058, GD01-069, GD01-082, GD03-035, GD04-067 |
-| `cost.support_keyword` | 【Activate･Main】\<Support n> (rest this Unit: another Unit gets AP+n) | 14 | 14 | GD01-046, GD01-048, GD01-055, GD01-061, GD02-040, GD02-049 |
-| `cost.rest_self` | Rest this Unit / Rest this Base | 13 | 13 | GD01-124, GD01-127, GD01-130, GD02-047, GD05-125, GD05-128 |
+| `cost.resource` | ① / ② / ④ pay N resources | 22 | 22 | GD01-053, GD01-058, GD01-069, GD01-082, GD03-035, GD04-067 |
+| `cost.rest_self` | Rest this Unit / Rest this Base | 17 | 17 | GD01-124, GD01-127, GD01-130, GD02-047, GD05-125, GD05-128 |
+| `cost.support_keyword` | 【Activate･Main】\<Support n> (rest this Unit: another Unit gets AP+n) | 15 | 15 | GD01-046, GD01-048, GD01-055, GD01-061, GD02-040, GD02-049 |
 | `cost.exile_from_trash` | Exile N (filtered) cards from/in your trash | 7 | 8 | GD03-015, GD03-035, GD04-065, GD04-130, GD05-022, ST12-006 |
 | `cost.rest_other_units` | Rest N of your (other) (X) Units / 1 friendly Unit | 6 | 6 | GD04-006, GD04-122, GD04-125, GD05-001, GD05-038, ST13-006 |
 | `cost.destroy_self` | Destroy this Unit | 1 | 1 | GD02-011 |
@@ -571,48 +571,48 @@ re-derived or refined. Counts are exact for the regex, not hand-checked for ever
 
 | id | description | cards | occ. | examples |
 | --- | --- | --- | --- | --- |
-| `optional_cost.exile_from_trash` | "(You may) choose N (X) cards from your trash. Exile them... If you do" (incl. Development) | 21 | 21 | GD02-111, GD03-009, GD03-050, GD03-054, GD03-059, GD04-049 |
+| `optional_cost.exile_from_trash` | "(You may) choose N (X) cards from your trash. Exile them... If you do" (incl. Development) | 22 | 22 | GD02-111, GD03-009, GD03-050, GD03-054, GD03-059, GD04-049 |
 | `optional_cost.rest_own` | "Choose 1 active friendly X. Rest it. If you do" / "You may rest this Unit" | 13 | 13 | GD01-112, GD02-069, GD02-075, GD03-039, GD03-113, GD03-129 |
+| `optional_cost.other_precondition` | any other step that gates an "If you do" (draw, add from trash, set active, mill...) | 11 | 11 | GD01-002, GD01-003, GD02-070, GD02-098, GD03-064, GD03-119 |
 | `optional_cost.discard` | "(You may) discard N. If you do, ..." | 10 | 10 | GD01-095, GD02-003, GD02-021, GD02-094, GD02-125, GD03-096 |
-| `optional_cost.other_precondition` | any other step that gates an "If you do" (draw, add from trash, set active, mill...) | 10 | 10 | GD01-002, GD01-003, GD02-070, GD02-098, GD03-064, GD03-119 |
 | `optional_cost.destroy_own` | "(You may) choose 1 of your Units. Destroy it. If you do" | 6 | 6 | GD02-057, GD05-049, GD05-052, GD05-057, ST13-014, EB01-022 |
-| `optional_cost.damage_own` | "Deal 1 damage to this Unit/it. If you do" | 3 | 3 | GD02-058, GD04-056, GD05-096 |
-| `optional_cost.pay_resource` | "You may pay ①. If you do" | 1 | 1 | GD04-074 |
+| `optional_cost.damage_own` | "Deal 1 damage to this Unit/it. If you do" | 5 | 5 | GD02-058, GD04-056, GD05-096, GD06-055, GD06-095 |
+| `optional_cost.pay_resource` | "You may pay ①. If you do" | 2 | 2 | GD04-074, GD06-056 |
 | `optional_cost.return_revealed` | "reveal 1 X from your hand. Return it to the bottom of your deck. If you do" | 1 | 1 | ST08-006 |
 
 #### selector
 
 | id | description | cards | occ. | examples |
 | --- | --- | --- | --- | --- |
-| `selector.choose_exact` | Choose N (exactly N if possible) | 415 | 462 | GD01-002, GD01-003, GD01-004, GD01-008, GD01-009, GD01-010 |
-| `selector.side_enemy` | enemy side filter | 359 | 416 | GD01-002, GD01-004, GD01-008, GD01-010, GD01-012, GD01-019 |
-| `selector.trait` | trait filter (X) with '/' alternatives | 308 | 354 | GD01-001, GD01-007, GD01-009, GD01-016, GD01-023, GD01-026 |
-| `selector.side_friendly` | friendly side filter (friendly / of your / your) | 292 | 352 | GD01-001, GD01-002, GD01-009, GD01-015, GD01-043, GD01-047 |
-| `selector.level_cmp` | Lv.N or lower/higher | 146 | 149 | GD01-023, GD01-024, GD01-029, GD01-032, GD01-042, GD01-045 |
-| `selector.trash_card` | card in trash (your / any player's) | 62 | 65 | GD01-003, GD01-023, GD01-067, GD02-056, GD02-096, GD02-103 |
-| `selector.other` | other / another (exclude self) | 60 | 62 | GD01-001, GD01-007, GD01-047, GD01-081, GD02-033, GD02-040 |
-| `selector.rested` | rested filter | 60 | 62 | GD01-008, GD01-020, GD01-047, GD01-069, GD01-104, GD01-121 |
-| `selector.side_any` | either side ("Choose 1 Unit", "all Units") | 54 | 54 | GD01-014, GD01-023, GD01-024, GD01-027, GD01-058, GD01-108 |
-| `selector.hp_cmp` | with N or less HP / with 1 HP | 52 | 56 | GD01-004, GD01-010, GD01-012, GD01-068, GD01-073, GD01-075 |
-| `selector.all_matching` | all (your/friendly/enemy/other) Units/Bases matching a filter | 50 | 51 | GD01-001, GD01-024, GD01-027, GD01-038, GD01-102, GD01-105 |
-| `selector.ap_cmp` | with N or less/more AP | 46 | 47 | GD01-043, GD01-049, GD01-050, GD01-053, GD01-054, GD01-056 |
-| `selector.deck_top` | top N cards of your deck (look/mill) | 46 | 46 | GD01-039, GD01-045, GD01-048, GD01-109, GD02-020, GD02-025 |
-| `selector.active` | active filter | 45 | 48 | GD01-042, GD01-043, GD01-103, GD01-110, GD01-112, GD02-069 |
-| `selector.token` | Unit token filter (incl. 'other than Unit tokens') | 43 | 56 | GD01-026, GD01-066, GD01-106, GD02-043, GD02-044, GD02-046 |
-| `selector.color` | colour filter | 37 | 40 | GD01-001, GD01-009, GD01-043, GD01-065, GD01-069, GD01-087 |
-| `selector.base` | Base as target/filter | 33 | 36 | GD01-001, GD01-009, GD02-011, GD02-069, GD02-071, GD02-072 |
+| `selector.choose_exact` | Choose N (exactly N if possible) | 481 | 537 | GD01-002, GD01-003, GD01-004, GD01-008, GD01-009, GD01-010 |
+| `selector.side_enemy` | enemy side filter | 422 | 491 | GD01-002, GD01-004, GD01-008, GD01-010, GD01-012, GD01-019 |
+| `selector.trait` | trait filter (X) with '/' alternatives | 373 | 438 | GD01-001, GD01-007, GD01-009, GD01-016, GD01-023, GD01-026 |
+| `selector.side_friendly` | friendly side filter (friendly / of your / your) | 339 | 406 | GD01-001, GD01-002, GD01-009, GD01-015, GD01-043, GD01-047 |
+| `selector.level_cmp` | Lv.N or lower/higher | 172 | 176 | GD01-023, GD01-024, GD01-029, GD01-032, GD01-042, GD01-045 |
+| `selector.other` | other / another (exclude self) | 72 | 74 | GD01-001, GD01-007, GD01-047, GD01-081, GD02-033, GD02-040 |
+| `selector.rested` | rested filter | 69 | 71 | GD01-008, GD01-020, GD01-047, GD01-069, GD01-104, GD01-121 |
+| `selector.trash_card` | card in trash (your / any player's) | 69 | 72 | GD01-003, GD01-023, GD01-067, GD02-056, GD02-096, GD02-103 |
+| `selector.hp_cmp` | with N or less HP / with 1 HP | 60 | 65 | GD01-004, GD01-010, GD01-012, GD01-068, GD01-073, GD01-075 |
+| `selector.all_matching` | all (your/friendly/enemy/other) Units/Bases matching a filter | 58 | 59 | GD01-001, GD01-024, GD01-027, GD01-038, GD01-102, GD01-105 |
+| `selector.ap_cmp` | with N or less/more AP | 57 | 58 | GD01-043, GD01-049, GD01-050, GD01-053, GD01-054, GD01-056 |
+| `selector.side_any` | either side ("Choose 1 Unit", "all Units") | 57 | 57 | GD01-014, GD01-023, GD01-024, GD01-027, GD01-058, GD01-108 |
+| `selector.deck_top` | top N cards of your deck (look/mill) | 53 | 53 | GD01-039, GD01-045, GD01-048, GD01-109, GD02-020, GD02-025 |
+| `selector.active` | active filter | 49 | 52 | GD01-042, GD01-043, GD01-103, GD01-110, GD01-112, GD02-069 |
+| `selector.token` | Unit token filter (incl. 'other than Unit tokens') | 49 | 69 | GD01-026, GD01-066, GD01-106, GD02-043, GD02-044, GD02-046 |
+| `selector.base` | Base as target/filter | 39 | 43 | GD01-001, GD01-009, GD02-011, GD02-069, GD02-071, GD02-072 |
+| `selector.color` | colour filter | 39 | 42 | GD01-001, GD01-009, GD01-043, GD01-065, GD01-069, GD01-087 |
 | `selector.keyword` | with/without \<Keyword> / with a keyword effect / with a 【Destroyed】 effect | 29 | 29 | GD01-027, GD01-029, GD01-032, GD01-069, GD01-108, GD01-120 |
-| `selector.link_unit` | Link Unit filter (incl. 'other than Link Units') | 26 | 26 | GD01-002, GD01-094, GD01-101, GD01-122, GD02-033, GD02-089 |
-| `selector.paired_state` | paired with a (X/Lv) Pilot / with no paired Pilot | 22 | 22 | GD02-093, GD03-020, GD03-069, GD03-075, GD03-105, GD03-110 |
+| `selector.link_unit` | Link Unit filter (incl. 'other than Link Units') | 29 | 29 | GD01-002, GD01-094, GD01-101, GD01-122, GD02-033, GD02-089 |
+| `selector.paired_state` | paired with a (X/Lv) Pilot / with no paired Pilot | 24 | 24 | GD02-093, GD03-020, GD03-069, GD03-075, GD03-105, GD03-110 |
 | `selector.name` | with/without "X" in its card name | 21 | 21 | GD01-002, GD02-088, GD03-020, GD03-085, GD03-101, GD03-109 |
-| `selector.choose_range` | Choose N to M | 19 | 19 | GD01-044, GD01-099, GD02-101, GD03-006, GD03-077, GD03-104 |
-| `selector.battling` | battling / being attacked / non-battling | 15 | 15 | GD01-063, GD02-011, GD02-073, GD02-118, GD03-037, GD03-073 |
+| `selector.choose_range` | Choose N to M | 20 | 20 | GD01-044, GD01-099, GD02-101, GD03-006, GD03-077, GD03-104 |
+| `selector.battling` | battling / being attacked / non-battling | 18 | 18 | GD01-063, GD02-011, GD02-073, GD02-118, GD03-037, GD03-073 |
+| `selector.damaged` | damaged / undamaged filter | 17 | 17 | GD01-111, GD02-036, GD02-100, GD02-114, GD04-044, GD04-045 |
 | `selector.player` | player selector (enemy player / all players / you and X) | 13 | 14 | GD04-128, GD05-046, GD05-107, ST12-013, ST13-009, ST14-003 |
-| `selector.damaged` | damaged / undamaged filter | 12 | 12 | GD01-111, GD02-036, GD02-100, GD02-114, GD04-044, GD04-045 |
-| `selector.level_relative` | whose Lv. is equal to or lower than this/that Unit/number | 11 | 11 | GD01-093, GD02-091, GD03-002, GD03-086, GD03-099, GD03-113 |
+| `selector.level_relative` | whose Lv. is equal to or lower than this/that Unit/number | 12 | 12 | GD01-093, GD02-091, GD03-002, GD03-086, GD03-099, GD03-113 |
 | `selector.level_exact` | that is Lv.N (exact) | 7 | 7 | GD01-002, EB01-030, EB01-034, EB01-035, EB01-036, EB01-057 |
-| `selector.resource` | your Resources (not EX) | 5 | 6 | ST01-011, ST07-001, ST09-008, ST14-015, EB01-059 |
-| `selector.lowest_highest` | with the lowest/highest Lv/HP | 4 | 4 | GD03-049, GD05-002, ST08-001, ST14-001 |
+| `selector.resource` | your Resources (not EX) | 7 | 8 | GD06-051, GD06-053, ST01-011, ST07-001, ST09-008, ST14-015 |
+| `selector.lowest_highest` | with the lowest/highest Lv/HP | 5 | 5 | GD03-049, GD05-002, GD06-038, ST08-001, ST14-001 |
 | `selector.ap_relative` | AP equal to or less than this Unit | 2 | 2 | GD03-035, ST14-006 |
 | `selector.pilot_on_field` | a Pilot on the field (paired with an enemy Unit / enemy Pilot) | 2 | 2 | GD03-110, GD04-099 |
 | `selector.shield_card` | first (N) card(s) in a shield area | 2 | 2 | GD05-033, GD05-107 |
@@ -621,63 +621,63 @@ re-derived or refined. Counts are exact for the regex, not hand-checked for ever
 
 | id | description | cards | occ. | examples |
 | --- | --- | --- | --- | --- |
-| `action.burst_add_self` | 【Burst】Add this card to your hand. | 138 | 138 | GD01-087, GD01-088, GD01-089, GD01-090, GD01-091, GD01-092 |
-| `action.damage_fixed` | deal N damage to chosen/all/this | 118 | 124 | GD01-008, GD01-020, GD01-024, GD01-027, GD01-038, GD01-044 |
-| `action.optional` | optional step: you may / they may | 102 | 105 | GD01-002, GD01-028, GD01-045, GD01-048, GD01-109, GD01-125 |
+| `action.burst_add_self` | 【Burst】Add this card to your hand. | 162 | 162 | GD01-087, GD01-088, GD01-089, GD01-090, GD01-091, GD01-092 |
+| `action.damage_fixed` | deal N damage to chosen/all/this | 138 | 145 | GD01-008, GD01-020, GD01-024, GD01-027, GD01-038, GD01-044 |
+| `action.optional` | optional step: you may / they may | 116 | 119 | GD01-002, GD01-028, GD01-045, GD01-048, GD01-109, GD01-125 |
+| `action.ap_plus` | AP+N (temporary or static) | 100 | 101 | GD01-058, GD01-059, GD01-076, GD01-081, GD01-089, GD01-105 |
 | `action.gain_keyword` | gain/get \<Keyword> (temporary or static) | 92 | 94 | GD01-001, GD01-003, GD01-009, GD01-019, GD01-025, GD01-034 |
-| `action.ap_plus` | AP+N (temporary or static) | 86 | 87 | GD01-058, GD01-059, GD01-076, GD01-081, GD01-089, GD01-105 |
-| `action.add_shield_to_hand` | Add 1 of your Shields to your hand (Base 【Deploy】) | 72 | 72 | GD01-123, GD01-124, GD01-125, GD01-126, GD01-127, GD01-128 |
-| `action.burst_deploy_self` | 【Burst】Deploy this card. | 72 | 72 | GD01-123, GD01-124, GD01-125, GD01-126, GD01-127, GD01-128 |
-| `action.draw` | draw N | 70 | 73 | GD01-001, GD01-007, GD01-074, GD01-088, GD01-094, GD01-095 |
-| `action.rest` | rest chosen / rest all Units | 66 | 69 | GD01-002, GD01-004, GD01-010, GD01-012, GD01-099, GD01-103 |
-| `action.ap_minus` | AP-N / reduce its AP | 44 | 45 | GD01-065, GD01-071, GD01-078, GD01-082, GD01-119, GD01-120 |
-| `action.return_to_hand` | return chosen card / paired Pilot to its owner's (or your) hand (bounce) | 43 | 44 | GD01-005, GD01-068, GD01-073, GD01-075, GD01-080, GD01-117 |
-| `action.look_top` | look at the top N cards of your deck | 37 | 37 | GD01-039, GD01-045, GD01-048, GD01-109, GD02-020, GD02-025 |
-| `action.set_active` | set chosen/this Unit/Resource as active | 35 | 35 | GD01-003, GD01-046, GD01-069, GD01-097, GD01-121, GD02-002 |
-| `action.deploy_token` | deploy N (rested) Unit token(s) '[Name]((Trait)･AP･HP)' | 32 | 36 | GD01-026, GD01-066, GD01-106, GD02-043, GD02-044, GD03-020 |
-| `action.destroy` | destroy chosen/all/that/first N shields | 32 | 33 | GD01-029, GD01-032, GD02-057, GD02-111, GD02-113, GD02-128 |
-| `action.discard` | discard N (you / enemy player) | 29 | 29 | GD01-005, GD01-074, GD01-095, GD01-118, GD02-003, GD02-021 |
-| `action.recover_hp` | recover N HP | 28 | 28 | GD01-014, GD01-015, GD01-098, GD01-101, GD01-102, GD01-124 |
-| `action.attack_active_unit` | may choose an active enemy Unit (filtered) as its attack target | 26 | 26 | GD01-042, GD01-043, GD01-110, GD02-108, GD02-116, GD02-123 |
-| `action.damage_immunity` | can't receive (battle/effect) damage (from filtered sources) | 25 | 26 | GD01-091, GD02-006, GD02-040, GD02-064, GD02-105, GD02-106 |
-| `action.reveal_add_to_hand` | reveal matching card(s) among them/it and add to hand | 24 | 24 | GD01-048, GD01-109, GD02-020, GD02-088, GD02-094, GD04-019 |
-| `action.add_from_trash` | choose card from trash, add it to hand | 23 | 23 | GD01-067, GD02-056, GD02-103, GD02-112, GD02-117, GD03-017 |
-| `action.exile` | exile (remove from game, rule 5-12) chosen cards / this card | 23 | 23 | GD02-111, GD03-009, GD03-050, GD03-054, GD03-059, GD04-049 |
-| `action.bottom_rest_random` | return the remaining cards randomly to the bottom of your deck | 22 | 22 | GD01-045, GD01-109, GD02-020, GD02-038, GD02-088, GD02-094 |
-| `action.substitution` | substitution wording: '... instead' / 'instead of' (rule 10-1-9) | 18 | 18 | GD01-122, GD03-079, GD03-104, GD03-109, GD03-114, GD03-115 |
-| `action.damage_all` | deal N damage to all matching | 17 | 17 | GD01-024, GD01-027, GD01-038, GD01-108, GD02-107, GD03-022 |
+| `action.add_shield_to_hand` | Add 1 of your Shields to your hand (Base 【Deploy】) | 81 | 81 | GD01-123, GD01-124, GD01-125, GD01-126, GD01-127, GD01-128 |
+| `action.burst_deploy_self` | 【Burst】Deploy this card. | 81 | 81 | GD01-123, GD01-124, GD01-125, GD01-126, GD01-127, GD01-128 |
+| `action.draw` | draw N | 76 | 79 | GD01-001, GD01-007, GD01-074, GD01-088, GD01-094, GD01-095 |
+| `action.rest` | rest chosen / rest all Units | 73 | 77 | GD01-002, GD01-004, GD01-010, GD01-012, GD01-099, GD01-103 |
+| `action.ap_minus` | AP-N / reduce its AP | 52 | 54 | GD01-065, GD01-071, GD01-078, GD01-082, GD01-119, GD01-120 |
+| `action.return_to_hand` | return chosen card / paired Pilot to its owner's (or your) hand (bounce) | 51 | 53 | GD01-005, GD01-068, GD01-073, GD01-075, GD01-080, GD01-117 |
+| `action.destroy` | destroy chosen/all/that/first N shields | 41 | 42 | GD01-029, GD01-032, GD02-057, GD02-111, GD02-113, GD02-128 |
+| `action.look_top` | look at the top N cards of your deck | 41 | 41 | GD01-039, GD01-045, GD01-048, GD01-109, GD02-020, GD02-025 |
+| `action.set_active` | set chosen/this Unit/Resource as active | 39 | 39 | GD01-003, GD01-046, GD01-069, GD01-097, GD01-121, GD02-002 |
+| `action.deploy_token` | deploy N (rested) Unit token(s) '[Name]((Trait)･AP･HP)' | 38 | 42 | GD01-026, GD01-066, GD01-106, GD02-043, GD02-044, GD03-020 |
+| `action.recover_hp` | recover N HP | 32 | 32 | GD01-014, GD01-015, GD01-098, GD01-101, GD01-102, GD01-124 |
+| `action.discard` | discard N (you / enemy player) | 30 | 30 | GD01-005, GD01-074, GD01-095, GD01-118, GD02-003, GD02-021 |
+| `action.attack_active_unit` | may choose an active enemy Unit (filtered) as its attack target | 29 | 29 | GD01-042, GD01-043, GD01-110, GD02-108, GD02-116, GD02-123 |
+| `action.damage_immunity` | can't receive (battle/effect) damage (from filtered sources) | 27 | 28 | GD01-091, GD02-006, GD02-040, GD02-064, GD02-105, GD02-106 |
+| `action.reveal_add_to_hand` | reveal matching card(s) among them/it and add to hand | 26 | 26 | GD01-048, GD01-109, GD02-020, GD02-088, GD02-094, GD04-019 |
+| `action.add_from_trash` | choose card from trash, add it to hand | 25 | 25 | GD01-067, GD02-056, GD02-103, GD02-112, GD02-117, GD03-017 |
+| `action.bottom_rest_random` | return the remaining cards randomly to the bottom of your deck | 25 | 25 | GD01-045, GD01-109, GD02-020, GD02-038, GD02-088, GD02-094 |
+| `action.exile` | exile (remove from game, rule 5-12) chosen cards / this card | 24 | 24 | GD02-111, GD03-009, GD03-050, GD03-054, GD03-059, GD04-049 |
+| `action.substitution` | substitution wording: '... instead' / 'instead of' (rule 10-1-9) | 22 | 22 | GD01-122, GD03-079, GD03-104, GD03-109, GD03-114, GD03-115 |
+| `action.damage_reduction` | reduce (the next / battle) damage by N | 19 | 20 | GD04-029, GD04-053, GD04-068, GD04-093, GD04-098, GD04-108 |
+| `action.damage_all` | deal N damage to all matching | 18 | 18 | GD01-024, GD01-027, GD01-038, GD01-108, GD02-107, GD03-022 |
+| `action.cant_attack` | can't attack / can only attack when ... | 17 | 17 | GD01-069, GD01-097, GD01-121, GD03-081, GD03-120, GD04-061 |
 | `action.place_ex_resource` | place N (rested) EX Resource(s) | 17 | 17 | GD01-107, GD02-021, GD02-103, GD03-019, GD04-018, GD04-025 |
-| `action.cant_attack` | can't attack / can only attack when ... | 16 | 16 | GD01-069, GD01-097, GD01-121, GD03-081, GD03-120, GD04-061 |
 | `action.cant_attack_player` | can't choose the enemy player as its attack target | 16 | 16 | GD02-018, GD02-035, GD02-066, GD02-069, GD04-007, GD04-011 |
-| `action.damage_reduction` | reduce (the next / battle) damage by N | 16 | 17 | GD04-029, GD04-053, GD04-068, GD04-093, GD04-098, GD04-108 |
-| `action.cost_modifier` | this card in hand/trash gets cost -N (and Lv. -N) | 13 | 13 | GD01-016, GD01-070, GD03-014, GD03-030, GD03-058, GD03-082 |
+| `action.cost_modifier` | this card in hand/trash gets cost -N (and Lv. -N) | 16 | 16 | GD01-016, GD01-070, GD03-014, GD03-030, GD03-058, GD03-082 |
 | `action.scry` | return it to the top or bottom / return 1 to the top | 13 | 13 | GD01-039, GD02-025, GD02-104, GD03-097, GD04-026, GD05-029 |
+| `action.stat_scaling` | stat/cost change scaled by a count ('for each', 'equal to the number of') | 13 | 16 | GD03-033, GD03-089, GD04-034, GD04-057, GD04-075, GD04-100 |
 | `action.activate_own_command` | Activate this card's 【Main】/【Action】 | 12 | 12 | GD01-117, GD01-121, GD03-109, GD03-114, GD04-101, GD04-117 |
-| `action.stat_scaling` | stat/cost change scaled by a count ('for each', 'equal to the number of') | 11 | 13 | GD03-033, GD03-089, GD04-034, GD04-057, GD04-075, GD04-100 |
-| `action.mill` | place the top N cards of your deck into your trash | 9 | 9 | GD02-127, GD03-092, GD03-094, GD03-129, GD04-116, GD05-050 |
-| `action.deploy_from_trash` | choose Unit/Base card from trash: deploy it (pay cost / free / rested) | 8 | 8 | GD02-096, GD02-110, GD03-051, GD03-130, GD04-050, GD05-093 |
-| `action.pair_pilot` | pair a Pilot/this Command from hand or trash with a Unit | 8 | 8 | GD01-023, GD02-071, GD04-021, GD04-070, GD05-112, GD05-113 |
+| `action.mill` | place the top N cards of your deck into your trash | 12 | 12 | GD02-127, GD03-092, GD03-094, GD03-129, GD04-116, GD05-050 |
+| `action.deploy_from_trash` | choose Unit/Base card from trash: deploy it (pay cost / free / rested) | 10 | 10 | GD02-096, GD02-110, GD03-051, GD03-130, GD04-050, GD05-093 |
+| `action.pair_pilot` | pair a Pilot/this Command from hand or trash with a Unit | 10 | 10 | GD01-023, GD02-071, GD04-021, GD04-070, GD05-112, GD05-113 |
 | `action.symmetric_effect` | effect applied to all players / you and another player | 8 | 8 | GD04-128, ST12-013, EB01-017, EB01-023, EB01-025, EB01-059 |
-| `action.deploy_from_hand` | deploy 1 (filtered) Unit/Base card from your hand (free) | 6 | 6 | GD01-028, GD01-125, GD05-034, GD05-129, GD05-130, ST03-010 |
-| `action.freeze` | won't be set as active during the (next) start phase | 6 | 6 | GD02-004, GD04-102, GD05-073, ST08-009, ST14-001, EB01-001 |
-| `action.return_paired_pilot` | return the card/Pilot paired with this Unit | 6 | 6 | GD01-005, GD02-003, GD03-078, GD04-001, GD04-058, EB01-068 |
+| `action.deploy_from_hand` | deploy 1 (filtered) Unit/Base card from your hand (free) | 7 | 7 | GD01-028, GD01-125, GD05-034, GD05-129, GD05-130, GD06-039 |
+| `action.freeze` | won't be set as active during the (next) start phase | 7 | 7 | GD02-004, GD04-102, GD05-073, GD06-067, ST08-009, ST14-001 |
+| `action.return_paired_pilot` | return the card/Pilot paired with this Unit | 7 | 7 | GD01-005, GD02-003, GD03-078, GD04-001, GD04-058, GD06-004 |
+| `action.set_resource_active` | choose N of your Resources, set them as active | 7 | 7 | GD05-066, GD06-051, GD06-053, ST01-011, ST07-001, ST09-008 |
+| `action.forced_attack_target` | enemy Units must choose this/that rested Unit as attack target if possible | 6 | 6 | GD03-019, GD03-025, GD03-074, GD04-107, GD05-086, GD06-019 |
 | `action.activate_other_main` | activate 【Main】 of the paired / discarded Command card | 5 | 5 | GD05-035, GD05-044, GD05-069, GD05-076, GD05-097 |
-| `action.forced_attack_target` | enemy Units must choose this/that rested Unit as attack target if possible | 5 | 5 | GD03-019, GD03-025, GD03-074, GD04-107, GD05-086 |
+| `action.attack_on_deploy_turn` | may attack on the turn deployed / may attack a rested Unit on the deploy turn | 5 | 5 | GD01-066, GD05-030, GD05-048, GD05-078, GD06-058 |
+| `action.modal_choice` | choose 1 of the following effects (■ options) | 5 | 5 | GD05-102, GD05-106, GD06-114, ST12-015, ST14-013 |
+| `action.name_alias` | this card's name is also treated as [X] | 5 | 5 | GD02-098, GD06-090, GD06-092, ST12-011, ST12-012 |
 | `action.place_resource` | place 1 rested Resource (ramp from resource deck) | 5 | 5 | GD01-025, GD01-107, GD05-106, ST14-015, EB01-021 |
-| `action.set_resource_active` | choose N of your Resources, set them as active | 5 | 5 | GD05-066, ST01-011, ST07-001, ST09-008, EB01-059 |
-| `action.attack_on_deploy_turn` | may attack on the turn deployed / may attack a rested Unit on the deploy turn | 4 | 4 | GD01-066, GD05-030, GD05-048, GD05-078 |
+| `action.begin_battle` | begin a battle between two Units and only perform the damage step (rule 5-22-3/4) | 4 | 4 | GD05-017, GD06-022, ST12-013, ST13-001 |
+| `action.change_attack_target` | change a battling enemy Unit's attack target to chosen Unit | 4 | 4 | GD05-108, GD06-117, ST07-013, EB01-077 |
 | `action.damage_variable` | damage equal to a count / per 4 AP | 4 | 4 | GD03-033, GD03-107, GD04-036, GD04-116 |
+| `action.deploy_among_looked` | you may deploy 1 matching Unit card among them | 4 | 4 | GD01-045, GD02-038, GD06-034, ST13-014 |
+| `action.grant_ability` | chosen Unit gains the following effect (■ granted ability) | 4 | 4 | GD05-104, GD06-051, GD06-094, ST12-014 |
 | `action.hp_plus` | HP+N | 4 | 4 | GD01-006, GD01-076, GD05-091, ST02-010 |
-| `action.modal_choice` | choose 1 of the following effects (■ options) | 4 | 4 | GD05-102, GD05-106, ST12-015, ST14-013 |
 | `action.play_as_if` | play this card as if it has N Lv. and cost (alternative play) | 4 | 4 | GD01-002, GD03-085, ST10-014, EB01-039 |
 | `action.return_to_deck` | return to top/bottom of owner's deck (incl. shuffle) | 4 | 4 | GD01-003, GD05-002, ST11-001, EB01-068 |
-| `action.begin_battle` | begin a battle between two Units and only perform the damage step (rule 5-22-3/4) | 3 | 3 | GD05-017, ST12-013, ST13-001 |
-| `action.change_attack_target` | change a battling enemy Unit's attack target to chosen Unit | 3 | 3 | GD05-108, ST07-013, EB01-077 |
-| `action.deploy_among_looked` | you may deploy 1 matching Unit card among them | 3 | 3 | GD01-045, GD02-038, ST13-014 |
-| `action.name_alias` | this card's name is also treated as [X] | 3 | 3 | GD02-098, ST12-011, ST12-012 |
 | `action.cant_block` | Units can't activate \<Blocker> | 2 | 2 | GD05-127, EB01-042 |
 | `action.deployed_rested_static` | matching Units are deployed rested (static) | 2 | 2 | GD04-022, GD05-026 |
-| `action.grant_ability` | chosen Unit gains the following effect (■ granted ability) | 2 | 2 | GD05-104, ST12-014 |
 | `action.opponent_exiles_trash` | enemy player chooses N Unit cards from their trash and exiles them | 2 | 2 | ST13-009, ST14-003 |
 | `action.pilot_removal` | destroy / return an enemy Pilot | 2 | 2 | GD03-110, GD04-099 |
 | `action.self_destroy` | destroy this Unit (as effect) | 2 | 2 | GD02-047, EB01-022 |
@@ -696,35 +696,35 @@ re-derived or refined. Counts are exact for the regex, not hand-checked for ever
 
 | id | description | cards | occ. | examples |
 | --- | --- | --- | --- | --- |
-| `duration.this_turn` | during this turn | 174 | 178 | GD01-003, GD01-009, GD01-025, GD01-043, GD01-049, GD01-065 |
-| `duration.while` | while \<condition> (continuous) | 69 | 70 | GD01-016, GD01-019, GD01-054, GD01-063, GD01-070, GD01-076 |
-| `duration.your_turn` | during your turn (scope of static/trigger) | 52 | 52 | GD01-063, GD01-091, GD02-002, GD02-006, GD02-053, GD02-064 |
-| `duration.this_battle` | during this battle | 32 | 32 | GD01-058, GD01-059, GD01-071, GD01-082, GD01-127, GD02-075 |
-| `duration.opponent_turn` | during your opponent's turn (scope of static/trigger) | 7 | 7 | GD02-073, GD03-126, GD03-128, GD05-123, ST11-002, EB01-014 |
-| `duration.until_next_start_phase` | won't be set active during the start phase of the opponent's next turn | 6 | 6 | GD02-004, GD04-102, GD05-073, ST08-009, ST14-001, EB01-001 |
-| `duration.on_deploy_turn` | on the turn this Unit is deployed | 4 | 4 | GD01-066, GD05-030, GD05-048, GD05-078 |
+| `duration.this_turn` | during this turn | 197 | 201 | GD01-003, GD01-009, GD01-025, GD01-043, GD01-049, GD01-065 |
+| `duration.while` | while \<condition> (continuous) | 83 | 84 | GD01-016, GD01-019, GD01-054, GD01-063, GD01-070, GD01-076 |
+| `duration.your_turn` | during your turn (scope of static/trigger) | 58 | 58 | GD01-063, GD01-091, GD02-002, GD02-006, GD02-053, GD02-064 |
+| `duration.this_battle` | during this battle | 38 | 38 | GD01-058, GD01-059, GD01-071, GD01-082, GD01-127, GD02-075 |
+| `duration.opponent_turn` | during your opponent's turn (scope of static/trigger) | 8 | 8 | GD02-073, GD03-126, GD03-128, GD05-123, GD06-085, ST11-002 |
+| `duration.until_next_start_phase` | won't be set active during the start phase of the opponent's next turn | 7 | 7 | GD02-004, GD04-102, GD05-073, GD06-067, ST08-009, ST14-001 |
+| `duration.on_deploy_turn` | on the turn this Unit is deployed | 5 | 5 | GD01-066, GD05-030, GD05-048, GD05-078, GD06-058 |
 | `duration.next_damage` | the next damage it receives (one-shot shield) | 2 | 2 | GD04-093, GD04-108 |
 
 #### keyword
 
 | id | description | cards | occ. | examples |
 | --- | --- | --- | --- | --- |
-| `keyword.blocker.printed` | printed \<Blocker> keyword line | 48 | 48 | GD01-065, GD01-068, GD01-072, GD01-086, GD02-006, GD02-055 |
-| `keyword.breach.granted` | \<Breach> granted by an effect (gains/gets, static or temporary) | 28 | 28 | GD01-034, GD01-054, GD01-092, GD01-127, GD02-022, GD02-033 |
-| `keyword.breach.printed` | printed \<Breach> keyword line | 26 | 26 | GD01-027, GD01-029, GD01-030, GD01-041, GD02-001, GD02-027 |
+| `keyword.blocker.printed` | printed \<Blocker> keyword line | 56 | 56 | GD01-065, GD01-068, GD01-072, GD01-086, GD02-006, GD02-055 |
+| `keyword.breach.granted` | \<Breach> granted by an effect (gains/gets, static or temporary) | 31 | 31 | GD01-034, GD01-054, GD01-092, GD01-127, GD02-022, GD02-033 |
+| `keyword.breach.printed` | printed \<Breach> keyword line | 30 | 30 | GD01-027, GD01-029, GD01-030, GD01-041, GD02-001, GD02-027 |
 | `keyword.blocker.referenced` | \<Blocker> referenced as a filter or condition (with/without/has/activate) | 23 | 23 | GD01-027, GD01-029, GD01-032, GD01-069, GD01-108, GD01-120 |
-| `keyword.repair.printed` | printed \<Repair> keyword line | 19 | 19 | GD01-004, GD01-006, GD01-017, GD01-033, GD02-007, GD02-017 |
-| `keyword.blocker.granted` | \<Blocker> granted by an effect (gains/gets, static or temporary) | 18 | 18 | GD01-019, GD01-081, GD01-096, GD02-074, GD02-076, GD02-082 |
-| `keyword.high-maneuver.granted` | \<High-Maneuver> granted by an effect (gains/gets, static or temporary) | 17 | 17 | GD01-009, GD02-024, GD02-042, GD02-095, GD03-023, GD03-040 |
-| `keyword.repair.granted` | \<Repair> granted by an effect (gains/gets, static or temporary) | 15 | 15 | GD01-001, GD01-087, GD02-072, GD03-008, GD03-013, GD03-061 |
-| `keyword.first_strike.granted` | \<First Strike> granted by an effect (gains/gets, static or temporary) | 14 | 14 | GD01-003, GD01-025, GD01-049, GD01-063, GD02-023, GD02-073 |
-| `keyword.support.printed` | printed \<Support> keyword line | 14 | 14 | GD01-046, GD01-048, GD01-055, GD01-061, GD02-040, GD02-049 |
+| `keyword.blocker.granted` | \<Blocker> granted by an effect (gains/gets, static or temporary) | 22 | 22 | GD01-019, GD01-081, GD01-096, GD02-074, GD02-076, GD02-082 |
+| `keyword.high-maneuver.granted` | \<High-Maneuver> granted by an effect (gains/gets, static or temporary) | 20 | 20 | GD01-009, GD02-024, GD02-042, GD02-095, GD03-023, GD03-040 |
+| `keyword.repair.printed` | printed \<Repair> keyword line | 20 | 20 | GD01-004, GD01-006, GD01-017, GD01-033, GD02-007, GD02-017 |
+| `keyword.repair.granted` | \<Repair> granted by an effect (gains/gets, static or temporary) | 18 | 18 | GD01-001, GD01-087, GD02-072, GD03-008, GD03-013, GD03-061 |
+| `keyword.first_strike.granted` | \<First Strike> granted by an effect (gains/gets, static or temporary) | 15 | 15 | GD01-003, GD01-025, GD01-049, GD01-063, GD02-023, GD02-073 |
+| `keyword.support.printed` | printed \<Support> keyword line | 15 | 15 | GD01-046, GD01-048, GD01-055, GD01-061, GD02-040, GD02-049 |
 | `keyword.suppression.granted` | \<Suppression> granted by an effect (gains/gets, static or temporary) | 9 | 9 | GD02-036, GD04-067, GD05-038, GD05-067, GD05-068, ST05-001 |
-| `keyword.suppression.printed` | printed \<Suppression> keyword line | 8 | 8 | GD02-053, GD03-034, GD03-049, GD04-049, GD04-066, GD05-049 |
-| `keyword.high-maneuver.printed` | printed \<High-Maneuver> keyword line | 6 | 6 | GD01-024, GD02-074, GD03-054, GD03-069, GD04-050, EB01-041 |
+| `keyword.suppression.printed` | printed \<Suppression> keyword line | 9 | 9 | GD02-053, GD03-034, GD03-049, GD04-049, GD04-066, GD05-049 |
+| `keyword.high-maneuver.printed` | printed \<High-Maneuver> keyword line | 8 | 8 | GD01-024, GD02-074, GD03-054, GD03-069, GD04-050, GD06-034 |
 | `keyword.repair.referenced` | \<Repair> referenced as a filter or condition (with/without/has/activate) | 6 | 6 | GD01-089, GD03-002, GD04-039, GD04-067, EB01-045, EB01-064 |
+| `keyword.first_strike.printed` | printed \<First Strike> keyword line | 3 | 3 | GD04-034, GD05-055, T-034 |
 | `keyword.breach.referenced` | \<Breach> referenced as a filter or condition (with/without/has/activate) | 2 | 2 | GD01-091, GD05-112 |
-| `keyword.first_strike.printed` | printed \<First Strike> keyword line | 2 | 2 | GD04-034, GD05-055 |
 | `keyword.high-maneuver.referenced` | \<High-Maneuver> referenced as a filter or condition (with/without/has/activate) | 1 | 1 | GD02-090 |
 | `keyword.support.granted` | \<Support> granted by an effect (gains/gets, static or temporary) | 1 | 1 | GD04-067 |
 | `keyword.support.referenced` | \<Support> referenced as a filter or condition (with/without/has/activate) | 1 | 1 | GD01-046 |
@@ -735,17 +735,17 @@ re-derived or refined. Counts are exact for the regex, not hand-checked for ever
 
 | id | description | cards | occ. | examples |
 | --- | --- | --- | --- | --- |
-| `reference.it_them` | back-reference to the previously chosen card(s): it / them / its / they | 530 | 710 | GD01-002, GD01-003, GD01-004, GD01-005, GD01-008, GD01-009 |
-| `reference.this_unit` | self-reference: this Unit / this Base / this card / this | 433 | 543 | GD01-002, GD01-003, GD01-005, GD01-006, GD01-016, GD01-019 |
-| `reference.that_unit` | reference to a Unit named earlier in the sentence (that Unit / the enemy Unit / the attacking Unit) | 17 | 17 | GD02-073, GD03-002, GD03-052, GD03-076, GD03-125, GD04-054 |
-| `reference.paired_card` | the card / Pilot paired with this Unit | 11 | 11 | GD01-005, GD01-023, GD02-003, GD03-078, GD04-001, GD04-058 |
+| `reference.it_them` | back-reference to the previously chosen card(s): it / them / its / they | 610 | 813 | GD01-002, GD01-003, GD01-004, GD01-005, GD01-008, GD01-009 |
+| `reference.this_unit` | self-reference: this Unit / this Base / this card / this | 495 | 628 | GD01-002, GD01-003, GD01-005, GD01-006, GD01-016, GD01-019 |
+| `reference.that_unit` | reference to a Unit named earlier in the sentence (that Unit / the enemy Unit / the attacking Unit) | 20 | 20 | GD02-073, GD03-002, GD03-052, GD03-076, GD03-125, GD04-054 |
+| `reference.paired_card` | the card / Pilot paired with this Unit | 13 | 13 | GD01-005, GD01-023, GD02-003, GD03-078, GD04-001, GD04-058 |
 
 #### connector
 
 | id | description | cards | occ. | examples |
 | --- | --- | --- | --- | --- |
-| `connector.if_you_do` | 'If you do, ...' (rule 5-20-1) | 65 | 65 | GD01-002, GD01-003, GD01-095, GD01-112, GD02-003, GD02-021 |
-| `connector.then` | 'Then, ...' (rule 5-20-2) | 53 | 53 | GD01-005, GD01-025, GD01-074, GD01-118, GD01-123, GD01-125 |
+| `connector.if_you_do` | 'If you do, ...' (rule 5-20-1) | 70 | 70 | GD01-002, GD01-003, GD01-095, GD01-112, GD02-003, GD02-021 |
+| `connector.then` | 'Then, ...' (rule 5-20-2) | 63 | 63 | GD01-005, GD01-025, GD01-074, GD01-118, GD01-123, GD01-125 |
 <!-- GENERATED:primitives:end -->
 
 ## 6. Recommendations for the DSL and the compiler
@@ -962,11 +962,27 @@ Canonical fallbacks (no printing with product_id == card_number): EXB-001 -> EXB
 | GD05-017 | 3 | 2 | no |  |
 | GD05-020 | 2 | 2 | no |  |
 | GD05-037 | 2 | 2 | no |  |
-| GD05-049 | 3 | 2 | no |  |
+| GD05-049 | 4 | 2 | no |  |
 | GD05-055 | 2 | 2 | no |  |
 | GD05-059 | 2 | 2 | no |  |
 | GD05-067 | 3 | 2 | no |  |
 | GD05-068 | 2 | 2 | no |  |
+| GD06-001 | 2 | 2 | no |  |
+| GD06-018 | 2 | 2 | no |  |
+| GD06-029 | 3 | 2 | no |  |
+| GD06-034 | 3 | 2 | no |  |
+| GD06-037 | 2 | 2 | no |  |
+| GD06-038 | 2 | 2 | no |  |
+| GD06-052 | 2 | 2 | no |  |
+| GD06-053 | 2 | 2 | no |  |
+| GD06-054 | 2 | 2 | no |  |
+| GD06-055 | 2 | 2 | no |  |
+| GD06-064 | 2 | 2 | no |  |
+| GD06-065 | 2 | 2 | no |  |
+| GD06-066 | 2 | 2 | no |  |
+| GD06-069 | 2 | 2 | no |  |
+| GD06-081 | 2 | 2 | no |  |
+| GD06-084 | 3 | 3 | yes | GD06-084_p2 (GD06): 【Burst】Add this card to your hand. 【When Paired】During this turn, this Unit gains the same number of \<Breach 1> as the number of (Neo Zeon)/(Long-Range Weapon) Units you have in play. |
 | ST01-015 | 3 | 2 | yes | ST01-015_p1 (ST01): 【Burst】Deploy this card. 【Deploy】Add 1 of your Shields to your hand. 【Activate･Main】【Once per Turn】②：Deploy 1 [Gundam]((White Base Team)･AP3･HP3) Unit token if you have 0 Units in play, deploy 1 [Guncannon]((White Base Team)･AP2･HP2) Unit token if you have only 1 Unit in play, or deploy 1 [Guntank]((White Base Team)･AP1･HP1) Unit token if you have 2 or more Units in play.; ST01-015_p2 (ST01): 【Burst】Deploy this card. 【Deploy】Add 1 of your Shields to your hand. 【Activate･Main】【Once per Turn】②：Deploy 1 [Gundam]((White Base Team)･AP3･HP3) Unit token if you have 0 Units in play, deploy 1 [Guncannon]((White Base Team)･AP2･HP2) Unit token if you have only 1 Unit in play, or deploy 1 [Guntank]((White Base Team)･AP1･HP1) Unit token if you have 2 or more Units in play. |
 | ST02-001 | 5 | 2 | no |  |
 | ST02-010 | 7 | 2 | yes | ST02-010_p1 (ST02): 【Burst】Add this card to your hand. This Unit gets AP+1 and HP+1 while linked.; ST02-010_p2 (ST02): 【Burst】Add this card to your hand. This Unit gets AP+1 and HP+1 while linked. |
@@ -1008,22 +1024,23 @@ Canonical fallbacks (no printing with product_id == card_number): EXB-001 -> EXB
 | WP-GD01-A | GD01 | GD01-001..GD01-072 | 72 | 57 | 96 | 18 | M (108.0) |
 | WP-GD01-B | GD01 | GD01-073..GD01-130 | 58 | 53 | 130 | 12 | M (108.0) |
 | WP-GD02-A | GD02 | GD02-001..GD02-085 | 85 | 65 | 108 | 19 | L (119.0) |
-| WP-GD02-B | GD02 | GD02-086..GD02-130 | 45 | 45 | 131 | 24 | L (122.5) |
-| WP-GD03-A | GD03 | GD03-001..GD03-083 | 83 | 73 | 119 | 28 | L (148.0) |
-| WP-GD03-B | GD03 | GD03-084..GD03-132 | 49 | 49 | 148 | 31 | L (149.0) |
-| WP-GD04-A | GD04 | GD04-001..GD04-074 | 74 | 60 | 115 | 41 | XL (161.5) |
+| WP-GD02-B | GD02 | GD02-086..GD02-130 | 45 | 45 | 131 | 23 | L (121.5) |
+| WP-GD03-A | GD03 | GD03-001..GD03-083 | 83 | 73 | 119 | 26 | L (144.5) |
+| WP-GD03-B | GD03 | GD03-084..GD03-132 | 49 | 49 | 148 | 30 | L (146.5) |
+| WP-GD04-A | GD04 | GD04-001..GD04-074 | 74 | 60 | 115 | 39 | L (158.0) |
 | WP-GD04-B | GD04 | GD04-075..GD04-130 | 56 | 53 | 145 | 31 | XL (160.0) |
-| WP-GD05-A | GD05 | GD05-001..GD05-070 | 70 | 58 | 128 | 37 | XL (166.0) |
-| WP-GD05-B | GD05 | GD05-071..GD05-130 | 60 | 58 | 163 | 27 | XL (164.5) |
-| WP-EB01-A | EB01 | EB01-001..EB01-046 | 46 | 41 | 83 | 27 | L (111.5) |
-| WP-EB01-B | EB01 | EB01-047..EB01-090 | 44 | 41 | 112 | 22 | L (110.5) |
-| WP-ST01-04 | ST01, ST02, ST03, ST04 | ST01-001..ST04-016 | 64 | 52 | 105 | 10 | M (97.5) |
-| WP-ST05-08 | ST05, ST06, ST07, ST08 | ST05-001..ST08-015 | 60 | 47 | 121 | 18 | L (121.5) |
-| WP-ST09-11 | ST09, ST10, ST11 | ST09-001..ST11-016 | 42 | 37 | 80 | 22 | M (98.5) |
+| WP-GD05-A | GD05 | GD05-001..GD05-070 | 70 | 58 | 128 | 33 | L (156.0) |
+| WP-GD05-B | GD05 | GD05-071..GD05-130 | 60 | 58 | 163 | 24 | L (157.0) |
+| WP-EB01-A | EB01 | EB01-001..EB01-045 | 45 | 40 | 81 | 27 | L (110.0) |
+| WP-EB01-B | EB01 | EB01-046..EB01-090 | 45 | 42 | 114 | 22 | L (110.5) |
+| WP-ST01-04 | ST01, ST02, ST03, ST04 | ST01-001..ST04-016 | 64 | 52 | 105 | 9 | M (96.5) |
+| WP-ST05-08 | ST05, ST06, ST07, ST08 | ST05-001..ST08-015 | 60 | 47 | 121 | 15 | L (117.0) |
+| WP-ST09-11 | ST09, ST10, ST11 | ST09-001..ST11-016 | 42 | 37 | 80 | 21 | M (97.5) |
 | WP-ST12-14 | ST12, ST13, ST14 | ST12-001..ST14-016 | 48 | 42 | 121 | 20 | L (118.0) |
-| WP-TOKENS | T | T-001..T-029 | 29 | 9 | 4 | 3 | XS (14.0) |
+| WP-TOKENS | T | T-001..T-037 | 37 | 13 | 4 | 3 | S (16.0) |
 | WP-EX | EXB, EXBP, EXR, EXRP | EXB-001..EXRP-020 | 59 | 0 | 0 | 0 | XS (0.0) |
 | WP-RESOURCES | R, RP | R-001..RP-068 | 108 | 0 | 0 | 0 | XS (0.0) |
+| WP-GD06 | GD06 | GD06-001..GD06-130 | 130 | 115 | 286 | 65 | XL (334.5) |
 <!-- GENERATED:packages:end -->
 
 ## 9. Irregular sentences
@@ -1097,7 +1114,6 @@ These are sentences with at least one segment whose flat template is used by onl
 | GD02-100 | Choose 1 friendly damaged Unit. | core: Choose 1 friendly damaged Unit. | no ({SEL}) |
 | GD02-103 | If you have an (AGE System) Unit in play, place 1 EX Resource. | condition: If you have an (AGE System) Unit in play | no ({SEL}) |
 | GD02-104 | Return the remaining cards to the bottom of your deck. | core: Return the remaining cards to the bottom of your deck. | yes |
-| GD02-105 | Choose 1 of your Unit tokens. | core: Choose 1 of your Unit tokens. | no ({SEL}) |
 | GD02-105 | It can't receive battle damage from enemy Units during this battle. | core: It can't receive battle damage from enemy Units during this battle. | no ({SEL}) |
 | GD02-107 | Deal 1 damage to all enemy Units other than Link Units. | core: Deal 1 damage to all enemy Units other than Link Units. | no ({SEL}) |
 | GD02-114 | Choose 1 damaged friendly Unit. | core: Choose 1 damaged friendly Unit. | no ({SEL}) |
@@ -1116,7 +1132,7 @@ These are sentences with at least one segment whose flat template is used by onl
 | GD03-017 | All your (Cyclops Team) Units may choose an active enemy Unit with 5 or less AP as their attack target during this turn. | core: All your (Cyclops Team) Units may choose an active enemy Unit with 5 or less AP as their attack target during this turn. | yes |
 | GD03-020 | If there are 4 or more (Cyclops Team) cards in your trash, deploy 2 rested [Ad Balloon]((Civilian)･AP0･HP1･This Unit can't be set as active or paired with a Pilot) Unit tokens. | core: Deploy 2 rested [Ad Balloon]((Civilian)･AP0･HP1･This Unit can't be set as active or paired with a Pilot) Unit tokens. | yes |
 | GD03-020 | While you have a Unit with "Ad Balloon" in its card name in play, this Unit can't receive enemy battle damage. | condition: While you have a Unit with "Ad Balloon" in its card name in play; core: This Unit can't receive enemy battle damage. | yes |
-| GD03-025 | Enemy Units choose one of your rested (Maganac Corps) Units as their attack target if possible when attacking. | core: Enemy Units choose one of your rested (Maganac Corps) Units as their attack target if possible when attacking. | yes |
+| GD03-025 | Enemy Units choose one of your rested (Maganac Corps) Units as their attack target if possible when attacking. | core: Enemy Units choose one of your rested (Maganac Corps) Units as their attack target if possible when attacking. | no ({SEL}) |
 | GD03-029 | During your turn, when this Unit destroys an enemy Unit with battle damage, deal 2 damage to all enemy Units with \<Blocker>. | core: Deal 2 damage to all enemy Units with \<Blocker>. | no ({SEL}) |
 | GD03-033 | Deal 1 damage to it for each 4 AP this Unit has. | core: Deal 1 damage to it for each 4 AP this Unit has. | yes |
 | GD03-035 | During this turn, this Unit may choose an active enemy Unit with AP equal to or less than this Unit as its attack target. | core: This Unit may choose an active enemy Unit with AP equal to or less than this Unit as its attack target. | no ({SEL}) |
@@ -1125,7 +1141,6 @@ These are sentences with at least one segment whose flat template is used by onl
 | GD03-041 | Deal 3 damage to all Bases. | core: Deal 3 damage to all Bases. | no ({SEL}) |
 | GD03-045 | While you have a Unit token in play, this Unit gets AP+1. | condition: While you have a Unit token in play | no ({SEL}) |
 | GD03-049 | When this Unit destroys an enemy shield area card with battle damage, if there are 10 or more (CB) cards in your trash, choose 1 enemy Unit with the lowest HP. | core: Choose 1 enemy Unit with the lowest HP. | no ({SEL}) |
-| GD03-051 | You may choose 1 Unit card that is Lv.4 or lower from your trash. | core: You may choose 1 Unit card that is Lv.4 or lower from your trash. | no ({SEL}) |
 | GD03-053 | During your turn, when one of your (Tekkadan)/(Teiwaz) Units receives effect damage, choose 1 enemy Unit that is Lv.4 or lower. | trigger: When one of your (Tekkadan)/(Teiwaz) Units receives effect damage | no ({SEL}) |
 | GD03-059 | Exile it from the game. | core: Exile it from the game. | yes |
 | GD03-061 | While this Unit has 1 HP, it gains \<Repair 3>. | condition: While this Unit has 1 HP | yes |
@@ -1134,7 +1149,6 @@ These are sentences with at least one segment whose flat template is used by onl
 | GD03-069 | At the end of the turn when this Unit is paired with a Pilot, set it as active. | trigger: At the end of the turn when this Unit is paired with a Pilot | yes |
 | GD03-071 | For each (AEUG) Unit card in your trash, it gets AP-1 during this turn. | core: For each (AEUG) Unit card in your trash, it gets AP-1 during this turn. | yes |
 | GD03-073 | If there are 6 or more (Gjallarhorn) cards in your trash, choose 1 enemy Unit battling this Unit. | core: Choose 1 enemy Unit battling this Unit. | no ({SEL}) |
-| GD03-075 | Choose 1 enemy Unit with no paired Pilot. | core: Choose 1 enemy Unit with no paired Pilot. | no ({SEL}) |
 | GD03-076 | During your turn, when your (Triple Ship Alliance) Unit deals battle damage to an enemy Unit, you may return the enemy Unit to its owner's hand. | trigger: When your (Triple Ship Alliance) Unit deals battle damage to an enemy Unit; core: You may return the enemy Unit to its owner's hand. | yes |
 | GD03-079 | When you rest your Base with one of your Units' effects, you may rest this Unit instead. | trigger: When you rest your Base with one of your Units' effects | yes |
 | GD03-081 | This Unit can only attack during a turn when one of your (Superpower Bloc)/(UN) Units is deployed. | core: This Unit can only attack during a turn when one of your (Superpower Bloc)/(UN) Units is deployed. | yes |
@@ -1147,7 +1161,6 @@ These are sentences with at least one segment whose flat template is used by onl
 | GD03-098 | When this rested Unit is set as active by an effect, choose 1 enemy Unit with 3 or less HP. | trigger: When this rested Unit is set as active by an effect | yes |
 | GD03-102 | Choose 1 of your (Titans) Link Units battling an enemy Unit. | core: Choose 1 of your (Titans) Link Units battling an enemy Unit. | no ({SEL}) |
 | GD03-105 | During this turn, it may choose an active enemy Unit that has no Pilot paired with it as its attack target. | core: It may choose an active enemy Unit that has no Pilot paired with it as its attack target. | no ({SEL}) |
-| GD03-106 | Deploy 1 rested [GQuuuuuuX (Omega Psycommu)]((Clan)･AP3･HP2) Unit token and 1 rested [Red Gundam]((Clan)･AP2･HP3) Unit token. | core: Deploy 1 rested [GQuuuuuuX (Omega Psycommu)]((Clan)･AP3･HP2) Unit token and 1 rested [Red Gundam]((Clan)･AP2･HP3) Unit token. | yes |
 | GD03-107 | Deal damage to it equal to the number of friendly Unit tokens in play. | core: Deal damage to it equal to the number of friendly Unit tokens in play. | yes |
 | GD03-110 | Choose 1 Pilot paired with an enemy Unit that is Lv.5 or lower. | core: Choose 1 Pilot paired with an enemy Unit that is Lv.5 or lower. | yes |
 | GD03-112 | During this turn, all Units paired with a Pilot get AP+2. | core: All Units paired with a Pilot get AP+2. | no ({SEL}) |
@@ -1183,7 +1196,6 @@ These are sentences with at least one segment whose flat template is used by onl
 | GD04-022 | All Units that are Lv.3 or lower other than Unit tokens are deployed rested. | core: All Units that are Lv.3 or lower other than Unit tokens are deployed rested. | yes |
 | GD04-023 | Choose 1 of your Units paired with a (Super Soldier) Pilot. | core: Choose 1 of your Units paired with a (Super Soldier) Pilot. | no ({SEL}) |
 | GD04-026 | Return it to the top of your deck or place it into your trash. | core: Return it to the top of your deck or place it into your trash. | yes |
-| GD04-028 | Choose 1 active enemy Unit. | core: Choose 1 active enemy Unit. | no ({SEL}) |
 | GD04-033 | When this Unit or one of your (Neo Zeon) Units is deployed, choose 1 enemy Unit. | trigger: When this Unit or one of your (Neo Zeon) Units is deployed | yes |
 | GD04-033 | All your Units gain (Neo Zeon). | core: All your Units gain (Neo Zeon). | yes |
 | GD04-034 | This Unit gets AP+2 for each of your rested (CB) Units. | core: This Unit gets AP+2 for each of your rested (CB) Units. | yes |
@@ -1209,7 +1221,6 @@ These are sentences with at least one segment whose flat template is used by onl
 | GD04-070 | You may pair 1 Pilot card with "Ali al-Saachez" in its card name from your hand with this Unit. | core: You may pair 1 Pilot card with "Ali al-Saachez" in its card name from your hand with this Unit. | no ({SEL}) |
 | GD04-071 | If an enemy (CB) Unit is in play, add this card to your hand. | condition: If an enemy (CB) Unit is in play | no ({SEL}) |
 | GD04-071 | Choose 1 (Superpower Bloc) card and 1 (UN) card from your trash. | core: Choose 1 (Superpower Bloc) card and 1 (UN) card from your trash. | yes |
-| GD04-074 | You may pay ①. | core: You may pay ①. | yes |
 | GD04-075 | Reduce the cost of this card in your hand by an amount equal to the number of (UN)/(Superpower Bloc) Command cards in your trash. | core: Reduce the cost of this card in your hand by an amount equal to the number of (UN)/(Superpower Bloc) Command cards in your trash. | yes |
 | GD04-082 | Choose 1 rested Unit. | core: Choose 1 rested Unit. | no ({SEL}) |
 | GD04-083 | All your (League Militaire) Unit tokens get AP+1. | core: All your (League Militaire) Unit tokens get AP+1. | no ({SEL}) |
@@ -1246,10 +1257,8 @@ These are sentences with at least one segment whose flat template is used by onl
 | GD05-002 | During this turn, when they destroy an enemy card with battle damage, draw 1. | trigger: When they destroy an enemy card with battle damage | yes |
 | GD05-002 | If you do, choose 1 enemy Unit with the lowest Lv. | core: Choose 1 enemy Unit with the lowest Lv. | no ({SEL}) |
 | GD05-004 | While you have no Units that are Lv.6 or higher in play, this card in your hand gets Lv. -1 and cost -1 for each of your (Orb) Units in play. | core: This card in your hand gets Lv. -1 and cost -1 for each of your (Orb) Units in play. | no ({SEL}) |
-| GD05-006 | During your turn, when this Unit destroys an enemy card with battle damage, deploy 1 [Pluma]((Calamity War)･AP2･HP1) Unit token. | trigger: When this Unit destroys an enemy card with battle damage | yes |
 | GD05-006 | This Unit gains the same number of \<Repair 1> as the number of (Calamity War) Unit tokens you have in play. | core: This Unit gains the same number of \<Repair 1> as the number of (Calamity War) Unit tokens you have in play. | yes |
 | GD05-016 | When one of your (Orb) Units is deployed, this Unit gains \<High-Maneuver> during this turn. | trigger: When one of your (Orb) Units is deployed | no ({SEL}) |
-| GD05-017 | Begin a battle between this Unit and it and only perform the damage step. | core: Begin a battle between this Unit and it and only perform the damage step. | yes |
 | GD05-018 | When one of your EX Resources is exiled from the game, you may choose 1 of your Units. | trigger: When one of your EX Resources is exiled from the game | yes |
 | GD05-018 | Place 3 EX Resources. | core: Place 3 EX Resources. | yes |
 | GD05-024 | Choose 1 green (Earth Federation) Pilot card from your trash. | core: Choose 1 green (Earth Federation) Pilot card from your trash. | no ({SEL}) |
@@ -1259,7 +1268,6 @@ These are sentences with at least one segment whose flat template is used by onl
 | GD05-034 | When this Unit destroys an enemy shield area card with battle damage, that enemy player may discard 1. | core: That enemy player may discard 1. | yes |
 | GD05-034 | If they don't discard with this effect, you may deploy 1 (Phantom Pain) Unit card that is Lv.4 or lower from your hand. | condition: If they don't discard with this effect | yes |
 | GD05-036 | If you do, deal 2 damage to all enemy Units whose Lv. is equal to or lower than that Unit. | core: Deal 2 damage to all enemy Units whose Lv. is equal to or lower than that Unit. | no ({SEL}) |
-| GD05-037 | While an enemy player has 7 or more cards in their trash, this card in your hand gets Lv. -3 and cost -3. | core: This card in your hand gets Lv. -3 and cost -3. | yes |
 | GD05-039 | Choose 1 of your (Phantom Pain) Linked Units. | core: Choose 1 of your (Phantom Pain) Linked Units. | no ({SEL}) |
 | GD05-041 | During a turn where your opponent has discarded due to one of your effects, this card in your hand gets cost -2. | scope: During a turn where your opponent has discarded due to one of your effects | yes |
 | GD05-046 | Choose 1 enemy player with 4 or more cards in their hand. | core: Choose 1 enemy player with 4 or more cards in their hand. | yes |
@@ -1276,18 +1284,14 @@ These are sentences with at least one segment whose flat template is used by onl
 | GD05-065 | This Unit gets AP+2 during your turn. | core: This Unit gets AP+2 during your turn. | yes |
 | GD05-066 | Choose 1 of your rested Resources. | core: Choose 1 of your rested Resources. | no ({SEL}) |
 | GD05-067 | While a rested enemy Unit is in play, this Unit gains \<Suppression>. | condition: While a rested enemy Unit is in play | no ({SEL}) |
-| GD05-068 | When you activate a (Special Move) Command's 【Main】/【Action】, this Unit gains \<Suppression> during this turn. | trigger: When you activate a (Special Move) Command's 【Main】/【Action】 | yes |
 | GD05-070 | During your turn, when this Unit destroys an enemy Unit with battle damage, choose 1 of your rested (Preventer)/(G Team) Link Units. | core: Choose 1 of your rested (Preventer)/(G Team) Link Units. | no ({SEL}) |
 | GD05-084 | When one of your (League Militaire) Unit tokens receives enemy effect damage, reduce it by 1. | trigger: When one of your (League Militaire) Unit tokens receives enemy effect damage | no ({SEL}) |
 | GD05-086 | Enemy Units other than Link Units choose this rested Unit as their attack target if possible when attacking. | core: Enemy Units other than Link Units choose this rested Unit as their attack target if possible when attacking. | no ({SEL}) |
 | GD05-088 | This Unit and all your Units with "Gundam Lfrith" or "Gundnode" in their card name get AP+1. | core: This Unit and all your Units with "Gundam Lfrith" or "Gundnode" in their card name get AP+1. | yes |
 | GD05-089 | If there are 3 or more (MF) cards in your trash, you may deploy it as an (AP3･HP3) Unit instead. | core: You may deploy it as an (AP3･HP3) Unit. | yes |
 | GD05-089 | If you have activated a (Special Move) Command card's 【Main】/【Action】 during this turn, choose 1 enemy Unit. | condition: If you have activated a (Special Move) Command card's 【Main】/【Action】 during this turn | yes |
-| GD05-094 | During this turn, when it receives enemy battle damage, reduce it by 2. | trigger: When it receives enemy battle damage | yes |
-| GD05-096 | You may deal 1 damage to this Unit. | core: You may deal 1 damage to this Unit. | yes |
 | GD05-097 | If you discard a (Special Move) Command card with this effect, you may activate its 【Main】. | condition: If you discard a (Special Move) Command card with this effect; core: You may activate its 【Main】. | yes |
 | GD05-101 | When you pay ① or more for one of your Unit's effects, if this is a (Militia) Unit, it may recover 2 HP. | trigger: When you pay ① or more for one of your Unit's effects; core: It may recover 2 HP. | yes |
-| GD05-104 | It gains the following effect during this turn： | core: It gains the following effect during this turn： | yes |
 | GD05-107 | Destroy the first 2 cards in that player's shield area. | core: Destroy the first 2 cards in that player's shield area. | yes |
 | GD05-108 | Choose 1 friendly rested (Academy) Unit. | core: Choose 1 friendly rested (Academy) Unit. | no ({SEL}) |
 | GD05-109 | Then, if it is paired with a Pilot that is Lv.3 or lower, draw 1. | condition: If it is paired with a Pilot that is Lv.3 or lower | yes |
@@ -1302,9 +1306,74 @@ These are sentences with at least one segment whose flat template is used by onl
 | GD05-124 | During your turn, when you would rest a Unit with a friendly (League Militaire) Unit's effect, you may rest this Base instead. | trigger: When you would rest a Unit with a friendly (League Militaire) Unit's effect | yes |
 | GD05-126 | If you have a Unit with "Gundam Aerial" in its card name that is Lv.5 or higher in play, deploy 1 [Gundnode]((Quiet Zero)･AP2･HP2･\<Breach 1>) Unit token. | condition: If you have a Unit with "Gundam Aerial" in its card name that is Lv.5 or higher in play | no ({SEL}) |
 | GD05-127 | It can't activate \<Blocker> during this turn. | core: It can't activate \<Blocker> during this turn. | yes |
-| GD05-129 | If one of your Units has been destroyed by one of your (Neo Zeon) card's effects during this turn, deploy 1 (Neo Zeon) Unit card that is Lv.3 or lower from your hand. | condition: If one of your Units has been destroyed by one of your (Neo Zeon) card's effects during this turn; core: Deploy 1 (Neo Zeon) Unit card that is Lv.3 or lower from your hand. | yes |
+| GD05-129 | If one of your Units has been destroyed by one of your (Neo Zeon) card's effects during this turn, deploy 1 (Neo Zeon) Unit card that is Lv.3 or lower from your hand. | condition: If one of your Units has been destroyed by one of your (Neo Zeon) card's effects during this turn | yes |
 | GD05-130 | You may exile this card in your trash from the game. | core: You may exile this card in your trash from the game. | yes |
 | GD05-130 | If you do, you may deploy 1 Base card with "Presidential Office" in its card name from your hand. | core: You may deploy 1 Base card with "Presidential Office" in its card name from your hand. | no ({SEL}) |
+| GD06-001 | When this Unit is attacked, draw 1. | trigger: When this Unit is attacked | yes |
+| GD06-002 | You may choose 3 Unit cards from your trash. | core: You may choose 3 Unit cards from your trash. | no ({SEL}) |
+| GD06-003 | Increase this Unit's AP by an amount equal to the number of cards in your hand. | core: Increase this Unit's AP by an amount equal to the number of cards in your hand. | yes |
+| GD06-003 | If another friendly (Alphacide) Unit is in play and you have 5 or less cards in your hand, draw 1. | condition: If another friendly (Alphacide) Unit is in play and you have 5 or less cards in your hand | yes |
+| GD06-005 | You may choose 1 damaged enemy Unit that is Lv.5 or lower. | core: You may choose 1 damaged enemy Unit that is Lv.5 or lower. | no ({SEL}) |
+| GD06-006 | If another friendly (Alphacide) Unit is in play, you may choose 1 enemy Unit with 3 or less HP. | core: You may choose 1 enemy Unit with 3 or less HP. | no ({SEL}) |
+| GD06-008 | If a friendly (Earth Federation) Base is in play, this Unit gets AP+2 during this turn. | condition: If a friendly (Earth Federation) Base is in play | no ({SEL}) |
+| GD06-009 | You may choose 1 enemy Unit with 1 HP. | core: You may choose 1 enemy Unit with 1 HP. | no ({SEL}) |
+| GD06-011 | All your Units gain\<Repair 1> during this turn. | core: All your Units gain\<Repair 1> during this turn. | yes |
+| GD06-018 | Choose 1 of your (Neo Zeon)/(Long-Range Weapon) Units or 1 of your (Neo Zeon) Bases. | core: Choose 1 of your (Neo Zeon)/(Long-Range Weapon) Units or 1 of your (Neo Zeon) Bases. | yes |
+| GD06-018 | During this battle, battle damage this Unit would receive is dealt to that Unit/Base instead. | core: Battle damage this Unit would receive is dealt to that Unit/Base. | yes |
+| GD06-019 | Enemy Units choose one of your rested Unit tokens as their attack target if possible when attacking. | core: Enemy Units choose one of your rested Unit tokens as their attack target if possible when attacking. | no ({SEL}) |
+| GD06-020 | During your turn, when one of your (Neo Zeon) Units destroys an enemy card with damage, this Unit recovers 1 HP. | trigger: When one of your (Neo Zeon) Units destroys an enemy card with damage | yes |
+| GD06-021 | Deploy 1 rested Unit token of the same kind. | core: Deploy 1 rested Unit token of the same kind. | yes |
+| GD06-023 | Rest this Unit. | core: Rest this Unit. | yes |
+| GD06-023 | Then, choose 1 of your (Neo Zeon) Units that is Lv.3 or higher. | core: Choose 1 of your (Neo Zeon) Units that is Lv.3 or higher. | no ({SEL}) |
+| GD06-023 | If you increase a Link Unit's AP with this effect, set this Unit as active. | condition: If you increase a Link Unit's AP with this effect | yes |
+| GD06-026 | It gets AP+1 and\<Repair 2> during this turn. | core: It gets AP+1 and\<Repair 2> during this turn. | yes |
+| GD06-030 | While you have 3 or more other (Ghingnham Fleet)/(Long-Range Weapon) Units in play, this Unit gets AP+2. | condition: While you have 3 or more other (Ghingnham Fleet)/(Long-Range Weapon) Units in play | no ({SEL}) |
+| GD06-033 | When your (AEUG) cards deal damage to enemy Units, increase the damage dealt by 1. | trigger: When your (AEUG) cards deal damage to enemy Units; core: Increase the damage dealt by 1. | yes |
+| GD06-037 | During your turn, while this Unit is battling a damaged enemy Unit, it gains\<First Strike>. | condition: While this Unit is battling a damaged enemy Unit | no ({SEL}) |
+| GD06-037 | Enemy Units can't be set as active by enemy effects. | core: Enemy Units can't be set as active by enemy effects. | yes |
+| GD06-039 | [cost] Destroy 2 of your (Gundam Team) Units with unique card names that are Lv.3 and this Unit | cost: Destroy 2 of your (Gundam Team) Units with unique card names that are Lv.3 and this Unit | yes |
+| GD06-042 | You may pair 1 (Biological CPU) Pilot card among them with this Unit. | core: You may pair 1 (Biological CPU) Pilot card among them with this Unit. | yes |
+| GD06-043 | During your turn, all other (Gjallarhorn) Units get AP+1. | core: All other (Gjallarhorn) Units get AP+1. | no ({SEL}) |
+| GD06-049 | If there are 10 or more (Zeon) Unit cards in your trash, destroy every enemy player's Base. | core: Destroy every enemy player's Base. | yes |
+| GD06-049 | Place the remaining cards into your trash. | core: Place the remaining cards into your trash. | yes |
+| GD06-051 | If another friendly (Alphacide) Unit is in play, this Unit gains the following effect during this turn： | core: This Unit gains the following effect during this turn： | yes |
+| GD06-051 | At the end of the turn, choose 2 of your Resources. | trigger: At the end of the turn | yes |
+| GD06-054 | You may choose 1 of your Units and 1 enemy Unit. | core: You may choose 1 of your Units and 1 enemy Unit. | no ({SEL}) |
+| GD06-055 | If you do, this Unit gains\<Breach 2> during this battle. | core: This Unit gains\<Breach 2> during this battle. | yes |
+| GD06-064 | While an enemy Unit that is Lv.5 or higher is in play, this Unit gets AP+3. | condition: While an enemy Unit that is Lv.5 or higher is in play | no ({SEL}) |
+| GD06-065 | Set all your (Dianna Counter)/(Militia) Units with\<Blocker> as active. | core: Set all your (Dianna Counter)/(Militia) Units with\<Blocker> as active. | yes |
+| GD06-065 | They can't attack during this turn. | core: They can't attack during this turn. | yes |
+| GD06-068 | If you have another (G Team)/(Preventer) Unit in play, that enemy Unit gets AP-2 during this turn. | core: That enemy Unit gets AP-2 during this turn. | yes |
+| GD06-069 | Choose 1 of your damaged (Dianna Counter) Units. | core: Choose 1 of your damaged (Dianna Counter) Units. | no ({SEL}) |
+| GD06-070 | If you have paid a total of ③ or more for your Units' effects this turn, choose 1 enemy Unit. | condition: If you have paid a total of ③ or more for your Units' effects this turn | yes |
+| GD06-080 | If you have drawn with an effect during this turn, choose 1 of your Units. | condition: If you have drawn with an effect during this turn | yes |
+| GD06-083 | While this Unit has\<Repair>, it gains\<High-Maneuver>. | condition: While this Unit has\<Repair> | yes |
+| GD06-084 | During this turn, this Unit gains the same number of\<Breach 1> as the number of (Neo Zeon)/(Long-Range Weapon) Units you have in play. | core: This Unit gains the same number of\<Breach 1> as the number of (Neo Zeon)/(Long-Range Weapon) Units you have in play. | yes |
+| GD06-085 | All your (Ghingnham Fleet) Units get AP+1 during your opponent's turn. | core: All your (Ghingnham Fleet) Units get AP+1 during your opponent's turn. | no ({SEL}) |
+| GD06-086 | When playing this card from your hand and pairing it with a Unit with the [Mashymre Cello] link condition, it gets cost -1. | trigger: When playing this card from your hand and pairing it with a Unit with the [Mashymre Cello] link condition | yes |
+| GD06-092 | If this is a (Phantom Pain)/(Orb) Unit, choose 1 enemy Unit whose AP is equal to or less than this Unit. | core: Choose 1 enemy Unit whose AP is equal to or less than this Unit. | yes |
+| GD06-093 | During this battle, when this Unit receives battle damage from an enemy Unit whose Lv. is equal to or lower than it, reduce it by 2. | trigger: When this Unit receives battle damage from an enemy Unit whose Lv. is equal to or lower than it | yes |
+| GD06-096 | If you place a (Zeon)/(Alphacide) card with this effect, all enemy Units get AP-1 during this battle. | core: All enemy Units get AP-1 during this battle. | yes |
+| GD06-097 | When this Unit activates\<Blocker>, set it as active. | trigger: When this Unit activates\<Blocker> | yes |
+| GD06-098 | While this Unit is rested, friendly Bases can't receive damage from enemy Units whose Lv. are equal to or lower than this Unit. | core: Friendly Bases can't receive damage from enemy Units whose Lv. are equal to or lower than this Unit. | yes |
+| GD06-100 | When playing this card from your hand and pairing it with a (Dianna Counter) Unit that is Lv.5 or higher, it gets cost -1. | trigger: When playing this card from your hand and pairing it with a (Dianna Counter) Unit that is Lv.5 or higher | no ({SEL}) |
+| GD06-102 | If it is your opponent's turn and no enemy Units have attacked this turn, draw 2. | condition: If it is your opponent's turn and no enemy Units have attacked this turn | yes |
+| GD06-105 | Deploy 1 [Gundam Calibarn]((Academy)･AP5･HP3･\<High-Maneuver>) Unit token or 1 [Gundam Aerial Rebuild]((Quiet Zero)･AP3･HP5･\<Breach 3>) Unit token. | core: Deploy 1 [Gundam Calibarn]((Academy)･AP5･HP3･\<High-Maneuver>) Unit token or 1 [Gundam Aerial Rebuild]((Quiet Zero)･AP3･HP5･\<Breach 3>) Unit token. | yes |
+| GD06-106 | During this battle, your shield area cards can't receive damage from enemy Units with 6 or less AP. | core: Your shield area cards can't receive damage from enemy Units with 6 or less AP. | no ({SEL}) |
+| GD06-108 | All friendly (Neo Zeon) Units that are Lv.4 or lower get AP+2 during this turn. | core: All friendly (Neo Zeon) Units that are Lv.4 or lower get AP+2 during this turn. | no ({SEL}) |
+| GD06-109 | Deploy 1 rested [Turn X (Arms)]((Ghingnham Fleet) (Long-Range Weapon)･AP2･HP3) Unit token or 1 rested [Turn X (Legs)]((Ghingnham Fleet) (Long-Range Weapon)･AP3･HP2) Unit token. | core: Deploy 1 rested [Turn X (Arms)]((Ghingnham Fleet) (Long-Range Weapon)･AP2･HP3) Unit token or 1 rested [Turn X (Legs)]((Ghingnham Fleet) (Long-Range Weapon)･AP3･HP2) Unit token. | yes |
+| GD06-112 | Choose 1 enemy Unit battling a friendly (AEUG) Unit. | core: Choose 1 enemy Unit battling a friendly (AEUG) Unit. | yes |
+| GD06-115 | The destroyed Unit's owner deploys 1 [Nu Gundam]((Londo Bell)･AP3･HP3･\<First Strike>) Unit token. | core: The destroyed Unit's owner deploys 1 [Nu Gundam]((Londo Bell)･AP3･HP3･\<First Strike>) Unit token. | yes |
+| GD06-116 | Choose 1 purple (Zeon) Unit card that is Lv.5 or lower from your trash. | core: Choose 1 purple (Zeon) Unit card that is Lv.5 or lower from your trash. | no ({SEL}) |
+| GD06-118 | Choose a number of enemy Units up to the number of white Units with\<Blocker> you have in play. | core: Choose a number of enemy Units up to the number of white Units with\<Blocker> you have in play. | yes |
+| GD06-118 | They get AP-2 during this turn. | core: They get AP-2 during this turn. | yes |
+| GD06-121 | If it has\<High-Maneuver>, AP-6 instead. | condition: If it has\<High-Maneuver>; core: AP-6. | yes |
+| GD06-123 | Then, if it is your turn and you have a (Neo Zeon) Unit paired with a Pilot that is Lv.3 or lower in play, choose 1 enemy Unit with\<Blocker> and 3 or less AP. | condition: If it is your turn and you have a (Neo Zeon) Unit paired with a Pilot that is Lv.3 or lower in play | yes |
+| GD06-124 | If you have 3 or more (Ghingnham Fleet)/(Long-Range Weapon) Units in play, all your (Ghingnham Fleet) Units get AP+1 during this turn. | core: All your (Ghingnham Fleet) Units get AP+1 during this turn. | no ({SEL}) |
+| GD06-125 | When this Base receives battle damage while you have a rested (AEUG) Unit in play, choose 1 enemy Unit. | trigger: When this Base receives battle damage while you have a rested (AEUG) Unit in play | yes |
+| GD06-127 | If you place an (Alphacide) card with this effect, choose 1 enemy Unit with 2 or less AP. | condition: If you place an (Alphacide) card with this effect | yes |
+| GD06-129 | If you have any Shields in play, deploy 1 [Axis]((Neo Zeon)･AP0･HP5) Base token. | condition: If you have any Shields in play; core: Deploy 1 [Axis]((Neo Zeon)･AP0･HP5) Base token. | yes |
+| GD06-130 | Reduce its AP by an amount equal to the number of friendly (Dianna Counter)/(Militia) Units during this turn. | core: Reduce its AP by an amount equal to the number of friendly (Dianna Counter)/(Militia) Units during this turn. | yes |
 | ST01-001 | During your turn, all your Units get AP+1. | core: All your Units get AP+1. | no ({SEL}) |
 | ST01-015 | Deploy 1 [Gundam]((White Base Team)･AP3･HP3) Unit token if you have no Units in play, deploy 1 [Guncannon]((White Base Team)･AP2･HP2) Unit token if you have only 1 Unit in play, or deploy 1 [Guntank]((White Base Team)･AP1･HP1) Unit token if you have 2 or more Units in play. | core: Deploy 1 [Gundam]((White Base Team)･AP3･HP3) Unit token if you have no Units in play, deploy 1 [Guncannon]((White Base Team)･AP2･HP2) Unit token if you have only 1 Unit in play, or deploy 1 [Guntank]((White Base Team)･AP1･HP1) Unit token if you have 2 or more Units in play. | yes |
 | ST01-016 | All friendly Link Units get AP+1 during this turn. | core: All friendly Link Units get AP+1 during this turn. | no ({SEL}) |
@@ -1313,22 +1382,18 @@ These are sentences with at least one segment whose flat template is used by onl
 | ST03-011 | During this turn, this Unit gets AP+1 and, if it is a Link Unit, it gains \<High-Maneuver>. | core: This Unit gets AP+1 and, if it is a Link Unit, it gains \<High-Maneuver>. | yes |
 | ST04-006 | If this Unit has 5 or more AP, choose 1 enemy Unit that is Lv.5 or higher. | condition: If this Unit has 5 or more AP | yes |
 | ST04-009 | If you have another Link Unit in play, draw 1. | condition: If you have another Link Unit in play | no ({SEL}) |
-| ST04-012 | If you have no (Earth Alliance) Unit tokens in play, deploy 1 [Aile Strike Gundam]((Earth Alliance)･AP3･HP3･\<Blocker>) Unit token. | condition: If you have no (Earth Alliance) Unit tokens in play | no ({SEL}) |
-| ST04-012 | If you have no (Earth Alliance) Unit tokens in play, deploy 1 [Sword Strike Gundam]((Earth Alliance)･AP4･HP2･\<Blocker>) or 1 [Launcher Strike Gundam]((Earth Alliance)･AP2･HP4･\<Blocker>) Unit token. | condition: If you have no (Earth Alliance) Unit tokens in play; core: Deploy 1 [Sword Strike Gundam]((Earth Alliance)･AP4･HP2･\<Blocker>) or 1 [Launcher Strike Gundam]((Earth Alliance)･AP2･HP4･\<Blocker>) Unit token. | yes |
+| ST04-012 | If you have no (Earth Alliance) Unit tokens in play, deploy 1 [Sword Strike Gundam]((Earth Alliance)･AP4･HP2･\<Blocker>) or 1 [Launcher Strike Gundam]((Earth Alliance)･AP2･HP4･\<Blocker>) Unit token. | core: Deploy 1 [Sword Strike Gundam]((Earth Alliance)･AP4･HP2･\<Blocker>) or 1 [Launcher Strike Gundam]((Earth Alliance)･AP2･HP4･\<Blocker>) Unit token. | yes |
 | ST05-001 | While this is damaged, it gains \<Suppression>. | condition: While this is damaged | yes |
 | ST05-002 | While this Unit is damaged, it gets AP+2. | condition: While this Unit is damaged | yes |
 | ST05-015 | Choose 1 of your damaged Units. | core: Choose 1 of your damaged Units. | no ({SEL}) |
 | ST06-001 | If another friendly (Clan) Unit is in play, this gains \<First Strike> during this turn. | core: This gains \<First Strike> during this turn. | yes |
-| ST06-010 | If you have a (Clan) Unit in play, look at the top card of your deck. | condition: If you have a (Clan) Unit in play | no ({SEL}) |
 | ST06-013 | They can't receive battle damage from enemy Units that are Lv.2 or lower during this turn. | core: They can't receive battle damage from enemy Units that are Lv.2 or lower during this turn. | yes |
-| ST07-001 | If you place a (CB) card with this effect, draw 1. | condition: If you place a (CB) card with this effect | yes |
 | ST07-010 | If it is your opponent's turn and this is a (CB) Unit, draw 1. | condition: If it is your opponent's turn and this is a (CB) Unit | yes |
 | ST07-011 | If this is a (CB) Unit, it may choose an active enemy Unit whose Lv. is equal to or lower than this Unit as its attack target during this turn. | core: It may choose an active enemy Unit whose Lv. is equal to or lower than this Unit as its attack target during this turn. | yes |
 | ST07-012 | During your turn, while you have a (CB) Link Unit in play, this Unit can't receive battle damage from enemy Units with 3 or less AP. | core: This Unit can't receive battle damage from enemy Units with 3 or less AP. | no ({SEL}) |
 | ST07-013 | Change the attack target of the battling enemy Unit to it. | core: Change the attack target of the battling enemy Unit to it. | yes |
 | ST07-015 | While a rested friendly (CB) Unit is in play, this Base can't receive damage from enemy Units that are Lv.3 or lower, other than Unit tokens. | condition: While a rested friendly (CB) Unit is in play; core: This Base can't receive damage from enemy Units that are Lv.3 or lower, other than Unit tokens. | yes |
 | ST08-001 | While you have no Units that are Lv.6 or higher in play, this card in your hand gets Lv. -1 and cost -1 for each enemy Unit in play. | core: This card in your hand gets Lv. -1 and cost -1 for each enemy Unit in play. | no ({SEL}) |
-| ST08-001 | Choose 1 enemy Unit with the highest Lv. | core: Choose 1 enemy Unit with the highest Lv. | no ({SEL}) |
 | ST08-004 | If this Unit is attacking an enemy Unit, choose 1 enemy Unit. | condition: If this Unit is attacking an enemy Unit | yes |
 | ST08-006 | If this Unit is attacking the enemy player, reveal 1 (Earth Federation) Unit card from your hand. | condition: If this Unit is attacking the enemy player; core: Reveal 1 (Earth Federation) Unit card from your hand. | yes |
 | ST08-006 | Return it to the bottom of your deck. | core: Return it to the bottom of your deck. | yes |
@@ -1348,7 +1413,6 @@ These are sentences with at least one segment whose flat template is used by onl
 | ST10-016 | Then, all friendly (G Generation) Units recover 1 HP. | core: All friendly (G Generation) Units recover 1 HP. | no ({SEL}) |
 | ST11-001 | While 2 or more other friendly (Marine) Units are in play, enemy Units can't choose this Unit as their attack target. | condition: While 2 or more other friendly (Marine) Units are in play; core: Enemy Units can't choose this Unit as their attack target. | yes |
 | ST11-002 | During your opponent's turn, while this Unit is rested, friendly (Marine) Units with 2 or less HP can't receive enemy effect damage. | core: Friendly (Marine) Units with 2 or less HP can't receive enemy effect damage. | yes |
-| ST11-003 | While another friendly (Marine) Unit is in play, this Unit gains \<Blocker>. | condition: While another friendly (Marine) Unit is in play | no ({SEL}) |
 | ST11-006 | If another friendly (Marine) Unit is in play at the start of your opponent's turn, during this turn, when a friendly shield area card receives enemy effect damage, reduce it by 5. | condition: If another friendly (Marine) Unit is in play at the start of your opponent's turn; trigger: When a friendly shield area card receives enemy effect damage | yes |
 | ST11-009 | If it is your opponent's turn and a friendly (Marine) Unit is in play, draw 1. | condition: If it is your opponent's turn and a friendly (Marine) Unit is in play | yes |
 | ST11-011 | All friendly (Marine) Units get AP+1 during this turn. | core: All friendly (Marine) Units get AP+1 during this turn. | no ({SEL}) |
@@ -1420,7 +1484,7 @@ These are sentences with at least one segment whose flat template is used by onl
 | EB01-080 | Choose 1 (G Generation) Unit. | core: Choose 1 (G Generation) Unit. | no ({SEL}) |
 | EB01-082 | Choose 1 Unit that is Lv.3 or lower belonging to each enemy player. | core: Choose 1 Unit that is Lv.3 or lower belonging to each enemy player. | no ({SEL}) |
 | EB01-084 | Choose 1 Unit with \<Blocker>. | core: Choose 1 Unit with \<Blocker>. | no ({SEL}) |
-| EB01-085 | Then, you may choose 1 active friendly blue (G Generation) Unit and 1 enemy Unit. | core: You may choose 1 active friendly blue (G Generation) Unit and 1 enemy Unit. | yes |
+| EB01-085 | Then, you may choose 1 active friendly blue (G Generation) Unit and 1 enemy Unit. | core: You may choose 1 active friendly blue (G Generation) Unit and 1 enemy Unit. | no ({SEL}) |
 | EB01-087 | During your turn, when a friendly green (G Generation) Unit destroys an enemy Unit with battle damage, choose 1 friendly Unit. | trigger: When a friendly green (G Generation) Unit destroys an enemy Unit with battle damage | no ({SEL}) |
 | EB01-088 | All friendly (G Generation) Units that are Lv.3 get AP+1 during your opponent's turn. | core: All friendly (G Generation) Units that are Lv.3 get AP+1 during your opponent's turn. | no ({SEL}) |
 | EB01-089 | Then, choose 1 rested friendly white (G Generation) Unit. | core: Choose 1 rested friendly white (G Generation) Unit. | no ({SEL}) |

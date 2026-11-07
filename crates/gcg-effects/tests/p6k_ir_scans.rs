@@ -446,7 +446,7 @@ enum Instead {
     Substitution,
 }
 
-const INSTEAD_CARDS: [(&str, Instead); 18] = [
+const INSTEAD_CARDS: [(&str, Instead); 22] = [
     ("GD01-122", Instead::Override),
     ("GD03-079", Instead::Substitution),
     ("GD03-104", Instead::Override),
@@ -460,6 +460,10 @@ const INSTEAD_CARDS: [(&str, Instead); 18] = [
     ("GD04-108", Instead::Override),
     ("GD05-089", Instead::Substitution),
     ("GD05-124", Instead::Substitution),
+    ("GD06-018", Instead::Substitution),
+    ("GD06-048", Instead::Override),
+    ("GD06-050", Instead::Override),
+    ("GD06-121", Instead::Override),
     ("ST02-016", Instead::Override),
     ("ST07-009", Instead::Override),
     ("ST08-013", Instead::Override),
@@ -500,7 +504,7 @@ fn w62_every_instead_text_maps_to_exactly_one_kind() {
         .iter()
         .filter(|(_, k)| *k == Instead::Substitution)
         .count();
-    assert_eq!((INSTEAD_CARDS.len() - subs, subs), (12, 6));
+    assert_eq!((INSTEAD_CARDS.len() - subs, subs), (15, 7));
     for (number, kind) in INSTEAD_CARDS {
         let (sub_rule, replacement, conditional) = instead_signature(&ir, number);
         match kind {
@@ -536,7 +540,7 @@ fn w62_every_instead_text_maps_to_exactly_one_kind() {
 /// of one family with the same distinction would be duplicates: the test rejects them unless
 /// they are declared aliases (identical bodies kept apart only for `repr`, which the engine
 /// dispatches to one body: `crates/gcg-engine/src/interp/hooks/mod.rs`, W-64).
-const HOOK_PURPOSES: [(&str, &str, &str); 34] = [
+const HOOK_PURPOSES: [(&str, &str, &str); 36] = [
     (
         "return_looked_bottom",
         "return looked cards",
@@ -650,6 +654,16 @@ const HOOK_PURPOSES: [(&str, &str, &str); 34] = [
         "wp_gd03_b_unique_names",
         "distinct card names",
         "GD03-089:Q240",
+    ),
+    (
+        "wp_gd06_a_name_unlike",
+        "a name unlike the chosen cards'",
+        "GD06-039",
+    ),
+    (
+        "wp_gd06_b_link_names",
+        "a link condition naming a Pilot",
+        "GD06-086",
     ),
 ];
 
@@ -968,7 +982,7 @@ fn w66_miscompile_scan_lists_zero_unreviewed_hits() {
         .iter()
         .filter(|c| s(c, "source") == "compiled")
         .count();
-    assert_eq!(compiled, 538, "the scan covers every compiled card");
+    assert_eq!(compiled, 607, "the scan covers every compiled card");
     for (number, _, test) in REVIEWED_HITS {
         let engine_tests = read("crates/gcg-engine/tests/p6k_behaviour.rs");
         assert!(

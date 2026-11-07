@@ -150,8 +150,8 @@ fn the_masking_touches_only_the_version_fields() {
     assert!(python.contains("\"results_schema\": \"1.1.0\""));
     assert!(rust.contains("\"results_schema\": \"1.2.0\""));
     let tampered = python.replacen(
-        "\"rules_version\": \"1.9.0\"",
-        "\"rules_version\": \"1.9.1\"",
+        "\"rules_version\": \"1.10.0\"",
+        "\"rules_version\": \"1.10.1\"",
         1,
     );
     assert_ne!(tampered, python);

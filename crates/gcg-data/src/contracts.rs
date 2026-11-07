@@ -48,8 +48,8 @@ pub const MAX_EXPANDED_CARDS: u128 = u16::MAX as u128;
 // ---------------------------------------------------------------------------------------------
 // Card model (cards/model.py)
 
-/// Index of a definition in [`CardDb`] order (`cards/db.py:119-158`): the 1152 real card
-/// numbers in code-point order, then synthetic `TOKEN:` defs, then Unit variants (1153 today).
+/// Index of a definition in [`CardDb`] order (`cards/db.py:119-158`): the 1290 real card
+/// numbers in code-point order, then synthetic `TOKEN:` defs, then Unit variants (1291 today).
 #[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Debug)]
 pub struct DefId(pub u16);
 
@@ -73,11 +73,13 @@ pub enum CardType {
     ExBase = 6,
     /// `EX_RESOURCE = "EX RESOURCE"`
     ExResource = 7,
+    /// `BASE_TOKEN = "BASE TOKEN"`
+    BaseToken = 8,
 }
 
 impl CardType {
     /// Declaration order.
-    pub const ALL: [Self; 8] = [
+    pub const ALL: [Self; 9] = [
         Self::Unit,
         Self::Pilot,
         Self::Command,
@@ -86,6 +88,7 @@ impl CardType {
         Self::UnitToken,
         Self::ExBase,
         Self::ExResource,
+        Self::BaseToken,
     ];
 
     /// The value string (`card_type.value`).
@@ -100,6 +103,7 @@ impl CardType {
             Self::UnitToken => "UNIT TOKEN",
             Self::ExBase => "EX BASE",
             Self::ExResource => "EX RESOURCE",
+            Self::BaseToken => "BASE TOKEN",
         }
     }
 
@@ -112,7 +116,10 @@ impl CardType {
     /// `is_token` (`cards/model.py:20-22`).
     #[must_use]
     pub const fn is_token(self) -> bool {
-        matches!(self, Self::UnitToken | Self::ExBase | Self::ExResource)
+        matches!(
+            self,
+            Self::UnitToken | Self::ExBase | Self::ExResource | Self::BaseToken
+        )
     }
 
     /// `is_unit` (`cards/model.py:24-26`).
@@ -124,7 +131,7 @@ impl CardType {
     /// `is_base` (`cards/model.py:28-30`).
     #[must_use]
     pub const fn is_base(self) -> bool {
-        matches!(self, Self::Base | Self::ExBase)
+        matches!(self, Self::Base | Self::ExBase | Self::BaseToken)
     }
 
     /// `is_resource` (`cards/model.py:32-34`).
@@ -642,7 +649,8 @@ mod tests {
                 "RESOURCE",
                 "UNIT TOKEN",
                 "EX BASE",
-                "EX RESOURCE"
+                "EX RESOURCE",
+                "BASE TOKEN"
             ]
         );
         for (i, t) in CardType::ALL.into_iter().enumerate() {
@@ -657,7 +665,17 @@ mod tests {
         let tokens: Vec<CardType> = CardType::ALL.into_iter().filter(|t| t.is_token()).collect();
         assert_eq!(
             tokens,
-            [CardType::UnitToken, CardType::ExBase, CardType::ExResource]
+            [
+                CardType::UnitToken,
+                CardType::ExBase,
+                CardType::ExResource,
+                CardType::BaseToken
+            ]
+        );
+        let bases: Vec<CardType> = CardType::ALL.into_iter().filter(|t| t.is_base()).collect();
+        assert_eq!(
+            bases,
+            [CardType::Base, CardType::ExBase, CardType::BaseToken]
         );
     }
 

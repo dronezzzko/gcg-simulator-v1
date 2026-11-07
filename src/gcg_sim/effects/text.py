@@ -12,6 +12,7 @@ import re
 from dataclasses import dataclass
 
 _WS = re.compile(r"[ \t　]+")
+_GLUED_KEYWORD = re.compile(r"(\w)<")
 
 
 def _is_reminder(inner: str) -> bool:
@@ -82,6 +83,7 @@ def normalize(text: str) -> str:
     t = t.replace("：", ":")
     t = re.sub(r"(\w)' (s|t|re|ll|ve|d)\b", r"\1'\2", t)
     t = t.replace("[Suppression]", "<Suppression>")
+    t = _GLUED_KEYWORD.sub(r"\1 <", t)
     t = strip_reminders(t)
     lines = []
     for raw in t.split("\n"):

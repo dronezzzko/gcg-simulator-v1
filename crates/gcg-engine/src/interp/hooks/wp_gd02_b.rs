@@ -6,7 +6,7 @@ use super::modified_cost;
 use crate::core::{self as core_};
 use crate::interp::by_of;
 use crate::interp::{pay_generic, to_uid, var_items};
-use crate::{EngineError, EvKey, GameState, HistKind, NO_ARG, Zone};
+use crate::{EngineError, EvKey, GameState, NO_ARG, Zone};
 
 /// `wp_gd02_b_pay_deploy_cost` (`wp_gd02_b.py:54-68`): "pay its cost to deploy it" (resolution
 /// ambiguous:pay-its-cost-to-deploy): the controller rests Resources equal to the first chosen
@@ -37,14 +37,7 @@ pub(super) fn pay_deploy_cost(
         return Ok(false);
     }
     if cost > 0 && host >= 0 {
-        core_::record(
-            st,
-            HistKind::CostPaid,
-            controller,
-            by_of(controller),
-            host,
-            NO_ARG,
-        );
+        core_::record_cost_paid(st, controller, by_of(controller), host, cost);
         let amount = crate::interp::to_i32(cost, "cost paid")?;
         core_::emit(
             st,

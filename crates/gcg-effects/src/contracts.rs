@@ -500,6 +500,10 @@ pub enum FilterParams {
     GD04aHasPartnerInTrash { r#trait: StrId },
     /// #30 `wp_gd05_b_can_pair` (`wp_gd05_b.py:106`).
     GD05bCanPair,
+    /// #35 `wp_gd06_a_name_unlike` (`wp_gd06_a.py:77`): `params["var"]` (a frame variable).
+    GD06aNameUnlike { var: VarId },
+    /// #36 `wp_gd06_b_link_names` (`wp_gd06_b.py:95`): `params["name"]` (a str).
+    GD06bLinkNames { name: StrId },
 }
 
 /// Typed `params` of a `CustomValue` (5 hooks).

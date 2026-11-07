@@ -1,4 +1,4 @@
-# Final evaluation 1 (shipped presets of commit 82b0b34)
+# Final evaluation 1 (shipped presets of rust-port at 82b0b34, squashed into commit 83a06c8)
 
 `standard` = 8x the reference `strong` budget with adaptive_horizon, capped_rollout_continuation,
 tactical_solver, exclude_capped_play_draw and engine_error_leaf; `fast` = 1.5x the reference

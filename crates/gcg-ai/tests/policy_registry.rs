@@ -94,7 +94,7 @@ fn card_worth_and_removal_match_python_for_every_definition() {
     let counts = recs.iter().find(|r| r["t"] == "counts").expect("counts");
     assert_eq!(cards, counts["cards"].as_u64().unwrap());
     assert_eq!(cards, db.len() as u64);
-    m.assert_none(3 * 1153);
+    m.assert_none(3 * 1291);
 }
 
 /// `command_harms_enemy_units` reads the Command's program; Python would index

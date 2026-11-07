@@ -508,6 +508,8 @@ def draw(st: GameState, p: int, n: int, *, by_effect: bool = False) -> int:
         core.move(st, uid, Zone.HAND)
         drawn += 1
         core.record(st, "draw", p, p, uid)
+        if by_effect:
+            core.record(st, "draw_by_effect", p, p, uid)
         core.emit(st, d.Ev.DRAWN, uid, player=p, group=group, by_effect=int(by_effect))
     return drawn
 
@@ -720,7 +722,10 @@ def _h_set_active(st: GameState, f: Frame, ins: d.SetActive) -> Status:
     for u in _refs(st, f, ins.ref):
         c = st.cards[u]
         if c.zone in (Zone.BATTLE, Zone.BASE, Zone.RESOURCE_AREA) and c.rested:
-            if V.rules_of(dv, u, d.RuleKind.CANT_BE_SET_ACTIVE):
+            if any(
+                V.side_allows(r.rule, c.owner, f.controller)
+                for r in V.rules_of(dv, u, d.RuleKind.CANT_BE_SET_ACTIVE)
+            ):
                 continue
             c.rested = False
             st.touch()
@@ -989,20 +994,49 @@ def _enter_rested(st: GameState, uids: list[int]) -> None:
 def _h_deploy_token(st: GameState, f: Frame, ins: d.DeployToken) -> Status:
     p = V.player_of(st, ctx_of(f), ins.player)
     batches = [(ins.token_key, _val(st, f, ins.count)), *ins.also]
-    n = sum(max(0, k) for _, k in batches)
-    if n <= 0:
+    db = V.reg().db
+    if ins.copy_of:
+        model = f.vars.get(ins.copy_of, ())
+        if not model:
+            f.did = False
+            return Status.NEXT
+        first = db.by_id(st.cards[model[0]].def_id)
+        tdefs = [first, *(db.token_for(token_spec(key)) for key, _ in ins.also)]
+    else:
+        tdefs = [db.token_for(token_spec(key)) for key, _ in batches]
+    n = sum(max(0, k) for (_, k), t in zip(batches, tdefs, strict=True) if not t.card_type.is_base)
+    n_bases = sum(
+        max(0, k) for (_, k), t in zip(batches, tdefs, strict=True) if t.card_type.is_base
+    )
+    if n + n_bases <= 0:
         f.did = False
         return Status.NEXT
-    ex_u, _ = _excess_needed(st, p, n, 0)
+    ex_u, ex_b = _excess_needed(st, p, n, n_bases)
     if ex_u and len(st.zones[p][Zone.BATTLE]) > 0:
         return _ask_excess(st, f, p, Zone.BATTLE, ())
+    if ex_b:  # a Base token replaces the Base in the base section (rule 5-17-2-1, GD06-129)
+        base = st.zones[p][Zone.BASE]
+        if len(base) == 1:
+            trash_excess(st, base[0])
+        else:
+            return _ask_excess(st, f, p, Zone.BASE, ())
     group = core.next_group(st)
     made: list[int] = []
-    for key, k in batches:
-        tdef = V.reg().db.token_for(token_spec(key))
-        for _ in range(max(0, min(k, core.BATTLE_LIMIT - len(made)))):
-            uid = core.new_card(st, tdef.def_id, p, Zone.BATTLE, rested=ins.rested)
+    units_made = 0
+    bases_made = 0
+    for (_, k), tdef in zip(batches, tdefs, strict=True):
+        if tdef.card_type.is_base:
+            room = core.BASE_LIMIT - bases_made
+        else:
+            room = core.BATTLE_LIMIT - units_made
+        for _ in range(max(0, min(k, room))):
+            zone = Zone.BASE if tdef.card_type.is_base else Zone.BATTLE
+            uid = core.new_card(st, tdef.def_id, p, zone, rested=ins.rested)
             made.append(uid)
+            if zone is Zone.BASE:
+                bases_made += 1
+            else:
+                units_made += 1
             core.record(st, "deployed", p, f.controller, uid)
     _enter_rested(st, made)
     for uid in made:
@@ -1563,7 +1597,7 @@ def _h_pay_cost(st: GameState, f: Frame, ins: d.PayCost) -> Status:
     p = V.player_of(st, ctx_of(f), ins.player)
     f.did = pay_generic(st, p, ins.amount)
     if f.did and ins.amount > 0 and f.host >= 0:
-        core.record(st, "cost_paid", p, p, f.host)
+        core.record_cost_paid(st, p, f.host, ins.amount)
         core.emit(st, d.Ev.COST_PAID, f.host, player=p, amount=ins.amount)
     return Status.NEXT
 

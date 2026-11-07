@@ -121,6 +121,8 @@ HOOK_NAMES = {
         "wp_gd04_a_has_printed_keyword": "GD04aHasPrintedKeyword",
         "wp_gd04_a_has_partner_in_trash": "GD04aHasPartnerInTrash",
         "wp_gd05_b_can_pair": "GD05bCanPair",
+        "wp_gd06_a_name_unlike": "GD06aNameUnlike",
+        "wp_gd06_b_link_names": "GD06bLinkNames",
     },
     "ValueHook": {
         "wp_gd03_a_ap_per": "GD03aApPer",

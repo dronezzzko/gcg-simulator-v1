@@ -1,5 +1,5 @@
 //! Rules engine of gcg-sim: `GameState` and its records, the derived view, the
-//! interpreter with resumable frames, the 34 custom hooks, battle, the step machine, legal
+//! interpreter with resumable frames, the 36 custom hooks, battle, the step machine, legal
 //! actions, observation (`determinize`, `information_set_key`), invariants and canonical JSON
 //! (docs/dev/PLAN.md §2.1, §4, §5.3-§5.5).
 //!

@@ -1817,7 +1817,7 @@ mod tests {
     #[test]
     fn python_snapshots_round_trip_byte_for_byte() {
         let t = registry();
-        assert_eq!(snapshots().len(), 69);
+        assert_eq!(snapshots().len(), 70);
         for rec in snapshots() {
             let id = rec["id"].as_str().unwrap();
             let python = to_json(&rec["state"]);

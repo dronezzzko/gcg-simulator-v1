@@ -304,9 +304,10 @@ pub const MAX_EXPANDED_CARDS: u128
     UnitToken = 5,
     ExBase = 6,
     ExResource = 7,
+    BaseToken = 8,
 }
 impl CardType {
-    pub const ALL: [Self; 8]
+    pub const ALL: [Self; 9]
     pub const fn as_str(self) -> &'static str
     pub fn from_value(value: &str) -> Option<Self>
     pub const fn is_token(self) -> bool
@@ -925,6 +926,8 @@ impl StepParams {
     GD04aHasPrintedKeyword,
     GD04aHasPartnerInTrash {r#trait: StrId},
     GD05bCanPair,
+    GD06aNameUnlike {var: VarId},
+    GD06bLinkNames {name: StrId},
 }
 #[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)] pub enum ValueParams {
     GD03aApPer {per: i64},
@@ -1105,12 +1108,13 @@ impl CardKind {
     ApCantBeReduced = 25,
     RedirectBattleDamage = 26,
     RestSubstitute = 27,
-    Custom = 28,
+    IncreaseDamage = 28,
+    Custom = 29,
 }
 impl RuleKind {
     pub const PY_CLASS: &'static str
-    pub const ALL: [Self; 29]
-    pub const SORTED_BY_VALUE: [Self; 29]
+    pub const ALL: [Self; 30]
+    pub const SORTED_BY_VALUE: [Self; 30]
     pub const fn as_str(self) -> &'static str
     pub const fn py_name(self) -> &'static str
     pub fn from_value(value: &str) -> Option<Self>
@@ -1270,9 +1274,11 @@ impl CondHook {
     GD04aHasPrintedKeyword = 6,
     GD04aHasPartnerInTrash = 7,
     GD05bCanPair = 8,
+    GD06aNameUnlike = 9,
+    GD06bLinkNames = 10,
 }
 impl FilterHook {
-    pub const ALL: [Self; 9]
+    pub const ALL: [Self; 11]
     pub const fn as_str(self) -> &'static str
     pub fn from_name(name: &str) -> Option<Self>
 }
@@ -1646,6 +1652,7 @@ impl ValueHook {
     pub player: P,
     pub var: VarId,
     pub also: Box<[(StrId, i64)]>,
+    pub copy_of: StrId,
 }
 #[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)] pub struct PlaceExResource {
     pub player: P,
@@ -2814,19 +2821,21 @@ impl EndReason {
     DestroysByBattlePaired = 9,
     Discard = 10,
     Draw = 11,
-    ExExiled = 12,
-    ExResource = 13,
-    Excess = 14,
-    Paired = 15,
-    Play = 16,
-    PlayedWithEx = 17,
-    PlayerDamage = 18,
-    ResourceSetActive = 19,
-    ShieldDestroyed = 20,
-    ShieldToHand = 21,
+    DrawByEffect = 12,
+    ExExiled = 13,
+    ExResource = 14,
+    Excess = 15,
+    Paired = 16,
+    Play = 17,
+    PlayedWithEx = 18,
+    PlayerDamage = 19,
+    ResourcePaid = 20,
+    ResourceSetActive = 21,
+    ShieldDestroyed = 22,
+    ShieldToHand = 23,
 }
 impl HistKind {
-    pub const ALL: [Self; 22]
+    pub const ALL: [Self; 24]
     pub const fn as_str(self) -> &'static str
     pub fn from_value(value: &str) -> Option<Self>
 }
@@ -3199,7 +3208,7 @@ impl OnceKey {
 ## gcg_engine::view  [crates/gcg-engine/src/view/mod.rs]
 pub use derived::{derived, same_values, trigger_index}
 pub use eval::{matches, stat}
-pub use query::{abilities_of, ap_of, cost_of, has_kw, hp_of, is_linked, keywords, kw_amount, level_of, link_satisfied, link_satisfied_unpatched, names_of, play_cost, play_level, rules_all, rules_of, traits_of, traits_present}
+pub use query::{abilities_of, ap_of, cost_of, has_kw, hp_of, is_linked, keywords, kw_amount, level_of, link_satisfied, link_satisfied_unpatched, names_of, play_cost, play_level, rules_all, rules_of, side_allows, traits_of, traits_present}
 pub use signature::signature
 impl Ctx {
     pub fn new(controller: u8, host: i32, card_uid: i32, vars: CtxVars, event: EventPayload) -> Ctx
@@ -3242,6 +3251,7 @@ pub fn kw_amount(dv: &Derived, uid: Uid, kw: Kw) -> i32
 pub fn traits_of<'a>(st: &'a GameState, dv: &'a Derived, uid: Uid) -> Traits<'a>
 pub fn traits_present(dv: &Derived, uid: Uid) -> Option<Traits<'_>>
 pub fn rules_of(dv: &Derived, uid: Uid, kind: RuleKind) -> impl Iterator<Item = &RuleInst> + '_
+pub fn side_allows(rule: &gcg_effects::RuleMod, owner: u8, by: i32) -> bool
 pub fn rules_all(dv: &Derived, uid: Uid) -> &[RuleInst]
 pub fn is_linked(dv: &Derived, uid: Uid) -> bool
 pub fn abilities_of(dv: &Derived, uid: Uid) -> &[AbilityId]

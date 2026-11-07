@@ -1,4 +1,4 @@
-//! The 21 pure custom hooks (PLAN §5.3): 7 conds, 9 filters and 5 values that
+//! The 23 pure custom hooks (PLAN §5.3): 7 conds, 11 filters and 5 values that
 //! the binding modules register in `view.CUSTOM_CONDS`, `CUSTOM_FILTERS` and `CUSTOM_VALUES`
 //! (`engine/view.py:112-118`). Python calls them with `dict(params)` (`view.py:781`, `:882`,
 //! `:933`); the registry decodes those parameters once at load (last key wins) into
@@ -7,6 +7,7 @@
 use gcg_core::pymath::floordiv;
 use gcg_effects::{
     CondId, CondParams, Ev, FilterParams, HookParams, Node, NodeId, SelId, StrId, ValueParams,
+    VarId,
 };
 
 use super::eval::{cond as eval_cond, select, stat};
@@ -74,6 +75,8 @@ pub(crate) fn filter(
             Ok(has_partner_in_trash(st, uid, r#trait))
         }
         FilterParams::GD05bCanPair => Ok(crate::interp::can_pair(st, dv, uid)),
+        FilterParams::GD06aNameUnlike { var } => name_unlike(st, ctx, uid, var),
+        FilterParams::GD06bLinkNames { name } => Ok(link_names(st, uid, name)),
     }
 }
 
@@ -303,6 +306,28 @@ fn has_partner_in_trash(st: &GameState, uid: Uid, r#trait: StrId) -> bool {
     st.zone(st.card(uid).owner, Zone::Trash)
         .iter()
         .any(|&u| u != uid && st.def_of(u).traits.iter().any(|x| **x == *t))
+}
+
+/// #35 `wp_gd06_a_name_unlike` (`effects/bindings/wp_gd06_a.py:77-85`): the card's name differs
+/// from the name of every card bound to the frame variable `var` ("with unique card names").
+fn name_unlike(st: &GameState, ctx: &Ctx, uid: Uid, var: VarId) -> Result<bool, EngineError> {
+    let name = &*st.def_of(uid).name;
+    for &x in ctx.var(st, var)? {
+        if *st.def_of(uid_of(st, x)?).name == *name {
+            return Ok(false);
+        }
+    }
+    Ok(true)
+}
+
+/// #36 `wp_gd06_b_link_names` (`effects/bindings/wp_gd06_b.py:95-103`): the Unit's link condition
+/// names the Pilot `name` ("a Unit with the [Mashymre Cello] link condition").
+fn link_names(st: &GameState, uid: Uid, name: StrId) -> bool {
+    let n = st.registry().str(name);
+    st.def_of(uid)
+        .link
+        .as_ref()
+        .is_some_and(|l| l.name_parts.iter().any(|p| **p == *n))
 }
 
 // ---------------------------------------------------------------------------------------------

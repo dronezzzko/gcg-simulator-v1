@@ -28,7 +28,7 @@ DEFAULT_DATA_DIR = REPO_ROOT / "src" / "gcg_sim" / "data" / "gcgapi"
 DEFAULT_OUT = REPO_ROOT / "docs" / "research" / "data_profile.json"
 
 UPSTREAM_REPO = "yzRobo/gcg-api"
-PINNED_COMMIT = "f57b7c0b0ebc4c13d359649de19750c793ecbefc"
+PINNED_COMMIT = "78a64df3519cb6c773b3d2f4a8ecad14d8096b0e"
 RAW_BASE = f"https://raw.githubusercontent.com/{UPSTREAM_REPO}/{PINNED_COMMIT}/"
 
 PACKAGED_FILES: dict[str, str] = {

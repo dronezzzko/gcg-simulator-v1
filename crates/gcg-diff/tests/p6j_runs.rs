@@ -1,7 +1,8 @@
 //! P6-J run-level evidence (docs/dev/PLAN.md §12.2 P6-J; docs/dev/eval/weakness-status/P6-J.md):
 //!
 //! - W-143 e2e: a `test-random` benchmark whose players build the two-GD04-095 redirect cycle
-//!   fails with exit status 1 (`CliError`) and writes no report, as Python's does.
+//!   completes and writes every report, as Python's does (each redirection applies once per
+//!   damage, ruling GD06-018:Q494).
 //! - W-46, W-47, W-48, W-54, W-162 over Python's fuzz games: the games of `python -m
 //!   gcg_sim.tools.fuzz --seed 2026` (decks `deck_for`, seeds `fuzz-game`/`fuzz-agent`, uniform
 //!   random choices, `tools/fuzz.py:47-120`), each checked against Python's per-game row
@@ -96,35 +97,15 @@ fn run_minerva(matches: u32, out: &std::path::Path) -> (Result<(), CliError>, St
 
 /// The run `gcg-eval reference-benchmark minerva.txt minerva.txt --agent test-random --format
 /// bo1 --matches 47 --seed 4 --workers 1` makes (its `--agent test-random` is Python's
-/// `GCG_SIM_AGENT_FACTORY` hook, T-073): match 46 reaches the cycle, the run fails with the
-/// CLI's `simulation failed` error (printed as `error: ...`, exit 1), and no report is
-/// written. Python, the same decks and options with
-/// `GCG_SIM_AGENT_FACTORY=tests/runner/random_agent.py:make_random_agent gcg-sim benchmark`:
-///
-/// ```text
-/// error: simulation failed: match 46 game 1 (seed 13255759802130423377) failed: RecursionError: maximum recursion depth exceeded
-/// (exit 1, no report directory)
-/// ```
-///
-/// Only the exception text differs (W-143's resolution plan). With 46 matches the same run
-/// completes and writes every report (the control).
+/// `GCG_SIM_AGENT_FACTORY` hook, T-073): match 46 reaches the two-Lunamaria redirect cycle.
+/// Each redirection applies once per damage (ruling GD06-018:Q494), so the cycle resolves and
+/// the run writes every report, as Python's does with the same decks and options
+/// (`GCG_SIM_AGENT_FACTORY=tests/runner/random_agent.py:make_random_agent gcg-sim benchmark`,
+/// exit 0). Before the 2026-11-06 refresh both failed the run (W-143).
 #[test]
-fn w143_a_benchmark_that_builds_the_cycle_fails_without_reports() {
+fn w143_a_benchmark_that_builds_the_cycle_completes() {
     let out = PathBuf::from(env!("CARGO_TARGET_TMPDIR")).join("p6j_w143/out");
-    let (result, stdout) = run_minerva(47, &out);
-    let Err(CliError::Invalid(message)) = result else {
-        panic!("the run must fail: {result:?}");
-    };
-    assert_eq!(
-        message.to_string_opt().expect("UTF-8"),
-        "simulation failed: match 46 game 1 (seed 13255759802130423377) failed: \
-         RecursionError: battle damage redirect cycle through units [55, 96, 55]"
-    );
-    assert!(stdout.is_empty(), "{stdout}");
-    for name in REPORTS {
-        assert!(!out.join(name).exists(), "{name} was written");
-    }
-    let (result, _) = run_minerva(46, &out);
+    let (result, _) = run_minerva(47, &out);
     assert_eq!(result, Ok(()));
     for name in REPORTS {
         assert!(out.join(name).exists(), "{name} is missing");

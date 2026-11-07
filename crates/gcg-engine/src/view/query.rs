@@ -171,6 +171,18 @@ pub fn rules_of(dv: &Derived, uid: Uid, kind: RuleKind) -> impl Iterator<Item = 
         .filter_map(move |(r, &k)| (k == kind).then_some(r))
 }
 
+/// `side_allows(rule, owner, by)` (`engine/view.py`): whether a rule limited to effects of
+/// `source_side` (relative to the affected card's `owner`) covers an action of player `by`;
+/// `by < 0` is no effect at all (the start-phase untap).
+#[must_use]
+pub fn side_allows(rule: &gcg_effects::RuleMod, owner: u8, by: i32) -> bool {
+    match rule.source_side {
+        gcg_effects::Side::Any => true,
+        _ if by < 0 => false,
+        side => (by != i32::from(owner)) == (side == gcg_effects::Side::Enemy),
+    }
+}
+
 /// `dv.rules.get(uid, ())` (`ai/actions.py:360`).
 #[must_use]
 pub fn rules_all(dv: &Derived, uid: Uid) -> &[RuleInst] {
